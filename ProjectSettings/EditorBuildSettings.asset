@@ -14,5 +14,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/TuuQuan.unity
     guid: d0c85a0179993804ea82fe375ca691d5
+  - enabled: 1
+    path: Assets/BenTau.unity
+    guid: ce6ce1ebe3999934d854c9d9c2f12624
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
