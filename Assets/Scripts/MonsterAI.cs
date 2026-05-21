@@ -20,13 +20,32 @@ public class MonsterAI : MonoBehaviour
     [Header("===== DI CHUYỂN =====")]
 
     public float moveSpeed = 2f;
-    // Tốc độ di chuyển
 
     public float roamRadius = 3f;
-    // Bán kính đi quanh
 
     public float waitTime = 2f;
-    // Thời gian đứng nghỉ
+
+    [Header("===== PLAYER =====")]
+
+    public float detectRange = 6f;
+
+    public float attackRange = 1.5f;
+
+    Transform player;
+
+    [Header("===== TẤN CÔNG =====")]
+
+    public float attackCooldown = 2f;
+
+    float attackTimer;
+
+    bool isAttacking = false;
+
+    [Header("===== FIREBALL =====")]
+
+    public GameObject fireballPrefab;
+
+    public Transform firePoint;
 
     [Header("===== ANIMATION =====")]
 
@@ -35,46 +54,74 @@ public class MonsterAI : MonoBehaviour
     Animator animator;
 
     Vector2 startPosition;
-    // Vị trí spawn ban đầu
 
     Vector2 targetPosition;
-    // Điểm sẽ đi tới
 
     bool hasTarget = false;
 
     float waitTimer;
 
+    bool isDead = false;
+
     void Start()
     {
-        // Máu hiện tại
         currentHP =
             maxHP;
 
-        // Animator
         animator =
             GetComponent<Animator>();
 
-        // Lưu vị trí spawn
         startPosition =
             transform.position;
 
         waitTimer =
             waitTime;
+
+        GameObject playerObject =
+            GameObject.FindGameObjectWithTag(
+                "Player");
+
+        if (playerObject != null)
+        {
+            player =
+                playerObject.transform;
+        }
     }
 
     void Update()
     {
+        if (isDead)
+        {
+            return;
+        }
+
+        attackTimer -= Time.deltaTime;
+
+        if (player != null)
+        {
+            float distanceToPlayer =
+                Vector2.Distance(
+                    transform.position,
+                    player.position);
+
+            if (distanceToPlayer <= detectRange)
+            {
+                FollowPlayer(
+                    distanceToPlayer);
+
+                return;
+            }
+        }
+
         Patrol();
     }
 
     void Patrol()
     {
-        // Nếu chưa có điểm đi
         if (!hasTarget)
         {
             waitTimer -= Time.deltaTime;
 
-            // Idle animation
             if (animator != null &&
                 useAnimation)
             {
@@ -83,7 +130,6 @@ public class MonsterAI : MonoBehaviour
                     false);
             }
 
-            // Hết thời gian nghỉ
             if (waitTimer <= 0)
             {
                 ChooseNewPoint();
@@ -92,7 +138,6 @@ public class MonsterAI : MonoBehaviour
             return;
         }
 
-        // Tính hướng tới điểm
         Vector2 direction =
             targetPosition -
             (Vector2)transform.position;
@@ -100,7 +145,6 @@ public class MonsterAI : MonoBehaviour
         float distance =
             direction.magnitude;
 
-        // Nếu tới nơi
         if (distance < 0.1f)
         {
             hasTarget = false;
@@ -108,7 +152,6 @@ public class MonsterAI : MonoBehaviour
             waitTimer =
                 waitTime;
 
-            // Idle animation
             if (animator != null &&
                 useAnimation)
             {
@@ -120,18 +163,15 @@ public class MonsterAI : MonoBehaviour
             return;
         }
 
-        // Chuẩn hóa hướng
         direction =
             direction.normalized;
 
-        // Di chuyển
         transform.position +=
             (Vector3)(
             direction *
             moveSpeed *
             Time.deltaTime);
 
-        // Walk animation
         if (animator != null &&
             useAnimation)
         {
@@ -140,13 +180,118 @@ public class MonsterAI : MonoBehaviour
                 true);
         }
 
-        // Quay mặt
         FaceDirection(direction);
+    }
+
+    void FollowPlayer(float distance)
+    {
+        if (isAttacking)
+        {
+            return;
+        }
+
+        Vector2 direction =
+            player.position -
+            transform.position;
+
+        FaceDirection(direction);
+
+        if (distance > attackRange)
+        {
+            transform.position +=
+                (Vector3)(
+                direction.normalized *
+                moveSpeed *
+                Time.deltaTime);
+
+            if (animator != null &&
+                useAnimation)
+            {
+                animator.SetBool(
+                    "isMoving",
+                    true);
+            }
+        }
+        else
+        {
+            if (animator != null &&
+                useAnimation)
+            {
+                animator.SetBool(
+                    "isMoving",
+                    false);
+            }
+
+            if (attackTimer <= 0)
+            {
+                Attack();
+            }
+        }
+    }
+
+    void Attack()
+    {
+        attackTimer =
+            attackCooldown;
+
+        isAttacking = true;
+
+        if (animator != null &&
+            useAnimation)
+        {
+            animator.SetTrigger(
+                "attack");
+        }
+
+        Invoke(
+            nameof(EndAttack),
+            1f);
+    }
+
+    void EndAttack()
+    {
+        isAttacking = false;
+    }
+
+    public void ShootFireball()
+    {
+        if (fireballPrefab == null)
+        {
+            return;
+        }
+
+        if (firePoint == null)
+        {
+            return;
+        }
+
+        if (player == null)
+        {
+            return;
+        }
+
+        GameObject fireball =
+            Instantiate(
+                fireballPrefab,
+                firePoint.position,
+                Quaternion.identity);
+
+        Vector2 direction =
+            player.position -
+            firePoint.position;
+
+        Fireball fb =
+            fireball.GetComponent<Fireball>();
+
+        if (fb != null)
+        {
+            fb.SetDirection(
+                direction);
+        }
     }
 
     void ChooseNewPoint()
     {
-        // Random điểm trong vòng tròn
         Vector2 randomPoint =
             Random.insideUnitCircle *
             roamRadius;
@@ -160,7 +305,6 @@ public class MonsterAI : MonoBehaviour
 
     void FaceDirection(Vector2 direction)
     {
-        // Quay trái phải
         if (direction.x < 0)
         {
             transform.localScale =
@@ -173,12 +317,15 @@ public class MonsterAI : MonoBehaviour
         }
     }
 
-    // Bị đánh
     public void TakeDamage(int damageAmount)
     {
+        if (isDead)
+        {
+            return;
+        }
+
         currentHP -= damageAmount;
 
-        // Animation hurt
         if (animator != null &&
             useAnimation)
         {
@@ -186,7 +333,6 @@ public class MonsterAI : MonoBehaviour
                 "hurt");
         }
 
-        // Chết
         if (currentHP <= 0)
         {
             Die();
@@ -195,7 +341,8 @@ public class MonsterAI : MonoBehaviour
 
     void Die()
     {
-        // Animation chết
+        isDead = true;
+
         if (animator != null &&
             useAnimation)
         {
@@ -206,13 +353,11 @@ public class MonsterAI : MonoBehaviour
         Destroy(gameObject, 2f);
     }
 
-    // SmartNpcAI dùng
     public int GetRealmPower()
     {
         return maxHP;
     }
 
-    // Vẽ vòng đỏ trong editor
     void OnDrawGizmosSelected()
     {
         Gizmos.color =
@@ -223,5 +368,12 @@ public class MonsterAI : MonoBehaviour
             ? startPosition
             : (Vector2)transform.position,
             roamRadius);
+
+        Gizmos.color =
+            Color.white;
+
+        Gizmos.DrawWireSphere(
+            transform.position,
+            detectRange);
     }
 }
