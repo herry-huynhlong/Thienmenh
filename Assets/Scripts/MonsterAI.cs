@@ -2,236 +2,248 @@ using UnityEngine;
 
 public class MonsterAI : MonoBehaviour
 {
-    [Header("Thông tin quái")]
-    public string monsterName = "Yêu Thú";
-
-    [Header("Cảnh giới")]
-    public CultivationRealm realm = CultivationRealm.QiRefining;
-
-    [Range(1, 9)]
-    public int realmStage = 1;
+    [Header("Thông tin")]
+    public string monsterName =
+        "Fire Dragon";
 
     [Header("Máu")]
     public int maxHP = 100;
-    public int currentHP = 100;
 
-    [Header("Chiến đấu")]
-    public int attack = 10;
-    public int defense = 5;
+    public int currentHP;
 
-    [Header("AI")]
-    public bool aggressive = true;
-
+    [Header("Di chuyển")]
     public float moveSpeed = 2f;
+
+    public float detectRange = 6f;
 
     public float attackRange = 1.5f;
 
-    public float attackCooldown = 1.2f;
+    [Header("Tuần tra")]
+    public float roamRadius = 5f;
 
-    public float maxRoamDistance = 8f;
+    public float roamWaitTime = 2f;
 
-    public float chaseDistance = 6f;
+    Vector2 spawnPosition;
 
-    private float attackTimer = 0;
+    Vector2 roamTarget;
 
-    private Rigidbody2D rb;
+    float roamTimer;
 
-    private SmartNpcAI currentNpcTarget;
+    bool hasRoamTarget = false;
 
-    private Vector3 spawnPosition;
+    [Header("Tấn công")]
+    public float attackCooldown = 1.5f;
 
-    [Header("Rơi vật phẩm")]
-    public int moneyDrop = 10;
+    float attackTimer;
 
-    public int spiritStoneDrop = 1;
+    bool isAttacking = false;
 
-    [Range(0f, 1f)]
-    public float pillDropChance = 0.2f;
+    bool isDead = false;
+
+    Animator animator;
+
+    Transform player;
+
+    Rigidbody2D rb;
 
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
+        currentHP = maxHP;
 
-        spawnPosition = transform.position;
+        animator =
+            GetComponent<Animator>();
 
-        ApplyRealmPower();
+        rb =
+            GetComponent<Rigidbody2D>();
+
+        spawnPosition =
+            transform.position;
+
+        GameObject playerObject =
+            GameObject.FindGameObjectWithTag(
+                "Player");
+
+        if (playerObject != null)
+        {
+            player =
+                playerObject.transform;
+        }
     }
 
     void Update()
     {
-        attackTimer += Time.deltaTime;
-
-        SearchNpc();
-
-        TryAttackNpc();
-    }
-
-    void FixedUpdate()
-    {
-        MoveToTarget();
-    }
-
-    void MoveToTarget()
-    {
-        if (currentNpcTarget == null)
+        if (isDead)
         {
-            ReturnToSpawn();
-
             return;
         }
 
-        float distanceFromSpawn =
+        attackTimer -= Time.deltaTime;
+
+        if (player == null)
+        {
+            Patrol();
+            return;
+        }
+
+        float distanceToPlayer =
+            Vector2.Distance(
+                transform.position,
+                player.position);
+
+        float distanceFromHome =
             Vector2.Distance(
                 transform.position,
                 spawnPosition);
 
-        if (distanceFromSpawn > maxRoamDistance)
+        if (distanceToPlayer <= detectRange &&
+            distanceFromHome <= roamRadius * 1.5f)
         {
-            currentNpcTarget = null;
+            FollowPlayer(distanceToPlayer);
+        }
+        else
+        {
+            Patrol();
+        }
+    }
 
-            ReturnToSpawn();
-
+    void Patrol()
+    {
+        if (isAttacking)
+        {
             return;
         }
 
-        Vector2 direction =
-            (currentNpcTarget.transform.position -
-            transform.position).normalized;
+        roamTimer -= Time.deltaTime;
 
-        rb.linearVelocity =
-            direction * moveSpeed;
-    }
-
-    void ReturnToSpawn()
-    {
-        float distance =
-            Vector2.Distance(
-                transform.position,
-                spawnPosition);
-
-        if (distance < 0.5f)
+        if (!hasRoamTarget ||
+            roamTimer <= 0)
         {
-            rb.linearVelocity = Vector2.zero;
-
-            return;
+            ChooseNewRoamPoint();
         }
 
-        Vector2 direction =
-            (spawnPosition - transform.position).normalized;
-
-        rb.linearVelocity =
-            direction * moveSpeed;
-    }
-
-    void SearchNpc()
-    {
-        SmartNpcAI[] npcs =
-            FindObjectsOfType<SmartNpcAI>();
-
-        float closestDistance =
-            Mathf.Infinity;
-
-        SmartNpcAI bestTarget = null;
-
-        foreach (SmartNpcAI npc in npcs)
-        {
-            if (npc.currentHP <= 0)
-            {
-                continue;
-            }
-
-            float distanceFromSpawn =
-                Vector2.Distance(
-                    spawnPosition,
-                    npc.transform.position);
-
-            if (distanceFromSpawn > chaseDistance)
-            {
-                continue;
-            }
-
-            float distance =
-                Vector2.Distance(
-                    transform.position,
-                    npc.transform.position);
-
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-
-                bestTarget = npc;
-            }
-        }
-
-        currentNpcTarget = bestTarget;
-    }
-
-    void TryAttackNpc()
-    {
-        if (currentNpcTarget == null)
-        {
-            return;
-        }
+        MoveTo(roamTarget);
 
         float distance =
             Vector2.Distance(
                 transform.position,
-                currentNpcTarget.transform.position);
+                roamTarget);
+
+        if (distance < 0.3f)
+        {
+            hasRoamTarget = false;
+
+            rb.linearVelocity =
+                Vector2.zero;
+        }
+    }
+
+    void ChooseNewRoamPoint()
+    {
+        Vector2 randomPoint =
+            Random.insideUnitCircle *
+            roamRadius;
+
+        roamTarget =
+            spawnPosition +
+            randomPoint;
+
+        roamTimer =
+            roamWaitTime;
+
+        hasRoamTarget = true;
+    }
+
+    void FollowPlayer(float distance)
+    {
+        if (isAttacking)
+        {
+            rb.linearVelocity =
+                Vector2.zero;
+
+            return;
+        }
+
+        FaceTarget(player.position);
 
         if (distance > attackRange)
         {
-            return;
+            MoveTo(player.position);
         }
-
-        if (attackTimer < attackCooldown)
+        else
         {
-            return;
+            rb.linearVelocity =
+                Vector2.zero;
+
+            if (attackTimer <= 0)
+            {
+                Attack();
+            }
         }
-
-        attackTimer = 0;
-
-        currentNpcTarget.TakeDamage(attack);
-
-        Debug.Log(
-            monsterName +
-            " tấn công " +
-            currentNpcTarget.npcName);
     }
 
-    public int GetRealmPower()
+    void MoveTo(Vector2 target)
     {
-        return ((int)realm * 10) + realmStage;
+        Vector2 direction =
+            (target -
+            (Vector2)transform.position)
+            .normalized;
+
+        rb.linearVelocity =
+            direction *
+            moveSpeed;
+
+        FaceTarget(target);
     }
 
-    void ApplyRealmPower()
+    void Attack()
     {
-        int power = GetRealmPower();
+        attackTimer =
+            attackCooldown;
 
-        maxHP = 80 + power * 45;
+        isAttacking = true;
 
-        currentHP = maxHP;
+        rb.linearVelocity =
+            Vector2.zero;
 
-        attack = 8 + power * 9;
+        animator.SetTrigger(
+            "attack");
 
-        defense = 4 + power * 5;
+        Invoke(
+            nameof(EndAttack),
+            0.8f);
+    }
+
+    void EndAttack()
+    {
+        isAttacking = false;
+    }
+
+    void FaceTarget(Vector2 target)
+    {
+        if (target.x <
+            transform.position.x)
+        {
+            transform.localScale =
+                new Vector3(-1, 1, 1);
+        }
+        else
+        {
+            transform.localScale =
+                new Vector3(1, 1, 1);
+        }
     }
 
     public void TakeDamage(int damage)
     {
-        int finalDamage = damage - defense;
-
-        if (finalDamage < 1)
+        if (isDead)
         {
-            finalDamage = 1;
+            return;
         }
 
-        currentHP -= finalDamage;
+        currentHP -= damage;
 
-        Debug.Log(
-            monsterName +
-            " nhận " +
-            finalDamage +
-            " sát thương.");
+        animator.SetTrigger(
+            "hurt");
 
         if (currentHP <= 0)
         {
@@ -241,22 +253,37 @@ public class MonsterAI : MonoBehaviour
 
     void Die()
     {
-        Debug.Log(monsterName + " đã chết.");
+        isDead = true;
 
-        DropReward();
+        rb.linearVelocity =
+            Vector2.zero;
 
-        Destroy(gameObject);
+        animator.SetBool(
+            "isDead",
+            true);
+
+        Destroy(gameObject, 3f);
     }
 
-    void DropReward()
+    public int GetRealmPower()
     {
-        Debug.Log(monsterName + " rơi " + moneyDrop + " tiền.");
+        return maxHP;
+    }
 
-        int random = Random.Range(0, 100);
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.white;
 
-        if (random <= pillDropChance * 100)
-        {
-            Debug.Log(monsterName + " rơi đan dược.");
-        }
+        Gizmos.DrawWireSphere(
+            transform.position,
+            detectRange);
+
+        Gizmos.color = Color.red;
+
+        Gizmos.DrawWireSphere(
+            Application.isPlaying
+            ? spawnPosition
+            : (Vector2)transform.position,
+            roamRadius);
     }
 }
