@@ -2,249 +2,191 @@ using UnityEngine;
 
 public class MonsterAI : MonoBehaviour
 {
-    [Header("Thông tin")]
-    public string monsterName =
-        "Fire Dragon";
+    [Header("===== THÔNG TIN =====")]
 
-    [Header("Máu")]
+    public string monsterName =
+        "Yêu Thú";
+
+    [Header("===== MÁU =====")]
+
     public int maxHP = 100;
 
-    public int currentHP;
+    public int currentHP = 100;
 
-    [Header("Di chuyển")]
+    [Header("===== DAMAGE =====")]
+
+    public int damage = 10;
+
+    [Header("===== DI CHUYỂN =====")]
+
     public float moveSpeed = 2f;
+    // Tốc độ di chuyển
 
-    public float detectRange = 6f;
+    public float roamRadius = 3f;
+    // Bán kính đi quanh
 
-    public float attackRange = 1.5f;
+    public float waitTime = 2f;
+    // Thời gian đứng nghỉ
 
-    [Header("Tuần tra")]
-    public float roamRadius = 5f;
+    [Header("===== ANIMATION =====")]
 
-    public float roamWaitTime = 2f;
-
-    Vector2 spawnPosition;
-
-    Vector2 roamTarget;
-
-    float roamTimer;
-
-    bool hasRoamTarget = false;
-
-    [Header("Tấn công")]
-    public float attackCooldown = 1.5f;
-
-    float attackTimer;
-
-    bool isAttacking = false;
-
-    bool isDead = false;
+    public bool useAnimation = true;
 
     Animator animator;
 
-    Transform player;
+    Vector2 startPosition;
+    // Vị trí spawn ban đầu
 
-    Rigidbody2D rb;
+    Vector2 targetPosition;
+    // Điểm sẽ đi tới
+
+    bool hasTarget = false;
+
+    float waitTimer;
 
     void Start()
     {
-        currentHP = maxHP;
+        // Máu hiện tại
+        currentHP =
+            maxHP;
 
+        // Animator
         animator =
             GetComponent<Animator>();
 
-        rb =
-            GetComponent<Rigidbody2D>();
-
-        spawnPosition =
+        // Lưu vị trí spawn
+        startPosition =
             transform.position;
 
-        GameObject playerObject =
-            GameObject.FindGameObjectWithTag(
-                "Player");
-
-        if (playerObject != null)
-        {
-            player =
-                playerObject.transform;
-        }
+        waitTimer =
+            waitTime;
     }
 
     void Update()
     {
-        if (isDead)
-        {
-            return;
-        }
-
-        attackTimer -= Time.deltaTime;
-
-        if (player == null)
-        {
-            Patrol();
-            return;
-        }
-
-        float distanceToPlayer =
-            Vector2.Distance(
-                transform.position,
-                player.position);
-
-        float distanceFromHome =
-            Vector2.Distance(
-                transform.position,
-                spawnPosition);
-
-        if (distanceToPlayer <= detectRange &&
-            distanceFromHome <= roamRadius * 1.5f)
-        {
-            FollowPlayer(distanceToPlayer);
-        }
-        else
-        {
-            Patrol();
-        }
+        Patrol();
     }
 
     void Patrol()
     {
-        if (isAttacking)
+        // Nếu chưa có điểm đi
+        if (!hasTarget)
         {
+            waitTimer -= Time.deltaTime;
+
+            // Idle animation
+            if (animator != null &&
+                useAnimation)
+            {
+                animator.SetBool(
+                    "isMoving",
+                    false);
+            }
+
+            // Hết thời gian nghỉ
+            if (waitTimer <= 0)
+            {
+                ChooseNewPoint();
+            }
+
             return;
         }
 
-        roamTimer -= Time.deltaTime;
-
-        if (!hasRoamTarget ||
-            roamTimer <= 0)
-        {
-            ChooseNewRoamPoint();
-        }
-
-        MoveTo(roamTarget);
+        // Tính hướng tới điểm
+        Vector2 direction =
+            targetPosition -
+            (Vector2)transform.position;
 
         float distance =
-            Vector2.Distance(
-                transform.position,
-                roamTarget);
+            direction.magnitude;
 
-        if (distance < 0.3f)
+        // Nếu tới nơi
+        if (distance < 0.1f)
         {
-            hasRoamTarget = false;
+            hasTarget = false;
 
-            rb.linearVelocity =
-                Vector2.zero;
+            waitTimer =
+                waitTime;
+
+            // Idle animation
+            if (animator != null &&
+                useAnimation)
+            {
+                animator.SetBool(
+                    "isMoving",
+                    false);
+            }
+
+            return;
         }
+
+        // Chuẩn hóa hướng
+        direction =
+            direction.normalized;
+
+        // Di chuyển
+        transform.position +=
+            (Vector3)(
+            direction *
+            moveSpeed *
+            Time.deltaTime);
+
+        // Walk animation
+        if (animator != null &&
+            useAnimation)
+        {
+            animator.SetBool(
+                "isMoving",
+                true);
+        }
+
+        // Quay mặt
+        FaceDirection(direction);
     }
 
-    void ChooseNewRoamPoint()
+    void ChooseNewPoint()
     {
+        // Random điểm trong vòng tròn
         Vector2 randomPoint =
             Random.insideUnitCircle *
             roamRadius;
 
-        roamTarget =
-            spawnPosition +
+        targetPosition =
+            startPosition +
             randomPoint;
 
-        roamTimer =
-            roamWaitTime;
-
-        hasRoamTarget = true;
+        hasTarget = true;
     }
 
-    void FollowPlayer(float distance)
+    void FaceDirection(Vector2 direction)
     {
-        if (isAttacking)
-        {
-            rb.linearVelocity =
-                Vector2.zero;
-
-            return;
-        }
-
-        FaceTarget(player.position);
-
-        if (distance > attackRange)
-        {
-            MoveTo(player.position);
-        }
-        else
-        {
-            rb.linearVelocity =
-                Vector2.zero;
-
-            if (attackTimer <= 0)
-            {
-                Attack();
-            }
-        }
-    }
-
-    void MoveTo(Vector2 target)
-    {
-        Vector2 direction =
-            (target -
-            (Vector2)transform.position)
-            .normalized;
-
-        rb.linearVelocity =
-            direction *
-            moveSpeed;
-
-        FaceTarget(target);
-    }
-
-    void Attack()
-    {
-        attackTimer =
-            attackCooldown;
-
-        isAttacking = true;
-
-        rb.linearVelocity =
-            Vector2.zero;
-
-        animator.SetTrigger(
-            "attack");
-
-        Invoke(
-            nameof(EndAttack),
-            0.8f);
-    }
-
-    void EndAttack()
-    {
-        isAttacking = false;
-    }
-
-    void FaceTarget(Vector2 target)
-    {
-        if (target.x <
-            transform.position.x)
+        // Quay trái phải
+        if (direction.x < 0)
         {
             transform.localScale =
                 new Vector3(-1, 1, 1);
         }
-        else
+        else if (direction.x > 0)
         {
             transform.localScale =
                 new Vector3(1, 1, 1);
         }
     }
 
-    public void TakeDamage(int damage)
+    // Bị đánh
+    public void TakeDamage(int damageAmount)
     {
-        if (isDead)
+        currentHP -= damageAmount;
+
+        // Animation hurt
+        if (animator != null &&
+            useAnimation)
         {
-            return;
+            animator.SetTrigger(
+                "hurt");
         }
 
-        currentHP -= damage;
-
-        animator.SetTrigger(
-            "hurt");
-
+        // Chết
         if (currentHP <= 0)
         {
             Die();
@@ -253,36 +195,32 @@ public class MonsterAI : MonoBehaviour
 
     void Die()
     {
-        isDead = true;
+        // Animation chết
+        if (animator != null &&
+            useAnimation)
+        {
+            animator.SetTrigger(
+                "die");
+        }
 
-        rb.linearVelocity =
-            Vector2.zero;
-
-        animator.SetBool(
-            "isDead",
-            true);
-
-        Destroy(gameObject, 3f);
+        Destroy(gameObject, 2f);
     }
 
+    // SmartNpcAI dùng
     public int GetRealmPower()
     {
         return maxHP;
     }
 
+    // Vẽ vòng đỏ trong editor
     void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.white;
-
-        Gizmos.DrawWireSphere(
-            transform.position,
-            detectRange);
-
-        Gizmos.color = Color.red;
+        Gizmos.color =
+            Color.red;
 
         Gizmos.DrawWireSphere(
             Application.isPlaying
-            ? spawnPosition
+            ? startPosition
             : (Vector2)transform.position,
             roamRadius);
     }
