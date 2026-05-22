@@ -280,11 +280,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c081005671ff25942a9a26a53b3558e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthSystem
-  isMonster: 0
-  realm: 2
-  maxHP: 0
-  currentHP: 0
-  hpBarPrefab: {fileID: 300771820}
+--- !u!114 &300771828
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 300771820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b7f6d236a4fcab46bb0d57fdbe5d698, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
+  finalHP: 10000
+  currentHP: 10000
+  statusBarPrefab: {fileID: 5546343709531348051, guid: 68e26b7de19925e49b3e842ae57ef1ce, type: 3}
 --- !u!1 &391121524
 GameObject:
   m_ObjectHideFlags: 0
@@ -843,6 +853,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1650737128784263751, guid: 9e77a787fd878194ba50d09458f3f86b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 300771827}
+    - targetCorrespondingSourceObject: {fileID: 1650737128784263751, guid: 9e77a787fd878194ba50d09458f3f86b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 300771828}
   m_SourcePrefab: {fileID: 100100000, guid: 9e77a787fd878194ba50d09458f3f86b, type: 3}
 --- !u!4 &690114555 stripped
 Transform:
