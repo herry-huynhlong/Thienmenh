@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
+  m_Name: pham_dan
+  m_EditorClassIdentifier: Assembly-CSharp::StatItemData
+  itemName: "Ph\xE0m \u0110an"
+  description: "D\xF9ng \u0110\xEA Tr\u1ECB Th\u01B0\u01A1ng Nh\u1EB9"
+  itemType: 0
+  grade: 0
+  validTargets: -1
+  price: 0
+  icon: {fileID: 3573036208370857778, guid: e74a3c7df95d280428d349b684bf5ff4, type: 3}
+  consumeOnUse: 0
+  hpBonus: 20
+  cultivationBonus: 0
+  breakthroughRealm: 0
+  damageBonus: 0
+  armorBonus: 0
+  effectResistanceBonus: 0
+  isTemporary: 0
+  duration: 10
+  modifiers: []

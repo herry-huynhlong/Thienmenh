@@ -18,7 +18,7 @@ public enum PhysiqueType
     ChaosBody
 }
 
-public class SmartNpcAI : MonoBehaviour
+public class SmartNpcAI : MonoBehaviour, IDamageable
 {
     [Header("Thông tin NPC")]
     public string npcName = "NPC";
@@ -53,6 +53,8 @@ public class SmartNpcAI : MonoBehaviour
     public int attack = 10;
 
     public int defense = 5;
+
+    public int effectResistance = 0;
 
     [Header("Tu luyện")]
     public int cultivation = 0;
@@ -101,6 +103,11 @@ public class SmartNpcAI : MonoBehaviour
 
     private MonsterAI currentMonsterTarget;
 
+    [Header("Skill")]
+    public GameObject fireballPrefab;
+
+    public Transform firePoint;
+
     [Header("Khoảng cách hoạt động")]
     public float maxRoamDistance = 10f;
 
@@ -121,6 +128,10 @@ public class SmartNpcAI : MonoBehaviour
     private float thinkTimer = 0;
 
     public float thinkDelay = 2f;
+
+    public bool IsDead => currentHP <= 0;
+
+    public Transform DamageTransform => transform;
 
     void Start()
     {
@@ -614,6 +625,36 @@ void TryAttackMonster()
         " sát thương.");
 }
 
+public void ShootFireball()
+{
+    if (fireballPrefab == null ||
+        firePoint == null ||
+        currentMonsterTarget == null)
+    {
+        return;
+    }
+
+    GameObject fireball =
+        Instantiate(
+            fireballPrefab,
+            firePoint.position,
+            Quaternion.identity);
+
+    Vector2 direction =
+        currentMonsterTarget.transform.position -
+        firePoint.position;
+
+    Fireball fb =
+        fireball.GetComponent<Fireball>();
+
+    if (fb != null)
+    {
+        fb.SetOwner(gameObject);
+        fb.damage = attack;
+        fb.SetDirection(direction);
+    }
+}
+
 bool ShouldFightMonster(
     MonsterAI monster)
 {
@@ -713,6 +754,93 @@ bool ShouldFightMonster(
     {
         return ((int)realm * 10)
             + realmStage;
+    }
+
+    public void ApplyItem(StatItemData item)
+    {
+        ApplyItem(item, 1);
+    }
+
+    public void ApplyItem(StatItemData item, int direction)
+    {
+        if (item == null)
+        {
+            return;
+        }
+
+        foreach (StatModifier modifier in item.GetAllModifiers())
+        {
+            ApplyModifier(modifier, direction);
+        }
+
+        currentHP =
+            Mathf.Clamp(currentHP, 0, maxHP);
+    }
+
+    void ApplyModifier(StatModifier modifier, int direction)
+    {
+        if (modifier == null)
+        {
+            return;
+        }
+
+        int intValue =
+            modifier.intValue * direction;
+
+        float floatValue =
+            modifier.floatValue * direction;
+
+        switch (modifier.statType)
+        {
+            case StatType.MaxHP:
+                maxHP += intValue;
+                currentHP += intValue;
+                break;
+
+            case StatType.CurrentHP:
+                currentHP += intValue;
+                break;
+
+            case StatType.Attack:
+            case StatType.Damage:
+                attack += intValue;
+                break;
+
+            case StatType.Defense:
+                defense += intValue;
+                break;
+
+            case StatType.EffectResistance:
+                effectResistance += intValue;
+                break;
+
+            case StatType.MoveSpeed:
+                moveSpeed += floatValue;
+                break;
+
+            case StatType.Cultivation:
+                cultivation += intValue;
+                break;
+
+            case StatType.Breakthrough:
+                if (direction > 0)
+                {
+                    Breakthrough();
+                }
+                break;
+
+            case StatType.Money:
+                money += intValue;
+                break;
+
+            case StatType.SpiritStone:
+                spiritStone += intValue;
+                break;
+
+            case StatType.Pill:
+                pill += intValue;
+                break;
+        }
     }
 
     void ApplyRealmPower()

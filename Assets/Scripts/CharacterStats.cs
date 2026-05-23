@@ -25,4 +25,40 @@ public class CharacterStats : MonoBehaviour
             ui.targetStats = this;
         }
     }
+
+    public void ApplyItem(StatItemData item)
+    {
+        ApplyItem(item, 1);
+    }
+
+    public void ApplyItem(StatItemData item, int direction)
+    {
+        if (item == null)
+        {
+            return;
+        }
+
+        foreach (StatModifier modifier in item.GetAllModifiers())
+        {
+            if (modifier == null)
+            {
+                continue;
+            }
+
+            switch (modifier.statType)
+            {
+                case StatType.MaxHP:
+                    finalHP += modifier.intValue * direction;
+                    currentHP += modifier.intValue * direction;
+                    break;
+
+                case StatType.CurrentHP:
+                    currentHP += modifier.intValue * direction;
+                    break;
+            }
+        }
+
+        currentHP =
+            Mathf.Clamp(currentHP, 0, finalHP);
+    }
 }

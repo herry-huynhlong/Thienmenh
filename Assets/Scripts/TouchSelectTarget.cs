@@ -16,15 +16,31 @@ public class TouchSelectTarget : MonoBehaviour
     public Vector3 panelOffset =
         new Vector3(0, 2f, 0);
 
+    [Header("Tap")]
+    public float tapThreshold = 10f;
+
     Camera cam;
 
     RectTransform panelRect;
 
     Transform currentTarget;
 
+    Vector3 pointerDownPosition;
+
+    bool pointerStartedOverUI;
+
+    bool pointerMoved;
+
     void Start()
     {
         cam = Camera.main;
+
+        if (cameraController == null &&
+            cam != null)
+        {
+            cameraController =
+                cam.GetComponent<MobileCameraController>();
+        }
 
         panelRect =
             infoPanel.GetComponent<RectTransform>();
@@ -39,7 +55,41 @@ public class TouchSelectTarget : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            SelectTarget();
+            pointerDownPosition =
+                Input.mousePosition;
+
+            pointerStartedOverUI =
+                IsPointerOverUI();
+
+            pointerMoved = false;
+        }
+
+        if (Input.GetMouseButton(0))
+        {
+            Vector3 pointerDelta =
+                Input.mousePosition -
+                pointerDownPosition;
+
+            if (!pointerMoved &&
+                pointerDelta.magnitude > tapThreshold)
+            {
+                pointerMoved = true;
+                HidePanel();
+            }
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            Vector3 pointerDelta =
+                Input.mousePosition -
+                pointerDownPosition;
+
+            if (!pointerStartedOverUI &&
+                !pointerMoved &&
+                pointerDelta.magnitude <= tapThreshold)
+            {
+                SelectTarget();
+            }
         }
 
         UpdatePanelPosition();
@@ -47,8 +97,7 @@ public class TouchSelectTarget : MonoBehaviour
 
     void SelectTarget()
     {
-        if (EventSystem.current != null &&
-            EventSystem.current.IsPointerOverGameObject())
+        if (IsPointerOverUI())
         {
             return;
         }
@@ -68,32 +117,29 @@ public class TouchSelectTarget : MonoBehaviour
             cam.ScreenToWorldPoint(
                 Input.mousePosition);
 
-        Collider2D hit =
-            Physics2D.OverlapCircle(
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(
                 worldPos,
                 0.5f);
 
-        if (hit == null)
-        {
-            return;
-        }
+        Transform selectedTarget =
+            GetClosestSelectableTarget(
+                hits,
+                worldPos);
 
-        NpcData npc =
-            hit.GetComponent<NpcData>();
-
-        if (npc == null)
+        if (selectedTarget == null)
         {
             return;
         }
 
         currentTarget =
-            npc.transform;
+            selectedTarget;
 
         // Camera follow
         if (cameraController != null)
         {
-            cameraController.followTarget =
-                npc.transform;
+            cameraController.FollowImmediately(
+                selectedTarget);
         }
 
         // Hiện panel
@@ -107,19 +153,248 @@ public class TouchSelectTarget : MonoBehaviour
         {
             infoText.text =
                 "Tên: " +
-                npc.npcName +
+                GetTargetName(selectedTarget) +
 
                 "\nTu Vi: " +
-                npc.realm +
+                GetTargetRealm(selectedTarget) +
 
                 "\nMáu: " +
-                npc.hp +
+                GetTargetCurrentHP(selectedTarget) +
                 " / " +
-                npc.maxHp +
+                GetTargetMaxHP(selectedTarget) +
 
                 "\nHành động: " +
-                npc.currentAction;
+                GetTargetAction(selectedTarget);
         }
+    }
+
+    Transform GetSelectableTarget(Collider2D hit)
+    {
+        NpcData npc =
+            hit.GetComponentInParent<NpcData>();
+
+        if (npc != null)
+        {
+            return npc.transform;
+        }
+
+        SmartNpcAI smartNpc =
+            hit.GetComponentInParent<SmartNpcAI>();
+
+        if (smartNpc != null)
+        {
+            return smartNpc.transform;
+        }
+
+        MonsterAI monster =
+            hit.GetComponentInParent<MonsterAI>();
+
+        if (monster != null)
+        {
+            return monster.transform;
+        }
+
+        return null;
+    }
+
+    Transform GetClosestSelectableTarget(
+        Collider2D[] hits,
+        Vector2 worldPos)
+    {
+        Transform closestTarget = null;
+        float closestDistance = Mathf.Infinity;
+
+        foreach (Collider2D hit in hits)
+        {
+            if (hit == null)
+            {
+                continue;
+            }
+
+            Transform target =
+                GetSelectableTarget(hit);
+
+            if (target == null)
+            {
+                continue;
+            }
+
+            float distance =
+                Vector2.Distance(
+                    worldPos,
+                    target.position);
+
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestTarget = target;
+            }
+        }
+
+        return closestTarget;
+    }
+
+    string GetTargetName(Transform target)
+    {
+        NpcData npc =
+            target.GetComponent<NpcData>();
+
+        if (npc != null)
+        {
+            return npc.npcName;
+        }
+
+        SmartNpcAI smartNpc =
+            target.GetComponent<SmartNpcAI>();
+
+        if (smartNpc != null)
+        {
+            return smartNpc.npcName;
+        }
+
+        MonsterAI monster =
+            target.GetComponent<MonsterAI>();
+
+        if (monster != null)
+        {
+            return monster.monsterName;
+        }
+
+        return target.name;
+    }
+
+    string GetTargetRealm(Transform target)
+    {
+        NpcData npc =
+            target.GetComponent<NpcData>();
+
+        if (npc != null)
+        {
+            return npc.realm;
+        }
+
+        SmartNpcAI smartNpc =
+            target.GetComponent<SmartNpcAI>();
+
+        if (smartNpc != null)
+        {
+            return smartNpc.realm + " " + smartNpc.realmStage;
+        }
+
+        return "Yeu Thu";
+    }
+
+    int GetTargetCurrentHP(Transform target)
+    {
+        NpcData npc =
+            target.GetComponent<NpcData>();
+
+        if (npc != null)
+        {
+            return npc.hp;
+        }
+
+        SmartNpcAI smartNpc =
+            target.GetComponent<SmartNpcAI>();
+
+        if (smartNpc != null)
+        {
+            return smartNpc.currentHP;
+        }
+
+        MonsterAI monster =
+            target.GetComponent<MonsterAI>();
+
+        if (monster != null)
+        {
+            return monster.currentHP;
+        }
+
+        return 0;
+    }
+
+    int GetTargetMaxHP(Transform target)
+    {
+        NpcData npc =
+            target.GetComponent<NpcData>();
+
+        if (npc != null)
+        {
+            return npc.maxHp;
+        }
+
+        SmartNpcAI smartNpc =
+            target.GetComponent<SmartNpcAI>();
+
+        if (smartNpc != null)
+        {
+            return smartNpc.maxHP;
+        }
+
+        MonsterAI monster =
+            target.GetComponent<MonsterAI>();
+
+        if (monster != null)
+        {
+            return monster.maxHP;
+        }
+
+        return 0;
+    }
+
+    string GetTargetAction(Transform target)
+    {
+        NpcData npc =
+            target.GetComponent<NpcData>();
+
+        if (npc != null)
+        {
+            return npc.currentAction;
+        }
+
+        SmartNpcAI smartNpc =
+            target.GetComponent<SmartNpcAI>();
+
+        if (smartNpc != null)
+        {
+            return smartNpc.currentAction;
+        }
+
+        MonsterAI monster =
+            target.GetComponent<MonsterAI>();
+
+        if (monster != null)
+        {
+            return "Sat thuong: " + monster.damage;
+        }
+
+        return "";
+    }
+
+    void HidePanel()
+    {
+        currentTarget = null;
+
+        if (infoPanel != null)
+        {
+            infoPanel.SetActive(false);
+        }
+    }
+
+    bool IsPointerOverUI()
+    {
+        if (EventSystem.current == null)
+        {
+            return false;
+        }
+
+        if (Input.touchCount > 0)
+        {
+            return EventSystem.current.IsPointerOverGameObject(
+                Input.GetTouch(0).fingerId);
+        }
+
+        return EventSystem.current.IsPointerOverGameObject();
     }
 
     void UpdatePanelPosition()

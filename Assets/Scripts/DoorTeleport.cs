@@ -9,9 +9,16 @@ public class DoorTeleport : MonoBehaviour
     [Header("Spawn")]
     public Vector2 spawnPosition;
 
+    bool isLoading = false;
+
     private void OnTriggerEnter2D(
         Collider2D other)
     {
+        if (isLoading)
+        {
+            return;
+        }
+
         if (!other.CompareTag("Player"))
         {
             return;
@@ -24,12 +31,36 @@ public class DoorTeleport : MonoBehaviour
     System.Collections.IEnumerator
         LoadScene(GameObject player)
     {
-        SceneManager.LoadScene(
-            targetScene);
+        isLoading = true;
 
-        yield return null;
+        Scene currentScene =
+            SceneManager.GetActiveScene();
+
+        AsyncOperation loadOperation =
+            SceneManager.LoadSceneAsync(
+                targetScene,
+                LoadSceneMode.Additive);
+
+        while (!loadOperation.isDone)
+        {
+            yield return null;
+        }
+
+        Scene newScene =
+            SceneManager.GetSceneByName(
+                targetScene);
+
+        SceneManager.SetActiveScene(
+            newScene);
 
         player.transform.position =
             spawnPosition;
+
+        yield return null;
+
+        SceneManager.UnloadSceneAsync(
+            currentScene);
+
+        isLoading = false;
     }
 }

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MonsterAI : MonoBehaviour
+public class MonsterAI : MonoBehaviour, IDamageable
 {
     [Header("===== THÔNG TIN =====")]
 
@@ -16,6 +16,10 @@ public class MonsterAI : MonoBehaviour
     [Header("===== DAMAGE =====")]
 
     public int damage = 10;
+
+    public int defense = 0;
+
+    public int effectResistance = 0;
 
     [Header("===== DI CHUYỂN =====")]
 
@@ -53,6 +57,8 @@ public class MonsterAI : MonoBehaviour
 
     Animator animator;
 
+    Rigidbody2D rb;
+
     Vector2 startPosition;
 
     Vector2 targetPosition;
@@ -63,6 +69,10 @@ public class MonsterAI : MonoBehaviour
 
     bool isDead = false;
 
+    public bool IsDead => isDead;
+
+    public Transform DamageTransform => transform;
+
     void Start()
     {
         currentHP =
@@ -70,6 +80,9 @@ public class MonsterAI : MonoBehaviour
 
         animator =
             GetComponent<Animator>();
+
+        rb =
+            GetComponent<Rigidbody2D>();
 
         startPosition =
             transform.position;
@@ -152,6 +165,9 @@ public class MonsterAI : MonoBehaviour
             waitTimer =
                 waitTime;
 
+            rb.linearVelocity =
+                Vector2.zero;
+
             if (animator != null &&
                 useAnimation)
             {
@@ -166,8 +182,8 @@ public class MonsterAI : MonoBehaviour
         direction =
             direction.normalized;
 
-        transform.position +=
-            (Vector3)(
+        rb.MovePosition(
+            rb.position +
             direction *
             moveSpeed *
             Time.deltaTime);
@@ -198,8 +214,8 @@ public class MonsterAI : MonoBehaviour
 
         if (distance > attackRange)
         {
-            transform.position +=
-                (Vector3)(
+            rb.MovePosition(
+                rb.position +
                 direction.normalized *
                 moveSpeed *
                 Time.deltaTime);
@@ -214,6 +230,9 @@ public class MonsterAI : MonoBehaviour
         }
         else
         {
+            rb.linearVelocity =
+                Vector2.zero;
+
             if (animator != null &&
                 useAnimation)
             {
@@ -285,6 +304,9 @@ public class MonsterAI : MonoBehaviour
 
         if (fb != null)
         {
+            fb.SetOwner(gameObject);
+            fb.damage = damage;
+
             fb.SetDirection(
                 direction);
         }
@@ -324,7 +346,15 @@ public class MonsterAI : MonoBehaviour
             return;
         }
 
-        currentHP -= damageAmount;
+        int finalDamage =
+            damageAmount - defense;
+
+        if (finalDamage < 1)
+        {
+            finalDamage = 1;
+        }
+
+        currentHP -= finalDamage;
 
         if (animator != null &&
             useAnimation)
@@ -343,6 +373,9 @@ public class MonsterAI : MonoBehaviour
     {
         isDead = true;
 
+        rb.linearVelocity =
+            Vector2.zero;
+
         if (animator != null &&
             useAnimation)
         {
@@ -356,6 +389,70 @@ public class MonsterAI : MonoBehaviour
     public int GetRealmPower()
     {
         return maxHP;
+    }
+
+    public void ApplyItem(StatItemData item)
+    {
+        ApplyItem(item, 1);
+    }
+
+    public void ApplyItem(StatItemData item, int direction)
+    {
+        if (item == null)
+        {
+            return;
+        }
+
+        foreach (StatModifier modifier in item.GetAllModifiers())
+        {
+            ApplyModifier(modifier, direction);
+        }
+
+        currentHP =
+            Mathf.Clamp(currentHP, 0, maxHP);
+    }
+
+    void ApplyModifier(StatModifier modifier, int direction)
+    {
+        if (modifier == null)
+        {
+            return;
+        }
+
+        int intValue =
+            modifier.intValue * direction;
+
+        float floatValue =
+            modifier.floatValue * direction;
+
+        switch (modifier.statType)
+        {
+            case StatType.MaxHP:
+                maxHP += intValue;
+                currentHP += intValue;
+                break;
+
+            case StatType.CurrentHP:
+                currentHP += intValue;
+                break;
+
+            case StatType.Damage:
+            case StatType.Attack:
+                damage += intValue;
+                break;
+
+            case StatType.Defense:
+                defense += intValue;
+                break;
+
+            case StatType.EffectResistance:
+                effectResistance += intValue;
+                break;
+
+            case StatType.MoveSpeed:
+                moveSpeed += floatValue;
+                break;
+        }
     }
 
     void OnDrawGizmosSelected()
