@@ -1,19 +1,35 @@
-
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class DoorTeleport : MonoBehaviour
 {
-    private void OnTriggerEnter2D(Collider2D other)
+    [Header("Scene")]
+    public string targetScene;
+
+    [Header("Spawn")]
+    public Vector2 spawnPosition;
+
+    private void OnTriggerEnter2D(
+        Collider2D other)
     {
-        Debug.Log("Da cham");
-
-        if (other.CompareTag("Player"))
+        if (!other.CompareTag("Player"))
         {
-            Debug.Log("Player cham cua");
-
-            SceneManager.LoadScene("TuuQuan");
+            return;
         }
+
+        StartCoroutine(
+            LoadScene(other.gameObject));
+    }
+
+    System.Collections.IEnumerator
+        LoadScene(GameObject player)
+    {
+        SceneManager.LoadScene(
+            targetScene);
+
+        yield return null;
+
+        player.transform.position =
+            spawnPosition;
     }
 }
-

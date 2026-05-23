@@ -21,7 +21,7 @@ public class CharacterCreateManager : MonoBehaviour
 
     public string selectedGender;
 
-    public string firstGameScene = "Lang";
+    public string firstGameScene = "PersistentScene";
 
     public void SelectMale()
     {
