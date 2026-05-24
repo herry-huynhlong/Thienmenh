@@ -11,6 +11,7 @@ public class CloseMap :
                 "LastScene",
                 "Lang");
 
+        GameSaveSystem.SaveCurrentScene(lastScene);
         SceneManager.LoadScene(
             lastScene);
     }

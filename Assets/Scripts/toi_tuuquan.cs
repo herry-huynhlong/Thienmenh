@@ -12,6 +12,7 @@ public class toi_tuuquan : MonoBehaviour
         {
             Debug.Log("Player cham cua");
 
+            GameSaveSystem.SaveCurrentScene("TuuQuan");
             SceneManager.LoadScene("TuuQuan");
         }
     }

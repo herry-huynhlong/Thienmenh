@@ -8,15 +8,20 @@ public class MainMenuManager : MonoBehaviour
 
     public void NewGame()
     {
+        GameSaveSystem.ClearSave();
         PlayerPrefs.DeleteAll();
+        ItemInventory.ClearRuntimeCache();
+        SimpleItemShop.ClearRuntimeStockCache();
         SceneManager.LoadScene(characterCreateScene);
     }
 
     public void ContinueGame()
     {
-        if (PlayerPrefs.HasKey("PlayerName"))
+        if (GameSaveSystem.HasSave ||
+            PlayerPrefs.HasKey("PlayerName"))
         {
-            SceneManager.LoadScene(firstGameScene);
+            SceneManager.LoadScene(
+                GameSaveSystem.LoadCurrentScene(firstGameScene));
         }
         else
         {

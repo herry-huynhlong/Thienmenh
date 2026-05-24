@@ -61,6 +61,7 @@ public class CharacterCreateManager : MonoBehaviour
         PlayerPrefs.SetString("PlayerName", playerName);
         PlayerPrefs.SetString("Gender", selectedGender);
 
+        GameSaveSystem.SaveCurrentScene(firstGameScene);
         PlayerPrefs.Save();
 
         SceneManager.LoadScene(firstGameScene);

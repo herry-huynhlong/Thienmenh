@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class NPC_Famale : MonoBehaviour
 {
+    public bool controlByInput = true;
+    public bool disableInputWhenVillagerAIExists = true;
+
     public float speed = 3f;
 
     public AnimationClip walkUp;
@@ -19,16 +22,23 @@ public class NPC_Famale : MonoBehaviour
     private Vector2 move;
 
     private string currentAnim = "";
+    private VillagerAI villagerAI;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         sr = GetComponent<SpriteRenderer>();
+        villagerAI = GetComponent<VillagerAI>();
     }
 
     void Update()
     {
+        if (!CanControlByInput())
+        {
+            return;
+        }
+
         move.x = Input.GetAxisRaw("Horizontal");
         move.y = Input.GetAxisRaw("Vertical");
 
@@ -69,7 +79,24 @@ public class NPC_Famale : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (!CanControlByInput())
+        {
+            return;
+        }
+
         rb.linearVelocity = move * speed;
+    }
+
+    bool CanControlByInput()
+    {
+        if (!controlByInput)
+        {
+            return false;
+        }
+
+        return !disableInputWhenVillagerAIExists ||
+            villagerAI == null ||
+            !villagerAI.enabled;
     }
 
     void ChangeAnim(string animName)

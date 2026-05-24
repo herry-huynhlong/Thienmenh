@@ -2,31 +2,56 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour, IDamageable
 {
-    [Header("Máu")]
+    [Header("HP")]
     public int maxHP = 100;
-
     public int currentHP;
+    public CharacterStats characterStats;
 
-    public bool IsDead => currentHP <= 0;
+    public bool IsDead =>
+        characterStats != null ?
+        characterStats.IsDead :
+        currentHP <= 0;
 
     public Transform DamageTransform => transform;
 
     void Start()
     {
-        currentHP = maxHP;
+        characterStats = GetComponent<CharacterStats>();
+
+        if (characterStats != null)
+        {
+            SyncFromCharacterStats();
+        }
+        else
+        {
+            currentHP = maxHP;
+        }
     }
 
     public void TakeDamage(int damage)
     {
+        if (characterStats != null)
+        {
+            characterStats.TakeDamage(damage);
+            SyncFromCharacterStats();
+
+            if (characterStats.IsDead)
+            {
+                Die();
+            }
+
+            return;
+        }
+
         currentHP -= damage;
 
         Debug.Log(
-            "Player bị trừ " +
+            "Player bi tru " +
             damage +
-            " máu");
+            " mau");
 
         Debug.Log(
-            "Máu còn: " +
+            "Mau con: " +
             currentHP);
 
         if (currentHP <= 0)
@@ -42,6 +67,13 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
     public void ApplyItem(StatItemData item, int direction)
     {
+        if (characterStats != null)
+        {
+            characterStats.ApplyItem(item, direction);
+            SyncFromCharacterStats();
+            return;
+        }
+
         if (item == null)
         {
             return;
@@ -73,7 +105,17 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
     void Die()
     {
-        Debug.Log(
-            "Player đã chết");
+        Debug.Log("Player da chet");
+    }
+
+    void SyncFromCharacterStats()
+    {
+        if (characterStats == null)
+        {
+            return;
+        }
+
+        maxHP = characterStats.finalHP;
+        currentHP = characterStats.currentHP;
     }
 }

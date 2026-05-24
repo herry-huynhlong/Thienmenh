@@ -292,8 +292,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b7f6d236a4fcab46bb0d57fdbe5d698, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
-  finalHP: 10000
-  currentHP: 10000
+  realm: 0
+  realmStage: 1
+  cultivationExp: 0
+  baseExpToNextRealm: 100
+  baseMaxHP: 100
+  baseAttack: 10
+  baseDefense: 5
+  baseMoveSpeed: 1.6
+  bonusMaxHP: 0
+  bonusAttack: 0
+  bonusDefense: 0
+  bonusEffectResistance: 0
+  bonusMoveSpeed: 0
+  finalHP: 100
+  currentHP: 100
+  attack: 10
+  defense: 5
+  effectResistance: 0
+  moveSpeed: 1.6
   statusBarPrefab: {fileID: 5546343709531348051, guid: 68e26b7de19925e49b3e842ae57ef1ce, type: 3}
 --- !u!1 &391121524
 GameObject:
@@ -718,6 +735,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3011376231761625070, guid: a2b133cfcaf6ba94485637bb601cc0d5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 690114564}
+    - targetCorrespondingSourceObject: {fileID: 3011376231761625070, guid: a2b133cfcaf6ba94485637bb601cc0d5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 690114565}
   m_SourcePrefab: {fileID: 100100000, guid: a2b133cfcaf6ba94485637bb601cc0d5, type: 3}
 --- !u!1001 &639380570
 PrefabInstance:
@@ -935,6 +955,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
   maxHP: 100
   currentHP: 100
+  characterStats: {fileID: 0}
+--- !u!114 &690114565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 228443132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b7f6d236a4fcab46bb0d57fdbe5d698, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
+  realm: 1
+  realmStage: 1
+  cultivationExp: 0
+  baseExpToNextRealm: 100
+  baseMaxHP: 100
+  baseAttack: 10
+  baseDefense: 5
+  baseMoveSpeed: 1.6
+  bonusMaxHP: 0
+  bonusAttack: 0
+  bonusDefense: 0
+  bonusEffectResistance: 0
+  bonusMoveSpeed: 0
+  finalHP: 1000
+  currentHP: 1000
+  attack: 100
+  defense: 50
+  effectResistance: 0
+  moveSpeed: 1.6
+  statusBarPrefab: {fileID: 5546343709531348051, guid: 68e26b7de19925e49b3e842ae57ef1ce, type: 3}
 --- !u!1 &1426720959
 GameObject:
   m_ObjectHideFlags: 0

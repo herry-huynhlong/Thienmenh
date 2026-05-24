@@ -173,12 +173,30 @@ public class StatItemData : ScriptableObject
             return false;
         }
 
+        CharacterStats characterStats =
+            target.GetComponent<CharacterStats>();
+
+        if (characterStats != null)
+        {
+            characterStats.ApplyItem(this, direction);
+            return true;
+        }
+
         SmartNpcAI npc =
             target.GetComponent<SmartNpcAI>();
 
         if (npc != null)
         {
             npc.ApplyItem(this, direction);
+            return true;
+        }
+
+        VillagerAI villager =
+            target.GetComponent<VillagerAI>();
+
+        if (villager != null)
+        {
+            villager.ApplyItem(this, direction);
             return true;
         }
 
@@ -200,21 +218,17 @@ public class StatItemData : ScriptableObject
             return true;
         }
 
-        CharacterStats characterStats =
-            target.GetComponent<CharacterStats>();
-
-        if (characterStats != null)
-        {
-            characterStats.ApplyItem(this, direction);
-            return true;
-        }
-
         return false;
     }
 
     ItemTargetType GetTargetType(GameObject target)
     {
         if (target.GetComponent<SmartNpcAI>() != null)
+        {
+            return ItemTargetType.Npc;
+        }
+
+        if (target.GetComponent<VillagerAI>() != null)
         {
             return ItemTargetType.Npc;
         }

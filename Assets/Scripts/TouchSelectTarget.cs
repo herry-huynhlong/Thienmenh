@@ -4,6 +4,8 @@ using UnityEngine.EventSystems;
 
 public class TouchSelectTarget : MonoBehaviour
 {
+    public static Transform CurrentTarget { get; private set; }
+
     [Header("Camera")]
     public MobileCameraController cameraController;
 
@@ -135,6 +137,9 @@ public class TouchSelectTarget : MonoBehaviour
         currentTarget =
             selectedTarget;
 
+        CurrentTarget =
+            selectedTarget;
+
         // Camera follow
         if (cameraController != null)
         {
@@ -184,6 +189,14 @@ public class TouchSelectTarget : MonoBehaviour
         if (smartNpc != null)
         {
             return smartNpc.transform;
+        }
+
+        VillagerAI villager =
+            hit.GetComponentInParent<VillagerAI>();
+
+        if (villager != null)
+        {
+            return villager.transform;
         }
 
         MonsterAI monster =
@@ -252,6 +265,14 @@ public class TouchSelectTarget : MonoBehaviour
             return smartNpc.npcName;
         }
 
+        VillagerAI villager =
+            target.GetComponent<VillagerAI>();
+
+        if (villager != null)
+        {
+            return villager.villagerName;
+        }
+
         MonsterAI monster =
             target.GetComponent<MonsterAI>();
 
@@ -265,6 +286,16 @@ public class TouchSelectTarget : MonoBehaviour
 
     string GetTargetRealm(Transform target)
     {
+        CharacterStats characterStats =
+            target.GetComponent<CharacterStats>();
+
+        if (characterStats != null)
+        {
+            return characterStats.GetRealmText() +
+                " " +
+                characterStats.realmStage;
+        }
+
         NpcData npc =
             target.GetComponent<NpcData>();
 
@@ -281,11 +312,27 @@ public class TouchSelectTarget : MonoBehaviour
             return smartNpc.realm + " " + smartNpc.realmStage;
         }
 
+        VillagerAI villager =
+            target.GetComponent<VillagerAI>();
+
+        if (villager != null)
+        {
+            return villager.GetRealmText();
+        }
+
         return "Yeu Thu";
     }
 
     int GetTargetCurrentHP(Transform target)
     {
+        CharacterStats characterStats =
+            target.GetComponent<CharacterStats>();
+
+        if (characterStats != null)
+        {
+            return characterStats.currentHP;
+        }
+
         NpcData npc =
             target.GetComponent<NpcData>();
 
@@ -302,6 +349,14 @@ public class TouchSelectTarget : MonoBehaviour
             return smartNpc.currentHP;
         }
 
+        VillagerAI villager =
+            target.GetComponent<VillagerAI>();
+
+        if (villager != null)
+        {
+            return villager.currentHP;
+        }
+
         MonsterAI monster =
             target.GetComponent<MonsterAI>();
 
@@ -315,6 +370,14 @@ public class TouchSelectTarget : MonoBehaviour
 
     int GetTargetMaxHP(Transform target)
     {
+        CharacterStats characterStats =
+            target.GetComponent<CharacterStats>();
+
+        if (characterStats != null)
+        {
+            return characterStats.finalHP;
+        }
+
         NpcData npc =
             target.GetComponent<NpcData>();
 
@@ -329,6 +392,14 @@ public class TouchSelectTarget : MonoBehaviour
         if (smartNpc != null)
         {
             return smartNpc.maxHP;
+        }
+
+        VillagerAI villager =
+            target.GetComponent<VillagerAI>();
+
+        if (villager != null)
+        {
+            return villager.maxHP;
         }
 
         MonsterAI monster =
@@ -360,6 +431,14 @@ public class TouchSelectTarget : MonoBehaviour
             return smartNpc.currentAction;
         }
 
+        VillagerAI villager =
+            target.GetComponent<VillagerAI>();
+
+        if (villager != null)
+        {
+            return villager.currentAction;
+        }
+
         MonsterAI monster =
             target.GetComponent<MonsterAI>();
 
@@ -374,6 +453,7 @@ public class TouchSelectTarget : MonoBehaviour
     void HidePanel()
     {
         currentTarget = null;
+        CurrentTarget = null;
 
         if (infoPanel != null)
         {

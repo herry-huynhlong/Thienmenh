@@ -33,6 +33,8 @@ public class DoorTeleport : MonoBehaviour
     {
         isLoading = true;
 
+        GameSaveSystem.SaveCurrentScene(targetScene);
+
         Scene currentScene =
             SceneManager.GetActiveScene();
 

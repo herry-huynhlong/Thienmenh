@@ -55,6 +55,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     public int defense = 5;
 
     public int effectResistance = 0;
+    public CharacterStats characterStats;
 
     [Header("Tu luyện")]
     public int cultivation = 0;
@@ -129,7 +130,10 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     public float thinkDelay = 2f;
 
-    public bool IsDead => currentHP <= 0;
+    public bool IsDead =>
+        characterStats != null ?
+        characterStats.IsDead :
+        currentHP <= 0;
 
     public Transform DamageTransform => transform;
 
@@ -139,11 +143,22 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
         spawnPosition = transform.position;
 
-        ApplyRealmPower();
+        characterStats = GetComponent<CharacterStats>();
+
+        if (characterStats != null)
+        {
+            SyncFromCharacterStats();
+        }
+        else
+        {
+            ApplyRealmPower();
+        }
     }
 
     void Update()
     {
+        SyncFromCharacterStats();
+
         thinkTimer += Time.deltaTime;
 
         attackTimer += Time.deltaTime;
@@ -217,6 +232,25 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
             currentTarget = null;
         }
+    }
+
+    void SyncFromCharacterStats()
+    {
+        if (characterStats == null)
+        {
+            return;
+        }
+
+        realm = characterStats.realm;
+        realmStage = characterStats.realmStage;
+        cultivation = characterStats.cultivationExp;
+        breakthroughNeed = characterStats.ExpToNextRealm();
+        maxHP = characterStats.finalHP;
+        currentHP = characterStats.currentHP;
+        attack = characterStats.attack;
+        defense = characterStats.defense;
+        effectResistance = characterStats.effectResistance;
+        moveSpeed = characterStats.moveSpeed;
     }
 
     void Think()
@@ -322,11 +356,22 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         {
             fatigue = 0;
 
-            currentHP += 30;
-
-            if (currentHP > maxHP)
+            if (characterStats != null)
             {
-                currentHP = maxHP;
+                characterStats.currentHP =
+                    Mathf.Min(
+                        characterStats.finalHP,
+                        characterStats.currentHP + 30);
+                SyncFromCharacterStats();
+            }
+            else
+            {
+                currentHP += 30;
+
+                if (currentHP > maxHP)
+                {
+                    currentHP = maxHP;
+                }
             }
 
             Debug.Log(
@@ -347,7 +392,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
                     30 *
                     GetCultivationMultiplier());
 
-            cultivation += gain;
+            AddCultivationProgress(gain);
 
             Debug.Log(
                 npcName +
@@ -364,7 +409,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
                     20 *
                     GetCultivationMultiplier());
 
-            cultivation += gain;
+            AddCultivationProgress(gain);
 
             Debug.Log(
                 npcName +
@@ -377,6 +422,18 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         {
             Breakthrough();
         }
+    }
+
+    void AddCultivationProgress(int amount)
+    {
+        if (characterStats != null)
+        {
+            characterStats.AddCultivationExp(amount);
+            SyncFromCharacterStats();
+            return;
+        }
+
+        cultivation += amount;
     }
 
     float GetCultivationMultiplier()
@@ -407,6 +464,14 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     void Breakthrough()
     {
+        if (characterStats != null)
+        {
+            characterStats.Breakthrough();
+            SyncFromCharacterStats();
+            currentAction = "Dot pha";
+            return;
+        }
+
         if (realm ==
             CultivationRealm.Tribulation)
         {
@@ -728,6 +793,19 @@ bool ShouldFightMonster(
 
     public void TakeDamage(int damage)
     {
+        if (characterStats != null)
+        {
+            characterStats.TakeDamage(damage);
+            SyncFromCharacterStats();
+
+            if (characterStats.IsDead)
+            {
+                Die();
+            }
+
+            return;
+        }
+
         int finalDamage =
             damage - defense;
 
@@ -763,6 +841,13 @@ bool ShouldFightMonster(
 
     public void ApplyItem(StatItemData item, int direction)
     {
+        if (characterStats != null)
+        {
+            characterStats.ApplyItem(item, direction);
+            SyncFromCharacterStats();
+            return;
+        }
+
         if (item == null)
         {
             return;

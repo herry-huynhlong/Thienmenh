@@ -10,6 +10,7 @@ public class toi_bentau : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             Debug.Log("Player cham cua");
+            GameSaveSystem.SaveCurrentScene("BenTau");
             SceneManager.LoadScene("BenTau");
         }
     }
