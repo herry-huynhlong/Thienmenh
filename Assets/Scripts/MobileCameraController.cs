@@ -1,7 +1,11 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class MobileCameraController : MonoBehaviour
 {
+    static MobileCameraController activeController;
+
     [Header("Follow")]
     public Transform followTarget;
     public float followSpeed = 5f;
@@ -30,23 +34,79 @@ public class MobileCameraController : MonoBehaviour
     bool dragStarted;
 
     BoxCollider2D mapBounds;
+    Coroutine refreshBoundsRoutine;
 
     float minX;
     float maxX;
     float minY;
     float maxY;
 
+    Transform CameraTransform
+    {
+        get
+        {
+            if (cam == null)
+            {
+                cam = Camera.main;
+            }
+
+            return cam != null ? cam.transform : transform;
+        }
+    }
+
     void Start()
     {
-        cam = Camera.main;
-        FindMapBounds();
+        RefreshCamera();
+        RefreshMapBounds();
+    }
+
+    void OnEnable()
+    {
+        if (activeController != null &&
+            activeController != this)
+        {
+            enabled = false;
+            return;
+        }
+
+        activeController = this;
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+
+        if (activeController == this)
+        {
+            activeController = null;
+        }
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        followTarget = null;
+        isDragging = false;
+        dragStarted = false;
+        mapBounds = null;
+        RefreshCamera();
+
+        if (refreshBoundsRoutine != null)
+        {
+            StopCoroutine(refreshBoundsRoutine);
+        }
+
+        refreshBoundsRoutine =
+            StartCoroutine(RefreshMapBoundsAfterSceneLoad());
     }
 
     void Update()
     {
+        RefreshCamera();
+
         if (mapBounds == null)
         {
-            FindMapBounds();
+            RefreshMapBounds();
         }
 
         HandleZoom();
@@ -61,17 +121,64 @@ public class MobileCameraController : MonoBehaviour
         }
     }
 
-    void FindMapBounds()
+    void RefreshCamera()
     {
-        GameObject boundsObject = GameObject.Find("MapBounds");
+        Camera mainCamera =
+            Camera.main;
 
-        if (boundsObject == null)
+        if (mainCamera != null &&
+            mainCamera != cam)
+        {
+            cam = mainCamera;
+            SetupBounds();
+        }
+    }
+
+    void RefreshMapBounds()
+    {
+        Scene activeScene =
+            SceneManager.GetActiveScene();
+
+        BoxCollider2D[] colliders =
+            FindObjectsOfType<BoxCollider2D>(true);
+
+        BoxCollider2D bestBounds = null;
+
+        foreach (BoxCollider2D collider in colliders)
+        {
+            if (collider == null ||
+                collider.name != "MapBounds" ||
+                collider.gameObject.scene != activeScene ||
+                !collider.gameObject.activeInHierarchy)
+            {
+                continue;
+            }
+
+            bestBounds = collider;
+            break;
+        }
+
+        if (bestBounds == null)
         {
             return;
         }
 
-        mapBounds = boundsObject.GetComponent<BoxCollider2D>();
+        mapBounds = bestBounds;
         SetupBounds();
+    }
+
+    IEnumerator RefreshMapBoundsAfterSceneLoad()
+    {
+        yield return null;
+
+        RefreshCamera();
+        RefreshMapBounds();
+
+        yield return null;
+
+        RefreshCamera();
+        RefreshMapBounds();
+        refreshBoundsRoutine = null;
     }
 
     void SetupBounds()
@@ -104,14 +211,14 @@ public class MobileCameraController : MonoBehaviour
 
         if (smoothFollow)
         {
-            transform.position = Vector3.Lerp(
-                transform.position,
+            CameraTransform.position = Vector3.Lerp(
+                CameraTransform.position,
                 targetPos,
                 followSpeed * Time.deltaTime);
         }
         else
         {
-            transform.position = targetPos;
+            CameraTransform.position = targetPos;
         }
 
         if (clampWhileFollowing)
@@ -134,7 +241,7 @@ public class MobileCameraController : MonoBehaviour
         Vector3 targetPos =
             GetFocusPosition(target);
 
-        transform.position = targetPos;
+        CameraTransform.position = targetPos;
 
         if (clampWhileFollowing)
         {
@@ -179,7 +286,7 @@ public class MobileCameraController : MonoBehaviour
             currentViewportWorldPos;
 
         Vector3 cameraPos =
-            transform.position +
+            CameraTransform.position +
             cameraDelta;
 
         cameraPos.z = -10f;
@@ -197,7 +304,8 @@ public class MobileCameraController : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             dragStartScreenPos = Input.mousePosition;
-            dragStartCameraPos = transform.position;
+            dragStartCameraPos = CameraTransform.position;
+            followTarget = null;
 
             isDragging = false;
             dragStarted = true;
@@ -222,7 +330,7 @@ public class MobileCameraController : MonoBehaviour
                 Vector3 targetPos = dragStartCameraPos + worldDelta;
                 targetPos.z = -10f;
 
-                transform.position = targetPos;
+                CameraTransform.position = targetPos;
                 ClampCamera();
             }
         }
@@ -295,7 +403,7 @@ public class MobileCameraController : MonoBehaviour
 
         if (followTarget != null)
         {
-            transform.position =
+            CameraTransform.position =
                 GetFocusPosition(followTarget);
 
             return;
@@ -311,11 +419,18 @@ public class MobileCameraController : MonoBehaviour
             return;
         }
 
-        Vector3 pos = transform.position;
+        Vector3 pos = CameraTransform.position;
 
-        pos.x = Mathf.Clamp(pos.x, minX, maxX);
-        pos.y = Mathf.Clamp(pos.y, minY, maxY);
+        if (minX <= maxX)
+        {
+            pos.x = Mathf.Clamp(pos.x, minX, maxX);
+        }
 
-        transform.position = pos;
+        if (minY <= maxY)
+        {
+            pos.y = Mathf.Clamp(pos.y, minY, maxY);
+        }
+
+        CameraTransform.position = pos;
     }
 }

@@ -123,6 +123,7 @@ public class ShopPanelUI : MonoBehaviour
             responsiveFitter.Apply();
         }
 
+        RefreshShopSource();
         ShowDanDuoc();
         ClearDetail();
     }
@@ -179,6 +180,8 @@ public class ShopPanelUI : MonoBehaviour
         currentType = itemType;
         shopTitle = title;
         selectedItemIndex = -1;
+
+        RefreshShopSource();
 
         if (shopTitleText != null)
         {
@@ -312,6 +315,15 @@ public class ShopPanelUI : MonoBehaviour
             inventoryPanelUI.IsOpen)
         {
             inventoryPanelUI.Refresh();
+        }
+    }
+
+    void RefreshShopSource()
+    {
+        if (shop != null &&
+            shop.refreshNpcInventoryBeforeOpen)
+        {
+            shop.RefreshFromSellerInventory();
         }
     }
 
@@ -500,6 +512,8 @@ public class ShopPanelUI : MonoBehaviour
 
     void RebuildItemGrid()
     {
+        RefreshShopSource();
+
         if (itemGridParent == null ||
             itemButtonPrefab == null ||
             shop == null)

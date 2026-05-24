@@ -4,15 +4,44 @@ using UnityEngine.SceneManagement;
 public class CloseMap :
     MonoBehaviour
 {
+    public string fallbackScene = "Lang";
+
     public void ExitMap()
     {
         string lastScene =
             PlayerPrefs.GetString(
-                "LastScene",
-                "Lang");
+                "MapReturnScene",
+                PlayerPrefs.GetString(
+                    "LastScene",
+                    fallbackScene));
 
-        GameSaveSystem.SaveCurrentScene(lastScene);
+        if (!IsValidReturnScene(lastScene))
+        {
+            lastScene =
+                PlayerPrefs.GetString(
+                    "LastScene",
+                    fallbackScene);
+        }
+
+        if (!IsValidReturnScene(lastScene))
+        {
+            lastScene = fallbackScene;
+        }
+
+        if (string.IsNullOrEmpty(lastScene) ||
+            lastScene == SceneManager.GetActiveScene().name)
+        {
+            lastScene = fallbackScene;
+        }
+
         SceneManager.LoadScene(
             lastScene);
+    }
+
+    bool IsValidReturnScene(string sceneName)
+    {
+        return !string.IsNullOrEmpty(sceneName) &&
+            sceneName != "LiteMapScene" &&
+            sceneName != "PersistentScene";
     }
 }

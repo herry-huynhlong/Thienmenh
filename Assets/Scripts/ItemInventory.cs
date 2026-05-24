@@ -96,6 +96,48 @@ public class ItemInventory : MonoBehaviour
         NotifyChanged();
     }
 
+    public bool RemoveItem(StatItemData item, int amount = 1)
+    {
+        if (item == null ||
+            amount <= 0)
+        {
+            return false;
+        }
+
+        ItemStack stack =
+            items.Find(entry => entry.item == item);
+
+        if (stack == null ||
+            stack.amount < amount)
+        {
+            return false;
+        }
+
+        stack.amount -= amount;
+
+        if (stack.amount <= 0)
+        {
+            items.Remove(stack);
+        }
+
+        SaveSharedItems();
+        NotifyChanged();
+        return true;
+    }
+
+    public int GetAmount(StatItemData item)
+    {
+        if (item == null)
+        {
+            return 0;
+        }
+
+        ItemStack stack =
+            items.Find(entry => entry.item == item);
+
+        return stack != null ? stack.amount : 0;
+    }
+
     public bool UseItemOn(int itemIndex, GameObject target)
     {
         if (target == null ||

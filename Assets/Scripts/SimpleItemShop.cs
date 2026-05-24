@@ -26,6 +26,13 @@ public class SimpleItemShop : MonoBehaviour
     };
     public int defaultStockAmount = 99;
 
+    [Header("NPC Seller")]
+    public bool sellFromNpcInventory;
+    public bool allowPlayerBuyFromNpcInventory;
+    public ItemInventory sellerInventory;
+    public GameObject sellerObject;
+    public bool refreshNpcInventoryBeforeOpen = true;
+
     public List<ShopItemSlot> items =
         new List<ShopItemSlot>();
 
@@ -33,8 +40,13 @@ public class SimpleItemShop : MonoBehaviour
 
     void Awake()
     {
+        RefreshFromSellerInventory();
         RegisterItems();
-        LoadRuntimeStock();
+
+        if (!sellFromNpcInventory)
+        {
+            LoadRuntimeStock();
+        }
     }
 
     public ShopItemSlot GetSlot(int itemIndex)
@@ -53,6 +65,8 @@ public class SimpleItemShop : MonoBehaviour
         PlayerWallet buyerWallet,
         ItemInventory buyerInventory)
     {
+        RefreshFromSellerInventory();
+
         if (buyerInventory == null ||
             itemIndex < 0 ||
             itemIndex >= items.Count)
@@ -71,13 +85,48 @@ public class SimpleItemShop : MonoBehaviour
             return false;
         }
 
-        if (buyerWallet != null)
+        if (sellFromNpcInventory &&
+            sellerInventory != null)
         {
-            buyerWallet.Pay(slot.item.price);
+            if (!allowPlayerBuyFromNpcInventory)
+            {
+                return false;
+            }
+
+            if (!sellerInventory.RemoveItem(slot.item, 1))
+            {
+                return false;
+            }
+
+            if (buyerWallet != null)
+            {
+                buyerWallet.Pay(slot.item.price);
+            }
+
+            NpcItemCollector collector =
+                sellerObject != null
+                ? sellerObject.GetComponent<NpcItemCollector>()
+                : sellerInventory.GetComponent<NpcItemCollector>();
+
+            if (collector != null)
+            {
+                collector.UnequipForSale(slot.item);
+            }
+
+            AddMoneyToSeller(slot.item.price);
+            RefreshFromSellerInventory();
+        }
+        else
+        {
+            if (buyerWallet != null)
+            {
+                buyerWallet.Pay(slot.item.price);
+            }
+
+            slot.amount -= 1;
+            SaveRuntimeStock();
         }
 
-        slot.amount -= 1;
-        SaveRuntimeStock();
         buyerInventory.AddItem(slot.item, 1);
 
         return true;
@@ -131,6 +180,73 @@ public class SimpleItemShop : MonoBehaviour
         }
 
         return buyerWallet.CanPay(price);
+    }
+
+    public void RefreshFromSellerInventory()
+    {
+        if (!sellFromNpcInventory ||
+            sellerInventory == null)
+        {
+            return;
+        }
+
+        items.Clear();
+
+        foreach (ItemStack stack in sellerInventory.items)
+        {
+            if (stack == null ||
+                stack.item == null ||
+                stack.amount <= 0)
+            {
+                continue;
+            }
+
+            items.Add(
+                new ShopItemSlot
+                {
+                    item = stack.item,
+                    amount = stack.amount
+                });
+        }
+
+        RegisterItems();
+    }
+
+    void AddMoneyToSeller(int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        GameObject target =
+            sellerObject != null
+            ? sellerObject
+            : sellerInventory != null
+                ? sellerInventory.gameObject
+                : null;
+
+        if (target == null)
+        {
+            return;
+        }
+
+        VillagerAI villager =
+            target.GetComponent<VillagerAI>();
+
+        if (villager != null)
+        {
+            villager.money += amount;
+            return;
+        }
+
+        SmartNpcAI smartNpc =
+            target.GetComponent<SmartNpcAI>();
+
+        if (smartNpc != null)
+        {
+            smartNpc.money += amount;
+        }
     }
 
     void LoadRuntimeStock()

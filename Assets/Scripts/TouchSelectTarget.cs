@@ -14,6 +14,8 @@ public class TouchSelectTarget : MonoBehaviour
 
     public TMP_Text infoText;
 
+    public NpcInventoryPanelUI npcInventoryPanel;
+
     [Header("Panel Follow")]
     public Vector3 panelOffset =
         new Vector3(0, 2f, 0);
@@ -44,12 +46,26 @@ public class TouchSelectTarget : MonoBehaviour
                 cam.GetComponent<MobileCameraController>();
         }
 
-        panelRect =
-            infoPanel.GetComponent<RectTransform>();
+        if (infoPanel != null)
+        {
+            panelRect =
+                infoPanel.GetComponent<RectTransform>();
+        }
 
         if (infoPanel != null)
         {
             infoPanel.SetActive(false);
+        }
+
+        if (npcInventoryPanel != null)
+        {
+            npcInventoryPanel.Hide();
+        }
+
+        if (npcInventoryPanel == null)
+        {
+            npcInventoryPanel =
+                FindObjectOfType<NpcInventoryPanelUI>(true);
         }
     }
 
@@ -170,6 +186,11 @@ public class TouchSelectTarget : MonoBehaviour
 
                 "\nHành động: " +
                 GetTargetAction(selectedTarget);
+        }
+
+        if (npcInventoryPanel != null)
+        {
+            npcInventoryPanel.Show(selectedTarget);
         }
     }
 
@@ -458,6 +479,11 @@ public class TouchSelectTarget : MonoBehaviour
         if (infoPanel != null)
         {
             infoPanel.SetActive(false);
+        }
+
+        if (npcInventoryPanel != null)
+        {
+            npcInventoryPanel.Hide();
         }
     }
 
