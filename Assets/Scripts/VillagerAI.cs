@@ -29,6 +29,10 @@ public enum VillagerMood
 
 public class VillagerAI : MonoBehaviour, IDamageable
 {
+    [Header("Entity Generation")]
+    public bool generateFromEntityProfile = true;
+    public EntityProfile entityProfile;
+
     [Header("Info")]
     public string villagerName = "Nguoi dan";
     public VillagerAgeGroup ageGroup = VillagerAgeGroup.Adult;
@@ -56,6 +60,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
     [Header("Personality")]
     [Range(0, 100)]
     public int sociability = 50;
+    [Range(0, 100)]
+    public int greed = 30;
     [Range(0, 100)]
     public int diligence = 50;
     [Range(0, 100)]
@@ -112,8 +118,17 @@ public class VillagerAI : MonoBehaviour, IDamageable
         characterStats = GetComponent<CharacterStats>();
         spawnPosition = transform.position;
 
+        if (generateFromEntityProfile)
+        {
+            ApplyEntityProfile();
+        }
+
         if (characterStats != null)
         {
+            characterStats.generatedEntityKind = EntityKind.Villager;
+            characterStats.generateFromEntityProfile = true;
+            characterStats.entityProfile = entityProfile;
+            characterStats.ApplyEntityProfile();
             SyncFromCharacterStats();
         }
         else
@@ -124,6 +139,93 @@ public class VillagerAI : MonoBehaviour, IDamageable
             ApplyRealmPower();
             currentHP = Mathf.Clamp(currentHP, 1, maxHP);
         }
+    }
+
+    void ApplyEntityProfile()
+    {
+        entityProfile =
+            EntityGenerator.EnsureProfile(
+                gameObject,
+                EntityKind.Villager);
+
+        if (entityProfile == null)
+        {
+            return;
+        }
+
+        if (entityProfile.kind != EntityKind.Villager)
+        {
+            EntityGenerator.FillProfile(entityProfile, EntityKind.Villager);
+            entityProfile.lockGeneratedValues = true;
+        }
+
+        villagerName = entityProfile.identity.entityName;
+        ageGroup = GetAgeGroup(entityProfile.identity.age);
+        job = GetGeneratedJob(entityProfile.personality);
+        realm = entityProfile.stats.realm;
+        realmStage = entityProfile.stats.realmStage;
+        cultivationExp = entityProfile.stats.cultivationExp;
+        baseMaxHP = Mathf.Max(1, entityProfile.stats.maxHP);
+        baseAttack = Mathf.Max(1, entityProfile.stats.attack);
+        baseDefense = Mathf.Max(0, entityProfile.stats.defense);
+        maxHP = entityProfile.stats.maxHP;
+        currentHP = entityProfile.stats.currentHP;
+        attack = entityProfile.stats.attack;
+        defense = entityProfile.stats.defense;
+        moveSpeed = entityProfile.stats.moveSpeed;
+        money = entityProfile.stats.money;
+        sociability = entityProfile.personality.sociability;
+        greed = entityProfile.personality.greed;
+        diligence = entityProfile.personality.diligence;
+        bravery = entityProfile.personality.bravery;
+        hunger = entityProfile.needs.hunger;
+        fatigue = entityProfile.needs.fatigue;
+        fun = Mathf.Clamp(100f - entityProfile.needs.socialNeed, 0f, 100f);
+    }
+
+    VillagerAgeGroup GetAgeGroup(int age)
+    {
+        if (age < 18)
+        {
+            return VillagerAgeGroup.Child;
+        }
+
+        if (age > 60)
+        {
+            return VillagerAgeGroup.Elder;
+        }
+
+        return VillagerAgeGroup.Adult;
+    }
+
+    VillagerJob GetGeneratedJob(EntityPersonality source)
+    {
+        if (source == null)
+        {
+            return VillagerJob.Farmer;
+        }
+
+        if (source.bravery > 70)
+        {
+            return VillagerJob.Guard;
+        }
+
+        if (source.greed > 70 || source.sociability > 75)
+        {
+            return VillagerJob.Trader;
+        }
+
+        if (source.kindness > 75)
+        {
+            return VillagerJob.Healer;
+        }
+
+        if (source.diligence < 30)
+        {
+            return VillagerJob.None;
+        }
+
+        return Random.value < 0.5f ? VillagerJob.Farmer : VillagerJob.Worker;
     }
 
     void Update()
@@ -200,6 +302,13 @@ public class VillagerAI : MonoBehaviour, IDamageable
             fun - Time.deltaTime * 0.2f,
             0f,
             100f);
+
+        if (entityProfile != null)
+        {
+            entityProfile.needs.hunger = hunger;
+            entityProfile.needs.fatigue = fatigue;
+            entityProfile.needs.socialNeed = Mathf.Clamp(100f - fun, 0f, 100f);
+        }
     }
 
     void UpdateMood()
@@ -223,6 +332,36 @@ public class VillagerAI : MonoBehaviour, IDamageable
         else
         {
             mood = VillagerMood.Normal;
+        }
+
+        WeatherSystem weather = WeatherSystem.Instance;
+        if (weather != null && weather.MoodModifier() < -10f && mood == VillagerMood.Normal)
+        {
+            mood = VillagerMood.Sad;
+        }
+
+        if (entityProfile != null)
+        {
+            entityProfile.emotion.mood = ToEntityMood(mood);
+        }
+    }
+
+    EntityMood ToEntityMood(VillagerMood source)
+    {
+        switch (source)
+        {
+            case VillagerMood.Happy:
+                return EntityMood.Happy;
+            case VillagerMood.Sad:
+                return EntityMood.Sad;
+            case VillagerMood.Angry:
+                return EntityMood.Angry;
+            case VillagerMood.Afraid:
+                return EntityMood.Afraid;
+            case VillagerMood.Tired:
+                return EntityMood.Tired;
+            default:
+                return EntityMood.Calm;
         }
     }
 
@@ -279,6 +418,58 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     void ThinkAdult()
     {
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        if (timeSystem != null)
+        {
+            switch (timeSystem.CurrentPhase)
+            {
+                case WorldTimePhase.Dawn:
+                    if (fatigue > 45f)
+                    {
+                        GoHomeToRest();
+                        return;
+                    }
+                    break;
+
+                case WorldTimePhase.Morning:
+                    if (diligence >= 25)
+                    {
+                        GoWork();
+                        return;
+                    }
+                    break;
+
+                case WorldTimePhase.Noon:
+                    GoEat();
+                    return;
+
+                case WorldTimePhase.Afternoon:
+                    if (job == VillagerJob.Trader || Random.Range(0, 100) < sociability + greed)
+                    {
+                        GoTrade();
+                        return;
+                    }
+                    break;
+
+                case WorldTimePhase.Evening:
+                    int funSeeking = entityProfile != null ? entityProfile.personality.funSeeking : 0;
+                    if (fun < 70f || sociability + funSeeking > 80)
+                    {
+                        GatherAndPlay();
+                        return;
+                    }
+                    break;
+
+                case WorldTimePhase.Night:
+                    if (bravery < 75)
+                    {
+                        GoHomeToRest();
+                        return;
+                    }
+                    break;
+            }
+        }
+
         if (ShouldTalk())
         {
             TalkToNearbyVillager();
@@ -469,6 +660,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
         acquaintances.Add(other);
         other.acquaintances.Add(this);
 
+        ApplySocialMemory(other);
+
         currentAction =
             GetConversationAction(other);
 
@@ -477,6 +670,31 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         actionTimer = 2f;
         other.actionTimer = 2f;
+    }
+
+    void ApplySocialMemory(VillagerAI other)
+    {
+        if (entityProfile == null || other == null || other.entityProfile == null)
+        {
+            return;
+        }
+
+        EntityRelationship relationship =
+            entityProfile.GetRelationship(other.entityProfile.identity.entityName);
+        EntityRelationship otherRelationship =
+            other.entityProfile.GetRelationship(entityProfile.identity.entityName);
+
+        int moodBonus = mood == VillagerMood.Happy ? 2 : 1;
+        int temperPenalty = entityProfile.personality.hotTemper > 75 && Random.value < 0.25f ? 2 : 0;
+
+        relationship.friendship += moodBonus;
+        relationship.hatred += temperPenalty;
+        otherRelationship.friendship += moodBonus;
+        otherRelationship.hatred += temperPenalty;
+
+        string eventType = temperPenalty > 0 ? "argument" : "conversation";
+        entityProfile.Remember(other.entityProfile.identity.entityName, eventType, moodBonus - temperPenalty);
+        other.entityProfile.Remember(entityProfile.identity.entityName, eventType, moodBonus - temperPenalty);
     }
 
     string GetConversationAction(VillagerAI other)

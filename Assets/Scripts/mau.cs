@@ -6,114 +6,163 @@ public class mau : MonoBehaviour
 {
     [Header("UI")]
     public Slider slider;
-
     public TMP_Text hpText;
+
+    [Header("Size")]
+    public Vector2 barSize = new Vector2(0.8f, 0.12f);
+    public bool hideHpText = true;
+    public bool forceWorldScale = true;
+    public Vector3 worldScale = Vector3.one;
 
     [Header("Target")]
     public CharacterStats targetStats;
+    public MonsterAI targetMonster;
 
     [Header("Follow")]
-    public Vector3 offset =
-        new Vector3(0, 1.5f, 0);
+    public Vector3 offset = new Vector3(0f, 0.85f, 0f);
 
     Camera mainCam;
 
+    void Awake()
+    {
+        ResolveTarget();
+    }
+
     void Start()
     {
-        mainCam =
-            Camera.main;
-
-        // Kiểm tra targetStats trước
-        if (targetStats != null)
-        {
-            AutoResize();
-        }
+        mainCam = Camera.main;
+        ConfigureBar();
+        UpdateHealth();
     }
 
     void Update()
     {
-        // Nếu chưa có target
-        if (targetStats == null)
+        if (targetStats == null && targetMonster == null)
         {
             return;
         }
 
         UpdateHealth();
-
         FollowTarget();
     }
 
     void UpdateHealth()
     {
-        // Kiểm tra slider
-        if (slider == null)
+        if (slider != null)
         {
-            return;
+            int maxHp = GetMaxHp();
+            slider.maxValue = Mathf.Max(1, maxHp);
+            slider.value = Mathf.Clamp(GetCurrentHp(), 0, maxHp);
         }
 
-        slider.maxValue =
-            targetStats.finalHP;
-
-        slider.value =
-            targetStats.currentHP;
-
-        // Kiểm tra text
         if (hpText != null)
         {
-            hpText.text =
-                targetStats.currentHP +
-                " / " +
-                targetStats.finalHP;
+            hpText.gameObject.SetActive(!hideHpText);
+
+            if (!hideHpText)
+            {
+                hpText.text = GetCurrentHp() + " / " + GetMaxHp();
+            }
         }
     }
 
     void FollowTarget()
     {
-        transform.position =
-            targetStats.transform.position +
-            offset;
+        Transform target = GetTargetTransform();
+        if (target == null)
+        {
+            return;
+        }
 
-        // Kiểm tra camera
+        transform.position = target.position + offset;
+
         if (mainCam != null)
         {
-            transform.rotation =
-                mainCam.transform.rotation;
+            transform.rotation = mainCam.transform.rotation;
         }
     }
 
-    void AutoResize()
+    void ConfigureBar()
     {
-        // Kiểm tra targetStats
-        if (targetStats == null)
+        ResolveReferences();
+
+        RectTransform rect = GetComponent<RectTransform>();
+        if (rect != null)
+        {
+            rect.sizeDelta = barSize;
+        }
+
+        if (slider != null)
+        {
+            RectTransform sliderRect = slider.GetComponent<RectTransform>();
+            if (sliderRect != null)
+            {
+                sliderRect.sizeDelta = barSize;
+            }
+        }
+
+        if (hpText != null)
+        {
+            hpText.gameObject.SetActive(!hideHpText);
+        }
+
+        if (forceWorldScale)
+        {
+            transform.localScale = worldScale;
+        }
+    }
+
+    void ResolveTarget()
+    {
+        if (targetStats != null || targetMonster != null)
         {
             return;
         }
 
-        SpriteRenderer sr =
-            targetStats.GetComponent<SpriteRenderer>();
+        targetMonster = GetComponentInParent<MonsterAI>();
+        targetStats = GetComponentInParent<CharacterStats>();
+    }
 
-        if (sr == null)
+    void ResolveReferences()
+    {
+        if (slider == null)
         {
-            return;
+            slider = GetComponent<Slider>();
         }
 
-        RectTransform rect =
-            GetComponent<RectTransform>();
-
-        if (rect == null)
+        if (hpText == null)
         {
-            return;
+            hpText = GetComponentInChildren<TMP_Text>(true);
+        }
+    }
+
+    int GetCurrentHp()
+    {
+        if (targetMonster != null)
+        {
+            return targetMonster.currentHP;
         }
 
-        float size =
-            sr.bounds.size.x;
+        return targetStats != null ? targetStats.currentHP : 0;
+    }
 
-        rect.sizeDelta =
-            new Vector2(
-                size * 100f,
-                20f);
+    int GetMaxHp()
+    {
+        if (targetMonster != null)
+        {
+            return targetMonster.maxHP;
+        }
 
-        offset.y =
-            sr.bounds.size.y + 0.5f;
+        return targetStats != null ? targetStats.finalHP : 1;
+    }
+
+    Transform GetTargetTransform()
+    {
+        if (targetMonster != null)
+        {
+            return targetMonster.transform;
+        }
+
+        return targetStats != null ? targetStats.transform : null;
     }
 }

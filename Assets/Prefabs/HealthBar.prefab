@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6418941377141097166
 RectTransform:
   m_ObjectHideFlags: 0
@@ -110,7 +110,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 0.8, y: 0.12}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &948409020364774528
 CanvasRenderer:
@@ -240,7 +240,7 @@ RectTransform:
   m_GameObject: {fileID: 5546343709531348051}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1051530059980940891}
@@ -251,7 +251,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 1.5}
-  m_SizeDelta: {x: 300, y: 150}
+  m_SizeDelta: {x: 0.8, y: 0.12}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &5193205798418894973
 MonoBehaviour:
@@ -315,11 +315,16 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f579c8ee86100dc4b9dfd89fa11df439, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Mau
+  m_EditorClassIdentifier: Assembly-CSharp::mau
   slider: {fileID: 5193205798418894973}
   hpText: {fileID: 8654249075732541174}
+  barSize: {x: 0.8, y: 0.12}
+  hideHpText: 1
+  forceWorldScale: 1
+  worldScale: {x: 1, y: 1, z: 1}
   targetStats: {fileID: 0}
-  offset: {x: 0, y: 1.5, z: 0}
+  targetMonster: {fileID: 0}
+  offset: {x: 0, y: 0.85, z: 0}
 --- !u!223 &7573652810058139827
 Canvas:
   m_ObjectHideFlags: 0

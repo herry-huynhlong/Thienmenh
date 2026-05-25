@@ -2,6 +2,10 @@ using UnityEngine;
 
 public class MonsterAI : MonoBehaviour, IDamageable
 {
+    [Header("===== ENTITY GENERATION =====")]
+    public bool generateFromEntityProfile = true;
+    public EntityProfile entityProfile;
+
     [Header("===== THÔNG TIN =====")]
 
     public string monsterName =
@@ -21,6 +25,15 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     public int effectResistance = 0;
 
+    [Header("===== BAN NANG YEU THU =====")]
+    [Range(0, 100)] public float beastInstinct = 60f;
+    [Range(0, 100)] public float aggression = 50f;
+    [Range(0, 100)] public float fear = 20f;
+    [Range(0, 100)] public float hunger = 40f;
+    [Range(0, 100)] public float territorial = 50f;
+    [Range(0, 100)] public float bloodlust = 20f;
+    [Range(0, 100)] public float survivalInstinct = 50f;
+
     [Header("===== DI CHUYỂN =====")]
 
     public float moveSpeed = 2f;
@@ -28,6 +41,16 @@ public class MonsterAI : MonoBehaviour, IDamageable
     public float roamRadius = 3f;
 
     public float waitTime = 2f;
+
+    public bool autoConfigureRigidbody = true;
+
+    public bool fallbackTransformMove = true;
+
+    [Header("===== RUNTIME DEBUG =====")]
+
+    public string currentAction = "Idle";
+
+    public Vector2 currentMoveVelocity;
 
     [Header("===== PLAYER =====")]
 
@@ -69,12 +92,19 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     bool isDead = false;
 
+    Vector2 desiredVelocity;
+
     public bool IsDead => isDead;
 
     public Transform DamageTransform => transform;
 
     void Start()
     {
+        if (generateFromEntityProfile)
+        {
+            ApplyEntityProfile();
+        }
+
         currentHP =
             maxHP;
 
@@ -83,6 +113,8 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
         rb =
             GetComponent<Rigidbody2D>();
+
+        ConfigureRigidbody();
 
         startPosition =
             transform.position;
@@ -101,12 +133,71 @@ public class MonsterAI : MonoBehaviour, IDamageable
         }
     }
 
+    void ConfigureRigidbody()
+    {
+        if (!autoConfigureRigidbody ||
+            rb == null)
+        {
+            return;
+        }
+
+        if (rb.bodyType == RigidbodyType2D.Static)
+        {
+            rb.bodyType = RigidbodyType2D.Dynamic;
+        }
+
+        rb.gravityScale = 0f;
+        rb.freezeRotation = true;
+
+        if ((rb.constraints & RigidbodyConstraints2D.FreezePositionX) != 0 ||
+            (rb.constraints & RigidbodyConstraints2D.FreezePositionY) != 0)
+        {
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        }
+    }
+
+    void ApplyEntityProfile()
+    {
+        entityProfile =
+            EntityGenerator.EnsureProfile(
+                gameObject,
+                EntityKind.Beast);
+
+        if (entityProfile == null)
+        {
+            return;
+        }
+
+        if (entityProfile.kind != EntityKind.Beast)
+        {
+            EntityGenerator.FillProfile(entityProfile, EntityKind.Beast);
+            entityProfile.lockGeneratedValues = true;
+        }
+
+        monsterName = entityProfile.identity.entityName;
+        maxHP = entityProfile.stats.maxHP;
+        currentHP = entityProfile.stats.currentHP;
+        damage = entityProfile.stats.attack;
+        defense = entityProfile.stats.defense;
+        effectResistance = entityProfile.stats.effectResistance;
+        moveSpeed = entityProfile.stats.moveSpeed;
+        beastInstinct = Mathf.Clamp(45f + entityProfile.talent.combatMultiplier * 15f, 0f, 100f);
+        aggression = Mathf.Clamp(entityProfile.personality.bravery + entityProfile.personality.hotTemper * 0.5f, 0f, 100f);
+        fear = Mathf.Clamp(100f - entityProfile.personality.bravery, 0f, 100f);
+        hunger = entityProfile.needs.hunger;
+        territorial = Random.Range(35f, 95f);
+        bloodlust = Mathf.Clamp(entityProfile.personality.hotTemper, 0f, 100f);
+        survivalInstinct = Random.Range(35f, 100f);
+    }
+
     void Update()
     {
         if (isDead)
         {
             return;
         }
+
+        UpdateBeastNeeds();
 
         attackTimer -= Time.deltaTime;
 
@@ -119,6 +210,18 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
             if (distanceToPlayer <= detectRange)
             {
+                if (ShouldFleeFrom(player))
+                {
+                    FleeFrom(player);
+                    return;
+                }
+
+                if (!ShouldAttackTarget(player))
+                {
+                    Patrol();
+                    return;
+                }
+
                 FollowPlayer(
                     distanceToPlayer);
 
@@ -129,10 +232,133 @@ public class MonsterAI : MonoBehaviour, IDamageable
         Patrol();
     }
 
+    void FixedUpdate()
+    {
+        if (rb == null)
+        {
+            return;
+        }
+
+        if (isDead ||
+            isAttacking)
+        {
+            rb.linearVelocity = Vector2.zero;
+            currentMoveVelocity = Vector2.zero;
+            return;
+        }
+
+        rb.linearVelocity = desiredVelocity;
+        currentMoveVelocity = rb.linearVelocity;
+
+        if (fallbackTransformMove &&
+            desiredVelocity.sqrMagnitude > 0.0001f &&
+            rb.bodyType != RigidbodyType2D.Dynamic)
+        {
+            transform.position +=
+                (Vector3)(desiredVelocity * Time.fixedDeltaTime);
+        }
+    }
+
+    void UpdateBeastNeeds()
+    {
+        hunger = Mathf.Clamp(hunger + Time.deltaTime * 0.4f, 0f, 100f);
+
+        WeatherSystem weather = WeatherSystem.Instance;
+        if (weather != null)
+        {
+            aggression = Mathf.Clamp(aggression + weather.BeastAggressionBonus() * Time.deltaTime * 0.01f, 0f, 100f);
+        }
+
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        if (timeSystem != null && timeSystem.IsDangerousNight())
+        {
+            bloodlust = Mathf.Clamp(bloodlust + Time.deltaTime * 0.2f, 0f, 100f);
+        }
+
+        if (entityProfile != null)
+        {
+            entityProfile.needs.hunger = hunger;
+            entityProfile.emotion.fear = fear;
+        }
+    }
+
+    bool ShouldAttackTarget(Transform target)
+    {
+        float reason =
+            hunger * 0.45f +
+            aggression * 0.3f +
+            bloodlust * 0.2f +
+            territorial * 0.15f;
+
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        if (timeSystem != null && timeSystem.IsDangerousNight())
+        {
+            reason += 15f;
+        }
+
+        return reason >= 45f;
+    }
+
+    bool ShouldFleeFrom(Transform target)
+    {
+        IDamageable damageable =
+            target.GetComponentInParent<IDamageable>();
+
+        int targetPower = EstimatePower(target.gameObject, damageable);
+        int selfPower = Mathf.Max(1, damage + defense + maxHP / 10);
+        bool clearlyWeaker = targetPower > selfPower * 2;
+        bool almostDead = currentHP < maxHP * 0.25f;
+
+        return (clearlyWeaker && fear + survivalInstinct > 80f) ||
+            (almostDead && survivalInstinct > 45f);
+    }
+
+    int EstimatePower(GameObject target, IDamageable damageable)
+    {
+        CharacterStats stats = target.GetComponentInParent<CharacterStats>();
+        if (stats != null)
+        {
+            return stats.attack + stats.defense + stats.finalHP / 10;
+        }
+
+        MonsterAI monster = target.GetComponentInParent<MonsterAI>();
+        if (monster != null)
+        {
+            return monster.damage + monster.defense + monster.maxHP / 10;
+        }
+
+        return damageable != null ? 50 : 1;
+    }
+
+    void FleeFrom(Transform threat)
+    {
+        if (rb == null || threat == null)
+        {
+            return;
+        }
+
+        Vector2 direction =
+            ((Vector2)transform.position - (Vector2)threat.position).normalized;
+
+        desiredVelocity =
+            direction *
+            moveSpeed *
+            1.25f;
+        currentAction = "Flee";
+
+        if (animator != null && useAnimation)
+        {
+            animator.SetBool("isMoving", true);
+        }
+    }
+
     void Patrol()
     {
         if (!hasTarget)
         {
+            desiredVelocity = Vector2.zero;
+            currentAction = "Waiting";
+
             waitTimer -= Time.deltaTime;
 
             if (animator != null &&
@@ -165,8 +391,8 @@ public class MonsterAI : MonoBehaviour, IDamageable
             waitTimer =
                 waitTime;
 
-            rb.linearVelocity =
-                Vector2.zero;
+            desiredVelocity = Vector2.zero;
+            currentAction = "Arrived";
 
             if (animator != null &&
                 useAnimation)
@@ -182,11 +408,10 @@ public class MonsterAI : MonoBehaviour, IDamageable
         direction =
             direction.normalized;
 
-        rb.MovePosition(
-            rb.position +
+        desiredVelocity =
             direction *
-            moveSpeed *
-            Time.deltaTime);
+            moveSpeed;
+        currentAction = "Patrol";
 
         if (animator != null &&
             useAnimation)
@@ -214,11 +439,10 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
         if (distance > attackRange)
         {
-            rb.MovePosition(
-                rb.position +
+            desiredVelocity =
                 direction.normalized *
-                moveSpeed *
-                Time.deltaTime);
+                moveSpeed;
+            currentAction = "Chasing Player";
 
             if (animator != null &&
                 useAnimation)
@@ -230,8 +454,8 @@ public class MonsterAI : MonoBehaviour, IDamageable
         }
         else
         {
-            rb.linearVelocity =
-                Vector2.zero;
+            desiredVelocity = Vector2.zero;
+            currentAction = "Attack Range";
 
             if (animator != null &&
                 useAnimation)
@@ -323,6 +547,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
             randomPoint;
 
         hasTarget = true;
+        currentAction = "New Patrol Target";
     }
 
     void FaceDirection(Vector2 direction)
@@ -356,6 +581,12 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
         currentHP -= finalDamage;
 
+        if (entityProfile != null)
+        {
+            entityProfile.stats.currentHP = Mathf.Max(0, currentHP);
+            entityProfile.Remember("attacker", "was_attacked", -finalDamage);
+        }
+
         if (animator != null &&
             useAnimation)
         {
@@ -373,8 +604,13 @@ public class MonsterAI : MonoBehaviour, IDamageable
     {
         isDead = true;
 
-        rb.linearVelocity =
-            Vector2.zero;
+        desiredVelocity = Vector2.zero;
+
+        if (rb != null)
+        {
+            rb.linearVelocity =
+                Vector2.zero;
+        }
 
         if (animator != null &&
             useAnimation)

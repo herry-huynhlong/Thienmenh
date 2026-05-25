@@ -2,6 +2,11 @@ using UnityEngine;
 
 public class CharacterStats : MonoBehaviour, IDamageable
 {
+    [Header("Entity Generation")]
+    public bool generateFromEntityProfile = true;
+    public EntityKind generatedEntityKind = EntityKind.Cultivator;
+    public EntityProfile entityProfile;
+
     [Header("Cultivation")]
     public CultivationRealm realm = CultivationRealm.Mortal;
     [Range(1, 9)]
@@ -39,7 +44,35 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
     void Awake()
     {
+        if (generateFromEntityProfile)
+        {
+            ApplyEntityProfile();
+        }
+
         RecalculateStats(true);
+    }
+
+    public void ApplyEntityProfile()
+    {
+        entityProfile =
+            EntityGenerator.EnsureProfile(
+                gameObject,
+                generatedEntityKind);
+
+        if (entityProfile == null)
+        {
+            return;
+        }
+
+        realm = entityProfile.stats.realm;
+        realmStage = entityProfile.stats.realmStage;
+        cultivationExp = entityProfile.stats.cultivationExp;
+        int realmMultiplier = GetRealmMultiplier();
+        baseMaxHP = Mathf.Max(1, entityProfile.stats.maxHP / realmMultiplier);
+        baseAttack = Mathf.Max(1, entityProfile.stats.attack / realmMultiplier);
+        baseDefense = Mathf.Max(0, entityProfile.stats.defense / realmMultiplier);
+        baseMoveSpeed = Mathf.Max(0.1f, entityProfile.stats.moveSpeed);
+        currentHP = Mathf.Max(1, entityProfile.stats.currentHP);
     }
 
     void Start()
@@ -273,6 +306,11 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
         currentHP -= finalDamage;
         currentHP = Mathf.Clamp(currentHP, 0, finalHP);
+
+        if (entityProfile != null)
+        {
+            entityProfile.stats.currentHP = currentHP;
+        }
     }
 
     public string GetRealmText()

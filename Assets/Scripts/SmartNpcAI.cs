@@ -20,6 +20,10 @@ public enum PhysiqueType
 
 public class SmartNpcAI : MonoBehaviour, IDamageable
 {
+    [Header("Entity Generation")]
+    public bool generateFromEntityProfile = true;
+    public EntityProfile entityProfile;
+
     [Header("Thông tin NPC")]
     public string npcName = "NPC";
 
@@ -145,13 +149,77 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
         characterStats = GetComponent<CharacterStats>();
 
+        if (generateFromEntityProfile)
+        {
+            ApplyEntityProfile();
+        }
+
         if (characterStats != null)
         {
+            characterStats.generatedEntityKind = EntityKind.Cultivator;
+            characterStats.generateFromEntityProfile = true;
+            characterStats.entityProfile = entityProfile;
+            characterStats.ApplyEntityProfile();
             SyncFromCharacterStats();
         }
         else
         {
             ApplyRealmPower();
+        }
+    }
+
+    void ApplyEntityProfile()
+    {
+        entityProfile =
+            EntityGenerator.EnsureProfile(
+                gameObject,
+                EntityKind.Cultivator);
+
+        if (entityProfile == null)
+        {
+            return;
+        }
+
+        if (entityProfile.kind != EntityKind.Cultivator)
+        {
+            EntityGenerator.FillProfile(entityProfile, EntityKind.Cultivator);
+            entityProfile.lockGeneratedValues = true;
+        }
+
+        npcName = entityProfile.identity.entityName;
+        realm = entityProfile.stats.realm;
+        realmStage = entityProfile.stats.realmStage;
+        comprehension = entityProfile.talent.comprehension;
+        physique = ToPhysique(entityProfile.talent.grade);
+        maxHP = entityProfile.stats.maxHP;
+        currentHP = entityProfile.stats.currentHP;
+        attack = entityProfile.stats.attack;
+        defense = entityProfile.stats.defense;
+        effectResistance = entityProfile.stats.effectResistance;
+        moveSpeed = entityProfile.stats.moveSpeed;
+        cultivation = entityProfile.stats.cultivationExp;
+        money = entityProfile.stats.money;
+        spiritStone = entityProfile.stats.spiritStone;
+        bravery = entityProfile.personality.bravery;
+        greed = entityProfile.personality.greed;
+        kindness = entityProfile.personality.kindness;
+        hunger = entityProfile.needs.hunger;
+        fatigue = entityProfile.needs.fatigue;
+    }
+
+    PhysiqueType ToPhysique(TalentGrade grade)
+    {
+        switch (grade)
+        {
+            case TalentGrade.ChildOfHeaven:
+            case TalentGrade.SaintBody:
+                return PhysiqueType.ChaosBody;
+            case TalentGrade.FireSpiritRoot:
+            case TalentGrade.SwordHeart:
+            case TalentGrade.SpiritRoot:
+                return PhysiqueType.FiveElementBody;
+            default:
+                return PhysiqueType.MortalBody;
         }
     }
 
@@ -262,6 +330,35 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        if (timeSystem != null)
+        {
+            if (timeSystem.CurrentPhase == WorldTimePhase.Night &&
+                bravery < 55 &&
+                currentMonsterTarget == null)
+            {
+                Sleep();
+                return;
+            }
+
+            if (timeSystem.CurrentPhase == WorldTimePhase.Evening &&
+                canMakeFriends &&
+                kindness + greed < 130)
+            {
+                MakeFriend();
+                return;
+            }
+        }
+
+        WeatherSystem weather = WeatherSystem.Instance;
+        if (weather != null &&
+            weather.CurrentWeather == WorldWeather.DenseSpiritualQi &&
+            canCultivate)
+        {
+            Cultivate();
+            return;
+        }
+
         if (canLive && hunger >= 80)
         {
             Eat();
@@ -322,6 +419,12 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         hunger += Time.deltaTime * 0.05f;
 
         fatigue += Time.deltaTime * 0.04f;
+
+        if (entityProfile != null)
+        {
+            entityProfile.needs.hunger = Mathf.Clamp(hunger, 0f, 100f);
+            entityProfile.needs.fatigue = Mathf.Clamp(fatigue, 0f, 100f);
+        }
     }
 
     void Eat()
@@ -458,6 +561,12 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
         multiplier +=
             comprehension * 0.05f;
+
+        WeatherSystem weather = WeatherSystem.Instance;
+        if (weather != null)
+        {
+            multiplier *= weather.CultivationMultiplier();
+        }
 
         return multiplier;
     }

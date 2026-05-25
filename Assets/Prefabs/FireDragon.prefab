@@ -10,8 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6546044945907785446}
   - component: {fileID: 8533423130774370920}
-  - component: {fileID: 63826163524078426}
-  - component: {fileID: 3224373040743465719}
   - component: {fileID: 7071798562252399638}
   - component: {fileID: 6662087974964516660}
   m_Layer: 0
@@ -95,70 +93,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!50 &63826163524078426
-Rigidbody2D:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1650737128784263751}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 4
---- !u!70 &3224373040743465719
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1650737128784263751}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 8, y: 8}
-  m_Direction: 0
 --- !u!95 &7071798562252399638
 Animator:
   serializedVersion: 7
@@ -193,12 +127,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11f70ac958cc4a349b1bcd3767aef3fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAI
+  generateFromEntityProfile: 1
+  entityProfile: {fileID: 0}
   monsterName: "Y\xEAu Th\xFA"
   maxHP: 100
   currentHP: 100
+  damage: 10
+  defense: 0
+  effectResistance: 0
+  beastInstinct: 60
+  aggression: 50
+  fear: 20
+  hunger: 40
+  territorial: 50
+  bloodlust: 20
+  survivalInstinct: 50
   moveSpeed: 2
+  roamRadius: 5
+  waitTime: 2
+  autoConfigureRigidbody: 1
+  fallbackTransformMove: 1
+  currentAction: Idle
+  currentMoveVelocity: {x: 0, y: 0}
   detectRange: 6
   attackRange: 1.5
-  roamRadius: 5
-  roamWaitTime: 2
   attackCooldown: 1.5
+  fireballPrefab: {fileID: 0}
+  firePoint: {fileID: 0}
+  useAnimation: 1
