@@ -92,6 +92,17 @@ public class VillagerAI : MonoBehaviour, IDamageable
     public LayerMask villagerLayers = ~0;
     public int acquaintanceTalkChanceBonus = 30;
     public bool destroyOnDeath;
+    public float workDurationMin = 25f;
+    public float workDurationMax = 60f;
+    public float restDuration = 8f;
+    public float eatDuration = 5f;
+    public float playDuration = 8f;
+    public float tradeDuration = 15f;
+    [Range(0f, 1f)]
+    public float roadPreferenceChance = 0.8f;
+    public float lowHpRoadBypassPercent = 0.3f;
+    public float separationRadius = 0.45f;
+    public float separationStrength = 1.4f;
 
     [Header("Runtime")]
     public string currentAction = "Dung yen";
@@ -105,6 +116,9 @@ public class VillagerAI : MonoBehaviour, IDamageable
     float nextSocialScanTime;
     bool hasWanderTarget;
     bool movingToRoad;
+    bool hasRoadPreference;
+    bool prefersRoadForCurrentRoute;
+    Vector3 roadPreferenceTarget;
 
     Vector3 currentWorkTarget;
 
@@ -584,8 +598,9 @@ public class VillagerAI : MonoBehaviour, IDamageable
             {
                 currentHP = Mathf.Min(maxHP, currentHP + 10);
             }
-            actionTimer = 3f;
+            actionTimer = restDuration;
             currentAction = "Dang nghi ngoi";
+            hasWorkTarget = false;
         }
     }
 
@@ -599,7 +614,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         {
             hunger = 0f;
             money = Mathf.Max(0, money - 1);
-            actionTimer = 2f;
+            actionTimer = eatDuration;
             currentAction = "Dang an";
         }
     }
@@ -613,7 +628,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         if (HasArrived())
         {
             fun = 100f;
-            actionTimer = 3f;
+            actionTimer = playDuration;
             currentAction = "Dang choi cung ban";
             TalkToNearbyVillager();
         }
@@ -682,6 +697,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
         hasWorkTarget = true;
     }
 
+    currentAction = GetWorkAction();
+
     MoveUsingRoad(
         currentWorkTarget);
 
@@ -692,6 +709,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     if (distance < 0.5f)
     {
+        StopMoving();
+
         money += GetWorkIncome();
 
         fatigue =
@@ -700,7 +719,10 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 0f,
                 100f);
 
-        actionTimer = 3f;
+        actionTimer =
+            Random.Range(
+                workDurationMin,
+                workDurationMax);
 
         currentAction =
             GetWorkingAction();
@@ -716,7 +738,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         if (HasArrived())
         {
             money += Random.Range(1, 4);
-            actionTimer = 3f;
+            actionTimer = tradeDuration;
             currentAction = "Dang buon ban";
             TalkToNearbyVillager();
         }
@@ -914,6 +936,30 @@ public class VillagerAI : MonoBehaviour, IDamageable
         return;
     }
 
+    if (ShouldBypassRoad())
+    {
+        movingToRoad = false;
+        hasRoadPreference = false;
+        MoveToPosition(target);
+        return;
+    }
+
+    if (!hasRoadPreference ||
+        Vector2.Distance(roadPreferenceTarget, target) > 0.5f)
+    {
+        roadPreferenceTarget = target;
+        prefersRoadForCurrentRoute =
+            Random.value < roadPreferenceChance;
+        hasRoadPreference = true;
+        movingToRoad = false;
+    }
+
+    if (!prefersRoadForCurrentRoute)
+    {
+        MoveToPosition(target);
+        return;
+    }
+
     Vector3 road =
         WorldTilemapManager.Instance
         .GetNearestRoad(
@@ -950,12 +996,41 @@ public class VillagerAI : MonoBehaviour, IDamageable
     if (targetDistance < 0.4f)
     {
         movingToRoad = false;
+        hasRoadPreference = false;
     }
 }
+
+    bool ShouldBypassRoad()
+    {
+        float hpPercent =
+            maxHP <= 0
+            ? 1f
+            : (float)currentHP / maxHP;
+
+        if (hpPercent <= lowHpRoadBypassPercent)
+        {
+            return true;
+        }
+
+        return mood == VillagerMood.Afraid ||
+            currentAction.Contains("Hoang so") ||
+            currentAction.Contains("bo chay");
+    }
+
     void MoveToPosition(Vector3 position)
     {
         Vector2 direction =
             (position - transform.position).normalized;
+
+        Vector2 separation =
+            GetSeparationDirection();
+
+        if (separation.sqrMagnitude > 0.0001f)
+        {
+            direction =
+                (direction + separation * separationStrength)
+                .normalized;
+        }
 
         if (direction.sqrMagnitude <= 0.0001f)
         {
@@ -986,6 +1061,49 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
     }
 
+    Vector2 GetSeparationDirection()
+    {
+        if (separationRadius <= 0f)
+        {
+            return Vector2.zero;
+        }
+
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(
+                transform.position,
+                separationRadius,
+                villagerLayers);
+
+        Vector2 push = Vector2.zero;
+
+        foreach (Collider2D hit in hits)
+        {
+            if (hit == null ||
+                hit.transform == transform ||
+                hit.transform.IsChildOf(transform))
+            {
+                continue;
+            }
+
+            if (hit.GetComponentInParent<VillagerAI>() == null &&
+                hit.GetComponentInParent<SmartNpcAI>() == null)
+            {
+                continue;
+            }
+
+            Vector2 away =
+                (Vector2)transform.position -
+                (Vector2)hit.transform.position;
+
+            float distance =
+                Mathf.Max(away.magnitude, 0.01f);
+
+            push += away.normalized / distance;
+        }
+
+        return push.normalized;
+    }
+
     string GetWorkAction()
     {
         switch (job)
@@ -998,6 +1116,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 return "Di tuan tra";
             case VillagerJob.Healer:
                 return "Di chua tri";
+            case VillagerJob.Fisher:
+                return "Di cau ca";
+            case VillagerJob.Hunter:
+                return "Di san ban";
+            case VillagerJob.Trader:
+                return "Ra cho buon ban";
             default:
                 return "Di lam";
         }
@@ -1015,6 +1139,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 return "Dang tuan tra";
             case VillagerJob.Healer:
                 return "Dang chua tri";
+            case VillagerJob.Fisher:
+                return "Dang cau ca";
+            case VillagerJob.Hunter:
+                return "Dang san ban";
+            case VillagerJob.Trader:
+                return "Dang buon ban";
             default:
                 return "Dang lam";
         }
@@ -1031,6 +1161,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 return 2;
             case VillagerJob.Farmer:
             case VillagerJob.Worker:
+            case VillagerJob.Fisher:
+            case VillagerJob.Hunter:
                 return 1;
             default:
                 return 0;

@@ -44,6 +44,18 @@ public class TouchSelectTarget : MonoBehaviour
         {
             cameraController =
                 cam.GetComponent<MobileCameraController>();
+
+            if (cameraController == null)
+            {
+                cameraController =
+                    FindObjectOfType<MobileCameraController>(true);
+            }
+
+            if (cameraController == null)
+            {
+                cameraController =
+                    cam.gameObject.AddComponent<MobileCameraController>();
+            }
         }
 
         if (infoPanel != null)

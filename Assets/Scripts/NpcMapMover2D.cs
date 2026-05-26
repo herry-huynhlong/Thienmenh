@@ -29,12 +29,18 @@ public class NpcMapMover2D : MonoBehaviour
     public int maxPickTargetAttempts = 16;
     public float stuckTimeToPickNewTarget = 0.8f;
 
+    [Header("Crowd Avoidance")]
+    public LayerMask crowdLayers = ~0;
+    public float separationRadius = 0.45f;
+    public float separationStrength = 1.4f;
+
     [Header("Runtime")]
     public Vector2 currentTarget;
     public string currentAction = "Idle";
     public Vector2 currentVelocity;
 
     Rigidbody2D rb;
+    NPCVisualAnimation visualAnimation;
     Collider2D[] selfColliders;
     Vector2 centerPosition;
     Vector2 lastPosition;
@@ -47,6 +53,7 @@ public class NpcMapMover2D : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        visualAnimation = GetComponent<NPCVisualAnimation>();
         selfColliders = GetComponentsInChildren<Collider2D>();
         ConfigureRigidbody();
 
@@ -138,14 +145,17 @@ public class NpcMapMover2D : MonoBehaviour
         }
 
         blockedTimer = 0f;
+        direction = ApplyCrowdAvoidance(direction);
         currentVelocity = direction * moveSpeed;
         currentAction = "Moving";
+        UpdateVisualAnimation();
         DetectStuck();
     }
 
     void FixedUpdate()
     {
         rb.linearVelocity = currentVelocity;
+        UpdateVisualAnimation();
     }
 
     public void PickNewTarget()
@@ -199,6 +209,7 @@ public class NpcMapMover2D : MonoBehaviour
         waitTimer = Mathf.Max(0f, time);
         waitingAfterArrive = arrived;
         blockedTimer = 0f;
+        UpdateVisualAnimation();
 
         currentAction =
             arrived
@@ -260,6 +271,54 @@ public class NpcMapMover2D : MonoBehaviour
         }
 
         return false;
+    }
+
+    Vector2 ApplyCrowdAvoidance(Vector2 direction)
+    {
+        if (separationRadius <= 0f)
+        {
+            return direction;
+        }
+
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(
+                rb.position,
+                separationRadius,
+                crowdLayers);
+
+        Vector2 push = Vector2.zero;
+
+        foreach (Collider2D hit in hits)
+        {
+            if (hit == null ||
+                IsSelfCollider(hit))
+            {
+                continue;
+            }
+
+            if (hit.GetComponentInParent<NpcMapMover2D>() == null &&
+                hit.GetComponentInParent<VillagerAI>() == null &&
+                hit.GetComponentInParent<SmartNpcAI>() == null)
+            {
+                continue;
+            }
+
+            Vector2 away =
+                rb.position -
+                (Vector2)hit.transform.position;
+
+            float distance =
+                Mathf.Max(away.magnitude, 0.01f);
+
+            push += away.normalized / distance;
+        }
+
+        if (push.sqrMagnitude <= 0.0001f)
+        {
+            return direction;
+        }
+
+        return (direction + push.normalized * separationStrength).normalized;
     }
 
     void DetectStuck()
@@ -411,6 +470,18 @@ public class NpcMapMover2D : MonoBehaviour
         {
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         }
+    }
+
+    void UpdateVisualAnimation()
+    {
+        if (visualAnimation == null)
+        {
+            return;
+        }
+
+        bool isIdle = currentVelocity.sqrMagnitude <= 0.0001f;
+        Vector2 direction = isIdle ? Vector2.zero : currentVelocity.normalized;
+        visualAnimation.UpdateNPCAnimation(direction, isIdle);
     }
 
     void OnDrawGizmosSelected()

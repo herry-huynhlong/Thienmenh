@@ -10,11 +10,17 @@ public class NPCVisualAnimation : MonoBehaviour
     public AnimationClip upIdleClip;   
     public AnimationClip sideIdleClip; 
 
+    [Header("Side Facing")]
+    public bool sideSpriteFacesRight = false;
+    public bool invertSideFlip;
+    public float directionDeadZone = 0.08f;
+
     private Animator animator;
     private SpriteRenderer spriteRenderer;
     private AnimatorOverrideController overrideController;
     private string overrideClipName = "OverrideTargetState";
     private Vector2 lastDirection = Vector2.down;
+    private AnimationClip currentClip;
 
     void Start()
     {
@@ -40,34 +46,72 @@ public class NPCVisualAnimation : MonoBehaviour
 
         AnimationClip clipToPlay = null;
 
+        if (!isIdling)
+        {
+            lastDirection = GetCardinalDirection(moveDirection);
+        }
+
         if (isIdling)
         {
             if (lastDirection == Vector2.up) clipToPlay = upIdleClip;
             else if (lastDirection == Vector2.down) clipToPlay = downIdleClip;
-            else if (lastDirection == Vector2.right || lastDirection == Vector2.left) clipToPlay = sideIdleClip;
+            else
+            {
+                clipToPlay = sideIdleClip;
+                ApplySideFlip(lastDirection);
+            }
         }
         else
         {
-            lastDirection = moveDirection; // Lưu lại hướng đi cuối cùng
-
-            if (moveDirection.y > 0.1f) clipToPlay = upWalkClip;
-            else if (moveDirection.y < -0.1f) clipToPlay = downWalkClip;
-            else if (Mathf.Abs(moveDirection.x) > 0.1f) 
+            if (lastDirection == Vector2.up) clipToPlay = upWalkClip;
+            else if (lastDirection == Vector2.down) clipToPlay = downWalkClip;
+            else
             {
                 clipToPlay = sideWalkClip;
-                
-                // Tự động lật mặt trái/phải dựa vào hướng đi thực tế
-                if (spriteRenderer != null)
-                {
-                    spriteRenderer.flipX = (moveDirection.x < 0); // Đi sang trái thì lật hình
-                }
+                ApplySideFlip(lastDirection);
             }
         }
 
-        if (clipToPlay != null && overrideController[overrideClipName] != clipToPlay)
+        if (clipToPlay != null && currentClip != clipToPlay)
         {
             overrideController[overrideClipName] = clipToPlay;
             animator.Play(overrideClipName, 0, 0f);
+            currentClip = clipToPlay;
         }
+    }
+
+    private Vector2 GetCardinalDirection(Vector2 direction)
+    {
+        if (direction.sqrMagnitude < directionDeadZone * directionDeadZone)
+        {
+            return lastDirection;
+        }
+
+        if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y))
+        {
+            return direction.x < 0 ? Vector2.left : Vector2.right;
+        }
+
+        return direction.y < 0 ? Vector2.down : Vector2.up;
+    }
+
+    private void ApplySideFlip(Vector2 direction)
+    {
+        if (spriteRenderer == null ||
+            Mathf.Abs(direction.x) < directionDeadZone)
+        {
+            return;
+        }
+
+        bool movingRight = direction.x > 0f;
+        bool shouldFlip =
+            sideSpriteFacesRight
+            ? !movingRight
+            : movingRight;
+
+        spriteRenderer.flipX =
+            invertSideFlip
+            ? !shouldFlip
+            : shouldFlip;
     }
 }
