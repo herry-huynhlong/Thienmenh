@@ -156,20 +156,17 @@ public class TouchSelectTarget : MonoBehaviour
         CurrentTarget =
             selectedTarget;
 
-        // Camera follow
         if (cameraController != null)
         {
             cameraController.FollowImmediately(
                 selectedTarget);
         }
 
-        // Hiện panel
         if (infoPanel != null)
         {
             infoPanel.SetActive(true);
         }
 
-        // Update text
         if (infoText != null)
         {
             infoText.text =
@@ -196,14 +193,6 @@ public class TouchSelectTarget : MonoBehaviour
 
     Transform GetSelectableTarget(Collider2D hit)
     {
-        NpcData npc =
-            hit.GetComponentInParent<NpcData>();
-
-        if (npc != null)
-        {
-            return npc.transform;
-        }
-
         SmartNpcAI smartNpc =
             hit.GetComponentInParent<SmartNpcAI>();
 
@@ -270,14 +259,6 @@ public class TouchSelectTarget : MonoBehaviour
 
     string GetTargetName(Transform target)
     {
-        NpcData npc =
-            target.GetComponent<NpcData>();
-
-        if (npc != null)
-        {
-            return npc.npcName;
-        }
-
         SmartNpcAI smartNpc =
             target.GetComponent<SmartNpcAI>();
 
@@ -317,14 +298,6 @@ public class TouchSelectTarget : MonoBehaviour
                 characterStats.realmStage;
         }
 
-        NpcData npc =
-            target.GetComponent<NpcData>();
-
-        if (npc != null)
-        {
-            return npc.realm;
-        }
-
         SmartNpcAI smartNpc =
             target.GetComponent<SmartNpcAI>();
 
@@ -352,14 +325,6 @@ public class TouchSelectTarget : MonoBehaviour
         if (characterStats != null)
         {
             return characterStats.currentHP;
-        }
-
-        NpcData npc =
-            target.GetComponent<NpcData>();
-
-        if (npc != null)
-        {
-            return npc.hp;
         }
 
         SmartNpcAI smartNpc =
@@ -399,14 +364,6 @@ public class TouchSelectTarget : MonoBehaviour
             return characterStats.finalHP;
         }
 
-        NpcData npc =
-            target.GetComponent<NpcData>();
-
-        if (npc != null)
-        {
-            return npc.maxHp;
-        }
-
         SmartNpcAI smartNpc =
             target.GetComponent<SmartNpcAI>();
 
@@ -436,14 +393,6 @@ public class TouchSelectTarget : MonoBehaviour
 
     string GetTargetAction(Transform target)
     {
-        NpcData npc =
-            target.GetComponent<NpcData>();
-
-        if (npc != null)
-        {
-            return npc.currentAction;
-        }
-
         SmartNpcAI smartNpc =
             target.GetComponent<SmartNpcAI>();
 

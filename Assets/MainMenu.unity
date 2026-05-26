@@ -533,7 +533,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0efe33fc39b2b7942a7a2ae443cca031, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuManager
-  characterCreateScene: CharacterCreate
+  characterCreateScene: PersistentScene
   firstGameScene: VillageMap
 --- !u!114 &345964825
 MonoBehaviour:

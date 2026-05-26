@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class NpcData : MonoBehaviour
 {
-    public string npcName;
+    public string npcName = "NPC";
 
-    public string realm;
+    public string realm = "Mortals";
 
     public int hp = 100;
 
     public int maxHp = 100;
 
-    public string currentAction;
+    public string currentAction = "";
 }

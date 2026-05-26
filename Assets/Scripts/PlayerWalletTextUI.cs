@@ -4,20 +4,22 @@ using UnityEngine;
 public class PlayerWalletTextUI : MonoBehaviour
 {
     public PlayerWallet wallet;
+
     public TMP_Text text;
-    public string prefix = "Linh Thach: ";
-    public string suffix = " LT";
 
     void Awake()
     {
         AutoFindReferences();
+
         Refresh();
     }
 
     void OnEnable()
     {
         PlayerWallet.OnAnyWalletChanged += Refresh;
+
         AutoFindReferences();
+
         Refresh();
     }
 
@@ -37,9 +39,7 @@ public class PlayerWalletTextUI : MonoBehaviour
         }
 
         text.text =
-            prefix +
-            wallet.LinhThach +
-            suffix;
+            FormatMoney(wallet.LinhThach);
     }
 
     void Refresh(int amount)
@@ -51,15 +51,50 @@ public class PlayerWalletTextUI : MonoBehaviour
 
         if (text != null)
         {
-            text.text = prefix + amount + suffix;
+            text.text =
+                FormatMoney(amount);
         }
+    }
+
+    string FormatMoney(long amount)
+    {
+        if (amount >= 1000000000000)
+        {
+            return
+                (amount / 1000000000000f)
+                .ToString("0.#") + "T";
+        }
+
+        if (amount >= 1000000000)
+        {
+            return
+                (amount / 1000000000f)
+                .ToString("0.#") + "B";
+        }
+
+        if (amount >= 1000000)
+        {
+            return
+                (amount / 1000000f)
+                .ToString("0.#") + "M";
+        }
+
+        if (amount >= 1000)
+        {
+            return
+                (amount / 1000f)
+                .ToString("0.#") + "K";
+        }
+
+        return amount.ToString();
     }
 
     void AutoFindReferences()
     {
         if (text == null)
         {
-            text = GetComponent<TMP_Text>();
+            text =
+                GetComponent<TMP_Text>();
         }
 
         if (wallet == null)

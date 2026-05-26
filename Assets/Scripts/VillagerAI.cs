@@ -14,7 +14,9 @@ public enum VillagerJob
     Trader,
     Worker,
     Guard,
-    Healer
+    Healer,
+    Fisher,
+    Hunter
 }
 
 public enum VillagerMood
@@ -102,6 +104,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
     float actionTimer;
     float nextSocialScanTime;
     bool hasWanderTarget;
+    bool movingToRoad;
+
+    Vector3 currentWorkTarget;
+
+    bool hasWorkTarget;
     readonly System.Collections.Generic.HashSet<VillagerAI> acquaintances =
         new System.Collections.Generic.HashSet<VillagerAI>();
 
@@ -367,6 +374,14 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     void Think()
     {
+        if (WorldTimeSystem.Instance != null)
+        {
+            if (WorldTimeSystem.Instance.CurrentPhase ==
+                WorldTimePhase.Dawn)
+            {
+                hasWorkTarget = false;
+            }
+        }
         if (actionTimer > 0f)
         {
             return;
@@ -603,21 +618,94 @@ public class VillagerAI : MonoBehaviour, IDamageable
             TalkToNearbyVillager();
         }
     }
-
     void GoWork()
+{
+    if (!hasWorkTarget)
     {
-        SetTarget(
-            workPoint,
-            GetWorkAction());
-
-        if (HasArrived())
+        switch (job)
         {
-            money += GetWorkIncome();
-            fatigue = Mathf.Clamp(fatigue + 8f, 0f, 100f);
-            actionTimer = 3f;
-            currentAction = GetWorkingAction();
+            case VillagerJob.Farmer:
+
+                currentWorkTarget =
+                    WorldTilemapManager.Instance
+                    .GetFarmTile();
+
+                break;
+
+            case VillagerJob.Fisher:
+
+                currentWorkTarget =
+                    WorldTilemapManager.Instance
+                    .GetFishingTile(this);
+
+                // Hồ đông thì đổi nghề tạm
+                if (currentWorkTarget ==
+                    Vector3.zero)
+                {
+                    currentWorkTarget =
+                        WorldTilemapManager.Instance
+                        .GetFarmTile();
+
+                    currentAction =
+                        "Ho dong nguoi, doi di lam ruong";
+                }
+
+                break;
+
+            case VillagerJob.Hunter:
+
+                currentWorkTarget =
+                    WorldTilemapManager.Instance
+                    .GetHuntingTile();
+
+                break;
+
+            case VillagerJob.Trader:
+
+                currentWorkTarget =
+                    WorldTilemapManager.Instance
+                    .GetMarketTile();
+
+                break;
+
+            default:
+
+                if (workPoint != null)
+                {
+                    currentWorkTarget =
+                        workPoint.position;
+                }
+
+                break;
         }
+
+        hasWorkTarget = true;
     }
+
+    MoveUsingRoad(
+        currentWorkTarget);
+
+    float distance =
+        Vector2.Distance(
+            transform.position,
+            currentWorkTarget);
+
+    if (distance < 0.5f)
+    {
+        money += GetWorkIncome();
+
+        fatigue =
+            Mathf.Clamp(
+                fatigue + 8f,
+                0f,
+                100f);
+
+        actionTimer = 3f;
+
+        currentAction =
+            GetWorkingAction();
+    }
+}
 
     void GoTrade()
     {
@@ -818,7 +906,52 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         MoveToPosition(currentTarget.position);
     }
+    void MoveUsingRoad(Vector3 target)
+{
+    if (WorldTilemapManager.Instance == null)
+    {
+        MoveToPosition(target);
+        return;
+    }
 
+    Vector3 road =
+        WorldTilemapManager.Instance
+        .GetNearestRoad(
+            transform.position);
+
+    float roadDistance =
+        Vector2.Distance(
+            transform.position,
+            road);
+
+    float targetDistance =
+        Vector2.Distance(
+            transform.position,
+            target);
+
+    if (!movingToRoad &&
+        roadDistance < targetDistance * 0.5f)
+    {
+        MoveToPosition(road);
+
+        currentAction =
+            "Dang di tren duong";
+
+        if (roadDistance < 0.4f)
+        {
+            movingToRoad = true;
+        }
+
+        return;
+    }
+
+    MoveToPosition(target);
+
+    if (targetDistance < 0.4f)
+    {
+        movingToRoad = false;
+    }
+}
     void MoveToPosition(Vector3 position)
     {
         Vector2 direction =

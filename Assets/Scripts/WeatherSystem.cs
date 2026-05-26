@@ -111,7 +111,7 @@ public class WeatherSystem : MonoBehaviour
     {
         WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
         float currentWorldHour = timeSystem != null
-            ? timeSystem.CurrentDay * 24f + timeSystem.CurrentHour
+            ? timeSystem.currentDay * 24f + timeSystem.currentHour
             : 0f;
         nextChangeWorldHour =
             currentWorldHour +

@@ -136,15 +136,6 @@ public class DailyConversation : MonoBehaviour
             return ai.npcName;
         }
 
-        NpcData data =
-            GetComponent<NpcData>();
-
-        if (data != null &&
-            !string.IsNullOrEmpty(data.npcName))
-        {
-            return data.npcName;
-        }
-
         return name;
     }
 
@@ -156,14 +147,6 @@ public class DailyConversation : MonoBehaviour
         if (ai != null)
         {
             ai.currentAction = action;
-        }
-
-        NpcData data =
-            GetComponent<NpcData>();
-
-        if (data != null)
-        {
-            data.currentAction = action;
         }
     }
 
