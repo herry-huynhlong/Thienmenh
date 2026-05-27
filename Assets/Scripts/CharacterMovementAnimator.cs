@@ -3,6 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(Animator))]
 public class CharacterMovementAnimator : MonoBehaviour
 {
+    public bool disableWhenNpcVisualAnimationExists = true;
     public Rigidbody2D targetRigidbody;
     public Animator targetAnimator;
     public SpriteRenderer targetSpriteRenderer;
@@ -38,6 +39,13 @@ public class CharacterMovementAnimator : MonoBehaviour
 
     void Awake()
     {
+        if (disableWhenNpcVisualAnimationExists &&
+            GetComponent<NPCVisualAnimation>() != null)
+        {
+            enabled = false;
+            return;
+        }
+
         if (targetAnimator == null)
         {
             targetAnimator = GetComponent<Animator>();

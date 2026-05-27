@@ -5,6 +5,8 @@ public class NpcMapMover2D : MonoBehaviour
 {
     [Header("Movement")]
     public float moveSpeed = 2f;
+    public float movementAcceleration = 8f;
+    public float movementDeceleration = 12f;
     public float arriveDistance = 0.12f;
     public float waitTimeMin = 5f;
     public float waitTimeMax = 5f;
@@ -52,7 +54,20 @@ public class NpcMapMover2D : MonoBehaviour
 
     void Awake()
     {
+        VillagerAI villagerAI = GetComponent<VillagerAI>();
+        if (villagerAI != null && villagerAI.enabled)
+        {
+            enabled = false;
+            return;
+        }
+
         rb = GetComponent<Rigidbody2D>();
+        if (rb == null)
+        {
+            enabled = false;
+            return;
+        }
+
         visualAnimation = GetComponent<NPCVisualAnimation>();
         selfColliders = GetComponentsInChildren<Collider2D>();
         ConfigureRigidbody();
@@ -93,6 +108,12 @@ public class NpcMapMover2D : MonoBehaviour
 
     void Update()
     {
+        if (rb == null)
+        {
+            enabled = false;
+            return;
+        }
+
         if (!hasTarget)
         {
             currentAction = "Waiting";
@@ -154,7 +175,23 @@ public class NpcMapMover2D : MonoBehaviour
 
     void FixedUpdate()
     {
-        rb.linearVelocity = currentVelocity;
+        if (rb == null)
+        {
+            enabled = false;
+            return;
+        }
+
+        float rate =
+            currentVelocity.sqrMagnitude > rb.linearVelocity.sqrMagnitude
+            ? movementAcceleration
+            : movementDeceleration;
+
+        rb.linearVelocity =
+            Vector2.MoveTowards(
+                rb.linearVelocity,
+                currentVelocity,
+                rate * Time.fixedDeltaTime);
+
         UpdateVisualAnimation();
     }
 
@@ -464,6 +501,7 @@ public class NpcMapMover2D : MonoBehaviour
         rb.bodyType = RigidbodyType2D.Dynamic;
         rb.gravityScale = 0f;
         rb.freezeRotation = true;
+        rb.interpolation = RigidbodyInterpolation2D.Interpolate;
 
         if ((rb.constraints & RigidbodyConstraints2D.FreezePositionX) != 0 ||
             (rb.constraints & RigidbodyConstraints2D.FreezePositionY) != 0)

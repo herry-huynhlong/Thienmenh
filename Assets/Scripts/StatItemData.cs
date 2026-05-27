@@ -6,7 +6,8 @@ public enum ItemType
     DanDuoc,
     PhapBao,
     VatLieu,
-    CongPhap
+    CongPhap,
+    ThucPham
 }
 
 public enum ItemGrade

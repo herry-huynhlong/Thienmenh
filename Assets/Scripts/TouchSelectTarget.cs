@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class TouchSelectTarget : MonoBehaviour
 {
@@ -12,9 +13,17 @@ public class TouchSelectTarget : MonoBehaviour
     [Header("UI")]
     public GameObject infoPanel;
 
+    public GameObject infoContentRoot;
+
+    public GameObject inventoryContentRoot;
+
     public TMP_Text infoText;
 
     public NpcInventoryPanelUI npcInventoryPanel;
+
+    public Button infoButton;
+
+    public Button inventoryButton;
 
     [Header("Panel Follow")]
     public Vector3 panelOffset =
@@ -34,6 +43,8 @@ public class TouchSelectTarget : MonoBehaviour
     bool pointerStartedOverUI;
 
     bool pointerMoved;
+
+    bool showingInventory;
 
     void Start()
     {
@@ -79,6 +90,13 @@ public class TouchSelectTarget : MonoBehaviour
             npcInventoryPanel =
                 FindObjectOfType<NpcInventoryPanelUI>(true);
         }
+
+        BindTabButtons();
+    }
+
+    void OnEnable()
+    {
+        BindTabButtons();
     }
 
     void Update()
@@ -179,7 +197,7 @@ public class TouchSelectTarget : MonoBehaviour
             infoPanel.SetActive(true);
         }
 
-        if (infoText != null)
+        if (false && infoText != null)
         {
             infoText.text =
                 "Tên: " +
@@ -200,6 +218,262 @@ public class TouchSelectTarget : MonoBehaviour
         if (npcInventoryPanel != null)
         {
             npcInventoryPanel.Show(selectedTarget);
+        }
+
+        ShowInfoTab();
+    }
+
+    public void ShowInfoTab()
+    {
+        BindTabButtons();
+        showingInventory = false;
+
+        if (infoText != null &&
+            currentTarget != null)
+        {
+            infoText.text =
+                BuildTargetInfo(currentTarget);
+        }
+
+        SetInfoContentVisible(true);
+        SetInventoryContentVisible(false);
+
+        if (npcInventoryPanel != null)
+        {
+            npcInventoryPanel.SetContentVisible(false);
+        }
+    }
+
+    public void ShowInventoryTab()
+    {
+        BindTabButtons();
+        showingInventory = true;
+
+        SetInfoContentVisible(false);
+        SetInventoryContentVisible(true);
+
+        if (npcInventoryPanel != null &&
+            currentTarget != null)
+        {
+            npcInventoryPanel.Show(currentTarget);
+            npcInventoryPanel.SetContentVisible(true);
+        }
+    }
+
+    void HideTabContents()
+    {
+        showingInventory = false;
+
+        SetInfoContentVisible(false);
+        SetInventoryContentVisible(false);
+
+        if (npcInventoryPanel != null)
+        {
+            npcInventoryPanel.SetContentVisible(false);
+        }
+    }
+
+    void BindTabButtons()
+    {
+        AutoFindTabReferences();
+
+        if (infoButton != null)
+        {
+            infoButton.onClick.RemoveListener(ShowInfoTab);
+            infoButton.onClick.AddListener(ShowInfoTab);
+            infoButton.interactable = true;
+        }
+
+        if (inventoryButton != null)
+        {
+            inventoryButton.onClick.RemoveListener(ShowInventoryTab);
+            inventoryButton.onClick.AddListener(ShowInventoryTab);
+            inventoryButton.interactable = true;
+        }
+    }
+
+    void AutoFindTabReferences()
+    {
+        if (infoPanel == null)
+        {
+            return;
+        }
+
+        if (infoContentRoot == null)
+        {
+            Transform infoContent =
+                FindChildByName(infoPanel.transform, "InfoContent");
+
+            if (infoContent != null)
+            {
+                infoContentRoot = infoContent.gameObject;
+            }
+        }
+
+        if (inventoryContentRoot == null)
+        {
+            Transform inventoryContent =
+                FindChildByName(infoPanel.transform, "InventoryContent");
+
+            if (inventoryContent != null)
+            {
+                inventoryContentRoot = inventoryContent.gameObject;
+            }
+        }
+
+        if (infoText == null)
+        {
+            Transform infoContentText =
+                infoContentRoot != null
+                ? FindChildByName(infoContentRoot.transform, "InfoText")
+                : null;
+
+            if (infoContentText != null)
+            {
+                infoText = infoContentText.GetComponent<TMP_Text>();
+            }
+        }
+
+        if (infoButton == null)
+        {
+            infoButton =
+                FindButtonByName(
+                    infoPanel.transform,
+                    "InfoButton",
+                    "Thong Tin",
+                    "Thông Tin");
+        }
+
+        if (infoText == null &&
+            infoButton != null)
+        {
+            Transform buttonText =
+                FindChildByName(infoButton.transform, "InfoText");
+
+            if (buttonText == null)
+            {
+                buttonText =
+                    FindChildByName(infoButton.transform, "Thông Tin");
+            }
+
+            if (buttonText == null)
+            {
+                buttonText =
+                    FindChildByName(infoButton.transform, "Thong Tin");
+            }
+
+            if (buttonText != null)
+            {
+                infoText = buttonText.GetComponent<TMP_Text>();
+            }
+
+            if (infoText == null)
+            {
+                infoText =
+                    infoButton.GetComponentInChildren<TMP_Text>(true);
+            }
+        }
+
+        if (inventoryButton == null)
+        {
+            inventoryButton =
+                FindButtonByName(
+                    infoPanel.transform,
+                    "InventoryButton",
+                    "Kho");
+        }
+    }
+
+    Button FindButtonByName(
+        Transform parent,
+        params string[] names)
+    {
+        foreach (string targetName in names)
+        {
+            Transform found =
+                FindChildByName(parent, targetName);
+
+            if (found == null)
+            {
+                continue;
+            }
+
+            Button button =
+                found.GetComponent<Button>();
+
+            if (button != null)
+            {
+                return button;
+            }
+
+            button =
+                found.GetComponentInParent<Button>();
+
+            if (button != null &&
+                button.transform.IsChildOf(parent))
+            {
+                return button;
+            }
+
+            button =
+                found.GetComponentInChildren<Button>(true);
+
+            if (button != null)
+            {
+                return button;
+            }
+        }
+
+        return null;
+    }
+
+    Transform FindChildByName(
+        Transform parent,
+        string childName)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.name == childName)
+            {
+                return child;
+            }
+
+            Transform found =
+                FindChildByName(child, childName);
+
+            if (found != null)
+            {
+                return found;
+            }
+        }
+
+        return null;
+    }
+
+    void SetInfoContentVisible(bool visible)
+    {
+        if (infoContentRoot != null)
+        {
+            infoContentRoot.SetActive(visible);
+        }
+
+        if (infoText != null)
+        {
+            infoText.gameObject.SetActive(visible);
+        }
+    }
+
+    void SetInventoryContentVisible(bool visible)
+    {
+        if (inventoryContentRoot != null)
+        {
+            inventoryContentRoot.SetActive(visible);
+        }
+
+        if (npcInventoryPanel != null &&
+            npcInventoryPanel.panelRoot != null)
+        {
+            npcInventoryPanel.SetContentVisible(visible);
         }
     }
 
@@ -432,6 +706,106 @@ public class TouchSelectTarget : MonoBehaviour
         return "";
     }
 
+    string BuildTargetInfo(Transform target)
+    {
+        return "Ten: " +
+            GetTargetName(target) +
+
+            "\nTuoi: " +
+            GetTargetAge(target) +
+
+            "\nNghe: " +
+            GetTargetJob(target) +
+
+            "\nTu Vi: " +
+            GetTargetRealm(target) +
+
+            "\nMau: " +
+            GetTargetCurrentHP(target) +
+            " / " +
+            GetTargetMaxHP(target) +
+
+            "\nHanh dong: " +
+            GetTargetAction(target);
+    }
+
+    string GetTargetAge(Transform target)
+    {
+        VillagerAI villager =
+            target.GetComponent<VillagerAI>();
+
+        if (villager != null &&
+            villager.entityProfile != null &&
+            villager.entityProfile.identity != null)
+        {
+            return villager.entityProfile.identity.age.ToString();
+        }
+
+        return "-";
+    }
+
+    string GetTargetJob(Transform target)
+    {
+        VillagerAI villager =
+            target.GetComponent<VillagerAI>();
+
+        return villager != null
+            ? villager.job.ToString()
+            : "-";
+    }
+
+    int GetTargetMoney(Transform target)
+    {
+        VillagerAI villager =
+            target.GetComponent<VillagerAI>();
+
+        if (villager != null)
+        {
+            return villager.money;
+        }
+
+        SmartNpcAI smartNpc =
+            target.GetComponent<SmartNpcAI>();
+
+        return smartNpc != null
+            ? smartNpc.money
+            : 0;
+    }
+
+    string GetInventorySummary(Transform target)
+    {
+        ItemInventory inventory =
+            target.GetComponent<ItemInventory>();
+
+        if (inventory == null)
+        {
+            return "Trong";
+        }
+
+        int itemKinds = 0;
+        int totalAmount = 0;
+
+        foreach (ItemStack stack in inventory.items)
+        {
+            if (stack == null ||
+                stack.item == null ||
+                stack.amount <= 0)
+            {
+                continue;
+            }
+
+            itemKinds++;
+            totalAmount += stack.amount;
+        }
+
+        if (itemKinds <= 0)
+        {
+            return "Trong";
+        }
+
+        return itemKinds + " loai / " + totalAmount + " mon";
+    }
+
     void HidePanel()
     {
         currentTarget = null;
@@ -474,6 +848,20 @@ public class TouchSelectTarget : MonoBehaviour
         if (panelRect == null)
         {
             return;
+        }
+
+        if (infoText != null)
+        {
+            infoText.text =
+                BuildTargetInfo(currentTarget);
+        }
+
+        if (npcInventoryPanel != null)
+        {
+            if (showingInventory)
+            {
+                npcInventoryPanel.Refresh();
+            }
         }
 
         Vector3 screenPos =

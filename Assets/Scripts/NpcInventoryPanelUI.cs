@@ -7,9 +7,17 @@ public class NpcInventoryPanelUI : MonoBehaviour
 {
     public GameObject panelRoot;
     public TMP_Text titleText;
+    public TMP_Text infoText;
     public TMP_Text itemsText;
+    public InventoryPanelUI itemGridPanel;
+    public bool useItemGrid = true;
+    public bool hideItemsTextWhenUsingGrid = true;
+    public bool readOnly = true;
     public string emptyText = "Khong co vat pham";
     public bool blockMapDrag;
+
+    Transform currentNpc;
+    ItemInventory currentInventory;
 
     void Awake()
     {
@@ -18,6 +26,7 @@ public class NpcInventoryPanelUI : MonoBehaviour
             panelRoot = gameObject;
         }
 
+        AutoFindItemGridPanel();
         ConfigureRaycasts();
         Hide();
     }
@@ -35,34 +44,223 @@ public class NpcInventoryPanelUI : MonoBehaviour
 
         if (inventory == null)
         {
-            Hide();
-            return;
+            inventory = npc.gameObject.AddComponent<ItemInventory>();
         }
+
+        Unsubscribe();
+        currentNpc = npc;
+        currentInventory = inventory;
+        currentInventory.OnChanged += Refresh;
+        BindItemGrid();
 
         if (panelRoot != null)
         {
             panelRoot.SetActive(true);
         }
 
+        Refresh();
+    }
+
+    public void Refresh()
+    {
+        if (currentNpc == null ||
+            currentInventory == null)
+        {
+            return;
+        }
+
         if (titleText != null)
         {
             titleText.text =
-                GetNpcName(npc) + " - Tui do";
+                GetNpcName(currentNpc) + " - Kho do";
+        }
+
+        if (infoText != null)
+        {
+            infoText.text =
+                BuildInfoText(currentNpc, currentInventory);
         }
 
         if (itemsText != null)
         {
-            itemsText.text =
-                BuildItemsText(inventory);
+            itemsText.gameObject.SetActive(
+                !ShouldUseItemGrid() ||
+                !hideItemsTextWhenUsingGrid);
+
+            if (itemsText.gameObject.activeSelf)
+            {
+                itemsText.text =
+                    BuildItemsText(currentInventory);
+            }
+        }
+
+        if (ShouldUseItemGrid())
+        {
+            BindItemGrid();
+            itemGridPanel.Refresh();
         }
     }
 
     public void Hide()
     {
+        Unsubscribe();
+        currentNpc = null;
+        currentInventory = null;
+
         if (panelRoot != null)
         {
             panelRoot.SetActive(false);
         }
+
+        if (itemGridPanel != null &&
+            itemGridPanel.panelRoot != panelRoot)
+        {
+            itemGridPanel.Close();
+        }
+    }
+
+    public void HideContentOnly()
+    {
+        SetContentVisible(false);
+    }
+
+    public void SetContentVisible(bool visible)
+    {
+        SetTextVisible(titleText, visible);
+        SetTextVisible(infoText, visible);
+
+        if (itemsText != null)
+        {
+            bool showText =
+                visible &&
+                (!ShouldUseItemGrid() ||
+                !hideItemsTextWhenUsingGrid);
+
+            itemsText.gameObject.SetActive(showText);
+        }
+
+        if (ShouldUseItemGrid())
+        {
+            BindItemGrid();
+
+            if (visible)
+            {
+                itemGridPanel.Open();
+                itemGridPanel.Refresh();
+            }
+            else if (itemGridPanel.panelRoot != panelRoot)
+            {
+                itemGridPanel.Close();
+            }
+        }
+    }
+
+    void SetTextVisible(TMP_Text text, bool visible)
+    {
+        if (text != null)
+        {
+            text.gameObject.SetActive(visible);
+        }
+    }
+
+    void AutoFindItemGridPanel()
+    {
+        if (itemGridPanel != null)
+        {
+            return;
+        }
+
+        itemGridPanel =
+            GetComponentInChildren<InventoryPanelUI>(true);
+    }
+
+    bool ShouldUseItemGrid()
+    {
+        AutoFindItemGridPanel();
+        return useItemGrid &&
+            itemGridPanel != null &&
+            currentInventory != null;
+    }
+
+    void BindItemGrid()
+    {
+        if (!ShouldUseItemGrid())
+        {
+            return;
+        }
+
+        itemGridPanel.inventory = currentInventory;
+        itemGridPanel.closeOnStart = false;
+        itemGridPanel.readOnly = readOnly;
+
+        if (itemGridPanel.panelRoot != null)
+        {
+            itemGridPanel.panelRoot.SetActive(true);
+        }
+    }
+
+    void OnDisable()
+    {
+        Unsubscribe();
+    }
+
+    void Unsubscribe()
+    {
+        if (currentInventory != null)
+        {
+            currentInventory.OnChanged -= Refresh;
+        }
+    }
+
+    string BuildInfoText(
+        Transform npc,
+        ItemInventory inventory)
+    {
+        StringBuilder builder =
+            new StringBuilder();
+
+        VillagerAI villager =
+            npc.GetComponent<VillagerAI>();
+
+        if (villager != null)
+        {
+            builder.AppendLine("Tien: " + villager.money + " LT");
+        }
+
+        SmartNpcAI smartNpc =
+            npc.GetComponent<SmartNpcAI>();
+
+        if (smartNpc != null)
+        {
+            builder.AppendLine("Tien: " + smartNpc.money + " LT");
+        }
+
+        builder.Append("So loai hang: ");
+        builder.Append(GetItemKindCount(inventory));
+
+        return builder.ToString();
+    }
+
+    int GetItemKindCount(ItemInventory inventory)
+    {
+        if (inventory == null)
+        {
+            return 0;
+        }
+
+        int count = 0;
+
+        foreach (ItemStack stack in inventory.items)
+        {
+            if (stack != null &&
+                stack.item != null &&
+                stack.amount > 0)
+            {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     string BuildItemsText(ItemInventory inventory)
@@ -148,18 +346,18 @@ public class NpcInventoryPanelUI : MonoBehaviour
                 continue;
             }
 
+            if (graphic.GetComponentInParent<Button>() != null)
+            {
+                continue;
+            }
+
             graphic.raycastTarget = blockMapDrag;
         }
 
-        CanvasGroup group =
-            GetComponent<CanvasGroup>();
-
-        if (group == null)
+        CanvasGroup group = GetComponent<CanvasGroup>();
+        if (group != null)
         {
-            group = gameObject.AddComponent<CanvasGroup>();
+            group.interactable = true;
         }
-
-        group.blocksRaycasts = blockMapDrag;
-        group.interactable = blockMapDrag;
     }
 }

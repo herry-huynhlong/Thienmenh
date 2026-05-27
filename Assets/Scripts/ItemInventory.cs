@@ -15,6 +15,7 @@ public class ItemInventory : MonoBehaviour
         new Dictionary<string, List<ItemStack>>();
 
     public bool shareRuntimeItems = true;
+    public bool keepInspectorItemsWhenLoadingSave = true;
     public string runtimeKey = "";
 
     public List<ItemStack> items =
@@ -24,6 +25,9 @@ public class ItemInventory : MonoBehaviour
 
     void Awake()
     {
+        List<ItemStack> inspectorItems =
+            CloneItems(items);
+
         RegisterItems();
 
         if (!shareRuntimeItems)
@@ -39,6 +43,11 @@ public class ItemInventory : MonoBehaviour
                 out List<ItemStack> sharedItems))
         {
             CopyItems(sharedItems, items);
+            if (keepInspectorItemsWhenLoadingSave)
+            {
+                MergeItems(inspectorItems, items);
+                CopyItems(items, sharedItems);
+            }
             return;
         }
 
@@ -61,6 +70,11 @@ public class ItemInventory : MonoBehaviour
                 GetRuntimeKey(),
                 items))
         {
+            if (keepInspectorItemsWhenLoadingSave)
+            {
+                MergeItems(sharedItemsByKey[GetRuntimeKey()], items);
+            }
+
             SaveSharedItems();
             NotifyChanged();
         }
@@ -260,6 +274,47 @@ public class ItemInventory : MonoBehaviour
                 stack.item == null ||
                 stack.amount <= 0)
             {
+                continue;
+            }
+
+            destination.Add(
+                new ItemStack
+                {
+                    item = stack.item,
+                    amount = stack.amount
+            });
+        }
+    }
+
+    List<ItemStack> CloneItems(List<ItemStack> source)
+    {
+        List<ItemStack> result =
+            new List<ItemStack>();
+
+        CopyItems(source, result);
+        return result;
+    }
+
+    void MergeItems(
+        List<ItemStack> source,
+        List<ItemStack> destination)
+    {
+        foreach (ItemStack stack in source)
+        {
+            if (stack == null ||
+                stack.item == null ||
+                stack.amount <= 0)
+            {
+                continue;
+            }
+
+            ItemStack existing =
+                destination.Find(entry => entry.item == stack.item);
+
+            if (existing != null)
+            {
+                existing.amount =
+                    Mathf.Max(existing.amount, stack.amount);
                 continue;
             }
 

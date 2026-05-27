@@ -159,6 +159,31 @@ public class WorldTilemapManager : MonoBehaviour
         return selected;
     }
 
+    public void ReleaseFishingTile(
+        VillagerAI villager)
+    {
+        if (villager == null)
+        {
+            return;
+        }
+
+        List<Vector3> remove =
+            new List<Vector3>();
+
+        foreach (KeyValuePair<Vector3, VillagerAI> pair in occupiedFishing)
+        {
+            if (pair.Value == villager)
+            {
+                remove.Add(pair.Key);
+            }
+        }
+
+        foreach (Vector3 tile in remove)
+        {
+            occupiedFishing.Remove(tile);
+        }
+    }
+
     public Vector3 GetMarketTile()
     {
         if (marketTiles.Count == 0)

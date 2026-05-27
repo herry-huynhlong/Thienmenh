@@ -8,14 +8,31 @@ public class NpcTradeAgent : MonoBehaviour
     public float tradeInterval = 5f;
     [Range(0, 100)]
     public int tradeChance = 25;
+    public bool buyUsefulItemsFromMarketTrader = true;
+
+    [Header("Market Trader")]
+    public bool isMarketTrader;
+    public bool buyProduceFromVillagers = true;
+    public bool acceptAllMaterials = true;
+    public StatItemData[] acceptedProduce;
+    public int maxProduceUnitsPerTrade = 4;
+    [Range(1, 100)]
+    public int buyPricePercent = 70;
 
     float tradeTimer;
+
+    public bool IsMarketTrader => isMarketTrader;
 
     void Awake()
     {
         if (inventory == null)
         {
             inventory = GetComponent<ItemInventory>();
+        }
+
+        if (inventory == null)
+        {
+            inventory = gameObject.AddComponent<ItemInventory>();
         }
     }
 
@@ -69,6 +86,13 @@ public class NpcTradeAgent : MonoBehaviour
                 continue;
             }
 
+            if (!isMarketTrader &&
+                buyUsefulItemsFromMarketTrader &&
+                !seller.isMarketTrader)
+            {
+                continue;
+            }
+
             if (TryBuyOneUsefulItem(seller))
             {
                 return;
@@ -78,6 +102,11 @@ public class NpcTradeAgent : MonoBehaviour
 
     bool TryBuyOneUsefulItem(NpcTradeAgent seller)
     {
+        if (isMarketTrader)
+        {
+            return false;
+        }
+
         StatItemData itemToBuy = null;
         int priceToPay = 0;
 
@@ -92,7 +121,7 @@ public class NpcTradeAgent : MonoBehaviour
             }
 
             int price =
-                Mathf.Max(0, stack.item.price);
+                Mathf.Max(1, stack.item.price);
 
             if (GetMoney() < price)
             {
@@ -121,6 +150,103 @@ public class NpcTradeAgent : MonoBehaviour
         }
 
         return true;
+    }
+
+    public bool TryBuyProduceFrom(
+        VillagerAI seller,
+        ItemInventory sellerInventory)
+    {
+        if (!isMarketTrader ||
+            !buyProduceFromVillagers ||
+            seller == null ||
+            sellerInventory == null ||
+            inventory == null)
+        {
+            return false;
+        }
+
+        int boughtUnits = 0;
+
+        for (int i = sellerInventory.items.Count - 1; i >= 0; i--)
+        {
+            if (boughtUnits >= maxProduceUnitsPerTrade)
+            {
+                break;
+            }
+
+            ItemStack stack =
+                sellerInventory.items[i];
+
+            if (stack == null ||
+                stack.item == null ||
+                stack.amount <= 0 ||
+                !AcceptsProduce(stack.item))
+            {
+                continue;
+            }
+
+            int amount =
+                Mathf.Min(
+                    stack.amount,
+                    maxProduceUnitsPerTrade - boughtUnits);
+
+            int unitPrice =
+                Mathf.Max(
+                    1,
+                    Mathf.RoundToInt(
+                        Mathf.Max(1, stack.item.price) *
+                        buyPricePercent / 100f));
+
+            int totalPrice =
+                unitPrice * amount;
+
+            if (GetMoney() < totalPrice)
+            {
+                continue;
+            }
+
+            if (!sellerInventory.RemoveItem(stack.item, amount))
+            {
+                continue;
+            }
+
+            AddMoney(-totalPrice);
+            seller.money += totalPrice;
+            inventory.AddItem(stack.item, amount);
+            boughtUnits += amount;
+        }
+
+        return boughtUnits > 0;
+    }
+
+    bool AcceptsProduce(StatItemData item)
+    {
+        if (item == null)
+        {
+            return false;
+        }
+
+        if (acceptAllMaterials &&
+            (item.itemType == ItemType.VatLieu ||
+            item.itemType == ItemType.ThucPham))
+        {
+            return true;
+        }
+
+        if (acceptedProduce == null)
+        {
+            return false;
+        }
+
+        foreach (StatItemData accepted in acceptedProduce)
+        {
+            if (accepted == item)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     int GetMoney()

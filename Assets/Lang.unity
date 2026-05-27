@@ -4431,6 +4431,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Male1_12
       objectReference: {fileID: 0}
+    - target: {fileID: 3488375690225101526, guid: 2ac5fdcad1dc7714e91a95aaa66bcace, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5776529667358800501, guid: 2ac5fdcad1dc7714e91a95aaa66bcace, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.3
@@ -5316,6 +5320,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Male1_12 (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 3488375690225101526, guid: 2ac5fdcad1dc7714e91a95aaa66bcace, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5776529667358800501, guid: 2ac5fdcad1dc7714e91a95aaa66bcace, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.3
@@ -5326,11 +5334,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5776529667358800501, guid: 2ac5fdcad1dc7714e91a95aaa66bcace, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.78
+      value: -0.02
       objectReference: {fileID: 0}
     - target: {fileID: 5776529667358800501, guid: 2ac5fdcad1dc7714e91a95aaa66bcace, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -5.4
+      value: -7.28
       objectReference: {fileID: 0}
     - target: {fileID: 5776529667358800501, guid: 2ac5fdcad1dc7714e91a95aaa66bcace, type: 3}
       propertyPath: m_LocalPosition.z
@@ -5400,6 +5408,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3488375690225101526, guid: 2ac5fdcad1dc7714e91a95aaa66bcace, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1436932386}
+    - targetCorrespondingSourceObject: {fileID: 3488375690225101526, guid: 2ac5fdcad1dc7714e91a95aaa66bcace, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1436932387}
   m_SourcePrefab: {fileID: 100100000, guid: 2ac5fdcad1dc7714e91a95aaa66bcace, type: 3}
 --- !u!1 &619394800
 GameObject:
@@ -6110,6 +6121,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 174c522a8ea171a4797af97bed5e9ea6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterMovementAnimator
+  disableWhenNpcVisualAnimationExists: 1
   targetRigidbody: {fileID: 925458196}
   targetAnimator: {fileID: 925458199}
   targetSpriteRenderer: {fileID: 925458200}
@@ -6144,6 +6156,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NpcMapMover2D
   moveSpeed: 2
+  movementAcceleration: 8
+  movementDeceleration: 12
   arriveDistance: 0.12
   waitTimeMin: 5
   waitTimeMax: 5
@@ -6380,6 +6394,24 @@ MonoBehaviour:
   lowHpRoadBypassPercent: 0.3
   separationRadius: 0.45
   separationStrength: 1.4
+  movementAcceleration: 8
+  movementDeceleration: 12
+  animationIdleSpeed: 0.03
+  idleAtHomeDuration: 6
+  inventory: {fileID: 925458197}
+  farmProduct: {fileID: 11400000, guid: caf4f5e611fac2d4bb6815a50dc1060b, type: 2}
+  fishingProduct: {fileID: 11400000, guid: 2490eed08a1aca042be9d061cb9f4297, type: 2}
+  huntingProduct: {fileID: 11400000, guid: 745cba5472ce5294f8a534a93b8f4dec, type: 2}
+  workerProduct: {fileID: 0}
+  workProductMin: 1
+  workProductMax: 3
+  sellGoodsThreshold: 1
+  sellGoodsDuration: 8
+  sellGoodsSearchRadius: 2.2
+  traderLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  sellOnlyToTrader: 1
   currentAction: Dung yen
   currentTarget: {fileID: 0}
 --- !u!1 &940930048
@@ -6525,6 +6557,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 174c522a8ea171a4797af97bed5e9ea6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterMovementAnimator
+  disableWhenNpcVisualAnimationExists: 1
   targetRigidbody: {fileID: 948570982}
   targetAnimator: {fileID: 948570984}
   targetSpriteRenderer: {fileID: 948570985}
@@ -6559,6 +6592,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NpcMapMover2D
   moveSpeed: 2
+  movementAcceleration: 8
+  movementDeceleration: 12
   arriveDistance: 0.12
   waitTimeMin: 5
   waitTimeMax: 5
@@ -6728,7 +6763,7 @@ MonoBehaviour:
   entityProfile: {fileID: 0}
   villagerName: Nguoi dan
   ageGroup: 1
-  job: 1
+  job: 6
   maxHP: 100
   currentHP: 100
   money: 20
@@ -6774,6 +6809,24 @@ MonoBehaviour:
   lowHpRoadBypassPercent: 0.3
   separationRadius: 0.45
   separationStrength: 1.4
+  movementAcceleration: 8
+  movementDeceleration: 12
+  animationIdleSpeed: 0.03
+  idleAtHomeDuration: 6
+  inventory: {fileID: 948570983}
+  farmProduct: {fileID: 11400000, guid: caf4f5e611fac2d4bb6815a50dc1060b, type: 2}
+  fishingProduct: {fileID: 11400000, guid: 2490eed08a1aca042be9d061cb9f4297, type: 2}
+  huntingProduct: {fileID: 11400000, guid: 745cba5472ce5294f8a534a93b8f4dec, type: 2}
+  workerProduct: {fileID: 0}
+  workProductMin: 1
+  workProductMax: 3
+  sellGoodsThreshold: 1
+  sellGoodsDuration: 8
+  sellGoodsSearchRadius: 2.2
+  traderLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  sellOnlyToTrader: 1
   currentAction: Dung yen
   currentTarget: {fileID: 0}
 --- !u!1 &984124772
@@ -23598,6 +23651,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NpcInventoryPanelUI
   panelRoot: {fileID: 1233771546}
   titleText: {fileID: 984124774}
+  infoText: {fileID: 0}
   itemsText: {fileID: 1554024203}
   emptyText: Khong co vat pham
   blockMapDrag: 0
@@ -24352,6 +24406,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 174c522a8ea171a4797af97bed5e9ea6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterMovementAnimator
+  disableWhenNpcVisualAnimationExists: 1
   targetRigidbody: {fileID: 1350126279}
   targetAnimator: {fileID: 1350126282}
   targetSpriteRenderer: {fileID: 1350126283}
@@ -24386,6 +24441,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NpcMapMover2D
   moveSpeed: 2
+  movementAcceleration: 8
+  movementDeceleration: 12
   arriveDistance: 0.12
   waitTimeMin: 5
   waitTimeMax: 5
@@ -24528,7 +24585,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemInventory
   shareRuntimeItems: 1
   runtimeKey: 
-  items: []
+  items:
+  - item: {fileID: 11400000, guid: cda66f76d387a0c4c82e2e65c80867b6, type: 2}
+    amount: 20
 --- !u!114 &1350126281
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24576,7 +24635,7 @@ MonoBehaviour:
   entityProfile: {fileID: 0}
   villagerName: Nguoi dan
   ageGroup: 1
-  job: 7
+  job: 1
   maxHP: 100
   currentHP: 100
   money: 20
@@ -24622,6 +24681,24 @@ MonoBehaviour:
   lowHpRoadBypassPercent: 0.3
   separationRadius: 0.45
   separationStrength: 1.4
+  movementAcceleration: 8
+  movementDeceleration: 12
+  animationIdleSpeed: 0.03
+  idleAtHomeDuration: 6
+  inventory: {fileID: 1350126280}
+  farmProduct: {fileID: 11400000, guid: caf4f5e611fac2d4bb6815a50dc1060b, type: 2}
+  fishingProduct: {fileID: 11400000, guid: 2490eed08a1aca042be9d061cb9f4297, type: 2}
+  huntingProduct: {fileID: 11400000, guid: 745cba5472ce5294f8a534a93b8f4dec, type: 2}
+  workerProduct: {fileID: 0}
+  workProductMin: 1
+  workProductMax: 3
+  sellGoodsThreshold: 1
+  sellGoodsDuration: 8
+  sellGoodsSearchRadius: 2.2
+  traderLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  sellOnlyToTrader: 1
   currentAction: Dung yen
   currentTarget: {fileID: 0}
 --- !u!1 &1428827271
@@ -24656,8 +24733,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TouchSelectTarget
   cameraController: {fileID: 0}
   infoPanel: {fileID: 571079961}
+  infoContentRoot: {fileID: 0}
+  inventoryContentRoot: {fileID: 0}
   infoText: {fileID: 641971013}
   npcInventoryPanel: {fileID: 0}
+  infoButton: {fileID: 0}
+  inventoryButton: {fileID: 0}
   panelOffset: {x: 0, y: 2, z: 0}
   tapThreshold: 10
 --- !u!4 &1428827273
@@ -24704,6 +24785,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 174c522a8ea171a4797af97bed5e9ea6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterMovementAnimator
+  disableWhenNpcVisualAnimationExists: 1
   targetRigidbody: {fileID: 1436932380}
   targetAnimator: {fileID: 1436932383}
   targetSpriteRenderer: {fileID: 1436932384}
@@ -24738,6 +24820,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NpcMapMover2D
   moveSpeed: 2
+  movementAcceleration: 8
+  movementDeceleration: 12
   arriveDistance: 0.12
   waitTimeMin: 5
   waitTimeMax: 5
@@ -24928,7 +25012,7 @@ MonoBehaviour:
   entityProfile: {fileID: 0}
   villagerName: Nguoi dan
   ageGroup: 1
-  job: 6
+  job: 2
   maxHP: 100
   currentHP: 100
   money: 20
@@ -24974,8 +25058,52 @@ MonoBehaviour:
   lowHpRoadBypassPercent: 0.3
   separationRadius: 0.45
   separationStrength: 1.4
+  movementAcceleration: 8
+  movementDeceleration: 12
+  animationIdleSpeed: 0.03
+  idleAtHomeDuration: 6
+  inventory: {fileID: 1436932381}
+  farmProduct: {fileID: 11400000, guid: caf4f5e611fac2d4bb6815a50dc1060b, type: 2}
+  fishingProduct: {fileID: 11400000, guid: 2490eed08a1aca042be9d061cb9f4297, type: 2}
+  huntingProduct: {fileID: 11400000, guid: 745cba5472ce5294f8a534a93b8f4dec, type: 2}
+  workerProduct: {fileID: 0}
+  workProductMin: 1
+  workProductMax: 3
+  sellGoodsThreshold: 1
+  sellGoodsDuration: 8
+  sellGoodsSearchRadius: 2.2
+  traderLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  sellOnlyToTrader: 1
   currentAction: Dung yen
   currentTarget: {fileID: 0}
+--- !u!114 &1436932387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1436932375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdcab76f81f40ee41bb9e80c881d1c75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcTradeAgent
+  inventory: {fileID: 0}
+  npcLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  tradeRadius: 1.2
+  tradeInterval: 5
+  tradeChance: 25
+  buyUsefulItemsFromMarketTrader: 1
+  isMarketTrader: 1
+  buyProduceFromVillagers: 1
+  acceptAllMaterials: 1
+  acceptedProduce: []
+  maxProduceUnitsPerTrade: 4
+  buyPricePercent: 70
 --- !u!1 &1479742719
 GameObject:
   m_ObjectHideFlags: 0
@@ -25354,6 +25482,10 @@ PrefabInstance:
     - target: {fileID: 3488375690225101526, guid: 2ac5fdcad1dc7714e91a95aaa66bcace, type: 3}
       propertyPath: m_Name
       value: Male1_12 (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 3488375690225101526, guid: 2ac5fdcad1dc7714e91a95aaa66bcace, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5776529667358800501, guid: 2ac5fdcad1dc7714e91a95aaa66bcace, type: 3}
       propertyPath: m_LocalScale.x

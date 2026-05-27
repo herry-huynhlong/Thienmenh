@@ -15,6 +15,7 @@ public class InventoryPanelUI : MonoBehaviour
     public bool closeOnStart = true;
     public bool alwaysVisible = false;
     public bool bringToFrontOnOpen = true;
+    public bool readOnly;
 
     [Header("Items")]
     public Transform itemGridParent;
@@ -243,7 +244,7 @@ public class InventoryPanelUI : MonoBehaviour
 
         if (useButton != null)
         {
-            useButton.interactable = true;
+            useButton.interactable = !readOnly;
         }
     }
 
@@ -360,6 +361,11 @@ public class InventoryPanelUI : MonoBehaviour
 
     public void UseSelectedItem()
     {
+        if (readOnly)
+        {
+            return;
+        }
+
         if (inventory == null ||
             selectedItemIndex < 0)
         {

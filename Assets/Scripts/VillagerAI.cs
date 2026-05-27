@@ -103,26 +103,55 @@ public class VillagerAI : MonoBehaviour, IDamageable
     public float lowHpRoadBypassPercent = 0.3f;
     public float separationRadius = 0.45f;
     public float separationStrength = 1.4f;
+    public float movementAcceleration = 8f;
+    public float movementDeceleration = 12f;
+    public float animationIdleSpeed = 0.03f;
+    public float idleAtHomeDuration = 6f;
+
+    [Header("Economy")]
+    public ItemInventory inventory;
+    public StatItemData farmProduct;
+    public StatItemData fishingProduct;
+    public StatItemData huntingProduct;
+    public StatItemData workerProduct;
+    public int workProductMin = 1;
+    public int workProductMax = 3;
+    public int sellGoodsThreshold = 1;
+    public float sellGoodsDuration = 8f;
+    public float sellGoodsSearchRadius = 2.2f;
+    public LayerMask traderLayers = ~0;
+    public bool sellOnlyToTrader = true;
 
     [Header("Runtime")]
     public string currentAction = "Dung yen";
     public Transform currentTarget;
 
     Rigidbody2D rb;
+    NPCVisualAnimation visualAnimation;
     Vector3 spawnPosition;
     Vector3 wanderTarget;
+    Vector3 directMoveTarget;
     float thinkTimer;
     float actionTimer;
     float nextSocialScanTime;
     bool hasWanderTarget;
+    bool hasDirectMoveTarget;
     bool movingToRoad;
     bool hasRoadPreference;
     bool prefersRoadForCurrentRoute;
     Vector3 roadPreferenceTarget;
+    Vector2 desiredVelocity;
+    int lastPlanResetDay = -1;
 
     Vector3 currentWorkTarget;
+    Vector3 currentTradeTarget;
+    Vector3 currentEatTarget;
+    Vector3 currentSellTarget;
 
     bool hasWorkTarget;
+    bool hasTradeTarget;
+    bool hasEatTarget;
+    bool hasSellTarget;
     readonly System.Collections.Generic.HashSet<VillagerAI> acquaintances =
         new System.Collections.Generic.HashSet<VillagerAI>();
 
@@ -136,8 +165,20 @@ public class VillagerAI : MonoBehaviour, IDamageable
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        visualAnimation = GetComponent<NPCVisualAnimation>();
         characterStats = GetComponent<CharacterStats>();
+        inventory = inventory != null
+            ? inventory
+            : GetComponent<ItemInventory>();
+
+        if (inventory == null)
+        {
+            inventory = gameObject.AddComponent<ItemInventory>();
+        }
+
         spawnPosition = transform.position;
+
+        ConfigureRigidbody();
 
         if (generateFromEntityProfile)
         {
@@ -161,6 +202,37 @@ public class VillagerAI : MonoBehaviour, IDamageable
             currentHP = Mathf.Clamp(currentHP, 1, maxHP);
         }
     }
+
+#if UNITY_EDITOR
+    void OnValidate()
+    {
+        if (inventory == null)
+        {
+            inventory = GetComponent<ItemInventory>();
+        }
+
+        if (farmProduct == null)
+        {
+            farmProduct =
+                UnityEditor.AssetDatabase.LoadAssetAtPath<StatItemData>(
+                    "Assets/Item/NPCitem/lua.asset");
+        }
+
+        if (fishingProduct == null)
+        {
+            fishingProduct =
+                UnityEditor.AssetDatabase.LoadAssetAtPath<StatItemData>(
+                    "Assets/Item/NPCitem/Ca.asset");
+        }
+
+        if (huntingProduct == null)
+        {
+            huntingProduct =
+                UnityEditor.AssetDatabase.LoadAssetAtPath<StatItemData>(
+                    "Assets/Item/NPCitem/Thit.asset");
+        }
+    }
+#endif
 
     void ApplyEntityProfile()
     {
@@ -284,6 +356,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         MoveToCurrentTarget();
+        ApplySmoothVelocity();
+        UpdateVisualAnimation();
     }
 
     void SyncFromCharacterStats()
@@ -390,10 +464,10 @@ public class VillagerAI : MonoBehaviour, IDamageable
     {
         if (WorldTimeSystem.Instance != null)
         {
-            if (WorldTimeSystem.Instance.CurrentPhase ==
-                WorldTimePhase.Dawn)
+            if (WorldTimeSystem.Instance.CurrentDay != lastPlanResetDay)
             {
-                hasWorkTarget = false;
+                lastPlanResetDay = WorldTimeSystem.Instance.CurrentDay;
+                ResetDailyTargets();
             }
         }
         if (actionTimer > 0f)
@@ -404,6 +478,13 @@ public class VillagerAI : MonoBehaviour, IDamageable
         if (currentHP <= 0)
         {
             Die();
+            return;
+        }
+
+        if (ageGroup == VillagerAgeGroup.Adult &&
+            job == VillagerJob.Trader)
+        {
+            ThinkTrader();
             return;
         }
 
@@ -419,6 +500,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (ShouldSellGoodsNow())
+        {
+            GoSellGoods();
+            return;
+        }
+
         if (ageGroup == VillagerAgeGroup.Child)
         {
             ThinkChild();
@@ -428,21 +515,64 @@ public class VillagerAI : MonoBehaviour, IDamageable
         ThinkAdult();
     }
 
+    void ThinkTrader()
+    {
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+
+        if (fatigue >= 85f)
+        {
+            GoHomeToRest();
+            return;
+        }
+
+        if (hunger >= 75f)
+        {
+            EatWhereTraderIs();
+            return;
+        }
+
+        if (timeSystem == null)
+        {
+            GoTrade();
+            return;
+        }
+
+        switch (timeSystem.CurrentPhase)
+        {
+            case WorldTimePhase.Evening:
+            case WorldTimePhase.Night:
+                GoHomeIdle("Dong tiem ve nha");
+                return;
+            default:
+                GoTrade();
+                return;
+        }
+    }
+
     void ThinkChild()
     {
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        if (timeSystem != null &&
+            (timeSystem.CurrentPhase == WorldTimePhase.Night ||
+            timeSystem.CurrentPhase == WorldTimePhase.Dawn))
+        {
+            GoHomeToRest();
+            return;
+        }
+
+        if (hunger >= 60f)
+        {
+            GoEat();
+            return;
+        }
+
         if (fun <= 70f)
         {
             GatherAndPlay();
             return;
         }
 
-        if (ShouldTalk())
-        {
-            TalkToNearbyVillager();
-            return;
-        }
-
-        Wander("Di dao choi");
+        GoHomeIdle("O gan nha");
     }
 
     void ThinkAdult()
@@ -453,56 +583,70 @@ public class VillagerAI : MonoBehaviour, IDamageable
             switch (timeSystem.CurrentPhase)
             {
                 case WorldTimePhase.Dawn:
-                    if (fatigue > 45f)
+                    if (job == VillagerJob.Trader)
+                    {
+                        GoTrade();
+                        return;
+                    }
+
+                    if (fatigue > 35f)
                     {
                         GoHomeToRest();
                         return;
                     }
-                    break;
+                    GoWork();
+                    return;
 
                 case WorldTimePhase.Morning:
-                    if (diligence >= 25)
+                    if (job == VillagerJob.Trader)
                     {
-                        GoWork();
+                        GoTrade();
                         return;
                     }
-                    break;
+
+                    GoWork();
+                    return;
 
                 case WorldTimePhase.Noon:
                     GoEat();
                     return;
 
                 case WorldTimePhase.Afternoon:
-                    if (job == VillagerJob.Trader || Random.Range(0, 100) < sociability + greed)
+                    if (job == VillagerJob.Trader)
                     {
                         GoTrade();
                         return;
                     }
-                    break;
+
+                    GoWork();
+                    return;
 
                 case WorldTimePhase.Evening:
-                    int funSeeking = entityProfile != null ? entityProfile.personality.funSeeking : 0;
-                    if (fun < 70f || sociability + funSeeking > 80)
+                    if (job == VillagerJob.Trader)
+                    {
+                        GoHomeIdle("Dong tiem ve nha");
+                        return;
+                    }
+
+                    if (hunger >= 45f)
+                    {
+                        GoEat();
+                        return;
+                    }
+
+                    if (fun < 55f && playPoint != null)
                     {
                         GatherAndPlay();
                         return;
                     }
-                    break;
+
+                    GoHomeIdle("Ve nha sinh hoat");
+                    return;
 
                 case WorldTimePhase.Night:
-                    if (bravery < 75)
-                    {
-                        GoHomeToRest();
-                        return;
-                    }
-                    break;
+                    GoHomeToRest();
+                    return;
             }
-        }
-
-        if (ShouldTalk())
-        {
-            TalkToNearbyVillager();
-            return;
         }
 
         if (job == VillagerJob.Trader)
@@ -511,13 +655,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (diligence >= 30)
-        {
-            GoWork();
-            return;
-        }
-
-        Wander("Nghi ngoi quanh lang");
+        GoWork();
     }
 
     bool ShouldTalk()
@@ -538,11 +676,67 @@ public class VillagerAI : MonoBehaviour, IDamageable
         return Random.Range(0, 100) < Mathf.Clamp(chance, 0, 100);
     }
 
+    void ResetDailyTargets()
+    {
+        if (WorldTilemapManager.Instance != null)
+        {
+            WorldTilemapManager.Instance.ReleaseFishingTile(this);
+        }
+
+        hasWorkTarget = false;
+        hasTradeTarget = false;
+        hasEatTarget = false;
+        hasSellTarget = false;
+        movingToRoad = false;
+        hasRoadPreference = false;
+    }
+
+    bool ShouldSellGoodsNow()
+    {
+        if (job == VillagerJob.Trader ||
+            !HasSellableGoods())
+        {
+            return false;
+        }
+
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        if (timeSystem == null)
+        {
+            return true;
+        }
+
+        return timeSystem.CurrentPhase == WorldTimePhase.Noon ||
+            timeSystem.CurrentPhase == WorldTimePhase.Afternoon ||
+            timeSystem.CurrentPhase == WorldTimePhase.Evening;
+    }
+
+    bool CanSocializeNow()
+    {
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        if (timeSystem == null)
+        {
+            return false;
+        }
+
+        if (timeSystem.CurrentPhase != WorldTimePhase.Evening &&
+            timeSystem.CurrentPhase != WorldTimePhase.Noon)
+        {
+            return false;
+        }
+
+        return currentAction.Contains("Dang buon ban") ||
+            currentAction.Contains("Dang choi") ||
+            currentAction.Contains("Ve nha") ||
+            currentAction.Contains("gan nha") ||
+            currentAction.Contains("sinh hoat");
+    }
+
     void TryTalkToPassingVillager()
     {
         if (Time.time < nextSocialScanTime ||
             actionTimer > 0f ||
-            IsDead)
+            IsDead ||
+            !CanSocializeNow())
         {
             return;
         }
@@ -579,12 +773,14 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     void GoHomeToRest()
     {
-        SetTarget(
-            homePoint,
-            "Ve nha nghi ngoi");
+        Vector3 homePosition = GetHomePosition();
+        MoveUsingRoad(homePosition);
+        currentAction = "Ve nha nghi ngoi";
 
-        if (HasArrived())
+        if (IsAtPosition(homePosition))
         {
+            ClearMovementTargets();
+            StopMoving();
             fatigue = 0f;
             if (characterStats != null)
             {
@@ -600,18 +796,31 @@ public class VillagerAI : MonoBehaviour, IDamageable
             }
             actionTimer = restDuration;
             currentAction = "Dang nghi ngoi";
-            hasWorkTarget = false;
+            ResetDailyTargets();
         }
     }
 
     void GoEat()
     {
-        SetTarget(
-            marketPoint != null ? marketPoint : homePoint,
-            "Di an");
-
-        if (HasArrived())
+        if (!hasEatTarget)
         {
+            currentEatTarget =
+                GetMarketPosition(
+                    marketPoint != null
+                    ? marketPoint.position
+                    : GetHomePosition());
+
+            hasEatTarget = true;
+        }
+
+        MoveUsingRoad(currentEatTarget);
+        currentAction = "Di an";
+
+        if (IsAtPosition(currentEatTarget))
+        {
+            ClearMovementTargets();
+            StopMoving();
+            hasEatTarget = false;
             hunger = 0f;
             money = Mathf.Max(0, money - 1);
             actionTimer = eatDuration;
@@ -619,14 +828,32 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
     }
 
+    void EatWhereTraderIs()
+    {
+        StopMoving();
+        ClearMovementTargets();
+        hunger = 0f;
+        money = Mathf.Max(0, money - 1);
+        actionTimer = eatDuration;
+        currentAction = "An tai tiem";
+    }
+
     void GatherAndPlay()
     {
+        if (playPoint == null)
+        {
+            GoHomeIdle("Nghi ngoi gan nha");
+            return;
+        }
+
         SetTarget(
             playPoint,
             "Tu tap di choi");
 
         if (HasArrived())
         {
+            ClearMovementTargets();
+            StopMoving();
             fun = 100f;
             actionTimer = playDuration;
             currentAction = "Dang choi cung ban";
@@ -635,31 +862,43 @@ public class VillagerAI : MonoBehaviour, IDamageable
     }
     void GoWork()
 {
+    if (job == VillagerJob.Trader)
+    {
+        GoTrade();
+        return;
+    }
+
     if (!hasWorkTarget)
     {
+        WorldTilemapManager worldTilemap =
+            WorldTilemapManager.Instance;
+
         switch (job)
         {
             case VillagerJob.Farmer:
 
                 currentWorkTarget =
-                    WorldTilemapManager.Instance
-                    .GetFarmTile();
+                    worldTilemap != null
+                    ? worldTilemap.GetFarmTile()
+                    : Vector3.zero;
 
                 break;
 
             case VillagerJob.Fisher:
 
                 currentWorkTarget =
-                    WorldTilemapManager.Instance
-                    .GetFishingTile(this);
+                    worldTilemap != null
+                    ? worldTilemap.GetFishingTile(this)
+                    : Vector3.zero;
 
                 // Hồ đông thì đổi nghề tạm
                 if (currentWorkTarget ==
                     Vector3.zero)
                 {
                     currentWorkTarget =
-                        WorldTilemapManager.Instance
-                        .GetFarmTile();
+                        worldTilemap != null
+                        ? worldTilemap.GetFarmTile()
+                        : Vector3.zero;
 
                     currentAction =
                         "Ho dong nguoi, doi di lam ruong";
@@ -670,16 +909,9 @@ public class VillagerAI : MonoBehaviour, IDamageable
             case VillagerJob.Hunter:
 
                 currentWorkTarget =
-                    WorldTilemapManager.Instance
-                    .GetHuntingTile();
-
-                break;
-
-            case VillagerJob.Trader:
-
-                currentWorkTarget =
-                    WorldTilemapManager.Instance
-                    .GetMarketTile();
+                    worldTilemap != null
+                    ? worldTilemap.GetHuntingTile()
+                    : Vector3.zero;
 
                 break;
 
@@ -692,6 +924,14 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 }
 
                 break;
+        }
+
+        if (currentWorkTarget == Vector3.zero)
+        {
+            currentWorkTarget =
+                workPoint != null
+                ? workPoint.position
+                : GetHomePosition();
         }
 
         hasWorkTarget = true;
@@ -709,9 +949,10 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     if (distance < 0.5f)
     {
+        ClearMovementTargets();
         StopMoving();
 
-        money += GetWorkIncome();
+        AddWorkProduct();
 
         fatigue =
             Mathf.Clamp(
@@ -731,17 +972,60 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     void GoTrade()
     {
-        SetTarget(
-            marketPoint,
-            "Ra cho buon ban");
-
-        if (HasArrived())
+        if (!hasTradeTarget)
         {
-            money += Random.Range(1, 4);
+            currentTradeTarget = GetTraderWorkPosition();
+
+            hasTradeTarget = true;
+        }
+
+        MoveUsingRoad(currentTradeTarget);
+        currentAction = "Ra cho buon ban";
+
+        if (IsAtPosition(currentTradeTarget))
+        {
+            ClearMovementTargets();
+            StopMoving();
             actionTimer = tradeDuration;
             currentAction = "Dang buon ban";
-            TalkToNearbyVillager();
         }
+    }
+
+    void GoSellGoods()
+    {
+        if (!hasSellTarget)
+        {
+            currentSellTarget =
+                GetMarketPosition(
+                    marketPoint != null
+                    ? marketPoint.position
+                    : GetHomePosition());
+
+            hasSellTarget = true;
+        }
+
+        MoveUsingRoad(currentSellTarget);
+        currentAction = "Mang hang ra cho ban";
+
+        if (!IsAtPosition(currentSellTarget))
+        {
+            return;
+        }
+
+        ClearMovementTargets();
+        StopMoving();
+
+        if (TrySellGoodsToTrader() ||
+            (!sellOnlyToTrader && SellGoodsToMarket()))
+        {
+            hasSellTarget = false;
+            actionTimer = sellGoodsDuration;
+            currentAction = "Da ban hang hoa";
+            return;
+        }
+
+        actionTimer = sellGoodsDuration;
+        currentAction = "Cho thuong nhan mua hang";
     }
 
     void TalkToNearbyVillager()
@@ -751,7 +1035,6 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         if (other == null)
         {
-            Wander("Tim nguoi noi chuyen");
             return;
         }
 
@@ -832,6 +1115,214 @@ public class VillagerAI : MonoBehaviour, IDamageable
         return "Noi chuyen voi " + other.villagerName;
     }
 
+    void GoHomeIdle(string action)
+    {
+        Vector3 homePosition = GetHomePosition();
+        MoveUsingRoad(homePosition);
+        currentAction = action;
+
+        if (IsAtPosition(homePosition))
+        {
+            ClearMovementTargets();
+            StopMoving();
+            actionTimer = idleAtHomeDuration;
+        }
+    }
+
+    Vector3 GetHomePosition()
+    {
+        return homePoint != null
+            ? homePoint.position
+            : spawnPosition;
+    }
+
+    Vector3 GetMarketPosition(Vector3 fallback)
+    {
+        WorldTilemapManager worldTilemap =
+            WorldTilemapManager.Instance;
+
+        if (worldTilemap == null)
+        {
+            return fallback;
+        }
+
+        Vector3 market =
+            worldTilemap.GetMarketTile();
+
+        return market != Vector3.zero
+            ? market
+            : fallback;
+    }
+
+    Vector3 GetTraderWorkPosition()
+    {
+        if (workPoint != null)
+        {
+            return workPoint.position;
+        }
+
+        if (marketPoint != null)
+        {
+            return marketPoint.position;
+        }
+
+        return GetMarketPosition(GetHomePosition());
+    }
+
+    bool IsAtPosition(Vector3 position)
+    {
+        return Vector2.Distance(
+            transform.position,
+            position) <= arriveDistance;
+    }
+
+    void AddWorkProduct()
+    {
+        StatItemData product =
+            GetProductForJob();
+
+        if (product == null ||
+            inventory == null)
+        {
+            money += GetWorkIncome();
+            return;
+        }
+
+        int amount =
+            Random.Range(
+                Mathf.Max(1, workProductMin),
+                Mathf.Max(workProductMin, workProductMax) + 1);
+
+        inventory.AddItem(product, amount);
+        currentAction =
+            "Thu hoach " + product.itemName + " x" + amount;
+    }
+
+    StatItemData GetProductForJob()
+    {
+        switch (job)
+        {
+            case VillagerJob.Farmer:
+                return farmProduct;
+            case VillagerJob.Fisher:
+                return fishingProduct;
+            case VillagerJob.Hunter:
+                return huntingProduct;
+            case VillagerJob.Worker:
+                return workerProduct;
+            default:
+                return null;
+        }
+    }
+
+    bool HasSellableGoods()
+    {
+        if (inventory == null)
+        {
+            return false;
+        }
+
+        int amount = 0;
+
+        foreach (ItemStack stack in inventory.items)
+        {
+            if (IsSellableStack(stack))
+            {
+                amount += stack.amount;
+            }
+        }
+
+        return amount >= Mathf.Max(1, sellGoodsThreshold);
+    }
+
+    bool IsSellableStack(ItemStack stack)
+    {
+        if (stack == null ||
+            stack.item == null ||
+            stack.amount <= 0)
+        {
+            return false;
+        }
+
+        return stack.item == farmProduct ||
+            stack.item == fishingProduct ||
+            stack.item == huntingProduct ||
+            stack.item == workerProduct ||
+            stack.item.itemType == ItemType.VatLieu ||
+            stack.item.itemType == ItemType.ThucPham;
+    }
+
+    bool TrySellGoodsToTrader()
+    {
+        if (inventory == null)
+        {
+            return false;
+        }
+
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(
+                transform.position,
+                sellGoodsSearchRadius,
+                traderLayers);
+
+        foreach (Collider2D hit in hits)
+        {
+            if (hit == null ||
+                hit.transform == transform ||
+                hit.transform.IsChildOf(transform))
+            {
+                continue;
+            }
+
+            NpcTradeAgent trader =
+                hit.GetComponentInParent<NpcTradeAgent>();
+
+            if (trader == null ||
+                !trader.IsMarketTrader)
+            {
+                continue;
+            }
+
+            if (trader.TryBuyProduceFrom(this, inventory))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool SellGoodsToMarket()
+    {
+        if (inventory == null)
+        {
+            return false;
+        }
+
+        for (int i = inventory.items.Count - 1; i >= 0; i--)
+        {
+            ItemStack stack = inventory.items[i];
+            if (!IsSellableStack(stack))
+            {
+                continue;
+            }
+
+            StatItemData item = stack.item;
+            int amount = stack.amount;
+            int price = Mathf.Max(1, item.price);
+
+            if (!inventory.RemoveItem(item, amount))
+            {
+                continue;
+            }
+
+            money += price * amount;
+            return true;
+        }
+
+        return false;
+    }
+
     VillagerAI FindNearbyVillager()
     {
         Collider2D[] hits =
@@ -881,6 +1372,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         currentTarget = null;
+        hasDirectMoveTarget = false;
         currentAction = action;
         MoveToPosition(wanderTarget);
     }
@@ -889,11 +1381,16 @@ public class VillagerAI : MonoBehaviour, IDamageable
     {
         if (target == null)
         {
-            Wander(action);
+            currentTarget = null;
+            hasWanderTarget = false;
+            hasDirectMoveTarget = false;
+            currentAction = action;
+            SetDirectMoveTarget(GetHomePosition());
             return;
         }
 
         hasWanderTarget = false;
+        hasDirectMoveTarget = false;
         currentTarget = target;
         currentAction = action;
     }
@@ -914,6 +1411,19 @@ public class VillagerAI : MonoBehaviour, IDamageable
     {
         if (currentTarget == null)
         {
+            if (hasDirectMoveTarget)
+            {
+                if (Vector2.Distance(transform.position, directMoveTarget) <= arriveDistance)
+                {
+                    hasDirectMoveTarget = false;
+                    StopMoving();
+                    return;
+                }
+
+                MoveToPosition(directMoveTarget);
+                return;
+            }
+
             if (hasWanderTarget)
             {
                 MoveToPosition(wanderTarget);
@@ -932,7 +1442,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
 {
     if (WorldTilemapManager.Instance == null)
     {
-        MoveToPosition(target);
+        SetDirectMoveTarget(target);
         return;
     }
 
@@ -940,7 +1450,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     {
         movingToRoad = false;
         hasRoadPreference = false;
-        MoveToPosition(target);
+        SetDirectMoveTarget(target);
         return;
     }
 
@@ -956,7 +1466,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     if (!prefersRoadForCurrentRoute)
     {
-        MoveToPosition(target);
+        SetDirectMoveTarget(target);
         return;
     }
 
@@ -978,7 +1488,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     if (!movingToRoad &&
         roadDistance < targetDistance * 0.5f)
     {
-        MoveToPosition(road);
+        SetDirectMoveTarget(road);
 
         currentAction =
             "Dang di tren duong";
@@ -991,7 +1501,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         return;
     }
 
-    MoveToPosition(target);
+    SetDirectMoveTarget(target);
 
     if (targetDistance < 0.4f)
     {
@@ -1040,7 +1550,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         if (rb != null)
         {
-            rb.linearVelocity =
+            desiredVelocity =
                 direction * moveSpeed;
         }
         else
@@ -1057,8 +1567,74 @@ public class VillagerAI : MonoBehaviour, IDamageable
     {
         if (rb != null)
         {
-            rb.linearVelocity = Vector2.zero;
+            desiredVelocity = Vector2.zero;
         }
+    }
+
+    void ClearMovementTargets()
+    {
+        currentTarget = null;
+        hasWanderTarget = false;
+        hasDirectMoveTarget = false;
+    }
+
+    void SetDirectMoveTarget(Vector3 position)
+    {
+        currentTarget = null;
+        hasWanderTarget = false;
+        hasDirectMoveTarget = true;
+        directMoveTarget = position;
+    }
+
+    void ApplySmoothVelocity()
+    {
+        if (rb == null)
+        {
+            return;
+        }
+
+        float rate =
+            desiredVelocity.sqrMagnitude > rb.linearVelocity.sqrMagnitude
+            ? movementAcceleration
+            : movementDeceleration;
+
+        rb.linearVelocity =
+            Vector2.MoveTowards(
+                rb.linearVelocity,
+                desiredVelocity,
+                rate * Time.fixedDeltaTime);
+    }
+
+    void ConfigureRigidbody()
+    {
+        if (rb == null)
+        {
+            return;
+        }
+
+        rb.bodyType = RigidbodyType2D.Dynamic;
+        rb.gravityScale = 0f;
+        rb.freezeRotation = true;
+        rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+    }
+
+    void UpdateVisualAnimation()
+    {
+        if (visualAnimation == null || rb == null)
+        {
+            return;
+        }
+
+        bool isIdle =
+            rb.linearVelocity.sqrMagnitude <=
+            animationIdleSpeed * animationIdleSpeed;
+
+        Vector2 direction =
+            isIdle
+            ? Vector2.zero
+            : rb.linearVelocity.normalized;
+
+        visualAnimation.UpdateNPCAnimation(direction, isIdle);
     }
 
     Vector2 GetSeparationDirection()
