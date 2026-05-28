@@ -64,6 +64,7 @@ public class InventoryPanelUI : MonoBehaviour
     Vector2 templateSizeDelta;
     Vector3 templateLocalScale;
     Quaternion templateLocalRotation;
+    bool hasStarted;
 
     public bool IsOpen
     {
@@ -89,6 +90,11 @@ public class InventoryPanelUI : MonoBehaviour
             inventory.OnChanged += Refresh;
         }
 
+        if (!hasStarted && closeOnStart && !alwaysVisible)
+        {
+            return;
+        }
+
         Refresh();
     }
 
@@ -102,12 +108,16 @@ public class InventoryPanelUI : MonoBehaviour
 
     void Start()
     {
+        hasStarted = true;
         AutoFindMissingReferences();
 
         if (closeOnStart)
         {
             Close();
+            return;
         }
+
+        Refresh();
     }
 
     void Update()

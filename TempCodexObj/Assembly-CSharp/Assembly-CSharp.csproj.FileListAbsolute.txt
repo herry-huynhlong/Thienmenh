@@ -1,0 +1,4 @@
+C:\Users\user01\Documents\GitHub\Thienmenh\TempCodexObj\Assembly-CSharp\Assembly-CSharp.csproj.AssemblyReference.cache
+C:\Users\user01\Documents\GitHub\Thienmenh\TempCodexObj\Assembly-CSharp\Assembly-CSharp.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\user01\Documents\GitHub\Thienmenh\TempCodexObj\Assembly-CSharp\Assembly-CSharp.csproj.CoreCompileInputs.cache
+C:\Users\user01\Documents\GitHub\Thienmenh\TempCodexObj\Assembly-CSharp\Assembly-CSharp.sourcelink.json

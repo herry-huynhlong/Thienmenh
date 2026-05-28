@@ -28,6 +28,7 @@ public class NpcInventoryPanelUI : MonoBehaviour
         }
 
         AutoFindItemGridPanel();
+        SanitizeCopiedInventoryGrid();
         ConfigureRaycasts();
         Hide();
     }
@@ -185,6 +186,46 @@ public class NpcInventoryPanelUI : MonoBehaviour
         }
     }
 
+
+    void SanitizeCopiedInventoryGrid()
+    {
+        if (itemGridPanel == null)
+        {
+            return;
+        }
+
+        itemGridPanel.readOnly = readOnly;
+        itemGridPanel.closeOnStart = false;
+        itemGridPanel.alwaysVisible = false;
+        itemGridPanel.bringToFrontOnOpen = false;
+        itemGridPanel.closeWhenClickOutside = false;
+
+        GameObject gridRoot = itemGridPanel.panelRoot != null
+            ? itemGridPanel.panelRoot
+            : itemGridPanel.gameObject;
+
+        ShopPanelUI[] shopPanels =
+            gridRoot.GetComponentsInChildren<ShopPanelUI>(true);
+
+        foreach (ShopPanelUI shopPanel in shopPanels)
+        {
+            if (shopPanel != null)
+            {
+                shopPanel.enabled = false;
+            }
+        }
+
+        PlayerWallet[] wallets =
+            gridRoot.GetComponentsInChildren<PlayerWallet>(true);
+
+        foreach (PlayerWallet wallet in wallets)
+        {
+            if (wallet != null)
+            {
+                wallet.enabled = false;
+            }
+        }
+    }
     void SetCanvasGroupVisible(
         GameObject target,
         bool visible)

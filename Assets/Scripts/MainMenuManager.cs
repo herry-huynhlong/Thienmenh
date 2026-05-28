@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 public class MainMenuManager : MonoBehaviour
 {
     public string characterCreateScene = "CharacterCreate";
-    public string firstGameScene = "VillageMap";
+    public string firstGameScene = "PersistentScene";
 
     public void NewGame()
     {

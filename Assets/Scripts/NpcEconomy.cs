@@ -105,6 +105,10 @@ public static class NpcEconomy
         return Mathf.Max(1, Mathf.RoundToInt(price * need));
     }
 
+    // =========================
+    // ĐÃ SỬA:
+    // Tiên phẩm giờ mua bán bình thường
+    // =========================
     public static bool CanTradeNormally(StatItemData item)
     {
         if (item == null)
@@ -112,7 +116,7 @@ public static class NpcEconomy
             return false;
         }
 
-        return item.grade != ItemGrade.Tien;
+        return true;
     }
 
     public static bool CanAffordNpc(GameObject npc, int amount)
@@ -214,26 +218,25 @@ public static class NpcEconomy
         return false;
     }
 
+    // =========================
+    // ĐÃ SỬA:
+    // Tiên phẩm hiện giá thật
+    // =========================
     public static string FormatPrice(StatItemData item)
     {
-        if (item != null &&
-            item.grade == ItemGrade.Tien)
-        {
-            return "Co duyen";
-        }
-
-        return GetItemValue(item) + " " + CurrencyShortName;
+        return GetItemValue(item) +
+            " " +
+            CurrencyShortName;
     }
 
+    // =========================
+    // ĐÃ SỬA:
+    // Tiên phẩm hiện giá trade
+    // =========================
     public static string FormatTradePrice(
         StatItemData item,
         NpcTradeContext context)
     {
-        if (!CanTradeNormally(item))
-        {
-            return "Co duyen";
-        }
-
         return GetTradePrice(item, context) +
             " " +
             CurrencyShortName;
@@ -246,22 +249,22 @@ public static class NpcEconomy
         switch (type)
         {
             case ItemType.DanDuoc:
-                return GetByGrade(grade, 1800, 30000, 500000, 0);
+                return GetByGrade(grade, 1800, 30000, 500000, 50000000);
 
             case ItemType.CongPhap:
-                return GetByGrade(grade, 9000, 120000, 1800000, 0);
+                return GetByGrade(grade, 9000, 120000, 1800000, 80000000);
 
             case ItemType.PhapBao:
-                return GetByGrade(grade, 16000, 260000, 4200000, 0);
+                return GetByGrade(grade, 16000, 260000, 4200000, 120000000);
 
             case ItemType.ThucPham:
                 return 20;
 
             case ItemType.VatLieu:
-                return GetByGrade(grade, 80, 1200, 18000, 0);
+                return GetByGrade(grade, 80, 1200, 18000, 25000000);
 
             default:
-                return GetByGrade(grade, 50, 300, 2000, 30000);
+                return GetByGrade(grade, 50, 300, 2000, 30000000);
         }
     }
 
@@ -271,6 +274,7 @@ public static class NpcEconomy
             GetGradeMultiplier(item.grade);
 
         int value = 0;
+
         value += Mathf.Max(0, item.hpBonus) * 2;
         value += Mathf.Max(0, item.cultivationBonus) * 8;
         value += Mathf.Max(0, item.damageBonus) * 16;
@@ -290,7 +294,8 @@ public static class NpcEconomy
                     Mathf.Abs(modifier.intValue) * 10;
 
                 value +=
-                    Mathf.RoundToInt(Mathf.Abs(modifier.floatValue) * 20f);
+                    Mathf.RoundToInt(
+                        Mathf.Abs(modifier.floatValue) * 20f);
             }
         }
 

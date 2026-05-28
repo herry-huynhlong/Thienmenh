@@ -9,18 +9,15 @@ EditorBuildSettings:
     path: Assets/MainMenu.unity
     guid: 7f270776d8bde814ea948386e3963fe0
   - enabled: 1
-    path: Assets/CharacterCreate.unity
-    guid: 0957e00525d4c7d45b3e72f433fbed40
-  - enabled: 1
     path: Assets/PersistentScene.unity
     guid: ec2df0c8d384fa04db11e508af05438d
   - enabled: 1
     path: Assets/Lang.unity
     guid: 10d109d96493f83499234c713faa3ab0
-  - enabled: 1
+  - enabled: 0
     path: Assets/TuuQuan.unity
     guid: d0c85a0179993804ea82fe375ca691d5
-  - enabled: 1
+  - enabled: 0
     path: Assets/BenTau.unity
     guid: ce6ce1ebe3999934d854c9d9c2f12624
   - enabled: 1

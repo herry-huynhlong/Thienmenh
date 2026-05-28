@@ -12661,18 +12661,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 7238463824461152350, guid: 3c735a351f59f60458fee5bdf6f440a1, type: 3}
   m_PrefabInstance: {fileID: 1582308018}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1028511507
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1028511506}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5138243107baf2541a994db4cad3218d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NPCMovementTest
 --- !u!1 &1030168539
 GameObject:
   m_ObjectHideFlags: 0
@@ -21070,9 +21058,6 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7238463824461152350, guid: 3c735a351f59f60458fee5bdf6f440a1, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1028511507}
   m_SourcePrefab: {fileID: 100100000, guid: 3c735a351f59f60458fee5bdf6f440a1, type: 3}
 --- !u!1 &1586614911
 GameObject:
