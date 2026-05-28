@@ -51,13 +51,15 @@ public class VillagerAI : MonoBehaviour, IDamageable
     public CultivationRealm realm = CultivationRealm.Mortal;
     [Range(1, 9)]
     public int realmStage = 1;
-    public int cultivationExp;
+    public long cultivationExp;
     public int baseExpToNextRealm = 100;
     public int baseMaxHP = 100;
     public int baseAttack = 5;
     public int baseDefense = 2;
     public int attack = 5;
     public int defense = 2;
+    public int lifespan = 80;
+    public bool dieWhenLifespanEnds = true;
 
     [Header("Personality")]
     [Range(0, 100)]
@@ -77,6 +79,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
     [Range(0, 100)]
     public float fun;
     public VillagerMood mood = VillagerMood.Normal;
+    public bool strongNpcAvoidMortalWork = true;
+    public float cultivatorResourceWorkChance = 0.65f;
 
     [Header("Places")]
     public Transform homePoint;
@@ -92,6 +96,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
     public LayerMask villagerLayers = ~0;
     public int acquaintanceTalkChanceBonus = 30;
     public bool destroyOnDeath;
+    public bool scatterWhenMissingPoints = true;
+    public float missingPointScatterRadius = 3f;
     public float workDurationMin = 25f;
     public float workDurationMax = 60f;
     public float restDuration = 8f;
@@ -256,13 +262,15 @@ public class VillagerAI : MonoBehaviour, IDamageable
         ageGroup = GetAgeGroup(entityProfile.identity.age);
         job = GetGeneratedJob(entityProfile.personality);
         realm = entityProfile.stats.realm;
+        lifespan = GetLifespanForRealm(realm);
         realmStage = entityProfile.stats.realmStage;
         cultivationExp = entityProfile.stats.cultivationExp;
         baseMaxHP = Mathf.Max(1, entityProfile.stats.maxHP);
         baseAttack = Mathf.Max(1, entityProfile.stats.attack);
         baseDefense = Mathf.Max(0, entityProfile.stats.defense);
         maxHP = entityProfile.stats.maxHP;
-        currentHP = entityProfile.stats.currentHP;
+        currentHP =
+            Mathf.Clamp(entityProfile.stats.currentHP, 1, maxHP);
         attack = entityProfile.stats.attack;
         defense = entityProfile.stats.defense;
         moveSpeed = entityProfile.stats.moveSpeed;
@@ -274,6 +282,31 @@ public class VillagerAI : MonoBehaviour, IDamageable
         hunger = entityProfile.needs.hunger;
         fatigue = entityProfile.needs.fatigue;
         fun = Mathf.Clamp(100f - entityProfile.needs.socialNeed, 0f, 100f);
+    }
+
+    [ContextMenu("Reload Villager Identity")]
+    public void ReloadGeneratedProfile()
+    {
+        if (entityProfile == null)
+        {
+            entityProfile = GetComponent<EntityProfile>();
+
+            if (entityProfile == null)
+            {
+                entityProfile = gameObject.AddComponent<EntityProfile>();
+            }
+        }
+
+        entityProfile.kind = EntityKind.Villager;
+        entityProfile.ReloadGeneratedProfile();
+        ApplyEntityProfile();
+
+        if (characterStats != null)
+        {
+            characterStats.entityProfile = entityProfile;
+            characterStats.ApplyEntityProfile();
+            SyncFromCharacterStats();
+        }
     }
 
     VillagerAgeGroup GetAgeGroup(int age)
@@ -383,10 +416,17 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     void UpdateNeeds()
     {
-        hunger = Mathf.Clamp(
-            hunger + Time.deltaTime * 0.35f,
-            0f,
-            100f);
+        if (NeedsFood())
+        {
+            hunger = Mathf.Clamp(
+                hunger + Time.deltaTime * GetHungerRate(),
+                0f,
+                100f);
+        }
+        else
+        {
+            hunger = 0f;
+        }
 
         fatigue = Mathf.Clamp(
             fatigue + Time.deltaTime * 0.25f,
@@ -416,7 +456,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
         {
             mood = VillagerMood.Tired;
         }
-        else if (hunger >= 80f)
+        else if (NeedsFood() &&
+            hunger >= 80f)
         {
             mood = VillagerMood.Sad;
         }
@@ -481,6 +522,13 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (ShouldDieFromOldAge())
+        {
+            currentAction = "Tho nguyen da tan";
+            Die();
+            return;
+        }
+
         if (ageGroup == VillagerAgeGroup.Adult &&
             job == VillagerJob.Trader)
         {
@@ -494,7 +542,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (hunger >= 75f)
+        if (NeedsFood() &&
+            hunger >= 75f)
         {
             GoEat();
             return;
@@ -525,7 +574,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (hunger >= 75f)
+        if (NeedsFood() &&
+            hunger >= 75f)
         {
             EatWhereTraderIs();
             return;
@@ -560,7 +610,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (hunger >= 60f)
+        if (NeedsFood() &&
+            hunger >= 60f)
         {
             GoEat();
             return;
@@ -594,7 +645,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                         GoHomeToRest();
                         return;
                     }
-                    GoWork();
+                    GoWorkOrCultivatorActivity();
                     return;
 
                 case WorldTimePhase.Morning:
@@ -604,11 +655,18 @@ public class VillagerAI : MonoBehaviour, IDamageable
                         return;
                     }
 
-                    GoWork();
+                    GoWorkOrCultivatorActivity();
                     return;
 
                 case WorldTimePhase.Noon:
-                    GoEat();
+                    if (NeedsFood())
+                    {
+                        GoEat();
+                    }
+                    else
+                    {
+                        DoCultivatorActivity();
+                    }
                     return;
 
                 case WorldTimePhase.Afternoon:
@@ -618,7 +676,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                         return;
                     }
 
-                    GoWork();
+                    GoWorkOrCultivatorActivity();
                     return;
 
                 case WorldTimePhase.Evening:
@@ -628,7 +686,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
                         return;
                     }
 
-                    if (hunger >= 45f)
+                    if (NeedsFood() &&
+                        hunger >= 45f)
                     {
                         GoEat();
                         return;
@@ -655,7 +714,13 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        GoWork();
+        if (ShouldDoMortalWork())
+        {
+            GoWork();
+            return;
+        }
+
+        DoCultivatorActivity();
     }
 
     bool ShouldTalk()
@@ -674,6 +739,117 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         return Random.Range(0, 100) < Mathf.Clamp(chance, 0, 100);
+    }
+
+    bool NeedsFood()
+    {
+        return realm < CultivationRealm.Foundation;
+    }
+
+    float GetHungerRate()
+    {
+        return realm == CultivationRealm.QiRefining
+            ? 0.08f
+            : 0.35f;
+    }
+
+    bool ShouldDoMortalWork()
+    {
+        if (!strongNpcAvoidMortalWork)
+        {
+            return true;
+        }
+
+        return realm < CultivationRealm.Foundation;
+    }
+
+    void GoWorkOrCultivatorActivity()
+    {
+        if (ShouldDoMortalWork())
+        {
+            GoWork();
+            return;
+        }
+
+        DoCultivatorActivity();
+    }
+
+    void DoCultivatorActivity()
+    {
+        if (realm >= CultivationRealm.Foundation &&
+            Random.value < cultivatorResourceWorkChance)
+        {
+            GoResourceWork();
+            return;
+        }
+
+        CultivateNaturally();
+    }
+
+    void GoResourceWork()
+    {
+        if (job == VillagerJob.Hunter ||
+            job == VillagerJob.Guard ||
+            job == VillagerJob.Worker)
+        {
+            GoWork();
+            return;
+        }
+
+        if (bravery >= 55)
+        {
+            GoToResourcePoint(
+                WorldTilemapManager.Instance != null
+                ? WorldTilemapManager.Instance.GetHuntingTile()
+                : Vector3.zero,
+                "Di san yeu thu / tim tai nguyen");
+            return;
+        }
+
+        GoToResourcePoint(
+            workPoint != null
+            ? workPoint.position
+            : GetFallbackActivityPosition(),
+            "Thu hoach tai nguyen tu luyen");
+    }
+
+    void GoToResourcePoint(
+        Vector3 target,
+        string action)
+    {
+        if (target == Vector3.zero)
+        {
+            target = GetFallbackActivityPosition();
+        }
+
+        MoveUsingRoad(target);
+        currentAction = action;
+
+        if (IsAtPosition(target))
+        {
+            AddCultivationExp(
+                Mathf.Max(1, 2 + (int)realm + realmStage));
+            actionTimer = Random.Range(4f, 8f);
+            currentAction = "Dang thu hoach tai nguyen";
+        }
+    }
+
+    void CultivateNaturally()
+    {
+        int gain =
+            Mathf.Max(
+                1,
+                Mathf.RoundToInt(
+                    (1 + (int)realm + realmStage * 0.2f) *
+                    Mathf.Max(0.5f, diligence / 50f)));
+
+        AddCultivationExp(gain);
+        currentAction = "Tu luyen hap thu linh khi";
+
+        Vector3 target =
+            GetFallbackActivityPosition();
+
+        MoveUsingRoad(target);
     }
 
     void ResetDailyTargets()
@@ -808,7 +984,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 GetMarketPosition(
                     marketPoint != null
                     ? marketPoint.position
-                    : GetHomePosition());
+                    : GetFallbackActivityPosition());
 
             hasEatTarget = true;
         }
@@ -931,7 +1107,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             currentWorkTarget =
                 workPoint != null
                 ? workPoint.position
-                : GetHomePosition();
+                : GetFallbackActivityPosition();
         }
 
         hasWorkTarget = true;
@@ -999,7 +1175,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 GetMarketPosition(
                     marketPoint != null
                     ? marketPoint.position
-                    : GetHomePosition());
+                    : GetFallbackActivityPosition());
 
             hasSellTarget = true;
         }
@@ -1136,6 +1312,21 @@ public class VillagerAI : MonoBehaviour, IDamageable
             : spawnPosition;
     }
 
+    Vector3 GetFallbackActivityPosition()
+    {
+        if (!scatterWhenMissingPoints)
+        {
+            return GetHomePosition();
+        }
+
+        Vector2 randomOffset =
+            Random.insideUnitCircle *
+            Mathf.Max(0.5f, missingPointScatterRadius);
+
+        return spawnPosition +
+            new Vector3(randomOffset.x, randomOffset.y, 0f);
+    }
+
     Vector3 GetMarketPosition(Vector3 fallback)
     {
         WorldTilemapManager worldTilemap =
@@ -1166,7 +1357,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return marketPoint.position;
         }
 
-        return GetMarketPosition(GetHomePosition());
+        return GetMarketPosition(GetFallbackActivityPosition());
     }
 
     bool IsAtPosition(Vector3 position)
@@ -1239,7 +1430,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
     {
         if (stack == null ||
             stack.item == null ||
-            stack.amount <= 0)
+            stack.amount <= 0 ||
+            !NpcEconomy.CanTradeNormally(stack.item))
         {
             return false;
         }
@@ -1309,7 +1501,10 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
             StatItemData item = stack.item;
             int amount = stack.amount;
-            int price = Mathf.Max(1, item.price);
+            int price =
+                NpcEconomy.GetTradePrice(
+                    item,
+                    NpcTradeContext.MarketSell);
 
             if (!inventory.RemoveItem(item, amount))
             {
@@ -1393,6 +1588,22 @@ public class VillagerAI : MonoBehaviour, IDamageable
         hasDirectMoveTarget = false;
         currentTarget = target;
         currentAction = action;
+    }
+
+    public void ForceTreasureHunt(
+        Transform target,
+        StatItemData item)
+    {
+        if (target == null ||
+            item == null ||
+            IsDead)
+        {
+            return;
+        }
+
+        SetTarget(
+            target,
+            "Truy doat " + item.itemName);
     }
 
     bool HasArrived()
@@ -1745,25 +1956,17 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
     }
 
-    public int ExpToNextRealm()
+    public long ExpToNextRealm()
     {
         if (characterStats != null)
         {
             return characterStats.ExpToNextRealm();
         }
 
-        int realmIndex =
-            Mathf.Max(0, (int)realm);
-
-        int result =
-            Mathf.Max(1, baseExpToNextRealm);
-
-        for (int i = 0; i < realmIndex; i++)
-        {
-            result *= 10;
-        }
-
-        return result;
+        return CultivationProgression.GetExpToNextLong(
+            realm,
+            realmStage,
+            baseExpToNextRealm);
     }
 
     public void AddCultivationExp(int amount)
@@ -1799,11 +2002,18 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        realm =
-            (CultivationRealm)((int)realm + 1);
-        realmStage = 1;
+        realmStage += 1;
+
+        if (realmStage > CultivationProgression.MaxStage)
+        {
+            realmStage = 1;
+            realm =
+                (CultivationRealm)((int)realm + 1);
+        }
+
         ApplyRealmPower();
         currentHP = maxHP;
+        lifespan = GetLifespanForRealm(realm);
         currentAction = "Dot pha len " + GetRealmText();
     }
 
@@ -1822,13 +2032,18 @@ public class VillagerAI : MonoBehaviour, IDamageable
     {
         int multiplier = 1;
         int realmIndex = Mathf.Max(0, (int)realm);
+        int stage =
+            Mathf.Clamp(
+                realmStage,
+                1,
+                CultivationProgression.MaxStage);
 
         for (int i = 0; i < realmIndex; i++)
         {
             multiplier *= 10;
         }
 
-        return multiplier;
+        return multiplier * stage;
     }
 
     public string GetRealmText()
@@ -1856,6 +2071,59 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 return "Do Kiep";
             default:
                 return realm.ToString();
+        }
+    }
+
+    public int GetAge()
+    {
+        int baseAge = 0;
+
+        if (entityProfile != null &&
+            entityProfile.identity != null)
+        {
+            baseAge = entityProfile.identity.age;
+        }
+
+        if (WorldTimeSystem.Instance != null)
+        {
+            baseAge += Mathf.Max(0, WorldTimeSystem.Instance.currentYear - 1);
+        }
+
+        return baseAge;
+    }
+
+    public int GetLifespan()
+    {
+        return lifespan > 0
+            ? lifespan
+            : GetLifespanForRealm(realm);
+    }
+
+    bool ShouldDieFromOldAge()
+    {
+        return dieWhenLifespanEnds &&
+            GetAge() > 0 &&
+            GetAge() >= GetLifespan();
+    }
+
+    int GetLifespanForRealm(CultivationRealm targetRealm)
+    {
+        switch (targetRealm)
+        {
+            case CultivationRealm.QiRefining:
+                return 120;
+            case CultivationRealm.Foundation:
+                return 220;
+            case CultivationRealm.GoldenCore:
+                return 500;
+            case CultivationRealm.NascentSoul:
+                return 1200;
+            case CultivationRealm.SoulFormation:
+                return 3000;
+            case CultivationRealm.Tribulation:
+                return 10000;
+            default:
+                return 80;
         }
     }
 
@@ -1904,9 +2172,17 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     public void ApplyItem(StatItemData item, int direction)
     {
+        ApplyItem(item, direction, 1f);
+    }
+
+    public void ApplyItem(
+        StatItemData item,
+        int direction,
+        float powerMultiplier)
+    {
         if (characterStats != null)
         {
-            characterStats.ApplyItem(item, direction);
+            characterStats.ApplyItem(item, direction, powerMultiplier);
             SyncFromCharacterStats();
             return;
         }
@@ -1916,7 +2192,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        foreach (StatModifier modifier in item.GetAllModifiers())
+        foreach (StatModifier modifier in item.GetAllModifiers(powerMultiplier))
         {
             ApplyModifier(modifier, direction);
         }
@@ -1986,10 +2262,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             collider2d.enabled = false;
         }
 
-        if (destroyOnDeath)
-        {
-            Destroy(gameObject, 2f);
-        }
+        Destroy(gameObject, 2f);
     }
 
     void OnDrawGizmosSelected()

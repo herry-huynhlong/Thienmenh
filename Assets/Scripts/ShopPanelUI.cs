@@ -273,7 +273,10 @@ public class ShopPanelUI : MonoBehaviour
 
         if (detailPriceText != null)
         {
-            detailPriceText.text = slot.item.price + " LT";
+            detailPriceText.text =
+                NpcEconomy.FormatTradePrice(
+                    slot.item,
+                    NpcTradeContext.MarketBuy);
         }
 
         if (detailDescriptionText != null)
@@ -1283,11 +1286,18 @@ public class ShopPanelUI : MonoBehaviour
         ShopItemSlot slot =
             shop.GetSlot(selectedItemIndex);
 
-        bool canBuy =
+        bool canTrade =
             slot != null &&
             slot.item != null &&
+            NpcEconomy.CanTradeNormally(slot.item);
+
+        bool canBuy =
+            canTrade &&
             slot.amount > 0 &&
-            CanPay(slot.item.price);
+            CanPay(
+                NpcEconomy.GetTradePrice(
+                    slot.item,
+                    NpcTradeContext.MarketBuy));
 
         buyButton.interactable = canBuy;
 
@@ -1296,7 +1306,9 @@ public class ShopPanelUI : MonoBehaviour
             buyButtonText.text =
                 canBuy
                 ? "Mua"
-                : "Khong du LT";
+                : canTrade
+                    ? "Khong du LT"
+                    : "Khong ban";
         }
     }
 

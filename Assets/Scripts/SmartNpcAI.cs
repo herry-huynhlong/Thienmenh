@@ -60,11 +60,13 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     public int effectResistance = 0;
     public CharacterStats characterStats;
+    public int lifespan = 80;
+    public bool dieWhenLifespanEnds = true;
 
     [Header("Tu luyện")]
-    public int cultivation = 0;
+    public long cultivation = 0;
 
-    public int breakthroughNeed = 100;
+    public long breakthroughNeed = 100;
 
     public bool readyForHeavenlyTribulation = false;
 
@@ -188,11 +190,13 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
         npcName = entityProfile.identity.entityName;
         realm = entityProfile.stats.realm;
+        lifespan = GetLifespanForRealm(realm);
         realmStage = entityProfile.stats.realmStage;
         comprehension = entityProfile.talent.comprehension;
         physique = ToPhysique(entityProfile.talent.grade);
         maxHP = entityProfile.stats.maxHP;
-        currentHP = entityProfile.stats.currentHP;
+        currentHP =
+            Mathf.Clamp(entityProfile.stats.currentHP, 1, maxHP);
         attack = entityProfile.stats.attack;
         defense = entityProfile.stats.defense;
         effectResistance = entityProfile.stats.effectResistance;
@@ -205,6 +209,31 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         kindness = entityProfile.personality.kindness;
         hunger = entityProfile.needs.hunger;
         fatigue = entityProfile.needs.fatigue;
+    }
+
+    [ContextMenu("Reload Smart NPC Identity")]
+    public void ReloadGeneratedProfile()
+    {
+        if (entityProfile == null)
+        {
+            entityProfile = GetComponent<EntityProfile>();
+
+            if (entityProfile == null)
+            {
+                entityProfile = gameObject.AddComponent<EntityProfile>();
+            }
+        }
+
+        entityProfile.kind = EntityKind.Cultivator;
+        entityProfile.ReloadGeneratedProfile();
+        ApplyEntityProfile();
+
+        if (characterStats != null)
+        {
+            characterStats.entityProfile = entityProfile;
+            characterStats.ApplyEntityProfile();
+            SyncFromCharacterStats();
+        }
     }
 
     PhysiqueType ToPhysique(TalentGrade grade)
@@ -278,6 +307,22 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             direction * moveSpeed;
     }
 
+    public void ForceTreasureHunt(
+        Transform target,
+        StatItemData item)
+    {
+        if (target == null ||
+            item == null ||
+            IsDead)
+        {
+            return;
+        }
+
+        currentTarget = target;
+        currentAction =
+            "Truy doat " + item.itemName;
+    }
+
     void ReturnToSpawn()
     {
         Vector2 direction =
@@ -330,6 +375,13 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (ShouldDieFromOldAge())
+        {
+            currentAction = "Tho nguyen da tan";
+            Die();
+            return;
+        }
+
         WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
         if (timeSystem != null)
         {
@@ -359,7 +411,9 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (canLive && hunger >= 80)
+        if (canLive &&
+            NeedsFood() &&
+            hunger >= 80)
         {
             Eat();
 
@@ -416,7 +470,15 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     void UpdateNeeds()
     {
-        hunger += Time.deltaTime * 0.05f;
+        if (NeedsFood())
+        {
+            hunger += Time.deltaTime *
+                (realm == CultivationRealm.QiRefining ? 0.015f : 0.05f);
+        }
+        else
+        {
+            hunger = 0f;
+        }
 
         fatigue += Time.deltaTime * 0.04f;
 
@@ -509,7 +571,9 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
             int gain =
                 Mathf.RoundToInt(
-                    20 *
+                    CultivationProgression.GetSpiritStoneExp(
+                        realm,
+                        realmStage) *
                     GetCultivationMultiplier());
 
             AddCultivationProgress(gain);
@@ -521,10 +585,11 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
                 " tu vi.");
         }
 
-        if (cultivation >= breakthroughNeed)
-        {
-            Breakthrough();
-        }
+    }
+
+    bool NeedsFood()
+    {
+        return realm < CultivationRealm.Foundation;
     }
 
     void AddCultivationProgress(int amount)
@@ -537,6 +602,13 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         }
 
         cultivation += amount;
+
+        while (cultivation >= breakthroughNeed &&
+            realm != CultivationRealm.Tribulation)
+        {
+            cultivation -= breakthroughNeed;
+            Breakthrough();
+        }
     }
 
     float GetCultivationMultiplier()
@@ -607,6 +679,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         }
 
         ApplyRealmPower();
+        lifespan = GetLifespanForRealm(realm);
 
         currentAction = "Đột phá";
 
@@ -939,8 +1012,9 @@ bool ShouldFightMonster(
 
     public int GetRealmPower()
     {
-        return ((int)realm * 10)
-            + realmStage;
+        return CultivationProgression.GetRealmPower(
+            realm,
+            realmStage);
     }
 
     public void ApplyItem(StatItemData item)
@@ -950,9 +1024,17 @@ bool ShouldFightMonster(
 
     public void ApplyItem(StatItemData item, int direction)
     {
+        ApplyItem(item, direction, 1f);
+    }
+
+    public void ApplyItem(
+        StatItemData item,
+        int direction,
+        float powerMultiplier)
+    {
         if (characterStats != null)
         {
-            characterStats.ApplyItem(item, direction);
+            characterStats.ApplyItem(item, direction, powerMultiplier);
             SyncFromCharacterStats();
             return;
         }
@@ -962,7 +1044,7 @@ bool ShouldFightMonster(
             return;
         }
 
-        foreach (StatModifier modifier in item.GetAllModifiers())
+        foreach (StatModifier modifier in item.GetAllModifiers(powerMultiplier))
         {
             ApplyModifier(modifier, direction);
         }
@@ -1013,7 +1095,15 @@ bool ShouldFightMonster(
                 break;
 
             case StatType.Cultivation:
-                cultivation += intValue;
+                if (intValue > 0)
+                {
+                    AddCultivationProgress(intValue);
+                }
+                else
+                {
+                    cultivation =
+                        System.Math.Max(0L, cultivation + intValue);
+                }
                 break;
 
             case StatType.Breakthrough:
@@ -1055,7 +1145,10 @@ bool ShouldFightMonster(
             5 + power * 5;
 
         breakthroughNeed =
-            100 + power * 120;
+            CultivationProgression.GetExpToNextLong(
+                realm,
+                realmStage,
+                100);
     }
 
     string GetRealmName()
@@ -1089,6 +1182,59 @@ bool ShouldFightMonster(
             return "Độ Kiếp";
 
         return "Không rõ";
+    }
+
+    public int GetAge()
+    {
+        int baseAge = 0;
+
+        if (entityProfile != null &&
+            entityProfile.identity != null)
+        {
+            baseAge = entityProfile.identity.age;
+        }
+
+        if (WorldTimeSystem.Instance != null)
+        {
+            baseAge += Mathf.Max(0, WorldTimeSystem.Instance.currentYear - 1);
+        }
+
+        return baseAge;
+    }
+
+    public int GetLifespan()
+    {
+        return lifespan > 0
+            ? lifespan
+            : GetLifespanForRealm(realm);
+    }
+
+    bool ShouldDieFromOldAge()
+    {
+        return dieWhenLifespanEnds &&
+            GetAge() > 0 &&
+            GetAge() >= GetLifespan();
+    }
+
+    int GetLifespanForRealm(CultivationRealm targetRealm)
+    {
+        switch (targetRealm)
+        {
+            case CultivationRealm.QiRefining:
+                return 120;
+            case CultivationRealm.Foundation:
+                return 220;
+            case CultivationRealm.GoldenCore:
+                return 500;
+            case CultivationRealm.NascentSoul:
+                return 1200;
+            case CultivationRealm.SoulFormation:
+                return 3000;
+            case CultivationRealm.Tribulation:
+                return 10000;
+            default:
+                return 80;
+        }
     }
 
     void Die()

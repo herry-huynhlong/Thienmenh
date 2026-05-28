@@ -182,6 +182,15 @@ public class EntityProfile : MonoBehaviour
         }
     }
 
+    [ContextMenu("Reload Generated Profile")]
+    public void ReloadGeneratedProfile()
+    {
+        EntityGenerator.FillProfile(this, kind);
+        lockGeneratedValues = true;
+        memories.Clear();
+        relationships.Clear();
+    }
+
     public void Remember(string subjectId, string eventType, int emotionalWeight)
     {
         WorldTimeSystem timeSystem = WorldTimeSystem.Instance;

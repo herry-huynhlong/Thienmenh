@@ -7,6 +7,11 @@ public class ItemStack
 {
     public StatItemData item;
     public int amount = 1;
+    public int durability;
+    public int maxDurability;
+    public CultivationManualMastery mastery =
+        CultivationManualMastery.None;
+    public bool applied;
 }
 
 public class ItemInventory : MonoBehaviour
@@ -88,6 +93,18 @@ public class ItemInventory : MonoBehaviour
             return;
         }
 
+        if (item.UsesDurability())
+        {
+            for (int i = 0; i < amount; i++)
+            {
+                items.Add(CreateStack(item, 1));
+            }
+
+            SaveSharedItems();
+            NotifyChanged();
+            return;
+        }
+
         ItemStack stack =
             items.Find(entry => entry.item == item);
 
@@ -100,11 +117,7 @@ public class ItemInventory : MonoBehaviour
         }
 
         items.Add(
-            new ItemStack
-            {
-                item = item,
-                amount = amount
-            });
+            CreateStack(item, amount));
 
         SaveSharedItems();
         NotifyChanged();
@@ -116,6 +129,41 @@ public class ItemInventory : MonoBehaviour
             amount <= 0)
         {
             return false;
+        }
+
+        if (item.UsesDurability())
+        {
+            if (GetAmount(item) < amount)
+            {
+                return false;
+            }
+
+            int remaining =
+                amount;
+
+            for (int i = items.Count - 1; i >= 0 && remaining > 0; i--)
+            {
+                if (items[i] == null ||
+                    items[i].item != item)
+                {
+                    continue;
+                }
+
+                int take =
+                    Mathf.Min(items[i].amount, remaining);
+
+                items[i].amount -= take;
+                remaining -= take;
+
+                if (items[i].amount <= 0)
+                {
+                    items.RemoveAt(i);
+                }
+            }
+
+            SaveSharedItems();
+            NotifyChanged();
+            return true;
         }
 
         ItemStack stack =
@@ -146,10 +194,18 @@ public class ItemInventory : MonoBehaviour
             return 0;
         }
 
-        ItemStack stack =
-            items.Find(entry => entry.item == item);
+        int total = 0;
 
-        return stack != null ? stack.amount : 0;
+        foreach (ItemStack entry in items)
+        {
+            if (entry != null &&
+                entry.item == item)
+            {
+                total += entry.amount;
+            }
+        }
+
+        return total;
     }
 
     public bool UseItemOn(int itemIndex, GameObject target)
@@ -171,19 +227,153 @@ public class ItemInventory : MonoBehaviour
             return false;
         }
 
-        if (!stack.item.ApplyTo(target))
+        if (stack.item.itemType == ItemType.CongPhap)
+        {
+            float oldPower =
+                GetMasteryPower(stack.item, stack.mastery);
+
+            AdvanceManualMastery(stack);
+
+            float newPower =
+                GetMasteryPower(stack.item, stack.mastery);
+
+            if (stack.applied &&
+                oldPower > 0f)
+            {
+                stack.item.ApplyTo(target, -1, oldPower);
+            }
+
+            if (newPower > 0f)
+            {
+                if (!stack.item.ApplyTo(target, 1, newPower))
+                {
+                    return false;
+                }
+
+                stack.applied = true;
+            }
+
+            SaveSharedItems();
+            NotifyChanged();
+            return true;
+        }
+
+        if (!stack.item.ConsumesWhenUsed() &&
+            stack.applied)
         {
             return false;
         }
 
-        if (stack.item.consumeOnUse)
-        {
-            stack.amount -= 1;
+        bool applied =
+            !(stack.item.ConsumesWhenUsed() &&
+            !stack.item.RollUseSuccess()) &&
+            stack.item.ApplyTo(target);
 
-            if (stack.amount <= 0)
+        if (!applied &&
+            !stack.item.ConsumesWhenUsed())
+        {
+            return false;
+        }
+
+        if (stack.item.ConsumesWhenUsed())
+        {
+            RemoveStackAt(itemIndex, 1);
+            ItemLifecycleSystem.Notify(
+                ItemLifecycleEventType.Used,
+                stack.item,
+                target);
+        }
+        else if (stack.item.UsesDurability())
+        {
+            StatItemData durableItem =
+                stack.item;
+
+            stack.applied = true;
+            LoseDurability(itemIndex, stack.item.GetDurabilityLossPerUse());
+
+            if (itemIndex >= items.Count ||
+                items[itemIndex] != stack)
             {
-                items.RemoveAt(itemIndex);
+                durableItem.RemoveFrom(target);
             }
+        }
+        else
+        {
+            stack.applied = true;
+        }
+
+        SaveSharedItems();
+        NotifyChanged();
+        return true;
+    }
+
+    public bool LoseDurability(
+        int itemIndex,
+        int amount)
+    {
+        if (itemIndex < 0 ||
+            itemIndex >= items.Count ||
+            amount <= 0)
+        {
+            return false;
+        }
+
+        ItemStack stack =
+            items[itemIndex];
+
+        if (stack == null ||
+            stack.item == null ||
+            !stack.item.UsesDurability())
+        {
+            return false;
+        }
+
+        EnsureStackRuntimeFields(stack);
+        stack.durability -= amount;
+
+        if (stack.durability <= 0 &&
+            stack.item.breaksAtZero)
+        {
+            StatItemData brokenItem =
+                stack.item;
+
+            items.RemoveAt(itemIndex);
+            ItemLifecycleSystem.Notify(
+                ItemLifecycleEventType.Broken,
+                brokenItem,
+                gameObject);
+        }
+
+        SaveSharedItems();
+        NotifyChanged();
+        return true;
+    }
+
+    public bool RemoveStackAt(
+        int itemIndex,
+        int amount = 1)
+    {
+        if (itemIndex < 0 ||
+            itemIndex >= items.Count ||
+            amount <= 0)
+        {
+            return false;
+        }
+
+        ItemStack stack =
+            items[itemIndex];
+
+        if (stack == null ||
+            stack.amount < amount)
+        {
+            return false;
+        }
+
+        stack.amount -= amount;
+
+        if (stack.amount <= 0)
+        {
+            items.RemoveAt(itemIndex);
         }
 
         SaveSharedItems();
@@ -200,6 +390,12 @@ public class ItemInventory : MonoBehaviour
         }
 
         return items[itemIndex];
+    }
+
+    public void MarkDirty()
+    {
+        SaveSharedItems();
+        NotifyChanged();
     }
 
     void NotifyChanged()
@@ -278,11 +474,7 @@ public class ItemInventory : MonoBehaviour
             }
 
             destination.Add(
-                new ItemStack
-                {
-                    item = stack.item,
-                    amount = stack.amount
-            });
+                CloneStack(stack));
         }
     }
 
@@ -309,21 +501,127 @@ public class ItemInventory : MonoBehaviour
             }
 
             ItemStack existing =
-                destination.Find(entry => entry.item == stack.item);
+                stack.item != null &&
+                stack.item.UsesDurability()
+                ? null
+                : destination.Find(entry => entry.item == stack.item);
 
             if (existing != null)
             {
                 existing.amount =
                     Mathf.Max(existing.amount, stack.amount);
+                EnsureStackRuntimeFields(existing);
                 continue;
             }
 
             destination.Add(
-                new ItemStack
-                {
-                    item = stack.item,
-                    amount = stack.amount
-                });
+                CloneStack(stack));
+        }
+    }
+
+    ItemStack CreateStack(
+        StatItemData item,
+        int amount)
+    {
+        ItemStack stack =
+            new ItemStack
+            {
+                item = item,
+                amount = amount
+            };
+
+        EnsureStackRuntimeFields(stack);
+        return stack;
+    }
+
+    ItemStack CloneStack(ItemStack source)
+    {
+        ItemStack clone =
+            new ItemStack
+            {
+                item = source.item,
+                amount = source.amount,
+                durability = source.durability,
+                maxDurability = source.maxDurability,
+                mastery = source.mastery,
+                applied = source.applied
+            };
+
+        EnsureStackRuntimeFields(clone);
+        return clone;
+    }
+
+    void EnsureStackRuntimeFields(ItemStack stack)
+    {
+        if (stack == null ||
+            stack.item == null)
+        {
+            return;
+        }
+
+        if (!stack.item.UsesDurability())
+        {
+            stack.maxDurability = 0;
+            stack.durability = 0;
+            return;
+        }
+
+        int maxDurability =
+            stack.item.GetMaxDurability();
+
+        if (stack.maxDurability <= 0)
+        {
+            stack.maxDurability = maxDurability;
+        }
+
+        if (stack.durability <= 0)
+        {
+            stack.durability = stack.maxDurability;
+        }
+    }
+
+    void AdvanceManualMastery(ItemStack stack)
+    {
+        if (stack == null ||
+            stack.item == null ||
+            stack.item.itemType != ItemType.CongPhap)
+        {
+            return;
+        }
+
+        switch (stack.mastery)
+        {
+            case CultivationManualMastery.None:
+                stack.mastery = CultivationManualMastery.TieuThanh;
+                return;
+            case CultivationManualMastery.TieuThanh:
+                stack.mastery = CultivationManualMastery.TrungThanh;
+                return;
+            case CultivationManualMastery.TrungThanh:
+                stack.mastery = CultivationManualMastery.DaiThanh;
+                return;
+        }
+    }
+
+    float GetMasteryPower(
+        StatItemData item,
+        CultivationManualMastery mastery)
+    {
+        if (item == null)
+        {
+            return 0f;
+        }
+
+        switch (mastery)
+        {
+            case CultivationManualMastery.TieuThanh:
+                return item.tieuThanhPower;
+            case CultivationManualMastery.TrungThanh:
+                return item.trungThanhPower;
+            case CultivationManualMastery.DaiThanh:
+                return item.daiThanhPower;
+            default:
+                return 0f;
         }
     }
 }

@@ -8,6 +8,10 @@ public class SavedItemStack
 {
     public string itemKey;
     public int amount;
+    public int durability;
+    public int maxDurability;
+    public int mastery;
+    public bool applied;
 }
 
 [Serializable]
@@ -156,7 +160,11 @@ public static class GameSaveSystem
                 new SavedItemStack
                 {
                     itemKey = GetItemKey(stack.item),
-                    amount = stack.amount
+                    amount = stack.amount,
+                    durability = stack.durability,
+                    maxDurability = stack.maxDurability,
+                    mastery = (int)stack.mastery,
+                    applied = stack.applied
                 });
         }
 
@@ -213,7 +221,12 @@ public static class GameSaveSystem
                 new ItemStack
                 {
                     item = item,
-                    amount = savedStack.amount
+                    amount = savedStack.amount,
+                    durability = savedStack.durability,
+                    maxDurability = savedStack.maxDurability,
+                    mastery =
+                        (CultivationManualMastery)savedStack.mastery,
+                    applied = savedStack.applied
                 });
         }
 

@@ -109,45 +109,52 @@ public class NpcTradeAgent : MonoBehaviour
 
         StatItemData itemToBuy = null;
         int priceToPay = 0;
+        float bestScore = 0f;
 
         foreach (ItemStack stack in seller.inventory.items)
         {
             if (stack == null ||
                 stack.item == null ||
                 stack.amount <= 0 ||
+                !NpcEconomy.CanTradeNormally(stack.item) ||
                 !stack.item.CanUseOn(gameObject))
             {
                 continue;
             }
 
             int price =
-                Mathf.Max(1, stack.item.price);
+                NpcEconomy.GetNpcBuyPrice(
+                    stack.item,
+                    gameObject,
+                    NpcTradeContext.NpcToNpc);
 
             if (GetMoney() < price)
             {
                 continue;
             }
 
+            float score =
+                GetBuyScore(stack.item, price);
+
+            if (score <= bestScore)
+            {
+                continue;
+            }
+
             itemToBuy = stack.item;
             priceToPay = price;
-            break;
+            bestScore = score;
         }
 
         if (itemToBuy == null ||
-            !seller.inventory.RemoveItem(itemToBuy, 1))
+            !RemoveSellerItem(seller, itemToBuy))
         {
             return false;
         }
 
         AddMoney(-priceToPay);
         seller.AddMoney(priceToPay);
-        inventory.AddItem(itemToBuy, 1);
-        itemToBuy.ApplyTo(gameObject);
-
-        if (itemToBuy.consumeOnUse)
-        {
-            inventory.RemoveItem(itemToBuy, 1);
-        }
+        ReceiveBoughtItem(itemToBuy);
 
         return true;
     }
@@ -180,6 +187,7 @@ public class NpcTradeAgent : MonoBehaviour
             if (stack == null ||
                 stack.item == null ||
                 stack.amount <= 0 ||
+                !NpcEconomy.CanTradeNormally(stack.item) ||
                 !AcceptsProduce(stack.item))
             {
                 continue;
@@ -194,7 +202,9 @@ public class NpcTradeAgent : MonoBehaviour
                 Mathf.Max(
                     1,
                     Mathf.RoundToInt(
-                        Mathf.Max(1, stack.item.price) *
+                        NpcEconomy.GetTradePrice(
+                            stack.item,
+                            NpcTradeContext.ProduceBuy) *
                         buyPricePercent / 100f));
 
             int totalPrice =
@@ -213,6 +223,11 @@ public class NpcTradeAgent : MonoBehaviour
             AddMoney(-totalPrice);
             seller.money += totalPrice;
             inventory.AddItem(stack.item, amount);
+            ItemLifecycleSystem.Notify(
+                ItemLifecycleEventType.Sold,
+                stack.item,
+                seller.gameObject,
+                gameObject);
             boughtUnits += amount;
         }
 
@@ -249,40 +264,80 @@ public class NpcTradeAgent : MonoBehaviour
         return false;
     }
 
-    int GetMoney()
+    bool RemoveSellerItem(
+        NpcTradeAgent seller,
+        StatItemData item)
     {
-        VillagerAI villager =
-            GetComponent<VillagerAI>();
+        NpcItemCollector sellerCollector =
+            seller.GetComponent<NpcItemCollector>();
 
-        if (villager != null)
+        if (sellerCollector != null)
         {
-            return villager.money;
+            return sellerCollector.RemoveOwnedItem(
+                item,
+                1,
+                ItemLifecycleEventType.Sold);
         }
 
-        SmartNpcAI smartNpc =
-            GetComponent<SmartNpcAI>();
+        return seller.inventory.RemoveItem(item, 1);
+    }
 
-        return smartNpc != null ? smartNpc.money : 0;
+    void ReceiveBoughtItem(StatItemData item)
+    {
+        NpcItemCollector collector =
+            GetComponent<NpcItemCollector>();
+
+        if (collector != null)
+        {
+            collector.ReceiveItem(
+                item,
+                ItemLifecycleEventType.Sold,
+                true);
+            return;
+        }
+
+        inventory.AddItem(item, 1);
+    }
+
+    float GetBuyScore(StatItemData item, int price)
+    {
+        if (item == null ||
+            price <= 0)
+        {
+            return 0f;
+        }
+
+        float score = 1f;
+
+        if (item.itemType == ItemType.DanDuoc)
+        {
+            score += NpcEconomy.IsNearBreakthrough(gameObject)
+                ? 8f
+                : 2f;
+        }
+        else if (item.itemType == ItemType.PhapBao)
+        {
+            score += 2.2f;
+        }
+        else if (item.itemType == ItemType.CongPhap)
+        {
+            score += 2f;
+        }
+
+        float wealthRatio =
+            GetMoney() / Mathf.Max(1f, price);
+
+        return score * Mathf.Clamp(wealthRatio, 0.1f, 5f);
+    }
+
+    int GetMoney()
+    {
+        return NpcEconomy.GetNpcMoney(gameObject);
     }
 
     void AddMoney(int amount)
     {
-        VillagerAI villager =
-            GetComponent<VillagerAI>();
-
-        if (villager != null)
-        {
-            villager.money = Mathf.Max(0, villager.money + amount);
-            return;
-        }
-
-        SmartNpcAI smartNpc =
-            GetComponent<SmartNpcAI>();
-
-        if (smartNpc != null)
-        {
-            smartNpc.money = Mathf.Max(0, smartNpc.money + amount);
-        }
+        NpcEconomy.AddNpcMoney(gameObject, amount);
     }
 
     void OnDrawGizmosSelected()

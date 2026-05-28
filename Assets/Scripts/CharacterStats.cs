@@ -11,7 +11,7 @@ public class CharacterStats : MonoBehaviour, IDamageable
     public CultivationRealm realm = CultivationRealm.Mortal;
     [Range(1, 9)]
     public int realmStage = 1;
-    public int cultivationExp;
+    public long cultivationExp;
     public int baseExpToNextRealm = 100;
 
     [Header("Base Stats")]
@@ -72,7 +72,11 @@ public class CharacterStats : MonoBehaviour, IDamageable
         baseAttack = Mathf.Max(1, entityProfile.stats.attack / realmMultiplier);
         baseDefense = Mathf.Max(0, entityProfile.stats.defense / realmMultiplier);
         baseMoveSpeed = Mathf.Max(0.1f, entityProfile.stats.moveSpeed);
-        currentHP = Mathf.Max(1, entityProfile.stats.currentHP);
+        currentHP =
+            Mathf.Clamp(
+                entityProfile.stats.currentHP,
+                1,
+                Mathf.Max(1, entityProfile.stats.maxHP));
     }
 
     void Start()
@@ -95,26 +99,26 @@ public class CharacterStats : MonoBehaviour, IDamageable
     {
         int multiplier = 1;
         int realmIndex = Mathf.Max(0, (int)realm);
+        int stage =
+            Mathf.Clamp(
+                realmStage,
+                1,
+                CultivationProgression.MaxStage);
 
         for (int i = 0; i < realmIndex; i++)
         {
             multiplier *= 10;
         }
 
-        return multiplier;
+        return multiplier * stage;
     }
 
-    public int ExpToNextRealm()
+    public long ExpToNextRealm()
     {
-        int result = Mathf.Max(1, baseExpToNextRealm);
-        int realmIndex = Mathf.Max(0, (int)realm);
-
-        for (int i = 0; i < realmIndex; i++)
-        {
-            result *= 10;
-        }
-
-        return result;
+        return CultivationProgression.GetExpToNextLong(
+            realm,
+            realmStage,
+            baseExpToNextRealm);
     }
 
     public void AddCultivationExp(int amount)
@@ -143,10 +147,15 @@ public class CharacterStats : MonoBehaviour, IDamageable
             return;
         }
 
-        realm =
-            (CultivationRealm)((int)realm + 1);
+        realmStage += 1;
 
-        realmStage = 1;
+        if (realmStage > CultivationProgression.MaxStage)
+        {
+            realmStage = 1;
+            realm =
+                (CultivationRealm)((int)realm + 1);
+        }
+
         RecalculateStats(true);
         currentHP = finalHP;
     }
@@ -211,12 +220,20 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
     public void ApplyItem(StatItemData item, int direction)
     {
+        ApplyItem(item, direction, 1f);
+    }
+
+    public void ApplyItem(
+        StatItemData item,
+        int direction,
+        float powerMultiplier)
+    {
         if (item == null)
         {
             return;
         }
 
-        foreach (StatModifier modifier in item.GetAllModifiers())
+        foreach (StatModifier modifier in item.GetAllModifiers(powerMultiplier))
         {
             if (modifier == null)
             {
@@ -279,8 +296,8 @@ public class CharacterStats : MonoBehaviour, IDamageable
                 else
                 {
                     cultivationExp =
-                        Mathf.Max(
-                            0,
+                        System.Math.Max(
+                            0L,
                             cultivationExp - modifier.intValue);
                 }
                 break;

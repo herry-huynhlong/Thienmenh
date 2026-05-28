@@ -80,10 +80,20 @@ public class SimpleItemShop : MonoBehaviour
         if (slot == null ||
             slot.item == null ||
             slot.amount <= 0 ||
-            !CanBuyerPay(buyerWallet, slot.item.price))
+            !NpcEconomy.CanTradeNormally(slot.item) ||
+            !CanBuyerPay(
+                buyerWallet,
+                NpcEconomy.GetTradePrice(
+                    slot.item,
+                    NpcTradeContext.MarketBuy)))
         {
             return false;
         }
+
+        int price =
+            NpcEconomy.GetTradePrice(
+                slot.item,
+                NpcTradeContext.MarketBuy);
 
         if (sellFromNpcInventory &&
             sellerInventory != null)
@@ -93,16 +103,6 @@ public class SimpleItemShop : MonoBehaviour
                 return false;
             }
 
-            if (!sellerInventory.RemoveItem(slot.item, 1))
-            {
-                return false;
-            }
-
-            if (buyerWallet != null)
-            {
-                buyerWallet.Pay(slot.item.price);
-            }
-
             NpcItemCollector collector =
                 sellerObject != null
                 ? sellerObject.GetComponent<NpcItemCollector>()
@@ -110,17 +110,32 @@ public class SimpleItemShop : MonoBehaviour
 
             if (collector != null)
             {
-                collector.UnequipForSale(slot.item);
+                if (!collector.RemoveOwnedItem(
+                        slot.item,
+                        1,
+                        ItemLifecycleEventType.Sold))
+                {
+                    return false;
+                }
+            }
+            else if (!sellerInventory.RemoveItem(slot.item, 1))
+            {
+                return false;
             }
 
-            AddMoneyToSeller(slot.item.price);
+            if (buyerWallet != null)
+            {
+                buyerWallet.Pay(price);
+            }
+
+            AddMoneyToSeller(price);
             RefreshFromSellerInventory();
         }
         else
         {
             if (buyerWallet != null)
             {
-                buyerWallet.Pay(slot.item.price);
+                buyerWallet.Pay(price);
             }
 
             slot.amount -= 1;
@@ -151,12 +166,23 @@ public class SimpleItemShop : MonoBehaviour
         if (slot == null ||
             slot.item == null ||
             slot.amount <= 0 ||
-            buyer.money < slot.item.price)
+            !NpcEconomy.CanTradeNormally(slot.item))
         {
             return false;
         }
 
-        buyer.money -= slot.item.price;
+        int price =
+            NpcEconomy.GetNpcBuyPrice(
+                slot.item,
+                buyer.gameObject,
+                NpcTradeContext.MarketBuy);
+
+        if (buyer.money < price)
+        {
+            return false;
+        }
+
+        buyer.money -= price;
         slot.amount -= 1;
         SaveRuntimeStock();
         buyerInventory.AddItem(slot.item, 1);
@@ -231,22 +257,7 @@ public class SimpleItemShop : MonoBehaviour
             return;
         }
 
-        VillagerAI villager =
-            target.GetComponent<VillagerAI>();
-
-        if (villager != null)
-        {
-            villager.money += amount;
-            return;
-        }
-
-        SmartNpcAI smartNpc =
-            target.GetComponent<SmartNpcAI>();
-
-        if (smartNpc != null)
-        {
-            smartNpc.money += amount;
-        }
+        NpcEconomy.AddNpcMoney(target, amount);
     }
 
     void LoadRuntimeStock()

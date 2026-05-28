@@ -56,6 +56,25 @@ public class WorldStatItemPickup : MonoBehaviour
             return;
         }
 
+        StatItemData pickedItem = item;
+
+        if (!TryTake(1))
+        {
+            return;
+        }
+
+        NpcItemCollector collector =
+            target.GetComponent<NpcItemCollector>();
+
+        if (collector != null)
+        {
+            collector.ReceiveItem(
+                pickedItem,
+                ItemLifecycleEventType.Picked,
+                true);
+            return;
+        }
+
         ItemInventory inventory =
             target.GetComponent<ItemInventory>();
 
@@ -67,14 +86,8 @@ public class WorldStatItemPickup : MonoBehaviour
             inventory.shareRuntimeItems = false;
         }
 
-        StatItemData pickedItem = item;
-
-        if (!TryTake(1))
-        {
-            return;
-        }
-
         inventory.AddItem(pickedItem, 1);
+        TreasureHeatSystem.NotifyNpcReceivedItem(target.gameObject, pickedItem);
     }
 
     Transform GetNpcTarget(Collider2D other)

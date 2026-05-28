@@ -374,12 +374,8 @@ public class NpcInventoryPanelUI : MonoBehaviour
             builder.Append(" x");
             builder.Append(stack.amount);
 
-            if (stack.item.price > 0)
-            {
-                builder.Append(" - ");
-                builder.Append(stack.item.price);
-                builder.Append(" LT");
-            }
+            builder.Append(" - ");
+            builder.Append(NpcEconomy.FormatPrice(stack.item));
 
             builder.AppendLine();
         }

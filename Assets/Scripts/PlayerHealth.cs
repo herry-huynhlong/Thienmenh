@@ -67,9 +67,17 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
     public void ApplyItem(StatItemData item, int direction)
     {
+        ApplyItem(item, direction, 1f);
+    }
+
+    public void ApplyItem(
+        StatItemData item,
+        int direction,
+        float powerMultiplier)
+    {
         if (characterStats != null)
         {
-            characterStats.ApplyItem(item, direction);
+            characterStats.ApplyItem(item, direction, powerMultiplier);
             SyncFromCharacterStats();
             return;
         }
@@ -79,7 +87,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
             return;
         }
 
-        foreach (StatModifier modifier in item.GetAllModifiers())
+        foreach (StatModifier modifier in item.GetAllModifiers(powerMultiplier))
         {
             if (modifier == null)
             {

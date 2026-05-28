@@ -18,6 +18,14 @@ public enum ItemGrade
     Tien
 }
 
+public enum CultivationManualMastery
+{
+    None,
+    TieuThanh,
+    TrungThanh,
+    DaiThanh
+}
+
 [System.Flags]
 public enum ItemTargetType
 {
@@ -68,6 +76,18 @@ public class StatItemData : ScriptableObject
     public Sprite icon;
     public bool consumeOnUse = true;
 
+    [Header("Vong Doi")]
+    public bool canBeRefinedIntoPill;
+    [Range(0f, 1f)]
+    public float rawUseEfficiency = 0.35f;
+    [Range(0f, 1f)]
+    public float useSuccessChance = 1f;
+
+    [Header("Do Ben")]
+    public int maxDurability;
+    public int durabilityLossPerUse = 1;
+    public bool breaksAtZero = true;
+
     [Header("Dan Duoc")]
     public int hpBonus;
     public int cultivationBonus;
@@ -77,6 +97,16 @@ public class StatItemData : ScriptableObject
     public int damageBonus;
     public int armorBonus;
     public int effectResistanceBonus;
+
+    [Header("Cong Phap")]
+    public bool canBeTaught = true;
+    public int studyProgressPerUse = 1;
+    [Range(0f, 1f)]
+    public float tieuThanhPower = 0.3f;
+    [Range(0f, 1f)]
+    public float trungThanhPower = 0.6f;
+    [Range(0f, 1f)]
+    public float daiThanhPower = 1f;
 
     [Header("Buff Tam Thoi")]
     public bool isTemporary;
@@ -88,20 +118,47 @@ public class StatItemData : ScriptableObject
 
     public List<StatModifier> GetAllModifiers()
     {
+        return GetAllModifiers(1f);
+    }
+
+    public List<StatModifier> GetAllModifiers(float powerMultiplier)
+    {
         List<StatModifier> result =
             new List<StatModifier>();
 
-        AddModifier(result, StatType.CurrentHP, hpBonus);
-        AddModifier(result, StatType.Cultivation, cultivationBonus);
+        float useMultiplier =
+            GetDirectUsePowerMultiplier() *
+            Mathf.Max(0f, powerMultiplier);
+
+        AddModifier(
+            result,
+            StatType.CurrentHP,
+            Mathf.RoundToInt(hpBonus * useMultiplier));
+
+        AddModifier(
+            result,
+            StatType.Cultivation,
+            Mathf.RoundToInt(cultivationBonus * useMultiplier));
 
         if (breakthroughRealm)
         {
             AddModifier(result, StatType.Breakthrough, 1);
         }
 
-        AddModifier(result, StatType.Attack, damageBonus);
-        AddModifier(result, StatType.Defense, armorBonus);
-        AddModifier(result, StatType.EffectResistance, effectResistanceBonus);
+        AddModifier(
+            result,
+            StatType.Attack,
+            Mathf.RoundToInt(damageBonus * useMultiplier));
+
+        AddModifier(
+            result,
+            StatType.Defense,
+            Mathf.RoundToInt(armorBonus * useMultiplier));
+
+        AddModifier(
+            result,
+            StatType.EffectResistance,
+            Mathf.RoundToInt(effectResistanceBonus * useMultiplier));
 
         result.AddRange(modifiers);
 
@@ -167,7 +224,74 @@ public class StatItemData : ScriptableObject
             (validTargets & GetTargetType(target)) != 0;
     }
 
+    float GetDirectUsePowerMultiplier()
+    {
+        if (itemType == ItemType.VatLieu &&
+            canBeRefinedIntoPill)
+        {
+            return Mathf.Clamp01(rawUseEfficiency);
+        }
+
+        return 1f;
+    }
+
+    public bool ConsumesWhenUsed()
+    {
+        return itemType == ItemType.DanDuoc ||
+            itemType == ItemType.ThucPham ||
+            consumeOnUse;
+    }
+
+    public bool UsesDurability()
+    {
+        return itemType == ItemType.PhapBao ||
+            maxDurability > 0;
+    }
+
+    public int GetMaxDurability()
+    {
+        if (!UsesDurability())
+        {
+            return 0;
+        }
+
+        if (maxDurability > 0)
+        {
+            return maxDurability;
+        }
+
+        switch (grade)
+        {
+            case ItemGrade.Trung:
+                return 180;
+            case ItemGrade.Thuong:
+                return 500;
+            case ItemGrade.Tien:
+                return 1200;
+            default:
+                return 80;
+        }
+    }
+
+    public int GetDurabilityLossPerUse()
+    {
+        return Mathf.Max(1, durabilityLossPerUse);
+    }
+
+    public bool RollUseSuccess()
+    {
+        return Random.value <= Mathf.Clamp01(useSuccessChance);
+    }
+
     public bool ApplyTo(GameObject target, int direction)
+    {
+        return ApplyTo(target, direction, 1f);
+    }
+
+    public bool ApplyTo(
+        GameObject target,
+        int direction,
+        float powerMultiplier)
     {
         if (target == null)
         {
@@ -179,7 +303,10 @@ public class StatItemData : ScriptableObject
 
         if (characterStats != null)
         {
-            characterStats.ApplyItem(this, direction);
+            characterStats.ApplyItem(
+                this,
+                direction,
+                powerMultiplier);
             return true;
         }
 
@@ -188,7 +315,7 @@ public class StatItemData : ScriptableObject
 
         if (npc != null)
         {
-            npc.ApplyItem(this, direction);
+            npc.ApplyItem(this, direction, powerMultiplier);
             return true;
         }
 
@@ -197,7 +324,7 @@ public class StatItemData : ScriptableObject
 
         if (villager != null)
         {
-            villager.ApplyItem(this, direction);
+            villager.ApplyItem(this, direction, powerMultiplier);
             return true;
         }
 
@@ -206,7 +333,7 @@ public class StatItemData : ScriptableObject
 
         if (monster != null)
         {
-            monster.ApplyItem(this, direction);
+            monster.ApplyItem(this, direction, powerMultiplier);
             return true;
         }
 
@@ -215,7 +342,7 @@ public class StatItemData : ScriptableObject
 
         if (player != null)
         {
-            player.ApplyItem(this, direction);
+            player.ApplyItem(this, direction, powerMultiplier);
             return true;
         }
 

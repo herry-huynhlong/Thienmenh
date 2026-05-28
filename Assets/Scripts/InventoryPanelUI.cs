@@ -133,6 +133,14 @@ public class InventoryPanelUI : MonoBehaviour
         Camera eventCamera =
             GetEventCamera();
 
+        if (IsScreenPositionInsideInventoryUi(
+                screenPosition,
+                eventCamera))
+        {
+            TrySelectItemAtScreenPosition(screenPosition, eventCamera);
+            return;
+        }
+
         if (ShouldCloseFromOutsidePointer(screenPosition, eventCamera))
         {
             Close();
@@ -252,7 +260,8 @@ public class InventoryPanelUI : MonoBehaviour
 
         if (detailPriceText != null)
         {
-            detailPriceText.text = stack.item.price + " LT";
+            detailPriceText.text =
+                NpcEconomy.FormatPrice(stack.item);
         }
 
         if (detailDescriptionText != null)
@@ -262,7 +271,8 @@ public class InventoryPanelUI : MonoBehaviour
 
         if (detailStatsText != null)
         {
-            detailStatsText.text = BuildStatsText(stack.item);
+            detailStatsText.text =
+                BuildStatsText(stack);
         }
 
         if (useButton != null)
@@ -397,6 +407,90 @@ public class InventoryPanelUI : MonoBehaviour
         }
 
         return false;
+    }
+
+    bool IsScreenPositionInsideInventoryUi(
+        Vector2 screenPosition,
+        Camera eventCamera)
+    {
+        if (IsScreenPositionInsideRect(
+                panelRoot != null
+                ? panelRoot.transform as RectTransform
+                : null,
+                screenPosition,
+                eventCamera))
+        {
+            return true;
+        }
+
+        if (IsScreenPositionInsideRect(
+                itemGridParent as RectTransform,
+                screenPosition,
+                eventCamera))
+        {
+            return true;
+        }
+
+        if (IsScreenPositionInsideDetailPanel(
+                screenPosition,
+                eventCamera))
+        {
+            return true;
+        }
+
+        if (IsScreenPositionInsideAnySpawnedItem(
+                screenPosition,
+                eventCamera))
+        {
+            return true;
+        }
+
+        return IsScreenPositionInsideAnyPanelButton(
+            screenPosition,
+            eventCamera);
+    }
+
+    bool IsScreenPositionInsideAnySpawnedItem(
+        Vector2 screenPosition,
+        Camera eventCamera)
+    {
+        for (int i = spawnedButtons.Count - 1; i >= 0; i--)
+        {
+            InventoryItemButtonUI button =
+                spawnedButtons[i];
+
+            if (button == null ||
+                !button.gameObject.activeInHierarchy)
+            {
+                continue;
+            }
+
+            RectTransform rect =
+                button.GetComponent<RectTransform>();
+
+            if (IsScreenPositionInsideRect(
+                    rect,
+                    screenPosition,
+                    eventCamera))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool IsScreenPositionInsideRect(
+        RectTransform rect,
+        Vector2 screenPosition,
+        Camera eventCamera)
+    {
+        return rect != null &&
+            rect.gameObject.activeInHierarchy &&
+            RectTransformUtility.RectangleContainsScreenPoint(
+                rect,
+                screenPosition,
+                eventCamera);
     }
 
     bool ShouldCloseFromOutsidePointer(
@@ -1164,10 +1258,19 @@ public class InventoryPanelUI : MonoBehaviour
         }
     }
 
-    string BuildStatsText(StatItemData item)
+    string BuildStatsText(ItemStack stack)
     {
         StringBuilder builder =
             new StringBuilder();
+
+        if (stack == null ||
+            stack.item == null)
+        {
+            return "";
+        }
+
+        StatItemData item =
+            stack.item;
 
         if (item.hpBonus != 0)
         {
@@ -1204,7 +1307,47 @@ public class InventoryPanelUI : MonoBehaviour
             builder.AppendLine("Thoi gian: " + item.duration + "s");
         }
 
+        if (item.ConsumesWhenUsed() &&
+            item.useSuccessChance < 0.999f)
+        {
+            builder.AppendLine(
+                "Xac suat: " +
+                Mathf.RoundToInt(item.useSuccessChance * 100f) +
+                "%");
+        }
+
+        if (item.UsesDurability())
+        {
+            builder.AppendLine(
+                "Do ben: " +
+                stack.durability +
+                "/" +
+                stack.maxDurability);
+        }
+
+        if (item.itemType == ItemType.CongPhap)
+        {
+            builder.AppendLine(
+                "Linh ngo: " +
+                GetMasteryText(stack.mastery));
+        }
+
         return builder.ToString();
+    }
+
+    string GetMasteryText(CultivationManualMastery mastery)
+    {
+        switch (mastery)
+        {
+            case CultivationManualMastery.TieuThanh:
+                return "Tieu Thanh";
+            case CultivationManualMastery.TrungThanh:
+                return "Trung Thanh";
+            case CultivationManualMastery.DaiThanh:
+                return "Dai Thanh";
+            default:
+                return "Chua tu luyen";
+        }
     }
 
     string GetTypeText(ItemType itemType)
