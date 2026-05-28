@@ -11,6 +11,7 @@ public class ShopItemButtonUI : MonoBehaviour, IPointerClickHandler, IPointerDow
     public TMP_Text amountText;
     public TMP_Text nameText;
     public TMP_Text priceText;
+    public Color priceColor = new Color(1f, 0.82f, 0.18f, 1f);
 
     int itemIndex;
     ShopPanelUI owner;
@@ -106,6 +107,8 @@ public class ShopItemButtonUI : MonoBehaviour, IPointerClickHandler, IPointerDow
         if (priceText != null)
         {
             priceText.text = slot.item.price + " LT";
+            priceText.color = priceColor;
+            priceText.fontStyle |= FontStyles.Bold;
         }
 
         if (button != null)

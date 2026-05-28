@@ -48,12 +48,16 @@ public class NpcInventoryPanelUI : MonoBehaviour
             inventory = npc.gameObject.AddComponent<ItemInventory>();
         }
 
-        Unsubscribe();
-        currentNpc = npc;
-        currentInventory = inventory;
-        currentInventory.OnChanged += OnInventoryChanged;
-        gridDirty = true;
-        BindItemGrid();
+        if (currentNpc != npc ||
+            currentInventory != inventory)
+        {
+            Unsubscribe();
+            currentNpc = npc;
+            currentInventory = inventory;
+            currentInventory.OnChanged += OnInventoryChanged;
+            gridDirty = true;
+            BindItemGrid();
+        }
 
         if (panelRoot != null)
         {
@@ -221,6 +225,25 @@ public class NpcInventoryPanelUI : MonoBehaviour
         if (itemGridPanel != null)
         {
             return;
+        }
+
+        if (panelRoot != null)
+        {
+            itemGridPanel =
+                panelRoot.GetComponent<InventoryPanelUI>();
+
+            if (itemGridPanel != null)
+            {
+                return;
+            }
+
+            itemGridPanel =
+                panelRoot.GetComponentInChildren<InventoryPanelUI>(true);
+
+            if (itemGridPanel != null)
+            {
+                return;
+            }
         }
 
         itemGridPanel =

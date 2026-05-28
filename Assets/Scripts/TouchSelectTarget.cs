@@ -177,6 +177,7 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (selectedTarget == null)
         {
+            HidePanel();
             return;
         }
 
@@ -225,7 +226,6 @@ public class TouchSelectTarget : MonoBehaviour
 
     public void ShowInfoTab()
     {
-        BindTabButtons();
         showingInventory = false;
 
         if (infoText != null &&
@@ -246,7 +246,6 @@ public class TouchSelectTarget : MonoBehaviour
 
     public void ShowInventoryTab()
     {
-        BindTabButtons();
         showingInventory = true;
 
         SetInfoContentVisible(false);
@@ -280,16 +279,45 @@ public class TouchSelectTarget : MonoBehaviour
         if (infoButton != null)
         {
             infoButton.onClick.RemoveListener(ShowInfoTab);
-            infoButton.onClick.AddListener(ShowInfoTab);
+
+            if (!HasPersistentListener(infoButton, nameof(ShowInfoTab)))
+            {
+                infoButton.onClick.AddListener(ShowInfoTab);
+            }
+
             infoButton.interactable = true;
         }
 
         if (inventoryButton != null)
         {
             inventoryButton.onClick.RemoveListener(ShowInventoryTab);
-            inventoryButton.onClick.AddListener(ShowInventoryTab);
+
+            if (!HasPersistentListener(inventoryButton, nameof(ShowInventoryTab)))
+            {
+                inventoryButton.onClick.AddListener(ShowInventoryTab);
+            }
+
             inventoryButton.interactable = true;
         }
+    }
+
+    bool HasPersistentListener(Button button, string methodName)
+    {
+        if (button == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < button.onClick.GetPersistentEventCount(); i++)
+        {
+            if (button.onClick.GetPersistentTarget(i) == this &&
+                button.onClick.GetPersistentMethodName(i) == methodName)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     void AutoFindTabReferences()

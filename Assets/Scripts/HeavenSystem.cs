@@ -103,6 +103,21 @@ public class HeavenSystem : MonoBehaviour
             GameObject itemObject = new GameObject("Heaven Gift - " + item.itemName);
             itemObject.transform.position = position;
             pickup = itemObject.AddComponent<WorldStatItemPickup>();
+
+            CircleCollider2D collider =
+                itemObject.AddComponent<CircleCollider2D>();
+
+            collider.isTrigger = true;
+            collider.radius = 0.25f;
+
+            if (item.icon != null)
+            {
+                SpriteRenderer renderer =
+                    itemObject.AddComponent<SpriteRenderer>();
+
+                renderer.sprite = item.icon;
+                renderer.sortingOrder = 20;
+            }
         }
 
         pickup.item = item;

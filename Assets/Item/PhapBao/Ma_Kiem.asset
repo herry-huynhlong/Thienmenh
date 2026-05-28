@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
-  m_Name: NewStatItem
+  m_Name: Ma_Kiem
   m_EditorClassIdentifier: Assembly-CSharp::StatItemData
-  itemName: Thuong_Kiem
-  description: Thuong_Kiem
+  itemName: Ma_Kiem
+  description: "Ma Ki\u1EBFm"
   itemType: 1
   grade: 2
   validTargets: -1
-  price: 300
-  icon: {fileID: -6743541826600170124, guid: ecdf2644d536c194783ccef0eaa81a24, type: 3}
+  price: 30
+  icon: {fileID: 2663300544949570994, guid: bd4a6864a97ac2047b6b7eae95814c98, type: 3}
   consumeOnUse: 1
   hpBonus: 0
   cultivationBonus: 0
   breakthroughRealm: 0
-  damageBonus: 100
+  damageBonus: 50
   armorBonus: 0
   effectResistanceBonus: 0
   isTemporary: 0

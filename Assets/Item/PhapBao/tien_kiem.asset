@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
-  m_Name: NewStatItem
+  m_Name: tien_kiem
   m_EditorClassIdentifier: Assembly-CSharp::StatItemData
-  itemName: Thuong_Kiem
-  description: Thuong_Kiem
+  itemName: Tien_Kiem
+  description: Tien_Kiem
   itemType: 1
-  grade: 2
+  grade: 3
   validTargets: -1
-  price: 300
-  icon: {fileID: -6743541826600170124, guid: ecdf2644d536c194783ccef0eaa81a24, type: 3}
+  price: 0
+  icon: {fileID: -6810289099574228944, guid: 95ed19319016d2149b621d65457dc757, type: 3}
   consumeOnUse: 1
   hpBonus: 0
   cultivationBonus: 0
   breakthroughRealm: 0
-  damageBonus: 100
+  damageBonus: 30
   armorBonus: 0
   effectResistanceBonus: 0
   isTemporary: 0

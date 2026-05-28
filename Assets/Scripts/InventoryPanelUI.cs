@@ -15,7 +15,13 @@ public class InventoryPanelUI : MonoBehaviour
     public bool closeOnStart = true;
     public bool alwaysVisible = false;
     public bool bringToFrontOnOpen = true;
+    public bool closeWhenClickOutside = true;
     public bool readOnly;
+    public StatItemData selectedItem;
+
+    public ItemInventory currentNpcInventory;
+
+    public ItemInventory playerInventory;
 
     [Header("Items")]
     public Transform itemGridParent;
@@ -44,6 +50,7 @@ public class InventoryPanelUI : MonoBehaviour
     public TMP_Text detailStatsText;
     public Button useButton;
     public Button giveToSelectedNpcButton;
+    public Button heavenGiftButton;
 
     readonly List<InventoryItemButtonUI> spawnedButtons =
         new List<InventoryItemButtonUI>();
@@ -70,18 +77,7 @@ public class InventoryPanelUI : MonoBehaviour
     void Awake()
     {
         AutoFindMissingReferences();
-
-        if (useButton != null)
-        {
-            useButton.onClick.RemoveAllListeners();
-            useButton.onClick.AddListener(UseSelectedItem);
-        }
-
-        if (giveToSelectedNpcButton != null)
-        {
-            giveToSelectedNpcButton.onClick.RemoveAllListeners();
-            giveToSelectedNpcButton.onClick.AddListener(GiveSelectedItemToSelectedNpc);
-        }
+        BindActionButtons();
 
         CacheTemplateTransform();
     }
@@ -120,17 +116,30 @@ public class InventoryPanelUI : MonoBehaviour
         {
             if (Input.GetMouseButtonDown(0))
             {
-                TrySelectItemAtScreenPosition(Input.mousePosition);
+                HandlePointerDown(Input.mousePosition);
             }
 
             if (Input.touchCount > 0 &&
                 Input.GetTouch(0).phase == TouchPhase.Began)
             {
-                TrySelectItemAtScreenPosition(
-                    Input.GetTouch(0).position);
+                HandlePointerDown(Input.GetTouch(0).position);
             }
         }
 
+    }
+
+    void HandlePointerDown(Vector2 screenPosition)
+    {
+        Camera eventCamera =
+            GetEventCamera();
+
+        if (ShouldCloseFromOutsidePointer(screenPosition, eventCamera))
+        {
+            Close();
+            return;
+        }
+
+        TrySelectItemAtScreenPosition(screenPosition, eventCamera);
     }
 
     public void Open()
@@ -180,13 +189,18 @@ public class InventoryPanelUI : MonoBehaviour
     public void Refresh()
     {
         selectedItemIndex = -1;
+        selectedItem = null;
         ClearDetail();
         RebuildItemGrid();
     }
 
     public void SelectItem(int itemIndex)
     {
+        AutoFindMissingReferences();
+        BindActionButtons();
+
         selectedItemIndex = itemIndex;
+        selectedItem = null;
 
         ItemStack stack =
             inventory.GetStack(itemIndex);
@@ -197,6 +211,8 @@ public class InventoryPanelUI : MonoBehaviour
             ClearDetail();
             return;
         }
+
+        selectedItem = stack.item;
 
         if (detailPanel != null)
         {
@@ -258,6 +274,11 @@ public class InventoryPanelUI : MonoBehaviour
         {
             giveToSelectedNpcButton.interactable = !readOnly;
         }
+
+        if (heavenGiftButton != null)
+        {
+            heavenGiftButton.interactable = !readOnly;
+        }
     }
 
     public void SelectItemButton(int itemIndex)
@@ -287,6 +308,13 @@ public class InventoryPanelUI : MonoBehaviour
         Camera eventCamera =
             GetEventCamera();
 
+        TrySelectItemAtScreenPosition(screenPosition, eventCamera);
+    }
+
+    void TrySelectItemAtScreenPosition(
+        Vector2 screenPosition,
+        Camera eventCamera)
+    {
         for (int i = spawnedButtons.Count - 1; i >= 0; i--)
         {
             InventoryItemButtonUI button =
@@ -319,6 +347,9 @@ public class InventoryPanelUI : MonoBehaviour
         }
 
         if (selectedItemIndex >= 0 &&
+            !IsScreenPositionInsideAnyPanelButton(
+                screenPosition,
+                eventCamera) &&
             !IsScreenPositionInsideDetailPanel(
                 screenPosition,
                 eventCamera))
@@ -326,6 +357,70 @@ public class InventoryPanelUI : MonoBehaviour
             selectedItemIndex = -1;
             ClearDetail();
         }
+    }
+
+    bool IsScreenPositionInsideAnyPanelButton(
+        Vector2 screenPosition,
+        Camera eventCamera)
+    {
+        if (panelRoot == null)
+        {
+            return false;
+        }
+
+        Button[] buttons =
+            panelRoot.GetComponentsInChildren<Button>(true);
+
+        foreach (Button button in buttons)
+        {
+            if (button == null ||
+                !button.gameObject.activeInHierarchy)
+            {
+                continue;
+            }
+
+            RectTransform buttonRect =
+                button.GetComponent<RectTransform>();
+
+            if (buttonRect == null)
+            {
+                continue;
+            }
+
+            if (RectTransformUtility.RectangleContainsScreenPoint(
+                    buttonRect,
+                    screenPosition,
+                    eventCamera))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool ShouldCloseFromOutsidePointer(
+        Vector2 screenPosition,
+        Camera eventCamera)
+    {
+        if (!closeWhenClickOutside ||
+            panelRoot == null)
+        {
+            return false;
+        }
+
+        RectTransform panelRect =
+            panelRoot.GetComponent<RectTransform>();
+
+        if (panelRect == null)
+        {
+            return false;
+        }
+
+        return !RectTransformUtility.RectangleContainsScreenPoint(
+            panelRect,
+            screenPosition,
+            eventCamera);
     }
 
     bool IsScreenPositionInsideDetailPanel(
@@ -456,6 +551,9 @@ public class InventoryPanelUI : MonoBehaviour
                 selectedTarget.gameObject.AddComponent<ItemInventory>();
         }
 
+        currentNpcInventory = targetInventory;
+        playerInventory = inventory;
+
         StatItemData item = stack.item;
 
         if (!inventory.RemoveItem(item, 1))
@@ -464,7 +562,37 @@ public class InventoryPanelUI : MonoBehaviour
         }
 
         targetInventory.AddItem(item, 1);
+        selectedItem = null;
         Refresh();
+    }
+
+    public void GiveSelectedItemToNpc()
+    {
+        GiveSelectedItemToSelectedNpc();
+    }
+
+    public void BeginHeavenGiftPlacement()
+    {
+        if (readOnly ||
+            inventory == null ||
+            selectedItemIndex < 0)
+        {
+            return;
+        }
+
+        ItemStack stack =
+            inventory.GetStack(selectedItemIndex);
+
+        if (stack == null ||
+            stack.item == null ||
+            stack.amount <= 0)
+        {
+            return;
+        }
+
+        HeavenGiftPlacementController.BeginGift(inventory, stack.item);
+        selectedItem = null;
+        Close();
     }
 
     bool CanReceiveItem(Transform target)
@@ -475,6 +603,8 @@ public class InventoryPanelUI : MonoBehaviour
 
     void RebuildItemGrid()
     {
+        ResolveItemButtonTemplate();
+
         if (inventory == null ||
             itemGridParent == null ||
             itemButtonPrefab == null)
@@ -533,6 +663,11 @@ public class InventoryPanelUI : MonoBehaviour
 
     void ConfigureItemGrid()
     {
+        if (itemGridParent == null)
+        {
+            return;
+        }
+
         RectTransform contentRect =
             itemGridParent as RectTransform;
 
@@ -630,6 +765,8 @@ public class InventoryPanelUI : MonoBehaviour
 
     void CacheTemplateTransform()
     {
+        ResolveItemButtonTemplate();
+
         if (itemButtonPrefab == null)
         {
             return;
@@ -683,6 +820,8 @@ public class InventoryPanelUI : MonoBehaviour
 
     void ClearDetail()
     {
+        selectedItem = null;
+
         if (detailPanel != null)
         {
             detailPanel.SetActive(false);
@@ -705,6 +844,11 @@ public class InventoryPanelUI : MonoBehaviour
         if (giveToSelectedNpcButton != null)
         {
             giveToSelectedNpcButton.interactable = false;
+        }
+
+        if (heavenGiftButton != null)
+        {
+            heavenGiftButton.interactable = false;
         }
     }
 
@@ -773,6 +917,8 @@ public class InventoryPanelUI : MonoBehaviour
                 itemGridParent
                     .GetComponentInChildren<InventoryItemButtonUI>(true);
         }
+
+        ResolveItemButtonTemplate();
 
         if (detailPanel == null)
         {
@@ -847,6 +993,24 @@ public class InventoryPanelUI : MonoBehaviour
         if (giveToSelectedNpcButton == null)
         {
             giveToSelectedNpcButton =
+                FindButtonByName(transform, "Cho_NPC");
+        }
+
+        if (giveToSelectedNpcButton == null)
+        {
+            giveToSelectedNpcButton =
+                FindButtonByName(transform, "Cho NPC");
+        }
+
+        if (giveToSelectedNpcButton == null)
+        {
+            giveToSelectedNpcButton =
+                FindButtonByName(transform, "ChoNPC");
+        }
+
+        if (giveToSelectedNpcButton == null)
+        {
+            giveToSelectedNpcButton =
                 FindButtonByName(transform, "Phat_cho_player");
         }
 
@@ -855,6 +1019,80 @@ public class InventoryPanelUI : MonoBehaviour
             giveToSelectedNpcButton =
                 FindButtonByName(transform, "phat_cho_player");
         }
+
+        if (heavenGiftButton == null)
+        {
+            heavenGiftButton =
+                FindButtonByName(transform, "Ban_Tang");
+        }
+
+        if (heavenGiftButton == null)
+        {
+            heavenGiftButton =
+                FindButtonByName(transform, "Ban Tang");
+        }
+
+        if (heavenGiftButton == null)
+        {
+            heavenGiftButton =
+                FindButtonByName(transform, "BanTang");
+        }
+    }
+
+    void BindActionButtons()
+    {
+        if (useButton != null)
+        {
+            useButton.onClick.RemoveAllListeners();
+            useButton.onClick.AddListener(UseSelectedItem);
+        }
+
+        if (giveToSelectedNpcButton != null)
+        {
+            giveToSelectedNpcButton.onClick.RemoveAllListeners();
+            giveToSelectedNpcButton.onClick.AddListener(GiveSelectedItemToSelectedNpc);
+        }
+
+        if (heavenGiftButton != null)
+        {
+            heavenGiftButton.onClick.RemoveAllListeners();
+            heavenGiftButton.onClick.AddListener(BeginHeavenGiftPlacement);
+        }
+    }
+
+    void ResolveItemButtonTemplate()
+    {
+        if (itemGridParent == null ||
+            itemButtonPrefab == null)
+        {
+            return;
+        }
+
+        if (itemButtonPrefab.transform != itemGridParent)
+        {
+            return;
+        }
+
+        InventoryItemButtonUI[] candidates =
+            itemGridParent.GetComponentsInChildren<InventoryItemButtonUI>(true);
+
+        foreach (InventoryItemButtonUI candidate in candidates)
+        {
+            if (candidate == null ||
+                candidate.transform == itemGridParent)
+            {
+                continue;
+            }
+
+            itemButtonPrefab = candidate;
+            return;
+        }
+
+        Debug.LogError(
+            "InventoryPanelUI itemButtonPrefab must be a child template, not the itemGridParent itself.",
+            this);
+
+        itemButtonPrefab = null;
     }
 
     Button FindButtonByName(

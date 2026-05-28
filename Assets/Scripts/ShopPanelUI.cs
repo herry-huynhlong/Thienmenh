@@ -16,6 +16,7 @@ public class ShopPanelUI : MonoBehaviour
     public GameObject panelRoot;
     public TMP_Text shopTitleText;
     public string shopTitle = "Linh Duoc Duong";
+    public bool closeWhenClickOutside = true;
 
     [Header("Items")]
     public Transform itemGridParent;
@@ -92,16 +93,28 @@ public class ShopPanelUI : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            TrySelectItemAtScreenPosition(
-                Input.mousePosition);
+            HandlePointerDown(Input.mousePosition);
         }
 
         if (Input.touchCount > 0 &&
             Input.GetTouch(0).phase == TouchPhase.Began)
         {
-            TrySelectItemAtScreenPosition(
-                Input.GetTouch(0).position);
+            HandlePointerDown(Input.GetTouch(0).position);
         }
+    }
+
+    void HandlePointerDown(Vector2 screenPosition)
+    {
+        Camera eventCamera =
+            GetEventCamera();
+
+        if (ShouldCloseFromOutsidePointer(screenPosition, eventCamera))
+        {
+            Close();
+            return;
+        }
+
+        TrySelectItemAtScreenPosition(screenPosition, eventCamera);
     }
 
     void Start()
@@ -570,14 +583,16 @@ public class ShopPanelUI : MonoBehaviour
 
     void TrySelectItemAtScreenPosition(Vector2 screenPosition)
     {
-        Camera eventCamera = null;
+        Camera eventCamera =
+            GetEventCamera();
 
-        if (rootCanvas != null &&
-            rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
-        {
-            eventCamera = rootCanvas.worldCamera;
-        }
+        TrySelectItemAtScreenPosition(screenPosition, eventCamera);
+    }
 
+    void TrySelectItemAtScreenPosition(
+        Vector2 screenPosition,
+        Camera eventCamera)
+    {
         foreach (ShopItemButtonUI button in spawnedButtons)
         {
             if (button == null ||
@@ -614,6 +629,46 @@ public class ShopPanelUI : MonoBehaviour
             selectedItemIndex = -1;
             ClearDetail();
         }
+    }
+
+    Camera GetEventCamera()
+    {
+        if (rootCanvas == null ||
+            rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay)
+        {
+            return null;
+        }
+
+        if (rootCanvas.worldCamera != null)
+        {
+            return rootCanvas.worldCamera;
+        }
+
+        return Camera.main;
+    }
+
+    bool ShouldCloseFromOutsidePointer(
+        Vector2 screenPosition,
+        Camera eventCamera)
+    {
+        if (!closeWhenClickOutside ||
+            panelRoot == null)
+        {
+            return false;
+        }
+
+        RectTransform panelRect =
+            panelRoot.GetComponent<RectTransform>();
+
+        if (panelRect == null)
+        {
+            return false;
+        }
+
+        return !RectTransformUtility.RectangleContainsScreenPoint(
+            panelRect,
+            screenPosition,
+            eventCamera);
     }
 
     bool IsPointerInsideDetailOrBuyPanel(
