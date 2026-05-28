@@ -43,6 +43,7 @@ public class InventoryPanelUI : MonoBehaviour
     public TMP_Text detailDescriptionText;
     public TMP_Text detailStatsText;
     public Button useButton;
+    public Button giveToSelectedNpcButton;
 
     readonly List<InventoryItemButtonUI> spawnedButtons =
         new List<InventoryItemButtonUI>();
@@ -74,6 +75,12 @@ public class InventoryPanelUI : MonoBehaviour
         {
             useButton.onClick.RemoveAllListeners();
             useButton.onClick.AddListener(UseSelectedItem);
+        }
+
+        if (giveToSelectedNpcButton != null)
+        {
+            giveToSelectedNpcButton.onClick.RemoveAllListeners();
+            giveToSelectedNpcButton.onClick.AddListener(GiveSelectedItemToSelectedNpc);
         }
 
         CacheTemplateTransform();
@@ -246,6 +253,11 @@ public class InventoryPanelUI : MonoBehaviour
         {
             useButton.interactable = !readOnly;
         }
+
+        if (giveToSelectedNpcButton != null)
+        {
+            giveToSelectedNpcButton.interactable = !readOnly;
+        }
     }
 
     public void SelectItemButton(int itemIndex)
@@ -404,6 +416,61 @@ public class InventoryPanelUI : MonoBehaviour
         inventory.UseItemOn(
             selectedItemIndex,
             target);
+    }
+
+    public void GiveSelectedItemToSelectedNpc()
+    {
+        if (readOnly ||
+            inventory == null ||
+            selectedItemIndex < 0)
+        {
+            return;
+        }
+
+        ItemStack stack =
+            inventory.GetStack(selectedItemIndex);
+
+        if (stack == null ||
+            stack.item == null ||
+            stack.amount <= 0)
+        {
+            return;
+        }
+
+        Transform selectedTarget =
+            TouchSelectTarget.CurrentTarget;
+
+        if (selectedTarget == null ||
+            !CanReceiveItem(selectedTarget))
+        {
+            Debug.Log("Chua chon NPC de phat vat pham.");
+            return;
+        }
+
+        ItemInventory targetInventory =
+            selectedTarget.GetComponent<ItemInventory>();
+
+        if (targetInventory == null)
+        {
+            targetInventory =
+                selectedTarget.gameObject.AddComponent<ItemInventory>();
+        }
+
+        StatItemData item = stack.item;
+
+        if (!inventory.RemoveItem(item, 1))
+        {
+            return;
+        }
+
+        targetInventory.AddItem(item, 1);
+        Refresh();
+    }
+
+    bool CanReceiveItem(Transform target)
+    {
+        return target.GetComponent<VillagerAI>() != null ||
+            target.GetComponent<SmartNpcAI>() != null;
     }
 
     void RebuildItemGrid()
@@ -634,6 +701,11 @@ public class InventoryPanelUI : MonoBehaviour
         {
             useButton.interactable = false;
         }
+
+        if (giveToSelectedNpcButton != null)
+        {
+            giveToSelectedNpcButton.interactable = false;
+        }
     }
 
     void AutoFindMissingReferences()
@@ -765,6 +837,47 @@ public class InventoryPanelUI : MonoBehaviour
                     FindTextByName(detailTransform, "DetailStatsText");
             }
         }
+
+        if (giveToSelectedNpcButton == null)
+        {
+            giveToSelectedNpcButton =
+                FindButtonByName(transform, "phat_cho_Player");
+        }
+
+        if (giveToSelectedNpcButton == null)
+        {
+            giveToSelectedNpcButton =
+                FindButtonByName(transform, "Phat_cho_player");
+        }
+
+        if (giveToSelectedNpcButton == null)
+        {
+            giveToSelectedNpcButton =
+                FindButtonByName(transform, "phat_cho_player");
+        }
+    }
+
+    Button FindButtonByName(
+        Transform parent,
+        string childName)
+    {
+        Transform child =
+            FindChildByName(parent, childName);
+
+        if (child == null)
+        {
+            return null;
+        }
+
+        Button button =
+            child.GetComponent<Button>();
+
+        if (button != null)
+        {
+            return button;
+        }
+
+        return child.GetComponentInChildren<Button>(true);
     }
 
     Transform FindChildByName(

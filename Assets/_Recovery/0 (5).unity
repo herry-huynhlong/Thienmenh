@@ -2682,7 +2682,7 @@ RectTransform:
   m_GameObject: {fileID: 284931879}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1.422578}
+  m_LocalScale: {x: 0.9, y: 1, z: 1.422578}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1115483527}
@@ -2691,7 +2691,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -9, y: 143}
+  m_AnchoredPosition: {x: -47, y: 143}
   m_SizeDelta: {x: 703.976, y: 811.39}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &284931881
@@ -2828,6 +2828,7 @@ MonoBehaviour:
   detailDescriptionText: {fileID: 1066577773}
   detailStatsText: {fileID: 736479713}
   useButton: {fileID: 0}
+  giveToSelectedNpcButton: {fileID: 0}
 --- !u!1 &314903120
 GameObject:
   m_ObjectHideFlags: 0
@@ -6161,7 +6162,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.03347137, y: 0.8233353}
   m_AnchorMax: {x: 0.03347137, y: 0.8233353}
-  m_AnchoredPosition: {x: -28.92698, y: -223.74872}
+  m_AnchoredPosition: {x: -28.926907, y: -223.74872}
   m_SizeDelta: {x: 823.88, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &719929714
@@ -9070,7 +9071,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.09379498, y: 0.64100003}
   m_AnchorMax: {x: 0.09379498, y: 0.64100003}
-  m_AnchoredPosition: {x: 328, y: -234.82}
+  m_AnchoredPosition: {x: 321, y: -234.82}
   m_SizeDelta: {x: 1005.398, y: 876.8401}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1115483528
@@ -10821,7 +10822,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 8, y: -255}
+  m_AnchoredPosition: {x: 143, y: -297}
   m_SizeDelta: {x: 529.528, y: 592.826}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1497995383
@@ -12334,6 +12335,7 @@ MonoBehaviour:
   detailDescriptionText: {fileID: 427812099}
   detailStatsText: {fileID: 754557081}
   useButton: {fileID: 5520157}
+  giveToSelectedNpcButton: {fileID: 5520157}
 --- !u!114 &1738063728
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13309,6 +13311,7 @@ MonoBehaviour:
   detailDescriptionText: {fileID: 122190166}
   detailStatsText: {fileID: 1541415752}
   useButton: {fileID: 113681524}
+  giveToSelectedNpcButton: {fileID: 0}
 --- !u!114 &1854153893
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14147,6 +14150,7 @@ MonoBehaviour:
   detailDescriptionText: {fileID: 0}
   detailStatsText: {fileID: 736479713}
   useButton: {fileID: 0}
+  giveToSelectedNpcButton: {fileID: 0}
 --- !u!1 &2037348760
 GameObject:
   m_ObjectHideFlags: 0

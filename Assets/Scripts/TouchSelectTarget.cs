@@ -454,7 +454,7 @@ public class TouchSelectTarget : MonoBehaviour
     {
         if (infoContentRoot != null)
         {
-            infoContentRoot.SetActive(visible);
+            SetCanvasGroupVisible(infoContentRoot, visible);
         }
 
         if (infoText != null)
@@ -467,7 +467,7 @@ public class TouchSelectTarget : MonoBehaviour
     {
         if (inventoryContentRoot != null)
         {
-            inventoryContentRoot.SetActive(visible);
+            SetCanvasGroupVisible(inventoryContentRoot, visible);
         }
 
         if (npcInventoryPanel != null &&
@@ -475,6 +475,31 @@ public class TouchSelectTarget : MonoBehaviour
         {
             npcInventoryPanel.SetContentVisible(visible);
         }
+    }
+
+    void SetCanvasGroupVisible(GameObject target, bool visible)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        if (!target.activeSelf)
+        {
+            target.SetActive(true);
+        }
+
+        CanvasGroup group =
+            target.GetComponent<CanvasGroup>();
+
+        if (group == null)
+        {
+            group = target.AddComponent<CanvasGroup>();
+        }
+
+        group.alpha = visible ? 1f : 0f;
+        group.interactable = visible;
+        group.blocksRaycasts = visible;
     }
 
     Transform GetSelectableTarget(Collider2D hit)
@@ -858,10 +883,8 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (npcInventoryPanel != null)
         {
-            if (showingInventory)
-            {
-                npcInventoryPanel.Refresh();
-            }
+            // Inventory UI rebuilds item buttons, so do not refresh it every frame.
+            // It refreshes when opened and when the selected inventory changes.
         }
 
         Vector3 screenPos =

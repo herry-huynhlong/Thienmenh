@@ -18,6 +18,7 @@ public class NpcInventoryPanelUI : MonoBehaviour
 
     Transform currentNpc;
     ItemInventory currentInventory;
+    bool gridDirty = true;
 
     void Awake()
     {
@@ -50,7 +51,8 @@ public class NpcInventoryPanelUI : MonoBehaviour
         Unsubscribe();
         currentNpc = npc;
         currentInventory = inventory;
-        currentInventory.OnChanged += Refresh;
+        currentInventory.OnChanged += OnInventoryChanged;
+        gridDirty = true;
         BindItemGrid();
 
         if (panelRoot != null)
@@ -97,7 +99,11 @@ public class NpcInventoryPanelUI : MonoBehaviour
         if (ShouldUseItemGrid())
         {
             BindItemGrid();
-            itemGridPanel.Refresh();
+            if (gridDirty)
+            {
+                itemGridPanel.Refresh();
+                gridDirty = false;
+            }
         }
     }
 
@@ -115,7 +121,12 @@ public class NpcInventoryPanelUI : MonoBehaviour
         if (itemGridPanel != null &&
             itemGridPanel.panelRoot != panelRoot)
         {
-            itemGridPanel.Close();
+            if (itemGridPanel.panelRoot != null)
+            {
+                SetCanvasGroupVisible(
+                    itemGridPanel.panelRoot,
+                    false);
+            }
         }
     }
 
@@ -145,14 +156,56 @@ public class NpcInventoryPanelUI : MonoBehaviour
 
             if (visible)
             {
-                itemGridPanel.Open();
-                itemGridPanel.Refresh();
+                if (itemGridPanel.panelRoot != null)
+                {
+                    SetCanvasGroupVisible(
+                        itemGridPanel.panelRoot,
+                        true);
+                }
+
+                if (gridDirty)
+                {
+                    itemGridPanel.Refresh();
+                    gridDirty = false;
+                }
             }
             else if (itemGridPanel.panelRoot != panelRoot)
             {
-                itemGridPanel.Close();
+                if (itemGridPanel.panelRoot != null)
+                {
+                    SetCanvasGroupVisible(
+                        itemGridPanel.panelRoot,
+                        false);
+                }
             }
         }
+    }
+
+    void SetCanvasGroupVisible(
+        GameObject target,
+        bool visible)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        if (!target.activeSelf)
+        {
+            target.SetActive(true);
+        }
+
+        CanvasGroup group =
+            target.GetComponent<CanvasGroup>();
+
+        if (group == null)
+        {
+            group = target.AddComponent<CanvasGroup>();
+        }
+
+        group.alpha = visible ? 1f : 0f;
+        group.interactable = visible;
+        group.blocksRaycasts = visible;
     }
 
     void SetTextVisible(TMP_Text text, bool visible)
@@ -192,10 +245,15 @@ public class NpcInventoryPanelUI : MonoBehaviour
         itemGridPanel.inventory = currentInventory;
         itemGridPanel.closeOnStart = false;
         itemGridPanel.readOnly = readOnly;
+        itemGridPanel.bringToFrontOnOpen = false;
+        itemGridPanel.alwaysVisible = false;
 
         if (itemGridPanel.panelRoot != null)
         {
-            itemGridPanel.panelRoot.SetActive(true);
+            if (!itemGridPanel.panelRoot.activeSelf)
+            {
+                itemGridPanel.panelRoot.SetActive(true);
+            }
         }
     }
 
@@ -204,11 +262,17 @@ public class NpcInventoryPanelUI : MonoBehaviour
         Unsubscribe();
     }
 
+    void OnInventoryChanged()
+    {
+        gridDirty = true;
+        Refresh();
+    }
+
     void Unsubscribe()
     {
         if (currentInventory != null)
         {
-            currentInventory.OnChanged -= Refresh;
+            currentInventory.OnChanged -= OnInventoryChanged;
         }
     }
 
