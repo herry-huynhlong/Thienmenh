@@ -44,7 +44,18 @@ public class NpcItemCollector : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (!canPickupItems)
+        TryPickupFromCollider(other);
+    }
+
+    void OnTriggerStay2D(Collider2D other)
+    {
+        TryPickupFromCollider(other);
+    }
+
+    void TryPickupFromCollider(Collider2D other)
+    {
+        if (!canPickupItems ||
+            other == null)
         {
             return;
         }
@@ -82,18 +93,36 @@ public class NpcItemCollector : MonoBehaviour
         if (pickup == null ||
             !pickup.allowNpcPickup ||
             pickup.item == null ||
-            inventory == null ||
-            !pickup.TryTake(1))
+            inventory == null)
+        {
+            return false;
+        }
+
+        StatItemData pickedItem = pickup.item;
+
+        if (!pickup.TryTake(1))
         {
             return false;
         }
 
         ReceiveItem(
-            pickup.item,
+            pickedItem,
             ItemLifecycleEventType.Picked,
-            autoUsePickedItems);
+            ShouldAutoUsePickedItem(pickedItem));
 
         return true;
+    }
+
+    bool ShouldAutoUsePickedItem(StatItemData item)
+    {
+        if (!autoUsePickedItems ||
+            item == null)
+        {
+            return false;
+        }
+
+        return item.itemType != ItemType.VatLieu &&
+            item.itemType != ItemType.ThucPham;
     }
 
     public void ReceiveItem(

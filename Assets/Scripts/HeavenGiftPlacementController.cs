@@ -721,7 +721,7 @@ public class HeavenGiftPlacementController : MonoBehaviour
         pickup.item = item;
         pickup.amount = 1;
         pickup.allowNpcPickup = true;
-        pickup.allowPlayerPickup = true;
+        pickup.allowPlayerPickup = false;
 
         return pickup;
     }

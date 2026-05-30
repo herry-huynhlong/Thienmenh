@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public enum VillagerAgeGroup
 {
@@ -39,6 +39,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     public string villagerName = "Nguoi dan";
     public VillagerAgeGroup ageGroup = VillagerAgeGroup.Adult;
     public VillagerJob job = VillagerJob.Farmer;
+    public bool keepInspectorJob;
 
     [Header("Stats")]
     public int maxHP = 100;
@@ -107,8 +108,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
     [Range(0f, 1f)]
     public float roadPreferenceChance = 0.8f;
     public float lowHpRoadBypassPercent = 0.3f;
-    public float separationRadius = 0.45f;
-    public float separationStrength = 1.4f;
+    public float separationRadius = 0.65f;
+    public float separationStrength = 2.0f;
+    public bool ignoreNpcBodyCollisions = true;
+    public float unstuckCheckDelay = 1.2f;
+    public float unstuckMinMoveDistance = 0.03f;
+    public float unstuckOffsetRadius = 0.7f;
     public float movementAcceleration = 8f;
     public float movementDeceleration = 12f;
     public float animationIdleSpeed = 0.03f;
@@ -122,15 +127,39 @@ public class VillagerAI : MonoBehaviour, IDamageable
     public StatItemData workerProduct;
     public int workProductMin = 1;
     public int workProductMax = 3;
+    public bool farmerHarvestOnlyInMorning = true;
+    public int farmerHarvestAmountPerDay = 1;
+    public bool farmerPreferWorkPoint = true;
     public int sellGoodsThreshold = 1;
     public float sellGoodsDuration = 8f;
     public float sellGoodsSearchRadius = 2.2f;
     public LayerMask traderLayers = ~0;
     public bool sellOnlyToTrader = true;
 
+    [Header("Profession Progress")]
+    public int professionLevel = 1;
+    public int professionExp;
+    public int baseProfessionExpToNextLevel = 10;
+    public int professionExpGrowthPerLevel = 5;
+    public int maxProfessionLevel = 20;
+    public int professionExpPerWork = 1;
+    public int productBonusEveryProfessionLevels = 3;
+
+    public float ProfessionProgress01
+    {
+        get
+        {
+            int need = GetProfessionExpToNextLevel();
+            return need <= 0
+                ? 1f
+                : Mathf.Clamp01(professionExp / (float)need);
+        }
+    }
+
     [Header("Runtime")]
     public string currentAction = "Dung yen";
     public Transform currentTarget;
+    public string lastWorkProductStatus;
 
     Rigidbody2D rb;
     NPCVisualAnimation visualAnimation;
@@ -147,7 +176,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
     bool prefersRoadForCurrentRoute;
     Vector3 roadPreferenceTarget;
     Vector2 desiredVelocity;
+    Vector3 lastUnstuckPosition;
+    float stuckMoveTimer;
+    Collider2D[] ownColliders;
     int lastPlanResetDay = -1;
+    int lastFarmerHarvestDay = -1;
 
     Vector3 currentWorkTarget;
     Vector3 currentTradeTarget;
@@ -171,6 +204,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        ownColliders = GetComponentsInChildren<Collider2D>();
+        lastUnstuckPosition = transform.position;
         visualAnimation = GetComponent<NPCVisualAnimation>();
         characterStats = GetComponent<CharacterStats>();
         inventory = inventory != null
@@ -260,7 +295,10 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         villagerName = entityProfile.identity.entityName;
         ageGroup = GetAgeGroup(entityProfile.identity.age);
-        job = GetGeneratedJob(entityProfile.personality);
+        if (!keepInspectorJob)
+        {
+            job = GetGeneratedJob(entityProfile.personality);
+        }
         realm = entityProfile.stats.realm;
         lifespan = GetLifespanForRealm(realm);
         realmStage = entityProfile.stats.realmStage;
@@ -389,6 +427,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         MoveToCurrentTarget();
+        UpdateUnstuck();
         ApplySmoothVelocity();
         UpdateVisualAnimation();
     }
@@ -973,6 +1012,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
             actionTimer = restDuration;
             currentAction = "Dang nghi ngoi";
             ResetDailyTargets();
+
+            NpcHomeResident resident = GetComponent<NpcHomeResident>();
+            if (resident != null && resident.hideAtHome)
+            {
+                resident.ForceHiddenAtHome(true);
+            }
         }
     }
 
@@ -1053,10 +1098,18 @@ public class VillagerAI : MonoBehaviour, IDamageable
         {
             case VillagerJob.Farmer:
 
-                currentWorkTarget =
-                    worldTilemap != null
-                    ? worldTilemap.GetFarmTile()
-                    : Vector3.zero;
+                if (farmerPreferWorkPoint &&
+                    workPoint != null)
+                {
+                    currentWorkTarget = GetWorkPointPosition(VillagerJob.Farmer);
+                }
+                else
+                {
+                    currentWorkTarget =
+                        worldTilemap != null
+                        ? worldTilemap.GetFarmTile()
+                        : Vector3.zero;
+                }
 
                 break;
 
@@ -1067,7 +1120,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                     ? worldTilemap.GetFishingTile(this)
                     : Vector3.zero;
 
-                // Hồ đông thì đổi nghề tạm
+                // Há»“ Ä‘Ã´ng thÃ¬ Ä‘á»•i nghá» táº¡m
                 if (currentWorkTarget ==
                     Vector3.zero)
                 {
@@ -1095,8 +1148,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
                 if (workPoint != null)
                 {
-                    currentWorkTarget =
-                        workPoint.position;
+                    currentWorkTarget = GetWorkPointPosition(job);
                 }
 
                 break;
@@ -1128,7 +1180,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         ClearMovementTargets();
         StopMoving();
 
-        AddWorkProduct();
+        bool produced = AddWorkProduct();
 
         fatigue =
             Mathf.Clamp(
@@ -1136,13 +1188,14 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 0f,
                 100f);
 
-        actionTimer =
-            Random.Range(
-                workDurationMin,
-                workDurationMax);
+        actionTimer = produced
+            ? Random.Range(workDurationMin, workDurationMax)
+            : Mathf.Max(thinkInterval, 2f);
 
-        currentAction =
-            GetWorkingAction();
+        if (produced)
+        {
+            AddProfessionExp(professionExpPerWork);
+        }
     }
 }
 
@@ -1367,26 +1420,143 @@ public class VillagerAI : MonoBehaviour, IDamageable
             position) <= arriveDistance;
     }
 
-    void AddWorkProduct()
+    bool AddWorkProduct()
     {
         StatItemData product =
             GetProductForJob();
 
-        if (product == null ||
-            inventory == null)
+        if (inventory == null)
+        {
+            inventory = GetComponent<ItemInventory>();
+
+            if (inventory == null)
+            {
+                inventory = gameObject.AddComponent<ItemInventory>();
+                inventory.shareRuntimeItems = false;
+            }
+        }
+
+        if (product == null)
         {
             money += GetWorkIncome();
-            return;
+            lastWorkProductStatus = "Khong co product, nhan tien cong";
+            currentAction = "Lam viec nhan tien cong";
+            return true;
+        }
+
+        if (job == VillagerJob.Farmer)
+        {
+            return AddFarmerProduct(product);
         }
 
         int amount =
             Random.Range(
                 Mathf.Max(1, workProductMin),
-                Mathf.Max(workProductMin, workProductMax) + 1);
+                Mathf.Max(workProductMin, workProductMax) + 1) +
+            GetProfessionProductBonus();
 
         inventory.AddItem(product, amount);
+        lastWorkProductStatus =
+            "Da them " + product.itemName + " x" + amount +
+            ", trong balo: " + inventory.GetAmount(product);
         currentAction =
             "Thu hoach " + product.itemName + " x" + amount;
+        return true;
+    }
+
+    bool AddFarmerProduct(StatItemData product)
+    {
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+
+        if (farmerHarvestOnlyInMorning &&
+            timeSystem != null &&
+            !IsFarmerHarvestTime(timeSystem.CurrentPhase))
+        {
+            lastWorkProductStatus =
+                "Chua thu hoach: chi thu vao Dawn/Morning";
+            currentAction = "Cham soc ruong, chua den gio thu hoach";
+            return false;
+        }
+
+        int currentDay =
+            timeSystem != null
+            ? timeSystem.CurrentDay
+            : -1;
+
+        if (currentDay >= 0 &&
+            lastFarmerHarvestDay == currentDay)
+        {
+            lastWorkProductStatus =
+                "Chua thu hoach: da nhan trong ngay " + currentDay;
+            currentAction = "Da thu hoach hom nay";
+            return false;
+        }
+
+        int amount =
+            Mathf.Max(1, farmerHarvestAmountPerDay) +
+            GetProfessionProductBonus();
+
+        inventory.AddItem(product, amount);
+        lastFarmerHarvestDay = currentDay;
+        lastWorkProductStatus =
+            "Da them " + product.itemName + " x" + amount +
+            ", trong balo: " + inventory.GetAmount(product);
+        currentAction =
+            "Thu hoach " + product.itemName + " x" + amount;
+        return true;
+    }
+
+    bool IsFarmerHarvestTime(WorldTimePhase phase)
+    {
+        return phase == WorldTimePhase.Dawn ||
+            phase == WorldTimePhase.Morning;
+    }
+
+    int GetProfessionProductBonus()
+    {
+        int levelsPerBonus =
+            Mathf.Max(1, productBonusEveryProfessionLevels);
+
+        return Mathf.Max(0, professionLevel - 1) / levelsPerBonus;
+    }
+
+    void AddProfessionExp(int amount)
+    {
+        if (amount <= 0 ||
+            professionLevel >= maxProfessionLevel)
+        {
+            return;
+        }
+
+        professionExp += amount;
+
+        while (professionLevel < maxProfessionLevel)
+        {
+            int need = GetProfessionExpToNextLevel();
+
+            if (professionExp < need)
+            {
+                break;
+            }
+
+            professionExp -= need;
+            professionLevel++;
+        }
+
+        if (professionLevel >= maxProfessionLevel)
+        {
+            professionLevel = maxProfessionLevel;
+            professionExp = 0;
+        }
+    }
+
+    int GetProfessionExpToNextLevel()
+    {
+        return Mathf.Max(
+            1,
+            baseProfessionExpToNextLevel +
+            Mathf.Max(0, professionLevel - 1) *
+            Mathf.Max(0, professionExpGrowthPerLevel));
     }
 
     StatItemData GetProductForJob()
@@ -1649,6 +1819,21 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         MoveToPosition(currentTarget.position);
     }
+    Vector3 GetWorkPointPosition(VillagerJob targetJob)
+    {
+        if (workPoint == null)
+        {
+            return Vector3.zero;
+        }
+
+        NpcWorkArea area = workPoint.GetComponent<NpcWorkArea>();
+        if (area != null && area.job == targetJob)
+        {
+            return area.GetRandomPoint();
+        }
+
+        return workPoint.position;
+    }
     void MoveUsingRoad(Vector3 target)
 {
     if (WorldTilemapManager.Instance == null)
@@ -1797,6 +1982,44 @@ public class VillagerAI : MonoBehaviour, IDamageable
         directMoveTarget = position;
     }
 
+    void UpdateUnstuck()
+    {
+        if (!hasDirectMoveTarget && currentTarget == null && !hasWanderTarget)
+        {
+            stuckMoveTimer = 0f;
+            lastUnstuckPosition = transform.position;
+            return;
+        }
+
+        if (desiredVelocity.sqrMagnitude <= 0.0001f)
+        {
+            stuckMoveTimer = 0f;
+            lastUnstuckPosition = transform.position;
+            return;
+        }
+
+        float moved = Vector2.Distance(transform.position, lastUnstuckPosition);
+        if (moved <= unstuckMinMoveDistance)
+        {
+            stuckMoveTimer += Time.fixedDeltaTime;
+        }
+        else
+        {
+            stuckMoveTimer = 0f;
+            lastUnstuckPosition = transform.position;
+        }
+
+        if (stuckMoveTimer < unstuckCheckDelay)
+        {
+            return;
+        }
+
+        Vector2 offset = Random.insideUnitCircle.normalized * Mathf.Max(0.1f, unstuckOffsetRadius);
+        SetDirectMoveTarget(transform.position + (Vector3)offset);
+        currentAction = "Dang tach khoi dam dong";
+        stuckMoveTimer = 0f;
+        lastUnstuckPosition = transform.position;
+    }
     void ApplySmoothVelocity()
     {
         if (rb == null)
@@ -1827,27 +2050,71 @@ public class VillagerAI : MonoBehaviour, IDamageable
         rb.gravityScale = 0f;
         rb.freezeRotation = true;
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
     }
 
     void UpdateVisualAnimation()
     {
-        if (visualAnimation == null || rb == null)
+        if (visualAnimation == null)
         {
             return;
         }
 
+        Vector2 animationVelocity = desiredVelocity;
+        if (animationVelocity.sqrMagnitude <= 0.0001f && rb != null)
+        {
+            animationVelocity = rb.linearVelocity;
+        }
+
         bool isIdle =
-            rb.linearVelocity.sqrMagnitude <=
+            animationVelocity.sqrMagnitude <=
             animationIdleSpeed * animationIdleSpeed;
 
         Vector2 direction =
             isIdle
             ? Vector2.zero
-            : rb.linearVelocity.normalized;
+            : animationVelocity.normalized;
 
         visualAnimation.UpdateNPCAnimation(direction, isIdle);
     }
 
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        TryIgnoreNpcCollision(collision.collider);
+    }
+
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        TryIgnoreNpcCollision(collision.collider);
+    }
+
+    void TryIgnoreNpcCollision(Collider2D other)
+    {
+        if (!ignoreNpcBodyCollisions || other == null)
+        {
+            return;
+        }
+
+        if (other.GetComponentInParent<VillagerAI>() == null &&
+            other.GetComponentInParent<SmartNpcAI>() == null &&
+            other.GetComponentInParent<NpcMapMover2D>() == null)
+        {
+            return;
+        }
+
+        if (ownColliders == null || ownColliders.Length == 0)
+        {
+            ownColliders = GetComponentsInChildren<Collider2D>();
+        }
+
+        foreach (Collider2D own in ownColliders)
+        {
+            if (own != null && own != other)
+            {
+                Physics2D.IgnoreCollision(own, other, true);
+            }
+        }
+    }
     Vector2 GetSeparationDirection()
     {
         if (separationRadius <= 0f)

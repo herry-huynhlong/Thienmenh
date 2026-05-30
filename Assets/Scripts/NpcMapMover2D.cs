@@ -195,6 +195,28 @@ public class NpcMapMover2D : MonoBehaviour
         UpdateVisualAnimation();
     }
 
+    public void SetMoveTarget(Vector2 target, string action = "Move Target")
+    {
+        currentTarget = ClampToAllowedArea(target);
+        hasTarget = true;
+        waitingAfterArrive = false;
+        waitTimer = 0f;
+        stuckTimer = 0f;
+        blockedTimer = 0f;
+        currentAction = action;
+    }
+
+    public bool IsAtMoveTarget(float extraDistance = 0f)
+    {
+        if (!hasTarget)
+        {
+            return false;
+        }
+
+        return Vector2.Distance(rb.position, currentTarget) <=
+            arriveDistance + Mathf.Max(0f, extraDistance);
+    }
+
     public void PickNewTarget()
     {
         for (int i = 0; i < maxPickTargetAttempts; i++)

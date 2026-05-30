@@ -85,6 +85,21 @@ public class ItemInventory : MonoBehaviour
         }
     }
 
+    public void UsePrivateRuntimeItems(
+        string key,
+        bool clearCurrentItems)
+    {
+        runtimeKey = key;
+        shareRuntimeItems = false;
+
+        if (clearCurrentItems)
+        {
+            items.Clear();
+        }
+
+        NotifyChanged();
+    }
+
     public void AddItem(StatItemData item, int amount = 1)
     {
         if (item == null ||

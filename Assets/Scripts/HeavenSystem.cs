@@ -123,7 +123,31 @@ public class HeavenSystem : MonoBehaviour
         pickup.item = item;
         pickup.amount = Mathf.Max(1, amount);
         pickup.allowNpcPickup = true;
-        pickup.allowPlayerPickup = true;
+        pickup.allowPlayerPickup = false;
+        EnsurePickupCollider(pickup);
         return pickup;
+    }
+
+    void EnsurePickupCollider(WorldStatItemPickup pickup)
+    {
+        if (pickup == null)
+        {
+            return;
+        }
+
+        CircleCollider2D collider =
+            pickup.GetComponent<CircleCollider2D>();
+
+        if (collider == null)
+        {
+            collider = pickup.gameObject.AddComponent<CircleCollider2D>();
+        }
+
+        collider.isTrigger = true;
+
+        if (collider.radius <= 0f)
+        {
+            collider.radius = 0.25f;
+        }
     }
 }

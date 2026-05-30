@@ -65,7 +65,20 @@ public class InventoryPanelUI : MonoBehaviour
     Vector3 templateLocalScale;
     Quaternion templateLocalRotation;
     bool hasStarted;
+    bool disabledBecauseAttachedToBottomMenu;
 
+    bool IsAccidentalBottomMenuAttachment()
+    {
+        if (!HasAncestorNamed(transform, "menupanel"))
+        {
+            return false;
+        }
+
+        string key = transform.name.Replace(" ", "").Replace("_", "").ToLowerInvariant();
+        return key == "balo" ||
+            key == "inventory" ||
+            key == "bag";
+    }
     public bool IsOpen
     {
         get
@@ -77,6 +90,13 @@ public class InventoryPanelUI : MonoBehaviour
 
     void Awake()
     {
+        if (IsAccidentalBottomMenuAttachment())
+        {
+            disabledBecauseAttachedToBottomMenu = true;
+            enabled = false;
+            return;
+        }
+
         AutoFindMissingReferences();
         BindActionButtons();
 
@@ -85,6 +105,11 @@ public class InventoryPanelUI : MonoBehaviour
 
     void OnEnable()
     {
+        if (disabledBecauseAttachedToBottomMenu)
+        {
+            return;
+        }
+
         if (inventory != null)
         {
             inventory.OnChanged += Refresh;
@@ -108,6 +133,11 @@ public class InventoryPanelUI : MonoBehaviour
 
     void Start()
     {
+        if (disabledBecauseAttachedToBottomMenu)
+        {
+            return;
+        }
+
         hasStarted = true;
         AutoFindMissingReferences();
 
@@ -122,6 +152,11 @@ public class InventoryPanelUI : MonoBehaviour
 
     void Update()
     {
+        if (disabledBecauseAttachedToBottomMenu)
+        {
+            return;
+        }
+
         if (IsPanelVisible())
         {
             if (Input.GetMouseButtonDown(0))
@@ -513,6 +548,11 @@ public class InventoryPanelUI : MonoBehaviour
             return false;
         }
 
+        if (IsScreenPositionInsideBottomMenuButton(screenPosition, eventCamera))
+        {
+            return false;
+        }
+
         RectTransform panelRect =
             panelRoot.GetComponent<RectTransform>();
 
@@ -525,6 +565,51 @@ public class InventoryPanelUI : MonoBehaviour
             panelRect,
             screenPosition,
             eventCamera);
+    }
+
+    bool IsScreenPositionInsideBottomMenuButton(
+        Vector2 screenPosition,
+        Camera eventCamera)
+    {
+        Button[] buttons =
+            FindObjectsByType<Button>(FindObjectsInactive.Include);
+
+        foreach (Button button in buttons)
+        {
+            if (button == null ||
+                !button.gameObject.activeInHierarchy ||
+                button.transform is not RectTransform rect ||
+                !HasAncestorNamed(button.transform, "menupanel"))
+            {
+                continue;
+            }
+
+            if (RectTransformUtility.RectangleContainsScreenPoint(
+                    rect,
+                    screenPosition,
+                    eventCamera))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool HasAncestorNamed(Transform current, string normalizedName)
+    {
+        while (current != null)
+        {
+            string key = current.name.Replace(" ", "").Replace("_", "").ToLowerInvariant();
+            if (key == normalizedName)
+            {
+                return true;
+            }
+
+            current = current.parent;
+        }
+
+        return false;
     }
 
     bool IsScreenPositionInsideDetailPanel(

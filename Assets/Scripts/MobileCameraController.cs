@@ -22,7 +22,8 @@ public class MobileCameraController : MonoBehaviour
     [Header("Zoom")]
     public float zoomSpeed = 0.01f;
     public float minZoom = 3f;
-    public float maxZoom = 5f;
+    public float maxZoom = 12f;
+    public float minimumRuntimeMaxZoom = 12f;
     public float mouseZoomSpeed = 0.5f;
 
     Camera cam;
@@ -40,6 +41,7 @@ public class MobileCameraController : MonoBehaviour
     float maxX;
     float minY;
     float maxY;
+    float mapLimitedMaxZoom;
 
     Transform CameraTransform
     {
@@ -56,6 +58,7 @@ public class MobileCameraController : MonoBehaviour
 
     void Start()
     {
+        NormalizeZoomLimits();
         RefreshCamera();
         RefreshMapBounds();
     }
@@ -102,6 +105,7 @@ public class MobileCameraController : MonoBehaviour
 
     void Update()
     {
+        NormalizeZoomLimits();
         RefreshCamera();
 
         if (mapBounds == null)
@@ -118,6 +122,16 @@ public class MobileCameraController : MonoBehaviour
         if (!isDragging)
         {
             FollowTarget();
+        }
+    }
+
+    void NormalizeZoomLimits()
+    {
+        maxZoom = Mathf.Max(maxZoom, minimumRuntimeMaxZoom);
+
+        if (minZoom > maxZoom)
+        {
+            minZoom = maxZoom;
         }
     }
 
@@ -188,6 +202,8 @@ public class MobileCameraController : MonoBehaviour
             return;
         }
 
+        ClampZoomToMapSize();
+
         Bounds bounds = mapBounds.bounds;
 
         float camHeight = cam.orthographicSize * 2f;
@@ -199,6 +215,29 @@ public class MobileCameraController : MonoBehaviour
         maxY = bounds.max.y - camHeight / 2f;
     }
 
+    void ClampZoomToMapSize()
+    {
+        if (mapBounds == null || cam == null)
+        {
+            return;
+        }
+
+        Bounds bounds = mapBounds.bounds;
+        float maxByHeight = bounds.size.y * 0.5f;
+        float maxByWidth = bounds.size.x / (2f * cam.aspect);
+        mapLimitedMaxZoom = Mathf.Max(0.1f, Mathf.Min(maxByHeight, maxByWidth));
+
+        float allowedMaxZoom = Mathf.Min(maxZoom, mapLimitedMaxZoom);
+        if (allowedMaxZoom < minZoom)
+        {
+            minZoom = allowedMaxZoom;
+        }
+
+        if (cam.orthographicSize > allowedMaxZoom)
+        {
+            cam.orthographicSize = allowedMaxZoom;
+        }
+    }
     void FollowTarget()
     {
         if (followTarget == null)
@@ -397,7 +436,7 @@ public class MobileCameraController : MonoBehaviour
             Mathf.Clamp(
                 cam.orthographicSize + zoomDelta,
                 minZoom,
-                maxZoom);
+                GetAllowedMaxZoom());
 
         SetupBounds();
 
@@ -412,6 +451,15 @@ public class MobileCameraController : MonoBehaviour
         ClampCamera();
     }
 
+    float GetAllowedMaxZoom()
+    {
+        if (mapBounds == null || cam == null || mapLimitedMaxZoom <= 0f)
+        {
+            return maxZoom;
+        }
+
+        return Mathf.Min(maxZoom, mapLimitedMaxZoom);
+    }
     void ClampCamera()
     {
         if (mapBounds == null)
@@ -419,16 +467,25 @@ public class MobileCameraController : MonoBehaviour
             return;
         }
 
+        Bounds bounds = mapBounds.bounds;
         Vector3 pos = CameraTransform.position;
 
         if (minX <= maxX)
         {
             pos.x = Mathf.Clamp(pos.x, minX, maxX);
         }
+        else
+        {
+            pos.x = bounds.center.x;
+        }
 
         if (minY <= maxY)
         {
             pos.y = Mathf.Clamp(pos.y, minY, maxY);
+        }
+        else
+        {
+            pos.y = bounds.center.y;
         }
 
         CameraTransform.position = pos;

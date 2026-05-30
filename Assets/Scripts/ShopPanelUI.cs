@@ -54,13 +54,34 @@ public class ShopPanelUI : MonoBehaviour
 
     ItemType currentType = ItemType.DanDuoc;
     int selectedItemIndex = -1;
-    ResponsivePanelFitter responsiveFitter;
     readonly List<ShopItemButtonUI> spawnedButtons =
         new List<ShopItemButtonUI>();
     Canvas rootCanvas;
+    bool disabledBecauseAttachedToInventoryPanel;
+    bool IsAccidentalInventoryPanelAttachment()
+    {
+        InventoryPanelUI inventoryPanel = GetComponent<InventoryPanelUI>();
+        if (inventoryPanel == null)
+        {
+            return false;
+        }
 
+        return shop == null &&
+            itemGridParent == null &&
+            itemButtonPrefab == null &&
+            shopTitleText == null &&
+            buyPanel == null &&
+            buyButton == null;
+    }
     void Awake()
     {
+        if (IsAccidentalInventoryPanelAttachment())
+        {
+            disabledBecauseAttachedToInventoryPanel = true;
+            enabled = false;
+            return;
+        }
+
         AutoFindMissingReferences();
 
         if (panelRoot == null)
@@ -74,9 +95,6 @@ public class ShopPanelUI : MonoBehaviour
             buyButton.onClick.AddListener(BuySelectedItem);
         }
 
-        responsiveFitter =
-            GetComponent<ResponsivePanelFitter>();
-
         rootCanvas =
             GetComponentInParent<Canvas>();
 
@@ -85,6 +103,11 @@ public class ShopPanelUI : MonoBehaviour
 
     void Update()
     {
+        if (disabledBecauseAttachedToInventoryPanel)
+        {
+            return;
+        }
+
         if (panelRoot != null &&
             !panelRoot.activeSelf)
         {
@@ -119,6 +142,11 @@ public class ShopPanelUI : MonoBehaviour
 
     void Start()
     {
+        if (disabledBecauseAttachedToInventoryPanel)
+        {
+            return;
+        }
+
         Close();
     }
 
@@ -129,11 +157,6 @@ public class ShopPanelUI : MonoBehaviour
         if (panelRoot != null)
         {
             panelRoot.SetActive(true);
-        }
-
-        if (responsiveFitter != null)
-        {
-            responsiveFitter.Apply();
         }
 
         RefreshShopSource();
@@ -660,18 +683,137 @@ public class ShopPanelUI : MonoBehaviour
             return false;
         }
 
-        RectTransform panelRect =
-            panelRoot.GetComponent<RectTransform>();
-
-        if (panelRect == null)
+        if (IsPointerInsideBottomMenuButton(screenPosition, eventCamera))
         {
             return false;
         }
 
-        return !RectTransformUtility.RectangleContainsScreenPoint(
-            panelRect,
-            screenPosition,
-            eventCamera);
+        return !IsPointerInsideShopUi(screenPosition, eventCamera);
+    }
+
+    bool IsPointerInsideBottomMenuButton(
+        Vector2 screenPosition,
+        Camera eventCamera)
+    {
+        Button[] buttons =
+            FindObjectsByType<Button>(FindObjectsInactive.Include);
+
+        foreach (Button button in buttons)
+        {
+            if (button == null ||
+                !button.gameObject.activeInHierarchy ||
+                button.transform is not RectTransform rect ||
+                !HasAncestorNamed(button.transform, "menupanel"))
+            {
+                continue;
+            }
+
+            if (RectTransformUtility.RectangleContainsScreenPoint(
+                    rect,
+                    screenPosition,
+                    eventCamera))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool HasAncestorNamed(Transform current, string normalizedName)
+    {
+        while (current != null)
+        {
+            string key = current.name.Replace(" ", "").Replace("_", "").ToLowerInvariant();
+            if (key == normalizedName)
+            {
+                return true;
+            }
+
+            current = current.parent;
+        }
+
+        return false;
+    }
+
+    bool IsPointerInsideShopUi(
+        Vector2 screenPosition,
+        Camera eventCamera)
+    {
+        if (IsPointerInsidePanel(
+                panelRoot,
+                screenPosition,
+                eventCamera) ||
+            IsPointerInsidePanel(
+                detailPanel,
+                screenPosition,
+                eventCamera) ||
+            IsPointerInsidePanel(
+                buyPanel,
+                screenPosition,
+                eventCamera))
+        {
+            return true;
+        }
+
+        if (itemGridParent is RectTransform itemGridRect &&
+            itemGridParent.gameObject.activeInHierarchy &&
+            RectTransformUtility.RectangleContainsScreenPoint(
+                itemGridRect,
+                screenPosition,
+                eventCamera))
+        {
+            return true;
+        }
+
+        return IsPointerInsideChildGraphic(
+                transform,
+                screenPosition,
+                eventCamera) ||
+            (panelRoot != null &&
+                IsPointerInsideChildGraphic(
+                    panelRoot.transform,
+                    screenPosition,
+                    eventCamera));
+    }
+
+    bool IsPointerInsideChildGraphic(
+        Transform root,
+        Vector2 screenPosition,
+        Camera eventCamera)
+    {
+        if (root == null ||
+            !root.gameObject.activeInHierarchy)
+        {
+            return false;
+        }
+
+        Graphic[] graphics =
+            root.GetComponentsInChildren<Graphic>(true);
+
+        foreach (Graphic graphic in graphics)
+        {
+            if (graphic == null ||
+                !graphic.gameObject.activeInHierarchy ||
+                !graphic.raycastTarget)
+            {
+                continue;
+            }
+
+            RectTransform rect =
+                graphic.rectTransform;
+
+            if (rect != null &&
+                RectTransformUtility.RectangleContainsScreenPoint(
+                    rect,
+                    screenPosition,
+                    eventCamera))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     bool IsPointerInsideDetailOrBuyPanel(

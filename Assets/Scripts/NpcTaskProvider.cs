@@ -10,12 +10,35 @@ public enum NpcTaskType
     Deliver
 }
 
+public enum NpcTaskRank
+{
+    Ha,
+    Trung,
+    Thuong
+}
+
+public enum TavernTaskStage
+{
+    GoingToBoard,
+    ChoosingTask,
+    ReturningToProvider,
+    GoingToWork,
+    Working
+}
+
+public enum TavernMealStage
+{
+    GoingToMealPoint,
+    Eating
+}
+
 [System.Serializable]
 public class NpcTaskOffer
 {
     public string taskName = "Thu thap tai nguyen";
     public NpcTaskType taskType = NpcTaskType.GatherResource;
-    public CultivationRealm minRealm = CultivationRealm.Foundation;
+    public NpcTaskRank rank = NpcTaskRank.Ha;
+    public CultivationRealm minRealm = CultivationRealm.QiRefining;
     [Range(1, 9)]
     public int minRealmStage = 1;
     public int rewardSpiritStone = 20;
@@ -29,15 +52,36 @@ class RunningNpcTask
 {
     public GameObject npc;
     public NpcTaskOffer offer;
+    public TavernTaskStage stage;
+    public Vector3 boardPosition;
+    public Vector3 providerPosition;
     public Vector3 workPosition;
     public float remainingTime;
-    public bool reachedWorkPosition;
+    public Behaviour pausedBaseAi;
+    public bool pausedBaseAiWasEnabled;
+}
+
+class RunningTavernMeal
+{
+    public GameObject npc;
+    public TavernMealStage stage;
+    public Vector3 mealPosition;
+    public float remainingTime;
     public Behaviour pausedBaseAi;
     public bool pausedBaseAiWasEnabled;
 }
 
 public class NpcTaskProvider : MonoBehaviour
 {
+    [Header("Tavern Service")]
+    public bool serveMeals = true;
+    public int mealCost = 1;
+    [Range(0f, 100f)]
+    public float mealHungerThreshold = 55f;
+    public float mealServiceRadius = 2f;
+    public Transform mealPoint;
+    public float mealDuration = 5f;
+
     [Header("Task Provider")]
     public bool provideTasks = true;
     public float assignRadius = 2.5f;
@@ -46,6 +90,9 @@ public class NpcTaskProvider : MonoBehaviour
     public float fallbackMoveSpeed = 1.6f;
     public bool pauseBaseAiWhileWorking = true;
     public LayerMask npcLayers = ~0;
+    public Transform taskBoardPoint;
+    public Transform providerPoint;
+    public float chooseTaskDuration = 3f;
     public Transform defaultWorkPoint;
     public Transform huntPoint;
     public Transform gatherPoint;
@@ -55,11 +102,46 @@ public class NpcTaskProvider : MonoBehaviour
     [Header("Offers")]
     public NpcTaskOffer[] offers =
     {
-        new NpcTaskOffer()
+        new NpcTaskOffer
+        {
+            taskName = "Thu thap linh thao ha pham",
+            taskType = NpcTaskType.GatherResource,
+            rank = NpcTaskRank.Ha,
+            minRealm = CultivationRealm.QiRefining,
+            minRealmStage = 1,
+            rewardSpiritStone = 10,
+            rewardCultivationExp = 5,
+            workDuration = 10f
+        },
+        new NpcTaskOffer
+        {
+            taskName = "Tuan tra ngoai lang",
+            taskType = NpcTaskType.Patrol,
+            rank = NpcTaskRank.Trung,
+            minRealm = CultivationRealm.GoldenCore,
+            minRealmStage = 1,
+            rewardSpiritStone = 45,
+            rewardCultivationExp = 25,
+            workDuration = 18f
+        },
+        new NpcTaskOffer
+        {
+            taskName = "San yeu thu nguy hiem",
+            taskType = NpcTaskType.HuntMonster,
+            rank = NpcTaskRank.Thuong,
+            minRealm = CultivationRealm.NascentSoul,
+            minRealmStage = 1,
+            rewardSpiritStone = 150,
+            rewardCultivationExp = 90,
+            workDuration = 30f
+        }
     };
 
     readonly List<RunningNpcTask> runningTasks =
         new List<RunningNpcTask>();
+
+    readonly List<RunningTavernMeal> runningMeals =
+        new List<RunningTavernMeal>();
 
     float assignTimer;
 
@@ -67,22 +149,19 @@ public class NpcTaskProvider : MonoBehaviour
     {
         NpcSpecialProfession profession =
             GetComponent<NpcSpecialProfession>();
+
         if (profession == null)
         {
             profession = gameObject.AddComponent<NpcSpecialProfession>();
         }
 
-        profession.professionName = "Thuong Nhan Nhiem Vu";
+        profession.professionName = "Quan Su Tuu Quan";
     }
 
     void Update()
     {
+        UpdateMeals();
         UpdateRunningTasks();
-
-        if (!provideTasks)
-        {
-            return;
-        }
 
         assignTimer += Time.deltaTime;
         if (assignTimer < assignInterval)
@@ -91,12 +170,45 @@ public class NpcTaskProvider : MonoBehaviour
         }
 
         assignTimer = 0f;
-        TryAssignTask();
+        TryServeMeal();
+        TryStartTaskRequest();
     }
 
-    void TryAssignTask()
+    void TryServeMeal()
     {
-        if (offers == null ||
+        if (!serveMeals)
+        {
+            return;
+        }
+
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(
+                transform.position,
+                mealServiceRadius,
+                npcLayers);
+
+        foreach (Collider2D hit in hits)
+        {
+            GameObject npc = GetNpcFromHit(hit);
+
+            if (npc == null ||
+                npc == gameObject ||
+                HasBusyNpc(npc) ||
+                !NeedsMeal(npc) ||
+                NpcEconomy.GetNpcMoney(npc) < mealCost)
+            {
+                continue;
+            }
+
+            StartMeal(npc);
+            return;
+        }
+    }
+
+    void TryStartTaskRequest()
+    {
+        if (!provideTasks ||
+            offers == null ||
             offers.Length == 0)
         {
             return;
@@ -111,9 +223,10 @@ public class NpcTaskProvider : MonoBehaviour
         foreach (Collider2D hit in hits)
         {
             GameObject npc = GetNpcFromHit(hit);
+
             if (npc == null ||
                 npc == gameObject ||
-                HasRunningTask(npc))
+                HasBusyNpc(npc))
             {
                 continue;
             }
@@ -124,9 +237,214 @@ public class NpcTaskProvider : MonoBehaviour
                 continue;
             }
 
-            AssignTask(npc, offer);
+            StartTaskRequest(npc, offer);
             return;
         }
+    }
+
+    void StartMeal(GameObject npc)
+    {
+        RunningTavernMeal meal = new RunningTavernMeal
+        {
+            npc = npc,
+            stage = TavernMealStage.GoingToMealPoint,
+            mealPosition = GetMealPosition(),
+            remainingTime = Mathf.Max(1f, mealDuration)
+        };
+
+        PauseBaseAi(meal);
+        runningMeals.Add(meal);
+
+        NpcRoleUtility.SetAction(npc, "Hoi quan su de an uong");
+        NpcRoleUtility.SetAction(gameObject, "Chi dan khach vao khu an");
+    }
+
+    void StartTaskRequest(GameObject npc, NpcTaskOffer offer)
+    {
+        RunningNpcTask task = new RunningNpcTask
+        {
+            npc = npc,
+            offer = offer,
+            stage = TavernTaskStage.GoingToBoard,
+            boardPosition = GetBoardPosition(),
+            providerPosition = GetProviderPosition(),
+            workPosition = GetWorkPosition(offer),
+            remainingTime = Mathf.Max(0.5f, chooseTaskDuration)
+        };
+
+        PauseBaseAi(task);
+        runningTasks.Add(task);
+
+        NpcRoleUtility.SetAction(
+            npc,
+            "Hoi quan su tim nhiem vu");
+
+        NpcRoleUtility.SetAction(
+            gameObject,
+            "Chi bang nhiem vu cho khach");
+    }
+
+    void UpdateMeals()
+    {
+        for (int i = runningMeals.Count - 1; i >= 0; i--)
+        {
+            RunningTavernMeal meal = runningMeals[i];
+
+            if (meal == null ||
+                meal.npc == null ||
+                NpcRoleUtility.IsDead(meal.npc))
+            {
+                FinishMeal(i, false);
+                continue;
+            }
+
+            if (meal.stage == TavernMealStage.GoingToMealPoint)
+            {
+                MoveNpc(meal.npc, meal.mealPosition);
+                NpcRoleUtility.SetAction(meal.npc, "Di toi khu an trong tuu quan");
+
+                if (Vector2.Distance(
+                        meal.npc.transform.position,
+                        meal.mealPosition) <= arriveDistance)
+                {
+                    meal.stage = TavernMealStage.Eating;
+                    NpcEconomy.AddNpcMoney(meal.npc, -mealCost);
+                    NpcEconomy.AddNpcMoney(gameObject, mealCost);
+                    FeedNpc(meal.npc);
+                }
+
+                continue;
+            }
+
+            meal.remainingTime -= Time.deltaTime;
+            NpcRoleUtility.SetAction(meal.npc, "Dang an uong tai tuu quan");
+
+            if (meal.remainingTime <= 0f)
+            {
+                FinishMeal(i, true);
+            }
+        }
+    }
+
+    void UpdateRunningTasks()
+    {
+        for (int i = runningTasks.Count - 1; i >= 0; i--)
+        {
+            RunningNpcTask task = runningTasks[i];
+
+            if (task == null ||
+                task.npc == null ||
+                NpcRoleUtility.IsDead(task.npc))
+            {
+                FinishTask(i, false);
+                continue;
+            }
+
+            switch (task.stage)
+            {
+                case TavernTaskStage.GoingToBoard:
+                    MoveNpc(task.npc, task.boardPosition);
+                    NpcRoleUtility.SetAction(
+                        task.npc,
+                        "Xem bang nhiem vu " + GetRankText(task.offer.rank));
+
+                    if (Vector2.Distance(
+                            task.npc.transform.position,
+                            task.boardPosition) <= arriveDistance)
+                    {
+                        task.stage = TavernTaskStage.ChoosingTask;
+                        task.remainingTime = Mathf.Max(0.5f, chooseTaskDuration);
+                    }
+                    break;
+
+                case TavernTaskStage.ChoosingTask:
+                    task.remainingTime -= Time.deltaTime;
+                    NpcRoleUtility.SetAction(
+                        task.npc,
+                        "Chon nhiem vu " + GetRankText(task.offer.rank));
+
+                    if (task.remainingTime <= 0f)
+                    {
+                        task.stage = TavernTaskStage.ReturningToProvider;
+                    }
+                    break;
+
+                case TavernTaskStage.ReturningToProvider:
+                    MoveNpc(task.npc, task.providerPosition);
+                    NpcRoleUtility.SetAction(
+                        task.npc,
+                        "Quay lai quan su nhan nhiem vu");
+
+                    if (Vector2.Distance(
+                            task.npc.transform.position,
+                            task.providerPosition) <= arriveDistance)
+                    {
+                        NpcRoleUtility.SetAction(
+                            gameObject,
+                            "Giao nhiem vu " + GetRankText(task.offer.rank) + ": " + task.offer.taskName);
+                        task.stage = TavernTaskStage.GoingToWork;
+                    }
+                    break;
+
+                case TavernTaskStage.GoingToWork:
+                    MoveNpc(task.npc, task.workPosition);
+                    NpcRoleUtility.SetAction(
+                        task.npc,
+                        "Di lam nhiem vu " + GetRankText(task.offer.rank) + ": " + task.offer.taskName);
+
+                    if (Vector2.Distance(
+                            task.npc.transform.position,
+                            task.workPosition) <= arriveDistance)
+                    {
+                        task.stage = TavernTaskStage.Working;
+                        task.remainingTime = Mathf.Max(1f, task.offer.workDuration);
+                    }
+                    break;
+
+                case TavernTaskStage.Working:
+                    task.remainingTime -= Time.deltaTime;
+                    NpcRoleUtility.SetAction(
+                        task.npc,
+                        "Dang lam nhiem vu " + GetRankText(task.offer.rank) + ": " + task.offer.taskName);
+
+                    if (task.remainingTime <= 0f)
+                    {
+                        FinishTask(i, true);
+                    }
+                    break;
+            }
+        }
+    }
+
+    void FinishMeal(int index, bool completed)
+    {
+        RunningTavernMeal meal = runningMeals[index];
+        runningMeals.RemoveAt(index);
+        ResumeBaseAi(meal);
+
+        if (completed &&
+            meal != null &&
+            meal.npc != null)
+        {
+            NpcRoleUtility.SetAction(meal.npc, "An uong xong tai tuu quan");
+        }
+    }
+
+    void FinishTask(int index, bool completed)
+    {
+        RunningNpcTask task = runningTasks[index];
+        runningTasks.RemoveAt(index);
+        ResumeBaseAi(task);
+
+        if (!completed ||
+            task == null ||
+            task.npc == null ||
+            task.offer == null)
+        {
+            return;
+        }
+
+        RewardNpc(task.npc, task.offer);
     }
 
     GameObject GetNpcFromHit(Collider2D hit)
@@ -156,8 +474,7 @@ public class NpcTaskProvider : MonoBehaviour
 
     NpcTaskOffer PickOfferFor(GameObject npc)
     {
-        NpcTaskOffer[] shuffled =
-            ShuffleOffers();
+        NpcTaskOffer[] shuffled = ShuffleOffers();
 
         foreach (NpcTaskOffer offer in shuffled)
         {
@@ -185,9 +502,7 @@ public class NpcTaskProvider : MonoBehaviour
 
         for (int i = 0; i < shuffled.Length; i++)
         {
-            int swapIndex =
-                Random.Range(i, shuffled.Length);
-
+            int swapIndex = Random.Range(i, shuffled.Length);
             NpcTaskOffer temp = shuffled[i];
             shuffled[i] = shuffled[swapIndex];
             shuffled[swapIndex] = temp;
@@ -196,120 +511,28 @@ public class NpcTaskProvider : MonoBehaviour
         return shuffled;
     }
 
-    void AssignTask(GameObject npc, NpcTaskOffer offer)
-    {
-        RunningNpcTask task =
-            new RunningNpcTask
-            {
-                npc = npc,
-                offer = offer,
-                workPosition = GetWorkPosition(offer),
-                remainingTime = Mathf.Max(1f, offer.workDuration)
-            };
-
-        PauseBaseAi(task);
-        runningTasks.Add(task);
-
-        NpcRoleUtility.SetAction(
-            npc,
-            "Nhan nhiem vu: " + offer.taskName);
-        NpcRoleUtility.SetAction(
-            gameObject,
-            "Giao nhiem vu: " + offer.taskName);
-    }
-
-    void UpdateRunningTasks()
-    {
-        for (int i = runningTasks.Count - 1; i >= 0; i--)
-        {
-            RunningNpcTask task = runningTasks[i];
-
-            if (task == null ||
-                task.npc == null ||
-                NpcRoleUtility.IsDead(task.npc))
-            {
-                FinishTask(i, false);
-                continue;
-            }
-
-            if (!task.reachedWorkPosition)
-            {
-                NpcRoleUtility.MoveTowards(
-                    task.npc,
-                    task.workPosition,
-                    fallbackMoveSpeed);
-                NpcRoleUtility.SetAction(
-                    task.npc,
-                    "Di lam nhiem vu: " + task.offer.taskName);
-
-                if (Vector2.Distance(
-                        task.npc.transform.position,
-                        task.workPosition) <= arriveDistance)
-                {
-                    task.reachedWorkPosition = true;
-                }
-
-                continue;
-            }
-
-            task.remainingTime -= Time.deltaTime;
-            NpcRoleUtility.SetAction(
-                task.npc,
-                "Dang lam nhiem vu: " + task.offer.taskName);
-
-            if (task.remainingTime <= 0f)
-            {
-                FinishTask(i, true);
-            }
-        }
-    }
-
-    void FinishTask(int index, bool completed)
-    {
-        RunningNpcTask task = runningTasks[index];
-        runningTasks.RemoveAt(index);
-
-        ResumeBaseAi(task);
-
-        if (!completed ||
-            task == null ||
-            task.npc == null ||
-            task.offer == null)
-        {
-            return;
-        }
-
-        RewardNpc(task.npc, task.offer);
-    }
-
     void RewardNpc(GameObject npc, NpcTaskOffer offer)
     {
-        NpcEconomy.AddNpcMoney(
-            npc,
-            offer.rewardSpiritStone);
-        NpcRoleUtility.AddCultivationExp(
-            npc,
-            offer.rewardCultivationExp);
+        NpcEconomy.AddNpcMoney(npc, offer.rewardSpiritStone);
+        NpcRoleUtility.AddCultivationExp(npc, offer.rewardCultivationExp);
 
         if (offer.rewardItem != null &&
             offer.rewardItemAmount > 0)
         {
-            ItemInventory inventory =
-                npc.GetComponent<ItemInventory>();
+            ItemInventory inventory = npc.GetComponent<ItemInventory>();
 
             if (inventory == null)
             {
                 inventory = npc.AddComponent<ItemInventory>();
+                inventory.shareRuntimeItems = false;
             }
 
-            inventory.AddItem(
-                offer.rewardItem,
-                offer.rewardItemAmount);
+            inventory.AddItem(offer.rewardItem, offer.rewardItemAmount);
         }
 
         NpcRoleUtility.SetAction(
             npc,
-            "Hoan thanh nhiem vu: " + offer.taskName);
+            "Hoan thanh nhiem vu " + GetRankText(offer.rank) + ": " + offer.taskName);
 
         if (WorldEventManager.Instance != null)
         {
@@ -324,6 +547,43 @@ public class NpcTaskProvider : MonoBehaviour
         }
     }
 
+    bool NeedsMeal(GameObject npc)
+    {
+        VillagerAI villager = npc.GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            return villager.hunger >= mealHungerThreshold;
+        }
+
+        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
+        return smartNpc != null &&
+            smartNpc.hunger >= mealHungerThreshold;
+    }
+
+    void FeedNpc(GameObject npc)
+    {
+        VillagerAI villager = npc.GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            villager.hunger = 0f;
+            villager.fatigue = Mathf.Max(0f, villager.fatigue - 8f);
+            return;
+        }
+
+        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            smartNpc.hunger = 0f;
+            smartNpc.fatigue = Mathf.Max(0f, smartNpc.fatigue - 8f);
+        }
+    }
+
+    bool HasBusyNpc(GameObject npc)
+    {
+        return HasRunningTask(npc) ||
+            HasRunningMeal(npc);
+    }
+
     bool HasRunningTask(GameObject npc)
     {
         foreach (RunningNpcTask task in runningTasks)
@@ -336,6 +596,41 @@ public class NpcTaskProvider : MonoBehaviour
         }
 
         return false;
+    }
+
+    bool HasRunningMeal(GameObject npc)
+    {
+        foreach (RunningTavernMeal meal in runningMeals)
+        {
+            if (meal != null &&
+                meal.npc == npc)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    Vector3 GetMealPosition()
+    {
+        return mealPoint != null
+            ? mealPoint.position
+            : transform.position;
+    }
+
+    Vector3 GetBoardPosition()
+    {
+        return taskBoardPoint != null
+            ? taskBoardPoint.position
+            : transform.position;
+    }
+
+    Vector3 GetProviderPosition()
+    {
+        return providerPoint != null
+            ? providerPoint.position
+            : transform.position;
     }
 
     Vector3 GetWorkPosition(NpcTaskOffer offer)
@@ -366,45 +661,123 @@ public class NpcTaskProvider : MonoBehaviour
             : transform.position;
     }
 
+    void MoveNpc(GameObject npc, Vector3 target)
+    {
+        NpcRoleUtility.MoveTowards(npc, target, fallbackMoveSpeed);
+    }
+
+    string GetRankText(NpcTaskRank rank)
+    {
+        switch (rank)
+        {
+            case NpcTaskRank.Trung:
+                return "Trung";
+            case NpcTaskRank.Thuong:
+                return "Thuong";
+            default:
+                return "Ha";
+        }
+    }
+
     void PauseBaseAi(RunningNpcTask task)
     {
+        if (task == null)
+        {
+            return;
+        }
+
+        PauseBaseAi(task.npc, out task.pausedBaseAi, out task.pausedBaseAiWasEnabled);
+    }
+
+    void PauseBaseAi(RunningTavernMeal meal)
+    {
+        if (meal == null)
+        {
+            return;
+        }
+
+        PauseBaseAi(meal.npc, out meal.pausedBaseAi, out meal.pausedBaseAiWasEnabled);
+    }
+
+    void PauseBaseAi(
+        GameObject npc,
+        out Behaviour pausedBaseAi,
+        out bool pausedBaseAiWasEnabled)
+    {
+        pausedBaseAi = null;
+        pausedBaseAiWasEnabled = false;
+
         if (!pauseBaseAiWhileWorking ||
-            task == null ||
-            task.npc == null)
+            npc == null)
         {
             return;
         }
 
-        task.pausedBaseAi = task.npc.GetComponent<VillagerAI>();
-        if (task.pausedBaseAi == null)
+        pausedBaseAi = npc.GetComponent<VillagerAI>();
+        if (pausedBaseAi == null)
         {
-            task.pausedBaseAi = task.npc.GetComponent<SmartNpcAI>();
+            pausedBaseAi = npc.GetComponent<SmartNpcAI>();
         }
 
-        if (task.pausedBaseAi == null)
+        if (pausedBaseAi == null)
         {
             return;
         }
 
-        task.pausedBaseAiWasEnabled = task.pausedBaseAi.enabled;
-        task.pausedBaseAi.enabled = false;
+        pausedBaseAiWasEnabled = pausedBaseAi.enabled;
+        pausedBaseAi.enabled = false;
     }
 
     void ResumeBaseAi(RunningNpcTask task)
     {
-        if (task == null ||
-            task.pausedBaseAi == null)
+        if (task == null)
         {
             return;
         }
 
-        task.pausedBaseAi.enabled = task.pausedBaseAiWasEnabled;
+        ResumeBaseAi(task.pausedBaseAi, task.pausedBaseAiWasEnabled);
         task.pausedBaseAi = null;
+    }
+
+    void ResumeBaseAi(RunningTavernMeal meal)
+    {
+        if (meal == null)
+        {
+            return;
+        }
+
+        ResumeBaseAi(meal.pausedBaseAi, meal.pausedBaseAiWasEnabled);
+        meal.pausedBaseAi = null;
+    }
+
+    void ResumeBaseAi(Behaviour pausedBaseAi, bool wasEnabled)
+    {
+        if (pausedBaseAi == null)
+        {
+            return;
+        }
+
+        pausedBaseAi.enabled = wasEnabled;
     }
 
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, assignRadius);
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, mealServiceRadius);
+
+        if (mealPoint != null)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(mealPoint.position, 0.25f);
+        }
+
+        if (taskBoardPoint != null)
+        {
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawWireSphere(taskBoardPoint.position, 0.25f);
+        }
     }
 }

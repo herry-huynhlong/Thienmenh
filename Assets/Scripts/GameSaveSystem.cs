@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -342,5 +342,6 @@ public static class GameSaveSystem
         yield return ShopPrefix + "ShopPanel";
         yield return ShopPrefix + "Shop";
         yield return ShopPrefix + "CuaHang";
+        yield return SavePrefix + "WorldSpawner.Actors";
     }
 }

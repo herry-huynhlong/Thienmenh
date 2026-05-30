@@ -1,11 +1,27 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class InventoryToggleButton : MonoBehaviour
+public class InventoryToggleButton : MonoBehaviour, IPointerDownHandler
 {
     public InventoryPanelUI inventoryPanel;
     public float toggleCooldown = 0.15f;
 
     float lastToggleTime = -1f;
+    float pointerDownTime = -1f;
+    bool hadPointerDownState;
+    bool wasOpenOnPointerDown;
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (inventoryPanel == null)
+        {
+            FindInventoryPanel();
+        }
+
+        wasOpenOnPointerDown = inventoryPanel != null && inventoryPanel.IsOpen;
+        hadPointerDownState = true;
+        pointerDownTime = Time.unscaledTime;
+    }
 
     public void ToggleInventory()
     {
@@ -14,20 +30,36 @@ public class InventoryToggleButton : MonoBehaviour
             return;
         }
 
-        lastToggleTime = Time.unscaledTime;
-
         if (inventoryPanel == null)
         {
             FindInventoryPanel();
         }
 
-        if (inventoryPanel != null)
+        if (inventoryPanel == null)
         {
-            inventoryPanel.Toggle();
+            Debug.LogWarning("InventoryToggleButton missing InventoryPanelUI.");
+            return;
+        }
+
+        bool usePointerDownState =
+            hadPointerDownState &&
+            Time.unscaledTime - pointerDownTime < 0.75f;
+
+        bool shouldOpen =
+            usePointerDownState
+            ? !wasOpenOnPointerDown
+            : !inventoryPanel.IsOpen;
+
+        hadPointerDownState = false;
+        lastToggleTime = Time.unscaledTime;
+
+        if (shouldOpen)
+        {
+            inventoryPanel.Open();
         }
         else
         {
-            Debug.LogWarning("InventoryToggleButton missing InventoryPanelUI.");
+            inventoryPanel.Close();
         }
     }
 
@@ -51,7 +83,9 @@ public class InventoryToggleButton : MonoBehaviour
 
         foreach (InventoryPanelUI panel in panels)
         {
-            if (panel == null)
+            if (panel == null ||
+                !panel.enabled ||
+                HasAncestorNamed(panel.transform, "menupanel"))
             {
                 continue;
             }
@@ -64,9 +98,33 @@ public class InventoryToggleButton : MonoBehaviour
             }
         }
 
-        if (panels.Length > 0)
+        foreach (InventoryPanelUI panel in panels)
         {
-            inventoryPanel = panels[0];
+            if (panel == null ||
+                !panel.enabled ||
+                HasAncestorNamed(panel.transform, "menupanel"))
+            {
+                continue;
+            }
+
+            inventoryPanel = panel;
+            return;
         }
+    }
+
+    bool HasAncestorNamed(Transform current, string normalizedName)
+    {
+        while (current != null)
+        {
+            string key = current.name.Replace(" ", "").Replace("_", "").ToLowerInvariant();
+            if (key == normalizedName)
+            {
+                return true;
+            }
+
+            current = current.parent;
+        }
+
+        return false;
     }
 }

@@ -3,49 +3,64 @@ using UnityEngine;
 public class CameraBounds : MonoBehaviour
 {
     BoxCollider2D currentBounds;
-
     Camera cam;
 
-    float halfHeight;
-    float halfWidth;
-
-    void Start()
+    void Awake()
     {
         cam = GetComponent<Camera>();
-
-        halfHeight =
-            cam.orthographicSize;
-
-        halfWidth =
-            halfHeight * cam.aspect;
     }
 
     void LateUpdate()
     {
+        if (cam == null)
+        {
+            cam = GetComponent<Camera>();
+        }
+
         FindBounds();
 
-        if (currentBounds == null)
+        if (currentBounds == null || cam == null)
         {
             return;
         }
 
-        Bounds b =
-            currentBounds.bounds;
+        ClampZoomToBounds();
+        ClampPositionToBounds();
+    }
 
-        Vector3 pos =
-            transform.position;
+    void ClampZoomToBounds()
+    {
+        Bounds b = currentBounds.bounds;
+        float maxByHeight = b.size.y * 0.5f;
+        float maxByWidth = b.size.x / (2f * cam.aspect);
+        float allowedSize = Mathf.Max(0.1f, Mathf.Min(maxByHeight, maxByWidth));
 
-        pos.x =
-            Mathf.Clamp(
-                pos.x,
-                b.min.x + halfWidth,
-                b.max.x - halfWidth);
+        if (cam.orthographicSize > allowedSize)
+        {
+            cam.orthographicSize = allowedSize;
+        }
+    }
 
-        pos.y =
-            Mathf.Clamp(
-                pos.y,
-                b.min.y + halfHeight,
-                b.max.y - halfHeight);
+    void ClampPositionToBounds()
+    {
+        Bounds b = currentBounds.bounds;
+        float halfHeight = cam.orthographicSize;
+        float halfWidth = halfHeight * cam.aspect;
+
+        Vector3 pos = transform.position;
+
+        float minX = b.min.x + halfWidth;
+        float maxX = b.max.x - halfWidth;
+        float minY = b.min.y + halfHeight;
+        float maxY = b.max.y - halfHeight;
+
+        pos.x = minX <= maxX
+            ? Mathf.Clamp(pos.x, minX, maxX)
+            : b.center.x;
+
+        pos.y = minY <= maxY
+            ? Mathf.Clamp(pos.y, minY, maxY)
+            : b.center.y;
 
         transform.position = pos;
     }
@@ -74,4 +89,3 @@ public class CameraBounds : MonoBehaviour
         currentBounds = null;
     }
 }
-

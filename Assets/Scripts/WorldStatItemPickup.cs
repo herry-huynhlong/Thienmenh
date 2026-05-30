@@ -6,7 +6,7 @@ public class WorldStatItemPickup : MonoBehaviour
     public StatItemData item;
     public int amount = 1;
     public bool allowNpcPickup = true;
-    public bool allowPlayerPickup = true;
+    public bool allowPlayerPickup = false;
     public bool destroyWhenEmpty = true;
     public event Action OnDepleted;
 
@@ -36,31 +36,36 @@ public class WorldStatItemPickup : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        TryGiveToNpc(other);
+        TryGiveToWorldActor(other);
     }
 
-    void TryGiveToNpc(Collider2D other)
+    void OnTriggerStay2D(Collider2D other)
+    {
+        TryGiveToWorldActor(other);
+    }
+
+    public bool TryGiveToWorldActor(Collider2D other)
     {
         if (!allowNpcPickup ||
             item == null ||
             other == null)
         {
-            return;
+            return false;
         }
 
         Transform target =
-            GetNpcTarget(other);
+            GetWorldActorTarget(other);
 
         if (target == null)
         {
-            return;
+            return false;
         }
 
         StatItemData pickedItem = item;
 
         if (!TryTake(1))
         {
-            return;
+            return false;
         }
 
         NpcItemCollector collector =
@@ -71,8 +76,8 @@ public class WorldStatItemPickup : MonoBehaviour
             collector.ReceiveItem(
                 pickedItem,
                 ItemLifecycleEventType.Picked,
-                true);
-            return;
+                ShouldAutoUseOnPickup(pickedItem));
+            return true;
         }
 
         ItemInventory inventory =
@@ -87,10 +92,26 @@ public class WorldStatItemPickup : MonoBehaviour
         }
 
         inventory.AddItem(pickedItem, 1);
+        ItemLifecycleSystem.Notify(
+            ItemLifecycleEventType.Picked,
+            pickedItem,
+            target.gameObject);
         TreasureHeatSystem.NotifyNpcReceivedItem(target.gameObject, pickedItem);
+        return true;
     }
 
-    Transform GetNpcTarget(Collider2D other)
+    bool ShouldAutoUseOnPickup(StatItemData pickedItem)
+    {
+        if (pickedItem == null)
+        {
+            return false;
+        }
+
+        return pickedItem.itemType != ItemType.VatLieu &&
+            pickedItem.itemType != ItemType.ThucPham;
+    }
+
+    Transform GetWorldActorTarget(Collider2D other)
     {
         VillagerAI villager =
             other.GetComponentInParent<VillagerAI>();
@@ -106,6 +127,14 @@ public class WorldStatItemPickup : MonoBehaviour
         if (smartNpc != null)
         {
             return smartNpc.transform;
+        }
+
+        MonsterAI monster =
+            other.GetComponentInParent<MonsterAI>();
+
+        if (monster != null)
+        {
+            return monster.transform;
         }
 
         return null;
