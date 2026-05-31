@@ -67,25 +67,59 @@ public class CameraBounds : MonoBehaviour
 
     void FindBounds()
     {
-        if (currentBounds != null)
+        if (currentBounds != null &&
+            ContainsXY(currentBounds.bounds, transform.position))
         {
             return;
         }
 
-        GameObject obj =
-            GameObject.Find("MapBounds");
+        BoxCollider2D[] colliders =
+            FindObjectsByType<BoxCollider2D>(FindObjectsInactive.Exclude);
 
-        if (obj == null)
+        BoxCollider2D bestBounds = null;
+        float bestDistance = float.PositiveInfinity;
+
+        foreach (BoxCollider2D collider in colliders)
         {
-            return;
+            if (collider == null ||
+                collider.name != "MapBounds" ||
+                !collider.gameObject.scene.IsValid() ||
+                !collider.gameObject.scene.isLoaded)
+            {
+                continue;
+            }
+
+            if (ContainsXY(collider.bounds, transform.position))
+            {
+                bestBounds = collider;
+                break;
+            }
+
+            Vector3 closest = collider.bounds.ClosestPoint(transform.position);
+            float distance =
+                ((Vector2)closest - (Vector2)transform.position).sqrMagnitude;
+
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                bestBounds = collider;
+            }
         }
 
-        currentBounds =
-            obj.GetComponent<BoxCollider2D>();
+        currentBounds = bestBounds;
+    }
+
+    bool ContainsXY(Bounds bounds, Vector3 position)
+    {
+        return position.x >= bounds.min.x &&
+            position.x <= bounds.max.x &&
+            position.y >= bounds.min.y &&
+            position.y <= bounds.max.y;
     }
 
     public void RefreshBounds()
     {
         currentBounds = null;
+        FindBounds();
     }
 }

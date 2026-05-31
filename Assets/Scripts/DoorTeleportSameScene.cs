@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class DoorTeleportSameScene : MonoBehaviour
 {
@@ -24,12 +24,32 @@ public class DoorTeleportSameScene : MonoBehaviour
         }
 
         other.transform.position = targetPoint.position;
+        RefreshCameraBounds(targetPoint.position);
         SendMessage("OnDoorTeleported", other.gameObject, SendMessageOptions.DontRequireReceiver);
 
         canTeleport = false;
         Invoke(nameof(ResetTeleport), teleportCooldown);
     }
 
+
+    void RefreshCameraBounds(Vector3 targetPosition)
+    {
+        MobileCameraController mobileCamera =
+            FindAnyObjectByType<MobileCameraController>();
+
+        if (mobileCamera != null)
+        {
+            mobileCamera.RefreshMapBoundsForPosition(targetPosition);
+        }
+
+        CameraBounds cameraBounds =
+            FindAnyObjectByType<CameraBounds>();
+
+        if (cameraBounds != null)
+        {
+            cameraBounds.RefreshBounds();
+        }
+    }
     void ResetTeleport()
     {
         canTeleport = true;

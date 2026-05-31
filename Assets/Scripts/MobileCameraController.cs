@@ -108,7 +108,7 @@ public class MobileCameraController : MonoBehaviour
         NormalizeZoomLimits();
         RefreshCamera();
 
-        if (mapBounds == null)
+        if (mapBounds == null || !CurrentBoundsContainsReference())
         {
             RefreshMapBounds();
         }
@@ -148,28 +148,41 @@ public class MobileCameraController : MonoBehaviour
         }
     }
 
-    void RefreshMapBounds()
+    public void RefreshMapBounds()
     {
-        Scene activeScene =
-            SceneManager.GetActiveScene();
+        RefreshMapBoundsForPosition(GetBoundsReferencePosition());
+    }
 
+    public void RefreshMapBoundsForPosition(Vector3 referencePosition)
+    {
         BoxCollider2D[] colliders =
             FindObjectsOfType<BoxCollider2D>(true);
 
         BoxCollider2D bestBounds = null;
+        float bestDistance = float.PositiveInfinity;
 
         foreach (BoxCollider2D collider in colliders)
         {
-            if (collider == null ||
-                collider.name != "MapBounds" ||
-                collider.gameObject.scene != activeScene ||
-                !collider.gameObject.activeInHierarchy)
+            if (!IsUsableMapBounds(collider))
             {
                 continue;
             }
 
-            bestBounds = collider;
-            break;
+            if (ContainsXY(collider.bounds, referencePosition))
+            {
+                bestBounds = collider;
+                break;
+            }
+
+            Vector3 closest = collider.bounds.ClosestPoint(referencePosition);
+            float distance =
+                ((Vector2)closest - (Vector2)referencePosition).sqrMagnitude;
+
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                bestBounds = collider;
+            }
         }
 
         if (bestBounds == null)
@@ -179,6 +192,39 @@ public class MobileCameraController : MonoBehaviour
 
         mapBounds = bestBounds;
         SetupBounds();
+    }
+
+    bool IsUsableMapBounds(BoxCollider2D collider)
+    {
+        return collider != null &&
+            collider.name == "MapBounds" &&
+            collider.gameObject.scene.IsValid() &&
+            collider.gameObject.scene.isLoaded &&
+            collider.gameObject.activeInHierarchy;
+    }
+
+    bool ContainsXY(Bounds bounds, Vector3 position)
+    {
+        return position.x >= bounds.min.x &&
+            position.x <= bounds.max.x &&
+            position.y >= bounds.min.y &&
+            position.y <= bounds.max.y;
+    }
+
+    Vector3 GetBoundsReferencePosition()
+    {
+        if (followTarget != null)
+        {
+            return followTarget.position;
+        }
+
+        return CameraTransform.position;
+    }
+
+    bool CurrentBoundsContainsReference()
+    {
+        return mapBounds != null &&
+            ContainsXY(mapBounds.bounds, GetBoundsReferencePosition());
     }
 
     IEnumerator RefreshMapBoundsAfterSceneLoad()
@@ -248,6 +294,8 @@ public class MobileCameraController : MonoBehaviour
         Vector3 targetPos =
             GetFocusPosition(followTarget);
 
+        RefreshMapBoundsForPosition(followTarget.position);
+
         if (smoothFollow)
         {
             CameraTransform.position = Vector3.Lerp(
@@ -280,6 +328,7 @@ public class MobileCameraController : MonoBehaviour
         Vector3 targetPos =
             GetFocusPosition(target);
 
+        RefreshMapBoundsForPosition(target.position);
         CameraTransform.position = targetPos;
 
         if (clampWhileFollowing)
@@ -369,6 +418,7 @@ public class MobileCameraController : MonoBehaviour
                 Vector3 targetPos = dragStartCameraPos + worldDelta;
                 targetPos.z = -10f;
 
+                RefreshMapBoundsForPosition(targetPos);
                 CameraTransform.position = targetPos;
                 ClampCamera();
             }
@@ -438,6 +488,7 @@ public class MobileCameraController : MonoBehaviour
                 minZoom,
                 GetAllowedMaxZoom());
 
+        RefreshMapBoundsForPosition(GetBoundsReferencePosition());
         SetupBounds();
 
         if (followTarget != null)
