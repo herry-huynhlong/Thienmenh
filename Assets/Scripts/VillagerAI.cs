@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public enum VillagerAgeGroup
 {
@@ -183,6 +183,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     int lastFarmerHarvestDay = -1;
 
     Vector3 currentWorkTarget;
+    NpcMapZone? currentWorkTargetZone;
     Vector3 currentTradeTarget;
     Vector3 currentEatTarget;
     Vector3 currentSellTarget;
@@ -841,7 +842,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 WorldTilemapManager.Instance != null
                 ? WorldTilemapManager.Instance.GetHuntingTile()
                 : Vector3.zero,
-                "Di san yeu thu / tim tai nguyen");
+                "Di san yeu thu / tim tai nguyen",
+                NpcMapZone.MaThuSonMach);
             return;
         }
 
@@ -854,14 +856,15 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     void GoToResourcePoint(
         Vector3 target,
-        string action)
+        string action,
+        NpcMapZone? targetZone = null)
     {
         if (target == Vector3.zero)
         {
             target = GetFallbackActivityPosition();
         }
 
-        MoveUsingRoad(target);
+        MoveUsingRoad(target, targetZone);
         currentAction = action;
 
         if (IsAtPosition(target))
@@ -1102,6 +1105,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                     workPoint != null)
                 {
                     currentWorkTarget = GetWorkPointPosition(VillagerJob.Farmer);
+                    currentWorkTargetZone = NpcMapNavigator.GetDestinationZone(workPoint);
                 }
                 else
                 {
@@ -1119,8 +1123,9 @@ public class VillagerAI : MonoBehaviour, IDamageable
                     worldTilemap != null
                     ? worldTilemap.GetFishingTile(this)
                     : Vector3.zero;
+                currentWorkTargetZone = NpcMapNavigator.GetDestinationZone(workPoint);
 
-                // Há»“ Ä‘Ã´ng thÃ¬ Ä‘á»•i nghá» táº¡m
+                // Hồ đông thì đổi nghề tạm
                 if (currentWorkTarget ==
                     Vector3.zero)
                 {
@@ -1141,6 +1146,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                     worldTilemap != null
                     ? worldTilemap.GetHuntingTile()
                     : Vector3.zero;
+                currentWorkTargetZone = NpcMapZone.MaThuSonMach;
 
                 break;
 
@@ -1149,6 +1155,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 if (workPoint != null)
                 {
                     currentWorkTarget = GetWorkPointPosition(job);
+                    currentWorkTargetZone = NpcMapNavigator.GetDestinationZone(workPoint);
                 }
 
                 break;
@@ -1160,6 +1167,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 workPoint != null
                 ? workPoint.position
                 : GetFallbackActivityPosition();
+            currentWorkTargetZone = NpcMapNavigator.GetDestinationZone(workPoint);
         }
 
         hasWorkTarget = true;
@@ -1168,7 +1176,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
     currentAction = GetWorkAction();
 
     MoveUsingRoad(
-        currentWorkTarget);
+        currentWorkTarget,
+        currentWorkTargetZone);
 
     float distance =
         Vector2.Distance(
@@ -1621,6 +1630,13 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return false;
         }
 
+        if (NpcCounterBroker.Active != null &&
+            NpcCounterBroker.Active.receiveAllNpcRequests &&
+            NpcCounterBroker.Active.TryBuyProduceFrom(this, inventory))
+        {
+            return true;
+        }
+
         Collider2D[] hits =
             Physics2D.OverlapCircleAll(
                 transform.position,
@@ -1834,8 +1850,23 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         return workPoint.position;
     }
-    void MoveUsingRoad(Vector3 target)
+    void MoveUsingRoad(Vector3 target, NpcMapZone? targetZone = null)
 {
+    bool usingTeleportRoute;
+    string routeAction;
+    target = NpcMapNavigator.GetNextMoveTarget(
+        gameObject,
+        target,
+        targetZone,
+        out usingTeleportRoute,
+        out routeAction);
+
+    if (usingTeleportRoute &&
+        !string.IsNullOrEmpty(routeAction))
+    {
+        currentAction = routeAction;
+    }
+
     if (WorldTilemapManager.Instance == null)
     {
         SetDirectMoveTarget(target);

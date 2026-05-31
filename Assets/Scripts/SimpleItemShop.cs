@@ -49,6 +49,29 @@ public class SimpleItemShop : MonoBehaviour
         }
     }
 
+
+    public NpcTradeContext GetBuyContext()
+    {
+        NpcCounterBroker broker = GetSellerBroker();
+        return broker != null
+            ? broker.sellToNpcContext
+            : NpcTradeContext.MarketBuy;
+    }
+
+    NpcCounterBroker GetSellerBroker()
+    {
+        GameObject target =
+            sellerObject != null
+            ? sellerObject
+            : sellerInventory != null
+                ? sellerInventory.gameObject
+                : gameObject;
+
+        return target != null
+            ? target.GetComponent<NpcCounterBroker>()
+            : null;
+    }
+
     public ShopItemSlot GetSlot(int itemIndex)
     {
         if (itemIndex < 0 ||
@@ -85,7 +108,7 @@ public class SimpleItemShop : MonoBehaviour
                 buyerWallet,
                 NpcEconomy.GetTradePrice(
                     slot.item,
-                    NpcTradeContext.MarketBuy)))
+                    GetBuyContext())))
         {
             return false;
         }
@@ -93,7 +116,7 @@ public class SimpleItemShop : MonoBehaviour
         int price =
             NpcEconomy.GetTradePrice(
                 slot.item,
-                NpcTradeContext.MarketBuy);
+                GetBuyContext());
 
         if (sellFromNpcInventory &&
             sellerInventory != null)
@@ -175,7 +198,7 @@ public class SimpleItemShop : MonoBehaviour
             NpcEconomy.GetNpcBuyPrice(
                 slot.item,
                 buyer.gameObject,
-                NpcTradeContext.MarketBuy);
+                GetBuyContext());
 
         if (buyer.money < price)
         {

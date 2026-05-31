@@ -190,11 +190,25 @@ public static class NpcRoleUtility
             return;
         }
 
+        bool usingTeleportRoute;
+        string routeAction;
+        Vector3 moveTarget =
+            NpcMapNavigator.GetNextMoveTarget(
+                npc,
+                target,
+                out usingTeleportRoute,
+                out routeAction);
+
+        if (usingTeleportRoute)
+        {
+            SetAction(npc, routeAction);
+        }
+
         float speed = GetMoveSpeed(npc, fallbackSpeed);
         npc.transform.position =
             Vector3.MoveTowards(
                 npc.transform.position,
-                target,
+                moveTarget,
                 speed * Time.deltaTime);
     }
 

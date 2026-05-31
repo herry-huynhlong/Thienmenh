@@ -12,62 +12,82 @@ public class DoorTeleportSameScene : MonoBehaviour
     [Header("Camera")]
     public bool refreshCameraBounds = true;
 
-    // cooldown riêng cho từng NPC/player
-    private static Dictionary<GameObject, float> teleportCooldowns =
+    static readonly Dictionary<GameObject, float> teleportCooldowns =
         new Dictionary<GameObject, float>();
 
-    private void OnTriggerEnter2D(Collider2D other)
+    void OnTriggerEnter2D(Collider2D other)
     {
-        if (targetPoint == null)
+        TryTeleport(other);
+    }
+
+    void OnTriggerStay2D(Collider2D other)
+    {
+        TryTeleport(other);
+    }
+
+    public bool TryTeleport(Collider2D other)
+    {
+        if (other == null)
         {
-            return;
+            return false;
         }
 
-        // chỉ cho NPC/player dùng cửa
-        if (!other.CompareTag("NPC") &&
-            !other.CompareTag("Player"))
+        return TryTeleport(other.gameObject);
+    }
+
+    public bool TryTeleport(GameObject actor)
+    {
+        if (targetPoint == null ||
+            actor == null)
         {
-            return;
+            return false;
+        }
+
+        if (!actor.CompareTag("NPC") &&
+            !actor.CompareTag("Player"))
+        {
+            return false;
         }
 
         Rigidbody2D rb =
-            other.GetComponent<Rigidbody2D>();
+            actor.GetComponent<Rigidbody2D>();
 
         if (rb == null)
         {
-            return;
+            return false;
         }
 
-        // kiểm tra cooldown riêng
         if (teleportCooldowns.TryGetValue(
-                other.gameObject,
-                out float nextTeleportTime))
+                actor,
+                out float nextTeleportTime) &&
+            Time.time < nextTeleportTime)
         {
-            if (Time.time < nextTeleportTime)
-            {
-                return;
-            }
+            return false;
         }
 
-        // teleport
-        other.transform.position =
-            targetPoint.position;
+        rb.position = targetPoint.position;
+        rb.linearVelocity = Vector2.zero;
+        actor.transform.position = targetPoint.position;
 
-        // refresh camera bounds nếu có
         if (refreshCameraBounds)
         {
             RefreshCameraBounds();
         }
 
-        // gửi event cho AI tavern nếu có
         SendMessage(
             "OnDoorTeleported",
-            other.gameObject,
+            actor,
             SendMessageOptions.DontRequireReceiver);
 
-        // set cooldown riêng cho NPC này
-        teleportCooldowns[other.gameObject] =
+        actor.SendMessage(
+            "OnNpcMapTeleported",
+            gameObject,
+            SendMessageOptions.DontRequireReceiver);
+
+        teleportCooldowns[actor] =
             Time.time + teleportCooldown;
+
+        return true;
     }
 
     void RefreshCameraBounds()

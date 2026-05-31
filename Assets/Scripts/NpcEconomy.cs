@@ -1,3 +1,4 @@
+using System.Globalization;
 using UnityEngine;
 
 public enum NpcTradeContext
@@ -5,7 +6,9 @@ public enum NpcTradeContext
     MarketBuy,
     MarketSell,
     NpcToNpc,
-    ProduceBuy
+    ProduceBuy,
+    CounterBrokerBuy,
+    CounterBrokerSell
 }
 
 public static class NpcEconomy
@@ -81,6 +84,14 @@ public static class NpcEconomy
             case NpcTradeContext.ProduceBuy:
                 multiplier = 0.6f;
                 break;
+
+            case NpcTradeContext.CounterBrokerBuy:
+                multiplier = 1.35f;
+                break;
+
+            case NpcTradeContext.CounterBrokerSell:
+                multiplier = 0.9f;
+                break;
         }
 
         return Mathf.Max(1, Mathf.RoundToInt(value * multiplier));
@@ -105,10 +116,6 @@ public static class NpcEconomy
         return Mathf.Max(1, Mathf.RoundToInt(price * need));
     }
 
-    // =========================
-    // ĐÃ SỬA:
-    // Tiên phẩm giờ mua bán bình thường
-    // =========================
     public static bool CanTradeNormally(StatItemData item)
     {
         if (item == null)
@@ -218,28 +225,55 @@ public static class NpcEconomy
         return false;
     }
 
-    // =========================
-    // ĐÃ SỬA:
-    // Tiên phẩm hiện giá thật
-    // =========================
     public static string FormatPrice(StatItemData item)
     {
-        return GetItemValue(item) +
-            " " +
-            CurrencyShortName;
+        return FormatCurrency(GetItemValue(item));
     }
 
-    // =========================
-    // ĐÃ SỬA:
-    // Tiên phẩm hiện giá trade
-    // =========================
     public static string FormatTradePrice(
         StatItemData item,
         NpcTradeContext context)
     {
-        return GetTradePrice(item, context) +
+        return FormatCurrency(GetTradePrice(item, context));
+    }
+
+    public static string FormatCurrency(int amount)
+    {
+        return FormatCompactAmount(amount) +
             " " +
             CurrencyShortName;
+    }
+
+    static string FormatCompactAmount(int amount)
+    {
+        if (amount >= 1000000)
+        {
+            return FormatCompactUnit(amount, 1000000f, "m");
+        }
+
+        if (amount >= 1000)
+        {
+            return FormatCompactUnit(amount, 1000f, "k");
+        }
+
+        return amount.ToString(CultureInfo.InvariantCulture);
+    }
+
+    static string FormatCompactUnit(
+        int amount,
+        float unit,
+        string suffix)
+    {
+        float value =
+            amount / unit;
+
+        string text =
+            value >= 100f ||
+            Mathf.Approximately(value, Mathf.Round(value))
+            ? Mathf.RoundToInt(value).ToString(CultureInfo.InvariantCulture)
+            : value.ToString("0.#", CultureInfo.InvariantCulture);
+
+        return text + suffix;
     }
 
     static int GetBasePrice(

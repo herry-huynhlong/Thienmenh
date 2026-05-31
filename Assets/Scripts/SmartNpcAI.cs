@@ -287,12 +287,38 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
+        bool usingTeleportRoute;
+        string routeAction;
+        Vector3 moveTarget =
+            NpcMapNavigator.GetNextMoveTarget(
+                gameObject,
+                currentTarget.position,
+                out usingTeleportRoute,
+                out routeAction);
+
+        if (usingTeleportRoute &&
+            !string.IsNullOrEmpty(routeAction))
+        {
+            currentAction = routeAction;
+        }
+
+        NpcMapArea spawnArea =
+            NpcMapArea.FindArea(spawnPosition);
+        NpcMapArea targetArea =
+            NpcMapArea.FindArea(currentTarget.position);
+        bool targetInSpawnArea =
+            spawnArea == null ||
+            targetArea == null ||
+            spawnArea.zone == targetArea.zone;
+
         float distanceFromSpawn =
             Vector2.Distance(
                 transform.position,
                 spawnPosition);
 
-        if (distanceFromSpawn > maxRoamDistance)
+        if (!usingTeleportRoute &&
+            targetInSpawnArea &&
+            distanceFromSpawn > maxRoamDistance)
         {
             ReturnToSpawn();
 
@@ -300,7 +326,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         }
 
         Vector2 direction =
-            (currentTarget.position -
+            (moveTarget -
             transform.position).normalized;
 
         rb.linearVelocity =

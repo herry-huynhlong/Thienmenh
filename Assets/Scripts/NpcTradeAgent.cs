@@ -62,6 +62,12 @@ public class NpcTradeAgent : MonoBehaviour
             return;
         }
 
+        if (!isMarketTrader &&
+            NpcCounterBroker.TryTradeWithActiveBroker(this))
+        {
+            return;
+        }
+
         Collider2D[] hits =
             Physics2D.OverlapCircleAll(
                 transform.position,
@@ -264,25 +270,37 @@ public class NpcTradeAgent : MonoBehaviour
         return false;
     }
 
+    public bool RemoveOwnedItem(
+        StatItemData item,
+        int amount,
+        ItemLifecycleEventType reason)
+    {
+        NpcItemCollector collector =
+            GetComponent<NpcItemCollector>();
+
+        if (collector != null)
+        {
+            return collector.RemoveOwnedItem(
+                item,
+                amount,
+                reason);
+        }
+
+        return inventory != null &&
+            inventory.RemoveItem(item, amount);
+    }
+
     bool RemoveSellerItem(
         NpcTradeAgent seller,
         StatItemData item)
     {
-        NpcItemCollector sellerCollector =
-            seller.GetComponent<NpcItemCollector>();
-
-        if (sellerCollector != null)
-        {
-            return sellerCollector.RemoveOwnedItem(
-                item,
-                1,
-                ItemLifecycleEventType.Sold);
-        }
-
-        return seller.inventory.RemoveItem(item, 1);
+        return seller.RemoveOwnedItem(
+            item,
+            1,
+            ItemLifecycleEventType.Sold);
     }
 
-    void ReceiveBoughtItem(StatItemData item)
+    public void ReceiveBoughtItem(StatItemData item)
     {
         NpcItemCollector collector =
             GetComponent<NpcItemCollector>();
@@ -330,12 +348,12 @@ public class NpcTradeAgent : MonoBehaviour
         return score * Mathf.Clamp(wealthRatio, 0.1f, 5f);
     }
 
-    int GetMoney()
+    public int GetMoney()
     {
         return NpcEconomy.GetNpcMoney(gameObject);
     }
 
-    void AddMoney(int amount)
+    public void AddMoney(int amount)
     {
         NpcEconomy.AddNpcMoney(gameObject, amount);
     }

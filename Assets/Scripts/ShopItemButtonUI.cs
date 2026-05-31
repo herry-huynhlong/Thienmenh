@@ -109,7 +109,9 @@ public class ShopItemButtonUI : MonoBehaviour, IPointerClickHandler, IPointerDow
             priceText.text =
                 NpcEconomy.FormatTradePrice(
                     slot.item,
-                    NpcTradeContext.MarketBuy);
+                    owner != null
+                        ? owner.GetBuyContext()
+                        : NpcTradeContext.MarketBuy);
             priceText.color = priceColor;
             priceText.fontStyle |= FontStyles.Bold;
         }

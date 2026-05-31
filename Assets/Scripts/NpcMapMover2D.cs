@@ -44,6 +44,7 @@ public class NpcMapMover2D : MonoBehaviour
     Rigidbody2D rb;
     NPCVisualAnimation visualAnimation;
     Collider2D[] selfColliders;
+    NpcMapArea currentMapArea;
     Vector2 centerPosition;
     Vector2 lastPosition;
     float waitTimer;
@@ -71,6 +72,7 @@ public class NpcMapMover2D : MonoBehaviour
         visualAnimation = GetComponent<NPCVisualAnimation>();
         selfColliders = GetComponentsInChildren<Collider2D>();
         ConfigureRigidbody();
+        AutoResolveMapBounds();
 
         centerPosition = GetInitialCenterPosition();
 
@@ -84,7 +86,70 @@ public class NpcMapMover2D : MonoBehaviour
 
         PickNewTarget();
     }
+    void AutoResolveMapBounds()
+    {
+        NpcMapArea area =
+            NpcMapArea.FindArea(transform.position);
 
+        if (area == null)
+        {
+            area = NpcMapArea.FindNearestArea(transform.position);
+        }
+
+        ApplyMapArea(area);
+    }
+
+    void ApplyMapArea(NpcMapArea area)
+    {
+        if (area == null ||
+            area.areaBounds == null ||
+            area == currentMapArea)
+        {
+            return;
+        }
+
+        currentMapArea = area;
+        mapBounds = area.areaBounds;
+        centerPosition = GetInitialCenterPosition();
+        currentTarget = ClampToAllowedArea(currentTarget);
+    }
+
+    void OnNpcMapTeleported(GameObject gateObject)
+    {
+        NpcTeleportGate gate = gateObject != null
+            ? gateObject.GetComponent<NpcTeleportGate>()
+            : null;
+
+        NpcMapArea area = gate != null
+            ? FindAreaByZone(gate.toZone)
+            : NpcMapArea.FindArea(transform.position);
+
+        if (area == null)
+        {
+            area = NpcMapArea.FindNearestArea(transform.position);
+        }
+
+        currentMapArea = null;
+        ApplyMapArea(area);
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+    }
+
+    NpcMapArea FindAreaByZone(NpcMapZone zone)
+    {
+        foreach (NpcMapArea area in NpcMapArea.Areas)
+        {
+            if (area != null && area.zone == zone)
+            {
+                return area;
+            }
+        }
+
+        return null;
+    }
     Vector2 GetInitialCenterPosition()
     {
         if (centerPoint != null)
@@ -113,6 +178,8 @@ public class NpcMapMover2D : MonoBehaviour
             enabled = false;
             return;
         }
+        AutoResolveMapBounds();
+
 
         if (!hasTarget)
         {
@@ -197,6 +264,7 @@ public class NpcMapMover2D : MonoBehaviour
 
     public void SetMoveTarget(Vector2 target, string action = "Move Target")
     {
+        AutoResolveMapBounds();
         currentTarget = ClampToAllowedArea(target);
         hasTarget = true;
         waitingAfterArrive = false;
@@ -208,6 +276,8 @@ public class NpcMapMover2D : MonoBehaviour
 
     public bool IsAtMoveTarget(float extraDistance = 0f)
     {
+        AutoResolveMapBounds();
+
         if (!hasTarget)
         {
             return false;
