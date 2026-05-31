@@ -1,57 +1,83 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class DoorTeleportSameScene : MonoBehaviour
 {
-    [Header("Teleport Point")]
+    [Header("Teleport")]
     public Transform targetPoint;
 
     [Header("Cooldown")]
-    public float teleportCooldown = 1f;
+    public float teleportCooldown = 5f;
 
-    bool canTeleport = true;
+    [Header("Camera")]
+    public bool refreshCameraBounds = true;
 
-    void OnTriggerEnter2D(Collider2D other)
+    // cooldown riêng cho từng NPC/player
+    private static Dictionary<GameObject, float> teleportCooldowns =
+        new Dictionary<GameObject, float>();
+
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if (!canTeleport || targetPoint == null)
+        if (targetPoint == null)
         {
             return;
         }
 
-        Rigidbody2D rb = other.GetComponent<Rigidbody2D>();
+        // chỉ cho NPC/player dùng cửa
+        if (!other.CompareTag("NPC") &&
+            !other.CompareTag("Player"))
+        {
+            return;
+        }
+
+        Rigidbody2D rb =
+            other.GetComponent<Rigidbody2D>();
+
         if (rb == null)
         {
             return;
         }
 
-        other.transform.position = targetPoint.position;
-        RefreshCameraBounds(targetPoint.position);
-        SendMessage("OnDoorTeleported", other.gameObject, SendMessageOptions.DontRequireReceiver);
-
-        canTeleport = false;
-        Invoke(nameof(ResetTeleport), teleportCooldown);
-    }
-
-
-    void RefreshCameraBounds(Vector3 targetPosition)
-    {
-        MobileCameraController mobileCamera =
-            FindAnyObjectByType<MobileCameraController>();
-
-        if (mobileCamera != null)
+        // kiểm tra cooldown riêng
+        if (teleportCooldowns.TryGetValue(
+                other.gameObject,
+                out float nextTeleportTime))
         {
-            mobileCamera.RefreshMapBoundsForPosition(targetPosition);
+            if (Time.time < nextTeleportTime)
+            {
+                return;
+            }
         }
 
-        CameraBounds cameraBounds =
-            FindAnyObjectByType<CameraBounds>();
+        // teleport
+        other.transform.position =
+            targetPoint.position;
 
-        if (cameraBounds != null)
+        // refresh camera bounds nếu có
+        if (refreshCameraBounds)
         {
-            cameraBounds.RefreshBounds();
+            RefreshCameraBounds();
         }
+
+        // gửi event cho AI tavern nếu có
+        SendMessage(
+            "OnDoorTeleported",
+            other.gameObject,
+            SendMessageOptions.DontRequireReceiver);
+
+        // set cooldown riêng cho NPC này
+        teleportCooldowns[other.gameObject] =
+            Time.time + teleportCooldown;
     }
-    void ResetTeleport()
+
+    void RefreshCameraBounds()
     {
-        canTeleport = true;
+        CameraBounds bounds =
+            FindFirstObjectByType<CameraBounds>();
+
+        if (bounds != null)
+        {
+            bounds.RefreshBounds();
+        }
     }
 }
