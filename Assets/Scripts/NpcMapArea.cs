@@ -97,6 +97,32 @@ public class NpcMapArea : MonoBehaviour
 
         return null;
     }
+
+    public static NpcMapArea FindNearestAreaInZone(
+        NpcMapZone zone,
+        Vector3 position)
+    {
+        NpcMapArea bestArea = null;
+        float bestDistance = float.PositiveInfinity;
+
+        foreach (NpcMapArea area in areas)
+        {
+            if (area == null || area.zone != zone)
+            {
+                continue;
+            }
+
+            float distance = area.DistanceTo(position);
+            if (distance < bestDistance)
+            {
+                bestArea = area;
+                bestDistance = distance;
+            }
+        }
+
+        return bestArea;
+    }
+
     public static NpcMapArea FindNearestArea(Vector3 position)
     {
         NpcMapArea bestArea = null;

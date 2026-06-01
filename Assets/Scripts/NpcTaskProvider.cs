@@ -19,9 +19,12 @@ public enum NpcTaskRank
 
 public enum TavernTaskStage
 {
+    GoingToCounter,
+    CheckingCounter,
     GoingToBoard,
     ChoosingTask,
     ReturningToProvider,
+    ReceivingTask,
     GoingToWork,
     Working
 }
@@ -53,6 +56,7 @@ class RunningNpcTask
     public GameObject npc;
     public NpcTaskOffer offer;
     public TavernTaskStage stage;
+    public Vector3 counterPosition;
     public Vector3 boardPosition;
     public Vector3 providerPosition;
     public Vector3 workPosition;
@@ -82,6 +86,11 @@ public class NpcTaskProvider : MonoBehaviour
     public Transform mealPoint;
     public float mealDuration = 5f;
 
+    [Header("Counter Flow")]
+    public bool requireCounterCheckBeforeTask = true;
+    public Transform counterPoint;
+    public float counterCheckDuration = 4f;
+
     [Header("Task Provider")]
     public bool provideTasks = true;
     public float assignRadius = 2.5f;
@@ -92,12 +101,27 @@ public class NpcTaskProvider : MonoBehaviour
     public LayerMask npcLayers = ~0;
     public Transform taskBoardPoint;
     public Transform providerPoint;
-    public float chooseTaskDuration = 3f;
+    public float chooseTaskDuration = 8f;
+    public float providerReceiveDuration = 5f;
     public Transform defaultWorkPoint;
     public Transform huntPoint;
     public Transform gatherPoint;
     public Transform patrolPoint;
     public Transform deliverPoint;
+
+    [Header("Forest Depth")]
+    public NpcMapArea forestSearchArea;
+    public Transform forestEntryPoint;
+    public Transform forestDeepPoint;
+    [Range(0f, 1f)]
+    public float gatherDepthMin = 0.15f;
+    [Range(0f, 1f)]
+    public float gatherDepthMax = 0.65f;
+    [Range(0f, 1f)]
+    public float huntDepthMin = 0.45f;
+    [Range(0f, 1f)]
+    public float huntDepthMax = 0.95f;
+    public int forestPointPickAttempts = 24;
 
     [Header("Offers")]
     public NpcTaskOffer[] offers =
@@ -172,6 +196,39 @@ public class NpcTaskProvider : MonoBehaviour
         assignTimer = 0f;
         TryServeMeal();
         TryStartTaskRequest();
+    }
+
+    public bool TryHandleVisitor(GameObject npc)
+    {
+        if (npc == null ||
+            npc == gameObject ||
+            HasBusyNpc(npc) ||
+            NpcRoleUtility.IsDead(npc))
+        {
+            return false;
+        }
+
+        if (serveMeals &&
+            NeedsMeal(npc) &&
+            NpcEconomy.GetNpcMoney(npc) >= mealCost)
+        {
+            StartMeal(npc);
+            return true;
+        }
+
+        if (provideTasks &&
+            offers != null &&
+            offers.Length > 0)
+        {
+            NpcTaskOffer offer = PickOfferFor(npc);
+            if (offer != null)
+            {
+                StartTaskRequest(npc, offer);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     void TryServeMeal()
@@ -265,11 +322,14 @@ public class NpcTaskProvider : MonoBehaviour
         {
             npc = npc,
             offer = offer,
-            stage = TavernTaskStage.GoingToBoard,
+            stage = requireCounterCheckBeforeTask
+                ? TavernTaskStage.GoingToCounter
+                : TavernTaskStage.GoingToBoard,
+            counterPosition = GetCounterPosition(),
             boardPosition = GetBoardPosition(),
             providerPosition = GetProviderPosition(),
             workPosition = GetWorkPosition(offer),
-            remainingTime = Mathf.Max(0.5f, chooseTaskDuration)
+            remainingTime = Mathf.Max(8f, chooseTaskDuration)
         };
 
         PauseBaseAi(task);
@@ -342,6 +402,34 @@ public class NpcTaskProvider : MonoBehaviour
 
             switch (task.stage)
             {
+                case TavernTaskStage.GoingToCounter:
+                    MoveNpc(task.npc, task.counterPosition);
+                    NpcRoleUtility.SetAction(
+                        task.npc,
+                        "Den truong quay kiem tra mua ban");
+
+                    if (Vector2.Distance(
+                            task.npc.transform.position,
+                            task.counterPosition) <= arriveDistance)
+                    {
+                        TryTradeAtCounter(task.npc);
+                        task.stage = TavernTaskStage.CheckingCounter;
+                        task.remainingTime = Mathf.Max(6f, counterCheckDuration);
+                    }
+                    break;
+
+                case TavernTaskStage.CheckingCounter:
+                    task.remainingTime -= Time.deltaTime;
+                    NpcRoleUtility.SetAction(
+                        task.npc,
+                        "Dang kiem tra mua ban tai truong quay");
+
+                    if (task.remainingTime <= 0f)
+                    {
+                        task.stage = TavernTaskStage.GoingToBoard;
+                    }
+                    break;
+
                 case TavernTaskStage.GoingToBoard:
                     MoveNpc(task.npc, task.boardPosition);
                     NpcRoleUtility.SetAction(
@@ -353,7 +441,7 @@ public class NpcTaskProvider : MonoBehaviour
                             task.boardPosition) <= arriveDistance)
                     {
                         task.stage = TavernTaskStage.ChoosingTask;
-                        task.remainingTime = Mathf.Max(0.5f, chooseTaskDuration);
+                        task.remainingTime = Mathf.Max(8f, chooseTaskDuration);
                     }
                     break;
 
@@ -382,6 +470,19 @@ public class NpcTaskProvider : MonoBehaviour
                         NpcRoleUtility.SetAction(
                             gameObject,
                             "Giao nhiem vu " + GetRankText(task.offer.rank) + ": " + task.offer.taskName);
+                        task.stage = TavernTaskStage.ReceivingTask;
+                        task.remainingTime = Mathf.Max(3f, providerReceiveDuration);
+                    }
+                    break;
+
+                case TavernTaskStage.ReceivingTask:
+                    task.remainingTime -= Time.deltaTime;
+                    NpcRoleUtility.SetAction(
+                        task.npc,
+                        "Dang nhan nhiem vu " + GetRankText(task.offer.rank) + ": " + task.offer.taskName);
+
+                    if (task.remainingTime <= 0f)
+                    {
                         task.stage = TavernTaskStage.GoingToWork;
                     }
                     break;
@@ -619,6 +720,19 @@ public class NpcTaskProvider : MonoBehaviour
             : transform.position;
     }
 
+    Vector3 GetCounterPosition()
+    {
+        if (counterPoint != null)
+        {
+            return counterPoint.position;
+        }
+
+        NpcCounterBroker broker = NpcCounterBroker.Active;
+        return broker != null
+            ? broker.transform.position
+            : transform.position;
+    }
+
     Vector3 GetBoardPosition()
     {
         return taskBoardPoint != null
@@ -635,30 +749,183 @@ public class NpcTaskProvider : MonoBehaviour
 
     Vector3 GetWorkPosition(NpcTaskOffer offer)
     {
-        Transform point = defaultWorkPoint;
-
         if (offer != null)
         {
             switch (offer.taskType)
             {
                 case NpcTaskType.HuntMonster:
-                    point = huntPoint != null ? huntPoint : point;
-                    break;
+                    return GetForestWorkPosition(
+                        huntPoint,
+                        GetDepthMinForRank(offer.rank, huntDepthMin),
+                        GetDepthMaxForRank(offer.rank, huntDepthMax));
+
                 case NpcTaskType.GatherResource:
-                    point = gatherPoint != null ? gatherPoint : point;
-                    break;
+                    return GetForestWorkPosition(
+                        gatherPoint,
+                        GetDepthMinForRank(offer.rank, gatherDepthMin),
+                        GetDepthMaxForRank(offer.rank, gatherDepthMax));
+
                 case NpcTaskType.Patrol:
-                    point = patrolPoint != null ? patrolPoint : point;
-                    break;
+                    return patrolPoint != null
+                        ? patrolPoint.position
+                        : GetForestWorkPosition(defaultWorkPoint, 0.25f, 0.75f);
+
                 case NpcTaskType.Deliver:
-                    point = deliverPoint != null ? deliverPoint : point;
-                    break;
+                    return deliverPoint != null
+                        ? deliverPoint.position
+                        : GetFallbackWorkPosition();
             }
         }
 
-        return point != null
-            ? point.position
+        return GetFallbackWorkPosition();
+    }
+
+    Vector3 GetFallbackWorkPosition()
+    {
+        return defaultWorkPoint != null
+            ? defaultWorkPoint.position
             : transform.position;
+    }
+
+    Vector3 GetForestWorkPosition(
+        Transform fallbackPoint,
+        float minDepth,
+        float maxDepth)
+    {
+        NpcMapArea area = forestSearchArea != null
+            ? forestSearchArea
+            : NpcMapArea.FindNearestAreaInZone(
+                NpcMapZone.MaThuSonMach,
+                fallbackPoint != null ? fallbackPoint.position : transform.position);
+
+        if (area == null || area.areaBounds == null)
+        {
+            return fallbackPoint != null
+                ? fallbackPoint.position
+                : GetFallbackWorkPosition();
+        }
+
+        Vector3 entry = forestEntryPoint != null
+            ? forestEntryPoint.position
+            : area.areaBounds.bounds.min;
+
+        Vector3 deep = forestDeepPoint != null
+            ? forestDeepPoint.position
+            : area.areaBounds.bounds.max;
+
+        Vector2 depthDirection = (Vector2)(deep - entry);
+        if (depthDirection.sqrMagnitude <= 0.0001f)
+        {
+            depthDirection = Vector2.right;
+        }
+
+        depthDirection.Normalize();
+        minDepth = Mathf.Clamp01(minDepth);
+        maxDepth = Mathf.Clamp(maxDepth, minDepth, 1f);
+
+        Bounds bounds = area.areaBounds.bounds;
+        Vector3 best = fallbackPoint != null
+            ? fallbackPoint.position
+            : bounds.center;
+        float bestPenalty = float.PositiveInfinity;
+
+        for (int i = 0; i < Mathf.Max(1, forestPointPickAttempts); i++)
+        {
+            Vector3 candidate = new Vector3(
+                Random.Range(bounds.min.x, bounds.max.x),
+                Random.Range(bounds.min.y, bounds.max.y),
+                transform.position.z);
+
+            Vector2 closest = area.areaBounds.ClosestPoint(candidate);
+            if (Vector2.Distance(closest, candidate) > 0.02f)
+            {
+                continue;
+            }
+
+            float depth = GetDepth01(candidate, entry, deep, depthDirection);
+            if (depth >= minDepth && depth <= maxDepth)
+            {
+                return candidate;
+            }
+
+            float penalty = depth < minDepth
+                ? minDepth - depth
+                : depth - maxDepth;
+
+            if (penalty < bestPenalty)
+            {
+                bestPenalty = penalty;
+                best = candidate;
+            }
+        }
+
+        return best;
+    }
+
+    float GetDepth01(
+        Vector3 position,
+        Vector3 entry,
+        Vector3 deep,
+        Vector2 depthDirection)
+    {
+        float length = Vector2.Distance(entry, deep);
+        if (length <= 0.0001f)
+        {
+            return 0.5f;
+        }
+
+        return Mathf.Clamp01(
+            Vector2.Dot((Vector2)(position - entry), depthDirection) / length);
+    }
+
+    float GetDepthMinForRank(NpcTaskRank rank, float baseMin)
+    {
+        return Mathf.Clamp01(baseMin + GetRankDepthBonus(rank));
+    }
+
+    float GetDepthMaxForRank(NpcTaskRank rank, float baseMax)
+    {
+        return Mathf.Clamp01(baseMax + GetRankDepthBonus(rank));
+    }
+
+    float GetRankDepthBonus(NpcTaskRank rank)
+    {
+        switch (rank)
+        {
+            case NpcTaskRank.Trung:
+                return 0.12f;
+            case NpcTaskRank.Thuong:
+                return 0.25f;
+            default:
+                return 0f;
+        }
+    }
+
+    void TryTradeAtCounter(GameObject npc)
+    {
+        NpcCounterBroker broker = NpcCounterBroker.Active;
+        if (broker == null ||
+            !broker.receiveAllNpcRequests ||
+            npc == null)
+        {
+            return;
+        }
+
+        VillagerAI villager = npc.GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            ItemInventory inventory = villager.inventory != null
+                ? villager.inventory
+                : npc.GetComponent<ItemInventory>();
+
+            broker.TryBuyProduceFrom(villager, inventory);
+        }
+
+        NpcTradeAgent tradeAgent = npc.GetComponent<NpcTradeAgent>();
+        if (tradeAgent != null)
+        {
+            broker.TryTradeWithNpc(tradeAgent);
+        }
     }
 
     void MoveNpc(GameObject npc, Vector3 target)

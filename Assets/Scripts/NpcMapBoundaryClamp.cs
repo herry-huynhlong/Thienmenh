@@ -28,15 +28,15 @@ public class NpcMapBoundaryClamp : MonoBehaviour
             RefreshArea();
         }
 
-        Collider2D bounds = GetBounds();
+        Vector2 position = rb != null
+            ? rb.position
+            : (Vector2)transform.position;
+
+        Collider2D bounds = GetBounds(position);
         if (bounds == null)
         {
             return;
         }
-
-        Vector2 position = rb != null
-            ? rb.position
-            : (Vector2)transform.position;
 
         if (IsInside(bounds, position))
         {
@@ -63,13 +63,17 @@ public class NpcMapBoundaryClamp : MonoBehaviour
             ? gateObject.GetComponent<NpcTeleportGate>()
             : null;
 
+        Vector3 referencePosition = gate != null
+            ? gate.ExitPosition
+            : transform.position;
+
         NpcMapArea area = gate != null
-            ? FindAreaByZone(gate.toZone)
-            : NpcMapArea.FindArea(transform.position);
+            ? NpcMapArea.FindNearestAreaInZone(gate.toZone, referencePosition)
+            : NpcMapArea.FindArea(referencePosition);
 
         if (area == null)
         {
-            area = NpcMapArea.FindNearestArea(transform.position);
+            area = NpcMapArea.FindNearestArea(referencePosition);
         }
 
         if (area != null)
@@ -78,18 +82,7 @@ public class NpcMapBoundaryClamp : MonoBehaviour
         }
     }
 
-    NpcMapArea FindAreaByZone(NpcMapZone zone)
-    {
-        foreach (NpcMapArea area in NpcMapArea.Areas)
-        {
-            if (area != null && area.zone == zone)
-            {
-                return area;
-            }
-        }
 
-        return null;
-    }
     void RefreshArea()
     {
         if (!useCurrentNpcMapArea)
@@ -106,8 +99,14 @@ public class NpcMapBoundaryClamp : MonoBehaviour
         }
     }
 
-    Collider2D GetBounds()
+    Collider2D GetBounds(Vector2 position)
     {
+        if (explicitBounds != null &&
+            IsInside(explicitBounds, position))
+        {
+            return explicitBounds;
+        }
+
         if (preferCurrentAreaOverExplicitBounds &&
             lastArea != null &&
             lastArea.areaBounds != null)

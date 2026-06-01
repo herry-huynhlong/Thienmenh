@@ -120,13 +120,17 @@ public class NpcMapMover2D : MonoBehaviour
             ? gateObject.GetComponent<NpcTeleportGate>()
             : null;
 
+        Vector3 referencePosition = gate != null
+            ? gate.ExitPosition
+            : transform.position;
+
         NpcMapArea area = gate != null
-            ? FindAreaByZone(gate.toZone)
-            : NpcMapArea.FindArea(transform.position);
+            ? NpcMapArea.FindNearestAreaInZone(gate.toZone, referencePosition)
+            : NpcMapArea.FindArea(referencePosition);
 
         if (area == null)
         {
-            area = NpcMapArea.FindNearestArea(transform.position);
+            area = NpcMapArea.FindNearestArea(referencePosition);
         }
 
         currentMapArea = null;
@@ -138,21 +142,11 @@ public class NpcMapMover2D : MonoBehaviour
         }
     }
 
-    NpcMapArea FindAreaByZone(NpcMapZone zone)
-    {
-        foreach (NpcMapArea area in NpcMapArea.Areas)
-        {
-            if (area != null && area.zone == zone)
-            {
-                return area;
-            }
-        }
 
-        return null;
-    }
     Vector2 GetInitialCenterPosition()
     {
-        if (centerPoint != null)
+        if (centerPoint != null &&
+            IsPointInsideMapBounds(centerPoint.position))
         {
             return ClampToAllowedArea(centerPoint.position);
         }
@@ -570,6 +564,18 @@ public class NpcMapMover2D : MonoBehaviour
         }
 
         return result;
+    }
+
+
+    bool IsPointInsideMapBounds(Vector2 position)
+    {
+        if (mapBounds == null)
+        {
+            return true;
+        }
+
+        Vector2 closest = mapBounds.ClosestPoint(position);
+        return Vector2.Distance(closest, position) <= 0.02f;
     }
 
     bool IsInsideMapBounds(Vector2 position)

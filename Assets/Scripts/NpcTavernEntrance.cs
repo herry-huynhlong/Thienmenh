@@ -158,6 +158,12 @@ public class NpcTavernEntrance : MonoBehaviour
             }
 
             NpcRoleUtility.SetAction(visit.npc, "Da vao tuu quan");
+
+            ResolveTavernProvider();
+            if (tavernProvider != null)
+            {
+                tavernProvider.TryHandleVisitor(visit.npc);
+            }
         }
     }
 

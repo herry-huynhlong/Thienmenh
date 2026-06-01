@@ -187,6 +187,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     Vector3 currentTradeTarget;
     Vector3 currentEatTarget;
     Vector3 currentSellTarget;
+    NpcMapZone? currentSellTargetZone;
 
     bool hasWorkTarget;
     bool hasTradeTarget;
@@ -905,6 +906,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         hasTradeTarget = false;
         hasEatTarget = false;
         hasSellTarget = false;
+        currentSellTargetZone = null;
         movingToRoad = false;
         hasRoadPreference = false;
     }
@@ -1233,17 +1235,13 @@ public class VillagerAI : MonoBehaviour, IDamageable
     {
         if (!hasSellTarget)
         {
-            currentSellTarget =
-                GetMarketPosition(
-                    marketPoint != null
-                    ? marketPoint.position
-                    : GetFallbackActivityPosition());
-
+            currentSellTarget = GetSellGoodsTarget();
+            currentSellTargetZone = GetSellGoodsTargetZone();
             hasSellTarget = true;
         }
 
-        MoveUsingRoad(currentSellTarget);
-        currentAction = "Mang hang ra cho ban";
+        MoveUsingRoad(currentSellTarget, currentSellTargetZone);
+        currentAction = "Mang hang den truong quay";
 
         if (!IsAtPosition(currentSellTarget))
         {
@@ -1257,6 +1255,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             (!sellOnlyToTrader && SellGoodsToMarket()))
         {
             hasSellTarget = false;
+            currentSellTargetZone = null;
             actionTimer = sellGoodsDuration;
             currentAction = "Da ban hang hoa";
             return;
@@ -1420,6 +1419,36 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         return GetMarketPosition(GetFallbackActivityPosition());
+    }
+
+    Vector3 GetSellGoodsTarget()
+    {
+        NpcCounterBroker broker = NpcCounterBroker.Active;
+        if (broker != null && broker.receiveAllNpcRequests)
+        {
+            return broker.transform.position;
+        }
+
+        return GetMarketPosition(
+            marketPoint != null
+            ? marketPoint.position
+            : GetFallbackActivityPosition());
+    }
+
+    NpcMapZone? GetSellGoodsTargetZone()
+    {
+        NpcCounterBroker broker = NpcCounterBroker.Active;
+        if (broker != null && broker.receiveAllNpcRequests)
+        {
+            NpcMapZone? brokerZone =
+                NpcMapNavigator.GetDestinationZone(broker.transform);
+
+            return brokerZone.HasValue
+                ? brokerZone
+                : NpcMapZone.VanBaoLau;
+        }
+
+        return NpcMapNavigator.GetDestinationZone(marketPoint);
     }
 
     bool IsAtPosition(Vector3 position)
