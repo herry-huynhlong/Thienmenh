@@ -6,7 +6,7 @@ public static class NpcRoleUtility
     {
         if (npc == null)
         {
-            return "Khong ro";
+            return "Không rõ";
         }
 
         EntityProfile profile = npc.GetComponent<EntityProfile>();
@@ -236,10 +236,30 @@ public static class NpcRoleUtility
 
     public static void Damage(GameObject target, int amount)
     {
+        Damage(null, target, amount, "tấn công");
+    }
+
+    public static void Damage(
+        GameObject actor,
+        GameObject target,
+        int amount,
+        string reason)
+    {
         if (target == null ||
             amount <= 0)
         {
             return;
+        }
+
+        if (actor != null &&
+            actor != target)
+        {
+            NpcSocialEventBus.PublishHostility(
+                actor,
+                target,
+                Mathf.Clamp(amount, 1, 100),
+                target.transform.position,
+                reason);
         }
 
         VillagerAI villager = target.GetComponent<VillagerAI>();

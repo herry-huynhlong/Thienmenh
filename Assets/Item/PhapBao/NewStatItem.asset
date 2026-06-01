@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
   m_Name: NewStatItem
   m_EditorClassIdentifier: Assembly-CSharp::StatItemData
-  itemName: Thuong_Kiem
-  description: Thuong_Kiem
+  itemName: Thượng Kiếm
+  description: Thượng Kiếm
   itemType: 1
   grade: 2
   validTargets: -1

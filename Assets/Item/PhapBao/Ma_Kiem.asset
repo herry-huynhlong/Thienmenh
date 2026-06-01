@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
   m_Name: Ma_Kiem
   m_EditorClassIdentifier: Assembly-CSharp::StatItemData
-  itemName: Ma_Kiem
+  itemName: Ma Kiếm
   description: "Ma Ki\u1EBFm"
   itemType: 1
   grade: 2

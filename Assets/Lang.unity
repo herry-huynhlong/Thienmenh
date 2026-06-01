@@ -9497,6 +9497,7 @@ GameObject:
   - component: {fileID: 200175861}
   - component: {fileID: 200175863}
   - component: {fileID: 200175862}
+  - component: {fileID: 200175864}
   m_Layer: 0
   m_Name: maparea
   m_TagString: Untagged
@@ -9532,7 +9533,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NpcMapArea
   zone: 1
-  displayName: Lang
+  displayName: "V\u1EA1n B\u1EA3o L\xE2u"
   areaBounds: {fileID: 200175863}
 --- !u!61 &200175863
 BoxCollider2D:
@@ -9580,6 +9581,32 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 23.814804, y: 15.497022}
   m_EdgeRadius: 0
+--- !u!114 &200175864
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 200175860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c2cb77638f14f1c9c3f412efad48f31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcLawZone
+  zoneName: "V\u1EA1n B\u1EA3o L\xE2u"
+  forbidKilling: 1
+  forbidAttacking: 1
+  hatredPenalty: 65
+  trustPenalty: 35
+  witnessMemoryDays: 60
+  npcLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  witnessRadius: 8
+  callNearbyNpcsToAttack: 1
+  includeVictimAsWitness: 1
+  witnessLine: "D\xE1m ra tay trong V\u1EA1n B\u1EA3o L\xE2u !!!! anh em l\xEAn cho
+    ta."
 --- !u!1 &204409547
 GameObject:
   m_ObjectHideFlags: 0
@@ -10625,7 +10652,7 @@ MonoBehaviour:
   huntDepthMax: 0.95
   forestPointPickAttempts: 24
   offers:
-  - taskName: Thu thap linh thao ha pham
+  - taskName: "Thu th\u1EADp linh th\u1EA3o h\u1EA1 ph\u1EA9m"
     taskType: 0
     rank: 0
     minRealm: 1
@@ -10635,7 +10662,7 @@ MonoBehaviour:
     rewardItem: {fileID: 0}
     rewardItemAmount: 0
     workDuration: 10
-  - taskName: Tuan tra ngoai lang
+  - taskName: "Tu\u1EA7n tra ngo\xE0i l\xE0ng"
     taskType: 3
     rank: 1
     minRealm: 3
@@ -10645,7 +10672,7 @@ MonoBehaviour:
     rewardItem: {fileID: 0}
     rewardItemAmount: 0
     workDuration: 18
-  - taskName: San yeu thu nguy hiem
+  - taskName: "S\u0103n y\xEAu th\xFA nguy hi\u1EC3m"
     taskType: 1
     rank: 2
     minRealm: 4
@@ -11375,9 +11402,13 @@ MonoBehaviour:
   infoContentRoot: {fileID: 0}
   inventoryContentRoot: {fileID: 0}
   infoText: {fileID: 0}
+  infoIcon: {fileID: 0}
   npcInventoryPanel: {fileID: 0}
   infoButton: {fileID: 0}
   inventoryButton: {fileID: 0}
+  worldItemIconSize: {x: 72, y: 72}
+  worldItemIconOffset: {x: 16, y: -16}
+  worldItemTextLeftPadding: 88
   panelOffset: {x: 0, y: 2, z: 0}
   tapThreshold: 10
 --- !u!114 &393128638
@@ -11463,7 +11494,7 @@ MonoBehaviour:
   huntDepthMax: 0.95
   forestPointPickAttempts: 24
   offers:
-  - taskName: Thu thap linh thao ha pham
+  - taskName: "Thu th\u1EADp linh th\u1EA3o h\u1EA1 ph\u1EA9m"
     taskType: 0
     rank: 0
     minRealm: 1
@@ -11473,7 +11504,7 @@ MonoBehaviour:
     rewardItem: {fileID: 0}
     rewardItemAmount: 0
     workDuration: 10
-  - taskName: Tuan tra ngoai lang
+  - taskName: "Tu\u1EA7n tra ngo\xE0i l\xE0ng"
     taskType: 3
     rank: 1
     minRealm: 3
@@ -11483,7 +11514,7 @@ MonoBehaviour:
     rewardItem: {fileID: 0}
     rewardItemAmount: 0
     workDuration: 18
-  - taskName: San yeu thu nguy hiem
+  - taskName: "S\u0103n y\xEAu th\xFA nguy hi\u1EC3m"
     taskType: 1
     rank: 2
     minRealm: 4
@@ -19366,7 +19397,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Map
+  m_text: "B\u1EA3n \u0111\u1ED3"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -20246,6 +20277,11 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 3.88, y: 3.97}
   m_EdgeRadius: 0
+--- !u!4 &905849555 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
+  m_PrefabInstance: {fileID: 1361991803}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &910154643
 GameObject:
   m_ObjectHideFlags: 0
@@ -21130,7 +21166,7 @@ MonoBehaviour:
   maxProfessionLevel: 20
   professionExpPerWork: 1
   productBonusEveryProfessionLevels: 3
-  currentAction: Dung yen
+  currentAction: "\u0110\u1EE9ng y\xEAn"
   currentTarget: {fileID: 0}
   lastWorkProductStatus: 
 --- !u!114 &948570988
@@ -31483,6 +31519,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 905849555}
   - {fileID: 802702012}
   - {fileID: 1045852483}
   - {fileID: 2012312578}
@@ -57308,7 +57345,7 @@ MonoBehaviour:
   useItemGrid: 1
   hideItemsTextWhenUsingGrid: 1
   readOnly: 1
-  emptyText: Khong co vat pham
+  emptyText: "Kh\xF4ng c\xF3 v\u1EADt ph\u1EA9m"
   blockMapDrag: 0
 --- !u!114 &1233771549
 MonoBehaviour:
@@ -58172,6 +58209,91 @@ Transform:
   m_Children: []
   m_Father: {fileID: 319443810}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1361991803
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1141500731}
+    m_Modifications:
+    - target: {fileID: 100000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
+      propertyPath: m_Name
+      value: HaPhamLinhDuocSpawnArea
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -219.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 251.45288
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
+      propertyPath: size.x
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
+      propertyPath: size.y
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
+      propertyPath: items.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
+      propertyPath: initialSpawnCount
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
+      propertyPath: items.Array.data[0].item
+      value: 
+      objectReference: {fileID: 11400000, guid: 3a0d73fd48d14544b8598f677694f101, type: 2}
+    - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
+      propertyPath: items.Array.data[0].amount
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
+      propertyPath: items.Array.data[0].weight
+      value: 50
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
 --- !u!1 &1372045044
 GameObject:
   m_ObjectHideFlags: 0
@@ -58630,9 +58752,13 @@ MonoBehaviour:
   infoContentRoot: {fileID: 0}
   inventoryContentRoot: {fileID: 0}
   infoText: {fileID: 641971013}
+  infoIcon: {fileID: 0}
   npcInventoryPanel: {fileID: 0}
   infoButton: {fileID: 0}
   inventoryButton: {fileID: 0}
+  worldItemIconSize: {x: 72, y: 72}
+  worldItemIconOffset: {x: 16, y: -16}
+  worldItemTextLeftPadding: 88
   panelOffset: {x: 0, y: 2, z: 0}
   tapThreshold: 10
 --- !u!4 &1428827273
@@ -65454,7 +65580,7 @@ MonoBehaviour:
   huntDepthMax: 0.95
   forestPointPickAttempts: 24
   offers:
-  - taskName: Thu thap linh thao ha pham
+  - taskName: "Thu th\u1EADp linh th\u1EA3o h\u1EA1 ph\u1EA9m"
     taskType: 0
     rank: 0
     minRealm: 1
@@ -65464,7 +65590,7 @@ MonoBehaviour:
     rewardItem: {fileID: 0}
     rewardItemAmount: 0
     workDuration: 10
-  - taskName: Tuan tra ngoai lang
+  - taskName: "Tu\u1EA7n tra ngo\xE0i l\xE0ng"
     taskType: 3
     rank: 1
     minRealm: 3
@@ -65474,7 +65600,7 @@ MonoBehaviour:
     rewardItem: {fileID: 0}
     rewardItemAmount: 0
     workDuration: 18
-  - taskName: San yeu thu nguy hiem
+  - taskName: "S\u0103n y\xEAu th\xFA nguy hi\u1EC3m"
     taskType: 1
     rank: 2
     minRealm: 4
@@ -66247,6 +66373,7 @@ GameObject:
   - component: {fileID: 1859949898}
   - component: {fileID: 1859949900}
   - component: {fileID: 1859949899}
+  - component: {fileID: 1859949901}
   m_Layer: 0
   m_Name: maparea
   m_TagString: Untagged
@@ -66330,6 +66457,31 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 15.321039, y: 9.941375}
   m_EdgeRadius: 0
+--- !u!114 &1859949901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1859949897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c2cb77638f14f1c9c3f412efad48f31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcLawZone
+  zoneName: "L\xE0ng"
+  forbidKilling: 1
+  forbidAttacking: 1
+  hatredPenalty: 65
+  trustPenalty: 35
+  witnessMemoryDays: 60
+  npcLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  witnessRadius: 8
+  callNearbyNpcsToAttack: 1
+  includeVictimAsWitness: 1
+  witnessLine: "D\xE1m ra tay trong l\xE0ng! Anh Em T\u1EA9m Qu\u1EA5t N\xF3!!!"
 --- !u!1 &1864078103
 GameObject:
   m_ObjectHideFlags: 0

@@ -15,7 +15,7 @@ public class NpcMapArea : MonoBehaviour
         new List<NpcMapArea>();
 
     public NpcMapZone zone = NpcMapZone.Lang;
-    public string displayName = "Lang";
+    public string displayName = "Làng";
     public Collider2D areaBounds;
 
     public static IReadOnlyList<NpcMapArea> Areas => areas;

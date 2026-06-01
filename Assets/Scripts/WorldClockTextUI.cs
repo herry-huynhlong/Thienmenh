@@ -58,7 +58,7 @@ public class WorldClockTextUI : MonoBehaviour
         if (timeSystem == null)
         {
             // Chuỗi ký tự mặc định khi hệ thống chưa load xong
-            clockText.text = prefix + "Hoang Cổ Đại Lục - Năm 1 Thg 1 Ngày 1 - 06:00";
+            clockText.text = prefix + "Hoang Cổ Đại Lục - Năm 1 Tháng 1 Ngày 1 - 06:00";
             return;
         }
 

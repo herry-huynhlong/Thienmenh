@@ -48,10 +48,10 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         Debug.Log(
             "Player bi tru " +
             damage +
-            " mau");
+            " máu");
 
         Debug.Log(
-            "Mau con: " +
+            "Máu còn: " +
             currentHP);
 
         if (currentHP <= 0)
@@ -113,7 +113,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
     void Die()
     {
-        Debug.Log("Player da chet");
+        Debug.Log("Player đã chết");
     }
 
     void SyncFromCharacterStats()

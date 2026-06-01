@@ -41,7 +41,7 @@ public static class ItemLifecycleSystem
         GameObject other)
     {
         string actorName =
-            actor != null ? actor.name : "Vo danh";
+            actor != null ? actor.name : "Vô danh";
 
         string otherName =
             other != null ? other.name : "";
@@ -49,18 +49,18 @@ public static class ItemLifecycleSystem
         switch (eventType)
         {
             case ItemLifecycleEventType.Broken:
-                return item.itemName + " cua " + actorName + " da hong.";
+                return item.itemName + " của " + actorName + " đã hỏng.";
 
             case ItemLifecycleEventType.Refined:
-                return actorName + " luyen hoa " + item.itemName +
-                    " thanh dan duoc.";
+                return actorName + " luyện hóa " + item.itemName +
+                    " thành đan dược.";
 
             case ItemLifecycleEventType.Stolen:
-                return actorName + " doat " + item.itemName +
-                    " tu " + otherName + ".";
+                return actorName + " đoạt " + item.itemName +
+                    " từ " + otherName + ".";
 
             case ItemLifecycleEventType.Taught:
-                return actorName + " truyen thu " + item.itemName +
+                return actorName + " truyền thụ " + item.itemName +
                     " cho " + otherName + ".";
 
             default:

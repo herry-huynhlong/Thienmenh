@@ -20,11 +20,22 @@ public class TouchSelectTarget : MonoBehaviour
 
     public TMP_Text infoText;
 
+    public Image infoIcon;
+
     public NpcInventoryPanelUI npcInventoryPanel;
 
     public Button infoButton;
 
     public Button inventoryButton;
+
+    [Header("World Item Info")]
+    public Vector2 worldItemIconSize =
+        new Vector2(72f, 72f);
+
+    public Vector2 worldItemIconOffset =
+        new Vector2(16f, -16f);
+
+    public float worldItemTextLeftPadding = 88f;
 
     [Header("Panel Follow")]
     public Vector3 panelOffset =
@@ -46,6 +57,10 @@ public class TouchSelectTarget : MonoBehaviour
     bool pointerMoved;
 
     bool showingInventory;
+
+    Vector4 originalInfoTextMargin;
+
+    bool hasOriginalInfoTextMargin;
 
     void Start()
     {
@@ -238,6 +253,8 @@ public class TouchSelectTarget : MonoBehaviour
                 BuildTargetInfo(currentTarget);
         }
 
+        UpdateInfoIcon(currentTarget);
+
         SetInfoContentVisible(true);
         SetInventoryContentVisible(false);
 
@@ -252,6 +269,7 @@ public class TouchSelectTarget : MonoBehaviour
         showingInventory = true;
 
         SetInfoContentVisible(false);
+        SetInfoIconVisible(false);
         SetInventoryContentVisible(true);
 
         if (npcInventoryPanel != null &&
@@ -267,6 +285,7 @@ public class TouchSelectTarget : MonoBehaviour
         showingInventory = false;
 
         SetInfoContentVisible(false);
+        SetInfoIconVisible(false);
         SetInventoryContentVisible(false);
 
         if (npcInventoryPanel != null)
@@ -384,13 +403,13 @@ public class TouchSelectTarget : MonoBehaviour
             if (buttonText == null)
             {
                 buttonText =
-                    FindChildByName(infoButton.transform, "Thông Tin");
+                    FindChildByName(infoButton.transform, "Thong Tin");
             }
 
             if (buttonText == null)
             {
                 buttonText =
-                    FindChildByName(infoButton.transform, "Thong Tin");
+                    FindChildByName(infoButton.transform, "Thông Tin");
             }
 
             if (buttonText != null)
@@ -413,6 +432,37 @@ public class TouchSelectTarget : MonoBehaviour
                     "InventoryButton",
                     "Kho");
         }
+
+        if (infoIcon == null)
+        {
+            Transform iconTransform =
+                FindChildByName(infoPanel.transform, "InfoIcon");
+
+            if (iconTransform == null)
+            {
+                iconTransform =
+                    FindChildByName(infoPanel.transform, "ItemIcon");
+            }
+
+            if (iconTransform == null)
+            {
+                iconTransform =
+                    FindChildByName(infoPanel.transform, "IconImage");
+            }
+
+            if (iconTransform == null)
+            {
+                iconTransform =
+                    FindChildByName(infoPanel.transform, "DetailIcon");
+            }
+
+            if (iconTransform != null)
+            {
+                infoIcon = iconTransform.GetComponent<Image>();
+            }
+        }
+
+        EnsureInfoIcon();
     }
 
     Button FindButtonByName(
@@ -492,6 +542,138 @@ public class TouchSelectTarget : MonoBehaviour
         {
             infoText.gameObject.SetActive(visible);
         }
+
+        if (!visible)
+        {
+            SetInfoIconVisible(false);
+        }
+    }
+
+    void EnsureInfoIcon()
+    {
+        if (infoIcon != null ||
+            infoPanel == null)
+        {
+            return;
+        }
+
+        Transform parent =
+            infoContentRoot != null
+            ? infoContentRoot.transform
+            : infoPanel.transform;
+
+        GameObject iconObject =
+            new GameObject(
+                "InfoIcon",
+                typeof(RectTransform),
+                typeof(Image));
+
+        iconObject.transform.SetParent(parent, false);
+
+        RectTransform iconRect =
+            iconObject.GetComponent<RectTransform>();
+
+        iconRect.anchorMin = new Vector2(0f, 1f);
+        iconRect.anchorMax = new Vector2(0f, 1f);
+        iconRect.pivot = new Vector2(0f, 1f);
+        iconRect.anchoredPosition = worldItemIconOffset;
+        iconRect.sizeDelta = worldItemIconSize;
+
+        infoIcon = iconObject.GetComponent<Image>();
+        infoIcon.preserveAspect = true;
+        infoIcon.raycastTarget = false;
+        SetInfoIconVisible(false);
+    }
+
+    void UpdateInfoIcon(Transform target)
+    {
+        EnsureInfoIcon();
+        RestoreInfoTextMargin();
+
+        WorldStatItemPickup pickup =
+            target != null
+            ? target.GetComponent<WorldStatItemPickup>()
+            : null;
+
+        Sprite icon =
+            GetPickupIcon(pickup);
+
+        if (infoIcon == null ||
+            icon == null)
+        {
+            SetInfoIconVisible(false);
+            return;
+        }
+
+        infoIcon.sprite = icon;
+        SetInfoIconVisible(true);
+        ApplyWorldItemTextMargin();
+    }
+
+    Sprite GetPickupIcon(WorldStatItemPickup pickup)
+    {
+        if (pickup == null ||
+            pickup.item == null)
+        {
+            return null;
+        }
+
+        if (pickup.item.icon != null)
+        {
+            return pickup.item.icon;
+        }
+
+        SpriteRenderer spriteRenderer =
+            pickup.GetComponentInChildren<SpriteRenderer>(true);
+
+        return spriteRenderer != null
+            ? spriteRenderer.sprite
+            : null;
+    }
+
+    void SetInfoIconVisible(bool visible)
+    {
+        if (infoIcon != null)
+        {
+            infoIcon.gameObject.SetActive(visible);
+            infoIcon.enabled = visible;
+        }
+
+        if (!visible)
+        {
+            RestoreInfoTextMargin();
+        }
+    }
+
+    void ApplyWorldItemTextMargin()
+    {
+        if (infoText == null)
+        {
+            return;
+        }
+
+        if (!hasOriginalInfoTextMargin)
+        {
+            originalInfoTextMargin = infoText.margin;
+            hasOriginalInfoTextMargin = true;
+        }
+
+        Vector4 margin =
+            originalInfoTextMargin;
+
+        margin.x += worldItemTextLeftPadding;
+        infoText.margin = margin;
+    }
+
+    void RestoreInfoTextMargin()
+    {
+        if (infoText == null ||
+            !hasOriginalInfoTextMargin)
+        {
+            return;
+        }
+
+        infoText.margin = originalInfoTextMargin;
     }
 
     void SetInventoryContentVisible(bool visible)
@@ -535,6 +717,16 @@ public class TouchSelectTarget : MonoBehaviour
 
     Transform GetSelectableTarget(Collider2D hit)
     {
+        WorldStatItemPickup pickup =
+            hit.GetComponentInParent<WorldStatItemPickup>();
+
+        if (pickup != null &&
+            pickup.item != null &&
+            pickup.amount > 0)
+        {
+            return pickup.transform;
+        }
+
         SmartNpcAI smartNpc =
             hit.GetComponentInParent<SmartNpcAI>();
 
@@ -656,7 +848,7 @@ public class TouchSelectTarget : MonoBehaviour
             return villager.GetRealmText();
         }
 
-        return "Yeu Thu";
+        return "Yêu Thú";
     }
 
     int GetTargetCurrentHP(Transform target)
@@ -756,7 +948,7 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (monster != null)
         {
-            return "Sat thuong: " + monster.damage;
+            return "Sát thương: " + monster.damage;
         }
 
         return "";
@@ -764,28 +956,94 @@ public class TouchSelectTarget : MonoBehaviour
 
     string BuildTargetInfo(Transform target)
     {
+        WorldStatItemPickup pickup =
+            target.GetComponent<WorldStatItemPickup>();
+
+        if (pickup != null &&
+            pickup.item != null)
+        {
+            return BuildWorldItemInfo(pickup);
+        }
+
         StringBuilder builder =
             new StringBuilder();
 
-        builder.AppendLine("Ten: " + GetTargetName(target));
-        builder.AppendLine("Tuoi: " + GetTargetAge(target));
-        builder.AppendLine("Tho Nguyen: " + GetTargetLifespan(target));
-        builder.AppendLine("Nghe: " + GetTargetJob(target));
+        builder.AppendLine("Tên: " + GetTargetName(target));
+        builder.AppendLine("Tuổi: " + GetTargetAge(target));
+        builder.AppendLine("Thọ Nguyên: " + GetTargetLifespan(target));
+        builder.AppendLine("Nghề: " + GetTargetJob(target));
         builder.AppendLine("Tu Vi: " + GetTargetRealm(target));
-        builder.AppendLine("Mau: " + BuildHealthText(target));
+        builder.AppendLine("Máu: " + BuildHealthText(target));
 
         string manuals =
             BuildManualStudyText(target);
 
         if (!string.IsNullOrEmpty(manuals))
         {
-            builder.AppendLine("Cong Phap:");
+            builder.AppendLine("Công Pháp:");
             builder.Append(manuals);
         }
 
-        builder.AppendLine("Hanh dong: " + GetTargetAction(target));
+        builder.AppendLine("Hành động: " + GetTargetAction(target));
 
         return builder.ToString().TrimEnd();
+    }
+
+    string BuildWorldItemInfo(WorldStatItemPickup pickup)
+    {
+        StatItemData item =
+            pickup.item;
+
+        StringBuilder builder =
+            new StringBuilder();
+
+        builder.AppendLine("Tên: " + item.itemName);
+        builder.AppendLine("Loại: " + GetItemTypeText(item.itemType));
+        builder.AppendLine("Phẩm chất: " + GetItemGradeText(item.grade));
+
+        if (!string.IsNullOrWhiteSpace(item.description))
+        {
+            builder.AppendLine();
+            builder.AppendLine(item.description);
+        }
+
+        return builder.ToString().TrimEnd();
+    }
+
+    string GetItemTypeText(ItemType itemType)
+    {
+        switch (itemType)
+        {
+            case ItemType.DanDuoc:
+                return "Đan Dược";
+            case ItemType.PhapBao:
+                return "Pháp Bảo";
+            case ItemType.VatLieu:
+                return "Vật Liệu";
+            case ItemType.CongPhap:
+                return "Công Pháp";
+            case ItemType.ThucPham:
+                return "Thực Phẩm";
+            default:
+                return itemType.ToString();
+        }
+    }
+
+    string GetItemGradeText(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.Ha:
+                return "Hạ";
+            case ItemGrade.Trung:
+                return "Trung";
+            case ItemGrade.Thuong:
+                return "Thường";
+            case ItemGrade.Tien:
+                return "Tiên";
+            default:
+                return grade.ToString();
+        }
     }
 
     string GetTargetAge(Transform target)
@@ -927,13 +1185,13 @@ public class TouchSelectTarget : MonoBehaviour
         switch (mastery)
         {
             case CultivationManualMastery.TieuThanh:
-                return "Tieu Thanh";
+                return "Tiểu Thành";
             case CultivationManualMastery.TrungThanh:
-                return "Trung Thanh";
+                return "Trung Thành";
             case CultivationManualMastery.DaiThanh:
-                return "Dai Thanh";
+                return "Đại Thành";
             default:
-                return "Chua hoc";
+                return "Chưa học";
         }
     }
 
@@ -962,7 +1220,7 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (inventory == null)
         {
-            return "Trong";
+            return "Trống";
         }
 
         int itemKinds = 0;
@@ -983,10 +1241,10 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (itemKinds <= 0)
         {
-            return "Trong";
+            return "Trống";
         }
 
-        return itemKinds + " loai / " + totalAmount + " mon";
+        return itemKinds + " loại / " + totalAmount + " món";
     }
 
     void HidePanel()
@@ -998,6 +1256,8 @@ public class TouchSelectTarget : MonoBehaviour
         {
             infoPanel.SetActive(false);
         }
+
+        SetInfoIconVisible(false);
 
         if (npcInventoryPanel != null)
         {

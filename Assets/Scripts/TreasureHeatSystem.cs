@@ -243,9 +243,9 @@ public class TreasureHeatSystem : MonoBehaviour
         if (threat.item.grade == ItemGrade.Tien)
         {
             WorldEventManager.Instance.AddLog(
-                "Tien pham hien the, mau tanh mua mau noi len. " +
+                "Tiên phẩm hiện thế, máu tanh mưa máu nổi lên. " +
                 GetNpcName(owner) +
-                " dang mang " +
+                " đang mang " +
                 threat.item.itemName +
                 ".",
                 2);
@@ -259,7 +259,7 @@ public class TreasureHeatSystem : MonoBehaviour
                 GetNpcName(owner) +
                 " mang " +
                 threat.item.itemName +
-                " di giao dich, bi ke co tam de mat.",
+                " đi giao dịch, bị kẻ có tâm để mắt.",
                 threat.item.grade == ItemGrade.Thuong ? 2 : 1);
             return;
         }
@@ -267,9 +267,9 @@ public class TreasureHeatSystem : MonoBehaviour
         if (threat.heat >= 10f)
         {
             WorldEventManager.Instance.AddLog(
-                "Bao vat lam nguoi vo toi thanh co toi. " +
+                "Bảo vật làm người vô tội thành có tội. " +
                 GetNpcName(owner) +
-                " dang bi de mat vi " +
+                " đang bị để mắt vì " +
                 threat.item.itemName +
                 ".",
                 threat.item.grade == ItemGrade.Thuong ? 2 : 1);
@@ -363,9 +363,9 @@ public class TreasureHeatSystem : MonoBehaviour
         {
             WorldEventManager.Instance.AddLog(
                 GetNpcName(robber) +
-                " da cuop " +
+                " đã cướp " +
                 threat.item.itemName +
-                " tu " +
+                " từ " +
                 GetNpcName(owner) +
                 ".",
                 threat.item.grade == ItemGrade.Tien ? 2 : 1);
@@ -585,14 +585,14 @@ public class TreasureHeatSystem : MonoBehaviour
             return false;
         }
 
-        return action.Contains("ban") ||
-            action.Contains("Ban") ||
-            action.Contains("buon") ||
-            action.Contains("Buon") ||
-            action.Contains("giao dich") ||
-            action.Contains("Giao dich") ||
-            action.Contains("cho") ||
-            action.Contains("Cho");
+        return action.Contains("bán") ||
+            action.Contains("Bán") ||
+            action.Contains("buôn") ||
+            action.Contains("Buôn") ||
+            action.Contains("giao dịch") ||
+            action.Contains("Giao dịch") ||
+            action.Contains("chợ") ||
+            action.Contains("Chợ");
     }
 
     bool IsNpc(GameObject target)
@@ -652,7 +652,7 @@ public class TreasureHeatSystem : MonoBehaviour
     {
         if (target == null)
         {
-            return "Vo danh";
+            return "Vô danh";
         }
 
         VillagerAI villager =

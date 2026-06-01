@@ -78,7 +78,7 @@ public class NpcMerchantRole : MonoBehaviour
             profession = gameObject.AddComponent<NpcSpecialProfession>();
         }
 
-        profession.professionName = "Thuong Nhan";
+        profession.professionName = "Thương Nhân";
         profession.lockVillagerJob = forceVillagerJobTrader;
         profession.villagerJob = VillagerJob.Trader;
     }

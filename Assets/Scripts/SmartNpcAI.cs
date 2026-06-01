@@ -346,7 +346,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
         currentTarget = target;
         currentAction =
-            "Truy doat " + item.itemName;
+            "Truy đoạt " + item.itemName;
     }
 
     void ReturnToSpawn()
@@ -403,7 +403,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
         if (ShouldDieFromOldAge())
         {
-            currentAction = "Tho nguyen da tan";
+            currentAction = "Thọ nguyên đã tận";
             Die();
             return;
         }

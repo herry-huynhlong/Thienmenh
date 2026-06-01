@@ -121,8 +121,7 @@ public class NpcItemCollector : MonoBehaviour
             return false;
         }
 
-        return item.itemType != ItemType.VatLieu &&
-            item.itemType != ItemType.ThucPham;
+        return item.ShouldNpcUseDirectly();
     }
 
     public void ReceiveItem(
@@ -157,8 +156,7 @@ public class NpcItemCollector : MonoBehaviour
             return false;
         }
 
-        if (item.itemType == ItemType.VatLieu &&
-            item.canBeRefinedIntoPill)
+        if (!item.ShouldNpcUseDirectly())
         {
             return false;
         }

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Collider2D))]
@@ -113,7 +113,7 @@ public class NpcTavernEntrance : MonoBehaviour
 
             NpcRoleUtility.SetAction(
                 visit.npc,
-                "Dang vao tuu quan: " + visit.reason);
+                "Đang vào tửu quán: " + visit.reason);
 
             if (Vector2.Distance(visit.npc.transform.position, visit.doorPosition) <= arriveDistance)
             {
@@ -157,7 +157,7 @@ public class NpcTavernEntrance : MonoBehaviour
                 visit.npc.transform.position = insideReleasePoint.position;
             }
 
-            NpcRoleUtility.SetAction(visit.npc, "Da vao tuu quan");
+            NpcRoleUtility.SetAction(visit.npc, "Đã vào tửu quán");
 
             ResolveTavernProvider();
             if (tavernProvider != null)
@@ -173,13 +173,13 @@ public class NpcTavernEntrance : MonoBehaviour
 
         if (attractHungryNpc && NeedsMeal(npc))
         {
-            reason = "an uong";
+            reason = "ăn uống";
             return true;
         }
 
         if (attractTaskSeekers && HasAvailableTaskFor(npc))
         {
-            reason = "tim nhiem vu";
+            reason = "tìm nhiệm vụ";
             return true;
         }
 

@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class NpcSpecialProfession : MonoBehaviour
 {
-    public string professionName = "Nguoi dac biet";
+    public string professionName = "Người đặc biệt";
     public bool lockVillagerJob;
     public VillagerJob villagerJob = VillagerJob.None;
 

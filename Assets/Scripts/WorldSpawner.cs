@@ -1,27 +1,7 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class SpawnRegion : MonoBehaviour
-{
-    public Vector2 size = new Vector2(12f, 8f);
-
-    public Vector3 RandomPoint()
-    {
-        Vector2 offset = new Vector2(
-            UnityEngine.Random.Range(-size.x * 0.5f, size.x * 0.5f),
-            UnityEngine.Random.Range(-size.y * 0.5f, size.y * 0.5f));
-
-        return transform.position + (Vector3)offset;
-    }
-
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireCube(transform.position, size);
-    }
-}
 
 public class SpawnedWorldActor : MonoBehaviour
 {
@@ -924,13 +904,13 @@ public class NpcHomeResident : MonoBehaviour
     {
         returningHome = true;
         PauseAi();
-        NpcRoleUtility.SetAction(gameObject, "Ve nha cu tru");
+        NpcRoleUtility.SetAction(gameObject, "Về nhà cư trú");
     }
 
     void MoveHome()
     {
         NpcRoleUtility.MoveTowards(gameObject, homePoint.position, fallbackMoveSpeed);
-        NpcRoleUtility.SetAction(gameObject, "Dang ve nha");
+        NpcRoleUtility.SetAction(gameObject, "Đang về nhà");
 
         if (Vector2.Distance(transform.position, homePoint.position) <= arriveDistance)
         {
@@ -961,7 +941,7 @@ public class NpcHomeResident : MonoBehaviour
         FinishRestAtHome();
         SetVisible(false);
         SetColliders(false);
-        NpcRoleUtility.SetAction(gameObject, "Da vao nha");
+        NpcRoleUtility.SetAction(gameObject, "Đã vào nhà");
     }
 
     void TryLeaveHome()
@@ -989,7 +969,7 @@ public class NpcHomeResident : MonoBehaviour
         SetVisible(true);
         SetColliders(true);
         ResumeAi();
-        NpcRoleUtility.SetAction(gameObject, "Ra khoi nha");
+        NpcRoleUtility.SetAction(gameObject, "Ra khỏi nhà");
     }
 
     void FinishRestAtHome()

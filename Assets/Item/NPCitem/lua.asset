@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
   m_Name: lua
   m_EditorClassIdentifier: Assembly-CSharp::StatItemData
-  itemName: Lua
-  description: Lua
+  itemName: Lúa
+  description: Lúa
   itemType: 4
   grade: 0
   validTargets: -1

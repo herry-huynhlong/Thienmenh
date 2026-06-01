@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
+  m_Name: Tu_Khi_Thao
+  m_EditorClassIdentifier: Assembly-CSharp::StatItemData
+  itemName: "T\u1EE5 Kh\xED Th\u1EA3o"
+  description: "Loại linh thảo phổ biến nhất trong giới tu tiên.\nSinh trưởng tại nơi có linh khí mỏng như ven suối, chân núi, rừng ngoài.\nBan ngày hấp thu ánh sáng mặt trời, ban đêm hấp thu linh khí thiên địa. Lá cây hơi phát sáng khi trời tối.\nCó thể ăn sống nhưng hiệu quả thấp, chỉ hấp thu khoảng 20% linh lực."
+  itemType: 2
+  grade: 0
+  validTargets: -1
+  price: 2500
+  icon: {fileID: -8622767131407422625, guid: 9413a8f717391eb4695d1a236826be7c, type: 3}
+  consumeOnUse: 1
+  useStyle: 0
+  conversionType: 0
+  canUseDirectly: 1
+  canBeSold: 1
+  canBeRefinedIntoPill: 1
+  canBeForgedIntoArtifact: 0
+  canBeStudied: 1
+  rawUseEfficiency: 0.2
+  useSuccessChance: 1
+  rawUsePolicy: 0
+  rawToxicityDamage: 0
+  npcIntent: 0
+  refineValueMultiplier: 1.5
+  sellValueMultiplier: 1
+  maxDurability: 0
+  durabilityLossPerUse: 1
+  breaksAtZero: 1
+  hpBonus: 0
+  cultivationBonus: 0
+  breakthroughRealm: 0
+  damageBonus: 0
+  armorBonus: 0
+  effectResistanceBonus: 0
+  canBeTaught: 0
+  studyProgressPerUse: 1
+  tieuThanhPower: 0.3
+  trungThanhPower: 0.6
+  daiThanhPower: 1
+  isTemporary: 0
+  duration: 10
+  modifiers: []

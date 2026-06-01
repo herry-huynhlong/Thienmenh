@@ -335,19 +335,19 @@ public class CharacterStats : MonoBehaviour, IDamageable
         switch (realm)
         {
             case CultivationRealm.Mortal:
-                return "Pham Nhan";
+                return "Phàm Nhân";
             case CultivationRealm.QiRefining:
-                return "Luyen Khi";
+                return "Luyện Khí";
             case CultivationRealm.Foundation:
-                return "Truc Co";
+                return "Trúc Cơ";
             case CultivationRealm.GoldenCore:
-                return "Kim Dan";
+                return "Kim Đan";
             case CultivationRealm.NascentSoul:
-                return "Nguyen Anh";
+                return "Nguyên Anh";
             case CultivationRealm.SoulFormation:
-                return "Hoa Than";
+                return "Hóa Thần";
             case CultivationRealm.Tribulation:
-                return "Do Kiep";
+                return "Độ Kiếp";
             default:
                 return realm.ToString();
         }

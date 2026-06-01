@@ -66,7 +66,7 @@ public static class NpcMapNavigator
 
         usingTeleportRoute = true;
         routeAction =
-            "Di cong dich chuyen den " +
+            "Đi cổng dịch chuyển đến " +
             GetZoneName(gate.toZone);
 
         return gate.EntryPosition;
@@ -167,11 +167,11 @@ public static class NpcMapNavigator
         switch (zone)
         {
             case NpcMapZone.VanBaoLau:
-                return "Van Bao Lau";
+                return "Vạn Bảo Lâu";
             case NpcMapZone.MaThuSonMach:
-                return "Ma Thu Son Mach";
+                return "Ma Thú Sơn Mạch";
             default:
-                return "Lang";
+                return "Làng";
         }
     }
 }

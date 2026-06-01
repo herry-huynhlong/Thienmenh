@@ -693,7 +693,7 @@ public class InventoryPanelUI : MonoBehaviour
 
         if (target == null)
         {
-            Debug.Log("Chua chon muc tieu phu hop de dung vat pham.");
+            Debug.Log("Chưa chọn mục tiêu phù hợp để dùng vật phẩm.");
             return;
         }
 
@@ -727,7 +727,7 @@ public class InventoryPanelUI : MonoBehaviour
         if (selectedTarget == null ||
             !CanReceiveItem(selectedTarget))
         {
-            Debug.Log("Chua chon NPC de phat vat pham.");
+            Debug.Log("Chưa chọn NPC để phát vật phẩm.");
             return;
         }
 
@@ -1369,7 +1369,7 @@ public class InventoryPanelUI : MonoBehaviour
 
         if (item.hpBonus != 0)
         {
-            builder.AppendLine("Mau +" + item.hpBonus);
+            builder.AppendLine("Máu +" + item.hpBonus);
         }
 
         if (item.cultivationBonus != 0)
@@ -1379,7 +1379,7 @@ public class InventoryPanelUI : MonoBehaviour
 
         if (item.breakthroughRealm)
         {
-            builder.AppendLine("Dot pha canh gioi");
+            builder.AppendLine("Đột phá cảnh giới");
         }
 
         if (item.damageBonus != 0)
@@ -1389,24 +1389,24 @@ public class InventoryPanelUI : MonoBehaviour
 
         if (item.armorBonus != 0)
         {
-            builder.AppendLine("Giap +" + item.armorBonus);
+            builder.AppendLine("Giáp +" + item.armorBonus);
         }
 
         if (item.effectResistanceBonus != 0)
         {
-            builder.AppendLine("Khang hieu ung +" + item.effectResistanceBonus);
+            builder.AppendLine("Kháng hiệu ứng +" + item.effectResistanceBonus);
         }
 
         if (item.isTemporary)
         {
-            builder.AppendLine("Thoi gian: " + item.duration + "s");
+            builder.AppendLine("Thời gian: " + item.duration + "s");
         }
 
         if (item.ConsumesWhenUsed() &&
             item.useSuccessChance < 0.999f)
         {
             builder.AppendLine(
-                "Xac suat: " +
+                "Xác suất: " +
                 Mathf.RoundToInt(item.useSuccessChance * 100f) +
                 "%");
         }
@@ -1414,7 +1414,7 @@ public class InventoryPanelUI : MonoBehaviour
         if (item.UsesDurability())
         {
             builder.AppendLine(
-                "Do ben: " +
+                "Độ bền: " +
                 stack.durability +
                 "/" +
                 stack.maxDurability);
@@ -1423,11 +1423,113 @@ public class InventoryPanelUI : MonoBehaviour
         if (item.itemType == ItemType.CongPhap)
         {
             builder.AppendLine(
-                "Linh ngo: " +
+                "Linh ngộ: " +
                 GetMasteryText(stack.mastery));
         }
 
+        AppendUseConversionText(builder, item);
+
         return builder.ToString();
+    }
+
+    void AppendUseConversionText(
+        StringBuilder builder,
+        StatItemData item)
+    {
+        builder.AppendLine(
+            "Cách dùng: " +
+            GetUseStyleText(item.GetResolvedUseStyle()));
+        builder.AppendLine(
+            "Dùng trực tiếp: " +
+            GetRawUsePolicyText(item.rawUsePolicy));
+
+        if (item.itemType == ItemType.VatLieu)
+        {
+            builder.AppendLine(
+                "Hiệu quả ăn sống: " +
+                Mathf.RoundToInt(item.rawUseEfficiency * 100f) +
+                "%");
+        }
+
+        if (item.rawToxicityDamage > 0)
+        {
+            builder.AppendLine(
+                "Độc tính: -" +
+                item.rawToxicityDamage +
+                " máu");
+        }
+
+        if (item.canBeRefinedIntoPill)
+        {
+            builder.AppendLine("Có thể luyện đan");
+        }
+
+        if (item.canBeForgedIntoArtifact)
+        {
+            builder.AppendLine("Có thể luyện khí");
+        }
+
+        if (item.itemType == ItemType.CongPhap &&
+            item.canBeStudied)
+        {
+            builder.AppendLine("Có thể nghiên cứu");
+        }
+
+        if (!item.canBeSold)
+        {
+            builder.AppendLine("Không thể bán");
+        }
+
+        builder.AppendLine(
+            "NPC ưu tiên: " +
+            GetNpcIntentText(item.npcIntent));
+    }
+
+    string GetUseStyleText(ItemUseStyle style)
+    {
+        switch (style)
+        {
+            case ItemUseStyle.Consumable:
+                return "Tiêu hao";
+            case ItemUseStyle.RawMaterial:
+                return "Vật liệu sống";
+            case ItemUseStyle.DurableEquipment:
+                return "Trang bị bền";
+            case ItemUseStyle.StudyManual:
+                return "Nghiên cứu";
+            default:
+                return "Tự động";
+        }
+    }
+
+    string GetRawUsePolicyText(RawUsePolicy policy)
+    {
+        switch (policy)
+        {
+            case RawUsePolicy.Risky:
+                return "Rủi ro";
+            case RawUsePolicy.Forbidden:
+                return "Cấm";
+            default:
+                return "Được";
+        }
+    }
+
+    string GetNpcIntentText(NpcItemIntent intent)
+    {
+        switch (intent)
+        {
+            case NpcItemIntent.PreferUseRaw:
+                return "Ăn sống";
+            case NpcItemIntent.PreferRefine:
+                return "Luyện đan";
+            case NpcItemIntent.PreferSell:
+                return "Bán";
+            case NpcItemIntent.Keep:
+                return "Giữ";
+            default:
+                return "Tự động";
+        }
     }
 
     string GetMasteryText(CultivationManualMastery mastery)
@@ -1435,13 +1537,13 @@ public class InventoryPanelUI : MonoBehaviour
         switch (mastery)
         {
             case CultivationManualMastery.TieuThanh:
-                return "Tieu Thanh";
+                return "Tiểu Thành";
             case CultivationManualMastery.TrungThanh:
-                return "Trung Thanh";
+                return "Trung Thành";
             case CultivationManualMastery.DaiThanh:
-                return "Dai Thanh";
+                return "Đại Thành";
             default:
-                return "Chua tu luyen";
+                return "Chưa tu luyện";
         }
     }
 
@@ -1450,13 +1552,13 @@ public class InventoryPanelUI : MonoBehaviour
         switch (itemType)
         {
             case ItemType.DanDuoc:
-                return "Dan Duoc";
+                return "Đan Dược";
             case ItemType.PhapBao:
-                return "Phap Bao";
+                return "Pháp Bảo";
             case ItemType.CongPhap:
-                return "Cong Phap";
+                return "Công Pháp";
             case ItemType.VatLieu:
-                return "Vat Lieu";
+                return "Vật Liệu";
             default:
                 return itemType.ToString();
         }
@@ -1467,13 +1569,13 @@ public class InventoryPanelUI : MonoBehaviour
         switch (grade)
         {
             case ItemGrade.Ha:
-                return "Ha";
+                return "Hạ";
             case ItemGrade.Trung:
                 return "Trung";
             case ItemGrade.Thuong:
-                return "Thuong";
+                return "Thường";
             case ItemGrade.Tien:
-                return "Tien";
+                return "Tiên";
             default:
                 return grade.ToString();
         }
@@ -1483,7 +1585,7 @@ public class InventoryPanelUI : MonoBehaviour
     {
         if (targetType == ItemTargetType.All)
         {
-            return "Tat Ca";
+            return "Tất Cả";
         }
 
         return targetType.ToString();

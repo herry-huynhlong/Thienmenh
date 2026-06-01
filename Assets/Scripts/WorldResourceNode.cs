@@ -166,7 +166,8 @@ public class WorldResourceNode : MonoBehaviour
 
     void SetVisualActive(bool active)
     {
-        if (renderers == null)
+        if (renderers == null ||
+            renderers.Length == 0)
         {
             CacheReferences();
         }
@@ -182,7 +183,8 @@ public class WorldResourceNode : MonoBehaviour
 
     void SetCollidersActive(bool active)
     {
-        if (colliders == null)
+        if (colliders == null ||
+            colliders.Length == 0)
         {
             CacheReferences();
         }
@@ -198,7 +200,8 @@ public class WorldResourceNode : MonoBehaviour
 
     void SetRendererAlpha(float alpha)
     {
-        if (renderers == null)
+        if (renderers == null ||
+            renderers.Length == 0)
         {
             CacheReferences();
         }

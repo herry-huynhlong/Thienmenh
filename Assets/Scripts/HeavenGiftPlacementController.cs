@@ -814,9 +814,9 @@ public class HeavenGiftPlacementController : MonoBehaviour
             GetHeavenGiftName(item);
 
         string message =
-            "Di tuong o " +
+            "Dị tượng ở " +
             locationName +
-            ", troi giang " +
+            ", trời giáng " +
             treasureName +
             ".";
 
@@ -838,17 +838,17 @@ public class HeavenGiftPlacementController : MonoBehaviour
         if (!activeScene.IsValid() ||
             string.IsNullOrEmpty(activeScene.name))
         {
-            return "khong gian";
+            return "không gian";
         }
 
         switch (activeScene.name)
         {
             case "Lang":
-                return "Lang";
+                return "Làng";
             case "TuuQuan":
-                return "Tuu Quan";
+                return "Tửu Quán";
             case "BenTau":
-                return "Ben Tau";
+                return "Bến Tàu";
             case "khurung":
                 return "Khu Rung";
             default:
@@ -864,17 +864,17 @@ public class HeavenGiftPlacementController : MonoBehaviour
         switch (item.itemType)
         {
             case ItemType.DanDuoc:
-                return gradeText + " Bao Dan";
+                return gradeText + " Bảo Đan";
             case ItemType.PhapBao:
-                return gradeText + " Phap Bao";
+                return gradeText + " Pháp Bảo";
             case ItemType.CongPhap:
-                return gradeText + " Cong Phap";
+                return gradeText + " Công Pháp";
             case ItemType.VatLieu:
-                return gradeText + " Linh Tai";
+                return gradeText + " Linh Tài";
             case ItemType.ThucPham:
-                return "Linh Thuc";
+                return "Linh Thực";
             default:
-                return gradeText + " Bao Vat";
+                return gradeText + " Bảo Vật";
         }
     }
 
@@ -883,13 +883,13 @@ public class HeavenGiftPlacementController : MonoBehaviour
         switch (grade)
         {
             case ItemGrade.Trung:
-                return "Trung pham";
+                return "Trung phẩm";
             case ItemGrade.Thuong:
-                return "Thuong pham";
+                return "Thượng phẩm";
             case ItemGrade.Tien:
-                return "Tien pham";
+                return "Tiên phẩm";
             default:
-                return "Ha pham";
+                return "Hạ phẩm";
         }
     }
 

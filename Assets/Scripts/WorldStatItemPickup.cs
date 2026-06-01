@@ -46,6 +46,18 @@ public class WorldStatItemPickup : MonoBehaviour
 
     public bool TryGiveToWorldActor(Collider2D other)
     {
+        if (item == null ||
+            other == null)
+        {
+            return false;
+        }
+
+        if (allowPlayerPickup &&
+            TryGiveToPlayer(other))
+        {
+            return true;
+        }
+
         if (!allowNpcPickup ||
             item == null ||
             other == null)
@@ -100,6 +112,36 @@ public class WorldStatItemPickup : MonoBehaviour
         return true;
     }
 
+    bool TryGiveToPlayer(Collider2D other)
+    {
+        Transform target =
+            GetPlayerTarget(other);
+
+        if (target == null)
+        {
+            return false;
+        }
+
+        StatItemData pickedItem = item;
+
+        if (!TryTake(1))
+        {
+            return false;
+        }
+
+        ItemInventory inventory =
+            target.GetComponent<ItemInventory>();
+
+        if (inventory == null)
+        {
+            inventory =
+                target.gameObject.AddComponent<ItemInventory>();
+        }
+
+        inventory.AddItem(pickedItem, 1);
+        return true;
+    }
+
     bool ShouldAutoUseOnPickup(StatItemData pickedItem)
     {
         if (pickedItem == null)
@@ -107,8 +149,7 @@ public class WorldStatItemPickup : MonoBehaviour
             return false;
         }
 
-        return pickedItem.itemType != ItemType.VatLieu &&
-            pickedItem.itemType != ItemType.ThucPham;
+        return pickedItem.ShouldNpcUseDirectly();
     }
 
     Transform GetWorldActorTarget(Collider2D other)
@@ -135,6 +176,32 @@ public class WorldStatItemPickup : MonoBehaviour
         if (monster != null)
         {
             return monster.transform;
+        }
+
+        return null;
+    }
+
+    Transform GetPlayerTarget(Collider2D other)
+    {
+        CharacterStats characterStats =
+            other.GetComponentInParent<CharacterStats>();
+
+        if (characterStats != null)
+        {
+            return characterStats.transform;
+        }
+
+        PlayerHealth player =
+            other.GetComponentInParent<PlayerHealth>();
+
+        if (player != null)
+        {
+            return player.transform;
+        }
+
+        if (other.CompareTag("Player"))
+        {
+            return other.transform;
         }
 
         return null;

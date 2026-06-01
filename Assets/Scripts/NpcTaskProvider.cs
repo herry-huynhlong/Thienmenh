@@ -38,7 +38,7 @@ public enum TavernMealStage
 [System.Serializable]
 public class NpcTaskOffer
 {
-    public string taskName = "Thu thap tai nguyen";
+    public string taskName = "Thu thập tài nguyên";
     public NpcTaskType taskType = NpcTaskType.GatherResource;
     public NpcTaskRank rank = NpcTaskRank.Ha;
     public CultivationRealm minRealm = CultivationRealm.QiRefining;
@@ -128,7 +128,7 @@ public class NpcTaskProvider : MonoBehaviour
     {
         new NpcTaskOffer
         {
-            taskName = "Thu thap linh thao ha pham",
+            taskName = "Thu thập linh thảo hạ phẩm",
             taskType = NpcTaskType.GatherResource,
             rank = NpcTaskRank.Ha,
             minRealm = CultivationRealm.QiRefining,
@@ -139,7 +139,7 @@ public class NpcTaskProvider : MonoBehaviour
         },
         new NpcTaskOffer
         {
-            taskName = "Tuan tra ngoai lang",
+            taskName = "Tuần tra ngoài làng",
             taskType = NpcTaskType.Patrol,
             rank = NpcTaskRank.Trung,
             minRealm = CultivationRealm.GoldenCore,
@@ -150,7 +150,7 @@ public class NpcTaskProvider : MonoBehaviour
         },
         new NpcTaskOffer
         {
-            taskName = "San yeu thu nguy hiem",
+            taskName = "Săn yêu thú nguy hiểm",
             taskType = NpcTaskType.HuntMonster,
             rank = NpcTaskRank.Thuong,
             minRealm = CultivationRealm.NascentSoul,
@@ -179,7 +179,7 @@ public class NpcTaskProvider : MonoBehaviour
             profession = gameObject.AddComponent<NpcSpecialProfession>();
         }
 
-        profession.professionName = "Quan Su Tuu Quan";
+        profession.professionName = "Quản Sự Tửu Quán";
     }
 
     void Update()
@@ -312,8 +312,8 @@ public class NpcTaskProvider : MonoBehaviour
         PauseBaseAi(meal);
         runningMeals.Add(meal);
 
-        NpcRoleUtility.SetAction(npc, "Hoi quan su de an uong");
-        NpcRoleUtility.SetAction(gameObject, "Chi dan khach vao khu an");
+        NpcRoleUtility.SetAction(npc, "Hỏi quản sự để ăn uống");
+        NpcRoleUtility.SetAction(gameObject, "Chỉ dẫn khách vào khu ăn");
     }
 
     void StartTaskRequest(GameObject npc, NpcTaskOffer offer)
@@ -337,11 +337,11 @@ public class NpcTaskProvider : MonoBehaviour
 
         NpcRoleUtility.SetAction(
             npc,
-            "Hoi quan su tim nhiem vu");
+            "Hỏi quản sự tìm nhiệm vụ");
 
         NpcRoleUtility.SetAction(
             gameObject,
-            "Chi bang nhiem vu cho khach");
+            "Chỉ bảng nhiệm vụ cho khách");
     }
 
     void UpdateMeals()
@@ -361,7 +361,7 @@ public class NpcTaskProvider : MonoBehaviour
             if (meal.stage == TavernMealStage.GoingToMealPoint)
             {
                 MoveNpc(meal.npc, meal.mealPosition);
-                NpcRoleUtility.SetAction(meal.npc, "Di toi khu an trong tuu quan");
+                NpcRoleUtility.SetAction(meal.npc, "Đi tới khu ăn trong tửu quán");
 
                 if (Vector2.Distance(
                         meal.npc.transform.position,
@@ -377,7 +377,7 @@ public class NpcTaskProvider : MonoBehaviour
             }
 
             meal.remainingTime -= Time.deltaTime;
-            NpcRoleUtility.SetAction(meal.npc, "Dang an uong tai tuu quan");
+            NpcRoleUtility.SetAction(meal.npc, "Đang ăn uống tại tửu quán");
 
             if (meal.remainingTime <= 0f)
             {
@@ -406,7 +406,7 @@ public class NpcTaskProvider : MonoBehaviour
                     MoveNpc(task.npc, task.counterPosition);
                     NpcRoleUtility.SetAction(
                         task.npc,
-                        "Den truong quay kiem tra mua ban");
+                        "Đến trường quay kiểm tra mua bán");
 
                     if (Vector2.Distance(
                             task.npc.transform.position,
@@ -422,7 +422,7 @@ public class NpcTaskProvider : MonoBehaviour
                     task.remainingTime -= Time.deltaTime;
                     NpcRoleUtility.SetAction(
                         task.npc,
-                        "Dang kiem tra mua ban tai truong quay");
+                        "Đang kiểm tra mua bán tại trường quay");
 
                     if (task.remainingTime <= 0f)
                     {
@@ -434,7 +434,7 @@ public class NpcTaskProvider : MonoBehaviour
                     MoveNpc(task.npc, task.boardPosition);
                     NpcRoleUtility.SetAction(
                         task.npc,
-                        "Xem bang nhiem vu " + GetRankText(task.offer.rank));
+                        "Xem bảng nhiệm vụ " + GetRankText(task.offer.rank));
 
                     if (Vector2.Distance(
                             task.npc.transform.position,
@@ -449,7 +449,7 @@ public class NpcTaskProvider : MonoBehaviour
                     task.remainingTime -= Time.deltaTime;
                     NpcRoleUtility.SetAction(
                         task.npc,
-                        "Chon nhiem vu " + GetRankText(task.offer.rank));
+                        "Chọn nhiệm vụ " + GetRankText(task.offer.rank));
 
                     if (task.remainingTime <= 0f)
                     {
@@ -461,7 +461,7 @@ public class NpcTaskProvider : MonoBehaviour
                     MoveNpc(task.npc, task.providerPosition);
                     NpcRoleUtility.SetAction(
                         task.npc,
-                        "Quay lai quan su nhan nhiem vu");
+                        "Quay lại quản sự nhận nhiệm vụ");
 
                     if (Vector2.Distance(
                             task.npc.transform.position,
@@ -469,7 +469,7 @@ public class NpcTaskProvider : MonoBehaviour
                     {
                         NpcRoleUtility.SetAction(
                             gameObject,
-                            "Giao nhiem vu " + GetRankText(task.offer.rank) + ": " + task.offer.taskName);
+                            "Giao nhiệm vụ " + GetRankText(task.offer.rank) + ": " + task.offer.taskName);
                         task.stage = TavernTaskStage.ReceivingTask;
                         task.remainingTime = Mathf.Max(3f, providerReceiveDuration);
                     }
@@ -479,7 +479,7 @@ public class NpcTaskProvider : MonoBehaviour
                     task.remainingTime -= Time.deltaTime;
                     NpcRoleUtility.SetAction(
                         task.npc,
-                        "Dang nhan nhiem vu " + GetRankText(task.offer.rank) + ": " + task.offer.taskName);
+                        "Đang nhận nhiệm vụ " + GetRankText(task.offer.rank) + ": " + task.offer.taskName);
 
                     if (task.remainingTime <= 0f)
                     {
@@ -491,7 +491,7 @@ public class NpcTaskProvider : MonoBehaviour
                     MoveNpc(task.npc, task.workPosition);
                     NpcRoleUtility.SetAction(
                         task.npc,
-                        "Di lam nhiem vu " + GetRankText(task.offer.rank) + ": " + task.offer.taskName);
+                        "Đi làm nhiệm vụ " + GetRankText(task.offer.rank) + ": " + task.offer.taskName);
 
                     if (Vector2.Distance(
                             task.npc.transform.position,
@@ -506,7 +506,7 @@ public class NpcTaskProvider : MonoBehaviour
                     task.remainingTime -= Time.deltaTime;
                     NpcRoleUtility.SetAction(
                         task.npc,
-                        "Dang lam nhiem vu " + GetRankText(task.offer.rank) + ": " + task.offer.taskName);
+                        "Đang làm nhiệm vụ " + GetRankText(task.offer.rank) + ": " + task.offer.taskName);
 
                     if (task.remainingTime <= 0f)
                     {
@@ -527,7 +527,7 @@ public class NpcTaskProvider : MonoBehaviour
             meal != null &&
             meal.npc != null)
         {
-            NpcRoleUtility.SetAction(meal.npc, "An uong xong tai tuu quan");
+            NpcRoleUtility.SetAction(meal.npc, "Ăn uống xong tại tửu quán");
         }
     }
 
@@ -633,15 +633,15 @@ public class NpcTaskProvider : MonoBehaviour
 
         NpcRoleUtility.SetAction(
             npc,
-            "Hoan thanh nhiem vu " + GetRankText(offer.rank) + ": " + offer.taskName);
+            "Hoàn thành nhiệm vụ " + GetRankText(offer.rank) + ": " + offer.taskName);
 
         if (WorldEventManager.Instance != null)
         {
             WorldEventManager.Instance.AddLog(
                 NpcRoleUtility.GetDisplayName(npc) +
-                " hoan thanh nhiem vu " +
+                " hoàn thành nhiệm vụ " +
                 offer.taskName +
-                ", nhan " +
+                ", nhận " +
                 offer.rewardSpiritStone +
                 " LT.",
                 0);
@@ -940,9 +940,9 @@ public class NpcTaskProvider : MonoBehaviour
             case NpcTaskRank.Trung:
                 return "Trung";
             case NpcTaskRank.Thuong:
-                return "Thuong";
+                return "Thường";
             default:
-                return "Ha";
+                return "Hạ";
         }
     }
 

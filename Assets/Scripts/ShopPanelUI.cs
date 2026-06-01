@@ -15,7 +15,7 @@ public class ShopPanelUI : MonoBehaviour
     [Header("Panel")]
     public GameObject panelRoot;
     public TMP_Text shopTitleText;
-    public string shopTitle = "Linh Duoc Duong";
+    public string shopTitle = "Linh Dược Đường";
     public bool closeWhenClickOutside = true;
 
     [Header("Items")]
@@ -191,22 +191,22 @@ public class ShopPanelUI : MonoBehaviour
 
     public void ShowDanDuoc()
     {
-        ShowCategory(ItemType.DanDuoc, "Linh Duoc Duong");
+        ShowCategory(ItemType.DanDuoc, "Linh Dược Đường");
     }
 
     public void ShowPhapBao()
     {
-        ShowCategory(ItemType.PhapBao, "Than Binh Cac");
+        ShowCategory(ItemType.PhapBao, "Thần Binh Các");
     }
 
     public void ShowCongPhap()
     {
-        ShowCategory(ItemType.CongPhap, "Cong Phap Tang");
+        ShowCategory(ItemType.CongPhap, "Công Pháp Tàng");
     }
 
     public void ShowVatLieu()
     {
-        ShowCategory(ItemType.VatLieu, "Thien Tai Cac");
+        ShowCategory(ItemType.VatLieu, "Thiên Tài Các");
     }
 
     public void ShowCategory(
@@ -1457,8 +1457,8 @@ public class ShopPanelUI : MonoBehaviour
                 canBuy
                 ? "Mua"
                 : canTrade
-                    ? "Khong du LT"
-                    : "Khong ban";
+                    ? "Không đủ LT"
+                    : "Không bán";
         }
     }
 
@@ -1480,7 +1480,7 @@ public class ShopPanelUI : MonoBehaviour
 
         if (item.hpBonus != 0)
         {
-            builder.AppendLine("Mau +" + item.hpBonus);
+            builder.AppendLine("Máu +" + item.hpBonus);
         }
 
         if (item.cultivationBonus != 0)
@@ -1490,7 +1490,7 @@ public class ShopPanelUI : MonoBehaviour
 
         if (item.breakthroughRealm)
         {
-            builder.AppendLine("Dot pha canh gioi");
+            builder.AppendLine("Đột phá cảnh giới");
         }
 
         if (item.damageBonus != 0)
@@ -1500,20 +1500,122 @@ public class ShopPanelUI : MonoBehaviour
 
         if (item.armorBonus != 0)
         {
-            builder.AppendLine("Giap +" + item.armorBonus);
+            builder.AppendLine("Giáp +" + item.armorBonus);
         }
 
         if (item.effectResistanceBonus != 0)
         {
-            builder.AppendLine("Khang hieu ung +" + item.effectResistanceBonus);
+            builder.AppendLine("Kháng hiệu ứng +" + item.effectResistanceBonus);
         }
 
         if (item.isTemporary)
         {
-            builder.AppendLine("Thoi gian: " + item.duration + "s");
+            builder.AppendLine("Thời gian: " + item.duration + "s");
         }
 
+        AppendUseConversionText(builder, item);
+
         return builder.ToString();
+    }
+
+    void AppendUseConversionText(
+        StringBuilder builder,
+        StatItemData item)
+    {
+        builder.AppendLine(
+            "Cách dùng: " +
+            GetUseStyleText(item.GetResolvedUseStyle()));
+        builder.AppendLine(
+            "Dùng trực tiếp: " +
+            GetRawUsePolicyText(item.rawUsePolicy));
+
+        if (item.itemType == ItemType.VatLieu)
+        {
+            builder.AppendLine(
+                "Hiệu quả ăn sống: " +
+                Mathf.RoundToInt(item.rawUseEfficiency * 100f) +
+                "%");
+        }
+
+        if (item.rawToxicityDamage > 0)
+        {
+            builder.AppendLine(
+                "Độc tính: -" +
+                item.rawToxicityDamage +
+                " máu");
+        }
+
+        if (item.canBeRefinedIntoPill)
+        {
+            builder.AppendLine("Có thể luyện đan");
+        }
+
+        if (item.canBeForgedIntoArtifact)
+        {
+            builder.AppendLine("Có thể luyện khí");
+        }
+
+        if (item.itemType == ItemType.CongPhap &&
+            item.canBeStudied)
+        {
+            builder.AppendLine("Có thể nghiên cứu");
+        }
+
+        if (!item.canBeSold)
+        {
+            builder.AppendLine("Không thể bán");
+        }
+
+        builder.AppendLine(
+            "NPC ưu tiên: " +
+            GetNpcIntentText(item.npcIntent));
+    }
+
+    string GetUseStyleText(ItemUseStyle style)
+    {
+        switch (style)
+        {
+            case ItemUseStyle.Consumable:
+                return "Tiêu hao";
+            case ItemUseStyle.RawMaterial:
+                return "Vật liệu sống";
+            case ItemUseStyle.DurableEquipment:
+                return "Trang bị bền";
+            case ItemUseStyle.StudyManual:
+                return "Nghiên cứu";
+            default:
+                return "Tự động";
+        }
+    }
+
+    string GetRawUsePolicyText(RawUsePolicy policy)
+    {
+        switch (policy)
+        {
+            case RawUsePolicy.Risky:
+                return "Rủi ro";
+            case RawUsePolicy.Forbidden:
+                return "Cấm";
+            default:
+                return "Được";
+        }
+    }
+
+    string GetNpcIntentText(NpcItemIntent intent)
+    {
+        switch (intent)
+        {
+            case NpcItemIntent.PreferUseRaw:
+                return "Ăn sống";
+            case NpcItemIntent.PreferRefine:
+                return "Luyện đan";
+            case NpcItemIntent.PreferSell:
+                return "Bán";
+            case NpcItemIntent.Keep:
+                return "Giữ";
+            default:
+                return "Tự động";
+        }
     }
 
     string GetTypeText(ItemType itemType)
@@ -1521,13 +1623,13 @@ public class ShopPanelUI : MonoBehaviour
         switch (itemType)
         {
             case ItemType.DanDuoc:
-                return "Dan Duoc";
+                return "Đan Dược";
             case ItemType.PhapBao:
-                return "Phap Bao";
+                return "Pháp Bảo";
             case ItemType.CongPhap:
-                return "Cong Phap";
+                return "Công Pháp";
             case ItemType.VatLieu:
-                return "Vat Lieu";
+                return "Vật Liệu";
             default:
                 return itemType.ToString();
         }
@@ -1538,13 +1640,13 @@ public class ShopPanelUI : MonoBehaviour
         switch (grade)
         {
             case ItemGrade.Ha:
-                return "Ha";
+                return "Hạ";
             case ItemGrade.Trung:
                 return "Trung";
             case ItemGrade.Thuong:
-                return "Thuong";
+                return "Thường";
             case ItemGrade.Tien:
-                return "Tien";
+                return "Tiên";
             default:
                 return grade.ToString();
         }
@@ -1554,7 +1656,7 @@ public class ShopPanelUI : MonoBehaviour
     {
         if (targetType == ItemTargetType.All)
         {
-            return "Tat Ca";
+            return "Tất Cả";
         }
 
         return targetType.ToString();

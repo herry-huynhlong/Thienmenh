@@ -86,13 +86,20 @@ public class WorldResourceField : MonoBehaviour
     [ContextMenu("Spawn Initial Resources")]
     public void SpawnInitialResources()
     {
-        if (skipSpawnWhenResourcesExist &&
-            GetComponentsInChildren<WorldStatItemPickup>(true).Length > 0)
+        int existingResourceCount =
+            GetComponentsInChildren<WorldStatItemPickup>(true).Length;
+
+        int spawnCount =
+            skipSpawnWhenResourcesExist
+            ? Mathf.Max(0, initialSpawnCount - existingResourceCount)
+            : initialSpawnCount;
+
+        if (spawnCount <= 0)
         {
             return;
         }
 
-        for (int i = 0; i < initialSpawnCount; i++)
+        for (int i = 0; i < spawnCount; i++)
         {
             SpawnResource();
         }
@@ -115,10 +122,18 @@ public class WorldResourceField : MonoBehaviour
             region = GetComponent<SpawnRegion>();
         }
 
+        if (region == null ||
+            region.size == Vector2.zero)
+        {
+            Debug.LogWarning(
+                name +
+                ": WorldResourceField cần SpawnRegion có Size lớn hơn 0 để spawn tài nguyên.",
+                this);
+            return null;
+        }
+
         Vector3 position =
-            region != null
-            ? region.RandomPoint()
-            : transform.position;
+            region.RandomPoint();
 
         GameObject resourceObject =
             resourcePrefab != null

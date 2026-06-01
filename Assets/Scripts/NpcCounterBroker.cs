@@ -135,6 +135,11 @@ public class NpcCounterBroker : MonoBehaviour
         buyer.AddMoney(-priceToPay);
         AddBrokerMoney(priceToPay);
         buyer.ReceiveBoughtItem(itemToSell);
+        NpcSocialEventBus.PublishTradeCompleted(
+            buyer.gameObject,
+            gameObject,
+            itemToSell,
+            priceToPay);
 
         ItemLifecycleSystem.Notify(
             ItemLifecycleEventType.Sold,
@@ -210,6 +215,11 @@ public class NpcCounterBroker : MonoBehaviour
             AddBrokerMoney(-totalPrice);
             seller.money += totalPrice;
             inventory.AddItem(stack.item, amount);
+            NpcSocialEventBus.PublishTradeCompleted(
+                gameObject,
+                seller.gameObject,
+                stack.item,
+                totalPrice);
 
             ItemLifecycleSystem.Notify(
                 ItemLifecycleEventType.Sold,
@@ -261,6 +271,11 @@ public class NpcCounterBroker : MonoBehaviour
             AddBrokerMoney(-price);
             seller.AddMoney(price);
             inventory.AddItem(stack.item, 1);
+            NpcSocialEventBus.PublishTradeCompleted(
+                gameObject,
+                seller.gameObject,
+                stack.item,
+                price);
 
             return true;
         }
@@ -347,6 +362,14 @@ public class NpcCounterBroker : MonoBehaviour
         else if (item.itemType == ItemType.CongPhap)
         {
             score += 2f;
+        }
+        score += Mathf.Max(
+            item.GetNpcUseScore(),
+            item.GetNpcConversionScore() * 0.2f);
+
+        if (item.ShouldNpcPreferSell())
+        {
+            score *= 0.5f;
         }
 
         float wealthRatio =

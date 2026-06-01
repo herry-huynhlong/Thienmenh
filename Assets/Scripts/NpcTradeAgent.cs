@@ -161,6 +161,11 @@ public class NpcTradeAgent : MonoBehaviour
         AddMoney(-priceToPay);
         seller.AddMoney(priceToPay);
         ReceiveBoughtItem(itemToBuy);
+        NpcSocialEventBus.PublishTradeCompleted(
+            gameObject,
+            seller.gameObject,
+            itemToBuy,
+            priceToPay);
 
         return true;
     }
@@ -229,6 +234,11 @@ public class NpcTradeAgent : MonoBehaviour
             AddMoney(-totalPrice);
             seller.money += totalPrice;
             inventory.AddItem(stack.item, amount);
+            NpcSocialEventBus.PublishTradeCompleted(
+                gameObject,
+                seller.gameObject,
+                stack.item,
+                totalPrice);
             ItemLifecycleSystem.Notify(
                 ItemLifecycleEventType.Sold,
                 stack.item,
@@ -340,6 +350,14 @@ public class NpcTradeAgent : MonoBehaviour
         else if (item.itemType == ItemType.CongPhap)
         {
             score += 2f;
+        }
+        score += Mathf.Max(
+            item.GetNpcUseScore(),
+            item.GetNpcConversionScore() * 0.2f);
+
+        if (item.ShouldNpcPreferSell())
+        {
+            score *= 0.5f;
         }
 
         float wealthRatio =

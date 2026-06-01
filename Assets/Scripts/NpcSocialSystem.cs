@@ -1,0 +1,1843 @@
+using System;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+
+public class NpcSocialSystem : MonoBehaviour
+{
+    [ContextMenu("Install Social System For Scene NPCs")]
+    public void InstallForSceneNpcs()
+    {
+        NpcSocialWorldInstaller installer =
+            NpcSocialWorldInstaller.Instance;
+
+        if (installer == null)
+        {
+            GameObject installerObject =
+                new GameObject("NpcSocialWorldInstaller");
+
+            installer =
+                installerObject.AddComponent<NpcSocialWorldInstaller>();
+        }
+
+        installer.InstallForSceneNpcs();
+    }
+}
+
+public enum NpcMemoryType
+{
+    Greeting,
+    Conversation,
+    ResourceRumor,
+    TradeOffer,
+    TradeCompleted,
+    TradeRejected,
+    Theft,
+    Attack,
+    Help,
+    Alliance,
+    Warning
+}
+
+public enum NpcDecisionKind
+{
+    None,
+    Work,
+    Rest,
+    Socialize,
+    Trade,
+    GatherResource,
+    Study,
+    Rob,
+    Revenge,
+    Ally,
+    Flee
+}
+
+[Serializable]
+public class NpcMemoryRecord
+{
+    public NpcMemoryType type;
+    public string subjectId;
+    public string targetId;
+    public string topic;
+    public string itemName;
+    public string locationName;
+    public int worldDay;
+    public float worldHour;
+    public float importance = 1f;
+    public float confidence = 1f;
+    public bool resolved;
+    public int expiryDay = -1;
+}
+
+[Serializable]
+public class NpcSocialRelationship
+{
+    public string targetId;
+    [Range(-100, 100)] public int affection;
+    [Range(-100, 100)] public int trust;
+    [Range(0, 100)] public int fear;
+    [Range(0, 100)] public int grudge;
+    [Range(-100, 100)] public int debt;
+    [Range(-100, 100)] public int respect;
+    [Range(0, 100)] public int alliance;
+    [Range(0, 100)] public int hostility;
+    public int lastInteractionDay = -1;
+    public string lastTopic;
+}
+
+[CreateAssetMenu(
+    fileName = "NpcConversationProfile",
+    menuName = "ThienMenh/NPC Conversation Profile")]
+public class NpcConversationProfile : ScriptableObject
+{
+    public string[] greetings =
+    {
+        "Hôm nay đạo hữu định đi đâu?",
+        "Gần đây có nghe tin gì không?",
+        "Linh khí hôm nay có vẻ yên ổn."
+    };
+
+    public string[] replies =
+    {
+        "Ta cũng chỉ đang xem tình hình.",
+        "Chưa có gì chắc chắn, để ta nghe ngóng thêm.",
+        "Nếu có tin mới ta sẽ báo ngươi."
+    };
+
+    public string[] resourceRumors =
+    {
+        "Hôm qua nghe nói ven suối có linh thảo.",
+        "Chân núi có vài cây linh dược mới mọc.",
+        "Rừng ngoài gần đây có dấu linh khí tụ lại."
+    };
+
+    public string[] tradeLines =
+    {
+        "Giá này có thể thương lượng một chút.",
+        "Hàng tốt thì không nên ép giá quá thấp.",
+        "Nếu mua bán công bằng, lần sau ta còn tìm ngươi."
+    };
+
+    public string[] hostileLines =
+    {
+        "Ta vẫn nhớ chuyện lần trước.",
+        "Đừng tưởng ta đã quên món nợ đó.",
+        "Nếu còn ép người quá đáng, ta sẽ không nhịn nữa."
+    };
+
+    public string[] friendlyFollowUps =
+    {
+        "Hôm qua ngươi nói chuyện đó, nay thế nào rồi?",
+        "Tin lần trước ngươi kể có đúng không?",
+        "Việc hôm qua đã xử lý xong chưa?"
+    };
+}
+
+public static class NpcSocialEventBus
+{
+    public static event Action<GameObject, GameObject, StatItemData, int> TradeCompleted;
+    public static event Action<GameObject, GameObject, string> RumorShared;
+    public static event Action<GameObject, GameObject, int> HostilityHappened;
+    public static event Action<GameObject, GameObject, int, Vector3, string> HostilityDetailedHappened;
+
+    public static void PublishTradeCompleted(
+        GameObject buyer,
+        GameObject seller,
+        StatItemData item,
+        int price)
+    {
+        if (buyer == null || seller == null || item == null)
+        {
+            return;
+        }
+
+        TradeCompleted?.Invoke(buyer, seller, item, price);
+    }
+
+    public static void PublishRumorShared(
+        GameObject speaker,
+        GameObject listener,
+        string topic)
+    {
+        if (speaker == null || listener == null || string.IsNullOrEmpty(topic))
+        {
+            return;
+        }
+
+        RumorShared?.Invoke(speaker, listener, topic);
+    }
+
+    public static void PublishHostility(
+        GameObject actor,
+        GameObject target,
+        int severity)
+    {
+        if (actor == null || target == null)
+        {
+            return;
+        }
+
+        int clampedSeverity =
+            Mathf.Clamp(severity, 1, 100);
+
+        HostilityHappened?.Invoke(actor, target, clampedSeverity);
+        HostilityDetailedHappened?.Invoke(
+            actor,
+            target,
+            clampedSeverity,
+            target.transform.position,
+            "xung đột");
+    }
+
+    public static void PublishHostility(
+        GameObject actor,
+        GameObject target,
+        int severity,
+        Vector3 position,
+        string reason)
+    {
+        if (actor == null || target == null)
+        {
+            return;
+        }
+
+        int clampedSeverity =
+            Mathf.Clamp(severity, 1, 100);
+
+        HostilityHappened?.Invoke(actor, target, clampedSeverity);
+        HostilityDetailedHappened?.Invoke(
+            actor,
+            target,
+            clampedSeverity,
+            position,
+            string.IsNullOrEmpty(reason) ? "xung đột" : reason);
+    }
+}
+
+public class NpcIdentity : MonoBehaviour
+{
+    public string socialId;
+    public string displayName;
+    public string faction = "Dân cư";
+
+    void Awake()
+    {
+        Refresh();
+    }
+
+    public void Refresh()
+    {
+        displayName = NpcRoleUtility.GetDisplayName(gameObject);
+
+        if (string.IsNullOrEmpty(displayName))
+        {
+            displayName = name;
+        }
+
+        if (string.IsNullOrEmpty(socialId))
+        {
+            socialId = gameObject.scene.name + ":" + displayName + ":" + GetInstanceID();
+        }
+    }
+}
+
+public class NpcNeeds : MonoBehaviour
+{
+    [Range(0, 100)] public float hunger;
+    [Range(0, 100)] public float fatigue;
+    [Range(0, 100)] public float social;
+    [Range(0, 100)] public float moneyNeed;
+    [Range(0, 100)] public float cultivationNeed;
+    [Range(0, 100)] public float safetyNeed;
+    [Range(0, 100)] public float resourceNeed;
+    public float updateInterval = 5f;
+
+    float timer;
+
+    void Awake()
+    {
+        SyncFromExistingAi();
+        timer = UnityEngine.Random.Range(0f, updateInterval);
+    }
+
+    void Update()
+    {
+        timer -= Time.deltaTime;
+
+        if (timer > 0f)
+        {
+            return;
+        }
+
+        timer = updateInterval;
+        TickNeeds();
+    }
+
+    void SyncFromExistingAi()
+    {
+        VillagerAI villager = GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            hunger = villager.hunger;
+            fatigue = villager.fatigue;
+            social = Mathf.Clamp(100f - villager.fun, 0f, 100f);
+            moneyNeed = Mathf.Clamp(80f - villager.money, 0f, 100f);
+            return;
+        }
+
+        SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            hunger = smartNpc.hunger;
+            fatigue = smartNpc.fatigue;
+            moneyNeed = Mathf.Clamp(120f - smartNpc.money, 0f, 100f);
+            cultivationNeed = smartNpc.canCultivate ? 55f : 0f;
+        }
+    }
+
+    void TickNeeds()
+    {
+        hunger = Mathf.Clamp(hunger + UnityEngine.Random.Range(0.5f, 2f), 0f, 100f);
+        fatigue = Mathf.Clamp(fatigue + UnityEngine.Random.Range(0.2f, 1.5f), 0f, 100f);
+        social = Mathf.Clamp(social + UnityEngine.Random.Range(0.5f, 2.5f), 0f, 100f);
+        moneyNeed = Mathf.Clamp(moneyNeed + UnityEngine.Random.Range(-1f, 1.5f), 0f, 100f);
+        cultivationNeed = Mathf.Clamp(cultivationNeed + UnityEngine.Random.Range(0f, 1.2f), 0f, 100f);
+        resourceNeed = Mathf.Clamp(resourceNeed + UnityEngine.Random.Range(-0.5f, 1.2f), 0f, 100f);
+        safetyNeed = Mathf.Clamp(safetyNeed - 0.5f, 0f, 100f);
+    }
+}
+
+public class NpcPersonality : MonoBehaviour
+{
+    [Range(0, 100)] public int sociability = 50;
+    [Range(0, 100)] public int greed = 30;
+    [Range(0, 100)] public int aggression = 20;
+    [Range(0, 100)] public int caution = 40;
+    [Range(0, 100)] public int loyalty = 40;
+    [Range(0, 100)] public int curiosity = 45;
+
+    void Awake()
+    {
+        VillagerAI villager = GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            sociability = villager.sociability;
+            greed = villager.greed;
+            aggression = Mathf.Clamp(100 - villager.bravery, 0, 100);
+            caution = Mathf.Clamp(100 - villager.bravery + 20, 0, 100);
+            return;
+        }
+
+        SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            sociability = smartNpc.canMakeFriends ? 55 : 15;
+            greed = smartNpc.greed;
+            aggression = smartNpc.canKillOthers ? Mathf.Clamp(smartNpc.bravery, 0, 100) : 5;
+            caution = Mathf.Clamp(100 - smartNpc.bravery, 0, 100);
+            loyalty = smartNpc.kindness;
+        }
+    }
+}
+
+public class NpcRelationshipGraph : MonoBehaviour
+{
+    public List<NpcSocialRelationship> relationships =
+        new List<NpcSocialRelationship>();
+
+    public NpcSocialRelationship Get(GameObject target)
+    {
+        NpcIdentity identity = target != null
+            ? target.GetComponent<NpcIdentity>()
+            : null;
+
+        return identity != null ? Get(identity.socialId) : null;
+    }
+
+    public NpcSocialRelationship Get(string targetId)
+    {
+        if (string.IsNullOrEmpty(targetId))
+        {
+            return null;
+        }
+
+        for (int i = 0; i < relationships.Count; i++)
+        {
+            if (relationships[i].targetId == targetId)
+            {
+                return relationships[i];
+            }
+        }
+
+        NpcSocialRelationship relationship =
+            new NpcSocialRelationship
+            {
+                targetId = targetId
+            };
+
+        relationships.Add(relationship);
+        return relationship;
+    }
+
+    public void AddSocial(
+        GameObject target,
+        int affection,
+        int trust,
+        string topic)
+    {
+        NpcSocialRelationship relationship = Get(target);
+        if (relationship == null)
+        {
+            return;
+        }
+
+        relationship.affection = Mathf.Clamp(relationship.affection + affection, -100, 100);
+        relationship.trust = Mathf.Clamp(relationship.trust + trust, -100, 100);
+        relationship.lastInteractionDay = NpcSocialTime.Day;
+        relationship.lastTopic = topic;
+    }
+
+    public void AddTrade(GameObject target, int trustDelta)
+    {
+        NpcSocialRelationship relationship = Get(target);
+        if (relationship == null)
+        {
+            return;
+        }
+
+        relationship.trust = Mathf.Clamp(relationship.trust + trustDelta, -100, 100);
+        relationship.respect = Mathf.Clamp(relationship.respect + Mathf.Max(0, trustDelta), -100, 100);
+        relationship.lastInteractionDay = NpcSocialTime.Day;
+        relationship.lastTopic = "buôn bán";
+    }
+
+    public void AddHostility(GameObject target, int amount)
+    {
+        NpcSocialRelationship relationship = Get(target);
+        if (relationship == null)
+        {
+            return;
+        }
+
+        relationship.grudge = Mathf.Clamp(relationship.grudge + amount, 0, 100);
+        relationship.hostility = Mathf.Clamp(relationship.hostility + amount, 0, 100);
+        relationship.trust = Mathf.Clamp(relationship.trust - amount, -100, 100);
+        relationship.affection = Mathf.Clamp(relationship.affection - amount, -100, 100);
+        relationship.lastInteractionDay = NpcSocialTime.Day;
+        relationship.lastTopic = "xung đột";
+    }
+}
+
+public class NpcMemory : MonoBehaviour
+{
+    public int maxMemories = 50;
+    public List<NpcMemoryRecord> memories =
+        new List<NpcMemoryRecord>();
+
+    void OnEnable()
+    {
+        NpcSocialEventBus.TradeCompleted += HandleTradeCompleted;
+        NpcSocialEventBus.RumorShared += HandleRumorShared;
+        NpcSocialEventBus.HostilityHappened += HandleHostility;
+    }
+
+    void OnDisable()
+    {
+        NpcSocialEventBus.TradeCompleted -= HandleTradeCompleted;
+        NpcSocialEventBus.RumorShared -= HandleRumorShared;
+        NpcSocialEventBus.HostilityHappened -= HandleHostility;
+    }
+
+    public void Remember(
+        NpcMemoryType type,
+        GameObject subject,
+        GameObject target,
+        string topic,
+        float importance,
+        float confidence,
+        int durationDays)
+    {
+        NpcIdentity subjectIdentity = subject != null
+            ? subject.GetComponent<NpcIdentity>()
+            : null;
+        NpcIdentity targetIdentity = target != null
+            ? target.GetComponent<NpcIdentity>()
+            : null;
+
+        memories.Add(
+            new NpcMemoryRecord
+            {
+                type = type,
+                subjectId = subjectIdentity != null ? subjectIdentity.socialId : "",
+                targetId = targetIdentity != null ? targetIdentity.socialId : "",
+                topic = topic,
+                worldDay = NpcSocialTime.Day,
+                worldHour = NpcSocialTime.Hour,
+                importance = Mathf.Max(0f, importance),
+                confidence = Mathf.Clamp01(confidence),
+                expiryDay = durationDays > 0 ? NpcSocialTime.Day + durationDays : -1
+            });
+
+        Prune();
+    }
+
+    public NpcMemoryRecord FindUnresolvedTopicWith(GameObject other)
+    {
+        NpcIdentity identity = other != null
+            ? other.GetComponent<NpcIdentity>()
+            : null;
+
+        if (identity == null)
+        {
+            return null;
+        }
+
+        for (int i = memories.Count - 1; i >= 0; i--)
+        {
+            NpcMemoryRecord memory = memories[i];
+            if (memory == null ||
+                memory.resolved ||
+                string.IsNullOrEmpty(memory.topic))
+            {
+                continue;
+            }
+
+            if (memory.subjectId == identity.socialId ||
+                memory.targetId == identity.socialId)
+            {
+                return memory;
+            }
+        }
+
+        return null;
+    }
+
+    public bool HasRecentTopic(string otherId, string topic, int withinDays)
+    {
+        if (string.IsNullOrEmpty(topic))
+        {
+            return false;
+        }
+
+        int minDay = NpcSocialTime.Day - Mathf.Max(0, withinDays);
+        for (int i = memories.Count - 1; i >= 0; i--)
+        {
+            NpcMemoryRecord memory = memories[i];
+            if (memory == null ||
+                memory.worldDay < minDay)
+            {
+                continue;
+            }
+
+            if (memory.topic == topic &&
+                (memory.subjectId == otherId || memory.targetId == otherId))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void Prune()
+    {
+        for (int i = memories.Count - 1; i >= 0; i--)
+        {
+            NpcMemoryRecord memory = memories[i];
+            if (memory == null ||
+                (memory.expiryDay >= 0 && memory.expiryDay < NpcSocialTime.Day))
+            {
+                memories.RemoveAt(i);
+            }
+        }
+
+        memories.Sort(
+            (a, b) =>
+                b.importance.CompareTo(a.importance));
+
+        while (memories.Count > maxMemories)
+        {
+            memories.RemoveAt(memories.Count - 1);
+        }
+    }
+
+    void HandleTradeCompleted(
+        GameObject buyer,
+        GameObject seller,
+        StatItemData item,
+        int price)
+    {
+        if (buyer != gameObject && seller != gameObject)
+        {
+            return;
+        }
+
+        GameObject other = buyer == gameObject ? seller : buyer;
+        string itemName = item != null ? item.itemName : "vật phẩm";
+        Remember(
+            NpcMemoryType.TradeCompleted,
+            other,
+            gameObject,
+            "Giao dịch " + itemName + " giá " + price + " LT",
+            2f,
+            1f,
+            12);
+    }
+
+    void HandleRumorShared(GameObject speaker, GameObject listener, string topic)
+    {
+        if (speaker != gameObject && listener != gameObject)
+        {
+            return;
+        }
+
+        GameObject other = speaker == gameObject ? listener : speaker;
+        Remember(
+            NpcMemoryType.ResourceRumor,
+            other,
+            gameObject,
+            topic,
+            3f,
+            0.75f,
+            8);
+    }
+
+    void HandleHostility(GameObject actor, GameObject target, int severity)
+    {
+        if (actor != gameObject && target != gameObject)
+        {
+            return;
+        }
+
+        GameObject other = actor == gameObject ? target : actor;
+        Remember(
+            NpcMemoryType.Attack,
+            other,
+            gameObject,
+            "xung đột",
+            severity * 0.1f,
+            1f,
+            60);
+    }
+}
+
+public class NpcOverheadDialogueUI : MonoBehaviour
+{
+    public Vector3 offset = new Vector3(0f, 1.25f, 0f);
+    public float defaultDuration = 3f;
+    public int sortingOrder = 50;
+    public float fontSize = 2.4f;
+    public Color textColor = Color.white;
+    public Color outlineColor = Color.black;
+    public float outlineWidth = 0.2f;
+
+    TextMeshPro text;
+    float hideAt;
+
+    void Awake()
+    {
+        EnsureText();
+        Hide();
+    }
+
+    void LateUpdate()
+    {
+        if (text == null)
+        {
+            return;
+        }
+
+        text.transform.position = transform.position + offset;
+
+        Camera camera = Camera.main;
+        if (camera != null)
+        {
+            text.transform.rotation = camera.transform.rotation;
+        }
+
+        if (text.gameObject.activeSelf && Time.time >= hideAt)
+        {
+            Hide();
+        }
+    }
+
+    public void ShowLine(string line)
+    {
+        ShowLine(line, defaultDuration);
+    }
+
+    public void ShowLine(string line, float duration)
+    {
+        if (string.IsNullOrEmpty(line))
+        {
+            Hide();
+            return;
+        }
+
+        EnsureText();
+        text.text = line;
+        text.gameObject.SetActive(true);
+        hideAt = Time.time + Mathf.Max(0.2f, duration);
+    }
+
+    public void Hide()
+    {
+        if (text != null)
+        {
+            text.gameObject.SetActive(false);
+        }
+    }
+
+    void EnsureText()
+    {
+        if (text != null)
+        {
+            return;
+        }
+
+        GameObject textObject = new GameObject("OverheadDialogue");
+        textObject.transform.SetParent(transform, false);
+        text = textObject.AddComponent<TextMeshPro>();
+        text.alignment = TextAlignmentOptions.Center;
+        text.fontSize = fontSize;
+        text.color = textColor;
+        text.outlineColor = outlineColor;
+        text.outlineWidth = outlineWidth;
+        text.enableWordWrapping = true;
+        text.rectTransform.sizeDelta = new Vector2(4.5f, 1.4f);
+
+        MeshRenderer renderer = text.GetComponent<MeshRenderer>();
+        if (renderer != null)
+        {
+            renderer.sortingOrder = sortingOrder;
+        }
+    }
+}
+
+public class NpcConversationSession
+{
+    public NpcConversationAgent first;
+    public NpcConversationAgent second;
+    public string topic;
+    public float endTime;
+    public float lockStrength;
+    public bool canBecomeGroup;
+
+    public bool Contains(NpcConversationAgent agent)
+    {
+        return agent != null && (agent == first || agent == second);
+    }
+}
+
+public class NpcConversationAgent : MonoBehaviour
+{
+    static readonly List<NpcConversationSession> sessions =
+        new List<NpcConversationSession>();
+
+    public NpcConversationProfile profile;
+    public float scanRadius = 1.4f;
+    public LayerMask npcLayers = ~0;
+    public float scanInterval = 2f;
+    public float conversationCooldown = 12f;
+    public float conversationDuration = 3.5f;
+    public float interruptThreshold = 80f;
+    public float defaultLockStrength = 45f;
+    public bool allowGroupConversation = true;
+
+    NpcIdentity identity;
+    NpcMemory memory;
+    NpcRelationshipGraph relationships;
+    NpcOverheadDialogueUI overhead;
+    NpcPersonality personality;
+    float scanTimer;
+    float nextConversationTime;
+    NpcConversationSession activeSession;
+
+    public bool IsBusyTalking =>
+        activeSession != null &&
+        Time.time < activeSession.endTime;
+
+    void Awake()
+    {
+        EnsureReferences();
+        DisableLegacyConversation();
+        scanTimer = UnityEngine.Random.Range(0f, scanInterval);
+    }
+
+    void Update()
+    {
+        CleanupSessions();
+
+        if (activeSession != null && Time.time >= activeSession.endTime)
+        {
+            activeSession = null;
+        }
+
+        scanTimer -= Time.deltaTime;
+        if (scanTimer > 0f)
+        {
+            return;
+        }
+
+        scanTimer = scanInterval + UnityEngine.Random.Range(0f, 1.5f);
+        TryFindConversation();
+    }
+
+    public bool TryStartConversation(NpcConversationAgent other, bool force)
+    {
+        EnsureReferences();
+
+        if (other == null ||
+            other == this ||
+            NpcRoleUtility.IsDead(gameObject) ||
+            NpcRoleUtility.IsDead(other.gameObject))
+        {
+            return false;
+        }
+
+        other.EnsureReferences();
+
+        if (!force &&
+            (Time.time < nextConversationTime ||
+            Time.time < other.nextConversationTime))
+        {
+            return false;
+        }
+
+        if (IsBusyTalking && !CanInterrupt(other))
+        {
+            return false;
+        }
+
+        if (other.IsBusyTalking && !other.CanInterrupt(this))
+        {
+            return false;
+        }
+
+        string topic = PickTopic(other);
+        string myLine = BuildLineFor(other, topic, true);
+        string otherLine = other.BuildLineFor(this, topic, false);
+
+        NpcConversationSession session =
+            new NpcConversationSession
+            {
+                first = this,
+                second = other,
+                topic = topic,
+                endTime = Time.time + conversationDuration,
+                lockStrength = defaultLockStrength,
+                canBecomeGroup = allowGroupConversation && other.allowGroupConversation
+            };
+
+        activeSession = session;
+        other.activeSession = session;
+        sessions.Add(session);
+
+        nextConversationTime = Time.time + conversationCooldown;
+        other.nextConversationTime = Time.time + other.conversationCooldown;
+
+        overhead.ShowLine(myLine, conversationDuration);
+        other.overhead.ShowLine(otherLine, conversationDuration);
+
+        relationships.AddSocial(other.gameObject, 1, 1, topic);
+        other.relationships.AddSocial(gameObject, 1, 1, topic);
+
+        memory.Remember(
+            NpcMemoryType.Conversation,
+            gameObject,
+            other.gameObject,
+            topic,
+            1f,
+            1f,
+            5);
+
+        other.memory.Remember(
+            NpcMemoryType.Conversation,
+            other.gameObject,
+            gameObject,
+            topic,
+            1f,
+            1f,
+            5);
+
+        if (topic.Contains("linh thảo") ||
+            topic.Contains("linh dược") ||
+            topic.Contains("ven suối"))
+        {
+            NpcSocialEventBus.PublishRumorShared(gameObject, other.gameObject, topic);
+        }
+
+        NpcRoleUtility.SetAction(gameObject, "Đang trò chuyện");
+        NpcRoleUtility.SetAction(other.gameObject, "Đang trò chuyện");
+        return true;
+    }
+
+    public bool CanInterrupt(NpcConversationAgent interrupter)
+    {
+        if (interrupter == null || activeSession == null)
+        {
+            return true;
+        }
+
+        NpcSocialRelationship relation = relationships.Get(interrupter.gameObject);
+        float relationshipUrgency = 0f;
+        if (relation != null)
+        {
+            relationshipUrgency =
+                Mathf.Max(relation.grudge, relation.hostility) +
+                Mathf.Max(relation.affection, relation.alliance) * 0.8f;
+        }
+
+        NpcPersonality interrupterPersonality =
+            interrupter.GetComponent<NpcPersonality>();
+
+        float courage =
+            interrupterPersonality != null
+            ? interrupterPersonality.aggression * 0.4f
+            : 10f;
+
+        float score =
+            relationshipUrgency +
+            courage -
+            activeSession.lockStrength;
+
+        return score >= interruptThreshold;
+    }
+
+    public float GetConversationScore(NpcConversationAgent other)
+    {
+        if (other == null ||
+            Time.time < nextConversationTime ||
+            IsBusyTalking)
+        {
+            return 0f;
+        }
+
+        NpcSocialRelationship relation = relationships.Get(other.gameObject);
+        float affection = relation != null ? relation.affection : 0f;
+        float grudge = relation != null ? relation.grudge : 0f;
+        float socialNeed = GetComponent<NpcNeeds>() != null
+            ? GetComponent<NpcNeeds>().social
+            : 40f;
+
+        return socialNeed +
+            personality.sociability * 0.5f +
+            Mathf.Abs(affection) * 0.2f +
+            grudge * 0.3f;
+    }
+
+    void TryFindConversation()
+    {
+        if (IsBusyTalking ||
+            Time.time < nextConversationTime)
+        {
+            return;
+        }
+
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(transform.position, scanRadius, npcLayers);
+
+        NpcConversationAgent best = null;
+        float bestScore = 0f;
+
+        foreach (Collider2D hit in hits)
+        {
+            if (hit == null ||
+                hit.gameObject == gameObject)
+            {
+                continue;
+            }
+
+            NpcConversationAgent other =
+                hit.GetComponentInParent<NpcConversationAgent>();
+
+            if (other == null ||
+                other == this)
+            {
+                continue;
+            }
+
+            float score = GetConversationScore(other);
+            if (other.IsBusyTalking && !other.CanInterrupt(this))
+            {
+                score = 0f;
+            }
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                best = other;
+            }
+        }
+
+        if (best != null && bestScore >= 45f)
+        {
+            TryStartConversation(best, false);
+        }
+    }
+
+    string PickTopic(NpcConversationAgent other)
+    {
+        NpcMemoryRecord unresolved = memory.FindUnresolvedTopicWith(other.gameObject);
+        if (unresolved != null && !string.IsNullOrEmpty(unresolved.topic))
+        {
+            unresolved.resolved = true;
+            return unresolved.topic;
+        }
+
+        NpcSocialRelationship relation = relationships.Get(other.gameObject);
+        if (relation != null &&
+            (relation.grudge >= 65 || relation.hostility >= 65))
+        {
+            return Pick(GetHostileLines(), "Ta vẫn nhớ chuyện lần trước.");
+        }
+
+        if (UnityEngine.Random.value < 0.35f)
+        {
+            return Pick(GetRumorLines(), "Ven suối hình như có linh thảo.");
+        }
+
+        return Pick(GetGreetingLines(), "Hôm nay đạo hữu thế nào?");
+    }
+
+    string BuildLineFor(
+        NpcConversationAgent other,
+        string topic,
+        bool opener)
+    {
+        NpcMemoryRecord unresolved = memory.FindUnresolvedTopicWith(other.gameObject);
+        if (unresolved != null &&
+            !string.IsNullOrEmpty(unresolved.topic) &&
+            NpcSocialTime.Day > unresolved.worldDay)
+        {
+            return "Hôm qua nói chuyện " + unresolved.topic + ", nay thế nào rồi?";
+        }
+
+        if (opener)
+        {
+            return topic;
+        }
+
+        return Pick(GetReplyLines(), "Ta sẽ ghi nhớ chuyện này.");
+    }
+
+    string[] GetGreetingLines()
+    {
+        if (profile != null && profile.greetings != null && profile.greetings.Length > 0)
+        {
+            return profile.greetings;
+        }
+
+        VillagerAI villager = GetComponent<VillagerAI>();
+        if (villager != null && villager.job == VillagerJob.Farmer)
+        {
+            return new[]
+            {
+                "Hôm nay ra đồng sớm vậy?",
+                "Linh điền bên ngươi thế nào?",
+                "Mùa này linh cốc có vẻ tốt."
+            };
+        }
+
+        NpcTradeAgent trader = GetComponent<NpcTradeAgent>();
+        if (trader != null && trader.isMarketTrader)
+        {
+            return new[]
+            {
+                "Đạo hữu muốn xem hàng gì?",
+                "Hàng hôm nay còn khá đủ.",
+                "Nếu mua nhiều, giá có thể bàn lại."
+            };
+        }
+
+        return null;
+    }
+
+    string[] GetReplyLines()
+    {
+        if (profile != null && profile.replies != null && profile.replies.Length > 0)
+        {
+            return profile.replies;
+        }
+
+        VillagerAI villager = GetComponent<VillagerAI>();
+        if (villager != null && villager.job == VillagerJob.Farmer)
+        {
+            return new[]
+            {
+                "Cũng tạm, linh khí hơi mỏng.",
+                "Ta đang tranh thủ trước khi trời tối.",
+                "Nếu được một trận mưa linh khí thì tốt hơn."
+            };
+        }
+
+        NpcTradeAgent trader = GetComponent<NpcTradeAgent>();
+        if (trader != null && trader.isMarketTrader)
+        {
+            return new[]
+            {
+                "Giá này đã mềm rồi.",
+                "Chỗ quen biết thì ta giảm chút.",
+                "Hàng tốt không nên ép quá thấp."
+            };
+        }
+
+        return null;
+    }
+
+    string[] GetRumorLines()
+    {
+        if (profile != null && profile.resourceRumors != null && profile.resourceRumors.Length > 0)
+        {
+            return profile.resourceRumors;
+        }
+
+        return new[]
+        {
+            "Hôm qua nghe nói ven suối có linh thảo.",
+            "Chân núi có vài cây linh dược mới mọc.",
+            "Rừng ngoài gần đây có dấu linh khí tụ lại."
+        };
+    }
+
+    string[] GetHostileLines()
+    {
+        if (profile != null && profile.hostileLines != null && profile.hostileLines.Length > 0)
+        {
+            return profile.hostileLines;
+        }
+
+        return new[]
+        {
+            "Ta vẫn nhớ chuyện lần trước.",
+            "Đừng tưởng ta đã quên món nợ đó.",
+            "Nếu còn ép người quá đáng, ta sẽ không nhịn nữa."
+        };
+    }
+
+    string Pick(string[] lines, string fallback)
+    {
+        if (lines == null || lines.Length == 0)
+        {
+            return fallback;
+        }
+
+        return lines[UnityEngine.Random.Range(0, lines.Length)];
+    }
+
+    void EnsureReferences()
+    {
+        identity = GetComponent<NpcIdentity>();
+        if (identity == null)
+        {
+            identity = gameObject.AddComponent<NpcIdentity>();
+        }
+
+        identity.Refresh();
+
+        memory = GetComponent<NpcMemory>();
+        if (memory == null)
+        {
+            memory = gameObject.AddComponent<NpcMemory>();
+        }
+
+        relationships = GetComponent<NpcRelationshipGraph>();
+        if (relationships == null)
+        {
+            relationships = gameObject.AddComponent<NpcRelationshipGraph>();
+        }
+
+        overhead = GetComponent<NpcOverheadDialogueUI>();
+        if (overhead == null)
+        {
+            overhead = gameObject.AddComponent<NpcOverheadDialogueUI>();
+        }
+
+        personality = GetComponent<NpcPersonality>();
+        if (personality == null)
+        {
+            personality = gameObject.AddComponent<NpcPersonality>();
+        }
+    }
+
+    void DisableLegacyConversation()
+    {
+        DailyConversation legacy = GetComponent<DailyConversation>();
+        if (legacy != null)
+        {
+            legacy.enabled = false;
+        }
+    }
+
+    static void CleanupSessions()
+    {
+        for (int i = sessions.Count - 1; i >= 0; i--)
+        {
+            if (sessions[i] == null || Time.time >= sessions[i].endTime)
+            {
+                sessions.RemoveAt(i);
+            }
+        }
+    }
+}
+
+public class NpcDecisionBrain : MonoBehaviour
+{
+    public bool enabledDecisionBrain = true;
+    public float thinkIntervalMin = 3f;
+    public float thinkIntervalMax = 10f;
+    public float nearbyRadius = 4f;
+    public LayerMask npcLayers = ~0;
+    public bool allowViolence;
+    public bool allowRobbery;
+    public NpcDecisionKind currentDecision;
+
+    NpcNeeds needs;
+    NpcPersonality personality;
+    NpcRelationshipGraph relationships;
+    NpcConversationAgent conversation;
+    float nextThinkTime;
+
+    void Awake()
+    {
+        needs = GetComponent<NpcNeeds>();
+        if (needs == null)
+        {
+            needs = gameObject.AddComponent<NpcNeeds>();
+        }
+
+        personality = GetComponent<NpcPersonality>();
+        if (personality == null)
+        {
+            personality = gameObject.AddComponent<NpcPersonality>();
+        }
+
+        relationships = GetComponent<NpcRelationshipGraph>();
+        if (relationships == null)
+        {
+            relationships = gameObject.AddComponent<NpcRelationshipGraph>();
+        }
+
+        conversation = GetComponent<NpcConversationAgent>();
+        if (conversation == null)
+        {
+            conversation = gameObject.AddComponent<NpcConversationAgent>();
+        }
+
+        ScheduleNextThink();
+    }
+
+    void Update()
+    {
+        if (!enabledDecisionBrain ||
+            Time.time < nextThinkTime ||
+            NpcRoleUtility.IsDead(gameObject))
+        {
+            return;
+        }
+
+        ScheduleNextThink();
+        Think();
+    }
+
+    void Think()
+    {
+        NpcDecisionKind decision = PickBestDecision();
+        currentDecision = decision;
+
+        if (decision == NpcDecisionKind.Socialize)
+        {
+            TryPromptConversation();
+            return;
+        }
+
+        if (decision == NpcDecisionKind.Revenge && allowViolence)
+        {
+            TryHostileAction(false);
+            return;
+        }
+
+        if (decision == NpcDecisionKind.Rob && allowRobbery)
+        {
+            TryHostileAction(true);
+            return;
+        }
+
+        ApplyActionText(decision);
+    }
+
+    NpcDecisionKind PickBestDecision()
+    {
+        float socialScore = needs.social + personality.sociability * 0.4f;
+        float tradeScore = needs.moneyNeed + personality.greed * 0.35f;
+        float resourceScore = needs.resourceNeed + personality.curiosity * 0.25f;
+        float restScore = needs.fatigue;
+        float revengeScore = GetHighestGrudgeNearby() + personality.aggression * 0.4f;
+        float robberyScore = needs.moneyNeed + personality.greed * 0.6f - personality.caution * 0.5f;
+
+        NpcDecisionKind best = NpcDecisionKind.Work;
+        float bestScore = 35f;
+
+        Consider(NpcDecisionKind.Socialize, socialScore, ref best, ref bestScore);
+        Consider(NpcDecisionKind.Trade, tradeScore, ref best, ref bestScore);
+        Consider(NpcDecisionKind.GatherResource, resourceScore, ref best, ref bestScore);
+        Consider(NpcDecisionKind.Rest, restScore, ref best, ref bestScore);
+        Consider(NpcDecisionKind.Revenge, revengeScore, ref best, ref bestScore);
+        Consider(NpcDecisionKind.Rob, robberyScore, ref best, ref bestScore);
+
+        return best;
+    }
+
+    void Consider(
+        NpcDecisionKind decision,
+        float score,
+        ref NpcDecisionKind best,
+        ref float bestScore)
+    {
+        if (score > bestScore)
+        {
+            best = decision;
+            bestScore = score;
+        }
+    }
+
+    void TryPromptConversation()
+    {
+        NpcConversationAgent target = FindBestConversationTarget();
+        if (target != null)
+        {
+            conversation.TryStartConversation(target, false);
+        }
+    }
+
+    NpcConversationAgent FindBestConversationTarget()
+    {
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(transform.position, nearbyRadius, npcLayers);
+
+        NpcConversationAgent best = null;
+        float bestScore = 0f;
+
+        foreach (Collider2D hit in hits)
+        {
+            if (hit == null ||
+                hit.gameObject == gameObject)
+            {
+                continue;
+            }
+
+            NpcConversationAgent candidate =
+                hit.GetComponentInParent<NpcConversationAgent>();
+
+            if (candidate == null || candidate == conversation)
+            {
+                continue;
+            }
+
+            float score = conversation.GetConversationScore(candidate);
+            if (score > bestScore)
+            {
+                best = candidate;
+                bestScore = score;
+            }
+        }
+
+        return best;
+    }
+
+    float GetHighestGrudgeNearby()
+    {
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(transform.position, nearbyRadius, npcLayers);
+
+        float best = 0f;
+        foreach (Collider2D hit in hits)
+        {
+            if (hit == null ||
+                hit.gameObject == gameObject)
+            {
+                continue;
+            }
+
+            NpcIdentity targetIdentity =
+                hit.GetComponentInParent<NpcIdentity>();
+
+            if (targetIdentity == null)
+            {
+                continue;
+            }
+
+            NpcSocialRelationship relationship =
+                relationships.Get(targetIdentity.gameObject);
+
+            if (relationship != null)
+            {
+                best = Mathf.Max(best, relationship.grudge, relationship.hostility);
+            }
+        }
+
+        return best;
+    }
+
+    void TryHostileAction(bool robbery)
+    {
+        NpcConversationAgent target = FindBestConversationTarget();
+        if (target == null)
+        {
+            return;
+        }
+
+        relationships.AddHostility(target.gameObject, robbery ? 8 : 18);
+        NpcSocialEventBus.PublishHostility(
+            gameObject,
+            target.gameObject,
+            robbery ? 8 : 18,
+            target.transform.position,
+            robbery ? "cướp bóc" : "trả thù");
+        NpcRoleUtility.SetAction(gameObject, robbery ? "Đang cướp bóc" : "Đang trả thù");
+
+        NpcOverheadDialogueUI overhead = GetComponent<NpcOverheadDialogueUI>();
+        if (overhead != null)
+        {
+            overhead.ShowLine(robbery ? "Giao đồ ra!" : "Món nợ này phải trả!", 3f);
+        }
+
+        if (!robbery)
+        {
+            NpcRoleUtility.Damage(
+                gameObject,
+                target.gameObject,
+                Mathf.Max(1, NpcRoleUtility.GetAttack(gameObject) / 2),
+                "trả thù");
+        }
+    }
+
+    void ApplyActionText(NpcDecisionKind decision)
+    {
+        switch (decision)
+        {
+            case NpcDecisionKind.Rest:
+                NpcRoleUtility.SetAction(gameObject, "Đang nghỉ ngơi");
+                break;
+            case NpcDecisionKind.Trade:
+                NpcRoleUtility.SetAction(gameObject, "Đang tìm cơ hội buôn bán");
+                break;
+            case NpcDecisionKind.GatherResource:
+                NpcRoleUtility.SetAction(gameObject, "Đang để ý linh thảo");
+                break;
+            default:
+                break;
+        }
+    }
+
+    void ScheduleNextThink()
+    {
+        nextThinkTime =
+            Time.time +
+            UnityEngine.Random.Range(thinkIntervalMin, thinkIntervalMax);
+    }
+}
+
+public class NpcNegotiationAgent : MonoBehaviour
+{
+    public int generousDiscountPercent = 10;
+    public int hostileMarkupPercent = 20;
+
+    NpcRelationshipGraph relationships;
+    NpcMemory memory;
+
+    void Awake()
+    {
+        relationships = GetComponent<NpcRelationshipGraph>();
+        if (relationships == null)
+        {
+            relationships = gameObject.AddComponent<NpcRelationshipGraph>();
+        }
+
+        memory = GetComponent<NpcMemory>();
+        if (memory == null)
+        {
+            memory = gameObject.AddComponent<NpcMemory>();
+        }
+    }
+
+    public int AdjustPriceFor(GameObject other, int basePrice)
+    {
+        NpcSocialRelationship relationship = relationships.Get(other);
+        if (relationship == null)
+        {
+            return basePrice;
+        }
+
+        int price = basePrice;
+
+        if (relationship.affection >= 70 || relationship.trust >= 70)
+        {
+            price -= Mathf.RoundToInt(price * generousDiscountPercent / 100f);
+        }
+
+        if (relationship.grudge >= 60 || relationship.hostility >= 60)
+        {
+            price += Mathf.RoundToInt(price * hostileMarkupPercent / 100f);
+        }
+
+        return Mathf.Max(1, price);
+    }
+
+    public void RecordRejectedOffer(GameObject other, StatItemData item, int offeredPrice)
+    {
+        string itemName = item != null ? item.itemName : "vật phẩm";
+        memory.Remember(
+            NpcMemoryType.TradeRejected,
+            other,
+            gameObject,
+            "trả giá thấp cho " + itemName + " giá " + offeredPrice + " LT",
+            2f,
+            1f,
+            12);
+
+        relationships.AddTrade(other, -2);
+    }
+}
+
+[RequireComponent(typeof(Collider2D))]
+public abstract class NpcLawZoneInternal : MonoBehaviour
+{
+    [Header("Luật")]
+    public string zoneName = "Làng";
+    public bool forbidKilling = true;
+    public bool forbidAttacking = true;
+    public int hatredPenalty = 65;
+    public int trustPenalty = 35;
+    public int witnessMemoryDays = 60;
+
+    [Header("Phản Ứng")]
+    public LayerMask npcLayers = ~0;
+    public float witnessRadius = 8f;
+    public bool callNearbyNpcsToAttack = true;
+    public bool includeVictimAsWitness = true;
+    public string witnessLine = "Dám ra tay trong làng!";
+
+    Collider2D zoneCollider;
+
+    void Awake()
+    {
+        zoneCollider = GetComponent<Collider2D>();
+        zoneCollider.isTrigger = true;
+    }
+
+    void OnEnable()
+    {
+        NpcSocialEventBus.HostilityDetailedHappened += HandleHostility;
+    }
+
+    void OnDisable()
+    {
+        NpcSocialEventBus.HostilityDetailedHappened -= HandleHostility;
+    }
+
+    void HandleHostility(
+        GameObject actor,
+        GameObject target,
+        int severity,
+        Vector3 position,
+        string reason)
+    {
+        if (actor == null ||
+            target == null ||
+            zoneCollider == null ||
+            (!forbidAttacking && !forbidKilling))
+        {
+            return;
+        }
+
+        bool inside =
+            zoneCollider.OverlapPoint(actor.transform.position) ||
+            zoneCollider.OverlapPoint(target.transform.position) ||
+            zoneCollider.OverlapPoint(position);
+
+        if (!inside)
+        {
+            return;
+        }
+
+        PunishViolation(actor, target, severity, reason);
+    }
+
+    void PunishViolation(
+        GameObject violator,
+        GameObject victim,
+        int severity,
+        string reason)
+    {
+        Collider2D[] witnesses =
+            Physics2D.OverlapCircleAll(
+                violator.transform.position,
+                witnessRadius,
+                npcLayers);
+
+        for (int i = 0; i < witnesses.Length; i++)
+        {
+            Collider2D witnessCollider = witnesses[i];
+            if (witnessCollider == null)
+            {
+                continue;
+            }
+
+            GameObject witness =
+                GetNpcRoot(witnessCollider);
+
+            if (witness == null ||
+                witness == violator ||
+                (!includeVictimAsWitness && witness == victim))
+            {
+                continue;
+            }
+
+            if (!zoneCollider.OverlapPoint(witness.transform.position))
+            {
+                continue;
+            }
+
+            MarkWitnessHostile(
+                witness,
+                violator,
+                victim,
+                Mathf.Max(severity, hatredPenalty),
+                reason);
+        }
+    }
+
+    void MarkWitnessHostile(
+        GameObject witness,
+        GameObject violator,
+        GameObject victim,
+        int severity,
+        string reason)
+    {
+        NpcRelationshipGraph relationships =
+            witness.GetComponent<NpcRelationshipGraph>();
+
+        if (relationships == null)
+        {
+            relationships =
+                witness.AddComponent<NpcRelationshipGraph>();
+        }
+
+        relationships.AddHostility(violator, severity);
+
+        NpcSocialRelationship relation =
+            relationships.Get(violator);
+
+        if (relation != null)
+        {
+            relation.trust =
+                Mathf.Clamp(relation.trust - trustPenalty, -100, 100);
+            relation.lastTopic =
+                "vi phạm luật " + zoneName;
+        }
+
+        NpcMemory memory =
+            witness.GetComponent<NpcMemory>();
+
+        if (memory == null)
+        {
+            memory =
+                witness.AddComponent<NpcMemory>();
+        }
+
+        memory.Remember(
+            NpcMemoryType.Attack,
+            violator,
+            victim,
+            "vi phạm luật " + zoneName + ": " + reason,
+            8f,
+            1f,
+            witnessMemoryDays);
+
+        NpcOverheadDialogueUI overhead =
+            witness.GetComponent<NpcOverheadDialogueUI>();
+
+        if (overhead == null)
+        {
+            overhead =
+                witness.AddComponent<NpcOverheadDialogueUI>();
+        }
+
+        overhead.ShowLine(witnessLine, 3f);
+        NpcRoleUtility.SetAction(
+            witness,
+            "Công kích kẻ vi phạm luật " + zoneName);
+
+        if (callNearbyNpcsToAttack)
+        {
+            NpcDecisionBrain brain =
+                witness.GetComponent<NpcDecisionBrain>();
+
+            if (brain != null)
+            {
+                brain.allowViolence = true;
+                brain.currentDecision = NpcDecisionKind.Revenge;
+            }
+        }
+    }
+
+    GameObject GetNpcRoot(Collider2D npcCollider)
+    {
+        VillagerAI villager =
+            npcCollider.GetComponentInParent<VillagerAI>();
+
+        if (villager != null)
+        {
+            return villager.gameObject;
+        }
+
+        SmartNpcAI smartNpc =
+            npcCollider.GetComponentInParent<SmartNpcAI>();
+
+        if (smartNpc != null)
+        {
+            return smartNpc.gameObject;
+        }
+
+        CharacterStats stats =
+            npcCollider.GetComponentInParent<CharacterStats>();
+
+        return stats != null ? stats.gameObject : null;
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = new Color(1f, 0.1f, 0.1f, 0.35f);
+        Gizmos.DrawWireCube(transform.position, transform.lossyScale);
+    }
+}
+
+public class NpcSocialWorldInstaller : MonoBehaviour
+{
+    public static NpcSocialWorldInstaller Instance { get; private set; }
+
+    public bool autoInstall = true;
+    public float installInterval = 3f;
+    public bool disableLegacyDailyConversation = true;
+
+    float timer;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    static void CreateInstaller()
+    {
+        if (Instance != null)
+        {
+            return;
+        }
+
+        GameObject installer = new GameObject("NpcSocialWorldInstaller");
+        DontDestroyOnLoad(installer);
+        installer.AddComponent<NpcSocialWorldInstaller>();
+    }
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+    }
+
+    void Update()
+    {
+        if (!autoInstall)
+        {
+            return;
+        }
+
+        timer -= Time.deltaTime;
+        if (timer > 0f)
+        {
+            return;
+        }
+
+        timer = installInterval;
+        InstallForSceneNpcs();
+    }
+
+    [ContextMenu("Install For Scene NPCs")]
+    public void InstallForSceneNpcs()
+    {
+        VillagerAI[] villagers = FindObjectsOfType<VillagerAI>(true);
+        for (int i = 0; i < villagers.Length; i++)
+        {
+            Install(villagers[i].gameObject);
+        }
+
+        SmartNpcAI[] smartNpcs = FindObjectsOfType<SmartNpcAI>(true);
+        for (int i = 0; i < smartNpcs.Length; i++)
+        {
+            Install(smartNpcs[i].gameObject);
+        }
+    }
+
+    void Install(GameObject npc)
+    {
+        if (npc == null)
+        {
+            return;
+        }
+
+        Ensure<NpcIdentity>(npc);
+        Ensure<NpcNeeds>(npc);
+        Ensure<NpcPersonality>(npc);
+        Ensure<NpcRelationshipGraph>(npc);
+        Ensure<NpcMemory>(npc);
+        Ensure<NpcOverheadDialogueUI>(npc);
+        Ensure<NpcConversationAgent>(npc);
+        Ensure<NpcDecisionBrain>(npc);
+        Ensure<NpcNegotiationAgent>(npc);
+
+        if (disableLegacyDailyConversation)
+        {
+            DailyConversation legacy = npc.GetComponent<DailyConversation>();
+            if (legacy != null)
+            {
+                legacy.enabled = false;
+            }
+        }
+    }
+
+    T Ensure<T>(GameObject target) where T : Component
+    {
+        T component = target.GetComponent<T>();
+        if (component == null)
+        {
+            component = target.AddComponent<T>();
+        }
+
+        return component;
+    }
+}
+
+public static class NpcSocialTime
+{
+    public static int Day
+    {
+        get
+        {
+            WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+            return timeSystem != null ? timeSystem.CurrentDay : 0;
+        }
+    }
+
+    public static float Hour
+    {
+        get
+        {
+            WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+            return timeSystem != null ? timeSystem.CurrentHour : 0f;
+        }
+    }
+}

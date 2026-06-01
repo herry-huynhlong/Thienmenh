@@ -11,9 +11,9 @@ public class DailyConversation : MonoBehaviour
     [Header("Dialogue")]
     public string[] greetingLines =
     {
-        "Dao huu gan day the nao?",
-        "Hom nay co thu hoach gi khong?",
-        "Nghe noi gan day yeu thu xuat hien nhieu."
+        "Đạo hữu gần đây thế nào?",
+        "Hôm nay có thu hoạch gì không?",
+        "Nghe nói gần đây yêu thú xuất hiện nhiều."
     };
 
     float scanTimer;
@@ -94,8 +94,8 @@ public class DailyConversation : MonoBehaviour
         string otherLine =
             other.GetRandomLine();
 
-        SetAction("Noi chuyen: " + myLine);
-        other.SetAction("Noi chuyen: " + otherLine);
+        SetAction("Nói chuyện: " + myLine);
+        other.SetAction("Nói chuyện: " + otherLine);
 
         Debug.Log(
             GetDisplayName() +

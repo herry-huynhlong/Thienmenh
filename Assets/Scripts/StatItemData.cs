@@ -26,6 +26,40 @@ public enum CultivationManualMastery
     DaiThanh
 }
 
+public enum RawUsePolicy
+{
+    Allowed,
+    Risky,
+    Forbidden
+}
+
+public enum NpcItemIntent
+{
+    Auto,
+    PreferUseRaw,
+    PreferRefine,
+    PreferSell,
+    Keep
+}
+
+public enum ItemUseStyle
+{
+    Auto,
+    Consumable,
+    RawMaterial,
+    DurableEquipment,
+    StudyManual
+}
+
+public enum ItemConversionType
+{
+    None,
+    RefinePill,
+    ForgeArtifact,
+    Study,
+    Sell
+}
+
 [System.Flags]
 public enum ItemTargetType
 {
@@ -76,29 +110,44 @@ public class StatItemData : ScriptableObject
     public Sprite icon;
     public bool consumeOnUse = true;
 
-    [Header("Vong Doi")]
+    [Header("Sử Dụng & Chuyển Hóa")]
+    public ItemUseStyle useStyle = ItemUseStyle.Auto;
+    public ItemConversionType conversionType = ItemConversionType.None;
+    public bool canUseDirectly = true;
+    public bool canBeSold = true;
     public bool canBeRefinedIntoPill;
+    public bool canBeForgedIntoArtifact;
+    public bool canBeStudied = true;
     [Range(0f, 1f)]
     public float rawUseEfficiency = 0.35f;
     [Range(0f, 1f)]
     public float useSuccessChance = 1f;
 
-    [Header("Do Ben")]
+    [Header("Dùng Sống")]
+    public RawUsePolicy rawUsePolicy = RawUsePolicy.Allowed;
+    [Min(0)] public int rawToxicityDamage;
+
+    [Header("Quyết Định NPC")]
+    public NpcItemIntent npcIntent = NpcItemIntent.Auto;
+    [Min(0f)] public float refineValueMultiplier = 1.5f;
+    [Min(0f)] public float sellValueMultiplier = 1f;
+
+    [Header("Độ Bền")]
     public int maxDurability;
     public int durabilityLossPerUse = 1;
     public bool breaksAtZero = true;
 
-    [Header("Dan Duoc")]
+    [Header("Đan Dược")]
     public int hpBonus;
     public int cultivationBonus;
     public bool breakthroughRealm;
 
-    [Header("Phap Bao")]
+    [Header("Pháp Bảo")]
     public int damageBonus;
     public int armorBonus;
     public int effectResistanceBonus;
 
-    [Header("Cong Phap")]
+    [Header("Công Pháp")]
     public bool canBeTaught = true;
     public int studyProgressPerUse = 1;
     [Range(0f, 1f)]
@@ -108,11 +157,11 @@ public class StatItemData : ScriptableObject
     [Range(0f, 1f)]
     public float daiThanhPower = 1f;
 
-    [Header("Buff Tam Thoi")]
+    [Header("Buff Tạm Thời")]
     public bool isTemporary;
     public float duration = 10f;
 
-    [Header("Tuy Chinh Them")]
+    [Header("Tùy Chỉnh Thêm")]
     public List<StatModifier> modifiers =
         new List<StatModifier>();
 
@@ -139,6 +188,15 @@ public class StatItemData : ScriptableObject
             result,
             StatType.Cultivation,
             Mathf.RoundToInt(cultivationBonus * useMultiplier));
+
+        if (itemType == ItemType.VatLieu &&
+            rawToxicityDamage > 0)
+        {
+            AddModifier(
+                result,
+                StatType.CurrentHP,
+                -rawToxicityDamage);
+        }
 
         if (breakthroughRealm)
         {
@@ -220,8 +278,229 @@ public class StatItemData : ScriptableObject
             return false;
         }
 
+        if (!CanUseDirectly())
+        {
+            return false;
+        }
+
         return GetTargetType(target) != ItemTargetType.None &&
             (validTargets & GetTargetType(target)) != 0;
+    }
+
+    public bool CanUseDirectly()
+    {
+        return canUseDirectly &&
+            rawUsePolicy != RawUsePolicy.Forbidden &&
+            GetResolvedUseStyle() != ItemUseStyle.Auto;
+    }
+
+    public bool IsRiskyRawUse()
+    {
+        return rawUsePolicy == RawUsePolicy.Risky ||
+            rawToxicityDamage > 0 ||
+            useSuccessChance < 1f;
+    }
+
+    public bool ShouldNpcUseDirectly()
+    {
+        if (!CanUseDirectly())
+        {
+            return false;
+        }
+
+        if (npcIntent == NpcItemIntent.PreferUseRaw)
+        {
+            return !IsRiskyRawUse();
+        }
+
+        if (npcIntent == NpcItemIntent.PreferRefine ||
+            npcIntent == NpcItemIntent.PreferSell ||
+            npcIntent == NpcItemIntent.Keep)
+        {
+            return false;
+        }
+
+        ItemUseStyle resolvedStyle =
+            GetResolvedUseStyle();
+
+        if (resolvedStyle == ItemUseStyle.RawMaterial)
+        {
+            return !canBeRefinedIntoPill &&
+                rawUseEfficiency >= 0.75f &&
+                !IsRiskyRawUse();
+        }
+
+        if (resolvedStyle == ItemUseStyle.Consumable)
+        {
+            return GetNpcUseScore() > 0f &&
+                !IsRiskyRawUse();
+        }
+
+        if (resolvedStyle == ItemUseStyle.DurableEquipment)
+        {
+            return GetNpcUseScore() >= GetNpcSellScore();
+        }
+
+        if (resolvedStyle == ItemUseStyle.StudyManual)
+        {
+            return canBeStudied &&
+                GetNpcUseScore() >= GetNpcSellScore();
+        }
+
+        return false;
+    }
+
+    public bool ShouldNpcPreferRefine()
+    {
+        if (!canBeRefinedIntoPill)
+        {
+            return false;
+        }
+
+        return conversionType == ItemConversionType.RefinePill ||
+            npcIntent == NpcItemIntent.PreferRefine ||
+            (npcIntent == NpcItemIntent.Auto &&
+            GetResolvedUseStyle() == ItemUseStyle.RawMaterial &&
+            (rawUseEfficiency < 0.75f || IsRiskyRawUse()));
+    }
+
+    public bool ShouldNpcPreferForge()
+    {
+        if (!canBeForgedIntoArtifact)
+        {
+            return false;
+        }
+
+        return conversionType == ItemConversionType.ForgeArtifact ||
+            (npcIntent == NpcItemIntent.Auto &&
+            GetResolvedUseStyle() == ItemUseStyle.RawMaterial &&
+            GetNpcConversionScore() > GetNpcUseScore());
+    }
+
+    public bool ShouldNpcPreferStudy()
+    {
+        if (!canBeStudied)
+        {
+            return false;
+        }
+
+        return conversionType == ItemConversionType.Study ||
+            (npcIntent == NpcItemIntent.Auto &&
+            GetResolvedUseStyle() == ItemUseStyle.StudyManual &&
+            GetNpcUseScore() >= GetNpcSellScore());
+    }
+
+    public bool ShouldNpcPreferSell()
+    {
+        if (!canBeSold)
+        {
+            return false;
+        }
+
+        return npcIntent == NpcItemIntent.PreferSell ||
+            conversionType == ItemConversionType.Sell ||
+            (npcIntent == NpcItemIntent.Auto &&
+            GetNpcSellScore() > Mathf.Max(
+                GetNpcUseScore(),
+                GetNpcConversionScore()));
+    }
+
+    public float GetNpcUseScore()
+    {
+        if (!CanUseDirectly())
+        {
+            return 0f;
+        }
+
+        float score =
+            Mathf.Max(0f, hpBonus) * 0.5f +
+            Mathf.Max(0f, cultivationBonus) * 1.2f +
+            Mathf.Max(0f, damageBonus) +
+            Mathf.Max(0f, armorBonus) +
+            Mathf.Max(0f, effectResistanceBonus);
+
+        if (breakthroughRealm)
+        {
+            score += 20f;
+        }
+
+        if (GetResolvedUseStyle() == ItemUseStyle.RawMaterial)
+        {
+            score *= Mathf.Clamp01(rawUseEfficiency);
+        }
+
+        if (GetResolvedUseStyle() == ItemUseStyle.StudyManual)
+        {
+            score += Mathf.Max(0, studyProgressPerUse) * 2f;
+        }
+
+        score *= Mathf.Clamp01(useSuccessChance);
+        score -= rawToxicityDamage * 1.5f;
+
+        return Mathf.Max(0f, score);
+    }
+
+    public float GetNpcConversionScore()
+    {
+        return Mathf.Max(
+            GetNpcRefineScore(),
+            GetNpcForgeScore());
+    }
+
+    public float GetNpcRefineScore()
+    {
+        if (!canBeRefinedIntoPill)
+        {
+            return 0f;
+        }
+
+        return Mathf.Max(0f, price) *
+            Mathf.Max(0f, refineValueMultiplier);
+    }
+
+    public float GetNpcSellScore()
+    {
+        if (!canBeSold)
+        {
+            return 0f;
+        }
+
+        return Mathf.Max(0f, price) *
+            Mathf.Max(0f, sellValueMultiplier);
+    }
+
+    public float GetNpcForgeScore()
+    {
+        if (!canBeForgedIntoArtifact)
+        {
+            return 0f;
+        }
+
+        return Mathf.Max(0f, price) *
+            Mathf.Max(0f, refineValueMultiplier);
+    }
+
+    public ItemUseStyle GetResolvedUseStyle()
+    {
+        if (useStyle != ItemUseStyle.Auto)
+        {
+            return useStyle;
+        }
+
+        switch (itemType)
+        {
+            case ItemType.DanDuoc:
+            case ItemType.ThucPham:
+                return ItemUseStyle.Consumable;
+            case ItemType.VatLieu:
+                return ItemUseStyle.RawMaterial;
+            case ItemType.PhapBao:
+                return ItemUseStyle.DurableEquipment;
+            case ItemType.CongPhap:
+                return ItemUseStyle.StudyManual;
+            default:
+                return ItemUseStyle.Auto;
+        }
     }
 
     float GetDirectUsePowerMultiplier()

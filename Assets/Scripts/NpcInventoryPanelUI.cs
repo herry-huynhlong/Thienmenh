@@ -13,7 +13,7 @@ public class NpcInventoryPanelUI : MonoBehaviour
     public bool useItemGrid = true;
     public bool hideItemsTextWhenUsingGrid = true;
     public bool readOnly = true;
-    public string emptyText = "Khong co vat pham";
+    public string emptyText = "Không có vật phẩm";
     public bool blockMapDrag;
 
     Transform currentNpc;
@@ -352,7 +352,7 @@ public class NpcInventoryPanelUI : MonoBehaviour
 
         if (villager != null)
         {
-            builder.AppendLine("Tien: " + villager.money + " LT");
+            builder.AppendLine("Tiền: " + villager.money + " LT");
         }
 
         SmartNpcAI smartNpc =
@@ -360,10 +360,10 @@ public class NpcInventoryPanelUI : MonoBehaviour
 
         if (smartNpc != null)
         {
-            builder.AppendLine("Tien: " + smartNpc.money + " LT");
+            builder.AppendLine("Tiền: " + smartNpc.money + " LT");
         }
 
-        builder.Append("So loai hang: ");
+        builder.Append("Số loại hàng: ");
         builder.Append(GetItemKindCount(inventory));
 
         return builder.ToString();

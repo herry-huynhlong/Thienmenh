@@ -232,17 +232,17 @@ public static class EntityGenerator
 {
     static readonly string[] maleNames =
     {
-        "Ly Thanh", "Tran An", "Mac Phong", "Han Vu", "Dao Minh", "Lam Kiet"
+        "Lý Thanh", "Trần An", "Mạc Phong", "Hàn Vũ", "Đạo Minh", "Lâm Kiệt"
     };
 
     static readonly string[] femaleNames =
     {
-        "Linh Nhi", "Ngoc Dao", "Thanh Van", "Tieu Mai", "Lan Anh", "Bich Ha"
+        "Linh Nhi", "Ngọc Dao", "Thanh Vân", "Tiểu Mai", "Lan Anh", "Bích Hà"
     };
 
     static readonly string[] beastNames =
     {
-        "Lang Yeu", "Ho Yeu", "Xa Tinh", "Ung Yeu", "Hac Bao", "Doc Lang"
+        "Lang Yêu", "Hổ Yêu", "Xà Tinh", "Ưng Yêu", "Hắc Báo", "Độc Lang"
     };
 
     public static EntityProfile EnsureProfile(GameObject owner, EntityKind kind)
