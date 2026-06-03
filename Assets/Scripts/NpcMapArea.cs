@@ -35,6 +35,11 @@ public class NpcMapArea : MonoBehaviour
         {
             areaBounds = GetComponent<Collider2D>();
         }
+
+        if (areaBounds != null)
+        {
+            areaBounds.isTrigger = true;
+        }
     }
 
     void OnEnable()

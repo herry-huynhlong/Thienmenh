@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public enum ResourceRespawnMode
@@ -26,8 +26,9 @@ public class WorldResourceNode : MonoBehaviour
 
     [Header("Visual")]
     public bool hideRelocatingResourceWhileWaiting = true;
+    public bool hideDepletedResourceWhileWaiting = true;
     [Range(0f, 1f)]
-    public float depletedAlpha = 1f;
+    public float depletedAlpha = 0f;
 
     Renderer[] renderers;
     Collider2D[] colliders;
@@ -81,10 +82,14 @@ public class WorldResourceNode : MonoBehaviour
         respawning = true;
 
         bool relocate = ShouldRelocate();
-        SetCollidersActive(false);
-        SetVisualActive(!relocate || !hideRelocatingResourceWhileWaiting);
+        bool hideWhileWaiting =
+            hideDepletedResourceWhileWaiting ||
+            (relocate && hideRelocatingResourceWhileWaiting);
 
-        if (!relocate)
+        SetCollidersActive(false);
+        SetVisualActive(!hideWhileWaiting);
+
+        if (!hideWhileWaiting)
         {
             SetRendererAlpha(depletedAlpha);
         }
@@ -222,3 +227,6 @@ public class WorldResourceNode : MonoBehaviour
         }
     }
 }
+
+
+

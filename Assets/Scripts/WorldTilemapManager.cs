@@ -83,7 +83,8 @@ public class WorldTilemapManager : MonoBehaviour
     }
 
     public Vector3 GetNearestRoad(
-        Vector3 from)
+        Vector3 from,
+        NpcMapZone? zone = null)
     {
         float closest =
             Mathf.Infinity;
@@ -93,6 +94,18 @@ public class WorldTilemapManager : MonoBehaviour
 
         foreach (Vector3 road in roadTiles)
         {
+            if (zone.HasValue)
+            {
+                NpcMapArea roadArea =
+                    NpcMapArea.FindArea(road);
+
+                if (roadArea == null ||
+                    roadArea.zone != zone.Value)
+                {
+                    continue;
+                }
+            }
+
             float distance =
                 Vector2.Distance(
                     from,

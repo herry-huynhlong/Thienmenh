@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Text;
+using System;
 
 public class TouchSelectTarget : MonoBehaviour
 {
@@ -28,6 +29,15 @@ public class TouchSelectTarget : MonoBehaviour
 
     public Button inventoryButton;
 
+    [Header("World Item Panel")]
+    public GameObject worldItemInfoPanel;
+
+    public TMP_Text worldItemNameText;
+
+    public TMP_Text worldItemInfoText;
+
+    public Image worldItemPanelIcon;
+
     [Header("World Item Info")]
     public Vector2 worldItemIconSize =
         new Vector2(72f, 72f);
@@ -47,6 +57,8 @@ public class TouchSelectTarget : MonoBehaviour
     Camera cam;
 
     RectTransform panelRect;
+
+    RectTransform worldItemPanelRect;
 
     Transform currentTarget;
 
@@ -91,9 +103,16 @@ public class TouchSelectTarget : MonoBehaviour
                 infoPanel.GetComponent<RectTransform>();
         }
 
+        AutoFindWorldItemPanelReferences();
+
         if (infoPanel != null)
         {
             infoPanel.SetActive(false);
+        }
+
+        if (worldItemInfoPanel != null)
+        {
+            worldItemInfoPanel.SetActive(false);
         }
 
         if (npcInventoryPanel != null)
@@ -183,15 +202,20 @@ public class TouchSelectTarget : MonoBehaviour
             cam.ScreenToWorldPoint(
                 Input.mousePosition);
 
-        Collider2D[] hits =
-            Physics2D.OverlapCircleAll(
-                worldPos,
-                0.5f);
-
         Transform selectedTarget =
             GetClosestSelectableTarget(
-                hits,
+                Physics2D.OverlapPointAll(worldPos),
                 worldPos);
+
+        if (selectedTarget == null)
+        {
+            selectedTarget =
+                GetClosestSelectableTarget(
+                    Physics2D.OverlapCircleAll(
+                        worldPos,
+                        0.8f),
+                    worldPos);
+        }
 
         if (selectedTarget == null)
         {
@@ -211,27 +235,26 @@ public class TouchSelectTarget : MonoBehaviour
                 selectedTarget);
         }
 
+        bool isWorldItem =
+            IsWorldItemTarget(selectedTarget);
+
         if (infoPanel != null)
         {
-            infoPanel.SetActive(true);
+            infoPanel.SetActive(!isWorldItem);
         }
 
-        if (false && infoText != null)
+        SetWorldItemPanelVisible(isWorldItem);
+
+        if (isWorldItem)
         {
-            infoText.text =
-                "Tên: " +
-                GetTargetName(selectedTarget) +
+            ShowWorldItemInfo(selectedTarget);
 
-                "\nTu Vi: " +
-                GetTargetRealm(selectedTarget) +
+            if (npcInventoryPanel != null)
+            {
+                npcInventoryPanel.Hide();
+            }
 
-                "\nMáu: " +
-                GetTargetCurrentHP(selectedTarget) +
-                " / " +
-                GetTargetMaxHP(selectedTarget) +
-
-                "\nHành động: " +
-                GetTargetAction(selectedTarget);
+            return;
         }
 
         if (npcInventoryPanel != null)
@@ -344,6 +367,8 @@ public class TouchSelectTarget : MonoBehaviour
 
     void AutoFindTabReferences()
     {
+        AutoFindWorldItemPanelReferences();
+
         if (infoPanel == null)
         {
             return;
@@ -585,6 +610,154 @@ public class TouchSelectTarget : MonoBehaviour
         SetInfoIconVisible(false);
     }
 
+    void AutoFindWorldItemPanelReferences()
+    {
+        if (worldItemInfoPanel == null)
+        {
+            RectTransform[] rects =
+                FindObjectsOfType<RectTransform>(true);
+
+            foreach (RectTransform rect in rects)
+            {
+                if (rect != null &&
+                    rect.name == "WorldItemInfoPanel")
+                {
+                    worldItemInfoPanel = rect.gameObject;
+                    break;
+                }
+            }
+        }
+
+        if (worldItemInfoPanel == null)
+        {
+            return;
+        }
+
+        worldItemPanelRect =
+            worldItemInfoPanel.GetComponent<RectTransform>();
+
+        if (worldItemPanelIcon == null)
+        {
+            Transform iconTransform =
+                FindChildByName(worldItemInfoPanel.transform, "ItemIcon");
+
+            if (iconTransform == null)
+            {
+                iconTransform =
+                    FindChildByName(worldItemInfoPanel.transform, "InfoIcon");
+            }
+
+            if (iconTransform == null)
+            {
+                iconTransform =
+                    FindChildByName(worldItemInfoPanel.transform, "IconImage");
+            }
+
+            if (iconTransform != null)
+            {
+                worldItemPanelIcon = iconTransform.GetComponent<Image>();
+            }
+        }
+
+        if (worldItemNameText == null)
+        {
+            Transform nameTransform =
+                FindChildByName(worldItemInfoPanel.transform, "ItemNameText");
+
+            if (nameTransform == null)
+            {
+                nameTransform =
+                    FindChildByName(worldItemInfoPanel.transform, "NameText");
+            }
+
+            if (nameTransform == null)
+            {
+                nameTransform =
+                    FindChildByName(worldItemInfoPanel.transform, "TitleText");
+            }
+
+            if (nameTransform != null)
+            {
+                worldItemNameText = nameTransform.GetComponent<TMP_Text>();
+            }
+        }
+
+        if (worldItemInfoText == null)
+        {
+            Transform infoTransform =
+                FindChildByName(worldItemInfoPanel.transform, "ItemInfoText");
+
+            if (infoTransform == null)
+            {
+                infoTransform =
+                    FindChildByName(worldItemInfoPanel.transform, "DescriptionText");
+            }
+
+            if (infoTransform == null)
+            {
+                infoTransform =
+                    FindChildByName(worldItemInfoPanel.transform, "InfoText");
+            }
+
+            if (infoTransform != null)
+            {
+                worldItemInfoText = infoTransform.GetComponent<TMP_Text>();
+            }
+        }
+    }
+
+    void SetWorldItemPanelVisible(bool visible)
+    {
+        if (worldItemInfoPanel == null)
+        {
+            return;
+        }
+
+        worldItemInfoPanel.SetActive(visible);
+    }
+
+    bool IsWorldItemTarget(Transform target)
+    {
+        return target != null &&
+            target.GetComponent<WorldStatItemPickup>() != null;
+    }
+
+    void ShowWorldItemInfo(Transform target)
+    {
+        AutoFindWorldItemPanelReferences();
+
+        WorldStatItemPickup pickup =
+            target != null
+            ? target.GetComponent<WorldStatItemPickup>()
+            : null;
+
+        if (pickup == null ||
+            pickup.item == null)
+        {
+            SetWorldItemPanelVisible(false);
+            return;
+        }
+
+        SetWorldItemPanelVisible(true);
+
+        if (worldItemNameText != null)
+        {
+            worldItemNameText.text = pickup.item.itemName;
+        }
+
+        if (worldItemInfoText != null)
+        {
+            worldItemInfoText.text = BuildWorldItemBodyInfo(pickup);
+        }
+
+        if (worldItemPanelIcon != null)
+        {
+            Sprite icon = GetPickupIcon(pickup);
+            worldItemPanelIcon.sprite = icon;
+            worldItemPanelIcon.enabled = icon != null;
+            worldItemPanelIcon.preserveAspect = true;
+        }
+    }
     void UpdateInfoIcon(Transform target)
     {
         EnsureInfoIcon();
@@ -727,6 +900,14 @@ public class TouchSelectTarget : MonoBehaviour
             return pickup.transform;
         }
 
+        Transform taggedNpc =
+            GetTaggedNpcTarget(hit);
+
+        if (taggedNpc != null)
+        {
+            return taggedNpc;
+        }
+
         SmartNpcAI smartNpc =
             hit.GetComponentInParent<SmartNpcAI>();
 
@@ -752,6 +933,80 @@ public class TouchSelectTarget : MonoBehaviour
         }
 
         return null;
+    }
+
+    Transform GetTaggedNpcTarget(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return null;
+        }
+
+        Transform taggedTarget = null;
+        Transform current = hit.transform;
+
+        while (current != null)
+        {
+            if (IsNpcTag(current))
+            {
+                taggedTarget = current;
+                break;
+            }
+
+            current = current.parent;
+        }
+
+        if (taggedTarget == null)
+        {
+            return null;
+        }
+
+        SmartNpcAI smartNpc =
+            taggedTarget.GetComponentInParent<SmartNpcAI>();
+
+        if (smartNpc != null)
+        {
+            return smartNpc.transform;
+        }
+
+        VillagerAI villager =
+            taggedTarget.GetComponentInParent<VillagerAI>();
+
+        if (villager != null)
+        {
+            return villager.transform;
+        }
+
+        CharacterStats stats =
+            taggedTarget.GetComponentInParent<CharacterStats>();
+
+        if (stats != null)
+        {
+            return stats.transform;
+        }
+
+        ItemInventory inventory =
+            taggedTarget.GetComponentInParent<ItemInventory>();
+
+        if (inventory != null)
+        {
+            return inventory.transform;
+        }
+
+        return taggedTarget;
+    }
+
+    bool IsNpcTag(Transform target)
+    {
+        if (target == null)
+        {
+            return false;
+        }
+
+        return string.Equals(
+            target.gameObject.tag,
+            "npc",
+            StringComparison.OrdinalIgnoreCase);
     }
 
     Transform GetClosestSelectableTarget(
@@ -793,20 +1048,20 @@ public class TouchSelectTarget : MonoBehaviour
 
     string GetTargetName(Transform target)
     {
-        SmartNpcAI smartNpc =
-            target.GetComponent<SmartNpcAI>();
-
-        if (smartNpc != null)
-        {
-            return smartNpc.npcName;
-        }
-
         VillagerAI villager =
             target.GetComponent<VillagerAI>();
 
         if (villager != null)
         {
             return villager.villagerName;
+        }
+
+        SmartNpcAI smartNpc =
+            target.GetComponent<SmartNpcAI>();
+
+        if (smartNpc != null)
+        {
+            return smartNpc.npcName;
         }
 
         MonsterAI monster =
@@ -927,20 +1182,20 @@ public class TouchSelectTarget : MonoBehaviour
 
     string GetTargetAction(Transform target)
     {
-        SmartNpcAI smartNpc =
-            target.GetComponent<SmartNpcAI>();
-
-        if (smartNpc != null)
-        {
-            return smartNpc.currentAction;
-        }
-
         VillagerAI villager =
             target.GetComponent<VillagerAI>();
 
         if (villager != null)
         {
             return villager.currentAction;
+        }
+
+        SmartNpcAI smartNpc =
+            target.GetComponent<SmartNpcAI>();
+
+        if (smartNpc != null)
+        {
+            return smartNpc.currentAction;
         }
 
         MonsterAI monster =
@@ -991,15 +1246,32 @@ public class TouchSelectTarget : MonoBehaviour
 
     string BuildWorldItemInfo(WorldStatItemPickup pickup)
     {
+        if (pickup == null ||
+            pickup.item == null)
+        {
+            return "";
+        }
+
+        StringBuilder builder =
+            new StringBuilder();
+
+        builder.AppendLine("T\u00EAn: " + pickup.item.itemName);
+        builder.Append(BuildWorldItemBodyInfo(pickup));
+
+        return builder.ToString().TrimEnd();
+    }
+
+    string BuildWorldItemBodyInfo(WorldStatItemPickup pickup)
+    {
         StatItemData item =
             pickup.item;
 
         StringBuilder builder =
             new StringBuilder();
 
-        builder.AppendLine("Tên: " + item.itemName);
-        builder.AppendLine("Loại: " + GetItemTypeText(item.itemType));
-        builder.AppendLine("Phẩm chất: " + GetItemGradeText(item.grade));
+        builder.AppendLine("Lo\u1EA1i: " + GetItemTypeText(item.itemType));
+        builder.AppendLine("Ph\u1EA9m ch\u1EA5t: " + GetItemGradeText(item.grade));
+        builder.AppendLine("S\u1ED1 l\u01B0\u1EE3ng: " + Mathf.Max(0, pickup.amount));
 
         if (!string.IsNullOrWhiteSpace(item.description))
         {
@@ -1257,6 +1529,7 @@ public class TouchSelectTarget : MonoBehaviour
             infoPanel.SetActive(false);
         }
 
+        SetWorldItemPanelVisible(false);
         SetInfoIconVisible(false);
 
         if (npcInventoryPanel != null)
@@ -1296,6 +1569,11 @@ public class TouchSelectTarget : MonoBehaviour
         if (IsScreenPositionInsideRect(
                 infoPanel != null
                 ? infoPanel.transform as RectTransform
+                : null,
+                screenPosition) ||
+            IsScreenPositionInsideRect(
+                worldItemInfoPanel != null
+                ? worldItemInfoPanel.transform as RectTransform
                 : null,
                 screenPosition))
         {
@@ -1389,15 +1667,34 @@ public class TouchSelectTarget : MonoBehaviour
             return;
         }
 
-        if (panelRect == null)
-        {
-            return;
-        }
+        bool isWorldItem = IsWorldItemTarget(currentTarget);
 
-        if (infoText != null)
+        if (isWorldItem)
         {
-            infoText.text =
-                BuildTargetInfo(currentTarget);
+            if (worldItemPanelRect == null)
+            {
+                AutoFindWorldItemPanelReferences();
+            }
+
+            if (worldItemPanelRect == null)
+            {
+                return;
+            }
+
+            ShowWorldItemInfo(currentTarget);
+        }
+        else
+        {
+            if (panelRect == null)
+            {
+                return;
+            }
+
+            if (infoText != null)
+            {
+                infoText.text =
+                    BuildTargetInfo(currentTarget);
+            }
         }
 
         if (npcInventoryPanel != null)
@@ -1411,7 +1708,14 @@ public class TouchSelectTarget : MonoBehaviour
                 currentTarget.position +
                 panelOffset);
 
-        panelRect.position =
-            screenPos;
+        if (isWorldItem)
+        {
+            worldItemPanelRect.position = screenPos;
+        }
+        else
+        {
+            panelRect.position = screenPos;
+        }
     }
 }
+

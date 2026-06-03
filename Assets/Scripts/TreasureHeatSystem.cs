@@ -15,6 +15,7 @@ public class TreasureHeatSystem : MonoBehaviour
     public float hiddenTreasureMultiplier = 0.35f;
     public float marketExposureMultiplier = 3f;
     public float shopkeeperGreedMultiplier = 1.8f;
+    public bool enableRobbery = false;
 
     readonly Dictionary<StatItemData, float> lastStoryTimeByItem =
         new Dictionary<StatItemData, float>();
@@ -280,7 +281,8 @@ public class TreasureHeatSystem : MonoBehaviour
         ItemInventory ownerInventory,
         TreasureThreat threat)
     {
-        if (ownerInventory == null ||
+        if (!enableRobbery ||
+            ownerInventory == null ||
             threat.item == null ||
             threat.heat < 3f)
         {

@@ -212,6 +212,76 @@ public static class NpcRoleUtility
                 speed * Time.deltaTime);
     }
 
+    public static void StopForConversation(GameObject npc)
+    {
+        if (npc == null)
+        {
+            return;
+        }
+
+        VillagerAI villager = npc.GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            villager.StopForConversation();
+            return;
+        }
+
+        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            smartNpc.StopForConversation();
+            return;
+        }
+
+        NpcMapMover2D mover = npc.GetComponent<NpcMapMover2D>();
+        if (mover != null)
+        {
+            mover.StopForConversation();
+            return;
+        }
+
+        Rigidbody2D rb = npc.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+    }
+
+    public static void StopForConversation(GameObject npc, float duration)
+    {
+        if (npc == null)
+        {
+            return;
+        }
+
+        VillagerAI villager = npc.GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            villager.StopForConversation(duration);
+            return;
+        }
+
+        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            smartNpc.StopForConversation(duration);
+            return;
+        }
+
+        NpcMapMover2D mover = npc.GetComponent<NpcMapMover2D>();
+        if (mover != null)
+        {
+            mover.StopForConversation(duration);
+            return;
+        }
+
+        Rigidbody2D rb = npc.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+    }
+
     public static void AddCultivationExp(GameObject npc, int amount)
     {
         if (npc == null ||

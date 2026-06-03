@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -412,6 +412,7 @@ public class WorldSpawner : MonoBehaviour
             villager.defense = profile.stats.defense;
             villager.moveSpeed = profile.stats.moveSpeed;
             villager.money = profile.stats.money;
+            villager.spiritStone = profile.stats.spiritStone;
             villager.sociability = profile.personality.sociability;
             villager.greed = profile.personality.greed;
             villager.diligence = profile.personality.diligence;
@@ -517,6 +518,7 @@ public class WorldSpawner : MonoBehaviour
             profile.stats.moveSpeed = villager.moveSpeed;
             profile.stats.cultivationExp = Mathf.Clamp((int)villager.cultivationExp, 0, int.MaxValue);
             profile.stats.money = villager.money;
+            profile.stats.spiritStone = villager.spiritStone;
             profile.personality.sociability = villager.sociability;
             profile.personality.greed = villager.greed;
             profile.personality.diligence = villager.diligence;
@@ -1068,3 +1070,5 @@ public class NpcHomeResident : MonoBehaviour
         }
     }
 }
+
+

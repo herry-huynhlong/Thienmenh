@@ -628,7 +628,7 @@ public class NpcOverheadDialogueUI : MonoBehaviour
     public Vector3 offset = new Vector3(0f, 1.25f, 0f);
     public float defaultDuration = 3f;
     public int sortingOrder = 50;
-    public float fontSize = 2.4f;
+    public float fontSize = 3.4f;
     public Color textColor = Color.white;
     public Color outlineColor = Color.black;
     public float outlineWidth = 0.2f;
@@ -677,6 +677,7 @@ public class NpcOverheadDialogueUI : MonoBehaviour
         }
 
         EnsureText();
+        ApplyTextStyle();
         text.text = line;
         text.gameObject.SetActive(true);
         hideAt = Time.time + Mathf.Max(0.2f, duration);
@@ -701,18 +702,27 @@ public class NpcOverheadDialogueUI : MonoBehaviour
         textObject.transform.SetParent(transform, false);
         text = textObject.AddComponent<TextMeshPro>();
         text.alignment = TextAlignmentOptions.Center;
-        text.fontSize = fontSize;
-        text.color = textColor;
-        text.outlineColor = outlineColor;
-        text.outlineWidth = outlineWidth;
+        ApplyTextStyle();
         text.enableWordWrapping = true;
-        text.rectTransform.sizeDelta = new Vector2(4.5f, 1.4f);
+        text.rectTransform.sizeDelta = new Vector2(5.6f, 1.8f);
 
         MeshRenderer renderer = text.GetComponent<MeshRenderer>();
         if (renderer != null)
         {
             renderer.sortingOrder = sortingOrder;
         }
+    }
+    void ApplyTextStyle()
+    {
+        if (text == null)
+        {
+            return;
+        }
+
+        text.fontSize = fontSize;
+        text.color = textColor;
+        text.outlineColor = outlineColor;
+        text.outlineWidth = outlineWidth;
     }
 }
 
@@ -740,8 +750,10 @@ public class NpcConversationAgent : MonoBehaviour
     public float scanRadius = 1.4f;
     public LayerMask npcLayers = ~0;
     public float scanInterval = 2f;
-    public float conversationCooldown = 12f;
-    public float conversationDuration = 3.5f;
+    public float conversationCooldown = 25f;
+    public float conversationDuration = 2.5f;
+    public bool requireFriendlyRelationship = true;
+    public float minRelationshipToTalk = 8f;
     public float interruptThreshold = 80f;
     public float defaultLockStrength = 45f;
     public bool allowGroupConversation = true;
@@ -801,7 +813,9 @@ public class NpcConversationAgent : MonoBehaviour
 
         if (!force &&
             (Time.time < nextConversationTime ||
-            Time.time < other.nextConversationTime))
+            Time.time < other.nextConversationTime ||
+            !CanSocializeWith(other) ||
+            !other.CanSocializeWith(this)))
         {
             return false;
         }
@@ -837,6 +851,9 @@ public class NpcConversationAgent : MonoBehaviour
 
         nextConversationTime = Time.time + conversationCooldown;
         other.nextConversationTime = Time.time + other.conversationCooldown;
+
+        NpcRoleUtility.StopForConversation(gameObject);
+        NpcRoleUtility.StopForConversation(other.gameObject);
 
         overhead.ShowLine(myLine, conversationDuration);
         other.overhead.ShowLine(otherLine, conversationDuration);
@@ -906,11 +923,34 @@ public class NpcConversationAgent : MonoBehaviour
         return score >= interruptThreshold;
     }
 
+    bool CanSocializeWith(NpcConversationAgent other)
+    {
+        if (other == null)
+        {
+            return false;
+        }
+
+        if (!requireFriendlyRelationship)
+        {
+            return true;
+        }
+
+        NpcSocialRelationship relation = relationships.Get(other.gameObject);
+        if (relation == null)
+        {
+            return false;
+        }
+
+        return Mathf.Max(relation.affection, relation.alliance) >=
+            minRelationshipToTalk;
+    }
+
     public float GetConversationScore(NpcConversationAgent other)
     {
         if (other == null ||
             Time.time < nextConversationTime ||
-            IsBusyTalking)
+            IsBusyTalking ||
+            !CanSocializeWith(other))
         {
             return 0f;
         }

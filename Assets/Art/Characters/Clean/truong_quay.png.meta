@@ -1,0 +1,607 @@
+fileFormatVersion: 2
+guid: b3d4058baab55ec49bd0da19ced84419
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2527669131189769504
+    second: truong_quay_0
+  - first:
+      213: 5577535665591873032
+    second: truong_quay_1
+  - first:
+      213: -5417367180730746483
+    second: truong_quay_2
+  - first:
+      213: -806924828586505405
+    second: truong_quay_3
+  - first:
+      213: -7351525042608852406
+    second: truong_quay_4
+  - first:
+      213: -7017471699956995078
+    second: truong_quay_5
+  - first:
+      213: -6547991639941462875
+    second: truong_quay_6
+  - first:
+      213: 4549623272178253642
+    second: truong_quay_7
+  - first:
+      213: -8506000390936297703
+    second: truong_quay_8
+  - first:
+      213: 2031040406488718465
+    second: truong_quay_9
+  - first:
+      213: 8892277252260160100
+    second: truong_quay_10
+  - first:
+      213: -1747567514196774050
+    second: truong_quay_11
+  - first:
+      213: -469234840132434197
+    second: truong_quay_12
+  - first:
+      213: -2318353545022013041
+    second: truong_quay_13
+  - first:
+      213: -2603703486054643367
+    second: truong_quay_14
+  - first:
+      213: 632727512292336908
+    second: truong_quay_15
+  - first:
+      213: -6509537084849242577
+    second: truong_quay_16
+  - first:
+      213: 7211340119594383241
+    second: truong_quay_17
+  - first:
+      213: 5035510646195541435
+    second: truong_quay_18
+  - first:
+      213: 5249810762498560660
+    second: truong_quay_19
+  - first:
+      213: -1881029627142117103
+    second: truong_quay_20
+  - first:
+      213: -4465591864692136946
+    second: truong_quay_21
+  - first:
+      213: -8824574441669691945
+    second: truong_quay_22
+  - first:
+      213: 7576743456608445865
+    second: truong_quay_23
+  - first:
+      213: 1417848651940177631
+    second: truong_quay_24
+  - first:
+      213: 7240745283646843780
+    second: truong_quay_25
+  - first:
+      213: 4767555090379156749
+    second: truong_quay_26
+  - first:
+      213: 403397552528288227
+    second: truong_quay_27
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 32
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: 4
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 1
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: truong_quay_0
+      rect:
+        serializedVersion: 2
+        x: 36
+        y: 306
+        width: 49
+        height: 88
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0eaa6bd315aebecd0800000000000000
+      internalID: -2527669131189769504
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: truong_quay_1
+      rect:
+        serializedVersion: 2
+        x: 113
+        y: 306
+        width: 53
+        height: 88
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80eeca50323676d40800000000000000
+      internalID: 5577535665591873032
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: truong_quay_2
+      rect:
+        serializedVersion: 2
+        x: 186
+        y: 306
+        width: 54
+        height: 88
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d893fa66045a1d4b0800000000000000
+      internalID: -5417367180730746483
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: truong_quay_3
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 306
+        width: 54
+        height: 88
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 34b88a7c42a3dc4f0800000000000000
+      internalID: -806924828586505405
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: truong_quay_5
+      rect:
+        serializedVersion: 2
+        x: 38
+        y: 217
+        width: 46
+        height: 83
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: afbe4b64baeec9e90800000000000000
+      internalID: -7017471699956995078
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: truong_quay_6
+      rect:
+        serializedVersion: 2
+        x: 114
+        y: 215
+        width: 48
+        height: 84
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5a4cf05db4cd025a0800000000000000
+      internalID: -6547991639941462875
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: truong_quay_7
+      rect:
+        serializedVersion: 2
+        x: 187
+        y: 215
+        width: 47
+        height: 84
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4ff808d242832f30800000000000000
+      internalID: 4549623272178253642
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: truong_quay_8
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 215
+        width: 50
+        height: 84
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 91f78ee06bd94f980800000000000000
+      internalID: -8506000390936297703
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: truong_quay_9
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 127
+        width: 54
+        height: 82
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 18c99312d74bf2c10800000000000000
+      internalID: 2031040406488718465
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: truong_quay_10
+      rect:
+        serializedVersion: 2
+        x: 110
+        y: 127
+        width: 54
+        height: 82
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 462e0413c07b76b70800000000000000
+      internalID: 8892277252260160100
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: truong_quay_11
+      rect:
+        serializedVersion: 2
+        x: 184
+        y: 127
+        width: 55
+        height: 82
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e53f947da946fb7e0800000000000000
+      internalID: -1747567514196774050
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: truong_quay_12
+      rect:
+        serializedVersion: 2
+        x: 258
+        y: 127
+        width: 56
+        height: 82
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: be64ba52661fc79f0800000000000000
+      internalID: -469234840132434197
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: truong_quay_20
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 28
+        width: 55
+        height: 84
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 119653e258d35e5e0800000000000000
+      internalID: -1881029627142117103
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: truong_quay_21
+      rect:
+        serializedVersion: 2
+        x: 110
+        y: 29
+        width: 54
+        height: 82
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e04a629dbd70702c0800000000000000
+      internalID: -4465591864692136946
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: truong_quay_22
+      rect:
+        serializedVersion: 2
+        x: 183
+        y: 29
+        width: 54
+        height: 82
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d57946cc40d88580800000000000000
+      internalID: -8824574441669691945
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: truong_quay_23
+      rect:
+        serializedVersion: 2
+        x: 257
+        y: 29
+        width: 53
+        height: 82
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a5696dc700062960800000000000000
+      internalID: 7576743456608445865
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 15c506d99f67e724788c5cda8b9fc20c
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      truong_quay_0: -2527669131189769504
+      truong_quay_1: 5577535665591873032
+      truong_quay_10: 8892277252260160100
+      truong_quay_11: -1747567514196774050
+      truong_quay_12: -469234840132434197
+      truong_quay_13: -2318353545022013041
+      truong_quay_14: -2603703486054643367
+      truong_quay_15: 632727512292336908
+      truong_quay_16: -6509537084849242577
+      truong_quay_17: 7211340119594383241
+      truong_quay_18: 5035510646195541435
+      truong_quay_19: 5249810762498560660
+      truong_quay_2: -5417367180730746483
+      truong_quay_20: -1881029627142117103
+      truong_quay_21: -4465591864692136946
+      truong_quay_22: -8824574441669691945
+      truong_quay_23: 7576743456608445865
+      truong_quay_24: 1417848651940177631
+      truong_quay_25: 7240745283646843780
+      truong_quay_26: 4767555090379156749
+      truong_quay_27: 403397552528288227
+      truong_quay_3: -806924828586505405
+      truong_quay_4: -7351525042608852406
+      truong_quay_5: -7017471699956995078
+      truong_quay_6: -6547991639941462875
+      truong_quay_7: 4549623272178253642
+      truong_quay_8: -8506000390936297703
+      truong_quay_9: 2031040406488718465
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

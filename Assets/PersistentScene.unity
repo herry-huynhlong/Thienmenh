@@ -1147,6 +1147,7 @@ MonoBehaviour:
   readOnly: 1
   emptyText: "Kh\xF4ng c\xF3 v\u1EADt ph\u1EA9m"
   blockMapDrag: 0
+  infoRefreshInterval: 0.5
 --- !u!1 &115273481
 GameObject:
   m_ObjectHideFlags: 0
@@ -1665,7 +1666,9 @@ MonoBehaviour:
   items:
   - item: {fileID: 11400000, guid: 380ac40ac6337774fb466ce9a18c828d, type: 2}
     amount: 99
-  - item: {fileID: 11400000, guid: cda66f76d387a0c4c82e2e65c80867b6, type: 2}
+  - item: {fileID: 11400000, guid: fbca9c129140d13479913e24a52918fa, type: 2}
+    amount: 99
+  - item: {fileID: 11400000, guid: 34bc70b2c21de334cb525204f964ae78, type: 2}
     amount: 99
   - item: {fileID: 11400000, guid: 1c336eec841d16648861371b6edbc0b0, type: 2}
     amount: 99
@@ -1674,6 +1677,12 @@ MonoBehaviour:
   - item: {fileID: 11400000, guid: 62042268fa2d75e40806582daa4ba7a7, type: 2}
     amount: 99
   - item: {fileID: 11400000, guid: b231dc34d033eea419e29c76e99abbf8, type: 2}
+    amount: 99
+  - item: {fileID: 11400000, guid: a6ab3d50bbc1c2846b62c504952a5616, type: 2}
+    amount: 99
+  - item: {fileID: 11400000, guid: 90d27e7ff49e2e84ebeca74497ab3b83, type: 2}
+    amount: 99
+  - item: {fileID: 11400000, guid: d482edd449729474bb4c92d41fd8a2c4, type: 2}
     amount: 99
   - item: {fileID: 11400000, guid: 2490eed08a1aca042be9d061cb9f4297, type: 2}
     amount: 99
@@ -2817,9 +2826,17 @@ MonoBehaviour:
   infoContentRoot: {fileID: 1417831195}
   inventoryContentRoot: {fileID: 2002059556}
   infoText: {fileID: 0}
+  infoIcon: {fileID: 0}
   npcInventoryPanel: {fileID: 109394768}
   infoButton: {fileID: 284581985}
   inventoryButton: {fileID: 399069174}
+  worldItemInfoPanel: {fileID: 0}
+  worldItemNameText: {fileID: 0}
+  worldItemInfoText: {fileID: 0}
+  worldItemPanelIcon: {fileID: 0}
+  worldItemIconSize: {x: 72, y: 72}
+  worldItemIconOffset: {x: 16, y: -16}
+  worldItemTextLeftPadding: 88
   panelOffset: {x: 0, y: 2, z: 0}
   tapThreshold: 10
 --- !u!4 &354868555
@@ -10083,7 +10100,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1914993504}
   m_Direction: 0
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -11484,7 +11501,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2075695978}
   m_HandleRect: {fileID: 2075695977}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -13183,8 +13200,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4293206385
-  m_fontColor: {r: 0.44230443, g: 0.13105197, b: 0.8962264, a: 1}
+    rgba: 4280411617
+  m_fontColor: {r: 0.88344496, g: 0.8980392, b: 0.12941174, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -13240,7 +13257,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: -0.33995056, w: 0}
+  m_margin: {x: -138.13101, y: 0, z: -0.33995056, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0

@@ -4,7 +4,7 @@ using UnityEngine;
 public class NpcResourceGatherer : MonoBehaviour
 {
     [Header("Gathering")]
-    public bool canGather = true;
+    public bool canGather = false;
     public float scanInterval = 2f;
     public float maxSearchDistance = 12f;
     public float arriveDistance = 0.35f;
@@ -16,6 +16,8 @@ public class NpcResourceGatherer : MonoBehaviour
     public bool gatherOnlyWhenInventoryExists = false;
 
     WorldStatItemPickup targetPickup;
+    WorldStatItemPickup harvestingPickup;
+    float harvestTimer;
     NpcMapMover2D mover;
     VillagerAI villager;
     NpcItemCollector collector;
@@ -40,6 +42,12 @@ public class NpcResourceGatherer : MonoBehaviour
         if (gatherOnlyWhenInventoryExists &&
             GetComponent<ItemInventory>() == null)
         {
+            return;
+        }
+
+        if (harvestingPickup != null)
+        {
+            ContinueHarvest();
             return;
         }
 
@@ -103,6 +111,7 @@ public class NpcResourceGatherer : MonoBehaviour
 
         if (distance <= arriveDistance)
         {
+            StartHarvest();
             return;
         }
 
@@ -122,6 +131,102 @@ public class NpcResourceGatherer : MonoBehaviour
                 targetPickup.transform.position,
                 "Gather Resource");
         }
+    }
+
+    void StartHarvest()
+    {
+        if (!IsPickupAvailable(targetPickup))
+        {
+            targetPickup = null;
+            return;
+        }
+
+        harvestingPickup = targetPickup;
+        harvestTimer = Mathf.Max(0.1f, harvestingPickup.harvestDuration);
+        StopNpcMovement();
+        SetGatherAction();
+    }
+
+    void ContinueHarvest()
+    {
+        if (!IsPickupAvailable(harvestingPickup))
+        {
+            harvestingPickup = null;
+            targetPickup = null;
+            harvestTimer = 0f;
+            return;
+        }
+
+        float distance =
+            Vector2.Distance(transform.position, harvestingPickup.transform.position);
+
+        if (distance > arriveDistance + retargetDistance)
+        {
+            targetPickup = harvestingPickup;
+            harvestingPickup = null;
+            harvestTimer = 0f;
+            MoveToTarget();
+            return;
+        }
+
+        StopNpcMovement();
+        harvestTimer -= Time.deltaTime;
+        SetGatherAction();
+
+        if (harvestTimer > 0f)
+        {
+            return;
+        }
+
+        CompleteHarvest();
+    }
+
+    void CompleteHarvest()
+    {
+        WorldStatItemPickup pickup = harvestingPickup;
+        harvestingPickup = null;
+        targetPickup = null;
+        harvestTimer = 0f;
+
+        if (!IsPickupAvailable(pickup))
+        {
+            return;
+        }
+
+        StatItemData item = pickup.item;
+        if (item == null ||
+            !pickup.TryTake(1))
+        {
+            return;
+        }
+
+        collector.ReceiveItem(
+            item,
+            ItemLifecycleEventType.Picked,
+            item.ShouldNpcUseDirectly());
+    }
+
+    void StopNpcMovement()
+    {
+        NpcRoleUtility.StopForConversation(gameObject, 0.35f);
+
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+    }
+
+    void SetGatherAction()
+    {
+        string itemName = harvestingPickup != null && harvestingPickup.item != null
+            ? harvestingPickup.item.itemName
+            : "linh d\u01b0\u1ee3c";
+
+        NpcRoleUtility.SetAction(
+            gameObject,
+            "\u0110ang h\u00e1i " + itemName +
+            " (" + Mathf.CeilToInt(Mathf.Max(0f, harvestTimer)) + "s)");
     }
 
     bool IsPickupAvailable(WorldStatItemPickup pickup)

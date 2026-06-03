@@ -1,0 +1,629 @@
+fileFormatVersion: 2
+guid: 98a69b78d9667b24d9564126319a8d8b
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 3541575408161159006
+    second: dao_cot_0
+  - first:
+      213: 8181648735950823363
+    second: dao_cot_1
+  - first:
+      213: -6926631859863849160
+    second: dao_cot_2
+  - first:
+      213: 4198931978000067892
+    second: dao_cot_3
+  - first:
+      213: 7950009025081938134
+    second: dao_cot_4
+  - first:
+      213: -2991145179764185390
+    second: dao_cot_5
+  - first:
+      213: 8864261052038190537
+    second: dao_cot_6
+  - first:
+      213: 3703870808597970232
+    second: dao_cot_7
+  - first:
+      213: -7628479032283781575
+    second: dao_cot_8
+  - first:
+      213: -1727184104192783984
+    second: dao_cot_9
+  - first:
+      213: 1064731168077451828
+    second: dao_cot_10
+  - first:
+      213: 8108137350162573543
+    second: dao_cot_11
+  - first:
+      213: 5313064089791128856
+    second: dao_cot_12
+  - first:
+      213: 4923432580240488122
+    second: dao_cot_13
+  - first:
+      213: 6492860596497219700
+    second: dao_cot_14
+  - first:
+      213: 5320754590167369462
+    second: dao_cot_15
+  - first:
+      213: 7619061484577014852
+    second: dao_cot_16
+  - first:
+      213: -3979289503841904970
+    second: dao_cot_17
+  - first:
+      213: -8416116117198466248
+    second: dao_cot_18
+  - first:
+      213: 4464560393437537358
+    second: dao_cot_19
+  - first:
+      213: 310624919382570350
+    second: dao_cot_20
+  - first:
+      213: -8125899918283609220
+    second: dao_cot_21
+  - first:
+      213: 1092101681045067258
+    second: dao_cot_22
+  - first:
+      213: 2346539386956090338
+    second: dao_cot_23
+  - first:
+      213: -387152614927543414
+    second: dao_cot_24
+  - first:
+      213: 2917578101191710978
+    second: dao_cot_25
+  - first:
+      213: -5390125868870821587
+    second: dao_cot_26
+  - first:
+      213: -427409850628396935
+    second: dao_cot_27
+  - first:
+      213: 6513382067766199033
+    second: dao_cot_28
+  - first:
+      213: 8263749140568981706
+    second: dao_cot_29
+  - first:
+      213: 2649940411815507905
+    second: dao_cot_30
+  - first:
+      213: 671457869646943451
+    second: dao_cot_31
+  - first:
+      213: 5497708683644676667
+    second: dao_cot_32
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 32
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: 4
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 1
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: dao_cot_1
+      rect:
+        serializedVersion: 2
+        x: 102
+        y: 382
+        width: 65
+        height: 110
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3cf5f575d2e0b8170800000000000000
+      internalID: 8181648735950823363
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_cot_2
+      rect:
+        serializedVersion: 2
+        x: 200
+        y: 385
+        width: 65
+        height: 107
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 83779e6b509afdf90800000000000000
+      internalID: -6926631859863849160
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_cot_3
+      rect:
+        serializedVersion: 2
+        x: 300
+        y: 385
+        width: 68
+        height: 108
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43de8b8136a954a30800000000000000
+      internalID: 4198931978000067892
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_cot_4
+      rect:
+        serializedVersion: 2
+        x: 402
+        y: 384
+        width: 67
+        height: 110
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d0982d561b145e60800000000000000
+      internalID: 7950009025081938134
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_cot_10
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 255
+        width: 62
+        height: 107
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4321b8e2b5fa6ce00800000000000000
+      internalID: 1064731168077451828
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_cot_11
+      rect:
+        serializedVersion: 2
+        x: 201
+        y: 251
+        width: 66
+        height: 111
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7e8648216f3e58070800000000000000
+      internalID: 8108137350162573543
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_cot_12
+      rect:
+        serializedVersion: 2
+        x: 304
+        y: 255
+        width: 64
+        height: 107
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 81562ecc3abcbb940800000000000000
+      internalID: 5313064089791128856
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_cot_13
+      rect:
+        serializedVersion: 2
+        x: 401
+        y: 253
+        width: 58
+        height: 109
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab6b1d4a8db835440800000000000000
+      internalID: 4923432580240488122
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_cot_18
+      rect:
+        serializedVersion: 2
+        x: 97
+        y: 141
+        width: 56
+        height: 102
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 83312fd5bf2f33b80800000000000000
+      internalID: -8416116117198466248
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_cot_19
+      rect:
+        serializedVersion: 2
+        x: 199
+        y: 139
+        width: 57
+        height: 102
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e446f19060e45fd30800000000000000
+      internalID: 4464560393437537358
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_cot_20
+      rect:
+        serializedVersion: 2
+        x: 302
+        y: 141
+        width: 57
+        height: 100
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e65be2ae7bf8f4400800000000000000
+      internalID: 310624919382570350
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_cot_21
+      rect:
+        serializedVersion: 2
+        x: 406
+        y: 140
+        width: 54
+        height: 101
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7b6452c3110b3f80800000000000000
+      internalID: -8125899918283609220
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_cot_26
+      rect:
+        serializedVersion: 2
+        x: 93
+        y: 16
+        width: 58
+        height: 106
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d299f43941d6235b0800000000000000
+      internalID: -5390125868870821587
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_cot_27
+      rect:
+        serializedVersion: 2
+        x: 200
+        y: 16
+        width: 56
+        height: 106
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 978aacf5109811af0800000000000000
+      internalID: -427409850628396935
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_cot_28
+      rect:
+        serializedVersion: 2
+        x: 298
+        y: 16
+        width: 59
+        height: 103
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9f28a933b7e246a50800000000000000
+      internalID: 6513382067766199033
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_cot_29
+      rect:
+        serializedVersion: 2
+        x: 405
+        y: 16
+        width: 53
+        height: 102
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac0cd846f0cbea270800000000000000
+      internalID: 8263749140568981706
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 34b60473d85d2fa49a7db9dacf654df5
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      dao_cot_0: 3541575408161159006
+      dao_cot_1: 8181648735950823363
+      dao_cot_10: 1064731168077451828
+      dao_cot_11: 8108137350162573543
+      dao_cot_12: 5313064089791128856
+      dao_cot_13: 4923432580240488122
+      dao_cot_14: 6492860596497219700
+      dao_cot_15: 5320754590167369462
+      dao_cot_16: 7619061484577014852
+      dao_cot_17: -3979289503841904970
+      dao_cot_18: -8416116117198466248
+      dao_cot_19: 4464560393437537358
+      dao_cot_2: -6926631859863849160
+      dao_cot_20: 310624919382570350
+      dao_cot_21: -8125899918283609220
+      dao_cot_22: 1092101681045067258
+      dao_cot_23: 2346539386956090338
+      dao_cot_24: -387152614927543414
+      dao_cot_25: 2917578101191710978
+      dao_cot_26: -5390125868870821587
+      dao_cot_27: -427409850628396935
+      dao_cot_28: 6513382067766199033
+      dao_cot_29: 8263749140568981706
+      dao_cot_3: 4198931978000067892
+      dao_cot_30: 2649940411815507905
+      dao_cot_31: 671457869646943451
+      dao_cot_32: 5497708683644676667
+      dao_cot_4: 7950009025081938134
+      dao_cot_5: -2991145179764185390
+      dao_cot_6: 8864261052038190537
+      dao_cot_7: 3703870808597970232
+      dao_cot_8: -7628479032283781575
+      dao_cot_9: -1727184104192783984
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

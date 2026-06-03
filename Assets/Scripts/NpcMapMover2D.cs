@@ -50,6 +50,7 @@ public class NpcMapMover2D : MonoBehaviour
     float waitTimer;
     float stuckTimer;
     float blockedTimer;
+    float movementPausedUntil;
     bool waitingAfterArrive;
     bool hasTarget;
 
@@ -174,6 +175,13 @@ public class NpcMapMover2D : MonoBehaviour
         }
         AutoResolveMapBounds();
 
+        if (Time.time < movementPausedUntil)
+        {
+            currentVelocity = Vector2.zero;
+            currentAction = "Talking";
+            UpdateVisualAnimation();
+            return;
+        }
 
         if (!hasTarget)
         {
@@ -266,6 +274,27 @@ public class NpcMapMover2D : MonoBehaviour
         stuckTimer = 0f;
         blockedTimer = 0f;
         currentAction = action;
+    }
+
+    public void StopForConversation()
+    {
+        StopForConversation(2f);
+    }
+
+    public void StopForConversation(float duration)
+    {
+        movementPausedUntil = Mathf.Max(
+            movementPausedUntil,
+            Time.time + Mathf.Max(0.2f, duration));
+        currentVelocity = Vector2.zero;
+        currentAction = "Talking";
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        UpdateVisualAnimation();
     }
 
     public bool IsAtMoveTarget(float extraDistance = 0f)

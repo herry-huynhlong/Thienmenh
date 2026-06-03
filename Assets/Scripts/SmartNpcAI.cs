@@ -36,6 +36,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     public bool canKillOthers = true;
     public bool canCompeteResource = true;
     public bool canCreateSect = true;
+    public bool autonomousActivitiesEnabled = false;
 
     [Header("Cảnh giới")]
     public CultivationRealm realm = CultivationRealm.Mortal;
@@ -108,7 +109,10 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     private float attackTimer = 0;
 
+    bool isDead;
+
     private MonsterAI currentMonsterTarget;
+    float movementPausedUntil;
 
     [Header("Skill")]
     public GameObject fireballPrefab;
@@ -137,14 +141,23 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     public float thinkDelay = 2f;
 
     public bool IsDead =>
-        characterStats != null ?
+        isDead ||
+        (characterStats != null ?
         characterStats.IsDead :
-        currentHP <= 0;
+        currentHP <= 0);
 
     public Transform DamageTransform => transform;
 
     void Start()
     {
+        ItemInventory inventory = GetComponent<ItemInventory>();
+        if (inventory == null)
+        {
+            inventory = gameObject.AddComponent<ItemInventory>();
+        }
+
+        inventory.UsePrivateNpcRuntimeItems(false);
+
         rb = GetComponent<Rigidbody2D>();
 
         spawnPosition = transform.position;
@@ -254,7 +267,18 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     void Update()
     {
+        if (isDead)
+        {
+            return;
+        }
+
         SyncFromCharacterStats();
+
+        if (IsDead)
+        {
+            Die();
+            return;
+        }
 
         thinkTimer += Time.deltaTime;
 
@@ -275,11 +299,30 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     void FixedUpdate()
     {
+        if (IsDead)
+        {
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+
+            return;
+        }
+
         UpdateMovement();
     }
 
     void UpdateMovement()
     {
+        if (Time.time < movementPausedUntil)
+        {
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+            return;
+        }
+
         if (currentTarget == null)
         {
             rb.linearVelocity = Vector2.zero;
@@ -373,6 +416,23 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         }
     }
 
+    public void StopForConversation()
+    {
+        StopForConversation(2f);
+    }
+
+    public void StopForConversation(float duration)
+    {
+        movementPausedUntil = Mathf.Max(
+            movementPausedUntil,
+            Time.time + Mathf.Max(0.2f, duration));
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+    }
+
     void SyncFromCharacterStats()
     {
         if (characterStats == null)
@@ -394,6 +454,12 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     void Think()
     {
+        if (IsDead)
+        {
+            Die();
+            return;
+        }
+
         if (currentHP <= 0)
         {
             Die();
@@ -419,7 +485,8 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
                 return;
             }
 
-            if (timeSystem.CurrentPhase == WorldTimePhase.Evening &&
+            if (autonomousActivitiesEnabled &&
+                timeSystem.CurrentPhase == WorldTimePhase.Evening &&
                 canMakeFriends &&
                 kindness + greed < 130)
             {
@@ -461,7 +528,8 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (canTrade &&
+        if (autonomousActivitiesEnabled &&
+            canTrade &&
             money >= 50 &&
             pill <= 0)
         {
@@ -470,32 +538,40 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (canFight)
+        if (autonomousActivitiesEnabled &&
+            canFight)
         {
             SearchMonster();
 
             return;
         }
 
-        if (canMakeFriends)
+        if (autonomousActivitiesEnabled &&
+            canMakeFriends)
         {
             MakeFriend();
 
             return;
         }
 
-        if (canCreateSect)
+        if (autonomousActivitiesEnabled &&
+            canCreateSect)
         {
             TryCreateSect();
 
             return;
         }
 
-        currentAction = "Không có việc làm";
+        currentAction = "Đi dạo trong làng";
     }
 
     void UpdateNeeds()
     {
+        if (IsDead)
+        {
+            return;
+        }
+
         if (NeedsFood())
         {
             hunger += Time.deltaTime *
@@ -572,7 +648,12 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     void Cultivate()
     {
-        currentAction = "Tu luyện";
+        if (IsDead)
+        {
+            return;
+        }
+
+        currentAction = "Tu luy\u1ec7n";
 
         if (pill > 0)
         {
@@ -620,6 +701,11 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     void AddCultivationProgress(int amount)
     {
+        if (IsDead)
+        {
+            return;
+        }
+
         if (characterStats != null)
         {
             characterStats.AddCultivationExp(amount);
@@ -1265,13 +1351,44 @@ bool ShouldFightMonster(
 
     void Die()
     {
-        currentAction =
-            "Đã chết";
+        if (isDead)
+        {
+            return;
+        }
+
+        isDead = true;
+        currentHP = 0;
+
+        if (characterStats != null)
+        {
+            characterStats.currentHP = 0;
+        }
+
+        currentTarget = null;
+        currentMonsterTarget = null;
+        currentAction = "\u0110\u00e3 ch\u1ebft";
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        Collider2D collider2d =
+            GetComponent<Collider2D>();
+
+        if (collider2d != null)
+        {
+            collider2d.enabled = false;
+        }
 
         Debug.Log(
             npcName +
-            " đã chết.");
+            " \u0111\u00e3 ch\u1ebft.");
 
         Destroy(gameObject);
     }
+
 }
+
+
+

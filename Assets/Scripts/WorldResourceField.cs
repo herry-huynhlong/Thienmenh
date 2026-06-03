@@ -1,5 +1,7 @@
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [System.Serializable]
 public class ResourceFieldItemEntry
@@ -7,6 +9,21 @@ public class ResourceFieldItemEntry
     public StatItemData item;
     [Min(1)] public int weight = 1;
     [Min(1)] public int amount = 1;
+}
+[Serializable]
+public class SavedWorldResourceNode
+{
+    public string itemKey;
+    public int amount;
+    public Vector3 position;
+    public bool active;
+}
+
+[Serializable]
+public class SavedWorldResourceField
+{
+    public List<SavedWorldResourceNode> resources =
+        new List<SavedWorldResourceNode>();
 }
 
 [RequireComponent(typeof(SpawnRegion))]
@@ -24,6 +41,7 @@ public class WorldResourceField : MonoBehaviour
     public ItemGrade maxNaturalGrade = ItemGrade.Ha;
     public bool allowMaterials = true;
     public bool allowFood = true;
+    public bool allowMedicine = true;
 
     [Header("Spawn")]
     public int initialSpawnCount = 8;
@@ -37,6 +55,8 @@ public class WorldResourceField : MonoBehaviour
     public float colliderRadius = 0.25f;
     public int sortingOrder = 20;
     public float visualSize = 0.45f;
+    public bool requireNpcHarvestAction = true;
+    public float harvestDuration = 8f;
 
     [Header("Respawn")]
     public int respawnAmount = 1;
@@ -44,7 +64,16 @@ public class WorldResourceField : MonoBehaviour
     public ResourceRespawnMode respawnMode =
         ResourceRespawnMode.AutomaticByGrade;
 
+    [Header("Save")]
+    public bool saveResourceState = true;
+    public bool loadSavedResourceState = true;
+    public string resourceSaveKey = "";
+    public float autoSaveInterval = 10f;
+
+    const string ResourceSavePrefix = "ThienMenh.Save.ResourceField.";
+
     SpawnRegion region;
+    float autoSaveTimer;
 
     public static IReadOnlyList<WorldResourceField> Fields => fields;
 
@@ -63,10 +92,48 @@ public class WorldResourceField : MonoBehaviour
 
     void Start()
     {
+        RegisterConfiguredItems();
+        ConfigureExistingResources();
+
+        if (loadSavedResourceState && TryLoadResourceState())
+        {
+            return;
+        }
+
         if (spawnOnStart)
         {
             SpawnInitialResources();
         }
+    }
+
+    void Update()
+    {
+        if (!saveResourceState || autoSaveInterval <= 0f)
+        {
+            return;
+        }
+
+        autoSaveTimer += Time.deltaTime;
+        if (autoSaveTimer < autoSaveInterval)
+        {
+            return;
+        }
+
+        autoSaveTimer = 0f;
+        SaveResourceState();
+    }
+
+    void OnApplicationPause(bool paused)
+    {
+        if (paused)
+        {
+            SaveResourceState();
+        }
+    }
+
+    void OnApplicationQuit()
+    {
+        SaveResourceState();
     }
 
     void OnValidate()
@@ -76,6 +143,8 @@ public class WorldResourceField : MonoBehaviour
         visualSize = Mathf.Max(0.05f, visualSize);
         respawnAmount = Mathf.Max(1, respawnAmount);
         respawnDelay = Mathf.Max(0f, respawnDelay);
+        harvestDuration = Mathf.Max(0.1f, harvestDuration);
+        autoSaveInterval = Mathf.Max(0f, autoSaveInterval);
 
         if (region == null)
         {
@@ -83,6 +152,28 @@ public class WorldResourceField : MonoBehaviour
         }
     }
 
+
+    void ConfigureExistingResources()
+    {
+        WorldStatItemPickup[] pickups =
+            GetComponentsInChildren<WorldStatItemPickup>(true);
+
+        foreach (WorldStatItemPickup pickup in pickups)
+        {
+            if (pickup == null)
+            {
+                continue;
+            }
+
+            pickup.allowNpcPickup = allowNpcPickup;
+            pickup.allowPlayerPickup = allowPlayerPickup;
+            pickup.requireNpcHarvestAction = requireNpcHarvestAction;
+            pickup.harvestDuration = Mathf.Max(0.1f, harvestDuration);
+            pickup.destroyWhenEmpty = false;
+            pickup.OnDepleted -= SaveResourceState;
+            pickup.OnDepleted += SaveResourceState;
+        }
+    }
     [ContextMenu("Spawn Initial Resources")]
     public void SpawnInitialResources()
     {
@@ -150,7 +241,10 @@ public class WorldResourceField : MonoBehaviour
         return resourceObject.GetComponent<WorldStatItemPickup>();
     }
 
-    public WorldStatItemPickup GetNearestAvailablePickup(Vector3 position)
+    public WorldStatItemPickup GetNearestAvailablePickup(
+        Vector3 position,
+        StatItemData requiredItem = null,
+        NpcMapZone? requiredZone = null)
     {
         WorldStatItemPickup[] pickups =
             GetComponentsInChildren<WorldStatItemPickup>(true);
@@ -160,7 +254,9 @@ public class WorldResourceField : MonoBehaviour
 
         foreach (WorldStatItemPickup pickup in pickups)
         {
-            if (!IsAvailable(pickup))
+            if (!IsAvailable(pickup) ||
+                !MatchesRequiredItem(pickup, requiredItem) ||
+                !MatchesRequiredZone(pickup, requiredZone))
             {
                 continue;
             }
@@ -179,7 +275,9 @@ public class WorldResourceField : MonoBehaviour
     }
 
     public static WorldStatItemPickup GetNearestAvailablePickupInAllFields(
-        Vector3 position)
+        Vector3 position,
+        StatItemData requiredItem = null,
+        NpcMapZone? requiredZone = null)
     {
         WorldStatItemPickup best = null;
         float bestDistance = float.MaxValue;
@@ -193,7 +291,10 @@ public class WorldResourceField : MonoBehaviour
             }
 
             WorldStatItemPickup candidate =
-                field.GetNearestAvailablePickup(position);
+                field.GetNearestAvailablePickup(
+                    position,
+                    requiredItem,
+                    requiredZone);
 
             if (candidate == null)
             {
@@ -229,6 +330,8 @@ public class WorldResourceField : MonoBehaviour
         pickup.amount = Mathf.Max(1, entry.amount);
         pickup.allowNpcPickup = allowNpcPickup;
         pickup.allowPlayerPickup = allowPlayerPickup;
+        pickup.requireNpcHarvestAction = requireNpcHarvestAction;
+        pickup.harvestDuration = Mathf.Max(0.1f, harvestDuration);
         pickup.destroyWhenEmpty = false;
 
         WorldResourceNode node =
@@ -300,6 +403,140 @@ public class WorldResourceField : MonoBehaviour
             Vector3.one * (visualSize / largestSide);
     }
 
+    void RegisterConfiguredItems()
+    {
+        foreach (ResourceFieldItemEntry entry in items)
+        {
+            if (entry != null && entry.item != null)
+            {
+                GameSaveSystem.RegisterItem(entry.item);
+            }
+        }
+    }
+
+    string GetResourceSaveKey()
+    {
+        string key = string.IsNullOrEmpty(resourceSaveKey)
+            ? name
+            : resourceSaveKey;
+
+        return ResourceSavePrefix +
+            SceneManager.GetActiveScene().name + "." + key;
+    }
+
+    public void SaveResourceState()
+    {
+        if (!saveResourceState)
+        {
+            return;
+        }
+
+        SavedWorldResourceField data =
+            new SavedWorldResourceField();
+
+        WorldStatItemPickup[] pickups =
+            GetComponentsInChildren<WorldStatItemPickup>(true);
+
+        foreach (WorldStatItemPickup pickup in pickups)
+        {
+            if (pickup == null || pickup.item == null || pickup.amount <= 0)
+            {
+                continue;
+            }
+
+            GameSaveSystem.RegisterItem(pickup.item);
+            data.resources.Add(
+                new SavedWorldResourceNode
+                {
+                    itemKey = GameSaveSystem.GetItemKey(pickup.item),
+                    amount = pickup.amount,
+                    position = pickup.transform.position,
+                    active = pickup.gameObject.activeSelf
+                });
+        }
+
+        PlayerPrefs.SetString(
+            GetResourceSaveKey(),
+            JsonUtility.ToJson(data));
+        GameSaveSystem.MarkSaveExists();
+        PlayerPrefs.Save();
+    }
+
+    bool TryLoadResourceState()
+    {
+        if (!saveResourceState || !GameSaveSystem.HasSave)
+        {
+            return false;
+        }
+
+        string key = GetResourceSaveKey();
+        if (!PlayerPrefs.HasKey(key))
+        {
+            return false;
+        }
+
+        SavedWorldResourceField data =
+            JsonUtility.FromJson<SavedWorldResourceField>(
+                PlayerPrefs.GetString(key));
+
+        ClearExistingResources();
+
+        if (data == null || data.resources == null)
+        {
+            return true;
+        }
+
+        foreach (SavedWorldResourceNode saved in data.resources)
+        {
+            if (saved == null || saved.amount <= 0)
+            {
+                continue;
+            }
+
+            StatItemData item = GameSaveSystem.FindItem(saved.itemKey);
+            if (item == null)
+            {
+                continue;
+            }
+
+            ResourceFieldItemEntry entry =
+                new ResourceFieldItemEntry
+                {
+                    item = item,
+                    amount = Mathf.Max(1, saved.amount),
+                    weight = 1
+                };
+
+            GameObject resourceObject = resourcePrefab != null
+                ? Instantiate(resourcePrefab, saved.position, Quaternion.identity, transform)
+                : new GameObject("Resource - " + item.itemName);
+
+            if (resourcePrefab == null)
+            {
+                resourceObject.transform.SetParent(transform, true);
+                resourceObject.transform.position = saved.position;
+            }
+
+            ConfigureResource(resourceObject, entry);
+            resourceObject.SetActive(saved.active);
+        }
+
+        return true;
+    }
+
+    void ClearExistingResources()
+    {
+        WorldStatItemPickup[] pickups =
+            GetComponentsInChildren<WorldStatItemPickup>(true);
+
+        foreach (WorldStatItemPickup pickup in pickups)
+        {
+            if (pickup != null)
+            {
+                Destroy(pickup.gameObject);
+            }
+        }
+    }
     ResourceFieldItemEntry PickItemEntry()
     {
         int totalWeight = 0;
@@ -319,7 +556,7 @@ public class WorldResourceField : MonoBehaviour
             return null;
         }
 
-        int roll = Random.Range(0, totalWeight);
+        int roll = UnityEngine.Random.Range(0, totalWeight);
         int current = 0;
 
         foreach (ResourceFieldItemEntry entry in items)
@@ -371,9 +608,36 @@ public class WorldResourceField : MonoBehaviour
             return true;
         }
 
+        if (allowMedicine &&
+            item.itemType == ItemType.DanDuoc)
+        {
+            return true;
+        }
+
         return false;
     }
 
+
+    bool MatchesRequiredZone(
+        WorldStatItemPickup pickup,
+        NpcMapZone? requiredZone)
+    {
+        if (!requiredZone.HasValue)
+        {
+            return true;
+        }
+
+        NpcMapArea area = NpcMapArea.FindArea(pickup.transform.position);
+        return area != null &&
+            area.zone == requiredZone.Value;
+    }
+    bool MatchesRequiredItem(
+        WorldStatItemPickup pickup,
+        StatItemData requiredItem)
+    {
+        return requiredItem == null ||
+            pickup.item == requiredItem;
+    }
     bool IsAvailable(WorldStatItemPickup pickup)
     {
         return pickup != null &&
@@ -398,3 +662,10 @@ public class WorldResourceField : MonoBehaviour
         }
     }
 }
+
+
+
+
+
+
+

@@ -1,0 +1,627 @@
+fileFormatVersion: 2
+guid: 1db1076ee14729d4fa180d6ea107ae7e
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1946070786257835677
+    second: lao_ba_0
+  - first:
+      213: -9131414713958726731
+    second: lao_ba_1
+  - first:
+      213: -7165345392029912096
+    second: lao_ba_2
+  - first:
+      213: -5000387456731131692
+    second: lao_ba_3
+  - first:
+      213: 466086495046754365
+    second: lao_ba_4
+  - first:
+      213: -8283432443263669011
+    second: lao_ba_5
+  - first:
+      213: 4865301159470548465
+    second: lao_ba_6
+  - first:
+      213: 2542734677155369893
+    second: lao_ba_7
+  - first:
+      213: -2083721979206442030
+    second: lao_ba_8
+  - first:
+      213: 7100697085324014798
+    second: lao_ba_9
+  - first:
+      213: 1135794310495279553
+    second: lao_ba_10
+  - first:
+      213: -6300896451668366082
+    second: lao_ba_11
+  - first:
+      213: 9109882482957857285
+    second: lao_ba_12
+  - first:
+      213: 7926175214312387832
+    second: lao_ba_13
+  - first:
+      213: -1682152981108735400
+    second: lao_ba_14
+  - first:
+      213: 1088680083356762966
+    second: lao_ba_15
+  - first:
+      213: -4869286051255256236
+    second: lao_ba_16
+  - first:
+      213: 2433431319177347038
+    second: lao_ba_17
+  - first:
+      213: -1958309932273283471
+    second: lao_ba_18
+  - first:
+      213: -1338620265467791247
+    second: lao_ba_19
+  - first:
+      213: 8095027059100032518
+    second: lao_ba_20
+  - first:
+      213: 3475786410809207475
+    second: lao_ba_21
+  - first:
+      213: -3087929465800757511
+    second: lao_ba_22
+  - first:
+      213: -8046507221595433418
+    second: lao_ba_23
+  - first:
+      213: -2153262529920961923
+    second: lao_ba_24
+  - first:
+      213: -5740611106771220644
+    second: lao_ba_25
+  - first:
+      213: 4988973444682186525
+    second: lao_ba_26
+  - first:
+      213: -5519328393320484386
+    second: lao_ba_27
+  - first:
+      213: 4919874358493703639
+    second: lao_ba_28
+  - first:
+      213: 1513000123599203602
+    second: lao_ba_29
+  - first:
+      213: 4447584579251531487
+    second: lao_ba_30
+  - first:
+      213: -4657772274964744918
+    second: lao_ba_31
+  - first:
+      213: -2666525348510394001
+    second: lao_ba_32
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 32
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: 4
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 1
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: lao_ba_1
+      rect:
+        serializedVersion: 2
+        x: 98
+        y: 380
+        width: 57
+        height: 114
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b307bda2b2b64180800000000000000
+      internalID: -9131414713958726731
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lao_ba_2
+      rect:
+        serializedVersion: 2
+        x: 196
+        y: 379
+        width: 59
+        height: 115
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e3331f54549f8c90800000000000000
+      internalID: -7165345392029912096
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lao_ba_3
+      rect:
+        serializedVersion: 2
+        x: 300
+        y: 380
+        width: 60
+        height: 114
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d0d83ee91e0b9ab0800000000000000
+      internalID: -5000387456731131692
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lao_ba_4
+      rect:
+        serializedVersion: 2
+        x: 403
+        y: 379
+        width: 57
+        height: 114
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d306ed3a23fd77600800000000000000
+      internalID: 466086495046754365
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lao_ba_9
+      rect:
+        serializedVersion: 2
+        x: 97
+        y: 256
+        width: 56
+        height: 111
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec4b364c06eba8260800000000000000
+      internalID: 7100697085324014798
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lao_ba_10
+      rect:
+        serializedVersion: 2
+        x: 195
+        y: 257
+        width: 56
+        height: 110
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c91bfe58e623cf00800000000000000
+      internalID: 1135794310495279553
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lao_ba_11
+      rect:
+        serializedVersion: 2
+        x: 301
+        y: 257
+        width: 55
+        height: 110
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: efca9cf8f08be88a0800000000000000
+      internalID: -6300896451668366082
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lao_ba_12
+      rect:
+        serializedVersion: 2
+        x: 403
+        y: 256
+        width: 56
+        height: 111
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 502b14e1addcc6e70800000000000000
+      internalID: 9109882482957857285
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lao_ba_17
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 138
+        width: 50
+        height: 104
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: edf30e454e845c120800000000000000
+      internalID: 2433431319177347038
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lao_ba_18
+      rect:
+        serializedVersion: 2
+        x: 199
+        y: 139
+        width: 51
+        height: 103
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17e4bbefd7fa2d4e0800000000000000
+      internalID: -1958309932273283471
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lao_ba_19
+      rect:
+        serializedVersion: 2
+        x: 303
+        y: 139
+        width: 50
+        height: 103
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17837abf5f34c6de0800000000000000
+      internalID: -1338620265467791247
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lao_ba_20
+      rect:
+        serializedVersion: 2
+        x: 406
+        y: 139
+        width: 48
+        height: 102
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 60e15d09830575070800000000000000
+      internalID: 8095027059100032518
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lao_ba_26
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 19
+        width: 48
+        height: 105
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d1f732c4ae46c3540800000000000000
+      internalID: 4988973444682186525
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lao_ba_27
+      rect:
+        serializedVersion: 2
+        x: 196
+        y: 19
+        width: 51
+        height: 105
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ed1b765a1186763b0800000000000000
+      internalID: -5519328393320484386
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lao_ba_28
+      rect:
+        serializedVersion: 2
+        x: 301
+        y: 19
+        width: 49
+        height: 105
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7dde19599a7e64440800000000000000
+      internalID: 4919874358493703639
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lao_ba_29
+      rect:
+        serializedVersion: 2
+        x: 404
+        y: 19
+        width: 47
+        height: 105
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 21da040a8914ff410800000000000000
+      internalID: 1513000123599203602
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 6b7fa970b76092d49943c521cc29e8e7
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      lao_ba_0: -1946070786257835677
+      lao_ba_1: -9131414713958726731
+      lao_ba_10: 1135794310495279553
+      lao_ba_11: -6300896451668366082
+      lao_ba_12: 9109882482957857285
+      lao_ba_13: 7926175214312387832
+      lao_ba_14: -1682152981108735400
+      lao_ba_15: 1088680083356762966
+      lao_ba_16: -4869286051255256236
+      lao_ba_17: 2433431319177347038
+      lao_ba_18: -1958309932273283471
+      lao_ba_19: -1338620265467791247
+      lao_ba_2: -7165345392029912096
+      lao_ba_20: 8095027059100032518
+      lao_ba_21: 3475786410809207475
+      lao_ba_22: -3087929465800757511
+      lao_ba_23: -8046507221595433418
+      lao_ba_24: -2153262529920961923
+      lao_ba_25: -5740611106771220644
+      lao_ba_26: 4988973444682186525
+      lao_ba_27: -5519328393320484386
+      lao_ba_28: 4919874358493703639
+      lao_ba_29: 1513000123599203602
+      lao_ba_3: -5000387456731131692
+      lao_ba_30: 4447584579251531487
+      lao_ba_31: -4657772274964744918
+      lao_ba_32: -2666525348510394001
+      lao_ba_4: 466086495046754365
+      lao_ba_5: -8283432443263669011
+      lao_ba_6: 4865301159470548465
+      lao_ba_7: 2542734677155369893
+      lao_ba_8: -2083721979206442030
+      lao_ba_9: 7100697085324014798
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

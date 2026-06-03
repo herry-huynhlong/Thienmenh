@@ -17,16 +17,28 @@ public class MainMenuManager : MonoBehaviour
 
     public void ContinueGame()
     {
+        string sceneToLoad = "";
+
         if (GameSaveSystem.HasSave ||
             PlayerPrefs.HasKey("PlayerName"))
         {
-            SceneManager.LoadScene(
-                GameSaveSystem.LoadCurrentScene(firstGameScene));
+            sceneToLoad =
+                GameSaveSystem.LoadCurrentScene(firstGameScene);
         }
         else
         {
-            SceneManager.LoadScene(characterCreateScene);
+            sceneToLoad = characterCreateScene;
         }
+
+        if (string.IsNullOrEmpty(sceneToLoad) ||
+            !Application.CanStreamedLevelBeLoaded(sceneToLoad))
+        {
+            Debug.LogWarning(
+                $"Cannot continue to scene '{sceneToLoad}'. Loading '{firstGameScene}' instead.");
+            sceneToLoad = firstGameScene;
+        }
+
+        SceneManager.LoadScene(sceneToLoad);
     }
 
     public void About()

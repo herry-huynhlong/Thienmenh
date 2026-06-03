@@ -1,0 +1,623 @@
+fileFormatVersion: 2
+guid: 80557855d61fe224083c053306d62bc3
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 5217290534824369329
+    second: dao_si_0
+  - first:
+      213: 4929796163450107765
+    second: dao_si_1
+  - first:
+      213: -7455203532413286728
+    second: dao_si_2
+  - first:
+      213: 1814927452243666826
+    second: dao_si_3
+  - first:
+      213: -341999333680839883
+    second: dao_si_4
+  - first:
+      213: 9177936094471799862
+    second: dao_si_5
+  - first:
+      213: 2477181636340211511
+    second: dao_si_6
+  - first:
+      213: -3011649138265126497
+    second: dao_si_7
+  - first:
+      213: 6780388207159661608
+    second: dao_si_8
+  - first:
+      213: 6531497699395791322
+    second: dao_si_9
+  - first:
+      213: 1387898830058033329
+    second: dao_si_10
+  - first:
+      213: -2845213642524980326
+    second: dao_si_11
+  - first:
+      213: 1672863885360141307
+    second: dao_si_12
+  - first:
+      213: -569016690484201488
+    second: dao_si_13
+  - first:
+      213: 2636542927121715560
+    second: dao_si_14
+  - first:
+      213: -7358531110473941027
+    second: dao_si_15
+  - first:
+      213: 3043840307491064190
+    second: dao_si_16
+  - first:
+      213: 1937782979909099346
+    second: dao_si_17
+  - first:
+      213: 7552303147079690192
+    second: dao_si_18
+  - first:
+      213: -3171830517819602485
+    second: dao_si_19
+  - first:
+      213: -3534163494138399892
+    second: dao_si_20
+  - first:
+      213: 3531559662399772792
+    second: dao_si_21
+  - first:
+      213: 2982245081856597487
+    second: dao_si_22
+  - first:
+      213: -3383286937775428792
+    second: dao_si_23
+  - first:
+      213: -9163920038984222788
+    second: dao_si_24
+  - first:
+      213: -6016344696781008194
+    second: dao_si_25
+  - first:
+      213: -3377081136989961367
+    second: dao_si_26
+  - first:
+      213: 9202458532578323288
+    second: dao_si_27
+  - first:
+      213: 3309175039866382346
+    second: dao_si_28
+  - first:
+      213: -5915357233305618627
+    second: dao_si_29
+  - first:
+      213: -7595092181314223274
+    second: dao_si_30
+  - first:
+      213: -3656671604554425287
+    second: dao_si_31
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 32
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: 4
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 1
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: dao_si_1
+      rect:
+        serializedVersion: 2
+        x: 92
+        y: 377
+        width: 66
+        height: 111
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 577f681dd772a6440800000000000000
+      internalID: 4929796163450107765
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_si_2
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 377
+        width: 65
+        height: 112
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8b6c44af2ebc98890800000000000000
+      internalID: -7455203532413286728
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_si_3
+      rect:
+        serializedVersion: 2
+        x: 308
+        y: 377
+        width: 65
+        height: 111
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a87a614e6eaef2910800000000000000
+      internalID: 1814927452243666826
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_si_4
+      rect:
+        serializedVersion: 2
+        x: 411
+        y: 377
+        width: 64
+        height: 111
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 53388820b69f04bf0800000000000000
+      internalID: -341999333680839883
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_si_9
+      rect:
+        serializedVersion: 2
+        x: 93
+        y: 253
+        width: 67
+        height: 105
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad964cf5d8a84aa50800000000000000
+      internalID: 6531497699395791322
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_si_10
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 253
+        width: 67
+        height: 105
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1b01acde1aec24310800000000000000
+      internalID: 1387898830058033329
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_si_11
+      rect:
+        serializedVersion: 2
+        x: 310
+        y: 252
+        width: 67
+        height: 106
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9b04374445c388d0800000000000000
+      internalID: -2845213642524980326
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_si_12
+      rect:
+        serializedVersion: 2
+        x: 411
+        y: 253
+        width: 67
+        height: 105
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf3987c27d4373710800000000000000
+      internalID: 1672863885360141307
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_si_17
+      rect:
+        serializedVersion: 2
+        x: 92
+        y: 138
+        width: 68
+        height: 99
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25f97497a5364ea10800000000000000
+      internalID: 1937782979909099346
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_si_18
+      rect:
+        serializedVersion: 2
+        x: 199
+        y: 138
+        width: 68
+        height: 99
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d7efbdc2bb2fc860800000000000000
+      internalID: 7552303147079690192
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_si_19
+      rect:
+        serializedVersion: 2
+        x: 306
+        y: 138
+        width: 66
+        height: 98
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc98e99f2f46bf3d0800000000000000
+      internalID: -3171830517819602485
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_si_20
+      rect:
+        serializedVersion: 2
+        x: 413
+        y: 138
+        width: 66
+        height: 98
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c633ab1e60124fec0800000000000000
+      internalID: -3534163494138399892
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_si_25
+      rect:
+        serializedVersion: 2
+        x: 94
+        y: 14
+        width: 60
+        height: 99
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eb2101ecf56a18ca0800000000000000
+      internalID: -6016344696781008194
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_si_26
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 15
+        width: 65
+        height: 98
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9638a0439923221d0800000000000000
+      internalID: -3377081136989961367
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_si_27
+      rect:
+        serializedVersion: 2
+        x: 310
+        y: 15
+        width: 66
+        height: 98
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85be7965743b5bf70800000000000000
+      internalID: 9202458532578323288
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dao_si_28
+      rect:
+        serializedVersion: 2
+        x: 415
+        y: 15
+        width: 66
+        height: 98
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a0823de7a2d8ced20800000000000000
+      internalID: 3309175039866382346
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 46bc31f5d6d49a24bba8b64c2ef62a0a
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      dao_si_0: 5217290534824369329
+      dao_si_1: 4929796163450107765
+      dao_si_10: 1387898830058033329
+      dao_si_11: -2845213642524980326
+      dao_si_12: 1672863885360141307
+      dao_si_13: -569016690484201488
+      dao_si_14: 2636542927121715560
+      dao_si_15: -7358531110473941027
+      dao_si_16: 3043840307491064190
+      dao_si_17: 1937782979909099346
+      dao_si_18: 7552303147079690192
+      dao_si_19: -3171830517819602485
+      dao_si_2: -7455203532413286728
+      dao_si_20: -3534163494138399892
+      dao_si_21: 3531559662399772792
+      dao_si_22: 2982245081856597487
+      dao_si_23: -3383286937775428792
+      dao_si_24: -9163920038984222788
+      dao_si_25: -6016344696781008194
+      dao_si_26: -3377081136989961367
+      dao_si_27: 9202458532578323288
+      dao_si_28: 3309175039866382346
+      dao_si_29: -5915357233305618627
+      dao_si_3: 1814927452243666826
+      dao_si_30: -7595092181314223274
+      dao_si_31: -3656671604554425287
+      dao_si_4: -341999333680839883
+      dao_si_5: 9177936094471799862
+      dao_si_6: 2477181636340211511
+      dao_si_7: -3011649138265126497
+      dao_si_8: 6780388207159661608
+      dao_si_9: 6531497699395791322
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

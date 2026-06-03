@@ -5,8 +5,10 @@ public class DailyConversation : MonoBehaviour
     [Header("Detect")]
     public float talkRadius = 1.2f;
     public LayerMask npcLayers = ~0;
-    public float scanInterval = 0.5f;
-    public float conversationCooldown = 6f;
+    public float scanInterval = 3f;
+    public float conversationCooldown = 25f;
+    public bool requireFriendlyRelationship = true;
+    public int minRelationshipToTalk = 8;
 
     [Header("Dialogue")]
     public string[] greetingLines =
@@ -65,7 +67,9 @@ public class DailyConversation : MonoBehaviour
             if (other == null ||
                 other.gameObject == gameObject ||
                 other.IsDead() ||
-                Time.time < other.nextTalkTime)
+                Time.time < other.nextTalkTime ||
+                !CanTalkWith(other) ||
+                !other.CanTalkWith(this))
             {
                 continue;
             }
@@ -94,6 +98,9 @@ public class DailyConversation : MonoBehaviour
         string otherLine =
             other.GetRandomLine();
 
+        NpcRoleUtility.StopForConversation(gameObject);
+        NpcRoleUtility.StopForConversation(other.gameObject);
+
         SetAction("Nói chuyện: " + myLine);
         other.SetAction("Nói chuyện: " + otherLine);
 
@@ -103,6 +110,34 @@ public class DailyConversation : MonoBehaviour
             other.GetDisplayName() +
             ": " +
             myLine);
+    }
+
+    bool CanTalkWith(DailyConversation other)
+    {
+        if (other == null)
+        {
+            return false;
+        }
+
+        if (!requireFriendlyRelationship)
+        {
+            return true;
+        }
+
+        NpcRelationshipGraph graph = GetComponent<NpcRelationshipGraph>();
+        if (graph == null)
+        {
+            return false;
+        }
+
+        NpcSocialRelationship relationship = graph.Get(other.gameObject);
+        if (relationship == null)
+        {
+            return false;
+        }
+
+        return Mathf.Max(relationship.affection, relationship.alliance) >=
+            minRelationshipToTalk;
     }
 
     string GetRandomLine()

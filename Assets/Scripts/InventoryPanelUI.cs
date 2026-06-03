@@ -241,10 +241,67 @@ public class InventoryPanelUI : MonoBehaviour
 
     public void Refresh()
     {
+        Refresh(false);
+    }
+
+    public void Refresh(bool preserveSelection)
+    {
+        int previousIndex = selectedItemIndex;
+        StatItemData previousItem = selectedItem;
+
+        if (!preserveSelection)
+        {
+            selectedItemIndex = -1;
+            selectedItem = null;
+            ClearDetail();
+            RebuildItemGrid();
+            return;
+        }
+
+        RebuildItemGrid();
+
+        int restoredIndex = FindRestorableItemIndex(previousIndex, previousItem);
+        if (restoredIndex >= 0)
+        {
+            SelectItem(restoredIndex);
+            return;
+        }
+
         selectedItemIndex = -1;
         selectedItem = null;
         ClearDetail();
-        RebuildItemGrid();
+    }
+
+    int FindRestorableItemIndex(int previousIndex, StatItemData previousItem)
+    {
+        if (inventory == null ||
+            previousItem == null)
+        {
+            return -1;
+        }
+
+        ItemStack previousStack =
+            inventory.GetStack(previousIndex);
+
+        if (previousStack != null &&
+            previousStack.item == previousItem &&
+            previousStack.amount > 0)
+        {
+            return previousIndex;
+        }
+
+        for (int i = 0; i < inventory.items.Count; i++)
+        {
+            ItemStack stack = inventory.items[i];
+            if (stack != null &&
+                stack.item == previousItem &&
+                stack.amount > 0)
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     public void SelectItem(int itemIndex)

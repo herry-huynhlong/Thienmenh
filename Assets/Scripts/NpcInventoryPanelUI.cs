@@ -15,10 +15,17 @@ public class NpcInventoryPanelUI : MonoBehaviour
     public bool readOnly = true;
     public string emptyText = "Không có vật phẩm";
     public bool blockMapDrag;
+    public float infoRefreshInterval = 0.5f;
+    public bool autoCreateInfoText = true;
+    public float autoInfoHeight = 64f;
+
 
     Transform currentNpc;
     ItemInventory currentInventory;
     bool gridDirty = true;
+    float refreshTimer;
+    bool createdInfoText;
+
 
     void Awake()
     {
@@ -48,6 +55,8 @@ public class NpcInventoryPanelUI : MonoBehaviour
         {
             inventory = npc.gameObject.AddComponent<ItemInventory>();
         }
+
+        inventory.UsePrivateNpcRuntimeItems(false);
 
         if (currentNpc != npc ||
             currentInventory != inventory)
@@ -79,13 +88,17 @@ public class NpcInventoryPanelUI : MonoBehaviour
         if (titleText != null)
         {
             titleText.text =
-                GetNpcName(currentNpc) + " - Kho do";
+                GetNpcName(currentNpc) + " - Kho đồ";
         }
+
+        EnsureInfoText();
 
         if (infoText != null)
         {
-            infoText.text =
-                BuildInfoText(currentNpc, currentInventory);
+            infoText.text = createdInfoText
+                ? BuildCompactInfoText(currentNpc, currentInventory)
+                : BuildInfoText(currentNpc, currentInventory);
+            infoText.gameObject.SetActive(true);
         }
 
         if (itemsText != null)
@@ -106,9 +119,11 @@ public class NpcInventoryPanelUI : MonoBehaviour
             BindItemGrid();
             if (gridDirty)
             {
-                itemGridPanel.Refresh();
+                itemGridPanel.Refresh(true);
                 gridDirty = false;
             }
+
+            ReserveGridTopSpace();
         }
     }
 
@@ -170,9 +185,11 @@ public class NpcInventoryPanelUI : MonoBehaviour
 
                 if (gridDirty)
                 {
-                    itemGridPanel.Refresh();
+                    itemGridPanel.Refresh(true);
                     gridDirty = false;
                 }
+
+                ReserveGridTopSpace();
             }
             else if (itemGridPanel.panelRoot != panelRoot)
             {
@@ -186,6 +203,69 @@ public class NpcInventoryPanelUI : MonoBehaviour
         }
     }
 
+
+    void EnsureInfoText()
+    {
+        if (infoText != null ||
+            !autoCreateInfoText ||
+            panelRoot == null)
+        {
+            return;
+        }
+
+        GameObject textObject =
+            new GameObject("NpcInventoryValueText", typeof(RectTransform));
+
+        textObject.transform.SetParent(panelRoot.transform, false);
+        textObject.transform.SetAsFirstSibling();
+
+        RectTransform rect =
+            textObject.GetComponent<RectTransform>();
+
+        rect.anchorMin = new Vector2(0f, 1f);
+        rect.anchorMax = new Vector2(1f, 1f);
+        rect.pivot = new Vector2(0.5f, 1f);
+        rect.anchoredPosition = new Vector2(0f, -12f);
+        rect.sizeDelta = new Vector2(-28f, autoInfoHeight);
+
+        TextMeshProUGUI text =
+            textObject.AddComponent<TextMeshProUGUI>();
+
+        text.fontSize = 20f;
+        text.enableAutoSizing = true;
+        text.fontSizeMin = 12f;
+        text.fontSizeMax = 20f;
+        text.alignment = TextAlignmentOptions.TopRight;
+        text.color = new Color(1f, 0.92f, 0.55f, 1f);
+        text.raycastTarget = false;
+        text.textWrappingMode = TextWrappingModes.Normal;
+
+        infoText = text;
+        createdInfoText = true;
+    }
+
+    void ReserveGridTopSpace()
+    {
+        if (!createdInfoText ||
+            itemGridPanel == null ||
+            itemGridPanel.itemGridParent == null)
+        {
+            return;
+        }
+
+        RectTransform gridRect =
+            itemGridPanel.itemGridParent as RectTransform;
+
+        if (gridRect == null)
+        {
+            return;
+        }
+
+        gridRect.anchoredPosition =
+            new Vector2(
+                gridRect.anchoredPosition.x,
+                -autoInfoHeight);
+    }
 
     void SanitizeCopiedInventoryGrid()
     {
@@ -321,6 +401,25 @@ public class NpcInventoryPanelUI : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        if (panelRoot == null ||
+            !panelRoot.activeInHierarchy ||
+            currentNpc == null)
+        {
+            return;
+        }
+
+        refreshTimer += Time.deltaTime;
+        if (refreshTimer < infoRefreshInterval)
+        {
+            return;
+        }
+
+        refreshTimer = 0f;
+        Refresh();
+    }
+
     void OnDisable()
     {
         Unsubscribe();
@@ -340,6 +439,43 @@ public class NpcInventoryPanelUI : MonoBehaviour
         }
     }
 
+    string BuildCompactInfoText(
+        Transform npc,
+        ItemInventory inventory)
+    {
+        int inventoryValue =
+            GetInventoryValue(inventory);
+        int totalAssets =
+            inventoryValue;
+
+        VillagerAI villager =
+            npc.GetComponent<VillagerAI>();
+
+        if (villager != null)
+        {
+            totalAssets +=
+                Mathf.Max(0, villager.money) +
+                Mathf.Max(0, villager.spiritStone);
+        }
+        else
+        {
+            SmartNpcAI smartNpc =
+                npc.GetComponent<SmartNpcAI>();
+
+            if (smartNpc != null)
+            {
+                totalAssets +=
+                    Mathf.Max(0, smartNpc.money) +
+                    Mathf.Max(0, smartNpc.spiritStone);
+            }
+        }
+
+        return "Balo: " +
+            NpcEconomy.FormatCurrency(inventoryValue) +
+            " | T\u1ed5ng: " +
+            NpcEconomy.FormatCurrency(totalAssets);
+    }
+
     string BuildInfoText(
         Transform npc,
         ItemInventory inventory)
@@ -347,26 +483,113 @@ public class NpcInventoryPanelUI : MonoBehaviour
         StringBuilder builder =
             new StringBuilder();
 
+        int money = 0;
+        int spiritStone = 0;
+        bool hasWallet = false;
+
         VillagerAI villager =
             npc.GetComponent<VillagerAI>();
 
         if (villager != null)
         {
-            builder.AppendLine("Tiền: " + villager.money + " LT");
+            money = villager.money;
+            spiritStone = villager.spiritStone;
+            hasWallet = true;
         }
-
-        SmartNpcAI smartNpc =
-            npc.GetComponent<SmartNpcAI>();
-
-        if (smartNpc != null)
+        else
         {
-            builder.AppendLine("Tiền: " + smartNpc.money + " LT");
+            SmartNpcAI smartNpc =
+                npc.GetComponent<SmartNpcAI>();
+
+            if (smartNpc != null)
+            {
+                money = smartNpc.money;
+                spiritStone = smartNpc.spiritStone;
+                hasWallet = true;
+            }
         }
 
-        builder.Append("Số loại hàng: ");
-        builder.Append(GetItemKindCount(inventory));
+        int itemKindCount =
+            GetItemKindCount(inventory);
+        int itemTotalCount =
+            GetItemTotalCount(inventory);
+        int inventoryValue =
+            GetInventoryValue(inventory);
+
+        if (hasWallet)
+        {
+            builder.AppendLine("Ti\u1ec1n: " + money);
+            builder.AppendLine("Linh th\u1ea1ch: " + spiritStone + " LT");
+        }
+
+        builder.AppendLine(
+            "Gi\u00e1 tr\u1ecb balo: " +
+            NpcEconomy.FormatCurrency(inventoryValue));
+
+        if (hasWallet)
+        {
+            builder.AppendLine(
+                "T\u1ed5ng t\u00e0i s\u1ea3n: " +
+                NpcEconomy.FormatCurrency(
+                    Mathf.Max(0, spiritStone) +
+                    Mathf.Max(0, money) +
+                    inventoryValue));
+        }
+
+        builder.Append("S\u1ed1 lo\u1ea1i h\u00e0ng: ");
+        builder.Append(itemKindCount);
+        builder.Append(" / T\u1ed5ng m\u00f3n: ");
+        builder.Append(itemTotalCount);
 
         return builder.ToString();
+    }
+
+    int GetItemTotalCount(ItemInventory inventory)
+    {
+        if (inventory == null)
+        {
+            return 0;
+        }
+
+        int count = 0;
+
+        foreach (ItemStack stack in inventory.items)
+        {
+            if (stack != null &&
+                stack.item != null &&
+                stack.amount > 0)
+            {
+                count += stack.amount;
+            }
+        }
+
+        return count;
+    }
+
+    int GetInventoryValue(ItemInventory inventory)
+    {
+        if (inventory == null)
+        {
+            return 0;
+        }
+
+        int total = 0;
+
+        foreach (ItemStack stack in inventory.items)
+        {
+            if (stack == null ||
+                stack.item == null ||
+                stack.amount <= 0)
+            {
+                continue;
+            }
+
+            total +=
+                NpcEconomy.GetItemValue(stack.item) *
+                stack.amount;
+        }
+
+        return Mathf.Max(0, total);
     }
 
     int GetItemKindCount(ItemInventory inventory)
@@ -485,3 +708,8 @@ public class NpcInventoryPanelUI : MonoBehaviour
         }
     }
 }
+
+
+
+
+

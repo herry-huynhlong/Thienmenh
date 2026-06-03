@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class NpcItemCollector : MonoBehaviour
@@ -92,6 +92,7 @@ public class NpcItemCollector : MonoBehaviour
 
         if (pickup == null ||
             !pickup.allowNpcPickup ||
+            pickup.requireNpcHarvestAction ||
             pickup.item == null ||
             inventory == null)
         {
@@ -409,8 +410,12 @@ public class NpcItemCollector : MonoBehaviour
             if (inventory == null)
             {
                 inventory = gameObject.AddComponent<ItemInventory>();
-                inventory.shareRuntimeItems = false;
             }
+        }
+
+        if (inventory != null)
+        {
+            inventory.UsePrivateNpcRuntimeItems(false);
         }
 
         if (characterStats == null)
@@ -425,3 +430,6 @@ public class NpcItemCollector : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, pickupRadius);
     }
 }
+
+
+

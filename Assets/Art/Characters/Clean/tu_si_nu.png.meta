@@ -1,0 +1,623 @@
+fileFormatVersion: 2
+guid: 52706e3f6a1329e42a033882dcd777cc
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -3707206851933708913
+    second: tu_si_nu_0
+  - first:
+      213: 1526288227493090252
+    second: tu_si_nu_1
+  - first:
+      213: -2718245464975514668
+    second: tu_si_nu_2
+  - first:
+      213: 7243927439215770462
+    second: tu_si_nu_3
+  - first:
+      213: 9090338365701013647
+    second: tu_si_nu_4
+  - first:
+      213: -9006870229813715031
+    second: tu_si_nu_5
+  - first:
+      213: 6974504432442860468
+    second: tu_si_nu_6
+  - first:
+      213: -7965884524672231348
+    second: tu_si_nu_7
+  - first:
+      213: -7863793812843250113
+    second: tu_si_nu_8
+  - first:
+      213: 3648326172254959784
+    second: tu_si_nu_9
+  - first:
+      213: -490356337086539371
+    second: tu_si_nu_10
+  - first:
+      213: -3262123135520756732
+    second: tu_si_nu_11
+  - first:
+      213: 5904411776337126887
+    second: tu_si_nu_12
+  - first:
+      213: -5535786567108756005
+    second: tu_si_nu_13
+  - first:
+      213: -7600079272769366535
+    second: tu_si_nu_14
+  - first:
+      213: -7943048221592094328
+    second: tu_si_nu_15
+  - first:
+      213: 7450801122979253805
+    second: tu_si_nu_16
+  - first:
+      213: 7146404871469297962
+    second: tu_si_nu_17
+  - first:
+      213: 2440931213871065473
+    second: tu_si_nu_18
+  - first:
+      213: 6277929942404052768
+    second: tu_si_nu_19
+  - first:
+      213: -3046831869545393467
+    second: tu_si_nu_20
+  - first:
+      213: -2941312828446992342
+    second: tu_si_nu_21
+  - first:
+      213: 9180029827583413914
+    second: tu_si_nu_22
+  - first:
+      213: 679037055535697702
+    second: tu_si_nu_23
+  - first:
+      213: 405195598446226163
+    second: tu_si_nu_24
+  - first:
+      213: -7864177619932521212
+    second: tu_si_nu_25
+  - first:
+      213: -8581928656544005302
+    second: tu_si_nu_26
+  - first:
+      213: -8934812956621687879
+    second: tu_si_nu_27
+  - first:
+      213: -5205296561661827274
+    second: tu_si_nu_28
+  - first:
+      213: 4578882162654488687
+    second: tu_si_nu_29
+  - first:
+      213: -7511057589445419259
+    second: tu_si_nu_30
+  - first:
+      213: -1949651360489794209
+    second: tu_si_nu_31
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 32
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: 4
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 1
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: tu_si_nu_1
+      rect:
+        serializedVersion: 2
+        x: 101
+        y: 379
+        width: 58
+        height: 116
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cc316986e077e2510800000000000000
+      internalID: 1526288227493090252
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tu_si_nu_2
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 378
+        width: 57
+        height: 117
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d361d7c62ad64ad0800000000000000
+      internalID: -2718245464975514668
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tu_si_nu_3
+      rect:
+        serializedVersion: 2
+        x: 303
+        y: 379
+        width: 62
+        height: 116
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5b392140a9978460800000000000000
+      internalID: 7243927439215770462
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tu_si_nu_4
+      rect:
+        serializedVersion: 2
+        x: 404
+        y: 379
+        width: 60
+        height: 116
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f80c6b7b49e572e70800000000000000
+      internalID: 9090338365701013647
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tu_si_nu_9
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 255
+        width: 60
+        height: 113
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a87402f25571a230800000000000000
+      internalID: 3648326172254959784
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tu_si_nu_10
+      rect:
+        serializedVersion: 2
+        x: 200
+        y: 256
+        width: 60
+        height: 112
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 599589a6287e139f0800000000000000
+      internalID: -490356337086539371
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tu_si_nu_11
+      rect:
+        serializedVersion: 2
+        x: 306
+        y: 256
+        width: 57
+        height: 112
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40ca3bdaa4c9ab2d0800000000000000
+      internalID: -3262123135520756732
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tu_si_nu_12
+      rect:
+        serializedVersion: 2
+        x: 409
+        y: 254
+        width: 57
+        height: 114
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7e525384a3fa0f150800000000000000
+      internalID: 5904411776337126887
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tu_si_nu_17
+      rect:
+        serializedVersion: 2
+        x: 104
+        y: 140
+        width: 57
+        height: 109
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a217c090e512d2360800000000000000
+      internalID: 7146404871469297962
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tu_si_nu_18
+      rect:
+        serializedVersion: 2
+        x: 204
+        y: 141
+        width: 60
+        height: 110
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 189a2f3a10eefd120800000000000000
+      internalID: 2440931213871065473
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tu_si_nu_19
+      rect:
+        serializedVersion: 2
+        x: 307
+        y: 141
+        width: 58
+        height: 109
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 02738cd4500bf1750800000000000000
+      internalID: 6277929942404052768
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tu_si_nu_20
+      rect:
+        serializedVersion: 2
+        x: 409
+        y: 140
+        width: 58
+        height: 109
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5c25865be8a77b5d0800000000000000
+      internalID: -3046831869545393467
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tu_si_nu_25
+      rect:
+        serializedVersion: 2
+        x: 102
+        y: 16
+        width: 56
+        height: 108
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40d5851fe14dcd290800000000000000
+      internalID: -7864177619932521212
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tu_si_nu_26
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 16
+        width: 56
+        height: 108
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4303fa1b5dd6e880800000000000000
+      internalID: -8581928656544005302
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tu_si_nu_27
+      rect:
+        serializedVersion: 2
+        x: 304
+        y: 16
+        width: 57
+        height: 108
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9b3b10264fa210480800000000000000
+      internalID: -8934812956621687879
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tu_si_nu_28
+      rect:
+        serializedVersion: 2
+        x: 406
+        y: 16
+        width: 56
+        height: 108
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 637a5932b5213c7b0800000000000000
+      internalID: -5205296561661827274
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: e1064620c37cce84c8366b1bda7ca243
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      tu_si_nu_0: -3707206851933708913
+      tu_si_nu_1: 1526288227493090252
+      tu_si_nu_10: -490356337086539371
+      tu_si_nu_11: -3262123135520756732
+      tu_si_nu_12: 5904411776337126887
+      tu_si_nu_13: -5535786567108756005
+      tu_si_nu_14: -7600079272769366535
+      tu_si_nu_15: -7943048221592094328
+      tu_si_nu_16: 7450801122979253805
+      tu_si_nu_17: 7146404871469297962
+      tu_si_nu_18: 2440931213871065473
+      tu_si_nu_19: 6277929942404052768
+      tu_si_nu_2: -2718245464975514668
+      tu_si_nu_20: -3046831869545393467
+      tu_si_nu_21: -2941312828446992342
+      tu_si_nu_22: 9180029827583413914
+      tu_si_nu_23: 679037055535697702
+      tu_si_nu_24: 405195598446226163
+      tu_si_nu_25: -7864177619932521212
+      tu_si_nu_26: -8581928656544005302
+      tu_si_nu_27: -8934812956621687879
+      tu_si_nu_28: -5205296561661827274
+      tu_si_nu_29: 4578882162654488687
+      tu_si_nu_3: 7243927439215770462
+      tu_si_nu_30: -7511057589445419259
+      tu_si_nu_31: -1949651360489794209
+      tu_si_nu_4: 9090338365701013647
+      tu_si_nu_5: -9006870229813715031
+      tu_si_nu_6: 6974504432442860468
+      tu_si_nu_7: -7965884524672231348
+      tu_si_nu_8: -7863793812843250113
+      tu_si_nu_9: 3648326172254959784
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

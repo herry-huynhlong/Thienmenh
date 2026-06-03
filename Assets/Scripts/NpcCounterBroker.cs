@@ -13,6 +13,14 @@ public class NpcCounterBroker : MonoBehaviour
     public StatItemData[] acceptedItems;
     public int maxUnitsPerRequest = 4;
 
+    [Header("Wallet")]
+    public int startingMoney = 100000;
+    public int minimumMoneyReserve = 50000;
+    public bool refillMoneyWhenLow = true;
+    [SerializeField] int serviceMoney;
+
+    public int CurrentMoney => GetBrokerMoney();
+
     [Header("Pricing")]
     public NpcTradeContext sellToNpcContext =
         NpcTradeContext.CounterBrokerBuy;
@@ -202,7 +210,12 @@ public class NpcCounterBroker : MonoBehaviour
             int totalPrice =
                 unitPrice * amount;
 
-            if (NpcEconomy.GetNpcMoney(gameObject) < totalPrice)
+            if (GetBrokerMoney() < totalPrice)
+            {
+                EnsureMoney(totalPrice);
+            }
+
+            if (GetBrokerMoney() < totalPrice)
             {
                 continue;
             }
@@ -259,7 +272,12 @@ public class NpcCounterBroker : MonoBehaviour
                     stack.item,
                     buyFromNpcContext);
 
-            if (NpcEconomy.GetNpcMoney(gameObject) < price ||
+            if (GetBrokerMoney() < price)
+            {
+                EnsureMoney(price);
+            }
+
+            if (GetBrokerMoney() < price ||
                 !seller.RemoveOwnedItem(
                     stack.item,
                     1,
@@ -330,9 +348,74 @@ public class NpcCounterBroker : MonoBehaviour
             inventory.RemoveItem(item, amount);
     }
 
+    int GetBrokerMoney()
+    {
+        VillagerAI villager = GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            return villager.money;
+        }
+
+        SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            return smartNpc.money;
+        }
+
+        EnsureMoney(0);
+        return serviceMoney;
+    }
+
     void AddBrokerMoney(int amount)
     {
-        NpcEconomy.AddNpcMoney(gameObject, amount);
+        VillagerAI villager = GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            villager.money = Mathf.Max(0, villager.money + amount);
+            EnsureMoney(0);
+            return;
+        }
+
+        SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            smartNpc.money = Mathf.Max(0, smartNpc.money + amount);
+            EnsureMoney(0);
+            return;
+        }
+
+        serviceMoney = Mathf.Max(0, serviceMoney + amount);
+        EnsureMoney(0);
+    }
+
+    void EnsureMoney(int requiredAmount)
+    {
+        int target = Mathf.Max(startingMoney, minimumMoneyReserve, requiredAmount);
+
+        VillagerAI villager = GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            if (refillMoneyWhenLow && villager.money < target)
+            {
+                villager.money = target;
+            }
+            return;
+        }
+
+        SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            if (refillMoneyWhenLow && smartNpc.money < target)
+            {
+                smartNpc.money = target;
+            }
+            return;
+        }
+
+        if (refillMoneyWhenLow && serviceMoney < target)
+        {
+            serviceMoney = target;
+        }
     }
 
     float GetBuyScoreForNpc(
@@ -380,6 +463,8 @@ public class NpcCounterBroker : MonoBehaviour
 
     void EnsureInventory()
     {
+        EnsureMoney(0);
+
         if (inventory == null)
         {
             inventory = GetComponent<ItemInventory>();

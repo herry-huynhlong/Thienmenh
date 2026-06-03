@@ -8,7 +8,15 @@ public class WorldStatItemPickup : MonoBehaviour
     public bool allowNpcPickup = true;
     public bool allowPlayerPickup = false;
     public bool destroyWhenEmpty = true;
+    public bool requireNpcHarvestAction;
+    public float harvestDuration = 8f;
     public event Action OnDepleted;
+
+    public bool RequiresNpcHarvestAction()
+    {
+        return requireNpcHarvestAction ||
+            GetComponent<WorldResourceNode>() != null;
+    }
 
     public bool TryTake(int takeAmount)
     {
@@ -59,6 +67,7 @@ public class WorldStatItemPickup : MonoBehaviour
         }
 
         if (!allowNpcPickup ||
+            RequiresNpcHarvestAction() ||
             item == null ||
             other == null)
         {

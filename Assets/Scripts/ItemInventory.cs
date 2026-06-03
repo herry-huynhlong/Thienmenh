@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using UnityEngine;
 
@@ -65,24 +65,32 @@ public class ItemInventory : MonoBehaviour
 
     void Start()
     {
-        if (!shareRuntimeItems ||
-            !GameSaveSystem.HasSave)
+        if (!GameSaveSystem.HasSave)
         {
             return;
         }
 
-        if (GameSaveSystem.TryLoadInventory(
-                GetRuntimeKey(),
+        string key =
+            GetRuntimeKey();
+
+        if (!GameSaveSystem.TryLoadInventory(
+                key,
                 items))
         {
-            if (keepInspectorItemsWhenLoadingSave)
-            {
-                MergeItems(sharedItemsByKey[GetRuntimeKey()], items);
-            }
-
-            SaveSharedItems();
-            NotifyChanged();
+            return;
         }
+
+        if (shareRuntimeItems &&
+            keepInspectorItemsWhenLoadingSave &&
+            sharedItemsByKey.TryGetValue(
+                key,
+                out List<ItemStack> sharedItems))
+        {
+            MergeItems(sharedItems, items);
+        }
+
+        SaveRuntimeItems();
+        NotifyChanged();
     }
 
     public void UsePrivateRuntimeItems(
@@ -95,9 +103,45 @@ public class ItemInventory : MonoBehaviour
         if (clearCurrentItems)
         {
             items.Clear();
+            SaveRuntimeItems();
+            NotifyChanged();
+            return;
         }
 
+        if (GameSaveSystem.HasSave)
+        {
+            GameSaveSystem.TryLoadInventory(
+                GetRuntimeKey(),
+                items);
+        }
+
+        SaveRuntimeItems();
         NotifyChanged();
+    }
+
+    public void UsePrivateNpcRuntimeItems(bool clearCurrentItems = false)
+    {
+        UsePrivateRuntimeItems(
+            BuildNpcRuntimeKey(),
+            clearCurrentItems);
+    }
+
+    string BuildNpcRuntimeKey()
+    {
+        SpawnedWorldActor actor =
+            GetComponent<SpawnedWorldActor>();
+
+        if (actor != null &&
+            !string.IsNullOrEmpty(actor.persistentId))
+        {
+            return "WorldActor_" + actor.persistentId;
+        }
+
+        Vector3 position = transform.position;
+        return "Npc_" + gameObject.scene.name + "_" +
+            gameObject.name + "_" +
+            Mathf.RoundToInt(position.x * 100f) + "_" +
+            Mathf.RoundToInt(position.y * 100f);
     }
 
     public void AddItem(StatItemData item, int amount = 1)
@@ -115,7 +159,7 @@ public class ItemInventory : MonoBehaviour
                 items.Add(CreateStack(item, 1));
             }
 
-            SaveSharedItems();
+            SaveRuntimeItems();
             NotifyChanged();
             return;
         }
@@ -126,7 +170,7 @@ public class ItemInventory : MonoBehaviour
         if (stack != null)
         {
             stack.amount += amount;
-            SaveSharedItems();
+            SaveRuntimeItems();
             NotifyChanged();
             return;
         }
@@ -134,7 +178,7 @@ public class ItemInventory : MonoBehaviour
         items.Add(
             CreateStack(item, amount));
 
-        SaveSharedItems();
+        SaveRuntimeItems();
         NotifyChanged();
     }
 
@@ -176,7 +220,7 @@ public class ItemInventory : MonoBehaviour
                 }
             }
 
-            SaveSharedItems();
+            SaveRuntimeItems();
             NotifyChanged();
             return true;
         }
@@ -197,7 +241,7 @@ public class ItemInventory : MonoBehaviour
             items.Remove(stack);
         }
 
-        SaveSharedItems();
+        SaveRuntimeItems();
         NotifyChanged();
         return true;
     }
@@ -268,7 +312,7 @@ public class ItemInventory : MonoBehaviour
                 stack.applied = true;
             }
 
-            SaveSharedItems();
+            SaveRuntimeItems();
             NotifyChanged();
             return true;
         }
@@ -317,7 +361,7 @@ public class ItemInventory : MonoBehaviour
             stack.applied = true;
         }
 
-        SaveSharedItems();
+        SaveRuntimeItems();
         NotifyChanged();
         return true;
     }
@@ -359,7 +403,7 @@ public class ItemInventory : MonoBehaviour
                 gameObject);
         }
 
-        SaveSharedItems();
+        SaveRuntimeItems();
         NotifyChanged();
         return true;
     }
@@ -391,7 +435,7 @@ public class ItemInventory : MonoBehaviour
             items.RemoveAt(itemIndex);
         }
 
-        SaveSharedItems();
+        SaveRuntimeItems();
         NotifyChanged();
         return true;
     }
@@ -409,7 +453,7 @@ public class ItemInventory : MonoBehaviour
 
     public void MarkDirty()
     {
-        SaveSharedItems();
+        SaveRuntimeItems();
         NotifyChanged();
     }
 
@@ -418,29 +462,28 @@ public class ItemInventory : MonoBehaviour
         OnChanged?.Invoke();
     }
 
-    void SaveSharedItems()
+    void SaveRuntimeItems()
     {
-        if (!shareRuntimeItems)
-        {
-            return;
-        }
-
         RegisterItems();
 
         string key =
             GetRuntimeKey();
 
-        if (!sharedItemsByKey.TryGetValue(
-                key,
-                out List<ItemStack> sharedItems))
+        if (shareRuntimeItems)
         {
-            sharedItems =
-                new List<ItemStack>();
+            if (!sharedItemsByKey.TryGetValue(
+                    key,
+                    out List<ItemStack> sharedItems))
+            {
+                sharedItems =
+                    new List<ItemStack>();
 
-            sharedItemsByKey[key] = sharedItems;
+                sharedItemsByKey[key] = sharedItems;
+            }
+
+            CopyItems(items, sharedItems);
         }
 
-        CopyItems(items, sharedItems);
         GameSaveSystem.SaveInventory(key, items);
     }
 
@@ -640,3 +683,7 @@ public class ItemInventory : MonoBehaviour
         }
     }
 }
+
+
+
+

@@ -1,0 +1,579 @@
+fileFormatVersion: 2
+guid: d9627c7be5ac53f43b7be172af104d60
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -7239674827596266345
+    second: tieu_tho_0
+  - first:
+      213: 4771158726234447210
+    second: tieu_tho_1
+  - first:
+      213: 1805568098411765210
+    second: tieu_tho_2
+  - first:
+      213: -4965665481959429931
+    second: tieu_tho_3
+  - first:
+      213: -4687030840381026493
+    second: tieu_tho_4
+  - first:
+      213: -8408859201324513349
+    second: tieu_tho_5
+  - first:
+      213: 9153175171048171971
+    second: tieu_tho_6
+  - first:
+      213: 8473285399489995319
+    second: tieu_tho_7
+  - first:
+      213: 2704583186162081615
+    second: tieu_tho_8
+  - first:
+      213: 5120638057485095895
+    second: tieu_tho_9
+  - first:
+      213: -5819315597890062597
+    second: tieu_tho_10
+  - first:
+      213: 3208551901600987648
+    second: tieu_tho_11
+  - first:
+      213: 4819835669203981868
+    second: tieu_tho_12
+  - first:
+      213: -6953036267548885113
+    second: tieu_tho_13
+  - first:
+      213: 5364822425798686196
+    second: tieu_tho_14
+  - first:
+      213: 3923986055618326150
+    second: tieu_tho_15
+  - first:
+      213: -8353272936217722258
+    second: tieu_tho_16
+  - first:
+      213: -43292491732741745
+    second: tieu_tho_17
+  - first:
+      213: 6703243652664135590
+    second: tieu_tho_18
+  - first:
+      213: 1431772818493429089
+    second: tieu_tho_19
+  - first:
+      213: -7203834314894808053
+    second: tieu_tho_20
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 32
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: 4
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 1
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: tieu_tho_1
+      rect:
+        serializedVersion: 2
+        x: 100
+        y: 380
+        width: 79
+        height: 115
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a6d9534359f863240800000000000000
+      internalID: 4771158726234447210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tieu_tho_2
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 380
+        width: 77
+        height: 115
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: add5c938e9aae0910800000000000000
+      internalID: 1805568098411765210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tieu_tho_3
+      rect:
+        serializedVersion: 2
+        x: 299
+        y: 380
+        width: 77
+        height: 115
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5d8a36aad89661bb0800000000000000
+      internalID: -4965665481959429931
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tieu_tho_4
+      rect:
+        serializedVersion: 2
+        x: 400
+        y: 380
+        width: 76
+        height: 115
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 34fc9cb984254feb0800000000000000
+      internalID: -4687030840381026493
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tieu_tho_6
+      rect:
+        serializedVersion: 2
+        x: 100
+        y: 255
+        width: 79
+        height: 114
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c9604d825c960f70800000000000000
+      internalID: 9153175171048171971
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tieu_tho_7
+      rect:
+        serializedVersion: 2
+        x: 204
+        y: 256
+        width: 78
+        height: 113
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 732ea1d6d28279570800000000000000
+      internalID: 8473285399489995319
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tieu_tho_8
+      rect:
+        serializedVersion: 2
+        x: 300
+        y: 254
+        width: 76
+        height: 114
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f4f5fac041c988520800000000000000
+      internalID: 2704583186162081615
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tieu_tho_9
+      rect:
+        serializedVersion: 2
+        x: 399
+        y: 253
+        width: 78
+        height: 116
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d3deb7de29201740800000000000000
+      internalID: 5120638057485095895
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tieu_tho_12
+      rect:
+        serializedVersion: 2
+        x: 108
+        y: 137
+        width: 65
+        height: 107
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2619aa210f73e240800000000000000
+      internalID: 4819835669203981868
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tieu_tho_13
+      rect:
+        serializedVersion: 2
+        x: 213
+        y: 137
+        width: 65
+        height: 107
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78f375a7a5ad18f90800000000000000
+      internalID: -6953036267548885113
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tieu_tho_14
+      rect:
+        serializedVersion: 2
+        x: 311
+        y: 139
+        width: 65
+        height: 105
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4f5b7cc729da37a40800000000000000
+      internalID: 5364822425798686196
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tieu_tho_15
+      rect:
+        serializedVersion: 2
+        x: 410
+        y: 139
+        width: 65
+        height: 105
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 68e67b4078cc47630800000000000000
+      internalID: 3923986055618326150
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tieu_tho_17
+      rect:
+        serializedVersion: 2
+        x: 105
+        y: 17
+        width: 65
+        height: 108
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f8114d845b1366ff0800000000000000
+      internalID: -43292491732741745
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tieu_tho_18
+      rect:
+        serializedVersion: 2
+        x: 207
+        y: 18
+        width: 65
+        height: 107
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6af00f73694b60d50800000000000000
+      internalID: 6703243652664135590
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tieu_tho_19
+      rect:
+        serializedVersion: 2
+        x: 306
+        y: 19
+        width: 65
+        height: 106
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1655c55eacdaed310800000000000000
+      internalID: 1431772818493429089
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tieu_tho_20
+      rect:
+        serializedVersion: 2
+        x: 404
+        y: 19
+        width: 64
+        height: 106
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b0cecefabd6d60c90800000000000000
+      internalID: -7203834314894808053
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: b8ad9b679105540488a26165e26c80bd
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      tieu_tho_0: -7239674827596266345
+      tieu_tho_1: 4771158726234447210
+      tieu_tho_10: -5819315597890062597
+      tieu_tho_11: 3208551901600987648
+      tieu_tho_12: 4819835669203981868
+      tieu_tho_13: -6953036267548885113
+      tieu_tho_14: 5364822425798686196
+      tieu_tho_15: 3923986055618326150
+      tieu_tho_16: -8353272936217722258
+      tieu_tho_17: -43292491732741745
+      tieu_tho_18: 6703243652664135590
+      tieu_tho_19: 1431772818493429089
+      tieu_tho_2: 1805568098411765210
+      tieu_tho_20: -7203834314894808053
+      tieu_tho_3: -4965665481959429931
+      tieu_tho_4: -4687030840381026493
+      tieu_tho_5: -8408859201324513349
+      tieu_tho_6: 9153175171048171971
+      tieu_tho_7: 8473285399489995319
+      tieu_tho_8: 2704583186162081615
+      tieu_tho_9: 5120638057485095895
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
