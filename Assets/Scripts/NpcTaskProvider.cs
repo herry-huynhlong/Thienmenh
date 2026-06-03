@@ -55,6 +55,12 @@ public class NpcTaskOffer
     [Header("Objective")]
     public StatItemData requiredItem;
     [Min(1)] public int requiredAmount = 1;
+    public bool randomizeRequiredItemAmount = true;
+    [Min(1)] public int requiredItemAmountMin = 5;
+    [Min(1)] public int requiredItemAmountMax = 10;
+    public bool autoPriceRequiredItemReward = true;
+    [Min(0f)] public float requiredItemRewardMarkupMin = 0.33f;
+    [Min(0f)] public float requiredItemRewardMarkupMax = 0.5f;
     public bool consumeRequiredItemsOnTurnIn = true;
     [Min(1)] public int requiredMonsterKills = 1;
 }
@@ -71,10 +77,15 @@ class RunningNpcTask
     public float remainingTime;
     public WorldStatItemPickup targetPickup;
     public StatItemData requiredItem;
+    public int requiredAmount;
+    public int rewardSpiritStone;
     public int collectedAmount;
     public int defeatedMonsterCount;
     public int startingRequiredItemAmount;
     public MonsterAI targetMonster;
+    public MonsterAI threatMonster;
+    public Vector3 avoidPosition;
+    public float avoidUntilTime;
     public Behaviour pausedBaseAi;
     public bool pausedBaseAiWasEnabled;
 }
@@ -150,6 +161,12 @@ public class NpcTaskProvider : MonoBehaviour
     public float providerTalkDistance = 0.75f;
     public float huntAttackRange = 1.4f;
     public float huntAttackInterval = 1.2f;
+    [Header("Task Danger Response")]
+    public float gatherThreatDetectRadius = 4f;
+    public float gatherThreatAvoidRadius = 6f;
+    public float gatherThreatAvoidDuration = 8f;
+    public float gatherThreatFightPowerRatio = 1.05f;
+    public float gatherThreatFleePowerRatio = 0.85f;
     public Transform defaultWorkPoint;
     public Transform huntPoint;
     public Transform gatherPoint;
@@ -389,7 +406,10 @@ public class NpcTaskProvider : MonoBehaviour
 
     void StartTaskRequest(GameObject npc, NpcTaskOffer offer)
     {
-        StatItemData requiredItem = ResolveGatherOfferItem(npc, offer);
+        StatItemData requiredItem = ResolveTaskRequiredItem(npc, offer);
+        int requiredAmount = ResolveTaskRequiredAmount(offer, requiredItem);
+        int rewardSpiritStone =
+            ResolveTaskRewardSpiritStone(offer, requiredItem, requiredAmount);
 
         RunningNpcTask task = new RunningNpcTask
         {
@@ -408,6 +428,8 @@ public class NpcTaskProvider : MonoBehaviour
                 ? Mathf.Max(8f, chooseTaskDuration)
                 : Mathf.Max(1f, offer != null ? offer.workDuration : 1f),
             requiredItem = requiredItem,
+            requiredAmount = requiredAmount,
+            rewardSpiritStone = rewardSpiritStone,
             startingRequiredItemAmount = GetNpcItemAmount(npc, requiredItem)
         };
 
@@ -661,10 +683,9 @@ public class NpcTaskProvider : MonoBehaviour
         }
     }
 
-    StatItemData ResolveGatherOfferItem(GameObject npc, NpcTaskOffer offer)
+    StatItemData ResolveTaskRequiredItem(GameObject npc, NpcTaskOffer offer)
     {
-        if (offer == null ||
-            offer.taskType != NpcTaskType.GatherResource)
+        if (offer == null)
         {
             return null;
         }
@@ -672,6 +693,11 @@ public class NpcTaskProvider : MonoBehaviour
         if (offer.requiredItem != null)
         {
             return offer.requiredItem;
+        }
+
+        if (offer.taskType != NpcTaskType.GatherResource)
+        {
+            return null;
         }
 
         WorldStatItemPickup pickup =
@@ -735,7 +761,7 @@ public class NpcTaskProvider : MonoBehaviour
             task.collectedAmount = Mathf.Clamp(
                 task.collectedAmount,
                 0,
-                GetRequiredAmount(task.offer));
+                GetRequiredAmount(task));
 
             task.targetPickup = FindGatherPickup(task);
             if (task.targetPickup != null)
@@ -765,6 +791,11 @@ public class NpcTaskProvider : MonoBehaviour
         if (HasGatherObjectiveComplete(task))
         {
             task.stage = TavernTaskStage.ReturningToTurnIn;
+            return;
+        }
+
+        if (HandleGatherThreat(task))
+        {
             return;
         }
 
@@ -804,6 +835,11 @@ public class NpcTaskProvider : MonoBehaviour
         if (HasGatherObjectiveComplete(task))
         {
             task.stage = TavernTaskStage.ReturningToTurnIn;
+            return;
+        }
+
+        if (HandleGatherThreat(task))
+        {
             return;
         }
 
@@ -975,6 +1011,209 @@ public class NpcTaskProvider : MonoBehaviour
             monster.currentHP > 0;
     }
 
+    bool HandleGatherThreat(RunningNpcTask task)
+    {
+        if (!IsGatherTask(task) ||
+            task.npc == null)
+        {
+            return false;
+        }
+
+        if (Time.time < task.avoidUntilTime)
+        {
+            MoveNpcToWork(task, task.avoidPosition);
+            NpcRoleUtility.SetAction(
+                task.npc,
+                "Rut lui khoi khu co yeu thu");
+            return true;
+        }
+
+        MonsterAI threat =
+            FindGatherThreat(task);
+
+        if (!IsHuntTargetUsable(threat))
+        {
+            task.threatMonster = null;
+            return false;
+        }
+
+        task.threatMonster = threat;
+
+        if (ShouldFleeGatherThreat(task, threat))
+        {
+            FleeGatherThreat(task, threat);
+            return true;
+        }
+
+        if (ShouldFightGatherThreat(task, threat))
+        {
+            FightGatherThreat(task, threat);
+            return true;
+        }
+
+        MoveNpcToWork(task, GetRetreatPosition(task.npc.transform.position, threat.transform.position));
+        NpcRoleUtility.SetAction(
+            task.npc,
+            "Canh giac yeu thu gan linh thao");
+        return true;
+    }
+
+    MonsterAI FindGatherThreat(RunningNpcTask task)
+    {
+        Vector3 referencePosition =
+            task.targetPickup != null
+            ? task.targetPickup.transform.position
+            : task.workPosition;
+
+        MonsterAI best = null;
+        float bestDistance = float.PositiveInfinity;
+        float detectRadius =
+            Mathf.Max(0.5f, gatherThreatDetectRadius);
+
+        foreach (MonsterAI monster in FindObjectsByType<MonsterAI>(FindObjectsInactive.Exclude))
+        {
+            if (!IsHuntTargetUsable(monster))
+            {
+                continue;
+            }
+
+            float distanceToNpc = Vector2.Distance(
+                task.npc.transform.position,
+                monster.transform.position);
+            float distanceToWork = Vector2.Distance(
+                referencePosition,
+                monster.transform.position);
+
+            if (distanceToNpc > detectRadius &&
+                distanceToWork > detectRadius)
+            {
+                continue;
+            }
+
+            float score =
+                Mathf.Min(distanceToNpc, distanceToWork);
+
+            if (score < bestDistance)
+            {
+                bestDistance = score;
+                best = monster;
+            }
+        }
+
+        return best;
+    }
+
+    bool ShouldFightGatherThreat(RunningNpcTask task, MonsterAI threat)
+    {
+        return GetNpcCombatPower(task.npc) >=
+            GetMonsterCombatPower(threat) * Mathf.Max(0.1f, gatherThreatFightPowerRatio);
+    }
+
+    bool ShouldFleeGatherThreat(RunningNpcTask task, MonsterAI threat)
+    {
+        return GetNpcCombatPower(task.npc) <=
+            GetMonsterCombatPower(threat) * Mathf.Max(0.1f, gatherThreatFleePowerRatio);
+    }
+
+    void FightGatherThreat(RunningNpcTask task, MonsterAI threat)
+    {
+        float distance = Vector2.Distance(
+            task.npc.transform.position,
+            threat.transform.position);
+
+        if (distance > huntAttackRange)
+        {
+            MoveNpcToWork(task, threat.transform.position);
+            NpcRoleUtility.SetAction(
+                task.npc,
+                "Chuyen sang chien dau voi yeu thu can duong");
+            return;
+        }
+
+        NpcRoleUtility.StopForConversation(task.npc);
+        NpcRoleUtility.SetAction(
+            task.npc,
+            "Dang diet yeu thu chiem khu hai");
+
+        task.remainingTime -= Time.deltaTime;
+        if (task.remainingTime > 0f)
+        {
+            return;
+        }
+
+        task.remainingTime = Mathf.Max(0.2f, huntAttackInterval);
+        NpcRoleUtility.Damage(
+            task.npc,
+            threat.gameObject,
+            NpcRoleUtility.GetAttack(task.npc),
+            "bao ve khu hai linh thao");
+    }
+
+    void FleeGatherThreat(RunningNpcTask task, MonsterAI threat)
+    {
+        task.targetPickup = null;
+        task.threatMonster = threat;
+        task.avoidPosition =
+            GetRetreatPosition(task.npc.transform.position, threat.transform.position);
+        task.avoidUntilTime =
+            Time.time + Mathf.Max(1f, gatherThreatAvoidDuration);
+
+        MoveNpcToWork(task, task.avoidPosition);
+        NpcRoleUtility.SetAction(
+            task.npc,
+            "Yeu thu qua manh, doi khu hai khac");
+    }
+
+    Vector3 GetRetreatPosition(Vector3 npcPosition, Vector3 threatPosition)
+    {
+        Vector2 away =
+            (Vector2)(npcPosition - threatPosition);
+
+        if (away.sqrMagnitude < 0.01f)
+        {
+            away = Random.insideUnitCircle.normalized;
+        }
+        else
+        {
+            away.Normalize();
+        }
+
+        return npcPosition +
+            (Vector3)(away * Mathf.Max(1f, gatherThreatAvoidRadius));
+    }
+
+    int GetNpcCombatPower(GameObject npc)
+    {
+        if (npc == null)
+        {
+            return 1;
+        }
+
+        CharacterStats stats = npc.GetComponent<CharacterStats>();
+        if (stats != null)
+        {
+            return Mathf.Max(
+                1,
+                stats.attack + stats.defense + stats.finalHP / 10);
+        }
+
+        return Mathf.Max(
+            1,
+            NpcRoleUtility.GetAttack(npc) * 2 + 10);
+    }
+
+    int GetMonsterCombatPower(MonsterAI monster)
+    {
+        if (monster == null)
+        {
+            return 1;
+        }
+
+        return Mathf.Max(
+            1,
+            monster.damage + monster.defense + monster.maxHP / 10);
+    }
+
     bool IsHuntTask(RunningNpcTask task)
     {
         return task != null &&
@@ -1082,7 +1321,7 @@ public class NpcTaskProvider : MonoBehaviour
     bool HasGatherObjectiveComplete(RunningNpcTask task)
     {
         return task != null &&
-            GetTaskGatherProgress(task) >= GetRequiredAmount(task.offer);
+            GetTaskGatherProgress(task) >= GetRequiredAmount(task);
     }
 
     StatItemData GetTaskRequiredItem(RunningNpcTask task)
@@ -1158,6 +1397,78 @@ public class NpcTaskProvider : MonoBehaviour
             : 1;
     }
 
+    int GetRequiredAmount(RunningNpcTask task)
+    {
+        if (task != null &&
+            task.requiredAmount > 0)
+        {
+            return Mathf.Max(1, task.requiredAmount);
+        }
+
+        return GetRequiredAmount(task != null ? task.offer : null);
+    }
+
+    int ResolveTaskRequiredAmount(
+        NpcTaskOffer offer,
+        StatItemData requiredItem)
+    {
+        if (offer == null)
+        {
+            return 1;
+        }
+
+        if (requiredItem == null ||
+            !offer.randomizeRequiredItemAmount)
+        {
+            return GetRequiredAmount(offer);
+        }
+
+        int min = Mathf.Max(1, offer.requiredItemAmountMin);
+        int max = Mathf.Max(min, offer.requiredItemAmountMax);
+
+        return Random.Range(min, max + 1);
+    }
+
+    int ResolveTaskRewardSpiritStone(
+        NpcTaskOffer offer,
+        StatItemData requiredItem,
+        int requiredAmount)
+    {
+        if (offer == null)
+        {
+            return 0;
+        }
+
+        if (!offer.autoPriceRequiredItemReward ||
+            requiredItem == null ||
+            requiredAmount <= 0)
+        {
+            return Mathf.Max(0, offer.rewardSpiritStone);
+        }
+
+        int itemValue =
+            NpcEconomy.GetItemValue(requiredItem);
+
+        if (itemValue <= 0)
+        {
+            return Mathf.Max(0, offer.rewardSpiritStone);
+        }
+
+        int baseValue =
+            itemValue * Mathf.Max(1, requiredAmount);
+
+        float minMarkup =
+            Mathf.Max(0f, offer.requiredItemRewardMarkupMin);
+        float maxMarkup =
+            Mathf.Max(minMarkup, offer.requiredItemRewardMarkupMax);
+        float markup =
+            Random.Range(minMarkup, maxMarkup);
+
+        return Mathf.Max(
+            Mathf.Max(0, offer.rewardSpiritStone),
+            Mathf.RoundToInt(baseValue * (1f + markup)));
+    }
+
     string GetRequiredItemName(NpcTaskOffer offer)
     {
         if (offer != null &&
@@ -1174,7 +1485,7 @@ public class NpcTaskProvider : MonoBehaviour
     {
         int collected = GetTaskGatherProgress(task);
 
-        return "(" + collected + "/" + GetRequiredAmount(task != null ? task.offer : null) + ")";
+        return "(" + collected + "/" + GetRequiredAmount(task) + ")";
     }
 
     string GetTaskDisplayText(RunningNpcTask task)
@@ -1191,7 +1502,7 @@ public class NpcTaskProvider : MonoBehaviour
         if (IsGatherTask(task))
         {
             text += " - " + GetTaskRequiredItemName(task) + " x" +
-                GetRequiredAmount(task.offer);
+                GetRequiredAmount(task);
         }
         else if (IsHuntTask(task))
         {
@@ -1199,12 +1510,23 @@ public class NpcTaskProvider : MonoBehaviour
                 GetRequiredMonsterKills(task.offer);
         }
 
+        int rewardSpiritStone =
+            task.rewardSpiritStone > 0
+            ? task.rewardSpiritStone
+            : Mathf.Max(0, task.offer.rewardSpiritStone);
+
+        if (rewardSpiritStone > 0)
+        {
+            text += " - thuong " + rewardSpiritStone + " LT";
+        }
+
         return text;
     }
 
     bool ConsumeTaskItems(RunningNpcTask task)
     {
-        if (!IsGatherTask(task) ||
+        if (task == null ||
+            task.offer == null ||
             GetTaskRequiredItem(task) == null ||
             !task.offer.consumeRequiredItemsOnTurnIn)
         {
@@ -1216,14 +1538,14 @@ public class NpcTaskProvider : MonoBehaviour
             : null;
 
         if (inventory == null ||
-            inventory.GetAmount(GetTaskRequiredItem(task)) < GetRequiredAmount(task.offer))
+            inventory.GetAmount(GetTaskRequiredItem(task)) < GetRequiredAmount(task))
         {
             return false;
         }
 
         return inventory.RemoveItem(
             GetTaskRequiredItem(task),
-            GetRequiredAmount(task.offer));
+            GetRequiredAmount(task));
     }
 
     ItemInventory GetOrCreateInventory(GameObject npc)
@@ -1280,7 +1602,7 @@ public class NpcTaskProvider : MonoBehaviour
             return;
         }
 
-        RewardNpc(task.npc, task.offer);
+        RewardNpc(task);
     }
 
     GameObject GetNpcFromHit(Collider2D hit)
@@ -1434,9 +1756,16 @@ public class NpcTaskProvider : MonoBehaviour
         return shuffled;
     }
 
-    void RewardNpc(GameObject npc, NpcTaskOffer offer)
+    void RewardNpc(RunningNpcTask task)
     {
-        PayRewardMoney(npc, offer.rewardSpiritStone);
+        GameObject npc = task.npc;
+        NpcTaskOffer offer = task.offer;
+        int rewardSpiritStone =
+            task.rewardSpiritStone > 0
+            ? task.rewardSpiritStone
+            : Mathf.Max(0, offer.rewardSpiritStone);
+
+        PayRewardMoney(npc, rewardSpiritStone);
         NpcRoleUtility.AddCultivationExp(npc, offer.rewardCultivationExp);
 
         if (offer.rewardItem != null &&
@@ -1464,7 +1793,7 @@ public class NpcTaskProvider : MonoBehaviour
                 " hoàn thành nhiệm vụ " +
                 offer.taskName +
                 ", nhận " +
-                offer.rewardSpiritStone +
+                rewardSpiritStone +
                 " LT.",
                 0);
         }

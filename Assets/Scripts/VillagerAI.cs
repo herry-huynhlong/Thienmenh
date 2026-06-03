@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public enum VillagerAgeGroup
@@ -129,6 +130,22 @@ public class VillagerAI : MonoBehaviour, IDamageable
     public float targetClearRadius = 0.25f;
     public int maxPickTargetAttempts = 16;
     public float blockedTargetRetryDelay = 0.8f;
+
+    [Header("Smart Obstacle Avoidance")]
+    public bool useSmartPathfinding = true;
+    public float pathCellSize = 0.45f;
+    public float pathWaypointReachDistance = 0.18f;
+    public float pathReplanTargetDistance = 0.6f;
+    public float obstacleDetourLookAhead = 0.65f;
+    public bool useLocalDetour;
+    public bool useSharedPathMemory = true;
+    public float sharedPathMemoryCellSize = 2f;
+    public bool compareRememberedPathWithNewPath;
+    public float pathTurnPenalty = 0.25f;
+    public float pathReplanCooldown = 0.75f;
+    public int maxPathNodes = 1200;
+    public int maxPathSteps = 256;
+    public float maxPathSearchDistance = 0f;
     public bool autonomousWorkEnabled = true;
     public bool autonomousResourceWorkEnabled = false;
     public bool autonomousDangerousWorkEnabled = false;
@@ -202,6 +219,15 @@ public class VillagerAI : MonoBehaviour, IDamageable
     float blockedMoveTimer;
     Collider2D[] ownColliders;
     NpcMapArea currentMapArea;
+    readonly List<Vector3> activePath =
+        new List<Vector3>();
+    readonly List<Vector3> rememberedPathBuffer =
+        new List<Vector3>();
+    readonly List<Vector3> computedPathBuffer =
+        new List<Vector3>();
+    Vector3 activePathTarget;
+    int activePathIndex;
+    float nextSmartPathAllowedTime;
     int lastPlanResetDay = -1;
     int lastFarmerHarvestDay = -1;
     int lastVanBaoLauVisitDay = -1;
@@ -225,6 +251,9 @@ public class VillagerAI : MonoBehaviour, IDamageable
         characterStats != null ?
         characterStats.IsDead :
         currentHP <= 0;
+
+    public bool IsActionLocked =>
+        IsBusyActionActive();
 
     public Transform DamageTransform => transform;
 
@@ -436,10 +465,18 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         UpdateNeeds();
         UpdateMood();
-        TryTalkToPassingVillager();
 
         thinkTimer += Time.deltaTime;
         actionTimer -= Time.deltaTime;
+
+        if (IsBusyActionActive())
+        {
+            StopMoving();
+            UpdateVisualAnimation();
+            return;
+        }
+
+        TryTalkToPassingVillager();
 
         if (thinkTimer >= thinkInterval)
         {
@@ -450,6 +487,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     void FixedUpdate()
     {
+        NpcPerformanceOverlay.RecordNpcFixedUpdate();
         SyncFromCharacterStats();
 
         if (IsDead)
@@ -459,6 +497,13 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         if (Time.time < movementPausedUntil)
+        {
+            StopMoving();
+            UpdateVisualAnimation();
+            return;
+        }
+
+        if (IsBusyActionActive())
         {
             StopMoving();
             UpdateVisualAnimation();
@@ -960,12 +1005,13 @@ public class VillagerAI : MonoBehaviour, IDamageable
                     Mathf.Max(0.5f, diligence / 50f)));
 
         AddCultivationExp(gain);
+        ClearMovementTargets();
+        StopMoving();
+        actionTimer =
+            Mathf.Max(
+                thinkInterval,
+                Random.Range(6f, 12f));
         currentAction = "Tu luyện hấp thụ linh khí";
-
-        Vector3 target =
-            GetFallbackActivityPosition();
-
-        MoveUsingRoad(target);
     }
 
     void ResetDailyTargets()
@@ -2224,12 +2270,14 @@ public class VillagerAI : MonoBehaviour, IDamageable
     void MoveToPosition(Vector3 position)
     {
         position = ClampToCurrentMapArea(position);
+        Vector3 finalTarget = position;
         if (!IsMoveTargetFeasible(position))
         {
             Vector3 fallback;
             if (TryFindClearPointNear(position, out fallback))
             {
                 position = fallback;
+                finalTarget = position;
             }
             else
             {
@@ -2241,16 +2289,72 @@ public class VillagerAI : MonoBehaviour, IDamageable
         Vector2 toPosition = position - transform.position;
         if (toPosition.magnitude <= arriveDistance)
         {
+            ClearActivePath();
             StopMoving();
             return;
+        }
+
+        if (TryGetSmartPathWaypoint(finalTarget, out Vector3 pathWaypoint))
+        {
+            position = pathWaypoint;
+            toPosition = position - transform.position;
+
+            if (toPosition.magnitude <= pathWaypointReachDistance)
+            {
+                AdvanceActivePathWaypoint();
+                return;
+            }
         }
 
         Vector2 direction = toPosition.normalized;
 
         if (IsMovementBlocked(direction))
         {
-            HandleBlockedMovement(position);
+            if (TryBuildSmartPath(finalTarget) &&
+                TryGetSmartPathWaypoint(finalTarget, out pathWaypoint))
+            {
+                position = pathWaypoint;
+                toPosition = position - transform.position;
+                direction = toPosition.normalized;
+            }
+            else if (useLocalDetour &&
+                TryChooseDetourDirection(
+                direction,
+                finalTarget,
+                out Vector2 detourDirection))
+            {
+                direction = detourDirection;
+            }
+            else
+            {
+                ClearActivePath();
+                HandleBlockedMovement(position);
+                return;
+            }
+        }
+
+        if (direction.sqrMagnitude <= 0.0001f)
+        {
+            StopMoving();
             return;
+        }
+
+        if (IsMovementBlocked(direction))
+        {
+            if (useLocalDetour &&
+                TryChooseDetourDirection(
+                direction,
+                finalTarget,
+                out Vector2 detourDirection))
+            {
+                direction = detourDirection;
+            }
+            else
+            {
+                ClearActivePath();
+                HandleBlockedMovement(position);
+                return;
+            }
         }
 
         Vector2 separation = GetSeparationDirection();
@@ -2266,6 +2370,24 @@ public class VillagerAI : MonoBehaviour, IDamageable
         {
             StopMoving();
             return;
+        }
+
+        if (IsMovementBlocked(direction))
+        {
+            if (useLocalDetour &&
+                TryChooseDetourDirection(
+                    direction,
+                    finalTarget,
+                    out Vector2 finalDetourDirection))
+            {
+                direction = finalDetourDirection;
+            }
+            else
+            {
+                ClearActivePath();
+                HandleBlockedMovement(position);
+                return;
+            }
         }
 
         blockedMoveTimer = 0f;
@@ -2310,6 +2432,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
         currentTarget = null;
         hasWanderTarget = false;
         hasDirectMoveTarget = false;
+        ClearActivePath();
+    }
+
+    bool IsBusyActionActive()
+    {
+        return actionTimer > 0f;
     }
 
     void SetDirectMoveTarget(Vector3 position)
@@ -2319,9 +2447,17 @@ public class VillagerAI : MonoBehaviour, IDamageable
         hasDirectMoveTarget = true;
         Vector3 clamped = ClampToCurrentMapArea(position);
         Vector3 clearTarget;
-        directMoveTarget = TryFindClearPointNear(clamped, out clearTarget)
+        Vector3 resolvedTarget = TryFindClearPointNear(clamped, out clearTarget)
             ? clearTarget
             : clamped;
+
+        if (Vector2.Distance(directMoveTarget, resolvedTarget) >
+            pathReplanTargetDistance)
+        {
+            ClearActivePath();
+        }
+
+        directMoveTarget = resolvedTarget;
     }
 
     NpcMapZone? GetCurrentMapZone()
@@ -2495,7 +2631,6 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         Vector2 offset = Random.insideUnitCircle.normalized * Mathf.Max(0.1f, unstuckOffsetRadius);
         SetDirectMoveTarget(ClampToCurrentMapArea(transform.position + (Vector3)offset));
-        currentAction = "Đang tách khỏi đám đông";
         stuckMoveTimer = 0f;
         lastUnstuckPosition = transform.position;
     }
@@ -2569,6 +2704,9 @@ public class VillagerAI : MonoBehaviour, IDamageable
         if (collision.collider != null &&
             IsBlockingObstacle(collision.collider))
         {
+            movementPausedUntil =
+                Mathf.Max(movementPausedUntil, Time.time + 0.12f);
+            StopMoving();
             TryEscapeObstacleCollision(collision);
             HandleBlockedMovement(transform.position);
         }
@@ -2626,7 +2764,6 @@ public class VillagerAI : MonoBehaviour, IDamageable
         hasWanderTarget = false;
         hasDirectMoveTarget = true;
         directMoveTarget = clearPoint;
-        currentAction = "Tìm đường khác";
     }
     bool TryPickWanderTarget(out Vector3 target)
     {
@@ -2687,16 +2824,26 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     bool HasClearLineTo(Vector3 target)
     {
-        Vector2 origin = transform.position;
+        return HasClearLineTo(
+            target,
+            transform.position);
+    }
+
+    bool HasClearLineTo(
+        Vector3 target,
+        Vector3 originPosition)
+    {
+        Vector2 origin = originPosition;
         Vector2 delta = (Vector2)target - origin;
         float distance = delta.magnitude;
-        if (distance <= obstacleCheckDistance)
+        if (distance <= targetClearRadius)
         {
             return true;
         }
 
-        RaycastHit2D[] hits = Physics2D.RaycastAll(
+        RaycastHit2D[] hits = Physics2D.CircleCastAll(
             origin,
+            Mathf.Max(0.01f, targetClearRadius),
             delta.normalized,
             distance,
             obstacleLayers);
@@ -2719,10 +2866,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return false;
         }
 
-        RaycastHit2D[] hits = Physics2D.RaycastAll(
+        RaycastHit2D[] hits = Physics2D.CircleCastAll(
             transform.position,
+            Mathf.Max(0.01f, targetClearRadius),
             direction.normalized,
-            obstacleCheckDistance,
+            GetObstacleLookAheadDistance(),
             obstacleLayers);
 
         foreach (RaycastHit2D hit in hits)
@@ -2735,6 +2883,197 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         return false;
     }
+
+    bool TryChooseDetourDirection(
+        Vector2 desiredDirection,
+        Vector3 finalTarget,
+        out Vector2 detourDirection)
+    {
+        detourDirection = Vector2.zero;
+
+        if (desiredDirection.sqrMagnitude <= 0.0001f)
+        {
+            return false;
+        }
+
+        Vector2 desired =
+            desiredDirection.normalized;
+
+        Vector2 toTarget =
+            ((Vector2)finalTarget - (Vector2)transform.position);
+
+        Vector2 targetDirection =
+            toTarget.sqrMagnitude > 0.0001f
+            ? toTarget.normalized
+            : desired;
+
+        float lookAhead =
+            GetObstacleLookAheadDistance();
+
+        float bestScore =
+            float.NegativeInfinity;
+
+        bool found =
+            false;
+
+        for (int i = 0; i < DetourAngles.Length; i++)
+        {
+            float angle =
+                DetourAngles[i];
+
+            if (TryScoreDetourDirection(
+                    RotateDirection(desired, angle),
+                    desired,
+                    targetDirection,
+                    lookAhead,
+                    out float score) &&
+                score > bestScore)
+            {
+                bestScore = score;
+                detourDirection = RotateDirection(desired, angle);
+                found = true;
+            }
+
+            if (Mathf.Approximately(angle, 0f))
+            {
+                continue;
+            }
+
+            if (TryScoreDetourDirection(
+                    RotateDirection(desired, -angle),
+                    desired,
+                    targetDirection,
+                    lookAhead,
+                    out score) &&
+                score > bestScore)
+            {
+                bestScore = score;
+                detourDirection = RotateDirection(desired, -angle);
+                found = true;
+            }
+        }
+
+        if (!found)
+        {
+            return false;
+        }
+
+        detourDirection.Normalize();
+        return true;
+    }
+
+    bool TryScoreDetourDirection(
+        Vector2 candidate,
+        Vector2 desired,
+        Vector2 targetDirection,
+        float lookAhead,
+        out float score)
+    {
+        score = 0f;
+
+        if (candidate.sqrMagnitude <= 0.0001f)
+        {
+            return false;
+        }
+
+        candidate.Normalize();
+
+        Vector3 nextPoint =
+            transform.position +
+            (Vector3)(candidate * Mathf.Max(targetClearRadius * 2f, lookAhead * 0.65f));
+
+        if (!IsInsideCurrentMapArea(nextPoint) ||
+            IsPositionBlocked(nextPoint))
+        {
+            return false;
+        }
+
+        float clearDistance =
+            GetClearDistance(candidate, lookAhead);
+
+        if (clearDistance < targetClearRadius * 2f)
+        {
+            return false;
+        }
+
+        float progressScore =
+            Mathf.Max(-0.5f, Vector2.Dot(candidate, targetDirection));
+
+        float smoothScore =
+            Mathf.Max(-0.5f, Vector2.Dot(candidate, desired));
+
+        score =
+            clearDistance / Mathf.Max(0.01f, lookAhead) * 3f +
+            progressScore * 2f +
+            smoothScore;
+
+        return true;
+    }
+
+    float GetClearDistance(
+        Vector2 direction,
+        float maxDistance)
+    {
+        RaycastHit2D[] hits =
+            Physics2D.CircleCastAll(
+                transform.position,
+                Mathf.Max(0.01f, targetClearRadius),
+                direction.normalized,
+                maxDistance,
+                obstacleLayers);
+
+        float best =
+            maxDistance;
+
+        foreach (RaycastHit2D hit in hits)
+        {
+            if (IsBlockingObstacle(hit.collider))
+            {
+                best =
+                    Mathf.Min(best, hit.distance);
+            }
+        }
+
+        return best;
+    }
+
+    float GetObstacleLookAheadDistance()
+    {
+        return Mathf.Max(
+            obstacleCheckDistance,
+            obstacleDetourLookAhead,
+            targetClearRadius * 3f);
+    }
+
+    Vector2 RotateDirection(
+        Vector2 direction,
+        float degrees)
+    {
+        float radians =
+            degrees * Mathf.Deg2Rad;
+
+        float sin =
+            Mathf.Sin(radians);
+
+        float cos =
+            Mathf.Cos(radians);
+
+        return new Vector2(
+            direction.x * cos - direction.y * sin,
+            direction.x * sin + direction.y * cos);
+    }
+
+    static readonly float[] DetourAngles =
+    {
+        0f,
+        20f,
+        35f,
+        50f,
+        70f,
+        90f,
+        120f,
+        150f
+    };
 
     bool IsPositionBlocked(Vector3 position)
     {
@@ -2798,10 +3137,10 @@ public class VillagerAI : MonoBehaviour, IDamageable
     {
         blockedMoveTimer += Time.fixedDeltaTime;
         StopMoving();
+        ClearActivePath();
 
         if (blockedMoveTimer < blockedTargetRetryDelay)
         {
-            currentAction = "Tìm đường khác";
             return;
         }
 
@@ -2816,7 +3155,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
         if (hasDirectMoveTarget)
         {
             Vector3 fallback;
-            if (TryFindClearPointNear(transform.position, out fallback))
+            Vector3 escapeSeed =
+                GetBlockedEscapeSeed(blockedTarget);
+
+            if (TryFindClearPointNear(escapeSeed, out fallback) &&
+                Vector2.Distance(fallback, transform.position) >
+                arriveDistance)
             {
                 directMoveTarget = fallback;
             }
@@ -2826,6 +3170,782 @@ public class VillagerAI : MonoBehaviour, IDamageable
             }
         }
     }
+
+    Vector3 GetBlockedEscapeSeed(Vector3 blockedTarget)
+    {
+        Vector2 away =
+            (Vector2)(transform.position - blockedTarget);
+
+        if (away.sqrMagnitude <= 0.0001f)
+        {
+            away =
+                UnityEngine.Random.insideUnitCircle;
+        }
+
+        if (away.sqrMagnitude <= 0.0001f)
+        {
+            away = Vector2.up;
+        }
+
+        away.Normalize();
+
+        return ClampToCurrentMapArea(
+            transform.position +
+            (Vector3)(away * Mathf.Max(unstuckOffsetRadius, targetClearRadius * 3f)));
+    }
+
+    bool TryGetSmartPathWaypoint(
+        Vector3 finalTarget,
+        out Vector3 waypoint)
+    {
+        waypoint = finalTarget;
+
+        if (!useSmartPathfinding)
+        {
+            ClearActivePath();
+            return false;
+        }
+
+        if (activePath.Count > 0 &&
+            Vector2.Distance(activePathTarget, finalTarget) >
+            pathReplanTargetDistance)
+        {
+            ClearActivePath();
+        }
+
+        if (HasClearLineTo(finalTarget))
+        {
+            ClearActivePath();
+            return false;
+        }
+
+        if (activePath.Count == 0 &&
+            !TryBuildSmartPath(finalTarget))
+        {
+            return false;
+        }
+
+        SkipVisiblePathWaypoints();
+
+        if (activePathIndex < 0 ||
+            activePathIndex >= activePath.Count)
+        {
+            ClearActivePath();
+            return false;
+        }
+
+        waypoint = activePath[activePathIndex];
+        return true;
+    }
+
+    bool TryBuildSmartPath(Vector3 finalTarget)
+    {
+        NpcPerformanceOverlay.RecordPathRequest();
+        float pathStartTime =
+            Time.realtimeSinceStartup;
+        int visited = 0;
+
+        ClearActivePath();
+
+        if (!useSmartPathfinding ||
+            pathCellSize <= 0.05f ||
+            !IsInsideCurrentMapArea(finalTarget))
+        {
+            NpcPerformanceOverlay.RecordPathResult(
+                false,
+                visited,
+                GetElapsedPathMs(pathStartTime));
+            return false;
+        }
+
+        Vector3 start =
+            ClampToCurrentMapArea(transform.position);
+
+        finalTarget =
+            ClampToCurrentMapArea(finalTarget);
+
+        if (!IsInsidePathSearchDistance(start, finalTarget))
+        {
+            NpcPerformanceOverlay.RecordPathResult(
+                false,
+                visited,
+                GetElapsedPathMs(pathStartTime));
+            return false;
+        }
+
+        Vector2Int startCell =
+            WorldToPathCell(start);
+
+        Vector2Int targetCell =
+            WorldToPathCell(finalTarget);
+
+        if (!IsPathCellWalkable(startCell) &&
+            !TryFindNearestWalkableCell(startCell, out startCell))
+        {
+            NpcPerformanceOverlay.RecordPathResult(
+                false,
+                visited,
+                GetElapsedPathMs(pathStartTime));
+            return false;
+        }
+
+        if (!IsPathCellWalkable(targetCell) &&
+            !TryFindNearestWalkableCell(targetCell, out targetCell))
+        {
+            NpcPerformanceOverlay.RecordPathResult(
+                false,
+                visited,
+                GetElapsedPathMs(pathStartTime));
+            return false;
+        }
+
+        start =
+            PathCellToWorld(startCell);
+
+        finalTarget =
+            PathCellToWorld(targetCell);
+
+        bool hasRememberedPath =
+            TryGetRememberedPathCandidate(start, finalTarget);
+
+        if (hasRememberedPath &&
+            !compareRememberedPathWithNewPath)
+        {
+            NpcPerformanceOverlay.RecordPathCacheHit();
+            NpcPerformanceOverlay.RecordPathResult(
+                true,
+                visited,
+                GetElapsedPathMs(pathStartTime));
+            return ApplyRememberedPath(start, finalTarget);
+        }
+
+        if (Time.time < nextSmartPathAllowedTime)
+        {
+            if (hasRememberedPath)
+            {
+                NpcPerformanceOverlay.RecordPathCacheHit();
+            }
+
+            NpcPerformanceOverlay.RecordPathResult(
+                hasRememberedPath,
+                visited,
+                GetElapsedPathMs(pathStartTime));
+            return hasRememberedPath &&
+                ApplyRememberedPath(start, finalTarget);
+        }
+
+        nextSmartPathAllowedTime =
+            Time.time + Mathf.Max(0.05f, pathReplanCooldown);
+
+        Dictionary<Vector2Int, PathNode> nodes =
+            new Dictionary<Vector2Int, PathNode>();
+
+        List<PathNode> open =
+            new List<PathNode>();
+
+        HashSet<Vector2Int> closed =
+            new HashSet<Vector2Int>();
+
+        PathNode startNode =
+            new PathNode(startCell, null, 0, GetPathHeuristic(startCell, targetCell));
+
+        nodes[startCell] = startNode;
+        open.Add(startNode);
+
+        while (open.Count > 0 && visited < maxPathNodes)
+        {
+            PathNode current =
+                PopLowestCostNode(open);
+
+            if (current.cell == targetCell)
+            {
+                BuildPathCandidate(
+                    current,
+                    finalTarget,
+                    computedPathBuffer);
+
+                if (computedPathBuffer.Count == 0)
+                {
+                    if (hasRememberedPath)
+                    {
+                        NpcPerformanceOverlay.RecordPathCacheHit();
+                    }
+
+                    NpcPerformanceOverlay.RecordPathResult(
+                        hasRememberedPath,
+                        visited,
+                        GetElapsedPathMs(pathStartTime));
+                    return hasRememberedPath &&
+                        ApplyRememberedPath(start, finalTarget);
+                }
+
+                if (hasRememberedPath &&
+                    IsRememberedPathBetter(
+                        start,
+                        finalTarget,
+                        computedPathBuffer))
+                {
+                    NpcPerformanceOverlay.RecordPathCacheHit();
+                    NpcPerformanceOverlay.RecordPathResult(
+                        true,
+                        visited,
+                        GetElapsedPathMs(pathStartTime));
+                    return ApplyRememberedPath(start, finalTarget);
+                }
+
+                ApplyPathCandidate(
+                    computedPathBuffer,
+                    finalTarget);
+
+                RememberActivePath(start, finalTarget);
+                NpcPerformanceOverlay.RecordPathResult(
+                    activePath.Count > 0,
+                    visited,
+                    GetElapsedPathMs(pathStartTime));
+                return activePath.Count > 0;
+            }
+
+            closed.Add(current.cell);
+            visited++;
+
+            for (int i = 0; i < PathNeighborOffsets.Length; i++)
+            {
+                Vector2Int offset =
+                    PathNeighborOffsets[i];
+
+                Vector2Int nextCell =
+                    current.cell + offset;
+
+                if (closed.Contains(nextCell) ||
+                    !IsPathStepWalkable(current.cell, nextCell, offset))
+                {
+                    continue;
+                }
+
+                int stepCost =
+                    offset.x != 0 && offset.y != 0
+                    ? 14
+                    : 10;
+
+                int newCost =
+                    current.gCost + stepCost;
+
+                if (nodes.TryGetValue(nextCell, out PathNode nextNode))
+                {
+                    if (newCost >= nextNode.gCost)
+                    {
+                        continue;
+                    }
+
+                    nextNode.parent = current;
+                    nextNode.gCost = newCost;
+                    nextNode.hCost =
+                        GetPathHeuristic(nextCell, targetCell);
+                }
+                else
+                {
+                    nextNode =
+                        new PathNode(
+                            nextCell,
+                            current,
+                            newCost,
+                            GetPathHeuristic(nextCell, targetCell));
+
+                    nodes[nextCell] = nextNode;
+                    open.Add(nextNode);
+                }
+            }
+        }
+
+        if (hasRememberedPath)
+        {
+            NpcPerformanceOverlay.RecordPathCacheHit();
+        }
+
+        NpcPerformanceOverlay.RecordPathResult(
+            hasRememberedPath,
+            visited,
+            GetElapsedPathMs(pathStartTime));
+
+        return hasRememberedPath &&
+            ApplyRememberedPath(start, finalTarget);
+    }
+
+    float GetElapsedPathMs(float pathStartTime)
+    {
+        return (Time.realtimeSinceStartup - pathStartTime) * 1000f;
+    }
+
+    void BuildPathCandidate(
+        PathNode endNode,
+        Vector3 finalTarget,
+        List<Vector3> output)
+    {
+        output.Clear();
+
+        List<Vector3> reversed =
+            new List<Vector3>();
+
+        PathNode current =
+            endNode;
+
+        int steps = 0;
+
+        while (current != null && steps < maxPathSteps)
+        {
+            reversed.Add(PathCellToWorld(current.cell));
+            current = current.parent;
+            steps++;
+        }
+
+        if (current != null)
+        {
+            return;
+        }
+
+        for (int i = reversed.Count - 1; i >= 0; i--)
+        {
+            Vector3 point =
+                ClampToCurrentMapArea(reversed[i]);
+
+            if (Vector2.Distance(point, transform.position) <=
+                pathWaypointReachDistance)
+            {
+                continue;
+            }
+
+            output.Add(point);
+        }
+
+        if (output.Count == 0 ||
+            Vector2.Distance(output[output.Count - 1], finalTarget) >
+            pathWaypointReachDistance)
+        {
+            output.Add(finalTarget);
+        }
+
+        SimplifyPathCandidate(output);
+    }
+
+    void ApplyPathCandidate(
+        List<Vector3> source,
+        Vector3 finalTarget)
+    {
+        activePath.Clear();
+        activePath.AddRange(source);
+        activePathTarget = finalTarget;
+        activePathIndex = 0;
+    }
+
+    bool TryGetRememberedPathCandidate(
+        Vector3 start,
+        Vector3 finalTarget)
+    {
+        if (!useSharedPathMemory)
+        {
+            return false;
+        }
+
+        if (!NpcPathMemorySystem.TryGetPath(
+                GetPathMemoryMapKey(),
+                start,
+                finalTarget,
+                sharedPathMemoryCellSize,
+                IsMoveTargetFeasible,
+                HasClearLineTo,
+                rememberedPathBuffer))
+        {
+            return false;
+        }
+
+        TrimPathStartForCurrentPosition(rememberedPathBuffer);
+        return rememberedPathBuffer.Count > 0;
+    }
+
+    bool ApplyRememberedPath(
+        Vector3 start,
+        Vector3 finalTarget)
+    {
+        if (rememberedPathBuffer.Count == 0)
+        {
+            return false;
+        }
+
+        ApplyPathCandidate(
+            rememberedPathBuffer,
+            finalTarget);
+        return true;
+    }
+
+    bool IsRememberedPathBetter(
+        Vector3 start,
+        Vector3 finalTarget,
+        List<Vector3> computedPath)
+    {
+        float rememberedScore =
+            GetPathCandidateScore(
+                start,
+                finalTarget,
+                rememberedPathBuffer);
+
+        float computedScore =
+            GetPathCandidateScore(
+                start,
+                finalTarget,
+                computedPath);
+
+        return rememberedScore <= computedScore;
+    }
+
+    float GetPathCandidateScore(
+        Vector3 start,
+        Vector3 finalTarget,
+        List<Vector3> path)
+    {
+        if (path == null ||
+            path.Count == 0)
+        {
+            return float.PositiveInfinity;
+        }
+
+        float score = 0f;
+        Vector3 previous = start;
+        Vector2 previousDirection = Vector2.zero;
+
+        for (int i = 0; i < path.Count; i++)
+        {
+            Vector3 point = path[i];
+            Vector2 segment = point - previous;
+            float length = segment.magnitude;
+
+            score += length;
+
+            if (length > 0.001f)
+            {
+                Vector2 direction = segment / length;
+                if (previousDirection.sqrMagnitude > 0.0001f)
+                {
+                    score +=
+                        (1f - Mathf.Clamp01(
+                            Vector2.Dot(previousDirection, direction))) *
+                        pathTurnPenalty;
+                }
+
+                previousDirection = direction;
+            }
+
+            previous = point;
+        }
+
+        score += Vector2.Distance(previous, finalTarget);
+        return score;
+    }
+
+    void TrimPathStartForCurrentPosition(List<Vector3> path)
+    {
+        if (path == null)
+        {
+            return;
+        }
+
+        for (int i = path.Count - 1; i >= 0; i--)
+        {
+            path[i] =
+                ClampToCurrentMapArea(path[i]);
+
+            if (Vector2.Distance(path[i], transform.position) <=
+                pathWaypointReachDistance)
+            {
+                path.RemoveAt(i);
+            }
+        }
+    }
+
+    void RememberActivePath(
+        Vector3 start,
+        Vector3 finalTarget)
+    {
+        if (!useSharedPathMemory ||
+            activePath.Count == 0)
+        {
+            return;
+        }
+
+        NpcPathMemorySystem.RememberPath(
+            GetPathMemoryMapKey(),
+            start,
+            finalTarget,
+            sharedPathMemoryCellSize,
+            activePath);
+    }
+
+    string GetPathMemoryMapKey()
+    {
+        RefreshCurrentMapArea();
+
+        if (currentMapArea != null)
+        {
+            return gameObject.scene.name + ":" +
+                currentMapArea.zone + ":" +
+                currentMapArea.name;
+        }
+
+        return gameObject.scene.name;
+    }
+
+    void SimplifyPathCandidate(List<Vector3> path)
+    {
+        if (path == null ||
+            path.Count <= 2)
+        {
+            return;
+        }
+
+        List<Vector3> simplified =
+            new List<Vector3>();
+
+        int index = 0;
+
+        while (index < path.Count)
+        {
+            int next = index + 1;
+
+            for (int i = path.Count - 1; i > index; i--)
+            {
+                if (HasClearLineTo(path[i], path[index]))
+                {
+                    next = i;
+                    break;
+                }
+            }
+
+            simplified.Add(path[index]);
+            index = next;
+        }
+
+        path.Clear();
+        path.AddRange(simplified);
+    }
+
+    void SkipVisiblePathWaypoints()
+    {
+        while (activePathIndex < activePath.Count - 1 &&
+            HasClearLineTo(activePath[activePathIndex + 1]))
+        {
+            activePathIndex++;
+        }
+    }
+
+    void AdvanceActivePathWaypoint()
+    {
+        activePathIndex++;
+
+        if (activePathIndex >= activePath.Count)
+        {
+            ClearActivePath();
+        }
+    }
+
+    void ClearActivePath()
+    {
+        activePath.Clear();
+        activePathIndex = 0;
+        activePathTarget = Vector3.zero;
+    }
+
+    bool TryFindNearestWalkableCell(
+        Vector2Int origin,
+        out Vector2Int result)
+    {
+        int maxRadius =
+            Mathf.CeilToInt(
+                Mathf.Max(targetClearRadius * 3f, pathCellSize) /
+                Mathf.Max(0.05f, pathCellSize)) + 3;
+
+        for (int radius = 1; radius <= maxRadius; radius++)
+        {
+            for (int x = -radius; x <= radius; x++)
+            {
+                for (int y = -radius; y <= radius; y++)
+                {
+                    if (Mathf.Abs(x) != radius &&
+                        Mathf.Abs(y) != radius)
+                    {
+                        continue;
+                    }
+
+                    Vector2Int candidate =
+                        origin + new Vector2Int(x, y);
+
+                    if (IsPathCellWalkable(candidate))
+                    {
+                        result = candidate;
+                        return true;
+                    }
+                }
+            }
+        }
+
+        result = origin;
+        return false;
+    }
+
+    bool IsInsidePathSearchDistance(
+        Vector3 start,
+        Vector3 target)
+    {
+        float searchDistance =
+            GetEffectivePathSearchDistance();
+
+        return searchDistance <= 0f ||
+            Vector2.Distance(start, target) <= searchDistance;
+    }
+
+    float GetEffectivePathSearchDistance()
+    {
+        if (maxPathSearchDistance > 0f)
+        {
+            return maxPathSearchDistance;
+        }
+
+        if (currentMapArea != null &&
+            currentMapArea.areaBounds != null)
+        {
+            Bounds bounds =
+                currentMapArea.areaBounds.bounds;
+
+            return Mathf.Max(
+                bounds.size.x,
+                bounds.size.y) +
+                pathCellSize * 4f;
+        }
+
+        return 0f;
+    }
+
+    bool IsPathStepWalkable(
+        Vector2Int from,
+        Vector2Int to,
+        Vector2Int offset)
+    {
+        if (!IsPathCellWalkable(to))
+        {
+            return false;
+        }
+
+        if (offset.x == 0 || offset.y == 0)
+        {
+            return true;
+        }
+
+        return IsPathCellWalkable(from + new Vector2Int(offset.x, 0)) &&
+            IsPathCellWalkable(from + new Vector2Int(0, offset.y));
+    }
+
+    bool IsPathCellWalkable(Vector2Int cell)
+    {
+        Vector3 world =
+            PathCellToWorld(cell);
+
+        return IsMoveTargetFeasible(world);
+    }
+
+    Vector2Int WorldToPathCell(Vector3 position)
+    {
+        float size =
+            Mathf.Max(0.05f, pathCellSize);
+
+        return new Vector2Int(
+            Mathf.RoundToInt(position.x / size),
+            Mathf.RoundToInt(position.y / size));
+    }
+
+    Vector3 PathCellToWorld(Vector2Int cell)
+    {
+        float size =
+            Mathf.Max(0.05f, pathCellSize);
+
+        return new Vector3(
+            cell.x * size,
+            cell.y * size,
+            transform.position.z);
+    }
+
+    PathNode PopLowestCostNode(List<PathNode> open)
+    {
+        int bestIndex = 0;
+        PathNode best = open[0];
+
+        for (int i = 1; i < open.Count; i++)
+        {
+            PathNode candidate = open[i];
+
+            if (candidate.FCost < best.FCost ||
+                candidate.FCost == best.FCost &&
+                candidate.hCost < best.hCost)
+            {
+                best = candidate;
+                bestIndex = i;
+            }
+        }
+
+        open.RemoveAt(bestIndex);
+        return best;
+    }
+
+    int GetPathHeuristic(
+        Vector2Int from,
+        Vector2Int to)
+    {
+        int dx =
+            Mathf.Abs(from.x - to.x);
+
+        int dy =
+            Mathf.Abs(from.y - to.y);
+
+        return 10 * (dx + dy) - 6 * Mathf.Min(dx, dy);
+    }
+
+    static readonly Vector2Int[] PathNeighborOffsets =
+    {
+        new Vector2Int(1, 0),
+        new Vector2Int(-1, 0),
+        new Vector2Int(0, 1),
+        new Vector2Int(0, -1),
+        new Vector2Int(1, 1),
+        new Vector2Int(1, -1),
+        new Vector2Int(-1, 1),
+        new Vector2Int(-1, -1)
+    };
+
+    class PathNode
+    {
+        public readonly Vector2Int cell;
+        public PathNode parent;
+        public int gCost;
+        public int hCost;
+
+        public int FCost
+        {
+            get
+            {
+                return gCost + hCost;
+            }
+        }
+
+        public PathNode(
+            Vector2Int cell,
+            PathNode parent,
+            int gCost,
+            int hCost)
+        {
+            this.cell = cell;
+            this.parent = parent;
+            this.gCost = gCost;
+            this.hCost = hCost;
+        }
+    }
+
     Vector2 GetSeparationDirection()
     {
         if (separationRadius <= 0f)

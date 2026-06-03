@@ -47,6 +47,17 @@ public class TouchSelectTarget : MonoBehaviour
 
     public float worldItemTextLeftPadding = 88f;
 
+    [Header("Character Portrait")]
+    public Vector2 characterPortraitSize =
+        new Vector2(96f, 96f);
+
+    public Vector2 characterPortraitOffset =
+        new Vector2(16f, -42f);
+
+    public float characterTextLeftPadding = 112f;
+
+    public bool autoUseCharacterSprite;
+
     [Header("Panel Follow")]
     public Vector3 panelOffset =
         new Vector3(0, 2f, 0);
@@ -768,8 +779,13 @@ public class TouchSelectTarget : MonoBehaviour
             ? target.GetComponent<WorldStatItemPickup>()
             : null;
 
+        bool isWorldItem =
+            pickup != null;
+
         Sprite icon =
-            GetPickupIcon(pickup);
+            isWorldItem
+            ? GetPickupIcon(pickup)
+            : GetCharacterIcon(target);
 
         if (infoIcon == null ||
             icon == null)
@@ -779,8 +795,12 @@ public class TouchSelectTarget : MonoBehaviour
         }
 
         infoIcon.sprite = icon;
+        ConfigureInfoIconLayout(isWorldItem);
         SetInfoIconVisible(true);
-        ApplyWorldItemTextMargin();
+        ApplyInfoTextMargin(
+            isWorldItem
+            ? worldItemTextLeftPadding
+            : characterTextLeftPadding);
     }
 
     Sprite GetPickupIcon(WorldStatItemPickup pickup)
@@ -804,6 +824,98 @@ public class TouchSelectTarget : MonoBehaviour
             : null;
     }
 
+    Sprite GetCharacterIcon(Transform target)
+    {
+        if (target == null)
+        {
+            return null;
+        }
+
+        NpcPortraitIcon portraitIcon =
+            target.GetComponent<NpcPortraitIcon>();
+
+        if (portraitIcon == null)
+        {
+            portraitIcon =
+                target.GetComponentInChildren<NpcPortraitIcon>(true);
+        }
+
+        if (portraitIcon != null &&
+            portraitIcon.icon != null)
+        {
+            return portraitIcon.icon;
+        }
+
+        if (!autoUseCharacterSprite)
+        {
+            return null;
+        }
+
+        SpriteRenderer bestRenderer =
+            null;
+
+        float bestArea =
+            -1f;
+
+        SpriteRenderer[] renderers =
+            target.GetComponentsInChildren<SpriteRenderer>(true);
+
+        foreach (SpriteRenderer renderer in renderers)
+        {
+            if (renderer == null ||
+                renderer.sprite == null ||
+                !renderer.enabled)
+            {
+                continue;
+            }
+
+            float area =
+                renderer.bounds.size.x *
+                renderer.bounds.size.y;
+
+            if (area > bestArea)
+            {
+                bestArea = area;
+                bestRenderer = renderer;
+            }
+        }
+
+        return bestRenderer != null
+            ? bestRenderer.sprite
+            : null;
+    }
+
+    void ConfigureInfoIconLayout(bool isWorldItem)
+    {
+        if (infoIcon == null)
+        {
+            return;
+        }
+
+        RectTransform rect =
+            infoIcon.GetComponent<RectTransform>();
+
+        if (rect == null)
+        {
+            return;
+        }
+
+        rect.anchorMin = new Vector2(0f, 1f);
+        rect.anchorMax = new Vector2(0f, 1f);
+        rect.pivot = new Vector2(0f, 1f);
+        rect.anchoredPosition =
+            isWorldItem
+            ? worldItemIconOffset
+            : characterPortraitOffset;
+        rect.sizeDelta =
+            isWorldItem
+            ? worldItemIconSize
+            : characterPortraitSize;
+
+        infoIcon.preserveAspect = true;
+        infoIcon.raycastTarget = false;
+    }
+
     void SetInfoIconVisible(bool visible)
     {
         if (infoIcon != null)
@@ -818,7 +930,7 @@ public class TouchSelectTarget : MonoBehaviour
         }
     }
 
-    void ApplyWorldItemTextMargin()
+    void ApplyInfoTextMargin(float leftPadding)
     {
         if (infoText == null)
         {
@@ -834,7 +946,7 @@ public class TouchSelectTarget : MonoBehaviour
         Vector4 margin =
             originalInfoTextMargin;
 
-        margin.x += worldItemTextLeftPadding;
+        margin.x += leftPadding;
         infoText.margin = margin;
     }
 

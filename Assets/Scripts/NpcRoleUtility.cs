@@ -170,7 +170,10 @@ public static class NpcRoleUtility
         VillagerAI villager = npc.GetComponent<VillagerAI>();
         if (villager != null)
         {
-            villager.currentAction = action;
+            if (!villager.IsActionLocked)
+            {
+                villager.currentAction = action;
+            }
         }
 
         SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();

@@ -98,7 +98,7 @@ public class InventoryItemButtonUI :
             amountText.text =
                 stack.amount > 99
                 ? "99+"
-                : stack.amount.ToString();
+                : "x" + stack.amount;
 
             amountText.alignment =
                 TextAlignmentOptions.TopRight;
@@ -109,7 +109,8 @@ public class InventoryItemButtonUI :
         if (nameText != null)
         {
             nameText.gameObject.SetActive(true);
-            nameText.text = stack.item.itemName;
+            nameText.text =
+                stack.item.itemName + " x" + stack.amount;
             nameText.raycastTarget = false;
         }
 
