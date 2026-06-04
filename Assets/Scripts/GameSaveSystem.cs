@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -42,6 +42,11 @@ public static class GameSaveSystem
     const string SceneKey = SavePrefix + "CurrentScene";
     const string InventoryPrefix = SavePrefix + "Inventory.";
     const string ShopPrefix = SavePrefix + "Shop.";
+    const string DynamicKeysKey = SavePrefix + "DynamicKeys";
+    const string WorldTimeYearKey = SavePrefix + "WorldTime.Year";
+    const string WorldTimeMonthKey = SavePrefix + "WorldTime.Month";
+    const string WorldTimeDayKey = SavePrefix + "WorldTime.Day";
+    const string WorldTimeHourKey = SavePrefix + "WorldTime.Hour";
 
     static readonly Dictionary<string, StatItemData> itemByKey =
         new Dictionary<string, StatItemData>();
@@ -72,6 +77,8 @@ public static class GameSaveSystem
                 keysToDelete.Add(key);
             }
         }
+
+        AddDynamicSaveKeys(keysToDelete);
 
         foreach (string key in keysToDelete)
         {
@@ -130,6 +137,75 @@ public static class GameSaveSystem
         return PlayerPrefs.GetString(
             SceneKey,
             fallbackScene);
+    }
+    public static void RegisterDynamicSaveKey(string key)
+    {
+        if (string.IsNullOrEmpty(key))
+        {
+            return;
+        }
+
+        string existing = PlayerPrefs.GetString(DynamicKeysKey, "");
+        string wrapped = "|" + key + "|";
+        if (("|" + existing + "|").Contains(wrapped))
+        {
+            return;
+        }
+
+        PlayerPrefs.SetString(
+            DynamicKeysKey,
+            string.IsNullOrEmpty(existing) ? key : existing + "|" + key);
+    }
+
+    static void AddDynamicSaveKeys(List<string> keysToDelete)
+    {
+        string existing = PlayerPrefs.GetString(DynamicKeysKey, "");
+        if (string.IsNullOrEmpty(existing))
+        {
+            return;
+        }
+
+        string[] keys = existing.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+        foreach (string key in keys)
+        {
+            if (!string.IsNullOrEmpty(key) && !keysToDelete.Contains(key))
+            {
+                keysToDelete.Add(key);
+            }
+        }
+    }
+
+    public static void SaveWorldTime(int year, int month, int day, float hour)
+    {
+        PlayerPrefs.SetInt(WorldTimeYearKey, Mathf.Max(1, year));
+        PlayerPrefs.SetInt(WorldTimeMonthKey, Mathf.Max(1, month));
+        PlayerPrefs.SetInt(WorldTimeDayKey, Mathf.Max(1, day));
+        PlayerPrefs.SetFloat(WorldTimeHourKey, Mathf.Clamp(hour, 0f, 23.999f));
+        MarkSaveExists();
+        PlayerPrefs.Save();
+    }
+
+    public static bool TryLoadWorldTime(
+        out int year,
+        out int month,
+        out int day,
+        out float hour)
+    {
+        year = 1;
+        month = 1;
+        day = 1;
+        hour = 6f;
+
+        if (!HasSave || !PlayerPrefs.HasKey(WorldTimeDayKey))
+        {
+            return false;
+        }
+
+        year = Mathf.Max(1, PlayerPrefs.GetInt(WorldTimeYearKey, year));
+        month = Mathf.Max(1, PlayerPrefs.GetInt(WorldTimeMonthKey, month));
+        day = Mathf.Max(1, PlayerPrefs.GetInt(WorldTimeDayKey, day));
+        hour = Mathf.Clamp(PlayerPrefs.GetFloat(WorldTimeHourKey, hour), 0f, 23.999f);
+        return true;
     }
 
     public static void SaveInventory(
@@ -343,5 +419,10 @@ public static class GameSaveSystem
         yield return ShopPrefix + "Shop";
         yield return ShopPrefix + "CuaHang";
         yield return SavePrefix + "WorldSpawner.Actors";
+        yield return DynamicKeysKey;
+        yield return WorldTimeYearKey;
+        yield return WorldTimeMonthKey;
+        yield return WorldTimeDayKey;
+        yield return WorldTimeHourKey;
     }
 }

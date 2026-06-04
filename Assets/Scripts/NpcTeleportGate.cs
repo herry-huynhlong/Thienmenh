@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Collider2D))]
@@ -13,11 +13,11 @@ public class NpcTeleportGate : MonoBehaviour
     public Transform exitPoint;
     public DoorTeleportSameScene sameSceneTeleport;
     public float npcAutoUseRadius = 0.45f;
+    public bool preferOwnTransformWhenEntryIsParent = true;
 
     public static IReadOnlyList<NpcTeleportGate> Gates => gates;
 
-    public Vector3 EntryPosition =>
-        entryPoint != null ? entryPoint.position : transform.position;
+    public Vector3 EntryPosition => GetResolvedEntryPosition();
 
     public Vector3 ExitPosition
     {
@@ -38,6 +38,30 @@ public class NpcTeleportGate : MonoBehaviour
         }
     }
 
+    Vector3 GetResolvedEntryPosition()
+    {
+        Transform resolved = GetResolvedEntryTransform();
+        return resolved != null
+            ? resolved.position
+            : transform.position;
+    }
+
+    Transform GetResolvedEntryTransform()
+    {
+        if (entryPoint == null)
+        {
+            return transform;
+        }
+
+        if (preferOwnTransformWhenEntryIsParent &&
+            transform.parent != null &&
+            entryPoint == transform.parent)
+        {
+            return transform;
+        }
+
+        return entryPoint;
+    }
     void Reset()
     {
         sameSceneTeleport = GetComponent<DoorTeleportSameScene>();
@@ -80,8 +104,7 @@ public class NpcTeleportGate : MonoBehaviour
                 ? hit.attachedRigidbody.gameObject
                 : hit.gameObject;
 
-            if (actor == null ||
-                !actor.CompareTag("NPC"))
+            if (!IsNpcActor(actor))
             {
                 continue;
             }
@@ -99,6 +122,23 @@ public class NpcTeleportGate : MonoBehaviour
         }
     }
 
+    bool IsNpcActor(GameObject actor)
+    {
+        if (actor == null)
+        {
+            return false;
+        }
+
+        if (actor.CompareTag("NPC"))
+        {
+            return true;
+        }
+
+        return actor.GetComponent<VillagerAI>() != null ||
+            actor.GetComponent<SmartNpcAI>() != null ||
+            actor.GetComponent<NpcTradeAgent>() != null ||
+            actor.GetComponent<NpcTaskProvider>() != null;
+    }
     void OnEnable()
     {
         if (!gates.Contains(this))

@@ -1,4 +1,4 @@
-Ôªøusing System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -366,6 +366,12 @@ public class WorldSpawner : MonoBehaviour
             saved.professionLevel = villager.professionLevel;
             saved.professionExp = villager.professionExp;
             saved.currentAction = villager.currentAction;
+        }
+
+        MonsterAI monster = actor.GetComponent<MonsterAI>();
+        if (monster != null)
+        {
+            saved.currentAction = monster.currentAction;
         }
 
         return saved;
@@ -906,13 +912,13 @@ public class NpcHomeResident : MonoBehaviour
     {
         returningHome = true;
         PauseAi();
-        NpcRoleUtility.SetAction(gameObject, "V·ªÅ nh√† c∆∞ tr√∫");
+        NpcRoleUtility.SetAction(gameObject, "V? nh‡ cu tr˙");
     }
 
     void MoveHome()
     {
         NpcRoleUtility.MoveTowards(gameObject, homePoint.position, fallbackMoveSpeed);
-        NpcRoleUtility.SetAction(gameObject, "ƒêang v·ªÅ nh√†");
+        NpcRoleUtility.SetAction(gameObject, "–ang v? nh‡");
 
         if (Vector2.Distance(transform.position, homePoint.position) <= arriveDistance)
         {
@@ -943,7 +949,7 @@ public class NpcHomeResident : MonoBehaviour
         FinishRestAtHome();
         SetVisible(false);
         SetColliders(false);
-        NpcRoleUtility.SetAction(gameObject, "ƒê√£ v√†o nh√†");
+        NpcRoleUtility.SetAction(gameObject, "–„ v‡o nh‡");
     }
 
     void TryLeaveHome()
@@ -971,7 +977,7 @@ public class NpcHomeResident : MonoBehaviour
         SetVisible(true);
         SetColliders(true);
         ResumeAi();
-        NpcRoleUtility.SetAction(gameObject, "Ra kh·ªèi nh√†");
+        NpcRoleUtility.SetAction(gameObject, "Ra kh?i nh‡");
     }
 
     void FinishRestAtHome()

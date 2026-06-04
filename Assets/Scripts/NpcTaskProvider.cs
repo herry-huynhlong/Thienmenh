@@ -40,7 +40,7 @@ public enum TavernMealStage
 [System.Serializable]
 public class NpcTaskOffer
 {
-    public string taskName = "Thu thập tài nguyên";
+    public string taskName = "Thu tháº­p tÃ i nguyÃªn";
     public NpcTaskType taskType = NpcTaskType.GatherResource;
     public NpcTaskRank rank = NpcTaskRank.Ha;
     public CultivationRealm minRealm = CultivationRealm.QiRefining;
@@ -61,6 +61,7 @@ public class NpcTaskOffer
     public bool autoPriceRequiredItemReward = true;
     [Min(0f)] public float requiredItemRewardMarkupMin = 0.33f;
     [Min(0f)] public float requiredItemRewardMarkupMax = 0.5f;
+    public bool useRankRewardMultiplier = true;
     public bool consumeRequiredItemsOnTurnIn = true;
     [Min(1)] public int requiredMonsterKills = 1;
 }
@@ -98,6 +99,12 @@ class RunningTavernMeal
     public float remainingTime;
     public Behaviour pausedBaseAi;
     public bool pausedBaseAiWasEnabled;
+}
+
+class PendingTaskGoods
+{
+    public StatItemData item;
+    public int amount;
 }
 
 public class NpcTaskProvider : MonoBehaviour
@@ -151,6 +158,7 @@ public class NpcTaskProvider : MonoBehaviour
     public float assignRadius = 2.5f;
     public float assignInterval = 5f;
     public float arriveDistance = 0.35f;
+    public float gatherInteractDistance = 1.1f;
     public float fallbackMoveSpeed = 1.6f;
     public bool pauseBaseAiWhileWorking = true;
     public LayerMask npcLayers = ~0;
@@ -159,6 +167,7 @@ public class NpcTaskProvider : MonoBehaviour
     public float chooseTaskDuration = 8f;
     public float providerReceiveDuration = 5f;
     public float providerTalkDistance = 0.75f;
+    public float stuckTurnInDistance = 2.25f;
     public float huntAttackRange = 1.4f;
     public float huntAttackInterval = 1.2f;
     [Header("Task Danger Response")]
@@ -173,16 +182,34 @@ public class NpcTaskProvider : MonoBehaviour
     public Transform patrolPoint;
     public Transform deliverPoint;
 
+    [Header("Provider Placement")]
+    public bool keepProviderStationary = true;
+    public Transform providerStandPoint;
+
     [Header("Reward Wallet")]
     public ItemInventory inventory;
+    [InspectorName("Quá»¹ thÆ°á»Ÿng Linh Tháº¡ch ban Ä‘áº§u")]
     public int startingRewardMoney = 100000;
+    [InspectorName("Dá»± trá»¯ Linh Tháº¡ch tá»‘i thiá»ƒu")]
     public int minimumRewardMoneyReserve = 50000;
     public bool refillRewardMoneyWhenLow = true;
-    [SerializeField] int serviceRewardMoney;
+    [SerializeField, InspectorName("Quá»¹ thÆ°á»Ÿng Linh Tháº¡ch")] int serviceRewardMoney;
 
     public int CurrentRewardMoney => GetProviderMoney();
 
-    [Header("Forest Depth")]
+    [Header("Task Goods Handoff")]
+    public bool storeTurnedInTaskGoods = true;
+    public bool transferTaskGoodsToCounterAtDayEnd = true;
+    public NpcCounterBroker taskGoodsReceiver;
+    public bool useActiveCounterBrokerIfReceiverMissing = true;
+
+    
+    [Header("Default Bounty Pricing")]
+    public bool useDefaultRankBountyMultipliers = true;
+    public Vector2 haRankBountyMultiplier = new Vector2(1f, 1.5f);
+    public Vector2 trungRankBountyMultiplier = new Vector2(3f, 3.5f);
+    public Vector2 thuongRankBountyMultiplier = new Vector2(5f, 5.5f);
+[Header("Forest Depth")]
     public NpcMapArea forestSearchArea;
     public Transform forestEntryPoint;
     public Transform forestDeepPoint;
@@ -201,7 +228,7 @@ public class NpcTaskProvider : MonoBehaviour
     {
         new NpcTaskOffer
         {
-            taskName = "Thu thập linh thảo hạ phẩm",
+            taskName = "Thu tháº­p linh tháº£o háº¡ pháº©m",
             taskType = NpcTaskType.GatherResource,
             rank = NpcTaskRank.Ha,
             minRealm = CultivationRealm.QiRefining,
@@ -212,7 +239,7 @@ public class NpcTaskProvider : MonoBehaviour
         },
         new NpcTaskOffer
         {
-            taskName = "Tuần tra ngoài làng",
+            taskName = "Tuáº§n tra ngoÃ i lÃ ng",
             taskType = NpcTaskType.Patrol,
             rank = NpcTaskRank.Trung,
             minRealm = CultivationRealm.GoldenCore,
@@ -223,7 +250,7 @@ public class NpcTaskProvider : MonoBehaviour
         },
         new NpcTaskOffer
         {
-            taskName = "Săn yêu thú nguy hiểm",
+            taskName = "SÄƒn yÃªu thÃº nguy hiá»ƒm",
             taskType = NpcTaskType.HuntMonster,
             rank = NpcTaskRank.Thuong,
             requiredMonsterKills = 1,
@@ -241,7 +268,13 @@ public class NpcTaskProvider : MonoBehaviour
     readonly List<RunningTavernMeal> runningMeals =
         new List<RunningTavernMeal>();
 
+    readonly List<PendingTaskGoods> pendingTaskGoods =
+        new List<PendingTaskGoods>();
+
     float assignTimer;
+    int lastTaskGoodsTransferDay = -1;
+    Rigidbody2D providerRb;
+    Vector3 stationaryPosition;
 
     void OnEnable()
     {
@@ -249,15 +282,82 @@ public class NpcTaskProvider : MonoBehaviour
         {
             providers.Add(this);
         }
+
+        CaptureStationaryPosition();
+        ConfigureStationaryProvider();
     }
 
     void OnDisable()
     {
+        CompleteInterruptedWork();
         providers.Remove(this);
     }
+
+    void CompleteInterruptedWork()
+    {
+        for (int i = runningTasks.Count - 1; i >= 0; i--)
+        {
+            RunningNpcTask task = runningTasks[i];
+            bool canReward = ShouldRewardInterruptedTask(task) &&
+                ConsumeTaskItems(task);
+
+            runningTasks.RemoveAt(i);
+            ResumeBaseAi(task);
+
+            if (canReward)
+            {
+                RewardNpc(task);
+                continue;
+            }
+
+            if (task != null &&
+                task.npc != null)
+            {
+                NpcRoleUtility.SetAction(task.npc, "Tam dung nhiem vu");
+            }
+        }
+
+        for (int i = runningMeals.Count - 1; i >= 0; i--)
+        {
+            RunningTavernMeal meal = runningMeals[i];
+            runningMeals.RemoveAt(i);
+            ResumeBaseAi(meal);
+
+            if (meal != null &&
+                meal.npc != null)
+            {
+                NpcRoleUtility.SetAction(meal.npc, "Tam dung bua an");
+            }
+        }
+    }
+
+
+    bool ShouldRewardInterruptedTask(RunningNpcTask task)
+    {
+        if (task == null ||
+            task.npc == null ||
+            task.offer == null ||
+            !HasTaskObjectiveComplete(task))
+        {
+            return false;
+        }
+
+        if (task.stage == TavernTaskStage.ReturningToTurnIn ||
+            task.stage == TavernTaskStage.TurningIn)
+        {
+            return true;
+        }
+
+        return IsGatherTask(task) || IsHuntTask(task);
+    }
+
     void Awake()
     {
+        providerRb = GetComponent<Rigidbody2D>();
         EnsureProviderInventory();
+        lastTaskGoodsTransferDay = GetCurrentWorldDay();
+        CaptureStationaryPosition();
+        ConfigureStationaryProvider();
 
         NpcSpecialProfession profession =
             GetComponent<NpcSpecialProfession>();
@@ -267,11 +367,17 @@ public class NpcTaskProvider : MonoBehaviour
             profession = gameObject.AddComponent<NpcSpecialProfession>();
         }
 
-        profession.professionName = "Quản Sự Tửu Quán";
+        profession.professionName = "Quáº£n Sá»± Tá»­u QuÃ¡n";
+    }
+
+    void FixedUpdate()
+    {
+        KeepProviderAtStation();
     }
 
     void Update()
     {
+        UpdateTaskGoodsDailyTransfer();
         UpdateMeals();
         UpdateRunningTasks();
 
@@ -387,6 +493,59 @@ public class NpcTaskProvider : MonoBehaviour
         }
     }
 
+
+    void CaptureStationaryPosition()
+    {
+        stationaryPosition = providerStandPoint != null
+            ? providerStandPoint.position
+            : transform.position;
+    }
+
+    void ConfigureStationaryProvider()
+    {
+        if (!keepProviderStationary)
+        {
+            return;
+        }
+
+        NpcMapMover2D mover = GetComponent<NpcMapMover2D>();
+        if (mover != null)
+        {
+            mover.enabled = false;
+        }
+
+        SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            smartNpc.autonomousActivitiesEnabled = false;
+            smartNpc.currentTarget = null;
+        }
+    }
+
+    void KeepProviderAtStation()
+    {
+        if (!keepProviderStationary)
+        {
+            return;
+        }
+
+        if (providerRb == null)
+        {
+            providerRb = GetComponent<Rigidbody2D>();
+        }
+
+        if (providerRb != null)
+        {
+            providerRb.linearVelocity = Vector2.zero;
+            providerRb.position = stationaryPosition;
+        }
+
+        transform.position = new Vector3(
+            stationaryPosition.x,
+            stationaryPosition.y,
+            transform.position.z);
+    }
+
     void StartMeal(GameObject npc)
     {
         RunningTavernMeal meal = new RunningTavernMeal
@@ -420,7 +579,7 @@ public class NpcTaskProvider : MonoBehaviour
                     ? TavernTaskStage.GoingToCounter
                     : TavernTaskStage.GoingToBoard)
                 : TavernTaskStage.GoingToWork,
-            counterPosition = GetCounterPosition(),
+            counterPosition = GetCounterPosition(npc),
             boardPosition = GetBoardPosition(),
             providerPosition = GetProviderPosition(),
             workPosition = GetWorkPosition(offer),
@@ -471,7 +630,7 @@ public class NpcTaskProvider : MonoBehaviour
             if (meal.stage == TavernMealStage.GoingToMealPoint)
             {
                 MoveNpc(meal.npc, meal.mealPosition);
-                NpcRoleUtility.SetAction(meal.npc, "Đi tới khu ăn trong tửu quán");
+                NpcRoleUtility.SetAction(meal.npc, "Äi tá»›i khu Äƒn trong tá»­u quÃ¡n");
 
                 if (Vector2.Distance(
                         meal.npc.transform.position,
@@ -487,7 +646,7 @@ public class NpcTaskProvider : MonoBehaviour
             }
 
             meal.remainingTime -= Time.deltaTime;
-            NpcRoleUtility.SetAction(meal.npc, "Đang ăn uống tại tửu quán");
+            NpcRoleUtility.SetAction(meal.npc, "Äang Äƒn uá»‘ng táº¡i tá»­u quÃ¡n");
 
             if (meal.remainingTime <= 0f)
             {
@@ -516,7 +675,7 @@ public class NpcTaskProvider : MonoBehaviour
                     MoveNpc(task.npc, task.counterPosition);
                     NpcRoleUtility.SetAction(
                         task.npc,
-                        "Đến trường quay kiểm tra mua bán");
+                        "Äáº¿n trÆ°á»ng quay kiá»ƒm tra mua bÃ¡n");
 
                     if (Vector2.Distance(
                             task.npc.transform.position,
@@ -532,7 +691,7 @@ public class NpcTaskProvider : MonoBehaviour
                     task.remainingTime -= Time.deltaTime;
                     NpcRoleUtility.SetAction(
                         task.npc,
-                        "Đang kiểm tra mua bán tại trường quay");
+                        "Äang kiá»ƒm tra mua bÃ¡n táº¡i trÆ°á»ng quay");
 
                     if (task.remainingTime <= 0f)
                     {
@@ -544,7 +703,7 @@ public class NpcTaskProvider : MonoBehaviour
                     MoveNpc(task.npc, task.boardPosition);
                     NpcRoleUtility.SetAction(
                         task.npc,
-                        "Xem bảng nhiệm vụ " + GetRankText(task.offer.rank));
+                        "Xem báº£ng nhiá»‡m vá»¥ " + GetRankText(task.offer.rank));
 
                     if (Vector2.Distance(
                             task.npc.transform.position,
@@ -559,7 +718,7 @@ public class NpcTaskProvider : MonoBehaviour
                     task.remainingTime -= Time.deltaTime;
                     NpcRoleUtility.SetAction(
                         task.npc,
-                        "Chọn nhiệm vụ " + GetRankText(task.offer.rank));
+                        "Chá»n nhiá»‡m vá»¥ " + GetRankText(task.offer.rank));
 
                     if (task.remainingTime <= 0f)
                     {
@@ -571,7 +730,7 @@ public class NpcTaskProvider : MonoBehaviour
                     MoveNpc(task.npc, task.providerPosition);
                     NpcRoleUtility.SetAction(
                         task.npc,
-                        "Quay lại quản sự nhận nhiệm vụ");
+                        "Quay láº¡i quáº£n sá»± nháº­n nhiá»‡m vá»¥");
 
                     if (Vector2.Distance(
                             task.npc.transform.position,
@@ -581,7 +740,7 @@ public class NpcTaskProvider : MonoBehaviour
                         NpcRoleUtility.StopForConversation(gameObject);
                         NpcRoleUtility.SetAction(
                             gameObject,
-                            "Giao nhiệm vụ " + GetRankText(task.offer.rank) + ": " + task.offer.taskName);
+                            "Giao nhiá»‡m vá»¥ " + GetRankText(task.offer.rank) + ": " + task.offer.taskName);
                         task.stage = TavernTaskStage.ReceivingTask;
                         task.remainingTime = Mathf.Max(3f, providerReceiveDuration);
                     }
@@ -657,9 +816,15 @@ public class NpcTaskProvider : MonoBehaviour
                         task.npc,
                         "Mang ket qua ve tra nhiem vu " + GetTaskDisplayText(task));
 
-                    if (Vector2.Distance(
-                            task.npc.transform.position,
-                            task.providerPosition) <= providerTalkDistance)
+                    float turnInDistance = Vector2.Distance(
+                        task.npc.transform.position,
+                        task.providerPosition);
+
+                    bool canTurnIn = turnInDistance <= providerTalkDistance ||
+                        (HasTaskObjectiveComplete(task) &&
+                            turnInDistance <= Mathf.Max(providerTalkDistance, stuckTurnInDistance));
+
+                    if (canTurnIn)
                     {
                         NpcRoleUtility.StopForConversation(task.npc);
                         NpcRoleUtility.StopForConversation(gameObject);
@@ -766,6 +931,7 @@ public class NpcTaskProvider : MonoBehaviour
             task.targetPickup = FindGatherPickup(task);
             if (task.targetPickup != null)
             {
+                ReserveGatherPickupForTask(task.targetPickup);
                 task.workPosition = task.targetPickup.transform.position;
             }
             return;
@@ -802,6 +968,7 @@ public class NpcTaskProvider : MonoBehaviour
         if (!IsGatherPickupUsable(task.targetPickup, GetTaskRequiredItem(task)))
         {
             task.targetPickup = FindGatherPickup(task);
+            ReserveGatherPickupForTask(task.targetPickup);
         }
 
         if (task.targetPickup == null)
@@ -814,6 +981,7 @@ public class NpcTaskProvider : MonoBehaviour
             return;
         }
 
+        ReserveGatherPickupForTask(task.targetPickup);
         task.workPosition = task.targetPickup.transform.position;
         MoveNpcToWork(task, task.workPosition);
         NpcRoleUtility.SetAction(
@@ -821,15 +989,46 @@ public class NpcTaskProvider : MonoBehaviour
             "Den gatherPoint hai " + GetTaskRequiredItemName(task) + " " +
             BuildGatherProgressText(task));
 
-        if (Vector2.Distance(
-                task.npc.transform.position,
-                task.workPosition) <= arriveDistance)
+        if (IsNpcAtGatherPickup(task))
         {
             task.stage = TavernTaskStage.Working;
             task.remainingTime = GetGatherWorkDuration(task);
         }
     }
+    void ReserveGatherPickupForTask(WorldStatItemPickup pickup)
+    {
+        if (pickup == null)
+        {
+            return;
+        }
 
+        pickup.allowNpcPickup = true;
+        pickup.requireNpcHarvestAction = true;
+    }
+    bool IsNpcAtGatherPickup(RunningNpcTask task)
+    {
+        if (task == null ||
+            task.npc == null ||
+            task.targetPickup == null)
+        {
+            return false;
+        }
+
+        float allowedDistance = Mathf.Max(arriveDistance, gatherInteractDistance);
+        Vector3 npcPosition = task.npc.transform.position;
+        Vector3 pickupPosition = task.targetPickup.transform.position;
+
+        Collider2D pickupCollider = task.targetPickup.GetComponent<Collider2D>();
+        if (pickupCollider != null)
+        {
+            Vector2 closest = pickupCollider.ClosestPoint(npcPosition);
+            if (Vector2.Distance(npcPosition, closest) <= allowedDistance)
+            {
+                return true;
+            }
+        }
+        return Vector2.Distance(npcPosition, pickupPosition) <= allowedDistance;
+    }
     void UpdateGatherWork(RunningNpcTask task)
     {
         if (HasGatherObjectiveComplete(task))
@@ -990,7 +1189,7 @@ public class NpcTaskProvider : MonoBehaviour
             }
 
             float distance = Vector2.Distance(
-                task.npc.transform.position,
+                GetTaskSearchPosition(task),
                 monster.transform.position);
 
             if (distance < bestDistance)
@@ -1294,9 +1493,22 @@ public class NpcTaskProvider : MonoBehaviour
         }
 
         return WorldResourceField.GetNearestAvailablePickupInAllFields(
-            task.npc.transform.position,
+            GetTaskSearchPosition(task),
             GetTaskRequiredItem(task),
             NpcMapZone.MaThuSonMach);
+    }
+
+    Vector3 GetTaskSearchPosition(RunningNpcTask task)
+    {
+        if (task != null &&
+            task.workPosition != Vector3.zero)
+        {
+            return task.workPosition;
+        }
+
+        return task != null && task.npc != null
+            ? task.npc.transform.position
+            : transform.position;
     }
 
     bool IsGatherPickupUsable(
@@ -1322,6 +1534,26 @@ public class NpcTaskProvider : MonoBehaviour
     {
         return task != null &&
             GetTaskGatherProgress(task) >= GetRequiredAmount(task);
+    }
+
+    bool HasTaskObjectiveComplete(RunningNpcTask task)
+    {
+        if (task == null || task.offer == null)
+        {
+            return false;
+        }
+
+        if (IsGatherTask(task))
+        {
+            return HasGatherObjectiveComplete(task);
+        }
+
+        if (IsHuntTask(task))
+        {
+            return HasHuntObjectiveComplete(task);
+        }
+
+        return true;
     }
 
     StatItemData GetTaskRequiredItem(RunningNpcTask task)
@@ -1457,16 +1689,44 @@ public class NpcTaskProvider : MonoBehaviour
         int baseValue =
             itemValue * Mathf.Max(1, requiredAmount);
 
-        float minMarkup =
-            Mathf.Max(0f, offer.requiredItemRewardMarkupMin);
-        float maxMarkup =
-            Mathf.Max(minMarkup, offer.requiredItemRewardMarkupMax);
-        float markup =
-            Random.Range(minMarkup, maxMarkup);
+        float multiplier = ResolveRankBountyMultiplier(offer);
 
         return Mathf.Max(
             Mathf.Max(0, offer.rewardSpiritStone),
-            Mathf.RoundToInt(baseValue * (1f + markup)));
+            Mathf.RoundToInt(baseValue * multiplier));
+    }
+    float ResolveRankBountyMultiplier(NpcTaskOffer offer)
+    {
+        if (offer == null)
+        {
+            return 1f;
+        }
+
+        if (!useDefaultRankBountyMultipliers ||
+            !offer.useRankRewardMultiplier)
+        {
+            float minMarkup = Mathf.Max(0f, offer.requiredItemRewardMarkupMin);
+            float maxMarkup = Mathf.Max(minMarkup, offer.requiredItemRewardMarkupMax);
+            return 1f + Random.Range(minMarkup, maxMarkup);
+        }
+
+        Vector2 range;
+        switch (offer.rank)
+        {
+            case NpcTaskRank.Trung:
+                range = trungRankBountyMultiplier;
+                break;
+            case NpcTaskRank.Thuong:
+                range = thuongRankBountyMultiplier;
+                break;
+            default:
+                range = haRankBountyMultiplier;
+                break;
+        }
+
+        float min = Mathf.Max(0f, range.x);
+        float max = Mathf.Max(min, range.y);
+        return Random.Range(min, max);
     }
 
     string GetRequiredItemName(NpcTaskOffer offer)
@@ -1543,9 +1803,151 @@ public class NpcTaskProvider : MonoBehaviour
             return false;
         }
 
-        return inventory.RemoveItem(
-            GetTaskRequiredItem(task),
-            GetRequiredAmount(task));
+        StatItemData item = GetTaskRequiredItem(task);
+        int amount = GetRequiredAmount(task);
+
+        if (!inventory.RemoveItem(item, amount))
+        {
+            return false;
+        }
+
+        StoreTurnedInTaskGoods(item, amount);
+        return true;
+    }
+
+    void StoreTurnedInTaskGoods(StatItemData item, int amount)
+    {
+        if (!storeTurnedInTaskGoods ||
+            item == null ||
+            amount <= 0)
+        {
+            return;
+        }
+
+        EnsureProviderInventory();
+
+        if (inventory != null)
+        {
+            inventory.AddItem(item, amount);
+        }
+
+        PendingTaskGoods pending =
+            pendingTaskGoods.Find(entry => entry != null && entry.item == item);
+
+        if (pending == null)
+        {
+            pending = new PendingTaskGoods { item = item };
+            pendingTaskGoods.Add(pending);
+        }
+
+        pending.amount += amount;
+    }
+
+    void UpdateTaskGoodsDailyTransfer()
+    {
+        if (!transferTaskGoodsToCounterAtDayEnd)
+        {
+            return;
+        }
+
+        int currentDay = GetCurrentWorldDay();
+        if (currentDay < 0)
+        {
+            return;
+        }
+
+        if (lastTaskGoodsTransferDay < 0)
+        {
+            lastTaskGoodsTransferDay = currentDay;
+            return;
+        }
+
+        if (currentDay == lastTaskGoodsTransferDay)
+        {
+            return;
+        }
+
+        TransferTaskGoodsToReceiver();
+        lastTaskGoodsTransferDay = currentDay;
+    }
+
+    int GetCurrentWorldDay()
+    {
+        return WorldTimeSystem.Instance != null
+            ? WorldTimeSystem.Instance.CurrentDay
+            : -1;
+    }
+
+    void TransferTaskGoodsToReceiver()
+    {
+        if (pendingTaskGoods.Count == 0)
+        {
+            return;
+        }
+
+        NpcCounterBroker receiver = taskGoodsReceiver;
+        if (receiver == null && useActiveCounterBrokerIfReceiverMissing)
+        {
+            receiver = NpcCounterBroker.Active;
+        }
+
+        if (receiver == null)
+        {
+            return;
+        }
+
+        ItemInventory receiverInventory = receiver.inventory;
+        if (receiverInventory == null)
+        {
+            receiverInventory = receiver.GetComponent<ItemInventory>();
+        }
+
+        if (receiverInventory == null)
+        {
+            receiverInventory = receiver.gameObject.AddComponent<ItemInventory>();
+            receiverInventory.shareRuntimeItems = false;
+        }
+
+        EnsureProviderInventory();
+
+        for (int i = pendingTaskGoods.Count - 1; i >= 0; i--)
+        {
+            PendingTaskGoods pending = pendingTaskGoods[i];
+            if (pending == null ||
+                pending.item == null ||
+                pending.amount <= 0)
+            {
+                pendingTaskGoods.RemoveAt(i);
+                continue;
+            }
+
+            int transferAmount = pending.amount;
+            if (inventory != null)
+            {
+                transferAmount = Mathf.Min(
+                    transferAmount,
+                    inventory.GetAmount(pending.item));
+            }
+
+            if (transferAmount <= 0)
+            {
+                pendingTaskGoods.RemoveAt(i);
+                continue;
+            }
+
+            if (inventory != null)
+            {
+                inventory.RemoveItem(pending.item, transferAmount);
+            }
+
+            receiverInventory.AddItem(pending.item, transferAmount);
+            pending.amount -= transferAmount;
+
+            if (pending.amount <= 0)
+            {
+                pendingTaskGoods.RemoveAt(i);
+            }
+        }
     }
 
     ItemInventory GetOrCreateInventory(GameObject npc)
@@ -1570,7 +1972,7 @@ public class NpcTaskProvider : MonoBehaviour
             meal != null &&
             meal.npc != null)
         {
-            NpcRoleUtility.SetAction(meal.npc, "Ăn uống xong tại tửu quán");
+            NpcRoleUtility.SetAction(meal.npc, "Ä‚n uá»‘ng xong táº¡i tá»­u quÃ¡n");
         }
     }
 
@@ -1784,15 +2186,15 @@ public class NpcTaskProvider : MonoBehaviour
 
         NpcRoleUtility.SetAction(
             npc,
-            "Hoàn thành nhiệm vụ " + GetRankText(offer.rank) + ": " + offer.taskName);
+            "HoÃ n thÃ nh nhiá»‡m vá»¥ " + GetRankText(offer.rank) + ": " + offer.taskName);
 
         if (WorldEventManager.Instance != null)
         {
             WorldEventManager.Instance.AddLog(
                 NpcRoleUtility.GetDisplayName(npc) +
-                " hoàn thành nhiệm vụ " +
+                " hoÃ n thÃ nh nhiá»‡m vá»¥ " +
                 offer.taskName +
-                ", nhận " +
+                ", nháº­n " +
                 rewardSpiritStone +
                 " LT.",
                 0);
@@ -1967,7 +2369,7 @@ public class NpcTaskProvider : MonoBehaviour
             : transform.position;
     }
 
-    Vector3 GetCounterPosition()
+    Vector3 GetCounterPosition(GameObject npc = null)
     {
         if (counterPoint != null)
         {
@@ -1975,9 +2377,12 @@ public class NpcTaskProvider : MonoBehaviour
         }
 
         NpcCounterBroker broker = NpcCounterBroker.Active;
-        return broker != null
-            ? broker.transform.position
-            : transform.position;
+        if (broker == null)
+        {
+            return transform.position;
+        }
+
+        return broker.GetCustomerPositionFor(npc);
     }
 
     Vector3 GetBoardPosition()
@@ -1989,6 +2394,16 @@ public class NpcTaskProvider : MonoBehaviour
 
     Vector3 GetProviderPosition()
     {
+        if (keepProviderStationary)
+        {
+            if (providerStandPoint != null)
+            {
+                return providerStandPoint.position;
+            }
+
+            return stationaryPosition;
+        }
+
         return providerPoint != null
             ? providerPoint.position
             : transform.position;
@@ -2001,12 +2416,22 @@ public class NpcTaskProvider : MonoBehaviour
             switch (offer.taskType)
             {
                 case NpcTaskType.HuntMonster:
+                    if (huntPoint != null)
+                    {
+                        return huntPoint.position;
+                    }
+
                     return GetForestWorkPosition(
                         huntPoint,
                         GetDepthMinForRank(offer.rank, huntDepthMin),
                         GetDepthMaxForRank(offer.rank, huntDepthMax));
 
                 case NpcTaskType.GatherResource:
+                    if (gatherPoint != null)
+                    {
+                        return gatherPoint.position;
+                    }
+
                     return GetForestWorkPosition(
                         gatherPoint,
                         GetDepthMinForRank(offer.rank, gatherDepthMin),
@@ -2224,13 +2649,6 @@ public class NpcTaskProvider : MonoBehaviour
         {
             return;
         }
-
-        if (!forcedTargetZone.HasValue)
-        {
-            NpcRoleUtility.MoveTowards(npc, target, fallbackMoveSpeed);
-            return;
-        }
-
         bool usingTeleportRoute;
         string routeAction;
         Vector3 moveTarget = NpcMapNavigator.GetNextMoveTarget(
@@ -2244,6 +2662,15 @@ public class NpcTaskProvider : MonoBehaviour
             !string.IsNullOrEmpty(routeAction))
         {
             NpcRoleUtility.SetAction(npc, routeAction);
+        }
+
+        NpcMapMover2D mover = npc.GetComponent<NpcMapMover2D>();
+        if (mover != null && mover.enabled)
+        {
+            mover.SetMoveTarget(
+                moveTarget,
+                !string.IsNullOrEmpty(routeAction) ? routeAction : "Di theo nhiem vu");
+            return;
         }
 
         float speed = NpcRoleUtility.GetMoveSpeed(npc, fallbackMoveSpeed);
@@ -2260,9 +2687,9 @@ public class NpcTaskProvider : MonoBehaviour
             case NpcTaskRank.Trung:
                 return "Trung";
             case NpcTaskRank.Thuong:
-                return "Thường";
+                return "ThÆ°á»ng";
             default:
-                return "Hạ";
+                return "Háº¡";
         }
     }
 
@@ -2368,3 +2795,9 @@ public class NpcTaskProvider : MonoBehaviour
         }
     }
 }
+
+
+
+
+
+

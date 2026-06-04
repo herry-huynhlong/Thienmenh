@@ -5,6 +5,11 @@ public class NpcPerformanceOverlay : MonoBehaviour
     public bool visible = true;
     public KeyCode toggleKey = KeyCode.F3;
     public float refreshInterval = 0.5f;
+    [Header("Display")]
+    public float uiScale = 1.8f;
+    public int fontSize = 24;
+    public Vector2 screenPadding = new Vector2(16f, 16f);
+    public bool autoScaleForScreen = true;
 
     static int npcFixedUpdates;
     static int pathRequests;
@@ -23,6 +28,8 @@ public class NpcPerformanceOverlay : MonoBehaviour
     int shownPathVisitedNodes;
     float shownPathMs;
     int villagerCount;
+    GUIStyle labelStyle;
+    GUIStyle boxStyle;
 
     public static void RecordNpcFixedUpdate()
     {
@@ -105,22 +112,62 @@ public class NpcPerformanceOverlay : MonoBehaviour
             return;
         }
 
-        GUI.color = Color.white;
+        EnsureStyles();
 
-        Rect rect =
-            new Rect(12f, 12f, 360f, 150f);
+        float scale = GetScale();
+        Matrix4x4 oldMatrix = GUI.matrix;
+        GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.one * scale);
 
-        GUI.Box(rect, "");
+        float inverseScale = 1f / scale;
+        Rect rect = new Rect(
+            screenPadding.x * inverseScale,
+            screenPadding.y * inverseScale,
+            Mathf.Min(560f, Screen.width * inverseScale - screenPadding.x * 2f),
+            220f);
+
+        GUI.Box(rect, "", boxStyle);
 
         GUILayout.BeginArea(
-            new Rect(rect.x + 10f, rect.y + 8f, rect.width - 20f, rect.height - 16f));
+            new Rect(rect.x + 14f, rect.y + 12f, rect.width - 28f, rect.height - 24f));
 
-        GUILayout.Label("NPC PERF DEBUG (F3)");
-        GUILayout.Label("FPS: " + Mathf.RoundToInt(fps) + " | Frame: " + frameMs.ToString("0.0") + " ms");
-        GUILayout.Label("Villagers active: " + villagerCount + " | FixedUpdate ticks: " + shownNpcFixedUpdates);
-        GUILayout.Label("Path requests: " + shownPathRequests + " | success: " + shownPathSuccesses + " | cache: " + shownPathCacheHits);
-        GUILayout.Label("A* nodes: " + shownPathVisitedNodes + " | path time: " + shownPathMs.ToString("0.00") + " ms");
+        GUILayout.Label("NPC PERF DEBUG (F3)", labelStyle);
+        GUILayout.Label("FPS: " + Mathf.RoundToInt(fps) + " | Frame: " + frameMs.ToString("0.0") + " ms", labelStyle);
+        GUILayout.Label("Villagers active: " + villagerCount + " | FixedUpdate ticks: " + shownNpcFixedUpdates, labelStyle);
+        GUILayout.Label("Path requests: " + shownPathRequests + " | success: " + shownPathSuccesses + " | cache: " + shownPathCacheHits, labelStyle);
+        GUILayout.Label("A* nodes: " + shownPathVisitedNodes + " | path time: " + shownPathMs.ToString("0.00") + " ms", labelStyle);
 
         GUILayout.EndArea();
+        GUI.matrix = oldMatrix;
+    }
+
+    float GetScale()
+    {
+        float scale = Mathf.Max(0.75f, uiScale);
+
+        if (autoScaleForScreen)
+        {
+            scale *= Mathf.Clamp(Screen.width / 1280f, 1f, 2.4f);
+        }
+
+        return scale;
+    }
+
+    void EnsureStyles()
+    {
+        int scaledFontSize = Mathf.Max(16, fontSize);
+
+        if (labelStyle == null)
+        {
+            labelStyle = new GUIStyle(GUI.skin.label);
+        }
+
+        labelStyle.fontSize = scaledFontSize;
+        labelStyle.normal.textColor = Color.white;
+        labelStyle.wordWrap = false;
+
+        if (boxStyle == null)
+        {
+            boxStyle = new GUIStyle(GUI.skin.box);
+        }
     }
 }

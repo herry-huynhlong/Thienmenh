@@ -49,6 +49,8 @@ public class WorldTimeSystem : MonoBehaviour
     private int lastTriggeredHour = -1;
 
     private int lastTriggeredDay = -1;
+    private float saveTimer;
+    public float autoSaveInterval = 10f;
 
     // AI đọc buổi trong ngày
     public WorldTimePhase CurrentPhase =>

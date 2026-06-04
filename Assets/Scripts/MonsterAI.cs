@@ -6,23 +6,16 @@ public class MonsterAI : MonoBehaviour, IDamageable
     public bool generateFromEntityProfile = true;
     public EntityProfile entityProfile;
 
-    [Header("===== THÔNG TIN =====")]
+    [Header("===== THONG TIN =====")]
+    public string monsterName = "Yeu Thu";
 
-    public string monsterName =
-        "Yêu Thú";
-
-    [Header("===== MÁU =====")]
-
+    [Header("===== MAU =====")]
     public int maxHP = 100;
-
     public int currentHP = 100;
 
     [Header("===== DAMAGE =====")]
-
     public int damage = 10;
-
     public int defense = 0;
-
     public int effectResistance = 0;
 
     [Header("===== BAN NANG YEU THU =====")]
@@ -34,68 +27,59 @@ public class MonsterAI : MonoBehaviour, IDamageable
     [Range(0, 100)] public float bloodlust = 20f;
     [Range(0, 100)] public float survivalInstinct = 50f;
 
-    [Header("===== DI CHUYỂN =====")]
-
+    [Header("===== DI CHUYEN =====")]
     public float moveSpeed = 2f;
-
     public float roamRadius = 3f;
-
     public float waitTime = 2f;
-
     public bool autoConfigureRigidbody = true;
-
     public bool fallbackTransformMove = true;
 
+    [Header("===== LANH DIA =====")]
+    public bool guardTerritory = true;
+    public float territoryRadius = 5f;
+    public float returnHomeDistance = 7f;
+    public LayerMask intruderLayers = ~0;
+    public bool attackPlayer = true;
+    public bool attackVillagers = true;
+    public bool attackSmartNpcs = true;
+    public bool attackOtherMonsters;
+
     [Header("===== RUNTIME DEBUG =====")]
-
     public string currentAction = "Idle";
-
     public Vector2 currentMoveVelocity;
 
-    [Header("===== PLAYER =====")]
-
+    [Header("===== PHAT HIEN =====")]
     public float detectRange = 6f;
-
     public float attackRange = 1.5f;
+    public float forgetTargetRange = 8f;
 
-    Transform player;
-
-    [Header("===== TẤN CÔNG =====")]
-
+    [Header("===== TAN CONG =====")]
     public float attackCooldown = 2f;
-
-    float attackTimer;
-
-    bool isAttacking = false;
+    public float attackDamageDelay = 0.35f;
+    public float attackEndDelay = 1f;
+    public bool directDamageOnAttack = true;
 
     [Header("===== FIREBALL =====")]
-
     public GameObject fireballPrefab;
-
     public Transform firePoint;
 
     [Header("===== ANIMATION =====")]
-
     public bool useAnimation = true;
 
     Animator animator;
-
     Rigidbody2D rb;
-
+    Transform currentTarget;
+    IDamageable currentTargetDamageable;
     Vector2 startPosition;
-
     Vector2 targetPosition;
-
     bool hasTarget = false;
-
     float waitTimer;
-
-    bool isDead = false;
-
+    float attackTimer;
+    bool isAttacking;
+    bool isDead;
     Vector2 desiredVelocity;
 
     public bool IsDead => isDead;
-
     public Transform DamageTransform => transform;
 
     void Start()
@@ -105,38 +89,24 @@ public class MonsterAI : MonoBehaviour, IDamageable
             ApplyEntityProfile();
         }
 
-        currentHP =
-            maxHP;
-
-        animator =
-            GetComponent<Animator>();
-
-        rb =
-            GetComponent<Rigidbody2D>();
-
+        currentHP = maxHP;
+        animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody2D>();
         ConfigureRigidbody();
+        startPosition = transform.position;
+        waitTimer = waitTime;
 
-        startPosition =
-            transform.position;
-
-        waitTimer =
-            waitTime;
-
-        GameObject playerObject =
-            GameObject.FindGameObjectWithTag(
-                "Player");
-
-        if (playerObject != null)
+        if (territoryRadius <= 0f)
         {
-            player =
-                playerObject.transform;
+            territoryRadius = Mathf.Max(roamRadius, detectRange);
         }
+
+        forgetTargetRange = Mathf.Max(forgetTargetRange, detectRange + 1f);
     }
 
     void ConfigureRigidbody()
     {
-        if (!autoConfigureRigidbody ||
-            rb == null)
+        if (!autoConfigureRigidbody || rb == null)
         {
             return;
         }
@@ -158,11 +128,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     void ApplyEntityProfile()
     {
-        entityProfile =
-            EntityGenerator.EnsureProfile(
-                gameObject,
-                EntityKind.Beast);
-
+        entityProfile = EntityGenerator.EnsureProfile(gameObject, EntityKind.Beast);
         if (entityProfile == null)
         {
             return;
@@ -198,35 +164,44 @@ public class MonsterAI : MonoBehaviour, IDamageable
         }
 
         UpdateBeastNeeds();
-
         attackTimer -= Time.deltaTime;
 
-        if (player != null)
+        if (HasValidTarget())
         {
-            float distanceToPlayer =
-                Vector2.Distance(
-                    transform.position,
-                    player.position);
+            float distanceToTarget = Vector2.Distance(transform.position, currentTarget.position);
+            float distanceFromHome = Vector2.Distance(startPosition, transform.position);
 
-            if (distanceToPlayer <= detectRange)
+            if (distanceToTarget > forgetTargetRange ||
+                (guardTerritory && distanceFromHome > returnHomeDistance && distanceToTarget > attackRange))
             {
-                if (ShouldFleeFrom(player))
-                {
-                    FleeFrom(player);
-                    return;
-                }
-
-                if (!ShouldAttackTarget(player))
-                {
-                    Patrol();
-                    return;
-                }
-
-                FollowPlayer(
-                    distanceToPlayer);
-
+                ClearCurrentTarget();
+                ReturnToTerritory();
                 return;
             }
+
+            if (ShouldFleeFrom(currentTarget))
+            {
+                FleeFrom(currentTarget);
+                return;
+            }
+
+            if (ShouldAttackTarget(currentTarget))
+            {
+                FollowTarget(distanceToTarget);
+                return;
+            }
+        }
+
+        AcquireIntruderTarget();
+        if (HasValidTarget())
+        {
+            return;
+        }
+
+        if (guardTerritory && Vector2.Distance(transform.position, startPosition) > returnHomeDistance)
+        {
+            ReturnToTerritory();
+            return;
         }
 
         Patrol();
@@ -239,8 +214,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (isDead ||
-            isAttacking)
+        if (isDead || isAttacking)
         {
             rb.linearVelocity = Vector2.zero;
             currentMoveVelocity = Vector2.zero;
@@ -254,8 +228,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
             desiredVelocity.sqrMagnitude > 0.0001f &&
             rb.bodyType != RigidbodyType2D.Dynamic)
         {
-            transform.position +=
-                (Vector3)(desiredVelocity * Time.fixedDeltaTime);
+            transform.position += (Vector3)(desiredVelocity * Time.fixedDeltaTime);
         }
     }
 
@@ -282,13 +255,138 @@ public class MonsterAI : MonoBehaviour, IDamageable
         }
     }
 
+    void AcquireIntruderTarget()
+    {
+        ClearCurrentTarget();
+
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, detectRange, intruderLayers);
+        Transform bestTarget = null;
+        IDamageable bestDamageable = null;
+        float bestScore = float.PositiveInfinity;
+
+        foreach (Collider2D hit in hits)
+        {
+            if (hit == null || hit.transform == transform || hit.transform.IsChildOf(transform))
+            {
+                continue;
+            }
+
+            IDamageable damageable = hit.GetComponentInParent<IDamageable>();
+            if (damageable == null || damageable.IsDead || damageable.DamageTransform == null)
+            {
+                continue;
+            }
+
+            Transform candidate = damageable.DamageTransform;
+            if (!CanAttackIntruder(candidate.gameObject))
+            {
+                continue;
+            }
+
+            float distanceFromHome = Vector2.Distance(startPosition, candidate.position);
+            if (guardTerritory && distanceFromHome > territoryRadius)
+            {
+                continue;
+            }
+
+            float distance = Vector2.Distance(transform.position, candidate.position);
+            float score = distance - GetIntruderPriority(candidate.gameObject);
+            if (score < bestScore)
+            {
+                bestScore = score;
+                bestTarget = candidate;
+                bestDamageable = damageable;
+            }
+        }
+
+        if (bestTarget != null)
+        {
+            currentTarget = bestTarget;
+            currentTargetDamageable = bestDamageable;
+            hasTarget = false;
+            currentAction = "Phat hien ke xam pham";
+        }
+    }
+
+    bool CanAttackIntruder(GameObject candidate)
+    {
+        if (candidate == null || candidate == gameObject)
+        {
+            return false;
+        }
+
+        if (candidate.GetComponentInParent<PlayerHealth>() != null || candidate.CompareTag("Player"))
+        {
+            return attackPlayer;
+        }
+
+        if (candidate.GetComponentInParent<VillagerAI>() != null)
+        {
+            return attackVillagers;
+        }
+
+        if (candidate.GetComponentInParent<SmartNpcAI>() != null)
+        {
+            return attackSmartNpcs;
+        }
+
+        if (candidate.GetComponentInParent<MonsterAI>() != null)
+        {
+            return attackOtherMonsters;
+        }
+
+        return false;
+    }
+
+    float GetIntruderPriority(GameObject candidate)
+    {
+        if (candidate == null)
+        {
+            return 0f;
+        }
+
+        if (candidate.CompareTag("Player") || candidate.GetComponentInParent<PlayerHealth>() != null)
+        {
+            return 1f;
+        }
+
+        return 0f;
+    }
+
+    bool HasValidTarget()
+    {
+        if (currentTarget == null || currentTargetDamageable == null)
+        {
+            return false;
+        }
+
+        if (currentTargetDamageable.IsDead)
+        {
+            ClearCurrentTarget();
+            return false;
+        }
+
+        return true;
+    }
+
+    void ClearCurrentTarget()
+    {
+        currentTarget = null;
+        currentTargetDamageable = null;
+    }
+
     bool ShouldAttackTarget(Transform target)
     {
-        float reason =
-            hunger * 0.45f +
+        float reason = hunger * 0.45f +
             aggression * 0.3f +
             bloodlust * 0.2f +
             territorial * 0.15f;
+
+        if (guardTerritory && target != null &&
+            Vector2.Distance(startPosition, target.position) <= territoryRadius)
+        {
+            reason += territorial * 0.35f;
+        }
 
         WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
         if (timeSystem != null && timeSystem.IsDangerousNight())
@@ -301,11 +399,14 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     bool ShouldFleeFrom(Transform target)
     {
-        IDamageable damageable =
-            target.GetComponentInParent<IDamageable>();
+        if (target == null)
+        {
+            return false;
+        }
 
+        IDamageable damageable = target.GetComponentInParent<IDamageable>();
         int targetPower = EstimatePower(target.gameObject, damageable);
-        int selfPower = Mathf.Max(1, damage + defense + maxHP / 10);
+        int selfPower = Mathf.Max(1, GetRealmPower());
         bool clearlyWeaker = targetPower > selfPower * 2;
         bool almostDead = currentHP < maxHP * 0.25f;
 
@@ -321,10 +422,22 @@ public class MonsterAI : MonoBehaviour, IDamageable
             return stats.attack + stats.defense + stats.finalHP / 10;
         }
 
+        VillagerAI villager = target.GetComponentInParent<VillagerAI>();
+        if (villager != null)
+        {
+            return villager.attack + villager.defense + villager.maxHP / 10;
+        }
+
+        SmartNpcAI smartNpc = target.GetComponentInParent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            return smartNpc.attack + smartNpc.defense + smartNpc.maxHP / 10;
+        }
+
         MonsterAI monster = target.GetComponentInParent<MonsterAI>();
         if (monster != null)
         {
-            return monster.damage + monster.defense + monster.maxHP / 10;
+            return monster.GetRealmPower();
         }
 
         return damageable != null ? 50 : 1;
@@ -332,24 +445,39 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     void FleeFrom(Transform threat)
     {
-        if (rb == null || threat == null)
+        if (threat == null)
         {
             return;
         }
 
-        Vector2 direction =
-            ((Vector2)transform.position - (Vector2)threat.position).normalized;
-
-        desiredVelocity =
-            direction *
-            moveSpeed *
-            1.25f;
-        currentAction = "Flee";
-
-        if (animator != null && useAnimation)
+        Vector2 direction = ((Vector2)transform.position - (Vector2)threat.position).normalized;
+        if (direction.sqrMagnitude < 0.01f)
         {
-            animator.SetBool("isMoving", true);
+            direction = Random.insideUnitCircle.normalized;
         }
+
+        desiredVelocity = direction * moveSpeed * 1.25f;
+        currentAction = "Bo chay";
+        SetMovingAnimation(true);
+        FaceDirection(direction);
+    }
+
+    void ReturnToTerritory()
+    {
+        Vector2 direction = startPosition - (Vector2)transform.position;
+        float distance = direction.magnitude;
+        if (distance <= 0.15f)
+        {
+            desiredVelocity = Vector2.zero;
+            currentAction = "Nghi trong lanh dia";
+            SetMovingAnimation(false);
+            return;
+        }
+
+        desiredVelocity = direction.normalized * moveSpeed;
+        currentAction = "Tro ve lanh dia";
+        SetMovingAnimation(true);
+        FaceDirection(direction);
     }
 
     void Patrol()
@@ -357,17 +485,9 @@ public class MonsterAI : MonoBehaviour, IDamageable
         if (!hasTarget)
         {
             desiredVelocity = Vector2.zero;
-            currentAction = "Waiting";
-
+            currentAction = "Nghi ngoi";
             waitTimer -= Time.deltaTime;
-
-            if (animator != null &&
-                useAnimation)
-            {
-                animator.SetBool(
-                    "isMoving",
-                    false);
-            }
+            SetMovingAnimation(false);
 
             if (waitTimer <= 0)
             {
@@ -377,118 +497,86 @@ public class MonsterAI : MonoBehaviour, IDamageable
             return;
         }
 
-        Vector2 direction =
-            targetPosition -
-            (Vector2)transform.position;
-
-        float distance =
-            direction.magnitude;
+        Vector2 direction = targetPosition - (Vector2)transform.position;
+        float distance = direction.magnitude;
 
         if (distance < 0.1f)
         {
             hasTarget = false;
-
-            waitTimer =
-                waitTime;
-
+            waitTimer = waitTime;
             desiredVelocity = Vector2.zero;
-            currentAction = "Arrived";
-
-            if (animator != null &&
-                useAnimation)
-            {
-                animator.SetBool(
-                    "isMoving",
-                    false);
-            }
-
+            currentAction = "Dung lai nghi";
+            SetMovingAnimation(false);
             return;
         }
 
-        direction =
-            direction.normalized;
-
-        desiredVelocity =
-            direction *
-            moveSpeed;
-        currentAction = "Patrol";
-
-        if (animator != null &&
-            useAnimation)
-        {
-            animator.SetBool(
-                "isMoving",
-                true);
-        }
-
+        direction = direction.normalized;
+        desiredVelocity = direction * moveSpeed;
+        currentAction = "Tuan tra lanh dia";
+        SetMovingAnimation(true);
         FaceDirection(direction);
     }
 
-    void FollowPlayer(float distance)
+    void FollowTarget(float distance)
     {
-        if (isAttacking)
+        if (isAttacking || !HasValidTarget())
         {
             return;
         }
 
-        Vector2 direction =
-            player.position -
-            transform.position;
-
+        Vector2 direction = currentTarget.position - transform.position;
         FaceDirection(direction);
 
         if (distance > attackRange)
         {
-            desiredVelocity =
-                direction.normalized *
-                moveSpeed;
-            currentAction = "Chasing Player";
-
-            if (animator != null &&
-                useAnimation)
-            {
-                animator.SetBool(
-                    "isMoving",
-                    true);
-            }
+            desiredVelocity = direction.normalized * moveSpeed;
+            currentAction = "Duoi ke xam pham";
+            SetMovingAnimation(true);
+            return;
         }
-        else
+
+        desiredVelocity = Vector2.zero;
+        currentAction = "Tan cong ke xam pham";
+        SetMovingAnimation(false);
+
+        if (attackTimer <= 0f)
         {
-            desiredVelocity = Vector2.zero;
-            currentAction = "Attack Range";
-
-            if (animator != null &&
-                useAnimation)
-            {
-                animator.SetBool(
-                    "isMoving",
-                    false);
-            }
-
-            if (attackTimer <= 0)
-            {
-                Attack();
-            }
+            Attack();
         }
     }
 
     void Attack()
     {
-        attackTimer =
-            attackCooldown;
-
+        attackTimer = attackCooldown;
         isAttacking = true;
 
-        if (animator != null &&
-            useAnimation)
+        if (animator != null && useAnimation)
         {
-            animator.SetTrigger(
-                "attack");
+            animator.SetTrigger("attack");
         }
 
-        Invoke(
-            nameof(EndAttack),
-            1f);
+        if (directDamageOnAttack)
+        {
+            Invoke(nameof(ApplyAttackDamage), Mathf.Max(0f, attackDamageDelay));
+        }
+
+        Invoke(nameof(EndAttack), Mathf.Max(attackDamageDelay, attackEndDelay));
+    }
+
+    void ApplyAttackDamage()
+    {
+        if (!isAttacking || !HasValidTarget())
+        {
+            return;
+        }
+
+        float distance = Vector2.Distance(transform.position, currentTarget.position);
+        if (distance > attackRange + 0.25f)
+        {
+            return;
+        }
+
+        currentTargetDamageable.TakeDamage(damage);
     }
 
     void EndAttack()
@@ -498,69 +586,48 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     public void ShootFireball()
     {
-        if (fireballPrefab == null)
+        if (fireballPrefab == null || firePoint == null || !HasValidTarget())
         {
             return;
         }
 
-        if (firePoint == null)
-        {
-            return;
-        }
-
-        if (player == null)
-        {
-            return;
-        }
-
-        GameObject fireball =
-            Instantiate(
-                fireballPrefab,
-                firePoint.position,
-                Quaternion.identity);
-
-        Vector2 direction =
-            player.position -
-            firePoint.position;
-
-        Fireball fb =
-            fireball.GetComponent<Fireball>();
+        GameObject fireball = Instantiate(fireballPrefab, firePoint.position, Quaternion.identity);
+        Vector2 direction = currentTarget.position - firePoint.position;
+        Fireball fb = fireball.GetComponent<Fireball>();
 
         if (fb != null)
         {
             fb.SetOwner(gameObject);
             fb.damage = damage;
-
-            fb.SetDirection(
-                direction);
+            fb.SetDirection(direction);
         }
     }
 
     void ChooseNewPoint()
     {
-        Vector2 randomPoint =
-            Random.insideUnitCircle *
-            roamRadius;
-
-        targetPosition =
-            startPosition +
-            randomPoint;
-
+        Vector2 randomPoint = Random.insideUnitCircle * roamRadius;
+        targetPosition = startPosition + randomPoint;
         hasTarget = true;
-        currentAction = "New Patrol Target";
+        currentAction = "Chon diem tuan tra";
     }
 
     void FaceDirection(Vector2 direction)
     {
-        if (direction.x < 0)
+        if (direction.x < -0.01f)
         {
-            transform.localScale =
-                new Vector3(-1, 1, 1);
+            transform.localScale = new Vector3(-1, 1, 1);
         }
-        else if (direction.x > 0)
+        else if (direction.x > 0.01f)
         {
-            transform.localScale =
-                new Vector3(1, 1, 1);
+            transform.localScale = new Vector3(1, 1, 1);
+        }
+    }
+
+    void SetMovingAnimation(bool isMoving)
+    {
+        if (animator != null && useAnimation)
+        {
+            animator.SetBool("isMoving", isMoving);
         }
     }
 
@@ -571,14 +638,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
             return;
         }
 
-        int finalDamage =
-            damageAmount - defense;
-
-        if (finalDamage < 1)
-        {
-            finalDamage = 1;
-        }
-
+        int finalDamage = Mathf.Max(1, damageAmount - defense);
         currentHP -= finalDamage;
 
         if (entityProfile != null)
@@ -587,11 +647,9 @@ public class MonsterAI : MonoBehaviour, IDamageable
             entityProfile.Remember("attacker", "was_attacked", -finalDamage);
         }
 
-        if (animator != null &&
-            useAnimation)
+        if (animator != null && useAnimation)
         {
-            animator.SetTrigger(
-                "hurt");
+            animator.SetTrigger("hurt");
         }
 
         if (currentHP <= 0)
@@ -603,20 +661,20 @@ public class MonsterAI : MonoBehaviour, IDamageable
     void Die()
     {
         isDead = true;
-
         desiredVelocity = Vector2.zero;
+        ClearCurrentTarget();
+
+        CancelInvoke(nameof(ApplyAttackDamage));
+        CancelInvoke(nameof(EndAttack));
 
         if (rb != null)
         {
-            rb.linearVelocity =
-                Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
         }
 
-        if (animator != null &&
-            useAnimation)
+        if (animator != null && useAnimation)
         {
-            animator.SetTrigger(
-                "die");
+            animator.SetBool("isDead", true);
         }
 
         Destroy(gameObject, 2f);
@@ -624,7 +682,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     public int GetRealmPower()
     {
-        return maxHP;
+        return Mathf.Max(1, damage + defense + maxHP / 10);
     }
 
     public void ApplyItem(StatItemData item)
@@ -637,10 +695,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
         ApplyItem(item, direction, 1f);
     }
 
-    public void ApplyItem(
-        StatItemData item,
-        int direction,
-        float powerMultiplier)
+    public void ApplyItem(StatItemData item, int direction, float powerMultiplier)
     {
         if (item == null)
         {
@@ -652,8 +707,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
             ApplyModifier(modifier, direction);
         }
 
-        currentHP =
-            Mathf.Clamp(currentHP, 0, maxHP);
+        currentHP = Mathf.Clamp(currentHP, 0, maxHP);
     }
 
     void ApplyModifier(StatModifier modifier, int direction)
@@ -663,11 +717,8 @@ public class MonsterAI : MonoBehaviour, IDamageable
             return;
         }
 
-        int intValue =
-            modifier.intValue * direction;
-
-        float floatValue =
-            modifier.floatValue * direction;
+        int intValue = modifier.intValue * direction;
+        float floatValue = modifier.floatValue * direction;
 
         switch (modifier.statType)
         {
@@ -675,24 +726,19 @@ public class MonsterAI : MonoBehaviour, IDamageable
                 maxHP += intValue;
                 currentHP += intValue;
                 break;
-
             case StatType.CurrentHP:
                 currentHP += intValue;
                 break;
-
             case StatType.Damage:
             case StatType.Attack:
                 damage += intValue;
                 break;
-
             case StatType.Defense:
                 defense += intValue;
                 break;
-
             case StatType.EffectResistance:
                 effectResistance += intValue;
                 break;
-
             case StatType.MoveSpeed:
                 moveSpeed += floatValue;
                 break;
@@ -701,20 +747,18 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     void OnDrawGizmosSelected()
     {
-        Gizmos.color =
-            Color.red;
+        Vector2 center = Application.isPlaying ? startPosition : (Vector2)transform.position;
 
-        Gizmos.DrawWireSphere(
-            Application.isPlaying
-            ? startPosition
-            : (Vector2)transform.position,
-            roamRadius);
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(center, roamRadius);
 
-        Gizmos.color =
-            Color.white;
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(center, territoryRadius);
 
-        Gizmos.DrawWireSphere(
-            transform.position,
-            detectRange);
+        Gizmos.color = Color.white;
+        Gizmos.DrawWireSphere(transform.position, detectRange);
+
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawWireSphere(center, returnHomeDistance);
     }
 }

@@ -12,12 +12,37 @@ public class NpcCounterBroker : MonoBehaviour
     public bool acceptAllMaterials = true;
     public StatItemData[] acceptedItems;
     public int maxUnitsPerRequest = 4;
+    public int maxTransactionsPerVisit = 3;
+    public float noDealCooldownMultiplier = 0.4f;
+
+    [Header("Counter Placement")]
+    public bool keepBrokerStationary = true;
+    public Transform brokerStandPoint;
+    public Transform customerPoint;
+    public float customerArriveDistance = 0.45f;
+    public bool allowMultipleCustomers = true;
+    public float multiCustomerServiceRadius = 1.4f;
+    public float multiCustomerStandRadius = 0.65f;
+    public bool requireCustomerAtPoint = false;
+    public bool disableBaseAiWhileStationary = true;
+    public bool hardFreezeRigidbodyWhileStationary = true;
+    public bool useKinematicBodyWhileStationary = true;
+    public bool disableBoundaryClampWhileStationary = true;
+    public bool disableMovementAnimatorWhileStationary = true;
 
     [Header("Wallet")]
+    [InspectorName("Linh Thạch ban đầu")]
     public int startingMoney = 100000;
+    [InspectorName("Dự trữ Linh Thạch tối thiểu")]
     public int minimumMoneyReserve = 50000;
     public bool refillMoneyWhenLow = true;
-    [SerializeField] int serviceMoney;
+    [SerializeField, InspectorName("Linh Thạch dịch vụ")] int serviceMoney;
+
+    Rigidbody2D rb;
+    Vector3 stationaryPosition;
+    RigidbodyConstraints2D originalConstraints;
+    RigidbodyType2D originalBodyType;
+    bool capturedRigidbodySettings;
 
     public int CurrentMoney => GetBrokerMoney();
 
@@ -29,13 +54,35 @@ public class NpcCounterBroker : MonoBehaviour
 
     void Awake()
     {
+        rb = GetComponent<Rigidbody2D>();
         EnsureInventory();
+        CaptureStationaryPosition();
+        ConfigureStationaryBroker();
     }
 
     void OnEnable()
     {
         Active = this;
         EnsureInventory();
+        CaptureStationaryPosition();
+        ConfigureStationaryBroker();
+    }
+
+    void Start()
+    {
+        CaptureStationaryPosition();
+        ConfigureStationaryBroker();
+        KeepBrokerAtStation();
+    }
+
+    void FixedUpdate()
+    {
+        KeepBrokerAtStation();
+    }
+
+    void LateUpdate()
+    {
+        KeepBrokerAtStation();
     }
 
     void OnDisable()
@@ -46,6 +93,56 @@ public class NpcCounterBroker : MonoBehaviour
         }
     }
 
+
+    public Vector3 CustomerPosition
+    {
+        get
+        {
+            return customerPoint != null
+                ? customerPoint.position
+                : transform.position;
+        }
+    }
+
+    public float CustomerServiceRadius
+    {
+        get
+        {
+            return allowMultipleCustomers
+                ? Mathf.Max(customerArriveDistance, multiCustomerServiceRadius)
+                : customerArriveDistance;
+        }
+    }
+
+    public Vector3 GetCustomerPositionFor(GameObject npc)
+    {
+        Vector3 center = CustomerPosition;
+        if (!allowMultipleCustomers ||
+            npc == null ||
+            multiCustomerStandRadius <= 0.01f)
+        {
+            return center;
+        }
+
+        int hash = Mathf.Abs(npc.name.GetHashCode());
+        float angle = (hash % 360) * Mathf.Deg2Rad;
+        Vector2 offset = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) *
+            Mathf.Max(0f, multiCustomerStandRadius);
+
+        return center + (Vector3)offset;
+    }
+
+    public bool IsCustomerAtCounter(GameObject npc)
+    {
+        if (npc == null)
+        {
+            return false;
+        }
+
+        return Vector2.Distance(
+            npc.transform.position,
+            CustomerPosition) <= Mathf.Max(0.05f, CustomerServiceRadius);
+    }
     public static bool TryTradeWithActiveBroker(NpcTradeAgent npc)
     {
         if (Active == null ||
@@ -57,6 +154,95 @@ public class NpcCounterBroker : MonoBehaviour
         return Active.TryTradeWithNpc(npc);
     }
 
+
+    public bool CanTradeWithNpc(NpcTradeAgent npc)
+    {
+        EnsureInventory();
+
+        if (npc == null ||
+            npc.gameObject == gameObject ||
+            npc.inventory == null ||
+            inventory == null ||
+            !npc.CanUseCounterTrade())
+        {
+            return false;
+        }
+
+        return CanSellUsefulItemTo(npc) ||
+            CanBuyItemFromNpc(npc);
+    }
+
+    bool CanSellUsefulItemTo(NpcTradeAgent buyer)
+    {
+        if (!sellUsefulItemsToNpcs ||
+            buyer == null ||
+            buyer.inventory == null ||
+            inventory == null ||
+            buyer.GetMoney() <= 0)
+        {
+            return false;
+        }
+
+        foreach (ItemStack stack in inventory.items)
+        {
+            if (stack == null ||
+                stack.item == null ||
+                stack.amount <= 0 ||
+                !NpcEconomy.CanTradeNormally(stack.item) ||
+                !stack.item.CanUseOn(buyer.gameObject))
+            {
+                continue;
+            }
+
+            int price = NpcEconomy.GetNpcBuyPrice(
+                stack.item,
+                buyer.gameObject,
+                sellToNpcContext);
+
+            if (buyer.GetBuyScore(stack.item, price) > 0f)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool CanBuyItemFromNpc(NpcTradeAgent seller)
+    {
+        if (!buyGoodsFromNpcs ||
+            seller == null ||
+            seller.inventory == null ||
+            inventory == null)
+        {
+            return false;
+        }
+
+        foreach (ItemStack stack in seller.inventory.items)
+        {
+            if (stack == null ||
+                stack.item == null ||
+                stack.amount <= 0 ||
+                !NpcEconomy.CanTradeNormally(stack.item) ||
+                !AcceptsItem(stack.item) ||
+                !seller.ShouldSellToCounter(stack.item))
+            {
+                continue;
+            }
+
+            int price = NpcEconomy.GetTradePrice(
+                stack.item,
+                buyFromNpcContext);
+
+            if (GetBrokerMoney() >= price || refillMoneyWhenLow)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public bool TryTradeWithNpc(NpcTradeAgent npc)
     {
         if (npc == null ||
@@ -65,21 +251,40 @@ public class NpcCounterBroker : MonoBehaviour
             return false;
         }
 
-        if (sellUsefulItemsToNpcs &&
-            TrySellUsefulItemTo(npc))
+        if (!IsCustomerAtCounter(npc.gameObject))
         {
-            return true;
+            return false;
+        }
+
+        if (!npc.CanUseCounterTrade())
+        {
+            return false;
+        }
+
+        int transactions = 0;
+        int maxTransactions = Mathf.Max(1, maxTransactionsPerVisit);
+
+        if (sellUsefulItemsToNpcs)
+        {
+            while (transactions < maxTransactions &&
+                TrySellUsefulItemTo(npc))
+            {
+                transactions++;
+            }
         }
 
         if (buyGoodsFromNpcs &&
+            transactions < maxTransactions &&
             TryBuyItemFromNpc(npc))
         {
-            return true;
+            transactions++;
         }
 
-        return false;
-    }
+        npc.MarkCounterTradeHandled(
+            transactions > 0 ? 1f : noDealCooldownMultiplier);
 
+        return transactions > 0;
+    }
     public bool TrySellUsefulItemTo(NpcTradeAgent buyer)
     {
         EnsureInventory();
@@ -117,12 +322,7 @@ public class NpcCounterBroker : MonoBehaviour
                 continue;
             }
 
-            float score =
-                GetBuyScoreForNpc(
-                    stack.item,
-                    buyer.gameObject,
-                    price,
-                    buyer.GetMoney());
+            float score = buyer.GetBuyScore(stack.item, price);
 
             if (score <= bestScore)
             {
@@ -158,6 +358,49 @@ public class NpcCounterBroker : MonoBehaviour
         return true;
     }
 
+    public bool CanBuyProduceFrom(
+        VillagerAI seller,
+        ItemInventory sellerInventory)
+    {
+        if (!buyGoodsFromNpcs ||
+            seller == null ||
+            sellerInventory == null)
+        {
+            return false;
+        }
+
+        EnsureInventory();
+
+        if (inventory == null)
+        {
+            return false;
+        }
+
+        foreach (ItemStack stack in sellerInventory.items)
+        {
+            if (stack == null ||
+                stack.item == null ||
+                stack.amount <= 0 ||
+                !NpcEconomy.CanTradeNormally(stack.item) ||
+                !AcceptsItem(stack.item))
+            {
+                continue;
+            }
+
+            int unitPrice =
+                NpcEconomy.GetTradePrice(
+                    stack.item,
+                    buyFromNpcContext);
+
+            if (GetBrokerMoney() >= unitPrice ||
+                refillMoneyWhenLow)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
     public bool TryBuyProduceFrom(
         VillagerAI seller,
         ItemInventory sellerInventory)
@@ -262,7 +505,8 @@ public class NpcCounterBroker : MonoBehaviour
                 stack.item == null ||
                 stack.amount <= 0 ||
                 !NpcEconomy.CanTradeNormally(stack.item) ||
-                !AcceptsItem(stack.item))
+                !AcceptsItem(stack.item) ||
+                !seller.ShouldSellToCounter(stack.item))
             {
                 continue;
             }
@@ -459,6 +703,146 @@ public class NpcCounterBroker : MonoBehaviour
             buyerMoney / Mathf.Max(1f, price);
 
         return score * Mathf.Clamp(wealthRatio, 0.1f, 5f);
+    }
+
+
+    void CaptureStationaryPosition()
+    {
+        stationaryPosition = brokerStandPoint != null
+            ? brokerStandPoint.position
+            : transform.position;
+    }
+
+    void ConfigureStationaryBroker()
+    {
+        if (!keepBrokerStationary)
+        {
+            return;
+        }
+
+        CaptureRigidbodySettings();
+        ApplyStationaryRigidbodyLock();
+
+        NpcMapMover2D mover = GetComponent<NpcMapMover2D>();
+        if (mover != null)
+        {
+            mover.enabled = false;
+        }
+
+        if (disableBoundaryClampWhileStationary)
+        {
+            NpcMapBoundaryClamp boundaryClamp = GetComponent<NpcMapBoundaryClamp>();
+            if (boundaryClamp != null)
+            {
+                boundaryClamp.enabled = false;
+            }
+        }
+
+        if (disableMovementAnimatorWhileStationary)
+        {
+            CharacterMovementAnimator movementAnimator = GetComponent<CharacterMovementAnimator>();
+            if (movementAnimator != null)
+            {
+                movementAnimator.enabled = false;
+            }
+        }
+
+        SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            smartNpc.autonomousActivitiesEnabled = false;
+            smartNpc.currentTarget = null;
+            if (disableBaseAiWhileStationary)
+            {
+                smartNpc.enabled = false;
+            }
+        }
+
+        VillagerAI villager = GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            villager.currentTarget = null;
+            villager.StopMoving();
+            if (disableBaseAiWhileStationary)
+            {
+                villager.enabled = false;
+            }
+        }
+    }
+
+    void CaptureRigidbodySettings()
+    {
+        if (capturedRigidbodySettings)
+        {
+            return;
+        }
+
+        if (rb == null)
+        {
+            rb = GetComponent<Rigidbody2D>();
+        }
+
+        if (rb == null)
+        {
+            return;
+        }
+
+        originalConstraints = rb.constraints;
+        originalBodyType = rb.bodyType;
+        capturedRigidbodySettings = true;
+    }
+
+    void ApplyStationaryRigidbodyLock()
+    {
+        if (!hardFreezeRigidbodyWhileStationary)
+        {
+            return;
+        }
+
+        if (rb == null)
+        {
+            rb = GetComponent<Rigidbody2D>();
+        }
+
+        if (rb == null)
+        {
+            return;
+        }
+
+        rb.linearVelocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+        rb.constraints = RigidbodyConstraints2D.FreezePositionX |
+            RigidbodyConstraints2D.FreezePositionY |
+            RigidbodyConstraints2D.FreezeRotation;
+
+        if (useKinematicBodyWhileStationary)
+        {
+            rb.bodyType = RigidbodyType2D.Kinematic;
+        }
+    }
+
+    void KeepBrokerAtStation()
+    {
+        if (!keepBrokerStationary)
+        {
+            return;
+        }
+
+        if (rb == null)
+        {
+            rb = GetComponent<Rigidbody2D>();
+        }
+
+        if (rb != null)
+        {
+            ApplyStationaryRigidbodyLock();
+            rb.position = stationaryPosition;
+        }
+
+        transform.position = new Vector3(
+            stationaryPosition.x,
+            stationaryPosition.y,
+            transform.position.z);
     }
 
     void EnsureInventory()

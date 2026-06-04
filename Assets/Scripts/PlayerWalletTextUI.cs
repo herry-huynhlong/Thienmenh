@@ -1,11 +1,15 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerWalletTextUI : MonoBehaviour
 {
     public PlayerWallet wallet;
 
     public TMP_Text text;
+    public Image currencyIconImage;
+    public Sprite currencyIcon;
+    public bool showCurrencyShortName = true;
 
     void Awake()
     {
@@ -31,6 +35,7 @@ public class PlayerWalletTextUI : MonoBehaviour
     public void Refresh()
     {
         AutoFindReferences();
+        RefreshIcon();
 
         if (text == null ||
             wallet == null)
@@ -39,24 +44,37 @@ public class PlayerWalletTextUI : MonoBehaviour
         }
 
         text.text =
-            FormatMoney(wallet.LinhThach);
+            FormatLinhThach(wallet.LinhThach);
     }
 
     void Refresh(int amount)
     {
-        if (text == null)
+        if (text == null ||
+            currencyIconImage == null)
         {
             AutoFindReferences();
         }
 
+        RefreshIcon();
+
         if (text != null)
         {
             text.text =
-                FormatMoney(amount);
+                FormatLinhThach(amount);
         }
     }
 
-    string FormatMoney(long amount)
+    string FormatLinhThach(long amount)
+    {
+        string textValue =
+            FormatCompactAmount(amount);
+
+        return showCurrencyShortName
+            ? textValue + " " + NpcEconomy.CurrencyShortName
+            : textValue;
+    }
+
+    string FormatCompactAmount(long amount)
     {
         if (amount >= 1000000000000)
         {
@@ -89,12 +107,34 @@ public class PlayerWalletTextUI : MonoBehaviour
         return amount.ToString();
     }
 
+    void RefreshIcon()
+    {
+        if (currencyIconImage == null)
+        {
+            return;
+        }
+
+        if (currencyIcon != null)
+        {
+            currencyIconImage.sprite = currencyIcon;
+        }
+
+        currencyIconImage.enabled =
+            currencyIconImage.sprite != null;
+    }
+
     void AutoFindReferences()
     {
         if (text == null)
         {
             text =
                 GetComponent<TMP_Text>();
+        }
+
+        if (currencyIconImage == null)
+        {
+            currencyIconImage =
+                GetComponent<Image>();
         }
 
         if (wallet == null)

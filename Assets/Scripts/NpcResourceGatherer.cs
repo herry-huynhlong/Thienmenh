@@ -14,6 +14,7 @@ public class NpcResourceGatherer : MonoBehaviour
     [Range(0f, 1f)]
     public float gatherChancePerScan = 0.35f;
     public bool gatherOnlyWhenInventoryExists = false;
+    public bool useVillagerPreferredZone = true;
 
     WorldStatItemPickup targetPickup;
     WorldStatItemPickup harvestingPickup;
@@ -80,25 +81,57 @@ public class NpcResourceGatherer : MonoBehaviour
     {
         WorldStatItemPickup candidate =
             WorldResourceField.GetNearestAvailablePickupInAllFields(
-                transform.position);
+                GetSearchPosition(),
+                null,
+                GetPreferredZone());
 
         if (candidate == null)
         {
             return;
         }
 
-        float distance =
-            Vector2.Distance(transform.position, candidate.transform.position);
-
-        if (distance > maxSearchDistance)
+        if (!GetPreferredZone().HasValue)
         {
-            return;
+            float distance =
+                Vector2.Distance(transform.position, candidate.transform.position);
+
+            if (distance > maxSearchDistance)
+            {
+                return;
+            }
         }
 
         targetPickup = candidate;
         MoveToTarget();
     }
 
+
+    Vector3 GetSearchPosition()
+    {
+        NpcMapZone? preferredZone = GetPreferredZone();
+        if (!preferredZone.HasValue)
+        {
+            return transform.position;
+        }
+
+        NpcMapArea area = NpcMapArea.FindNearestAreaInZone(
+            preferredZone.Value,
+            transform.position);
+
+        return area != null && area.areaBounds != null
+            ? area.areaBounds.bounds.center
+            : transform.position;
+    }
+
+    NpcMapZone? GetPreferredZone()
+    {
+        if (!useVillagerPreferredZone || villager == null)
+        {
+            return null;
+        }
+
+        return villager.GetPreferredResourceGatherZone();
+    }
     void MoveToTarget()
     {
         if (targetPickup == null)
@@ -238,6 +271,13 @@ public class NpcResourceGatherer : MonoBehaviour
             !pickup.gameObject.activeInHierarchy)
         {
             return false;
+        }
+
+        NpcMapZone? preferredZone = GetPreferredZone();
+        if (preferredZone.HasValue)
+        {
+            NpcMapArea pickupArea = NpcMapArea.FindArea(pickup.transform.position);
+            return pickupArea != null && pickupArea.zone == preferredZone.Value;
         }
 
         float distance =

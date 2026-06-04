@@ -13,6 +13,7 @@ public enum NpcTradeContext
 
 public static class NpcEconomy
 {
+    public const string CurrencyName = "Linh Thạch";
     public const string CurrencyShortName = "LT";
 
     public static int GetItemValue(StatItemData item)
@@ -131,6 +132,11 @@ public static class NpcEconomy
         return GetNpcMoney(npc) >= Mathf.Max(0, amount);
     }
 
+    public static bool CanAffordNpcLinhThach(GameObject npc, int amount)
+    {
+        return CanAffordNpc(npc, amount);
+    }
+
     public static int GetNpcMoney(GameObject npc)
     {
         if (npc == null)
@@ -150,6 +156,11 @@ public static class NpcEconomy
             npc.GetComponent<SmartNpcAI>();
 
         return smartNpc != null ? smartNpc.money : 0;
+    }
+
+    public static int GetNpcLinhThach(GameObject npc)
+    {
+        return GetNpcMoney(npc);
     }
 
     public static void AddNpcMoney(GameObject npc, int amount)
@@ -177,6 +188,11 @@ public static class NpcEconomy
             smartNpc.money =
                 Mathf.Max(0, smartNpc.money + amount);
         }
+    }
+
+    public static void AddNpcLinhThach(GameObject npc, int amount)
+    {
+        AddNpcMoney(npc, amount);
     }
 
     public static bool IsNearBreakthrough(GameObject npc)
@@ -242,6 +258,13 @@ public static class NpcEconomy
         return FormatCompactAmount(amount) +
             " " +
             CurrencyShortName;
+    }
+
+    public static string FormatCurrencyWithName(int amount)
+    {
+        return FormatCompactAmount(amount) +
+            " " +
+            CurrencyName;
     }
 
     static string FormatCompactAmount(int amount)

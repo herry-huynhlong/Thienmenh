@@ -19,6 +19,7 @@ public class PlayerWallet : MonoBehaviour
     public static event Action<int> OnAnyWalletChanged;
 
     [Header("Currency")]
+    [InspectorName("Linh Thạch")]
     public int money = 1000;
     public string currencyName = "Linh Thạch";
     public bool saveWallet = true;

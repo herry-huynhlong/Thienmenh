@@ -3,23 +3,51 @@ using UnityEngine;
 public class MonsterAttack : MonoBehaviour
 {
     public int damage = 10;
+    public GameObject owner;
 
-    void OnTriggerEnter2D(
-        Collider2D other)
+    void Awake()
     {
-        if (other.CompareTag("Player"))
+        if (owner == null)
         {
-            Debug.Log(
-                "Đánh trúng player");
-
-            PlayerHealth player =
-                other.GetComponent<PlayerHealth>();
-
-            if (player != null)
+            MonsterAI monster = GetComponentInParent<MonsterAI>();
+            if (monster != null)
             {
-                player.TakeDamage(
-                    damage);
+                owner = monster.gameObject;
+                damage = monster.damage;
             }
         }
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other == null || IsOwner(other.transform))
+        {
+            return;
+        }
+
+        IDamageable damageable = other.GetComponentInParent<IDamageable>();
+        if (damageable == null || damageable.IsDead)
+        {
+            return;
+        }
+
+        if (owner != null &&
+            damageable.DamageTransform != null &&
+            damageable.DamageTransform.gameObject == owner)
+        {
+            return;
+        }
+
+        damageable.TakeDamage(damage);
+    }
+
+    bool IsOwner(Transform target)
+    {
+        if (owner == null || target == null)
+        {
+            return false;
+        }
+
+        return target.gameObject == owner || target.IsChildOf(owner.transform);
     }
 }

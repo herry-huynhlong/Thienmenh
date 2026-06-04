@@ -108,9 +108,8 @@ public class InventoryItemButtonUI :
 
         if (nameText != null)
         {
-            nameText.gameObject.SetActive(true);
-            nameText.text =
-                stack.item.itemName + " x" + stack.amount;
+            nameText.gameObject.SetActive(false);
+            nameText.text = "";
             nameText.raycastTarget = false;
         }
 
@@ -119,6 +118,8 @@ public class InventoryItemButtonUI :
             priceText.gameObject.SetActive(false);
             priceText.raycastTarget = false;
         }
+
+        HideNonAmountTexts();
     }
 
     public void SetupEmpty(
@@ -173,6 +174,8 @@ public class InventoryItemButtonUI :
             priceText.text = "";
             priceText.raycastTarget = false;
         }
+
+        HideNonAmountTexts();
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -249,12 +252,48 @@ public class InventoryItemButtonUI :
         Transform child =
             transform.Find(childName);
 
-        if (child == null)
+        if (child != null)
         {
-            return null;
+            return child.GetComponent<TMP_Text>();
         }
 
-        return child.GetComponent<TMP_Text>();
+        TMP_Text[] texts =
+            GetComponentsInChildren<TMP_Text>(true);
+
+        foreach (TMP_Text text in texts)
+        {
+            if (text != null &&
+                text.name == childName)
+            {
+                return text;
+            }
+        }
+
+        return null;
+    }
+
+    void HideNonAmountTexts()
+    {
+        TMP_Text[] texts =
+            GetComponentsInChildren<TMP_Text>(true);
+
+        foreach (TMP_Text text in texts)
+        {
+            if (text == null)
+            {
+                continue;
+            }
+
+            text.raycastTarget = false;
+
+            if (text == amountText)
+            {
+                continue;
+            }
+
+            text.text = "";
+            text.gameObject.SetActive(false);
+        }
     }
 
     void EnsureClickable()
@@ -530,3 +569,4 @@ public class InventoryItemButtonUI :
     }
 #endif
 }
+

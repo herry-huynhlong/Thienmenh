@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -218,7 +218,7 @@ public class WorldResourceField : MonoBehaviour
         {
             Debug.LogWarning(
                 name +
-                ": WorldResourceField cần SpawnRegion có Size lớn hơn 0 để spawn tài nguyên.",
+                ": WorldResourceField c?n SpawnRegion c� Size l?n hon 0 d? spawn t�i nguy�n.",
                 this);
             return null;
         }
@@ -455,8 +455,10 @@ public class WorldResourceField : MonoBehaviour
                 });
         }
 
+        string saveKey = GetResourceSaveKey();
+        GameSaveSystem.RegisterDynamicSaveKey(saveKey);
         PlayerPrefs.SetString(
-            GetResourceSaveKey(),
+            saveKey,
             JsonUtility.ToJson(data));
         GameSaveSystem.MarkSaveExists();
         PlayerPrefs.Save();

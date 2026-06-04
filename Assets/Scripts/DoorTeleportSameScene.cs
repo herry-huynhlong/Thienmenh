@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class DoorTeleportSameScene : MonoBehaviour
@@ -43,8 +43,7 @@ public class DoorTeleportSameScene : MonoBehaviour
             return false;
         }
 
-        if (!actor.CompareTag("NPC") &&
-            !actor.CompareTag("Player"))
+        if (!IsTeleportActor(actor))
         {
             return false;
         }
@@ -90,6 +89,24 @@ public class DoorTeleportSameScene : MonoBehaviour
         return true;
     }
 
+    bool IsTeleportActor(GameObject actor)
+    {
+        if (actor == null)
+        {
+            return false;
+        }
+
+        if (actor.CompareTag("Player") ||
+            actor.CompareTag("NPC"))
+        {
+            return true;
+        }
+
+        return actor.GetComponent<VillagerAI>() != null ||
+            actor.GetComponent<SmartNpcAI>() != null ||
+            actor.GetComponent<NpcTradeAgent>() != null ||
+            actor.GetComponent<NpcTaskProvider>() != null;
+    }
     void RefreshCameraBounds()
     {
         CameraBounds bounds =

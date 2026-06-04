@@ -74,6 +74,7 @@ public class EntityStats
     public int effectResistance;
     public float moveSpeed = 1.6f;
     public int cultivationExp;
+    [InspectorName("Linh Thạch")]
     public int money;
     public int spiritStone;
 

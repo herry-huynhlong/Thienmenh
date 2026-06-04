@@ -21,6 +21,8 @@ public class NpcMapMover2D : MonoBehaviour
     public float returnInsidePadding = 0.5f;
     public Collider2D mapBounds;
     public bool keepInsideMapBounds = true;
+    public bool autoResolveMapArea = true;
+    public bool useNearestAreaWhenOutsideBounds;
     public bool useMapBoundsCenterWhenAvailable = true;
     public float mapBoundsEdgePadding = 0.25f;
 
@@ -89,10 +91,16 @@ public class NpcMapMover2D : MonoBehaviour
     }
     void AutoResolveMapBounds()
     {
+        if (!autoResolveMapArea)
+        {
+            return;
+        }
+
         NpcMapArea area =
             NpcMapArea.FindArea(transform.position);
 
-        if (area == null)
+        if (area == null &&
+            useNearestAreaWhenOutsideBounds)
         {
             area = NpcMapArea.FindNearestArea(transform.position);
         }

@@ -72,6 +72,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     public bool readyForHeavenlyTribulation = false;
 
     [Header("Tài sản")]
+    [InspectorName("Linh Thạch")]
     public int money = 100;
 
     public int spiritStone = 0;

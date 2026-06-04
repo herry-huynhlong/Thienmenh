@@ -8,6 +8,9 @@ public class NpcInventoryPanelUI : MonoBehaviour
     public GameObject panelRoot;
     public TMP_Text titleText;
     public TMP_Text infoText;
+    [Header("NPC Wallet")]
+    public TMP_Text npcLinhThachText;
+    public bool showNpcLinhThach = true;
     public TMP_Text itemsText;
     public InventoryPanelUI itemGridPanel;
     public bool useItemGrid = true;
@@ -16,7 +19,7 @@ public class NpcInventoryPanelUI : MonoBehaviour
     public string emptyText = "Không có vật phẩm";
     public bool blockMapDrag;
     public float infoRefreshInterval = 0.5f;
-    public bool autoCreateInfoText = true;
+    public bool autoCreateInfoText = false;
     public float autoInfoHeight = 64f;
 
 
@@ -101,6 +104,8 @@ public class NpcInventoryPanelUI : MonoBehaviour
             infoText.gameObject.SetActive(true);
         }
 
+        UpdateWalletText();
+
         if (itemsText != null)
         {
             itemsText.gameObject.SetActive(
@@ -159,6 +164,12 @@ public class NpcInventoryPanelUI : MonoBehaviour
     {
         SetTextVisible(titleText, visible);
         SetTextVisible(infoText, visible);
+        SetTextVisible(npcLinhThachText, visible && showNpcLinhThach);
+
+        if (visible)
+        {
+            UpdateWalletText();
+        }
 
         if (itemsText != null)
         {
@@ -204,44 +215,22 @@ public class NpcInventoryPanelUI : MonoBehaviour
     }
 
 
-    void EnsureInfoText()
+    void UpdateWalletText()
     {
-        if (infoText != null ||
-            !autoCreateInfoText ||
-            panelRoot == null)
+        if (!showNpcLinhThach ||
+            npcLinhThachText == null ||
+            currentNpc == null)
         {
             return;
         }
 
-        GameObject textObject =
-            new GameObject("NpcInventoryValueText", typeof(RectTransform));
-
-        textObject.transform.SetParent(panelRoot.transform, false);
-        textObject.transform.SetAsFirstSibling();
-
-        RectTransform rect =
-            textObject.GetComponent<RectTransform>();
-
-        rect.anchorMin = new Vector2(0f, 1f);
-        rect.anchorMax = new Vector2(1f, 1f);
-        rect.pivot = new Vector2(0.5f, 1f);
-        rect.anchoredPosition = new Vector2(0f, -12f);
-        rect.sizeDelta = new Vector2(-28f, autoInfoHeight);
-
-        TextMeshProUGUI text =
-            textObject.AddComponent<TextMeshProUGUI>();
-
-        text.fontSize = 20f;
-        text.enableAutoSizing = true;
-        text.fontSizeMin = 12f;
-        text.fontSizeMax = 20f;
-        text.alignment = TextAlignmentOptions.TopRight;
-        text.color = new Color(1f, 0.92f, 0.55f, 1f);
-        text.raycastTarget = false;
-        text.textWrappingMode = TextWrappingModes.Normal;
-
-        infoText = text;
-        createdInfoText = true;
+        npcLinhThachText.text =
+            NpcEconomy.FormatCurrency(
+                NpcEconomy.GetNpcLinhThach(currentNpc.gameObject));
+        npcLinhThachText.gameObject.SetActive(true);
+    }
+    void EnsureInfoText()
+    {
     }
 
     void ReserveGridTopSpace()
@@ -446,36 +435,14 @@ public class NpcInventoryPanelUI : MonoBehaviour
         int inventoryValue =
             GetInventoryValue(inventory);
         int totalAssets =
-            inventoryValue;
-
-        VillagerAI villager =
-            npc.GetComponent<VillagerAI>();
-
-        if (villager != null)
-        {
-            totalAssets +=
-                Mathf.Max(0, villager.money) +
-                Mathf.Max(0, villager.spiritStone);
-        }
-        else
-        {
-            SmartNpcAI smartNpc =
-                npc.GetComponent<SmartNpcAI>();
-
-            if (smartNpc != null)
-            {
-                totalAssets +=
-                    Mathf.Max(0, smartNpc.money) +
-                    Mathf.Max(0, smartNpc.spiritStone);
-            }
-        }
+            inventoryValue +
+            NpcEconomy.GetNpcLinhThach(npc.gameObject);
 
         return "Balo: " +
             NpcEconomy.FormatCurrency(inventoryValue) +
             " | T\u1ed5ng: " +
             NpcEconomy.FormatCurrency(totalAssets);
     }
-
     string BuildInfoText(
         Transform npc,
         ItemInventory inventory)
@@ -518,23 +485,23 @@ public class NpcInventoryPanelUI : MonoBehaviour
 
         if (hasWallet)
         {
-            builder.AppendLine("Ti\u1ec1n: " + money);
-            builder.AppendLine("Linh th\u1ea1ch: " + spiritStone + " LT");
+            builder.AppendLine(
+                "Linh thạch: " +
+                NpcEconomy.FormatCurrency(Mathf.Max(0, money)));
+            builder.AppendLine(
+                "Linh thạch tu luyện: " +
+                Mathf.Max(0, spiritStone));
         }
 
         builder.AppendLine(
             "Gi\u00e1 tr\u1ecb balo: " +
             NpcEconomy.FormatCurrency(inventoryValue));
 
-        if (hasWallet)
-        {
-            builder.AppendLine(
-                "T\u1ed5ng t\u00e0i s\u1ea3n: " +
-                NpcEconomy.FormatCurrency(
-                    Mathf.Max(0, spiritStone) +
-                    Mathf.Max(0, money) +
-                    inventoryValue));
-        }
+        builder.AppendLine(
+            "T\u1ed5ng t\u00e0i s\u1ea3n: " +
+            NpcEconomy.FormatCurrency(
+                inventoryValue +
+                NpcEconomy.GetNpcLinhThach(npc.gameObject)));
 
         builder.Append("S\u1ed1 lo\u1ea1i h\u00e0ng: ");
         builder.Append(itemKindCount);

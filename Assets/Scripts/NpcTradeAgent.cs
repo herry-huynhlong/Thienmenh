@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class NpcTradeAgent : MonoBehaviour
 {
@@ -9,6 +9,9 @@ public class NpcTradeAgent : MonoBehaviour
     [Range(0, 100)]
     public int tradeChance = 25;
     public bool buyUsefulItemsFromMarketTrader = true;
+    public float counterTradeCooldown = 45f;
+    [Range(0f, 1f)] public float maxMoneySpendRatio = 0.65f;
+    public int maxOwnedConsumableBeforeBuying = 3;
 
     [Header("Market Trader")]
     public bool isMarketTrader;
@@ -20,6 +23,7 @@ public class NpcTradeAgent : MonoBehaviour
     public int buyPricePercent = 70;
 
     float tradeTimer;
+    float nextCounterTradeTime;
 
     public bool IsMarketTrader => isMarketTrader;
 
@@ -39,6 +43,11 @@ public class NpcTradeAgent : MonoBehaviour
     void Update()
     {
         tradeTimer += Time.deltaTime;
+
+        if (Time.time < nextCounterTradeTime)
+        {
+            return;
+        }
 
         if (tradeTimer < tradeInterval)
         {
@@ -327,7 +336,7 @@ public class NpcTradeAgent : MonoBehaviour
         inventory.AddItem(item, 1);
     }
 
-    float GetBuyScore(StatItemData item, int price)
+    public float GetBuyScore(StatItemData item, int price)
     {
         if (item == null ||
             price <= 0)
@@ -335,37 +344,150 @@ public class NpcTradeAgent : MonoBehaviour
             return 0f;
         }
 
-        float score = 1f;
+        int money = GetMoney();
+        if (money < price ||
+            price > Mathf.Max(1, Mathf.RoundToInt(money * Mathf.Clamp01(maxMoneySpendRatio))))
+        {
+            return 0f;
+        }
+
+        float score = 0.5f;
+        bool nearBreakthrough = NpcEconomy.IsNearBreakthrough(gameObject);
 
         if (item.itemType == ItemType.DanDuoc)
         {
-            score += NpcEconomy.IsNearBreakthrough(gameObject)
-                ? 8f
-                : 2f;
+            if (nearBreakthrough)
+            {
+                score += item.breakthroughRealm ? 80f : 35f;
+            }
+            else if (item.cultivationBonus > 0)
+            {
+                score += 12f;
+            }
+            else if (item.hpBonus > 0)
+            {
+                score += 8f;
+            }
+
+            if (inventory != null &&
+                inventory.GetAmount(item) >= maxOwnedConsumableBeforeBuying)
+            {
+                score *= 0.2f;
+            }
         }
         else if (item.itemType == ItemType.PhapBao)
         {
-            score += 2.2f;
+            score += IsCombatRole() ? 25f : 3f;
+            score += Mathf.Max(0, item.damageBonus) * 1.5f;
+            score += Mathf.Max(0, item.armorBonus) * 1.2f;
+
+            if (AlreadyHasUsefulEquipment(item))
+            {
+                score *= 0.25f;
+            }
         }
         else if (item.itemType == ItemType.CongPhap)
         {
-            score += 2f;
+            score += 14f + Mathf.Max(0, item.studyProgressPerUse) * 2f;
         }
+        else if (item.itemType == ItemType.ThucPham)
+        {
+            VillagerAI villager = GetComponent<VillagerAI>();
+            SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
+            float hunger = villager != null ? villager.hunger : smartNpc != null ? smartNpc.hunger : 0f;
+            score += hunger >= 55f ? 14f : 2f;
+        }
+
         score += Mathf.Max(
             item.GetNpcUseScore(),
-            item.GetNpcConversionScore() * 0.2f);
+            item.GetNpcConversionScore() * 0.15f);
 
         if (item.ShouldNpcPreferSell())
         {
-            score *= 0.5f;
+            score *= 0.35f;
         }
 
-        float wealthRatio =
-            GetMoney() / Mathf.Max(1f, price);
-
-        return score * Mathf.Clamp(wealthRatio, 0.1f, 5f);
+        float wealthRatio = money / Mathf.Max(1f, price);
+        return score * Mathf.Clamp(wealthRatio, 0.25f, 4f);
     }
 
+    public bool CanUseCounterTrade()
+    {
+        return Time.time >= nextCounterTradeTime;
+    }
+
+    public void MarkCounterTradeHandled(float cooldownMultiplier = 1f)
+    {
+        nextCounterTradeTime = Time.time +
+            Mathf.Max(1f, counterTradeCooldown * Mathf.Max(0.1f, cooldownMultiplier));
+        tradeTimer = 0f;
+    }
+
+    public bool ShouldSellToCounter(StatItemData item)
+    {
+        if (item == null)
+        {
+            return false;
+        }
+
+        if (item.itemType == ItemType.VatLieu ||
+            item.itemType == ItemType.ThucPham)
+        {
+            return true;
+        }
+
+        return item.ShouldNpcPreferSell();
+    }
+
+    bool IsCombatRole()
+    {
+        SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            return smartNpc.canFight;
+        }
+
+        VillagerAI villager = GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            return villager.job == VillagerJob.Guard ||
+                villager.job == VillagerJob.Hunter;
+        }
+
+        return false;
+    }
+
+    bool AlreadyHasUsefulEquipment(StatItemData item)
+    {
+        if (item == null ||
+            item.itemType != ItemType.PhapBao ||
+            inventory == null)
+        {
+            return false;
+        }
+
+        foreach (ItemStack stack in inventory.items)
+        {
+            if (stack == null ||
+                stack.item == null ||
+                stack.amount <= 0 ||
+                stack.item.itemType != ItemType.PhapBao)
+            {
+                continue;
+            }
+
+            bool sameRole = item.damageBonus > 0
+                ? stack.item.damageBonus >= item.damageBonus
+                : stack.item.armorBonus >= item.armorBonus;
+
+            if (sameRole)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
     public int GetMoney()
     {
         return NpcEconomy.GetNpcMoney(gameObject);

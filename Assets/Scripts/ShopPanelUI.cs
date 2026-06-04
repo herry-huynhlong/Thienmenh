@@ -1411,7 +1411,7 @@ public class ShopPanelUI : MonoBehaviour
             playerWallet != null)
         {
             moneyText.text =
-                playerWallet.LinhThach + " LT";
+                NpcEconomy.FormatCurrency(playerWallet.LinhThach);
         }
 
         PlayerWalletTextUI[] walletTexts =
