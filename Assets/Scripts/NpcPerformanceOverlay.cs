@@ -12,6 +12,9 @@ public class NpcPerformanceOverlay : MonoBehaviour
     public bool autoScaleForScreen = true;
 
     static int npcFixedUpdates;
+    static int monsterFixedUpdates;
+    static int monsterThinkUpdates;
+    static int monsterDetectScans;
     static int pathRequests;
     static int pathSuccesses;
     static int pathCacheHits;
@@ -22,18 +25,37 @@ public class NpcPerformanceOverlay : MonoBehaviour
     float fps;
     float frameMs;
     int shownNpcFixedUpdates;
+    int shownMonsterFixedUpdates;
+    int shownMonsterThinkUpdates;
+    int shownMonsterDetectScans;
     int shownPathRequests;
     int shownPathSuccesses;
     int shownPathCacheHits;
     int shownPathVisitedNodes;
     float shownPathMs;
     int villagerCount;
+    int monsterCount;
     GUIStyle labelStyle;
     GUIStyle boxStyle;
 
     public static void RecordNpcFixedUpdate()
     {
         npcFixedUpdates++;
+    }
+
+    public static void RecordMonsterFixedUpdate()
+    {
+        monsterFixedUpdates++;
+    }
+
+    public static void RecordMonsterThinkUpdate()
+    {
+        monsterThinkUpdates++;
+    }
+
+    public static void RecordMonsterDetectScan()
+    {
+        monsterDetectScans++;
     }
 
     public static void RecordPathRequest()
@@ -87,6 +109,9 @@ public class NpcPerformanceOverlay : MonoBehaviour
             Time.unscaledDeltaTime * 1000f;
 
         shownNpcFixedUpdates = npcFixedUpdates;
+        shownMonsterFixedUpdates = monsterFixedUpdates;
+        shownMonsterThinkUpdates = monsterThinkUpdates;
+        shownMonsterDetectScans = monsterDetectScans;
         shownPathRequests = pathRequests;
         shownPathSuccesses = pathSuccesses;
         shownPathCacheHits = pathCacheHits;
@@ -94,6 +119,9 @@ public class NpcPerformanceOverlay : MonoBehaviour
         shownPathMs = pathMs;
 
         npcFixedUpdates = 0;
+        monsterFixedUpdates = 0;
+        monsterThinkUpdates = 0;
+        monsterDetectScans = 0;
         pathRequests = 0;
         pathSuccesses = 0;
         pathCacheHits = 0;
@@ -102,6 +130,10 @@ public class NpcPerformanceOverlay : MonoBehaviour
 
         villagerCount =
             FindObjectsByType<VillagerAI>(
+                FindObjectsInactive.Exclude).Length;
+
+        monsterCount =
+            FindObjectsByType<MonsterAI>(
                 FindObjectsInactive.Exclude).Length;
     }
 
@@ -123,7 +155,7 @@ public class NpcPerformanceOverlay : MonoBehaviour
             screenPadding.x * inverseScale,
             screenPadding.y * inverseScale,
             Mathf.Min(560f, Screen.width * inverseScale - screenPadding.x * 2f),
-            220f);
+            250f);
 
         GUI.Box(rect, "", boxStyle);
 
@@ -132,7 +164,8 @@ public class NpcPerformanceOverlay : MonoBehaviour
 
         GUILayout.Label("NPC PERF DEBUG (F3)", labelStyle);
         GUILayout.Label("FPS: " + Mathf.RoundToInt(fps) + " | Frame: " + frameMs.ToString("0.0") + " ms", labelStyle);
-        GUILayout.Label("Villagers active: " + villagerCount + " | FixedUpdate ticks: " + shownNpcFixedUpdates, labelStyle);
+        GUILayout.Label("Villagers active: " + villagerCount + " | NPC FixedUpdate ticks: " + shownNpcFixedUpdates, labelStyle);
+        GUILayout.Label("Monsters active: " + monsterCount + " | Fixed: " + shownMonsterFixedUpdates + " | Think: " + shownMonsterThinkUpdates + " | Detect: " + shownMonsterDetectScans, labelStyle);
         GUILayout.Label("Path requests: " + shownPathRequests + " | success: " + shownPathSuccesses + " | cache: " + shownPathCacheHits, labelStyle);
         GUILayout.Label("A* nodes: " + shownPathVisitedNodes + " | path time: " + shownPathMs.ToString("0.00") + " ms", labelStyle);
 

@@ -1215,7 +1215,18 @@ public class TouchSelectTarget : MonoBehaviour
             return villager.GetRealmText();
         }
 
-        return "Yêu Thú";
+        MonsterAI monster =
+            target.GetComponent<MonsterAI>();
+
+        if (monster != null &&
+            monster.entityProfile != null)
+        {
+            return monster.entityProfile.stats.realm +
+                " " +
+                monster.entityProfile.stats.realmStage;
+        }
+
+        return "Y\u00EAu Th\u00FA";
     }
 
     int GetTargetCurrentHP(Transform target)
@@ -1332,6 +1343,14 @@ public class TouchSelectTarget : MonoBehaviour
             return BuildWorldItemInfo(pickup);
         }
 
+        MonsterAI monster =
+            target.GetComponent<MonsterAI>();
+
+        if (monster != null)
+        {
+            return BuildMonsterInfo(monster);
+        }
+
         StringBuilder builder =
             new StringBuilder();
 
@@ -1354,6 +1373,54 @@ public class TouchSelectTarget : MonoBehaviour
         builder.AppendLine("Hành động: " + GetTargetAction(target));
 
         return builder.ToString().TrimEnd();
+    }
+
+    string BuildMonsterInfo(MonsterAI monster)
+    {
+        if (monster == null)
+        {
+            return "";
+        }
+
+        StringBuilder builder =
+            new StringBuilder();
+
+        builder.AppendLine("T\u00EAn: " + monster.monsterName);
+        builder.AppendLine("Lo\u1EA1i: Y\u00EAu Th\u00FA");
+        builder.AppendLine("C\u1EA5p: " + Mathf.Max(1, monster.beastLevel));
+        builder.AppendLine("Tu Vi: " + GetTargetRealm(monster.transform));
+        builder.AppendLine("M\u00E1u: " + BuildHealthText(monster.transform));
+        builder.AppendLine("R\u01A1i v\u1EADt ph\u1EA9m: " + GetMonsterLootText(monster));
+
+        return builder.ToString().TrimEnd();
+    }
+
+    string GetMonsterLootText(MonsterAI monster)
+    {
+        if (monster == null ||
+            !monster.dropLootOnDeath ||
+            monster.lootDropChance <= 0f)
+        {
+            return "Kh\u00F4ng";
+        }
+
+        StatItemData loot =
+            monster.GetDeathLoot();
+
+        if (loot == null)
+        {
+            return "Ch\u01B0a g\u1EAFn";
+        }
+
+        int amount =
+            Mathf.Max(1, monster.lootAmount);
+
+        if (amount <= 1)
+        {
+            return loot.itemName;
+        }
+
+        return loot.itemName + " x" + amount;
     }
 
     string BuildWorldItemInfo(WorldStatItemPickup pickup)

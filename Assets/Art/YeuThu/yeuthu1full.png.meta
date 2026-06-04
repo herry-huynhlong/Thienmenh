@@ -1,0 +1,627 @@
+fileFormatVersion: 2
+guid: f4b0949a538c86f49b2e39be356538d9
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -5433088074935353689
+    second: yeuthu1full_0
+  - first:
+      213: 2477656551252611372
+    second: yeuthu1full_1
+  - first:
+      213: -554517333315864259
+    second: yeuthu1full_2
+  - first:
+      213: -3728717847922372361
+    second: yeuthu1full_3
+  - first:
+      213: 623443920948733279
+    second: yeuthu1full_4
+  - first:
+      213: 8797099135179738891
+    second: yeuthu1full_5
+  - first:
+      213: -8533362383443548569
+    second: yeuthu1full_6
+  - first:
+      213: 6136461175468904139
+    second: yeuthu1full_7
+  - first:
+      213: -6711784769483078005
+    second: yeuthu1full_8
+  - first:
+      213: -736009409545203289
+    second: yeuthu1full_9
+  - first:
+      213: -8352279756190316504
+    second: yeuthu1full_10
+  - first:
+      213: -7533083889281268890
+    second: yeuthu1full_11
+  - first:
+      213: 5862284880974664491
+    second: yeuthu1full_12
+  - first:
+      213: -8826245002955573002
+    second: yeuthu1full_13
+  - first:
+      213: -4764535911233059764
+    second: yeuthu1full_14
+  - first:
+      213: 6957833643020588800
+    second: yeuthu1full_15
+  - first:
+      213: 2643495859883221796
+    second: yeuthu1full_16
+  - first:
+      213: 6919322734952668221
+    second: yeuthu1full_17
+  - first:
+      213: -4104668170035908760
+    second: yeuthu1full_18
+  - first:
+      213: -9013592186796732672
+    second: yeuthu1full_19
+  - first:
+      213: -233557869058353380
+    second: yeuthu1full_20
+  - first:
+      213: 5623790203833359558
+    second: yeuthu1full_21
+  - first:
+      213: 5412363906247638636
+    second: yeuthu1full_22
+  - first:
+      213: 689650441320943312
+    second: yeuthu1full_23
+  - first:
+      213: -3063885710118756912
+    second: yeuthu1full_24
+  - first:
+      213: 2492496156696387858
+    second: yeuthu1full_25
+  - first:
+      213: -2618847080020331355
+    second: yeuthu1full_26
+  - first:
+      213: -7007076888737752127
+    second: yeuthu1full_27
+  - first:
+      213: -4521983952352396973
+    second: yeuthu1full_28
+  - first:
+      213: -2296862157005814873
+    second: yeuthu1full_29
+  - first:
+      213: -6813815825640167546
+    second: yeuthu1full_30
+  - first:
+      213: 4118218745528266028
+    second: yeuthu1full_31
+  - first:
+      213: -1117262156721720553
+    second: yeuthu1full_32
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: 4
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 1
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: yeuthu1full_11
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 301
+        width: 66
+        height: 81
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6630c2c5d1c157790800000000000000
+      internalID: -7533083889281268890
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: yeuthu1full_12
+      rect:
+        serializedVersion: 2
+        x: 194
+        y: 299
+        width: 66
+        height: 83
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b2353ae1a050b5150800000000000000
+      internalID: 5862284880974664491
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: yeuthu1full_13
+      rect:
+        serializedVersion: 2
+        x: 294
+        y: 299
+        width: 81
+        height: 75
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f8344aeee0e28580800000000000000
+      internalID: -8826245002955573002
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: yeuthu1full_14
+      rect:
+        serializedVersion: 2
+        x: 403
+        y: 298
+        width: 98
+        height: 56
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c448c5315d7f0edb0800000000000000
+      internalID: -4764535911233059764
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: yeuthu1full_17
+      rect:
+        serializedVersion: 2
+        x: 94
+        y: 200
+        width: 58
+        height: 84
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d3c53270e5f560060800000000000000
+      internalID: 6919322734952668221
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: yeuthu1full_18
+      rect:
+        serializedVersion: 2
+        x: 188
+        y: 200
+        width: 57
+        height: 84
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86f282cfb0a4907c0800000000000000
+      internalID: -4104668170035908760
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: yeuthu1full_19
+      rect:
+        serializedVersion: 2
+        x: 274
+        y: 199
+        width: 105
+        height: 85
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 25, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 00f8eb389a949e280800000000000000
+      internalID: -9013592186796732672
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: yeuthu1full_20
+      rect:
+        serializedVersion: 2
+        x: 411
+        y: 198
+        width: 76
+        height: 65
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1797440b5c32ccf0800000000000000
+      internalID: -233557869058353380
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: yeuthu1full_23
+      rect:
+        serializedVersion: 2
+        x: 83
+        y: 113
+        width: 87
+        height: 72
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0de40262c61229900800000000000000
+      internalID: 689650441320943312
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: yeuthu1full_24
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 110
+        width: 83
+        height: 68
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ddd9f70e24ea75d0800000000000000
+      internalID: -3063885710118756912
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: yeuthu1full_25
+      rect:
+        serializedVersion: 2
+        x: 303
+        y: 111
+        width: 88
+        height: 65
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2112ae77c00279220800000000000000
+      internalID: 2492496156696387858
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: yeuthu1full_26
+      rect:
+        serializedVersion: 2
+        x: 408
+        y: 111
+        width: 87
+        height: 52
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5a4b15ab47cf7abd0800000000000000
+      internalID: -2618847080020331355
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: yeuthu1full_29
+      rect:
+        serializedVersion: 2
+        x: 79
+        y: 21
+        width: 84
+        height: 70
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a381a99908ef10e0800000000000000
+      internalID: -2296862157005814873
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: yeuthu1full_30
+      rect:
+        serializedVersion: 2
+        x: 178
+        y: 21
+        width: 77
+        height: 68
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 68768c39b967071a0800000000000000
+      internalID: -6813815825640167546
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: yeuthu1full_31
+      rect:
+        serializedVersion: 2
+        x: 268
+        y: 20
+        width: 82
+        height: 72
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2d219a312ad62930800000000000000
+      internalID: 4118218745528266028
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: yeuthu1full_32
+      rect:
+        serializedVersion: 2
+        x: 403
+        y: 22
+        width: 86
+        height: 52
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7137d9becffae70f0800000000000000
+      internalID: -1117262156721720553
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: af05a2b16b2c37d499e6d531a368c02f
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      yeuthu1full_0: -5433088074935353689
+      yeuthu1full_1: 2477656551252611372
+      yeuthu1full_10: -8352279756190316504
+      yeuthu1full_11: -7533083889281268890
+      yeuthu1full_12: 5862284880974664491
+      yeuthu1full_13: -8826245002955573002
+      yeuthu1full_14: -4764535911233059764
+      yeuthu1full_15: 6957833643020588800
+      yeuthu1full_16: 2643495859883221796
+      yeuthu1full_17: 6919322734952668221
+      yeuthu1full_18: -4104668170035908760
+      yeuthu1full_19: -9013592186796732672
+      yeuthu1full_2: -554517333315864259
+      yeuthu1full_20: -233557869058353380
+      yeuthu1full_21: 5623790203833359558
+      yeuthu1full_22: 5412363906247638636
+      yeuthu1full_23: 689650441320943312
+      yeuthu1full_24: -3063885710118756912
+      yeuthu1full_25: 2492496156696387858
+      yeuthu1full_26: -2618847080020331355
+      yeuthu1full_27: -7007076888737752127
+      yeuthu1full_28: -4521983952352396973
+      yeuthu1full_29: -2296862157005814873
+      yeuthu1full_3: -3728717847922372361
+      yeuthu1full_30: -6813815825640167546
+      yeuthu1full_31: 4118218745528266028
+      yeuthu1full_32: -1117262156721720553
+      yeuthu1full_4: 623443920948733279
+      yeuthu1full_5: 8797099135179738891
+      yeuthu1full_6: -8533362383443548569
+      yeuthu1full_7: 6136461175468904139
+      yeuthu1full_8: -6711784769483078005
+      yeuthu1full_9: -736009409545203289
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
