@@ -13,7 +13,11 @@ MonoBehaviour:
   m_Name: Tu_Khi_Thao
   m_EditorClassIdentifier: Assembly-CSharp::StatItemData
   itemName: "T\u1EE5 Kh\xED Th\u1EA3o"
-  description: "Loại linh thảo phổ biến nhất trong giới tu tiên.\nSinh trưởng tại nơi có linh khí mỏng như ven suối, chân núi, rừng ngoài.\nBan ngày hấp thu ánh sáng mặt trời, ban đêm hấp thu linh khí thiên địa. Lá cây hơi phát sáng khi trời tối.\nCó thể ăn sống nhưng hiệu quả thấp, chỉ hấp thu khoảng 20% linh lực."
+  description: "Linh d\u01B0\u1EE3c c\u1EA5p th\u1EA5p th\u01B0\u1EDDng m\u1ECDc
+    \u1EDF n\u01A1i c\xF3 linh kh\xED m\u1ECFng, l\xE1 nh\u1ECF xanh nh\u1EA1t, b\xEAn
+    trong ch\u1EE9a ch\xFAt linh l\u1EF1c tinh thu\u1EA7n. C\xF3 th\u1EC3 d\xF9ng
+    l\xE0m nguy\xEAn li\u1EC7u luy\u1EC7n T\u1EE5 Kh\xED \u0110an, D\u01B0\u1EE1ng
+    Kh\xED T\xE1n ho\u1EB7c b\xE1n \u0111\u1ED5i linh th\u1EA1ch."
   itemType: 2
   grade: 0
   validTargets: -1

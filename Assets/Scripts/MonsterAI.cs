@@ -1,6 +1,13 @@
 using System.Collections;
 using UnityEngine;
 
+public enum HuntTargetType
+{
+    Any,
+    Beast,
+    Animal
+}
+
 public class MonsterAI : MonoBehaviour, IDamageable
 {
     [Header("===== ENTITY GENERATION =====")]
@@ -16,6 +23,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     [Header("===== CAP BAC =====")]
     [Min(1)] public int beastLevel = 1;
+    public HuntTargetType huntTargetType = HuntTargetType.Beast;
 
     [Header("===== DAMAGE =====")]
     public int damage = 10;

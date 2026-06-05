@@ -13,7 +13,11 @@ MonoBehaviour:
   m_Name: Yen_Linh_Hoa
   m_EditorClassIdentifier: Assembly-CSharp::StatItemData
   itemName: "Y\xEAn Linh Hoa"
-  description: "Y\xEAn Linh Hoa"
+  description: "Linh d\u01B0\u1EE3c trung ph\u1EA9m m\u1ECDc \u1EDF n\u01A1i linh
+    kh\xED y\xEAn t\u0129nh, c\xE1nh hoa t\u1ECFa h\u01B0\u01A1ng nh\u1EB9 gi\xFAp
+    an th\u1EA7n v\xE0 \u1ED5n \u0111\u1ECBnh kh\xED t\u1EE9c. C\xF3 th\u1EC3 d\xF9ng
+    l\xE0m nguy\xEAn li\u1EC7u luy\u1EC7n An Th\u1EA7n \u0110an, T\u0129nh T\xE2m
+    T\xE1n ho\u1EB7c b\xE1n \u0111\u1ED5i linh th\u1EA1ch."
   itemType: 2
   grade: 1
   validTargets: -1

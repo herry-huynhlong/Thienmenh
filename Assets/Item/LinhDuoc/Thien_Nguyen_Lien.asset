@@ -13,13 +13,11 @@ MonoBehaviour:
   m_Name: Thien_Nguyen_Lien
   m_EditorClassIdentifier: Assembly-CSharp::StatItemData
   itemName: "Thi\xEAn Nguy\xEAn Li\xEAn"
-  description: "Lo\u1EA1i linh th\u1EA3o ph\u1ED5 bi\u1EBFn nh\u1EA5t trong gi\u1EDBi
-    tu ti\xEAn.\nSinh tr\u01B0\u1EDFng t\u1EA1i n\u01A1i c\xF3 linh kh\xED m\u1ECFng
-    nh\u01B0 ven su\u1ED1i, ch\xE2n n\xFAi, r\u1EEBng ngo\xE0i.\nBan ng\xE0y h\u1EA5p
-    thu \xE1nh s\xE1ng m\u1EB7t tr\u1EDDi, ban \u0111\xEAm h\u1EA5p thu linh kh\xED
-    thi\xEAn \u0111\u1ECBa. L\xE1 c\xE2y h\u01A1i ph\xE1t s\xE1ng khi tr\u1EDDi t\u1ED1i.\nc\xF3
-    th\u1EC3 \u0103n s\u1ED1ng nh\u01B0ng hi\u1EC7u qu\u1EA3 th\u1EA5p, ch\u1EC9
-    h\u1EA5p thu kho\u1EA3ng 20% linh l\u1EF1c"
+  description: "Linh d\u01B0\u1EE3c th\u01B0\u1EE3ng ph\u1EA9m sinh tr\u01B0\u1EDFng
+    \u1EDF n\u01A1i linh kh\xED tinh thu\u1EA7n h\u1ED9i t\u1EE5, c\xE1nh sen ch\u1EE9a
+    thi\xEAn nguy\xEAn chi kh\xED m\u1EA1nh m\u1EBD. C\xF3 th\u1EC3 d\xF9ng l\xE0m
+    nguy\xEAn li\u1EC7u luy\u1EC7n Thi\xEAn Nguy\xEAn \u0110an, Ph\xE1 C\u1EA3nh
+    \u0110an ho\u1EB7c b\xE1n \u0111\u1ED5i nhi\u1EC1u linh th\u1EA1ch."
   itemType: 2
   grade: 2
   validTargets: -1

@@ -243,7 +243,8 @@ MonoBehaviour:
   dropLootOnDeath: 1
   lootDropChance: 1
   lootAmount: 1
-  lootByBeastLevel: []
+  lootByBeastLevel:
+  - {fileID: 11400000, guid: ba44ae147d7978448ab44ec1282c0163, type: 2}
   allowPlayerLootPickup: 1
   allowNpcLootPickup: 1
   lootDropOffsetRadius: 0.2

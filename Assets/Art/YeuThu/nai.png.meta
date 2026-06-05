@@ -1,0 +1,500 @@
+fileFormatVersion: 2
+guid: 5ede5f20738ef8147937e8c4b1c2f900
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 4246703442329798824
+    second: nai_0
+  - first:
+      213: -2912963258471583093
+    second: nai_1
+  - first:
+      213: -6603042047248995788
+    second: nai_2
+  - first:
+      213: 6167774431316490286
+    second: nai_3
+  - first:
+      213: -103633403156611292
+    second: nai_4
+  - first:
+      213: 7851379215796948235
+    second: nai_5
+  - first:
+      213: -9129772301522043142
+    second: nai_6
+  - first:
+      213: -5946888589309411242
+    second: nai_7
+  - first:
+      213: -5984554379090399736
+    second: nai_8
+  - first:
+      213: -7809839310346721141
+    second: nai_9
+  - first:
+      213: -1258674999187634046
+    second: nai_10
+  - first:
+      213: -3387487523685923094
+    second: nai_11
+  - first:
+      213: -7849405888247566745
+    second: nai_12
+  - first:
+      213: 8288785748119214738
+    second: nai_13
+  - first:
+      213: 8554133941072676955
+    second: nai_14
+  - first:
+      213: -2256474989036488800
+    second: nai_15
+  - first:
+      213: -7793898867534221852
+    second: nai_16
+  - first:
+      213: 5251840817211254443
+    second: nai_17
+  - first:
+      213: -8622767645904593838
+    second: nai_18
+  - first:
+      213: -1893865390351668389
+    second: nai_19
+  - first:
+      213: -4777568561358657903
+    second: nai_20
+  - first:
+      213: 6352521419383131398
+    second: nai_21
+  - first:
+      213: 3713994217108602376
+    second: nai_22
+  - first:
+      213: -8934469295910722461
+    second: nai_23
+  - first:
+      213: 2060468156962973341
+    second: nai_24
+  - first:
+      213: -7929979033307998147
+    second: nai_25
+  - first:
+      213: 1611793375673955030
+    second: nai_26
+  - first:
+      213: -7377493442303192199
+    second: nai_27
+  - first:
+      213: 4915662333761704295
+    second: nai_28
+  - first:
+      213: 7333946612779830591
+    second: nai_29
+  - first:
+      213: -7629886328981773670
+    second: nai_30
+  - first:
+      213: 1785891058278036451
+    second: nai_31
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: nai_0
+      rect:
+        serializedVersion: 2
+        x: 399
+        y: 161
+        width: 187
+        height: 91
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a80f72e7425fea30800000000000000
+      internalID: 4246703442329798824
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: nai_10
+      rect:
+        serializedVersion: 2
+        x: 114
+        y: 453
+        width: 90
+        height: 151
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 28881c9c1c9488ee0800000000000000
+      internalID: -1258674999187634046
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: nai_11
+      rect:
+        serializedVersion: 2
+        x: 268
+        y: 453
+        width: 86
+        height: 151
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae602ad7b0a3df0d0800000000000000
+      internalID: -3387487523685923094
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: nai_16
+      rect:
+        serializedVersion: 2
+        x: 114
+        y: 297
+        width: 86
+        height: 148
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4edad49164286d390800000000000000
+      internalID: -7793898867534221852
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: nai_17
+      rect:
+        serializedVersion: 2
+        x: 272
+        y: 297
+        width: 84
+        height: 148
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba626c6d56942e840800000000000000
+      internalID: 5251840817211254443
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: nai_22
+      rect:
+        serializedVersion: 2
+        x: 83
+        y: 165
+        width: 127
+        height: 131
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80efc981012ca8330800000000000000
+      internalID: 3713994217108602376
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: nai_23
+      rect:
+        serializedVersion: 2
+        x: 238
+        y: 165
+        width: 124
+        height: 128
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3646b902383620480800000000000000
+      internalID: -8934469295910722461
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: nai_24
+      rect:
+        serializedVersion: 2
+        x: 415
+        y: 469
+        width: 163
+        height: 92
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d9628c63fd0489c10800000000000000
+      internalID: 2060468156962973341
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: nai_28
+      rect:
+        serializedVersion: 2
+        x: 76
+        y: 26
+        width: 134
+        height: 128
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 76152a729d0f73440800000000000000
+      internalID: 4915662333761704295
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: nai_29
+      rect:
+        serializedVersion: 2
+        x: 239
+        y: 26
+        width: 136
+        height: 128
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f3dcb60669967c560800000000000000
+      internalID: 7333946612779830591
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: nai_30
+      rect:
+        serializedVersion: 2
+        x: 410
+        y: 27
+        width: 167
+        height: 94
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a92ae640fc23d1690800000000000000
+      internalID: -7629886328981773670
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 653783305049caf4ca187763b2febb51
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      nai_0: 4246703442329798824
+      nai_1: -2912963258471583093
+      nai_10: -1258674999187634046
+      nai_11: -3387487523685923094
+      nai_12: -7849405888247566745
+      nai_13: 8288785748119214738
+      nai_14: 8554133941072676955
+      nai_15: -2256474989036488800
+      nai_16: -7793898867534221852
+      nai_17: 5251840817211254443
+      nai_18: -8622767645904593838
+      nai_19: -1893865390351668389
+      nai_2: -6603042047248995788
+      nai_20: -4777568561358657903
+      nai_21: 6352521419383131398
+      nai_22: 3713994217108602376
+      nai_23: -8934469295910722461
+      nai_24: 2060468156962973341
+      nai_25: -7929979033307998147
+      nai_26: 1611793375673955030
+      nai_27: -7377493442303192199
+      nai_28: 4915662333761704295
+      nai_29: 7333946612779830591
+      nai_3: 6167774431316490286
+      nai_30: -7629886328981773670
+      nai_31: 1785891058278036451
+      nai_4: -103633403156611292
+      nai_5: 7851379215796948235
+      nai_6: -9129772301522043142
+      nai_7: -5946888589309411242
+      nai_8: -5984554379090399736
+      nai_9: -7809839310346721141
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

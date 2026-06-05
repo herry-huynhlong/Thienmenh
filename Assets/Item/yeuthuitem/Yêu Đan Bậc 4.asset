@@ -10,29 +10,31 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
-  m_Name: Huyet_Linh_Thao
+  m_Name: "Y\xEAu \u0110an B\u1EADc 4"
   m_EditorClassIdentifier: Assembly-CSharp::StatItemData
-  itemName: "Huy\u1EBFt Linh Th\u1EA3o"
-  description: "Linh d\u01B0\u1EE3c c\u1EA5p th\u1EA5p m\u1ECDc \u1EDF n\u01A1i linh
-    kh\xED pha l\u1EABn huy\u1EBFt kh\xED, th\xE2n c\u1ECF \u0111\u1ECF nh\u1EA1t,
-    d\u01B0\u1EE3c l\u1EF1c c\xF2n y\u1EBFu nh\u01B0ng d\u1EC5 luy\u1EC7n h\xF3a."
+  itemName: "Y\xEAu \u0110an B\u1EADc 4"
+  description: "N\u1ED9i \u0111an c\u1EE7a y\xEAu th\xFA b\u1EADc 4, y\xEAu l\u1EF1c
+    ng\u01B0ng t\u1EE5 d\xE0y \u0111\u1EB7c, kh\xED t\u1EE9c m\u1EA1nh v\xE0 kh\xF3
+    luy\u1EC7n h\xF3a tr\u1EF1c ti\u1EBFp. Th\u01B0\u1EDDng d\xF9ng l\xE0m nguy\xEAn
+    li\u1EC7u luy\u1EC7n \u0111an cao h\u01A1n, c\u01B0\u1EDDng h\xF3a ph\xE1p kh\xED
+    ho\u1EB7c b\xE1n v\u1EDBi gi\xE1 tr\u1ECB linh th\u1EA1ch l\u1EDBn h\u01A1n."
   itemType: 2
-  grade: 0
+  grade: 1
   validTargets: -1
-  price: 2500
-  icon: {fileID: 1120446373898755333, guid: 9413a8f717391eb4695d1a236826be7c, type: 3}
+  price: 0
+  icon: {fileID: 6777420725785316996, guid: 37abfd4cfb88e2449b1c298b42af74b8, type: 3}
   consumeOnUse: 1
   useStyle: 0
   conversionType: 0
   canUseDirectly: 1
   canBeSold: 1
-  canBeRefinedIntoPill: 1
+  canBeRefinedIntoPill: 0
   canBeForgedIntoArtifact: 0
   canBeStudied: 1
   rawUseEfficiency: 0.35
   useSuccessChance: 1
-  rawUsePolicy: 1
-  rawToxicityDamage: 15
+  rawUsePolicy: 2
+  rawToxicityDamage: 5000
   npcIntent: 0
   refineValueMultiplier: 1.5
   sellValueMultiplier: 1
@@ -45,7 +47,7 @@ MonoBehaviour:
   damageBonus: 0
   armorBonus: 0
   effectResistanceBonus: 0
-  canBeTaught: 0
+  canBeTaught: 1
   studyProgressPerUse: 1
   tieuThanhPower: 0.3
   trungThanhPower: 0.6
