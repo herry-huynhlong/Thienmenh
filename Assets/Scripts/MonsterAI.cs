@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class MonsterAI : MonoBehaviour, IDamageable
@@ -12,6 +13,9 @@ public class MonsterAI : MonoBehaviour, IDamageable
     [Header("===== MAU =====")]
     public int maxHP = 100;
     public int currentHP = 100;
+
+    [Header("===== CAP BAC =====")]
+    [Min(1)] public int beastLevel = 1;
 
     [Header("===== DAMAGE =====")]
     public int damage = 10;
@@ -48,6 +52,12 @@ public class MonsterAI : MonoBehaviour, IDamageable
     public string currentAction = "Idle";
     public Vector2 currentMoveVelocity;
 
+    [Header("===== PERFORMANCE =====")]
+    public bool usePerformanceThrottle = true;
+    [Min(0.02f)] public float thinkInterval = 0.2f;
+    [Min(0.05f)] public float detectInterval = 0.35f;
+    [Range(0f, 0.5f)] public float performanceJitter = 0.12f;
+
     [Header("===== PHAT HIEN =====")]
     public float detectRange = 6f;
     public float attackRange = 1.5f;
@@ -59,6 +69,20 @@ public class MonsterAI : MonoBehaviour, IDamageable
     public float attackEndDelay = 1f;
     public bool directDamageOnAttack = true;
 
+    [Header("===== HOI SINH =====")]
+    public bool respawnAfterDeath = true;
+    [Min(1)] public int respawnAfterDays = 1;
+    public float corpseVisibleSeconds = 2f;
+
+    [Header("===== ROI VAT PHAM =====")]
+    public bool dropLootOnDeath = true;
+    [Range(0f, 1f)] public float lootDropChance = 1f;
+    public int lootAmount = 1;
+    public StatItemData[] lootByBeastLevel;
+    public bool allowPlayerLootPickup = true;
+    public bool allowNpcLootPickup = true;
+    public float lootDropOffsetRadius = 0.2f;
+
     [Header("===== FIREBALL =====")]
     public GameObject fireballPrefab;
     public Transform firePoint;
@@ -67,6 +91,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
     public bool useAnimation = true;
 
     Animator animator;
+    MonsterDirectionalAnimator directionalAnimator;
     Rigidbody2D rb;
     Transform currentTarget;
     IDamageable currentTargetDamageable;
@@ -77,7 +102,12 @@ public class MonsterAI : MonoBehaviour, IDamageable
     float attackTimer;
     bool isAttacking;
     bool isDead;
+    bool isRespawning;
+    Renderer[] cachedRenderers;
+    Collider2D[] cachedColliders;
     Vector2 desiredVelocity;
+    float nextThinkTime;
+    float nextDetectTime;
 
     public bool IsDead => isDead;
     public Transform DamageTransform => transform;
@@ -91,10 +121,15 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
         currentHP = maxHP;
         animator = GetComponent<Animator>();
+        directionalAnimator = GetComponent<MonsterDirectionalAnimator>();
         rb = GetComponent<Rigidbody2D>();
+        cachedRenderers = GetComponentsInChildren<Renderer>(true);
+        cachedColliders = GetComponentsInChildren<Collider2D>(true);
         ConfigureRigidbody();
         startPosition = transform.position;
         waitTimer = waitTime;
+        nextThinkTime = Time.time + Random.Range(0f, GetThinkDelay());
+        nextDetectTime = Time.time + Random.Range(0f, GetDetectDelay());
 
         if (territoryRadius <= 0f)
         {
@@ -158,7 +193,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     void Update()
     {
-        if (isDead)
+        if (isDead || isRespawning)
         {
             return;
         }
@@ -192,10 +227,22 @@ public class MonsterAI : MonoBehaviour, IDamageable
             }
         }
 
-        AcquireIntruderTarget();
-        if (HasValidTarget())
+        if (usePerformanceThrottle && Time.time < nextThinkTime)
         {
             return;
+        }
+
+        nextThinkTime = Time.time + GetThinkDelay();
+        NpcPerformanceOverlay.RecordMonsterThinkUpdate();
+
+        if (!usePerformanceThrottle || Time.time >= nextDetectTime)
+        {
+            nextDetectTime = Time.time + GetDetectDelay();
+            AcquireIntruderTarget();
+            if (HasValidTarget())
+            {
+                return;
+            }
         }
 
         if (guardTerritory && Vector2.Distance(transform.position, startPosition) > returnHomeDistance)
@@ -209,12 +256,14 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     void FixedUpdate()
     {
+        NpcPerformanceOverlay.RecordMonsterFixedUpdate();
+
         if (rb == null)
         {
             return;
         }
 
-        if (isDead || isAttacking)
+        if (isDead || isRespawning || isAttacking)
         {
             rb.linearVelocity = Vector2.zero;
             currentMoveVelocity = Vector2.zero;
@@ -230,6 +279,26 @@ public class MonsterAI : MonoBehaviour, IDamageable
         {
             transform.position += (Vector3)(desiredVelocity * Time.fixedDeltaTime);
         }
+    }
+
+    float GetThinkDelay()
+    {
+        if (!usePerformanceThrottle)
+        {
+            return 0f;
+        }
+
+        return Mathf.Max(0.02f, thinkInterval + Random.Range(0f, performanceJitter));
+    }
+
+    float GetDetectDelay()
+    {
+        if (!usePerformanceThrottle)
+        {
+            return 0f;
+        }
+
+        return Mathf.Max(0.05f, detectInterval + Random.Range(0f, performanceJitter));
     }
 
     void UpdateBeastNeeds()
@@ -258,6 +327,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
     void AcquireIntruderTarget()
     {
         ClearCurrentTarget();
+        NpcPerformanceOverlay.RecordMonsterDetectScan();
 
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, detectRange, intruderLayers);
         Transform bestTarget = null;
@@ -550,9 +620,19 @@ public class MonsterAI : MonoBehaviour, IDamageable
         attackTimer = attackCooldown;
         isAttacking = true;
 
-        if (animator != null && useAnimation)
+        if (useAnimation)
         {
-            animator.SetTrigger("attack");
+            if (directionalAnimator != null)
+            {
+                Vector2 attackDirection = currentTarget != null
+                    ? (Vector2)(currentTarget.position - transform.position)
+                    : Vector2.zero;
+                directionalAnimator.PlayAttack(attackDirection);
+            }
+            else if (animator != null)
+            {
+                animator.SetTrigger("attack");
+            }
         }
 
         if (directDamageOnAttack)
@@ -613,6 +693,12 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     void FaceDirection(Vector2 direction)
     {
+        if (directionalAnimator != null)
+        {
+            directionalAnimator.SetMoveDirection(direction);
+            return;
+        }
+
         if (direction.x < -0.01f)
         {
             transform.localScale = new Vector3(-1, 1, 1);
@@ -625,6 +711,12 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     void SetMovingAnimation(bool isMoving)
     {
+        if (directionalAnimator != null)
+        {
+            directionalAnimator.SetMoving(isMoving);
+            return;
+        }
+
         if (animator != null && useAnimation)
         {
             animator.SetBool("isMoving", isMoving);
@@ -633,7 +725,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     public void TakeDamage(int damageAmount)
     {
-        if (isDead)
+        if (isDead || isRespawning)
         {
             return;
         }
@@ -647,7 +739,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
             entityProfile.Remember("attacker", "was_attacked", -finalDamage);
         }
 
-        if (animator != null && useAnimation)
+        if (animator != null && useAnimation && directionalAnimator == null)
         {
             animator.SetTrigger("hurt");
         }
@@ -672,14 +764,183 @@ public class MonsterAI : MonoBehaviour, IDamageable
             rb.linearVelocity = Vector2.zero;
         }
 
-        if (animator != null && useAnimation)
+        if (useAnimation)
         {
-            animator.SetBool("isDead", true);
+            if (directionalAnimator != null)
+            {
+                directionalAnimator.PlayDeath();
+            }
+            else if (animator != null)
+            {
+                animator.SetBool("isDead", true);
+            }
         }
 
-        Destroy(gameObject, 2f);
+        DropDeathLoot();
+
+        if (respawnAfterDeath)
+        {
+            StartCoroutine(RespawnRoutine());
+        }
+        else
+        {
+            Destroy(gameObject, Mathf.Max(0f, corpseVisibleSeconds));
+        }
     }
 
+    IEnumerator RespawnRoutine()
+    {
+        isRespawning = true;
+        yield return new WaitForSeconds(Mathf.Max(0f, corpseVisibleSeconds));
+
+        SetMonsterVisible(false);
+        SetMonsterColliders(false);
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.simulated = false;
+        }
+
+        float targetWorldHour = GetAbsoluteWorldHour() + Mathf.Max(1, respawnAfterDays) * 24f;
+        while (GetAbsoluteWorldHour() < targetWorldHour)
+        {
+            yield return null;
+        }
+
+        RespawnAtHome();
+    }
+
+    void RespawnAtHome()
+    {
+        transform.position = startPosition;
+        currentHP = maxHP;
+        isDead = false;
+        isAttacking = false;
+        isRespawning = false;
+        desiredVelocity = Vector2.zero;
+        waitTimer = waitTime;
+        nextThinkTime = Time.time + Random.Range(0f, GetThinkDelay());
+        nextDetectTime = Time.time + Random.Range(0f, GetDetectDelay());
+        hasTarget = false;
+        ClearCurrentTarget();
+        currentAction = "Hoi sinh trong lanh dia";
+
+        if (entityProfile != null)
+        {
+            entityProfile.stats.currentHP = currentHP;
+        }
+
+        if (rb != null)
+        {
+            rb.simulated = true;
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        SetMonsterVisible(true);
+        SetMonsterColliders(true);
+        if (directionalAnimator != null)
+        {
+            directionalAnimator.PlayRespawn();
+        }
+        SetMovingAnimation(false);
+    }
+
+    float GetAbsoluteWorldHour()
+    {
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        if (timeSystem == null)
+        {
+            return Time.time / 3600f;
+        }
+
+        int year = Mathf.Max(1, timeSystem.currentYear);
+        int month = Mathf.Max(1, timeSystem.currentMonth);
+        int day = Mathf.Max(1, timeSystem.currentDay);
+        int absoluteDay = (year - 1) * 360 + (month - 1) * 30 + (day - 1);
+        return absoluteDay * 24f + Mathf.Max(0f, timeSystem.currentHour);
+    }
+
+    void SetMonsterVisible(bool visible)
+    {
+        if (cachedRenderers == null)
+        {
+            cachedRenderers = GetComponentsInChildren<Renderer>(true);
+        }
+
+        foreach (Renderer targetRenderer in cachedRenderers)
+        {
+            if (targetRenderer != null)
+            {
+                targetRenderer.enabled = visible;
+            }
+        }
+    }
+
+    void SetMonsterColliders(bool enabledValue)
+    {
+        if (cachedColliders == null)
+        {
+            cachedColliders = GetComponentsInChildren<Collider2D>(true);
+        }
+
+        foreach (Collider2D targetCollider in cachedColliders)
+        {
+            if (targetCollider != null)
+            {
+                targetCollider.enabled = enabledValue;
+            }
+        }
+    }
+    void DropDeathLoot()
+    {
+        if (!dropLootOnDeath || lootDropChance <= 0f || Random.value > lootDropChance)
+        {
+            return;
+        }
+
+        StatItemData loot = GetDeathLoot();
+        if (loot == null)
+        {
+            return;
+        }
+
+        Vector2 offset = Random.insideUnitCircle * Mathf.Max(0f, lootDropOffsetRadius);
+        Vector3 dropPosition = transform.position + (Vector3)offset;
+        GameObject lootObject = new GameObject(loot.itemName + " Pickup");
+        lootObject.transform.position = dropPosition;
+
+        WorldStatItemPickup pickup = lootObject.AddComponent<WorldStatItemPickup>();
+        pickup.item = loot;
+        pickup.amount = Mathf.Max(1, lootAmount);
+        pickup.allowPlayerPickup = allowPlayerLootPickup;
+        pickup.allowNpcPickup = allowNpcLootPickup;
+        pickup.destroyWhenEmpty = true;
+
+        CircleCollider2D collider = lootObject.AddComponent<CircleCollider2D>();
+        collider.isTrigger = true;
+        collider.radius = 0.25f;
+
+        if (loot.icon != null)
+        {
+            SpriteRenderer renderer = lootObject.AddComponent<SpriteRenderer>();
+            renderer.sprite = loot.icon;
+            renderer.sortingOrder = 20;
+        }
+
+        GameSaveSystem.RegisterItem(loot);
+    }
+
+    public StatItemData GetDeathLoot()
+    {
+        if (lootByBeastLevel == null || lootByBeastLevel.Length == 0)
+        {
+            return null;
+        }
+
+        int index = Mathf.Clamp(beastLevel - 1, 0, lootByBeastLevel.Length - 1);
+        return lootByBeastLevel[index];
+    }
     public int GetRealmPower()
     {
         return Mathf.Max(1, damage + defense + maxHP / 10);
