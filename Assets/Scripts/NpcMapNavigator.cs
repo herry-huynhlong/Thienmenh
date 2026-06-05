@@ -3,6 +3,19 @@ using UnityEngine;
 
 public static class NpcMapNavigator
 {
+    static readonly Dictionary<GameObject, NpcMapZone> knownNpcZones =
+        new Dictionary<GameObject, NpcMapZone>();
+
+    public static void ReportNpcZone(GameObject npc, NpcMapZone zone)
+    {
+        if (npc == null)
+        {
+            return;
+        }
+
+        knownNpcZones[npc] = zone;
+    }
+
     public static Vector3 GetNextMoveTarget(
         GameObject npc,
         Vector3 finalTarget,
@@ -33,15 +46,34 @@ public static class NpcMapNavigator
         }
 
         NpcMapArea currentArea =
-            NpcMapArea.FindArea(npc.transform.position) ??
-            NpcMapArea.FindNearestArea(npc.transform.position);
+            NpcMapArea.FindArea(npc.transform.position);
+
+        NpcMapZone? currentZone = null;
+        if (currentArea != null)
+        {
+            currentZone = currentArea.zone;
+            ReportNpcZone(npc, currentArea.zone);
+        }
+        else if (knownNpcZones.TryGetValue(npc, out NpcMapZone knownZone))
+        {
+            currentZone = knownZone;
+        }
+        else
+        {
+            NpcMapArea nearestArea =
+                NpcMapArea.FindNearestArea(npc.transform.position);
+            if (nearestArea != null)
+            {
+                currentZone = nearestArea.zone;
+                ReportNpcZone(npc, nearestArea.zone);
+            }
+        }
 
         NpcMapZone? targetZone = forcedTargetZone;
         if (!targetZone.HasValue)
         {
             NpcMapArea targetArea =
-                NpcMapArea.FindArea(finalTarget) ??
-                NpcMapArea.FindNearestArea(finalTarget);
+                NpcMapArea.FindArea(finalTarget);
 
             if (targetArea != null)
             {
@@ -49,15 +81,15 @@ public static class NpcMapNavigator
             }
         }
 
-        if (currentArea == null ||
+        if (!currentZone.HasValue ||
             !targetZone.HasValue ||
-            currentArea.zone == targetZone.Value)
+            currentZone.Value == targetZone.Value)
         {
             return finalTarget;
         }
 
         NpcTeleportGate gate =
-            FindNextGate(currentArea.zone, targetZone.Value);
+            FindNextGate(currentZone.Value, targetZone.Value);
 
         if (gate == null)
         {

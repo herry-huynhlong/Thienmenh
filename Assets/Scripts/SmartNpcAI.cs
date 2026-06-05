@@ -98,10 +98,18 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     [Header("Di chuyển")]
     public float moveSpeed = 2f;
+    public bool useKinematicNpcMovement = true;
+    public LayerMask crowdLayers = ~0;
+    public float separationRadius = 0.55f;
+    public float separationStrength = 1.5f;
+    public float crowdLookAheadDistance = 0.7f;
+    public float crowdDetourDistance = 0.6f;
+    public float crowdYieldDuration = 0.22f;
 
     public Transform currentTarget;
 
     private Rigidbody2D rb;
+    Collider2D[] selfColliders;
 
     [Header("Chiến đấu")]
     public float attackRange = 1.5f;
@@ -114,6 +122,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     private MonsterAI currentMonsterTarget;
     float movementPausedUntil;
+    float crowdYieldUntil;
 
     [Header("Skill")]
     public GameObject fireballPrefab;
@@ -160,6 +169,15 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         inventory.UsePrivateNpcRuntimeItems(false);
 
         rb = GetComponent<Rigidbody2D>();
+        if (rb != null && useKinematicNpcMovement)
+        {
+            rb.bodyType = RigidbodyType2D.Kinematic;
+            rb.gravityScale = 0f;
+            rb.freezeRotation = true;
+            rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+        }
+
+        selfColliders = GetComponentsInChildren<Collider2D>();
 
         spawnPosition = transform.position;
 
@@ -315,7 +333,8 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     void UpdateMovement()
     {
-        if (Time.time < movementPausedUntil)
+        if (Time.time < movementPausedUntil ||
+            Time.time < crowdYieldUntil)
         {
             if (rb != null)
             {
@@ -373,8 +392,40 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             (moveTarget -
             transform.position).normalized;
 
+        if (!TryResolveCrowdAhead(direction, out direction))
+        {
+            return;
+        }
+
+        direction = ApplyCrowdAvoidance(direction);
+
         rb.linearVelocity =
             direction * moveSpeed;
+    }
+
+    void OnNpcMapTeleported(GameObject gateObject)
+    {
+        NpcTeleportGate gate = gateObject != null
+            ? gateObject.GetComponent<NpcTeleportGate>()
+            : null;
+
+        if (gate != null)
+        {
+            NpcMapNavigator.ReportNpcZone(gameObject, gate.toZone);
+        }
+        else
+        {
+            NpcMapArea area = NpcMapArea.FindArea(transform.position);
+            if (area != null)
+            {
+                NpcMapNavigator.ReportNpcZone(gameObject, area.zone);
+            }
+        }
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
     }
 
     public void ForceTreasureHunt(
@@ -398,6 +449,13 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         Vector2 direction =
             (spawnPosition -
             transform.position).normalized;
+
+        if (!TryResolveCrowdAhead(direction, out direction))
+        {
+            return;
+        }
+
+        direction = ApplyCrowdAvoidance(direction);
 
         rb.linearVelocity =
             direction * moveSpeed;
@@ -432,6 +490,269 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         {
             rb.linearVelocity = Vector2.zero;
         }
+    }
+
+    bool TryResolveCrowdAhead(
+        Vector2 desiredDirection,
+        out Vector2 resolvedDirection)
+    {
+        resolvedDirection = desiredDirection;
+
+        if (desiredDirection.sqrMagnitude <= 0.0001f ||
+            crowdLookAheadDistance <= 0f ||
+            rb == null)
+        {
+            return true;
+        }
+
+        Collider2D other;
+        if (!TryFindNpcAhead(desiredDirection, out other))
+        {
+            return true;
+        }
+
+        if (ShouldYieldToNpc(other))
+        {
+            crowdYieldUntil =
+                Time.time +
+                Mathf.Max(0.05f, crowdYieldDuration) *
+                Random.Range(0.75f, 1.35f);
+            rb.linearVelocity = Vector2.zero;
+            return false;
+        }
+
+        if (TryChooseCrowdDetourDirection(
+                desiredDirection,
+                other,
+                out resolvedDirection))
+        {
+            return true;
+        }
+
+        crowdYieldUntil =
+            Time.time +
+            Mathf.Max(0.05f, crowdYieldDuration) *
+            Random.Range(0.75f, 1.35f);
+        rb.linearVelocity = Vector2.zero;
+        return false;
+    }
+
+    bool TryFindNpcAhead(
+        Vector2 direction,
+        out Collider2D npcCollider)
+    {
+        npcCollider = null;
+
+        RaycastHit2D[] hits =
+            Physics2D.CircleCastAll(
+                rb.position,
+                Mathf.Max(0.01f, separationRadius * 0.45f),
+                direction.normalized,
+                Mathf.Max(separationRadius, crowdLookAheadDistance),
+                crowdLayers);
+
+        float nearestDistance =
+            float.PositiveInfinity;
+
+        foreach (RaycastHit2D hit in hits)
+        {
+            Collider2D collider = hit.collider;
+            if (collider == null ||
+                IsSelfCollider(collider) ||
+                !IsNpcCollider(collider))
+            {
+                continue;
+            }
+
+            if (hit.distance < nearestDistance)
+            {
+                nearestDistance = hit.distance;
+                npcCollider = collider;
+            }
+        }
+
+        return npcCollider != null;
+    }
+
+    Vector2 ApplyCrowdAvoidance(Vector2 direction)
+    {
+        if (separationRadius <= 0f ||
+            rb == null)
+        {
+            return direction;
+        }
+
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(
+                rb.position,
+                separationRadius,
+                crowdLayers);
+
+        Vector2 push = Vector2.zero;
+
+        foreach (Collider2D hit in hits)
+        {
+            if (hit == null ||
+                IsSelfCollider(hit) ||
+                !IsNpcCollider(hit))
+            {
+                continue;
+            }
+
+            Vector2 away =
+                rb.position -
+                (Vector2)hit.transform.position;
+
+            float distance =
+                Mathf.Max(away.magnitude, 0.01f);
+
+            push += away.normalized / distance;
+        }
+
+        if (push.sqrMagnitude <= 0.0001f)
+        {
+            return direction;
+        }
+
+        return (direction + push.normalized * separationStrength).normalized;
+    }
+
+    bool TryChooseCrowdDetourDirection(
+        Vector2 desiredDirection,
+        Collider2D other,
+        out Vector2 detourDirection)
+    {
+        detourDirection = desiredDirection;
+
+        Vector2 desired =
+            desiredDirection.normalized;
+
+        Vector2 side =
+            new Vector2(-desired.y, desired.x);
+
+        if (ShouldUseRightSide(other))
+        {
+            side = -side;
+        }
+
+        float distance =
+            Mathf.Max(crowdDetourDistance, separationRadius);
+
+        for (int i = 0; i < 2; i++)
+        {
+            Vector2 candidateSide =
+                i == 0 ? side : -side;
+
+            Vector2 candidateDirection =
+                (candidateSide + desired * 0.35f).normalized;
+
+            if (candidateDirection.sqrMagnitude <= 0.0001f)
+            {
+                continue;
+            }
+
+            Vector2 candidate =
+                rb.position + candidateDirection * distance;
+
+            Collider2D hit =
+                Physics2D.OverlapCircle(
+                    candidate,
+                    Mathf.Max(0.01f, separationRadius * 0.45f),
+                    crowdLayers);
+
+            if (hit != null &&
+                !IsSelfCollider(hit) &&
+                IsNpcCollider(hit))
+            {
+                continue;
+            }
+
+            detourDirection = candidateDirection;
+            return true;
+        }
+
+        return false;
+    }
+
+    bool ShouldYieldToNpc(Collider2D other)
+    {
+        Transform otherRoot = GetNpcRoot(other);
+        if (otherRoot == null)
+        {
+            return false;
+        }
+
+        return GetInstanceID() > otherRoot.gameObject.GetInstanceID();
+    }
+
+    bool ShouldUseRightSide(Collider2D other)
+    {
+        Transform otherRoot = GetNpcRoot(other);
+        int otherId = otherRoot != null
+            ? otherRoot.gameObject.GetInstanceID()
+            : 0;
+
+        return ((GetInstanceID() ^ otherId) & 1) == 0;
+    }
+
+    bool IsNpcCollider(Collider2D hit)
+    {
+        return GetNpcRoot(hit) != null;
+    }
+
+    bool IsSelfCollider(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return false;
+        }
+
+        if (hit.transform == transform ||
+            hit.transform.IsChildOf(transform))
+        {
+            return true;
+        }
+
+        if (selfColliders == null)
+        {
+            return false;
+        }
+
+        foreach (Collider2D own in selfColliders)
+        {
+            if (own == hit)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    Transform GetNpcRoot(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return null;
+        }
+
+        SmartNpcAI smartNpc =
+            hit.GetComponentInParent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            return smartNpc.transform;
+        }
+
+        VillagerAI villager =
+            hit.GetComponentInParent<VillagerAI>();
+        if (villager != null)
+        {
+            return villager.transform;
+        }
+
+        NpcMapMover2D mover =
+            hit.GetComponentInParent<NpcMapMover2D>();
+        return mover != null ? mover.transform : null;
     }
 
     void SyncFromCharacterStats()
@@ -654,6 +975,11 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (TryGoHomeForCultivation())
+        {
+            return;
+        }
+
         currentAction = "Tu luy\u1ec7n";
 
         if (pill > 0)
@@ -693,6 +1019,28 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
                 " tu vi.");
         }
 
+    }
+
+    bool TryGoHomeForCultivation()
+    {
+        if (homePoint == null)
+        {
+            return false;
+        }
+
+        float distance =
+            Vector2.Distance(
+                transform.position,
+                homePoint.position);
+
+        if (distance <= 1.2f)
+        {
+            return false;
+        }
+
+        currentTarget = homePoint;
+        currentAction = "Ve nha tu luyen";
+        return true;
     }
 
     bool NeedsFood()

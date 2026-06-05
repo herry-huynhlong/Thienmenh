@@ -118,6 +118,10 @@ public class VillagerAI : MonoBehaviour, IDamageable
     public float lowHpRoadBypassPercent = 0.3f;
     public float separationRadius = 0.65f;
     public float separationStrength = 2.0f;
+    public float crowdLookAheadDistance = 0.75f;
+    public float crowdDetourDistance = 0.65f;
+    public float crowdYieldDuration = 0.25f;
+    public bool useKinematicNpcMovement = true;
     public bool ignoreNpcBodyCollisions = true;
     public float unstuckCheckDelay = 1.2f;
     public float unstuckMinMoveDistance = 0.03f;
@@ -138,7 +142,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     public float pathWaypointReachDistance = 0.18f;
     public float pathReplanTargetDistance = 0.6f;
     public float obstacleDetourLookAhead = 0.65f;
-    public bool useLocalDetour;
+    public bool useLocalDetour = true;
     public bool requireClearLineForDirectMove = true;
     public float directMovePathDistance = 1.2f;
     public bool useSharedPathMemory = true;
@@ -153,9 +157,15 @@ public class VillagerAI : MonoBehaviour, IDamageable
     public bool autonomousResourceWorkEnabled = false;
     public bool autonomousDangerousWorkEnabled = false;
     public bool dailyVanBaoLauVisitEnabled = true;
+    public bool dailyTaskPlanEnabled = true;
+    public float dailyTaskPlanStartupDelay = 8f;
+    public int dailyTaskPlanMinTasks = 3;
+    public int dailyTaskPlanMaxTasks = 5;
 
     [Header("Map Bounds")]
     public bool keepInsideNpcMapArea = true;
+    public bool allowCrossNpcMapAreas = true;
+    public bool keepInsideCombinedNpcMapAreas;
     public float mapAreaEdgePadding = 0.15f;
 
     [Header("Economy")]
@@ -210,6 +220,10 @@ public class VillagerAI : MonoBehaviour, IDamageable
     float nextSocialScanTime;
     float nextConversationAllowedTime;
     float movementPausedUntil;
+    float crowdYieldUntil;
+    Vector3 obstacleAvoidTarget;
+    float obstacleAvoidUntil;
+    bool hasObstacleAvoidTarget;
     bool hasWanderTarget;
     bool hasDirectMoveTarget;
     bool movingToRoad;
@@ -220,6 +234,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     Vector3 lastUnstuckPosition;
     float stuckMoveTimer;
     float blockedMoveTimer;
+    float crowdBlockedTimer;
     Collider2D[] ownColliders;
     NpcMapArea currentMapArea;
     readonly List<Vector3> activePath =
@@ -232,6 +247,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
     int activePathIndex;
     float nextSmartPathAllowedTime;
     int lastPlanResetDay = -1;
+    int lastDailyTaskPlanDay = -1;
+    int dailyTaskPlanIndex;
     int lastFarmerHarvestDay = -1;
     int lastVanBaoLauVisitDay = -1;
     int vanBaoLauVisitStep;
@@ -250,6 +267,16 @@ public class VillagerAI : MonoBehaviour, IDamageable
     bool hasSellTarget;
     readonly System.Collections.Generic.HashSet<VillagerAI> acquaintances =
         new System.Collections.Generic.HashSet<VillagerAI>();
+    readonly List<NpcTaskOffer> dailyTaskPlan =
+        new List<NpcTaskOffer>();
+    readonly List<DailyTaskNeed> dailyTaskNeeds =
+        new List<DailyTaskNeed>();
+
+    class DailyTaskNeed
+    {
+        public StatItemData item;
+        public int amount;
+    }
 
     public bool IsDead =>
         characterStats != null ?
@@ -280,7 +307,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         inventory.UsePrivateNpcRuntimeItems(false);
 
         spawnPosition = transform.position;
-        RefreshCurrentMapArea(true);
+        RefreshCurrentMapArea(false);
         ClampInsideCurrentMapArea();
 
         ConfigureRigidbody();
@@ -501,6 +528,13 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         if (Time.time < movementPausedUntil)
+        {
+            StopMoving();
+            UpdateVisualAnimation();
+            return;
+        }
+
+        if (Time.time < crowdYieldUntil)
         {
             StopMoving();
             UpdateVisualAnimation();
@@ -776,6 +810,24 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     void ThinkAdult()
     {
+        if (NeedsFood() &&
+            hunger >= 70f)
+        {
+            GoEat();
+            return;
+        }
+
+        if (fatigue >= 85f)
+        {
+            GoHomeToRest();
+            return;
+        }
+
+        if (TryProcessDailyTaskPlan())
+        {
+            return;
+        }
+
         WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
         if (timeSystem != null)
         {
@@ -1045,6 +1097,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     void CultivateNaturally()
     {
+        if (TryGoHomeForCultivation())
+        {
+            return;
+        }
+
         int gain =
             Mathf.Max(
                 1,
@@ -1062,6 +1119,19 @@ public class VillagerAI : MonoBehaviour, IDamageable
         currentAction = "Tu luyện hấp thụ linh khí";
     }
 
+    bool TryGoHomeForCultivation()
+    {
+        Vector3 homePosition = GetHomePosition();
+        if (IsAtPosition(homePosition))
+        {
+            return false;
+        }
+
+        MoveUsingRoad(homePosition);
+        currentAction = "Ve nha tu luyen";
+        return true;
+    }
+
     void ResetDailyTargets()
     {
         if (WorldTilemapManager.Instance != null)
@@ -1077,6 +1147,343 @@ public class VillagerAI : MonoBehaviour, IDamageable
         currentSellTargetZone = null;
         movingToRoad = false;
         hasRoadPreference = false;
+    }
+
+    bool TryProcessDailyTaskPlan()
+    {
+        if (!dailyTaskPlanEnabled ||
+            ageGroup != VillagerAgeGroup.Adult ||
+            fatigue >= 85f ||
+            IsBusyActionActive() ||
+            Time.timeSinceLevelLoad < dailyTaskPlanStartupDelay)
+        {
+            return false;
+        }
+
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        if (timeSystem != null &&
+            (timeSystem.CurrentPhase == WorldTimePhase.Night ||
+            timeSystem.CurrentPhase == WorldTimePhase.Dawn))
+        {
+            return false;
+        }
+
+        EnsureDailyTaskPlan();
+
+        if (dailyTaskPlan.Count == 0 ||
+            dailyTaskPlanIndex >= dailyTaskPlan.Count)
+        {
+            return false;
+        }
+
+        if (TryBuyDailyTaskNeeds())
+        {
+            return true;
+        }
+
+        return TryStartNextDailyTask();
+    }
+
+    void EnsureDailyTaskPlan()
+    {
+        int currentDay = GetCurrentWorldDay();
+        if (lastDailyTaskPlanDay == currentDay)
+        {
+            return;
+        }
+
+        lastDailyTaskPlanDay = currentDay;
+        dailyTaskPlanIndex = 0;
+        dailyTaskPlan.Clear();
+        dailyTaskNeeds.Clear();
+
+        NpcTaskProvider provider =
+            NpcTaskProvider.FindNearestProvider(transform.position);
+
+        if (provider == null)
+        {
+            return;
+        }
+
+        List<NpcTaskOffer> offers =
+            provider.PickDailyOffersFor(
+                gameObject,
+                Mathf.Max(1, dailyTaskPlanMinTasks),
+                Mathf.Max(dailyTaskPlanMinTasks, dailyTaskPlanMaxTasks));
+
+        dailyTaskPlan.AddRange(offers);
+
+        for (int i = 0; i < dailyTaskPlan.Count; i++)
+        {
+            NpcTaskOffer offer =
+                dailyTaskPlan[i];
+
+            if (offer == null ||
+                offer.taskType == NpcTaskType.GatherResource)
+            {
+                continue;
+            }
+
+            StatItemData item =
+                provider.GetPlannedRequiredItem(offer);
+
+            int amount =
+                provider.GetPlannedRequiredAmount(offer);
+
+            if (item != null &&
+                amount > 0)
+            {
+                AddDailyTaskNeed(item, amount);
+            }
+        }
+    }
+
+    void AddDailyTaskNeed(StatItemData item, int amount)
+    {
+        foreach (DailyTaskNeed need in dailyTaskNeeds)
+        {
+            if (need.item == item)
+            {
+                need.amount += amount;
+                return;
+            }
+        }
+
+        dailyTaskNeeds.Add(
+            new DailyTaskNeed
+            {
+                item = item,
+                amount = amount
+            });
+    }
+
+    bool TryBuyDailyTaskNeeds()
+    {
+        DailyTaskNeed missingNeed =
+            GetFirstMissingDailyTaskNeed();
+
+        if (missingNeed == null)
+        {
+            return false;
+        }
+
+        NpcCounterBroker broker =
+            NpcCounterBroker.Active;
+
+        if (broker == null)
+        {
+            currentAction = "Thieu vat pham nhiem vu";
+            return false;
+        }
+
+        Vector3 brokerPosition =
+            broker.GetCustomerPositionFor(gameObject);
+
+        int missingAmount =
+            GetMissingDailyTaskItemAmount(missingNeed);
+
+        if (missingAmount <= 0)
+        {
+            return false;
+        }
+
+        int requiredMoney =
+            GetDailyTaskNeedBuyCost(
+                broker,
+                missingNeed.item,
+                missingAmount);
+
+        currentAction =
+            "Gui yeu cau mua " + missingNeed.item.itemName;
+
+        if (requiredMoney > 0 &&
+            NpcEconomy.GetNpcMoney(gameObject) < requiredMoney)
+        {
+            currentAction =
+                "Khong du Linh Thach, di lam nhiem vu";
+            return false;
+        }
+
+        currentAction =
+            "Den store mua " + missingNeed.item.itemName;
+
+        if (!IsInsideBrokerServiceArea(broker))
+        {
+            MoveUsingRoad(
+                brokerPosition,
+                NpcMapNavigator.GetDestinationZone(broker.transform) ??
+                NpcMapZone.VanBaoLau);
+            return true;
+        }
+
+        NpcTradeAgent tradeAgent =
+            GetComponent<NpcTradeAgent>();
+
+        if (tradeAgent == null)
+        {
+            tradeAgent = gameObject.AddComponent<NpcTradeAgent>();
+        }
+
+        if (broker.TrySellSpecificItemTo(
+                tradeAgent,
+                missingNeed.item,
+                missingAmount,
+                false))
+        {
+            currentAction =
+                "Da mua vat pham nhiem vu: " + missingNeed.item.itemName;
+
+            if (GetMissingDailyTaskItemAmount(missingNeed) <= 0)
+            {
+                dailyTaskNeeds.Remove(missingNeed);
+            }
+
+            return GetFirstMissingDailyTaskNeed() != null;
+        }
+
+        dailyTaskNeeds.Remove(missingNeed);
+        currentAction =
+            "Store khong co " + missingNeed.item.itemName;
+        return GetFirstMissingDailyTaskNeed() != null;
+    }
+
+    int GetDailyTaskNeedBuyCost(
+        NpcCounterBroker broker,
+        StatItemData item,
+        int amount)
+    {
+        if (broker == null ||
+            item == null ||
+            amount <= 0)
+        {
+            return 0;
+        }
+
+        int unitPrice =
+            NpcEconomy.GetNpcBuyPrice(
+                item,
+                gameObject,
+                broker.sellToNpcContext);
+
+        return Mathf.Max(0, unitPrice) * amount;
+    }
+
+    DailyTaskNeed GetFirstMissingDailyTaskNeed()
+    {
+        foreach (DailyTaskNeed need in dailyTaskNeeds)
+        {
+            if (GetMissingDailyTaskItemAmount(need) > 0)
+            {
+                return need;
+            }
+        }
+
+        return null;
+    }
+
+    int GetMissingDailyTaskItemAmount(DailyTaskNeed need)
+    {
+        if (need == null ||
+            need.item == null)
+        {
+            return 0;
+        }
+
+        return Mathf.Max(
+            0,
+            need.amount - GetInventoryItemAmount(need.item));
+    }
+
+    int GetInventoryItemAmount(StatItemData item)
+    {
+        ItemInventory itemInventory =
+            inventory != null
+            ? inventory
+            : GetComponent<ItemInventory>();
+
+        int amount = itemInventory != null
+            ? itemInventory.GetAmount(item)
+            : 0;
+
+        NpcTradeAgent tradeAgent =
+            GetComponent<NpcTradeAgent>();
+
+        if (tradeAgent != null &&
+            tradeAgent.inventory != null &&
+            tradeAgent.inventory != itemInventory)
+        {
+            amount += tradeAgent.inventory.GetAmount(item);
+        }
+
+        NpcItemCollector collector =
+            GetComponent<NpcItemCollector>();
+
+        if (collector != null &&
+            collector.inventory != null &&
+            collector.inventory != itemInventory &&
+            (tradeAgent == null ||
+            collector.inventory != tradeAgent.inventory))
+        {
+            amount += collector.inventory.GetAmount(item);
+        }
+
+        return amount;
+    }
+
+    bool TryStartNextDailyTask()
+    {
+        if (dailyTaskPlanIndex >= dailyTaskPlan.Count)
+        {
+            return false;
+        }
+
+        NpcTaskProvider provider =
+            NpcTaskProvider.FindNearestProvider(transform.position);
+
+        if (provider == null)
+        {
+            return false;
+        }
+
+        Vector3 providerPosition =
+            provider.GetProviderPositionFor(gameObject);
+
+        NpcMapZone? providerZone =
+            NpcMapNavigator.GetDestinationZone(provider.transform);
+
+        currentAction = "Den nhan nhiem vu trong ke hoach ngay";
+
+        if (!IsNearTaskProvider(provider))
+        {
+            MoveUsingRoad(
+                providerPosition,
+                providerZone.HasValue ? providerZone : NpcMapZone.VanBaoLau);
+            return true;
+        }
+
+        NpcTaskOffer offer =
+            dailyTaskPlan[dailyTaskPlanIndex];
+
+        if (provider.TryStartPlannedTask(gameObject, offer))
+        {
+            dailyTaskPlanIndex++;
+            return true;
+        }
+
+        dailyTaskPlanIndex++;
+        actionTimer = Mathf.Max(1f, thinkInterval);
+        currentAction = "Bo qua nhiem vu khong the nhan";
+        return true;
+    }
+
+    int GetCurrentWorldDay()
+    {
+        WorldTimeSystem timeSystem =
+            WorldTimeSystem.Instance;
+
+        return timeSystem != null
+            ? timeSystem.CurrentDay
+            : Mathf.Max(1, lastDailyTaskPlanDay + 1);
     }
 
 
@@ -1118,15 +1525,15 @@ public class VillagerAI : MonoBehaviour, IDamageable
             NpcCounterBroker broker = NpcCounterBroker.Active;
             if (broker != null && ShouldVisitCounterBroker())
             {
-                Vector3 brokerPosition = broker.CustomerPosition;
+                Vector3 brokerPosition = broker.GetCustomerPositionFor(gameObject);
                 NpcMapZone? brokerZone = NpcMapNavigator.GetDestinationZone(broker.transform);
-                MoveUsingRoad(
-                    brokerPosition,
-                    brokerZone.HasValue ? brokerZone : NpcMapZone.VanBaoLau);
                 currentAction = "Đến Vạn Bảo Lâu gặp tạp hóa";
 
                 if (!IsInsideBrokerServiceArea(broker))
                 {
+                    MoveUsingRoad(
+                        brokerPosition,
+                        brokerZone.HasValue ? brokerZone : NpcMapZone.VanBaoLau);
                     return;
                 }
 
@@ -1151,15 +1558,33 @@ public class VillagerAI : MonoBehaviour, IDamageable
         NpcTaskProvider provider = NpcTaskProvider.FindNearestProvider(transform.position);
         if (provider != null)
         {
-            Vector3 providerPosition = provider.transform.position;
+            Vector3 providerPosition = provider.GetProviderPositionFor(gameObject);
             NpcMapZone? providerZone = NpcMapNavigator.GetDestinationZone(provider.transform);
+            if (IsNearTaskProvider(provider))
+            {
+                MarkDailyVanBaoLauVisited();
+                if (provider.TryHandleVisitor(gameObject))
+                {
+                    return;
+                }
+
+                ClearMovementTargets();
+                StopMoving();
+                actionTimer = Mathf.Max(1f, thinkInterval);
+                currentAction = "Da gap NPC giao nhiem vu";
+                return;
+            }
+
             MoveUsingRoad(
                 providerPosition,
                 providerZone.HasValue ? providerZone : NpcMapZone.VanBaoLau);
             currentAction = "Đến Vạn Bảo Lâu xem việc";
 
-            if (!IsAtPosition(providerPosition))
+            if (!IsNearTaskProvider(provider))
             {
+                MoveUsingRoad(
+                    providerPosition,
+                    providerZone.HasValue ? providerZone : NpcMapZone.VanBaoLau);
                 return;
             }
 
@@ -1805,7 +2230,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         NpcCounterBroker broker = NpcCounterBroker.Active;
         if (broker != null && broker.receiveAllNpcRequests && ShouldVisitCounterBroker())
         {
-            return broker.CustomerPosition;
+            return broker.GetCustomerPositionFor(gameObject);
         }
 
         if (marketPoint != null)
@@ -1846,7 +2271,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             broker.receiveAllNpcRequests &&
             BrokerCanBuyMyGoods(broker))
         {
-            return broker.CustomerPosition;
+            return broker.GetCustomerPositionFor(gameObject);
         }
 
         return GetMarketPosition(
@@ -1954,7 +2379,25 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         return Vector2.Distance(
             transform.position,
-            broker.CustomerPosition) <= Mathf.Max(arriveDistance, broker.CustomerServiceRadius);
+            broker.GetCustomerPositionFor(gameObject)) <=
+            Mathf.Max(arriveDistance, broker.customerArriveDistance);
+    }
+
+    bool IsNearTaskProvider(NpcTaskProvider provider)
+    {
+        if (provider == null)
+        {
+            return false;
+        }
+
+        float interactionDistance =
+            Mathf.Max(
+                arriveDistance,
+                provider.providerTalkDistance);
+
+        return Vector2.Distance(
+            transform.position,
+            provider.GetProviderPositionFor(gameObject)) <= interactionDistance;
     }
 
     bool IsAtPosition(Vector3 position)
@@ -2303,7 +2746,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             hasWanderTarget = false;
             hasDirectMoveTarget = false;
             currentAction = action;
-            SetDirectMoveTarget(GetHomePosition());
+        SetDirectMoveTarget(GetHomePosition());
             return;
         }
 
@@ -2425,7 +2868,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     if (WorldTilemapManager.Instance == null)
     {
-        SetDirectMoveTarget(target);
+        MoveToPosition(target);
         return;
     }
 
@@ -2433,7 +2876,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     {
         movingToRoad = false;
         hasRoadPreference = false;
-        SetDirectMoveTarget(target);
+        MoveToPosition(target);
         return;
     }
 
@@ -2449,50 +2892,54 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     if (!prefersRoadForCurrentRoute)
     {
-        SetDirectMoveTarget(target);
+        MoveToPosition(target);
         return;
     }
 
-    Vector3 road =
-        WorldTilemapManager.Instance
-        .GetNearestRoad(
+    Vector3 roadWaypoint;
+    bool hasRoadRoute =
+        WorldTilemapManager.Instance.TryGetRoadWaypointToTarget(
             transform.position,
-            GetCurrentMapZone());
+            target,
+            GetCurrentMapZone(),
+            IsReachableRoadTile,
+            out roadWaypoint);
+
+    if (!hasRoadRoute)
+    {
+        MoveToPosition(target);
+        return;
+    }
 
     float roadDistance =
         Vector2.Distance(
             transform.position,
-            road);
+            roadWaypoint);
 
-    float targetDistance =
-        Vector2.Distance(
-            transform.position,
-            target);
-
-    if (!movingToRoad &&
-        roadDistance < targetDistance * 0.5f)
+    if (roadDistance > pathWaypointReachDistance)
     {
-        SetDirectMoveTarget(road);
+        MoveToPosition(roadWaypoint);
 
         currentAction =
             "Đang đi trên đường";
 
-        if (roadDistance < 0.4f)
-        {
-            movingToRoad = true;
-        }
-
         return;
     }
 
-    SetDirectMoveTarget(target);
+    MoveToPosition(target);
 
-    if (targetDistance < 0.4f)
+    if (Vector2.Distance(transform.position, target) < 0.4f)
     {
         movingToRoad = false;
         hasRoadPreference = false;
     }
 }
+
+    bool IsReachableRoadTile(Vector3 road)
+    {
+        return IsMoveTargetFeasible(road) &&
+            HasClearLineTo(road);
+    }
 
     bool ShouldBypassRoad()
     {
@@ -2515,6 +2962,23 @@ public class VillagerAI : MonoBehaviour, IDamageable
     {
         position = ClampToCurrentMapArea(position);
         Vector3 finalTarget = position;
+
+        if (hasObstacleAvoidTarget)
+        {
+            if (Time.time >= obstacleAvoidUntil ||
+                Vector2.Distance(transform.position, obstacleAvoidTarget) <=
+                arriveDistance ||
+                !IsMoveTargetFeasible(obstacleAvoidTarget))
+            {
+                hasObstacleAvoidTarget = false;
+            }
+            else
+            {
+                position = obstacleAvoidTarget;
+                finalTarget = obstacleAvoidTarget;
+            }
+        }
+
         if (!IsMoveTargetFeasible(position))
         {
             Vector3 fallback;
@@ -2582,6 +3046,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
             else
             {
                 ClearActivePath();
+                if (TrySetObstacleAvoidTarget(direction, finalTarget))
+                {
+                    return;
+                }
+
                 HandleBlockedMovement(position);
                 return;
             }
@@ -2590,6 +3059,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
         if (direction.sqrMagnitude <= 0.0001f)
         {
             StopMoving();
+            return;
+        }
+
+        if (!TryResolveCrowdAhead(direction, finalTarget, out direction))
+        {
             return;
         }
 
@@ -2606,6 +3080,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
             else
             {
                 ClearActivePath();
+                if (TrySetObstacleAvoidTarget(direction, finalTarget))
+                {
+                    return;
+                }
+
                 HandleBlockedMovement(position);
                 return;
             }
@@ -2639,6 +3118,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
             else
             {
                 ClearActivePath();
+                if (TrySetObstacleAvoidTarget(direction, finalTarget))
+                {
+                    return;
+                }
+
                 HandleBlockedMovement(position);
                 return;
             }
@@ -2686,6 +3170,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         currentTarget = null;
         hasWanderTarget = false;
         hasDirectMoveTarget = false;
+        hasObstacleAvoidTarget = false;
         ClearActivePath();
     }
 
@@ -2694,9 +3179,14 @@ public class VillagerAI : MonoBehaviour, IDamageable
         return actionTimer > 0f;
     }
 
-    void SetDirectMoveTarget(Vector3 position)
+    void SetDirectMoveTarget(Vector3 position, bool preserveCurrentTarget = false)
     {
-        currentTarget = null;
+        if (!preserveCurrentTarget)
+        {
+            currentTarget = null;
+            hasObstacleAvoidTarget = false;
+        }
+
         hasWanderTarget = false;
         hasDirectMoveTarget = true;
         Vector3 clamped = ClampToCurrentMapArea(position);
@@ -2731,17 +3221,14 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         NpcMapArea area = NpcMapArea.FindArea(transform.position);
-        if (area == null && allowNearest)
-        {
-            area = NpcMapArea.FindNearestArea(transform.position);
-        }
 
         if (area == null)
         {
             return;
         }
 
-        if (allowNearest ||
+        if (allowCrossNpcMapAreas ||
+            allowNearest ||
             currentMapArea == null ||
             area == currentMapArea)
         {
@@ -2751,8 +3238,17 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     void ClampInsideCurrentMapArea()
     {
-        if (!keepInsideNpcMapArea ||
-            currentMapArea == null ||
+        if (!keepInsideNpcMapArea)
+        {
+            return;
+        }
+
+        if (allowCrossNpcMapAreas)
+        {
+            return;
+        }
+
+        if (currentMapArea == null ||
             currentMapArea.areaBounds == null)
         {
             return;
@@ -2779,8 +3275,17 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     Vector3 ClampToCurrentMapArea(Vector3 position)
     {
-        if (!keepInsideNpcMapArea ||
-            currentMapArea == null ||
+        if (!keepInsideNpcMapArea)
+        {
+            return position;
+        }
+
+        if (allowCrossNpcMapAreas)
+        {
+            return position;
+        }
+
+        if (currentMapArea == null ||
             currentMapArea.areaBounds == null)
         {
             return position;
@@ -2837,17 +3342,31 @@ public class VillagerAI : MonoBehaviour, IDamageable
             ? gate.ExitPosition
             : transform.position;
 
-        NpcMapArea area = gate != null
-            ? NpcMapArea.FindNearestAreaInZone(gate.toZone, referencePosition)
-            : NpcMapArea.FindArea(referencePosition);
-
+        NpcMapArea area = NpcMapArea.FindArea(transform.position);
         if (area == null)
         {
-            area = NpcMapArea.FindNearestArea(referencePosition);
+            area = NpcMapArea.FindArea(referencePosition);
+        }
+
+        if (gate != null)
+        {
+            NpcMapNavigator.ReportNpcZone(gameObject, gate.toZone);
+        }
+        else if (area != null)
+        {
+            NpcMapNavigator.ReportNpcZone(gameObject, area.zone);
         }
 
         currentMapArea = area;
         desiredVelocity = Vector2.zero;
+        hasDirectMoveTarget = false;
+        hasWanderTarget = false;
+        hasRoadPreference = false;
+        movingToRoad = false;
+        hasObstacleAvoidTarget = false;
+        blockedMoveTimer = 0f;
+        crowdBlockedTimer = 0f;
+        ClearActivePath();
         ClampInsideCurrentMapArea();
     }
 
@@ -2883,8 +3402,18 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        Vector2 offset = Random.insideUnitCircle.normalized * Mathf.Max(0.1f, unstuckOffsetRadius);
-        SetDirectMoveTarget(ClampToCurrentMapArea(transform.position + (Vector3)offset));
+        Vector3 escapeTarget;
+        if (!TryPickCrowdEscapeTarget(out escapeTarget))
+        {
+            Vector2 offset =
+                Random.insideUnitCircle.normalized *
+                Mathf.Max(0.1f, unstuckOffsetRadius);
+            escapeTarget =
+                ClampToCurrentMapArea(transform.position + (Vector3)offset);
+        }
+
+        ClearActivePath();
+        SetDirectMoveTarget(escapeTarget);
         stuckMoveTimer = 0f;
         lastUnstuckPosition = transform.position;
     }
@@ -2914,7 +3443,9 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        rb.bodyType = RigidbodyType2D.Dynamic;
+        rb.bodyType = useKinematicNpcMovement
+            ? RigidbodyType2D.Kinematic
+            : RigidbodyType2D.Dynamic;
         rb.gravityScale = 0f;
         rb.freezeRotation = true;
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
@@ -2928,11 +3459,10 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        Vector2 animationVelocity = desiredVelocity;
-        if (animationVelocity.sqrMagnitude <= 0.0001f && rb != null)
-        {
-            animationVelocity = rb.linearVelocity;
-        }
+        Vector2 animationVelocity =
+            rb != null
+            ? rb.linearVelocity
+            : desiredVelocity;
 
         bool isIdle =
             animationVelocity.sqrMagnitude <=
@@ -2958,11 +3488,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         if (collision.collider != null &&
             IsBlockingObstacle(collision.collider))
         {
-            movementPausedUntil =
-                Mathf.Max(movementPausedUntil, Time.time + 0.12f);
-            StopMoving();
             TryEscapeObstacleCollision(collision);
-            HandleBlockedMovement(transform.position);
         }
     }
     void TryIgnoreNpcCollision(Collider2D other)
@@ -3018,6 +3544,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
         hasWanderTarget = false;
         hasDirectMoveTarget = true;
         directMoveTarget = clearPoint;
+        desiredVelocity =
+            normal.normalized *
+            moveSpeed *
+            0.75f;
+        blockedMoveTimer = 0f;
     }
     bool TryPickWanderTarget(out Vector3 target)
     {
@@ -3214,6 +3745,351 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         detourDirection.Normalize();
         return true;
+    }
+
+    bool TrySetObstacleAvoidTarget(
+        Vector2 blockedDirection,
+        Vector3 finalTarget)
+    {
+        Vector2 desired =
+            blockedDirection.sqrMagnitude > 0.0001f
+            ? blockedDirection.normalized
+            : ((Vector2)finalTarget - (Vector2)transform.position).normalized;
+
+        if (desired.sqrMagnitude <= 0.0001f)
+        {
+            desired = Vector2.up;
+        }
+
+        Vector2 side =
+            new Vector2(-desired.y, desired.x);
+
+        float baseDistance =
+            Mathf.Max(
+                unstuckOffsetRadius,
+                obstacleDetourLookAhead,
+                targetClearRadius * 3f);
+
+        Vector2[] directions =
+        {
+            side,
+            -side,
+            (side - desired * 0.35f).normalized,
+            (-side - desired * 0.35f).normalized,
+            -desired
+        };
+
+        for (int radiusStep = 0; radiusStep < 3; radiusStep++)
+        {
+            float distance =
+                baseDistance + radiusStep * targetClearRadius * 2f;
+
+            for (int i = 0; i < directions.Length; i++)
+            {
+                Vector2 candidateDirection =
+                    directions[i];
+
+                if (candidateDirection.sqrMagnitude <= 0.0001f)
+                {
+                    continue;
+                }
+
+                Vector3 candidate =
+                    ClampToCurrentMapArea(
+                        transform.position +
+                        (Vector3)(candidateDirection.normalized * distance));
+
+                if (!IsMoveTargetFeasible(candidate) ||
+                    !HasClearLineTo(candidate))
+                {
+                    continue;
+                }
+
+                Vector2 toCandidate =
+                    (Vector2)candidate - (Vector2)transform.position;
+
+                if (toCandidate.sqrMagnitude <= 0.0001f ||
+                    IsMovementBlocked(toCandidate.normalized))
+                {
+                    continue;
+                }
+
+                obstacleAvoidTarget = candidate;
+                obstacleAvoidUntil = Time.time + 1.2f;
+                hasObstacleAvoidTarget = true;
+                blockedMoveTimer = 0f;
+                desiredVelocity =
+                    toCandidate.normalized *
+                    moveSpeed;
+                currentAction = "Äá»•i hÆ°á»›ng trÃ¡nh váº­t cáº£n";
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool TryResolveCrowdAhead(
+        Vector2 desiredDirection,
+        Vector3 finalTarget,
+        out Vector2 resolvedDirection)
+    {
+        resolvedDirection = desiredDirection;
+
+        if (desiredDirection.sqrMagnitude <= 0.0001f ||
+            crowdLookAheadDistance <= 0f)
+        {
+            return true;
+        }
+
+        Collider2D other;
+        if (!TryFindNpcAhead(desiredDirection, out other))
+        {
+            crowdBlockedTimer = 0f;
+            return true;
+        }
+
+        crowdBlockedTimer += Time.fixedDeltaTime;
+        if (crowdBlockedTimer >= unstuckCheckDelay)
+        {
+            if (TryPickCrowdEscapeTarget(out Vector3 escapeTarget))
+            {
+                crowdBlockedTimer = 0f;
+                ClearActivePath();
+                SetDirectMoveTarget(escapeTarget, true);
+                StopMoving();
+                return false;
+            }
+
+            crowdBlockedTimer = 0f;
+        }
+
+        if (ShouldYieldToNpc(other))
+        {
+            crowdYieldUntil =
+                Time.time +
+                Mathf.Max(0.05f, crowdYieldDuration) *
+                Random.Range(0.75f, 1.35f);
+            StopMoving();
+            return false;
+        }
+
+        if (TryChooseCrowdDetourDirection(
+                desiredDirection,
+                finalTarget,
+                other,
+                out resolvedDirection))
+        {
+            crowdBlockedTimer = 0f;
+            return true;
+        }
+
+        crowdYieldUntil =
+            Time.time +
+            Mathf.Max(0.05f, crowdYieldDuration) *
+            Random.Range(0.75f, 1.35f);
+        StopMoving();
+        return false;
+    }
+
+    bool TryFindNpcAhead(
+        Vector2 direction,
+        out Collider2D npcCollider)
+    {
+        npcCollider = null;
+
+        RaycastHit2D[] hits =
+            Physics2D.CircleCastAll(
+                transform.position,
+                Mathf.Max(0.01f, targetClearRadius),
+                direction.normalized,
+                Mathf.Max(separationRadius, crowdLookAheadDistance),
+                villagerLayers);
+
+        float nearestDistance =
+            float.PositiveInfinity;
+
+        foreach (RaycastHit2D hit in hits)
+        {
+            Collider2D collider = hit.collider;
+            if (collider == null ||
+                IsSelfCollider(collider) ||
+                !IsNpcCollider(collider))
+            {
+                continue;
+            }
+
+            if (hit.distance < nearestDistance)
+            {
+                nearestDistance = hit.distance;
+                npcCollider = collider;
+            }
+        }
+
+        return npcCollider != null;
+    }
+
+    bool TryChooseCrowdDetourDirection(
+        Vector2 desiredDirection,
+        Vector3 finalTarget,
+        Collider2D other,
+        out Vector2 detourDirection)
+    {
+        detourDirection = desiredDirection;
+
+        Vector2 desired =
+            desiredDirection.normalized;
+
+        Vector2 side =
+            new Vector2(-desired.y, desired.x);
+
+        if (ShouldUseRightSide(other))
+        {
+            side = -side;
+        }
+
+        float distance =
+            Mathf.Max(crowdDetourDistance, separationRadius, targetClearRadius * 2f);
+
+        for (int i = 0; i < 2; i++)
+        {
+            Vector2 candidateSide =
+                i == 0 ? side : -side;
+
+            Vector3 candidate =
+                ClampToCurrentMapArea(
+                    transform.position +
+                    (Vector3)((candidateSide + desired * 0.35f).normalized * distance));
+
+            if (!IsMoveTargetFeasible(candidate) ||
+                !HasClearLineTo(candidate))
+            {
+                continue;
+            }
+
+            Vector2 toCandidate =
+                (Vector2)candidate - (Vector2)transform.position;
+
+            if (toCandidate.sqrMagnitude <= 0.0001f)
+            {
+                continue;
+            }
+
+            detourDirection = toCandidate.normalized;
+            return true;
+        }
+
+        return false;
+    }
+
+    bool TryPickCrowdEscapeTarget(out Vector3 target)
+    {
+        target = transform.position;
+
+        Vector2 baseDirection = desiredVelocity.sqrMagnitude > 0.0001f
+            ? desiredVelocity.normalized
+            : Vector2.zero;
+
+        if (baseDirection.sqrMagnitude <= 0.0001f)
+        {
+            Vector3 targetPosition =
+                hasDirectMoveTarget
+                ? directMoveTarget
+                : hasWanderTarget
+                    ? wanderTarget
+                    : currentTarget != null
+                        ? currentTarget.position
+                        : transform.position;
+
+            baseDirection =
+                ((Vector2)targetPosition - (Vector2)transform.position).normalized;
+        }
+
+        if (baseDirection.sqrMagnitude <= 0.0001f)
+        {
+            baseDirection = Vector2.up;
+        }
+
+        Vector2 side =
+            new Vector2(-baseDirection.y, baseDirection.x);
+
+        float distance =
+            Mathf.Max(crowdDetourDistance, unstuckOffsetRadius, targetClearRadius * 2f);
+
+        for (int i = 0; i < 4; i++)
+        {
+            Vector2 candidateDirection =
+                i == 0 ? side :
+                i == 1 ? -side :
+                i == 2 ? (side + baseDirection).normalized :
+                (-side + baseDirection).normalized;
+
+            Vector3 candidate =
+                ClampToCurrentMapArea(
+                    transform.position +
+                    (Vector3)(candidateDirection * distance));
+
+            if (IsMoveTargetFeasible(candidate) &&
+                HasClearLineTo(candidate))
+            {
+                target = candidate;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool ShouldYieldToNpc(Collider2D other)
+    {
+        Transform otherRoot = GetNpcRoot(other);
+        if (otherRoot == null)
+        {
+            return false;
+        }
+
+        return GetInstanceID() > otherRoot.gameObject.GetInstanceID();
+    }
+
+    bool ShouldUseRightSide(Collider2D other)
+    {
+        Transform otherRoot = GetNpcRoot(other);
+        int otherId = otherRoot != null
+            ? otherRoot.gameObject.GetInstanceID()
+            : 0;
+
+        return ((GetInstanceID() ^ otherId) & 1) == 0;
+    }
+
+    bool IsNpcCollider(Collider2D hit)
+    {
+        return GetNpcRoot(hit) != null;
+    }
+
+    Transform GetNpcRoot(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return null;
+        }
+
+        VillagerAI villager =
+            hit.GetComponentInParent<VillagerAI>();
+        if (villager != null)
+        {
+            return villager.transform;
+        }
+
+        SmartNpcAI smartNpc =
+            hit.GetComponentInParent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            return smartNpc.transform;
+        }
+
+        NpcMapMover2D mover =
+            hit.GetComponentInParent<NpcMapMover2D>();
+        return mover != null ? mover.transform : null;
     }
 
     bool TryScoreDetourDirection(

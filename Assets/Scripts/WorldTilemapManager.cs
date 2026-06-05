@@ -28,6 +28,12 @@ public class WorldTilemapManager : MonoBehaviour
     List<Vector3> marketTiles =
         new List<Vector3>();
 
+    readonly HashSet<Vector3Int> roadCells =
+        new HashSet<Vector3Int>();
+
+    readonly Dictionary<Vector3Int, Vector3> roadCellCenters =
+        new Dictionary<Vector3Int, Vector3>();
+
     Dictionary<Vector3, VillagerAI> occupiedFishing =
         new Dictionary<Vector3, VillagerAI>();
 
@@ -50,6 +56,7 @@ public class WorldTilemapManager : MonoBehaviour
         CacheTiles(
             roadTilemap,
             roadTiles);
+        CacheRoadCells();
 
         CacheTiles(
             marketTilemap,
@@ -86,11 +93,47 @@ public class WorldTilemapManager : MonoBehaviour
         Vector3 from,
         NpcMapZone? zone = null)
     {
+        Vector3 road;
+        return TryGetNearestRoad(from, zone, null, out road)
+            ? road
+            : from;
+    }
+
+    void CacheRoadCells()
+    {
+        roadCells.Clear();
+        roadCellCenters.Clear();
+
+        if (roadTilemap == null)
+        {
+            return;
+        }
+
+        foreach (Vector3 road in roadTiles)
+        {
+            Vector3Int cell =
+                roadTilemap.WorldToCell(road);
+
+            if (roadCells.Add(cell))
+            {
+                roadCellCenters[cell] =
+                    roadTilemap.GetCellCenterWorld(cell);
+            }
+        }
+    }
+
+    public bool TryGetNearestRoad(
+        Vector3 from,
+        NpcMapZone? zone,
+        System.Predicate<Vector3> roadFilter,
+        out Vector3 bestRoad)
+    {
         float closest =
             Mathf.Infinity;
 
-        Vector3 best =
+        bestRoad =
             from;
+        bool found = false;
 
         foreach (Vector3 road in roadTiles)
         {
@@ -106,6 +149,12 @@ public class WorldTilemapManager : MonoBehaviour
                 }
             }
 
+            if (roadFilter != null &&
+                !roadFilter(road))
+            {
+                continue;
+            }
+
             float distance =
                 Vector2.Distance(
                     from,
@@ -114,12 +163,204 @@ public class WorldTilemapManager : MonoBehaviour
             if (distance < closest)
             {
                 closest = distance;
-                best = road;
+                bestRoad = road;
+                found = true;
             }
         }
 
-        return best;
+        return found;
     }
+
+    public bool TryGetRoadWaypointToTarget(
+        Vector3 from,
+        Vector3 target,
+        NpcMapZone? zone,
+        System.Predicate<Vector3> entryFilter,
+        out Vector3 waypoint)
+    {
+        waypoint = from;
+
+        if (roadTilemap == null ||
+            roadCells.Count == 0)
+        {
+            return false;
+        }
+
+        Vector3Int startCell;
+        Vector3Int targetCell;
+
+        if (!TryFindBestRoadCell(
+                from,
+                zone,
+                entryFilter,
+                out startCell) ||
+            !TryFindBestRoadCell(
+                target,
+                zone,
+                null,
+                out targetCell))
+        {
+            return false;
+        }
+
+        if (startCell == targetCell)
+        {
+            waypoint = roadCellCenters[startCell];
+            return true;
+        }
+
+        List<Vector3Int> route =
+            new List<Vector3Int>();
+
+        if (!TryBuildRoadRoute(startCell, targetCell, route) ||
+            route.Count == 0)
+        {
+            return false;
+        }
+
+        int waypointIndex =
+            route.Count > 1 ? 1 : 0;
+
+        waypoint = roadCellCenters[route[waypointIndex]];
+        return true;
+    }
+
+    bool TryFindBestRoadCell(
+        Vector3 reference,
+        NpcMapZone? zone,
+        System.Predicate<Vector3> filter,
+        out Vector3Int bestCell)
+    {
+        bestCell = Vector3Int.zero;
+        float bestDistance =
+            Mathf.Infinity;
+        bool found = false;
+
+        foreach (Vector3Int cell in roadCells)
+        {
+            Vector3 center =
+                roadCellCenters[cell];
+
+            if (zone.HasValue)
+            {
+                NpcMapArea area =
+                    NpcMapArea.FindArea(center);
+
+                if (area == null ||
+                    area.zone != zone.Value)
+                {
+                    continue;
+                }
+            }
+
+            if (filter != null &&
+                !filter(center))
+            {
+                continue;
+            }
+
+            float distance =
+                Vector2.Distance(reference, center);
+
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                bestCell = cell;
+                found = true;
+            }
+        }
+
+        return found;
+    }
+
+    bool TryBuildRoadRoute(
+        Vector3Int start,
+        Vector3Int target,
+        List<Vector3Int> route)
+    {
+        route.Clear();
+
+        Queue<Vector3Int> open =
+            new Queue<Vector3Int>();
+
+        HashSet<Vector3Int> visited =
+            new HashSet<Vector3Int>();
+
+        Dictionary<Vector3Int, Vector3Int> parent =
+            new Dictionary<Vector3Int, Vector3Int>();
+
+        open.Enqueue(start);
+        visited.Add(start);
+
+        while (open.Count > 0)
+        {
+            Vector3Int current =
+                open.Dequeue();
+
+            if (current == target)
+            {
+                BuildRoute(start, target, parent, route);
+                return route.Count > 0;
+            }
+
+            foreach (Vector3Int offset in RoadNeighborOffsets)
+            {
+                Vector3Int next =
+                    current + offset;
+
+                if (!roadCells.Contains(next) ||
+                    visited.Contains(next))
+                {
+                    continue;
+                }
+
+                visited.Add(next);
+                parent[next] = current;
+                open.Enqueue(next);
+            }
+        }
+
+        return false;
+    }
+
+    void BuildRoute(
+        Vector3Int start,
+        Vector3Int target,
+        Dictionary<Vector3Int, Vector3Int> parent,
+        List<Vector3Int> route)
+    {
+        route.Clear();
+
+        Vector3Int current =
+            target;
+
+        route.Add(current);
+
+        while (current != start)
+        {
+            if (!parent.TryGetValue(current, out current))
+            {
+                route.Clear();
+                return;
+            }
+
+            route.Add(current);
+        }
+
+        route.Reverse();
+    }
+
+    static readonly Vector3Int[] RoadNeighborOffsets =
+    {
+        new Vector3Int(1, 0, 0),
+        new Vector3Int(-1, 0, 0),
+        new Vector3Int(0, 1, 0),
+        new Vector3Int(0, -1, 0),
+        new Vector3Int(1, 1, 0),
+        new Vector3Int(1, -1, 0),
+        new Vector3Int(-1, 1, 0),
+        new Vector3Int(-1, -1, 0)
+    };
 
     public Vector3 GetFarmTile()
     {

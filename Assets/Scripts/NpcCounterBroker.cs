@@ -141,7 +141,7 @@ public class NpcCounterBroker : MonoBehaviour
 
         return Vector2.Distance(
             npc.transform.position,
-            CustomerPosition) <= Mathf.Max(0.05f, CustomerServiceRadius);
+            transform.position) <= Mathf.Max(0.05f, CustomerServiceRadius);
     }
     public static bool TryTradeWithActiveBroker(NpcTradeAgent npc)
     {
@@ -573,6 +573,86 @@ public class NpcCounterBroker : MonoBehaviour
         }
 
         return false;
+    }
+
+    public bool TrySellSpecificItemTo(
+        NpcTradeAgent buyer,
+        StatItemData item,
+        int amount)
+    {
+        return TrySellSpecificItemTo(buyer, item, amount, true);
+    }
+
+    public bool TrySellSpecificItemTo(
+        NpcTradeAgent buyer,
+        StatItemData item,
+        int amount,
+        bool allowAutoUse)
+    {
+        EnsureInventory();
+
+        if (buyer == null ||
+            buyer.inventory == null ||
+            inventory == null ||
+            item == null ||
+            amount <= 0 ||
+            !NpcEconomy.CanTradeNormally(item))
+        {
+            return false;
+        }
+
+        int available =
+            inventory.GetAmount(item);
+
+        if (available <= 0)
+        {
+            return false;
+        }
+
+        int buyAmount =
+            Mathf.Min(amount, available);
+
+        int unitPrice =
+            NpcEconomy.GetNpcBuyPrice(
+                item,
+                buyer.gameObject,
+                sellToNpcContext);
+
+        int affordableAmount =
+            unitPrice <= 0
+            ? buyAmount
+            : Mathf.Min(buyAmount, buyer.GetMoney() / unitPrice);
+
+        if (affordableAmount <= 0 ||
+            !RemoveBrokerItem(item, affordableAmount))
+        {
+            return false;
+        }
+
+        int totalPrice =
+            unitPrice * affordableAmount;
+
+        buyer.AddMoney(-totalPrice);
+        AddBrokerMoney(totalPrice);
+
+        for (int i = 0; i < affordableAmount; i++)
+        {
+            buyer.ReceiveBoughtItem(item, allowAutoUse);
+        }
+
+        NpcSocialEventBus.PublishTradeCompleted(
+            buyer.gameObject,
+            gameObject,
+            item,
+            totalPrice);
+
+        ItemLifecycleSystem.Notify(
+            ItemLifecycleEventType.Sold,
+            item,
+            gameObject,
+            buyer.gameObject);
+
+        return true;
     }
 
     bool RemoveBrokerItem(StatItemData item, int amount)

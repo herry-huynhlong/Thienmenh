@@ -6,6 +6,8 @@ public class NpcTeleportGate : MonoBehaviour
 {
     static readonly List<NpcTeleportGate> gates =
         new List<NpcTeleportGate>();
+    static readonly Dictionary<GameObject, float> npcTeleportCooldowns =
+        new Dictionary<GameObject, float>();
 
     public NpcMapZone fromZone = NpcMapZone.Lang;
     public NpcMapZone toZone = NpcMapZone.VanBaoLau;
@@ -13,6 +15,7 @@ public class NpcTeleportGate : MonoBehaviour
     public Transform exitPoint;
     public DoorTeleportSameScene sameSceneTeleport;
     public float npcAutoUseRadius = 0.45f;
+    public float npcGlobalTeleportCooldown = 1.25f;
     public bool preferOwnTransformWhenEntryIsParent = true;
 
     public static IReadOnlyList<NpcTeleportGate> Gates => gates;
@@ -79,6 +82,31 @@ public class NpcTeleportGate : MonoBehaviour
         {
             sameSceneTeleport = GetComponent<DoorTeleportSameScene>();
         }
+
+        SyncSameSceneTeleportTarget();
+    }
+
+#if UNITY_EDITOR
+    void OnValidate()
+    {
+        if (sameSceneTeleport == null)
+        {
+            sameSceneTeleport = GetComponent<DoorTeleportSameScene>();
+        }
+
+        SyncSameSceneTeleportTarget();
+    }
+#endif
+
+    void SyncSameSceneTeleportTarget()
+    {
+        if (sameSceneTeleport == null ||
+            exitPoint == null)
+        {
+            return;
+        }
+
+        sameSceneTeleport.targetPoint = exitPoint;
     }
 
     void Update()
@@ -109,6 +137,14 @@ public class NpcTeleportGate : MonoBehaviour
                 continue;
             }
 
+            if (npcTeleportCooldowns.TryGetValue(
+                    actor,
+                    out float nextAllowedTeleport) &&
+                Time.time < nextAllowedTeleport)
+            {
+                continue;
+            }
+
             NpcMapArea area =
                 NpcMapArea.FindArea(actor.transform.position);
 
@@ -118,7 +154,12 @@ public class NpcTeleportGate : MonoBehaviour
                 continue;
             }
 
-            sameSceneTeleport.TryTeleport(actor);
+            SyncSameSceneTeleportTarget();
+            if (sameSceneTeleport.TryTeleport(actor))
+            {
+                npcTeleportCooldowns[actor] =
+                    Time.time + Mathf.Max(0.1f, npcGlobalTeleportCooldown);
+            }
         }
     }
 

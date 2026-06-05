@@ -3,9 +3,14 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class NpcMapBoundaryClamp : MonoBehaviour
 {
+    public bool disableMapBoundaryClamp = true;
+    public bool forceDisableAtRuntime = true;
     public Collider2D explicitBounds;
     public bool useCurrentNpcMapArea = true;
+    public bool useCombinedNpcMapAreas;
+    public bool clampToCurrentAreaBounds;
     public bool preferCurrentAreaOverExplicitBounds = true;
+    public bool clampToExplicitBoundsWhenOutside;
     public float edgePadding = 0.15f;
     public float checkInterval = 0.1f;
 
@@ -16,11 +21,22 @@ public class NpcMapBoundaryClamp : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        if (forceDisableAtRuntime)
+        {
+            disableMapBoundaryClamp = true;
+        }
+
         RefreshArea();
     }
 
     void FixedUpdate()
     {
+        if (forceDisableAtRuntime ||
+            disableMapBoundaryClamp)
+        {
+            return;
+        }
+
         checkTimer -= Time.fixedDeltaTime;
         if (checkTimer <= 0f)
         {
@@ -31,6 +47,35 @@ public class NpcMapBoundaryClamp : MonoBehaviour
         Vector2 position = rb != null
             ? rb.position
             : (Vector2)transform.position;
+
+        if (useCombinedNpcMapAreas)
+        {
+            if (NpcMapArea.ContainsAny(position))
+            {
+                return;
+            }
+
+            Vector3 combinedClamped =
+                NpcMapArea.ClampToCombinedAreas(
+                    position,
+                    edgePadding);
+
+            if (Vector2.Distance(combinedClamped, position) > 0.001f)
+            {
+                if (rb != null)
+                {
+                    rb.position = combinedClamped;
+                    rb.linearVelocity = Vector2.zero;
+                }
+
+                transform.position = new Vector3(
+                    combinedClamped.x,
+                    combinedClamped.y,
+                    transform.position.z);
+            }
+
+            return;
+        }
 
         Collider2D bounds = GetBounds(position);
         if (bounds == null)
@@ -67,13 +112,19 @@ public class NpcMapBoundaryClamp : MonoBehaviour
             ? gate.ExitPosition
             : transform.position;
 
-        NpcMapArea area = gate != null
-            ? NpcMapArea.FindNearestAreaInZone(gate.toZone, referencePosition)
-            : NpcMapArea.FindArea(referencePosition);
-
+        NpcMapArea area = NpcMapArea.FindArea(transform.position);
         if (area == null)
         {
-            area = NpcMapArea.FindNearestArea(referencePosition);
+            area = NpcMapArea.FindArea(referencePosition);
+        }
+
+        if (gate != null)
+        {
+            NpcMapNavigator.ReportNpcZone(gameObject, gate.toZone);
+        }
+        else if (area != null)
+        {
+            NpcMapNavigator.ReportNpcZone(gameObject, area.zone);
         }
 
         if (area != null)
@@ -107,19 +158,22 @@ public class NpcMapBoundaryClamp : MonoBehaviour
             return explicitBounds;
         }
 
-        if (preferCurrentAreaOverExplicitBounds &&
+        if (clampToCurrentAreaBounds &&
+            preferCurrentAreaOverExplicitBounds &&
             lastArea != null &&
             lastArea.areaBounds != null)
         {
             return lastArea.areaBounds;
         }
 
-        if (explicitBounds != null)
+        if (explicitBounds != null &&
+            clampToExplicitBoundsWhenOutside)
         {
             return explicitBounds;
         }
 
-        return lastArea != null
+        return clampToCurrentAreaBounds &&
+            lastArea != null
             ? lastArea.areaBounds
             : null;
     }

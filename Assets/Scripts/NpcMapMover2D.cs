@@ -11,6 +11,7 @@ public class NpcMapMover2D : MonoBehaviour
     public float waitTimeMin = 5f;
     public float waitTimeMax = 5f;
     public float wanderRadius = 5f;
+    public bool useKinematicNpcMovement = true;
     public bool onlyPickNewTargetAfterArrive = true;
     public float blockedRetryWait = 1f;
 
@@ -21,8 +22,11 @@ public class NpcMapMover2D : MonoBehaviour
     public float returnInsidePadding = 0.5f;
     public Collider2D mapBounds;
     public bool keepInsideMapBounds = true;
+    public bool allowCrossMapAreas = true;
+    public bool keepInsideCombinedMapAreas;
     public bool autoResolveMapArea = true;
     public bool useNearestAreaWhenOutsideBounds;
+    public bool clampInitialPositionToBounds;
     public bool useMapBoundsCenterWhenAvailable = true;
     public float mapBoundsEdgePadding = 0.25f;
 
@@ -37,6 +41,9 @@ public class NpcMapMover2D : MonoBehaviour
     public LayerMask crowdLayers = ~0;
     public float separationRadius = 0.45f;
     public float separationStrength = 1.4f;
+    public float crowdLookAheadDistance = 0.65f;
+    public float crowdDetourDistance = 0.55f;
+    public float crowdYieldDuration = 0.2f;
 
     [Header("Runtime")]
     public Vector2 currentTarget;
@@ -52,9 +59,12 @@ public class NpcMapMover2D : MonoBehaviour
     float waitTimer;
     float stuckTimer;
     float blockedTimer;
+    float crowdBlockedTimer;
     float movementPausedUntil;
+    float crowdYieldUntil;
     bool waitingAfterArrive;
     bool hasTarget;
+    bool currentTargetIgnoresAllowedArea;
 
     void Awake()
     {
@@ -81,7 +91,8 @@ public class NpcMapMover2D : MonoBehaviour
 
         lastPosition = transform.position;
 
-        if (!IsInsideAllowedArea(rb.position))
+        if (clampInitialPositionToBounds &&
+            !IsInsideAllowedArea(rb.position))
         {
             rb.position = ClampToAllowedArea(rb.position);
             transform.position = rb.position;
@@ -99,7 +110,8 @@ public class NpcMapMover2D : MonoBehaviour
         NpcMapArea area =
             NpcMapArea.FindArea(transform.position);
 
-        if (area == null &&
+        if (!allowCrossMapAreas &&
+            area == null &&
             useNearestAreaWhenOutsideBounds)
         {
             area = NpcMapArea.FindNearestArea(transform.position);
@@ -120,7 +132,10 @@ public class NpcMapMover2D : MonoBehaviour
         currentMapArea = area;
         mapBounds = area.areaBounds;
         centerPosition = GetInitialCenterPosition();
-        currentTarget = ClampToAllowedArea(currentTarget);
+        if (!currentTargetIgnoresAllowedArea)
+        {
+            currentTarget = ClampToAllowedArea(currentTarget);
+        }
     }
 
     void OnNpcMapTeleported(GameObject gateObject)
@@ -133,17 +148,31 @@ public class NpcMapMover2D : MonoBehaviour
             ? gate.ExitPosition
             : transform.position;
 
-        NpcMapArea area = gate != null
-            ? NpcMapArea.FindNearestAreaInZone(gate.toZone, referencePosition)
-            : NpcMapArea.FindArea(referencePosition);
-
+        NpcMapArea area = NpcMapArea.FindArea(transform.position);
         if (area == null)
         {
-            area = NpcMapArea.FindNearestArea(referencePosition);
+            area = NpcMapArea.FindArea(referencePosition);
+        }
+
+        if (gate != null)
+        {
+            NpcMapNavigator.ReportNpcZone(gameObject, gate.toZone);
+        }
+        else if (area != null)
+        {
+            NpcMapNavigator.ReportNpcZone(gameObject, area.zone);
         }
 
         currentMapArea = null;
         ApplyMapArea(area);
+        hasTarget = false;
+        waitingAfterArrive = false;
+        currentTargetIgnoresAllowedArea = false;
+        waitTimer = Mathf.Max(waitTimer, 0.15f);
+        currentVelocity = Vector2.zero;
+        blockedTimer = 0f;
+        crowdBlockedTimer = 0f;
+        currentAction = "Teleported";
 
         if (rb != null)
         {
@@ -191,6 +220,14 @@ public class NpcMapMover2D : MonoBehaviour
             return;
         }
 
+        if (Time.time < crowdYieldUntil)
+        {
+            StopRigidbodyMotion();
+            currentAction = "Yielding";
+            UpdateVisualAnimation();
+            return;
+        }
+
         if (!hasTarget)
         {
             currentAction = "Waiting";
@@ -222,8 +259,24 @@ public class NpcMapMover2D : MonoBehaviour
         }
 
         Vector2 direction = toTarget.normalized;
+        if (!TryResolveCrowdAhead(direction, out direction))
+        {
+            return;
+        }
+
         if (IsBlocked(direction))
         {
+            if (TryChooseObstacleDetourDirection(direction, out direction))
+            {
+                blockedTimer = 0f;
+                direction = ApplyCrowdAvoidance(direction);
+                currentVelocity = direction * moveSpeed;
+                currentAction = "Detour";
+                UpdateVisualAnimation();
+                DetectStuck();
+                return;
+            }
+
             currentAction = "Blocked";
             blockedTimer += Time.deltaTime;
             currentVelocity = Vector2.zero;
@@ -274,8 +327,19 @@ public class NpcMapMover2D : MonoBehaviour
 
     public void SetMoveTarget(Vector2 target, string action = "Move Target")
     {
+        SetMoveTarget(target, action, false);
+    }
+
+    public void SetMoveTarget(
+        Vector2 target,
+        string action,
+        bool ignoreAllowedArea)
+    {
         AutoResolveMapBounds();
-        currentTarget = ClampToAllowedArea(target);
+        currentTargetIgnoresAllowedArea = ignoreAllowedArea;
+        currentTarget = ignoreAllowedArea
+            ? target
+            : ClampToAllowedArea(target);
         hasTarget = true;
         waitingAfterArrive = false;
         waitTimer = 0f;
@@ -365,10 +429,12 @@ public class NpcMapMover2D : MonoBehaviour
     void StopAndWait(bool arrived, float time)
     {
         hasTarget = false;
-        currentVelocity = Vector2.zero;
+        currentTargetIgnoresAllowedArea = false;
+        StopRigidbodyMotion();
         waitTimer = Mathf.Max(0f, time);
         waitingAfterArrive = arrived;
         blockedTimer = 0f;
+        crowdBlockedTimer = 0f;
         UpdateVisualAnimation();
 
         currentAction =
@@ -379,16 +445,25 @@ public class NpcMapMover2D : MonoBehaviour
 
     bool IsBlocked(Vector2 direction)
     {
-        RaycastHit2D hit =
-            Physics2D.Raycast(
+        RaycastHit2D[] hits =
+            Physics2D.RaycastAll(
                 rb.position,
                 direction,
                 obstacleCheckDistance,
                 obstacleLayers);
 
-        return hit.collider != null &&
-            !hit.collider.isTrigger &&
-            !IsSelfCollider(hit.collider);
+        foreach (RaycastHit2D hit in hits)
+        {
+            if (hit.collider != null &&
+                !hit.collider.isTrigger &&
+                !IsSelfCollider(hit.collider) &&
+                !IsNpcCollider(hit.collider))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     bool IsPositionBlocked(Vector2 position)
@@ -401,7 +476,53 @@ public class NpcMapMover2D : MonoBehaviour
 
         return hit != null &&
             !hit.isTrigger &&
-            !IsSelfCollider(hit);
+            !IsSelfCollider(hit) &&
+            !IsNpcCollider(hit);
+    }
+
+    bool TryChooseObstacleDetourDirection(
+        Vector2 desiredDirection,
+        out Vector2 detourDirection)
+    {
+        detourDirection = desiredDirection;
+
+        if (desiredDirection.sqrMagnitude <= 0.0001f)
+        {
+            return false;
+        }
+
+        Vector2 desired = desiredDirection.normalized;
+        Vector2 side = new Vector2(-desired.y, desired.x);
+        float step = Mathf.Max(targetClearRadius * 2f, obstacleCheckDistance);
+
+        for (int i = 0; i < 4; i++)
+        {
+            Vector2 candidateDirection =
+                i == 0 ? side :
+                i == 1 ? -side :
+                i == 2 ? (side + desired * 0.35f).normalized :
+                (-side + desired * 0.35f).normalized;
+
+            if (candidateDirection.sqrMagnitude <= 0.0001f)
+            {
+                continue;
+            }
+
+            Vector2 candidatePosition =
+                ClampToAllowedArea(rb.position + candidateDirection * step);
+
+            if (!IsInsideAllowedArea(candidatePosition) ||
+                IsPositionBlocked(candidatePosition) ||
+                IsBlocked(candidateDirection))
+            {
+                continue;
+            }
+
+            detourDirection = candidateDirection.normalized;
+            return true;
+        }
+
+        return false;
     }
 
     bool IsSelfCollider(Collider2D hit)
@@ -481,6 +602,215 @@ public class NpcMapMover2D : MonoBehaviour
         return (direction + push.normalized * separationStrength).normalized;
     }
 
+    bool TryResolveCrowdAhead(
+        Vector2 desiredDirection,
+        out Vector2 resolvedDirection)
+    {
+        resolvedDirection = desiredDirection;
+
+        if (desiredDirection.sqrMagnitude <= 0.0001f ||
+            crowdLookAheadDistance <= 0f)
+        {
+            return true;
+        }
+
+        Collider2D other;
+        if (!TryFindNpcAhead(desiredDirection, out other))
+        {
+            crowdBlockedTimer = 0f;
+            return true;
+        }
+
+        crowdBlockedTimer += Time.deltaTime;
+        if (crowdBlockedTimer >= stuckTimeToPickNewTarget &&
+            TryChooseCrowdDetourDirection(
+                desiredDirection,
+                other,
+                out resolvedDirection))
+        {
+            crowdBlockedTimer = 0f;
+            return true;
+        }
+
+        if (ShouldYieldToNpc(other))
+        {
+            crowdYieldUntil =
+                Time.time +
+                Mathf.Max(0.05f, crowdYieldDuration) *
+                Random.Range(0.75f, 1.35f);
+            StopRigidbodyMotion();
+            currentAction = "Yielding";
+            return false;
+        }
+
+        if (TryChooseCrowdDetourDirection(
+                desiredDirection,
+                other,
+                out resolvedDirection))
+        {
+            return true;
+        }
+
+        crowdYieldUntil =
+            Time.time +
+            Mathf.Max(0.05f, crowdYieldDuration) *
+            Random.Range(0.75f, 1.35f);
+        StopRigidbodyMotion();
+        currentAction = "Yielding";
+        return false;
+    }
+
+    void StopRigidbodyMotion()
+    {
+        currentVelocity = Vector2.zero;
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+    }
+
+    bool TryFindNpcAhead(
+        Vector2 direction,
+        out Collider2D npcCollider)
+    {
+        npcCollider = null;
+
+        RaycastHit2D[] hits =
+            Physics2D.CircleCastAll(
+                rb.position,
+                Mathf.Max(0.01f, targetClearRadius),
+                direction.normalized,
+                Mathf.Max(separationRadius, crowdLookAheadDistance),
+                crowdLayers);
+
+        float nearestDistance =
+            float.PositiveInfinity;
+
+        foreach (RaycastHit2D hit in hits)
+        {
+            Collider2D collider = hit.collider;
+            if (collider == null ||
+                IsSelfCollider(collider) ||
+                !IsNpcCollider(collider))
+            {
+                continue;
+            }
+
+            if (hit.distance < nearestDistance)
+            {
+                nearestDistance = hit.distance;
+                npcCollider = collider;
+            }
+        }
+
+        return npcCollider != null;
+    }
+
+    bool TryChooseCrowdDetourDirection(
+        Vector2 desiredDirection,
+        Collider2D other,
+        out Vector2 detourDirection)
+    {
+        detourDirection = desiredDirection;
+
+        Vector2 desired =
+            desiredDirection.normalized;
+
+        Vector2 side =
+            new Vector2(-desired.y, desired.x);
+
+        if (ShouldUseRightSide(other))
+        {
+            side = -side;
+        }
+
+        float distance =
+            Mathf.Max(crowdDetourDistance, separationRadius, targetClearRadius * 2f);
+
+        for (int i = 0; i < 2; i++)
+        {
+            Vector2 candidateSide =
+                i == 0 ? side : -side;
+
+            Vector2 candidate =
+                ClampToAllowedArea(
+                    rb.position +
+                    (candidateSide + desired * 0.35f).normalized * distance);
+
+            if (IsPositionBlocked(candidate) ||
+                !IsInsideAllowedArea(candidate))
+            {
+                continue;
+            }
+
+            Vector2 toCandidate =
+                candidate - rb.position;
+
+            if (toCandidate.sqrMagnitude <= 0.0001f)
+            {
+                continue;
+            }
+
+            detourDirection = toCandidate.normalized;
+            return true;
+        }
+
+        return false;
+    }
+
+    bool ShouldYieldToNpc(Collider2D other)
+    {
+        Transform otherRoot = GetNpcRoot(other);
+        if (otherRoot == null)
+        {
+            return false;
+        }
+
+        return GetInstanceID() > otherRoot.gameObject.GetInstanceID();
+    }
+
+    bool ShouldUseRightSide(Collider2D other)
+    {
+        Transform otherRoot = GetNpcRoot(other);
+        int otherId = otherRoot != null
+            ? otherRoot.gameObject.GetInstanceID()
+            : 0;
+
+        return ((GetInstanceID() ^ otherId) & 1) == 0;
+    }
+
+    bool IsNpcCollider(Collider2D hit)
+    {
+        return GetNpcRoot(hit) != null;
+    }
+
+    Transform GetNpcRoot(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return null;
+        }
+
+        NpcMapMover2D mover =
+            hit.GetComponentInParent<NpcMapMover2D>();
+        if (mover != null)
+        {
+            return mover.transform;
+        }
+
+        VillagerAI villager =
+            hit.GetComponentInParent<VillagerAI>();
+        if (villager != null)
+        {
+            return villager.transform;
+        }
+
+        SmartNpcAI smartNpc =
+            hit.GetComponentInParent<SmartNpcAI>();
+        return smartNpc != null ? smartNpc.transform : null;
+    }
+
     void DetectStuck()
     {
         float movedDistance =
@@ -503,8 +833,7 @@ public class NpcMapMover2D : MonoBehaviour
         {
             if (onlyPickNewTargetAfterArrive)
             {
-                currentVelocity = Vector2.zero;
-                currentAction = "Stuck";
+                StopAndWait(false, blockedRetryWait);
                 return;
             }
 
@@ -514,14 +843,17 @@ public class NpcMapMover2D : MonoBehaviour
 
     bool IsInsideAllowedArea(Vector2 position)
     {
-        if (keepInsideMapBounds &&
+        if (!allowCrossMapAreas &&
+            !currentTargetIgnoresAllowedArea &&
+            keepInsideMapBounds &&
             mapBounds != null &&
             !IsInsideMapBounds(position))
         {
             return false;
         }
 
-        if (keepInsideWanderRadius)
+        if (!currentTargetIgnoresAllowedArea &&
+            keepInsideWanderRadius)
         {
             float maxDistance =
                 Mathf.Max(0.1f, wanderRadius + returnInsidePadding);
@@ -566,7 +898,8 @@ public class NpcMapMover2D : MonoBehaviour
     {
         Vector2 result = position;
 
-        if (keepInsideMapBounds &&
+        if (!allowCrossMapAreas &&
+            keepInsideMapBounds &&
             mapBounds != null)
         {
             Bounds bounds = mapBounds.bounds;
@@ -606,7 +939,8 @@ public class NpcMapMover2D : MonoBehaviour
 
     bool IsPointInsideMapBounds(Vector2 position)
     {
-        if (mapBounds == null)
+        if (allowCrossMapAreas ||
+            mapBounds == null)
         {
             return true;
         }
@@ -617,7 +951,8 @@ public class NpcMapMover2D : MonoBehaviour
 
     bool IsInsideMapBounds(Vector2 position)
     {
-        if (mapBounds == null)
+        if (allowCrossMapAreas ||
+            mapBounds == null)
         {
             return true;
         }
@@ -633,7 +968,9 @@ public class NpcMapMover2D : MonoBehaviour
 
     void ConfigureRigidbody()
     {
-        rb.bodyType = RigidbodyType2D.Dynamic;
+        rb.bodyType = useKinematicNpcMovement
+            ? RigidbodyType2D.Kinematic
+            : RigidbodyType2D.Dynamic;
         rb.gravityScale = 0f;
         rb.freezeRotation = true;
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
@@ -652,8 +989,13 @@ public class NpcMapMover2D : MonoBehaviour
             return;
         }
 
-        bool isIdle = currentVelocity.sqrMagnitude <= 0.0001f;
-        Vector2 direction = isIdle ? Vector2.zero : currentVelocity.normalized;
+        Vector2 animationVelocity =
+            rb != null
+            ? rb.linearVelocity
+            : currentVelocity;
+
+        bool isIdle = animationVelocity.sqrMagnitude <= 0.0001f;
+        Vector2 direction = isIdle ? Vector2.zero : animationVelocity.normalized;
         visualAnimation.UpdateNPCAnimation(direction, isIdle);
     }
 

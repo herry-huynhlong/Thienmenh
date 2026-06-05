@@ -155,6 +155,7 @@ public class NpcTaskProvider : MonoBehaviour
 
     [Header("Task Provider")]
     public bool provideTasks = true;
+    public bool autoAssignNearbyTasks;
     public float assignRadius = 2.5f;
     public float assignInterval = 5f;
     public float arriveDistance = 0.35f;
@@ -167,6 +168,8 @@ public class NpcTaskProvider : MonoBehaviour
     public float chooseTaskDuration = 8f;
     public float providerReceiveDuration = 5f;
     public float providerTalkDistance = 0.75f;
+    public bool spreadVisitorsAroundProvider = true;
+    public float providerVisitorStandRadius = 0.65f;
     public float stuckTurnInDistance = 2.25f;
     public float huntAttackRange = 1.4f;
     public float huntAttackInterval = 1.2f;
@@ -389,7 +392,10 @@ public class NpcTaskProvider : MonoBehaviour
 
         assignTimer = 0f;
         TryServeMeal();
-        TryStartTaskRequest();
+        if (autoAssignNearbyTasks)
+        {
+            TryStartTaskRequest();
+        }
     }
 
     public bool TryHandleVisitor(GameObject npc)
@@ -423,6 +429,109 @@ public class NpcTaskProvider : MonoBehaviour
         }
 
         return false;
+    }
+
+    public bool TryStartPlannedTask(
+        GameObject npc,
+        NpcTaskOffer offer)
+    {
+        if (npc == null ||
+            offer == null ||
+            npc == gameObject ||
+            HasBusyNpc(npc) ||
+            NpcRoleUtility.IsDead(npc) ||
+            !CanNpcAcceptOffer(npc, offer))
+        {
+            return false;
+        }
+
+        StartTaskRequest(npc, offer, true);
+        return true;
+    }
+
+    public List<NpcTaskOffer> PickDailyOffersFor(
+        GameObject npc,
+        int minCount,
+        int maxCount)
+    {
+        List<NpcTaskOffer> result =
+            new List<NpcTaskOffer>();
+
+        if (npc == null ||
+            offers == null ||
+            offers.Length == 0)
+        {
+            return result;
+        }
+
+        int targetCount =
+            Random.Range(
+                Mathf.Max(1, minCount),
+                Mathf.Max(minCount, maxCount) + 1);
+
+        NpcTaskOffer[] shuffled =
+            ShuffleOffers();
+
+        foreach (NpcTaskOffer offer in shuffled)
+        {
+            if (offer == null ||
+                !CanNpcAcceptOffer(npc, offer))
+            {
+                continue;
+            }
+
+            result.Add(offer);
+
+            if (result.Count >= targetCount)
+            {
+                break;
+            }
+        }
+
+        int guard = 0;
+        while (result.Count < targetCount &&
+            result.Count > 0 &&
+            guard < targetCount * 4)
+        {
+            guard++;
+            NpcTaskOffer offer =
+                shuffled[Random.Range(0, shuffled.Length)];
+
+            if (offer == null ||
+                !CanNpcAcceptOffer(npc, offer))
+            {
+                continue;
+            }
+
+            result.Add(offer);
+        }
+
+        return result;
+    }
+
+    public StatItemData GetPlannedRequiredItem(NpcTaskOffer offer)
+    {
+        return offer != null
+            ? offer.requiredItem
+            : null;
+    }
+
+    public int GetPlannedRequiredAmount(NpcTaskOffer offer)
+    {
+        if (offer == null ||
+            offer.requiredItem == null)
+        {
+            return 0;
+        }
+
+        if (!offer.randomizeRequiredItemAmount)
+        {
+            return GetRequiredAmount(offer);
+        }
+
+        int min = Mathf.Max(1, offer.requiredItemAmountMin);
+        int max = Mathf.Max(min, offer.requiredItemAmountMax);
+        return Random.Range(min, max + 1);
     }
 
     void TryServeMeal()
@@ -565,25 +674,40 @@ public class NpcTaskProvider : MonoBehaviour
 
     void StartTaskRequest(GameObject npc, NpcTaskOffer offer)
     {
+        StartTaskRequest(npc, offer, false);
+    }
+
+    void StartTaskRequest(
+        GameObject npc,
+        NpcTaskOffer offer,
+        bool startAtProvider)
+    {
         StatItemData requiredItem = ResolveTaskRequiredItem(npc, offer);
         int requiredAmount = ResolveTaskRequiredAmount(offer, requiredItem);
         int rewardSpiritStone =
             ResolveTaskRewardSpiritStone(offer, requiredItem, requiredAmount);
+        bool formalFlow =
+            useFormalTaskReceiveFlow &&
+            !startAtProvider;
 
         RunningNpcTask task = new RunningNpcTask
         {
             npc = npc,
             offer = offer,
-            stage = useFormalTaskReceiveFlow
+            stage = startAtProvider
+                ? TavernTaskStage.ReceivingTask
+                : formalFlow
                 ? (requireCounterCheckBeforeTask
                     ? TavernTaskStage.GoingToCounter
                     : TavernTaskStage.GoingToBoard)
                 : TavernTaskStage.GoingToWork,
             counterPosition = GetCounterPosition(npc),
             boardPosition = GetBoardPosition(),
-            providerPosition = GetProviderPosition(),
+            providerPosition = GetProviderPositionFor(npc),
             workPosition = GetWorkPosition(offer),
-            remainingTime = useFormalTaskReceiveFlow
+            remainingTime = startAtProvider
+                ? Mathf.Max(1f, providerReceiveDuration)
+                : formalFlow
                 ? Mathf.Max(8f, chooseTaskDuration)
                 : Mathf.Max(1f, offer != null ? offer.workDuration : 1f),
             requiredItem = requiredItem,
@@ -592,7 +716,8 @@ public class NpcTaskProvider : MonoBehaviour
             startingRequiredItemAmount = GetNpcItemAmount(npc, requiredItem)
         };
 
-        if (!useFormalTaskReceiveFlow)
+        if (!formalFlow &&
+            !startAtProvider)
         {
             PrepareTaskWork(task);
         }
@@ -602,13 +727,17 @@ public class NpcTaskProvider : MonoBehaviour
 
         NpcRoleUtility.SetAction(
             npc,
-            useFormalTaskReceiveFlow
+            startAtProvider
+            ? "Dang nhan nhiem vu " + GetTaskDisplayText(task)
+            : formalFlow
             ? "Hoi quan su tim nhiem vu"
             : "Nhan viec duoc giao");
 
         NpcRoleUtility.SetAction(
             gameObject,
-            useFormalTaskReceiveFlow
+            startAtProvider
+            ? "Giao nhiem vu " + GetRankText(offer.rank) + ": " + offer.taskName
+            : formalFlow
             ? "Chi bang nhiem vu cho khach"
             : "Giao viec cho NPC");
     }
@@ -727,14 +856,11 @@ public class NpcTaskProvider : MonoBehaviour
                     break;
 
                 case TavernTaskStage.ReturningToProvider:
-                    MoveNpc(task.npc, task.providerPosition);
                     NpcRoleUtility.SetAction(
                         task.npc,
                         "Quay láº¡i quáº£n sá»± nháº­n nhiá»‡m vá»¥");
 
-                    if (Vector2.Distance(
-                            task.npc.transform.position,
-                            task.providerPosition) <= providerTalkDistance)
+                    if (IsNpcInProviderInteractionRange(task.npc))
                     {
                         NpcRoleUtility.StopForConversation(task.npc);
                         NpcRoleUtility.StopForConversation(gameObject);
@@ -743,7 +869,10 @@ public class NpcTaskProvider : MonoBehaviour
                             "Giao nhiá»‡m vá»¥ " + GetRankText(task.offer.rank) + ": " + task.offer.taskName);
                         task.stage = TavernTaskStage.ReceivingTask;
                         task.remainingTime = Mathf.Max(3f, providerReceiveDuration);
+                        break;
                     }
+
+                    MoveNpc(task.npc, task.providerPosition);
                     break;
 
                 case TavernTaskStage.ReceivingTask:
@@ -811,18 +940,16 @@ public class NpcTaskProvider : MonoBehaviour
                     break;
 
                 case TavernTaskStage.ReturningToTurnIn:
-                    MoveNpc(task.npc, task.providerPosition);
                     NpcRoleUtility.SetAction(
                         task.npc,
                         "Mang ket qua ve tra nhiem vu " + GetTaskDisplayText(task));
 
-                    float turnInDistance = Vector2.Distance(
-                        task.npc.transform.position,
-                        task.providerPosition);
+                    float turnInDistance =
+                        GetNpcProviderInteractionDistance(task.npc);
 
-                    bool canTurnIn = turnInDistance <= providerTalkDistance ||
+                    bool canTurnIn = turnInDistance <= GetProviderInteractionDistance() ||
                         (HasTaskObjectiveComplete(task) &&
-                            turnInDistance <= Mathf.Max(providerTalkDistance, stuckTurnInDistance));
+                            turnInDistance <= Mathf.Max(GetProviderInteractionDistance(), stuckTurnInDistance));
 
                     if (canTurnIn)
                     {
@@ -830,7 +957,10 @@ public class NpcTaskProvider : MonoBehaviour
                         NpcRoleUtility.StopForConversation(gameObject);
                         task.stage = TavernTaskStage.TurningIn;
                         task.remainingTime = Mathf.Max(1f, providerReceiveDuration);
+                        break;
                     }
+
+                    MoveNpc(task.npc, task.providerPosition);
                     break;
 
                 case TavernTaskStage.TurningIn:
@@ -2052,6 +2182,11 @@ public class NpcTaskProvider : MonoBehaviour
         return best;
     }
 
+    bool CanNpcAcceptOffer(GameObject npc, NpcTaskOffer offer)
+    {
+        return GetOfferSuitabilityScore(npc, offer) > 0f;
+    }
+
     float GetOfferSuitabilityScore(GameObject npc, NpcTaskOffer offer)
     {
         if (npc == null ||
@@ -2362,6 +2497,50 @@ public class NpcTaskProvider : MonoBehaviour
         return false;
     }
 
+    float GetProviderInteractionDistance()
+    {
+        return Mathf.Max(
+            providerTalkDistance,
+            arriveDistance);
+    }
+
+    float GetNpcProviderInteractionDistance(GameObject npc)
+    {
+        if (npc == null)
+        {
+            return float.PositiveInfinity;
+        }
+
+        return Vector2.Distance(
+            npc.transform.position,
+            GetProviderPositionFor(npc));
+    }
+
+    bool IsNpcInProviderInteractionRange(GameObject npc)
+    {
+        return GetNpcProviderInteractionDistance(npc) <=
+            GetProviderInteractionDistance();
+    }
+
+    public Vector3 GetProviderPositionFor(GameObject npc)
+    {
+        Vector3 center = GetProviderPosition();
+        if (!spreadVisitorsAroundProvider ||
+            npc == null ||
+            providerVisitorStandRadius <= 0.01f)
+        {
+            return center;
+        }
+
+        int hash = Mathf.Abs(npc.GetInstanceID());
+        float angle = (hash % 360) * Mathf.Deg2Rad;
+        Vector2 offset =
+            new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) *
+            Mathf.Max(0f, providerVisitorStandRadius);
+
+        return center + (Vector3)offset;
+    }
+
     Vector3 GetMealPosition()
     {
         return mealPoint != null
@@ -2669,7 +2848,8 @@ public class NpcTaskProvider : MonoBehaviour
         {
             mover.SetMoveTarget(
                 moveTarget,
-                !string.IsNullOrEmpty(routeAction) ? routeAction : "Di theo nhiem vu");
+                !string.IsNullOrEmpty(routeAction) ? routeAction : "Di theo nhiem vu",
+                true);
             return;
         }
 

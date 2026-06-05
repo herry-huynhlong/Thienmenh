@@ -77,6 +77,17 @@ public class NpcMapArea : MonoBehaviour
         return Vector2.Distance(closest, position);
     }
 
+    public Vector3 ClosestPoint(Vector3 position)
+    {
+        if (areaBounds == null)
+        {
+            return position;
+        }
+
+        Vector2 closest = areaBounds.ClosestPoint(position);
+        return new Vector3(closest.x, closest.y, position.z);
+    }
+
     public static NpcMapArea FindArea(Vector3 position)
     {
         foreach (NpcMapArea area in areas)
@@ -149,5 +160,71 @@ public class NpcMapArea : MonoBehaviour
         }
 
         return bestArea;
+    }
+
+    public static bool ContainsAny(Vector3 position)
+    {
+        return FindArea(position) != null;
+    }
+
+    public static Vector3 ClosestPointInAnyArea(Vector3 position)
+    {
+        NpcMapArea bestArea = null;
+        float bestDistance = float.PositiveInfinity;
+
+        foreach (NpcMapArea area in areas)
+        {
+            if (area == null ||
+                area.areaBounds == null)
+            {
+                continue;
+            }
+
+            float distance = area.DistanceTo(position);
+            if (distance < bestDistance)
+            {
+                bestArea = area;
+                bestDistance = distance;
+            }
+        }
+
+        return bestArea != null
+            ? bestArea.ClosestPoint(position)
+            : position;
+    }
+
+    public static Vector3 ClampToCombinedAreas(
+        Vector3 position,
+        float padding = 0f)
+    {
+        if (ContainsAny(position))
+        {
+            return position;
+        }
+
+        Vector3 closest = ClosestPointInAnyArea(position);
+        if (padding <= 0f)
+        {
+            return closest;
+        }
+
+        NpcMapArea nearest = FindNearestArea(position);
+        if (nearest == null ||
+            nearest.areaBounds == null)
+        {
+            return closest;
+        }
+
+        Vector2 inward =
+            (Vector2)nearest.areaBounds.bounds.center -
+            (Vector2)closest;
+
+        if (inward.sqrMagnitude <= 0.0001f)
+        {
+            return closest;
+        }
+
+        Vector2 padded = (Vector2)closest + inward.normalized * padding;
+        return new Vector3(padded.x, padded.y, position.z);
     }
 }

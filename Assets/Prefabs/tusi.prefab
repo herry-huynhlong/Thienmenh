@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 760332842974042451}
   - component: {fileID: 1160943203147714220}
   - component: {fileID: 6889881996098982090}
+  - component: {fileID: -8905760503656046688}
   m_Layer: 0
   m_Name: tusi
   m_TagString: Untagged
@@ -163,6 +164,7 @@ MonoBehaviour:
   waitTimeMin: 5
   waitTimeMax: 5
   wanderRadius: 5
+  useKinematicNpcMovement: 1
   onlyPickNewTargetAfterArrive: 1
   blockedRetryWait: 1
   centerPoint: {fileID: 0}
@@ -171,6 +173,11 @@ MonoBehaviour:
   returnInsidePadding: 0.5
   mapBounds: {fileID: 0}
   keepInsideMapBounds: 1
+  allowCrossMapAreas: 1
+  keepInsideCombinedMapAreas: 0
+  autoResolveMapArea: 1
+  useNearestAreaWhenOutsideBounds: 0
+  clampInitialPositionToBounds: 0
   useMapBoundsCenterWhenAvailable: 1
   mapBoundsEdgePadding: 0.25
   obstacleLayers:
@@ -185,6 +192,9 @@ MonoBehaviour:
     m_Bits: 4294967295
   separationRadius: 0.45
   separationStrength: 1.4
+  crowdLookAheadDistance: 0.65
+  crowdDetourDistance: 0.55
+  crowdYieldDuration: 0.2
   currentTarget: {x: 0, y: 0}
   currentAction: Idle
   currentVelocity: {x: 0, y: 0}
@@ -222,3 +232,18 @@ MonoBehaviour:
   flipSideByDirection: 1
   useSpriteRendererFlip: 1
   sideSpriteFacesRight: 1
+--- !u!114 &-8905760503656046688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6510684094960389824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 035dda1e98fba654eafdf701956291b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcFavorite
+  npcDisplayName: NPC
+  realmText: "Ph\xE0m nh\xE2n"
+  starMark: {fileID: 0}

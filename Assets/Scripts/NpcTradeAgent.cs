@@ -321,6 +321,13 @@ public class NpcTradeAgent : MonoBehaviour
 
     public void ReceiveBoughtItem(StatItemData item)
     {
+        ReceiveBoughtItem(item, true);
+    }
+
+    public void ReceiveBoughtItem(
+        StatItemData item,
+        bool considerUse)
+    {
         NpcItemCollector collector =
             GetComponent<NpcItemCollector>();
 
@@ -329,7 +336,7 @@ public class NpcTradeAgent : MonoBehaviour
             collector.ReceiveItem(
                 item,
                 ItemLifecycleEventType.Sold,
-                true);
+                considerUse);
             return;
         }
 
