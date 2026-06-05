@@ -13203,13 +13203,8 @@ Tilemap:
     m_RefCount: 0
     m_Data: {fileID: 1441433735}
   - serializedVersion: 2
-<<<<<<< HEAD
     m_RefCount: 1288
     m_Data: {fileID: 152954984, guid: e3046f4802b255e43bc09df30edadcc1, type: 3}
-=======
-    m_RefCount: 0
-    m_Data: {fileID: 541407852}
->>>>>>> 22e19dc28c09938dbece3e5bfbe8fdd90c72f007
   m_TileMatrixArray:
   - serializedVersion: 2
     m_RefCount: 1288
@@ -23422,7 +23417,6 @@ Sprite:
   m_Bones: []
   m_ScriptableObjects: []
   m_SpriteID: 
-<<<<<<< HEAD
 --- !u!1001 &96927756
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23500,8 +23494,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1650737128784263751, guid: 9e77a787fd878194ba50d09458f3f86b, type: 3}
   m_PrefabInstance: {fileID: 96927756}
   m_PrefabAsset: {fileID: 0}
-=======
->>>>>>> 22e19dc28c09938dbece3e5bfbe8fdd90c72f007
 --- !u!1 &115922604
 GameObject:
   m_ObjectHideFlags: 0
@@ -90013,11 +90005,8 @@ RectTransform:
   - {fileID: 363782717}
   - {fileID: 1315211881}
   - {fileID: 368926225}
-<<<<<<< HEAD
   - {fileID: 1760890973}
   - {fileID: 1618443980}
-=======
->>>>>>> 22e19dc28c09938dbece3e5bfbe8fdd90c72f007
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}

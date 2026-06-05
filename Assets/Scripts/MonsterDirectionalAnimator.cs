@@ -1,20 +1,26 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 [DisallowMultipleComponent]
 public class MonsterDirectionalAnimator : MonoBehaviour
 {
+    static readonly string[] Actions = { "walk", "lie", "attack" };
+    static readonly string[] Directions = { "down", "left", "right", "up" };
+
     [Header("Components")]
     public Animator animator;
     public SpriteRenderer spriteRenderer;
 
     [Header("State Names")]
     public string prefix = "yeuthu";
+    public bool autoDetectPrefix = true;
     public bool playLieWhenIdle = true;
 
     [Header("Timing")]
     public float attackLockTime = 0.45f;
 
+    string activePrefix = "yeuthu";
     string lastDirection = "down";
     string currentState = "";
     bool isMoving;
@@ -33,7 +39,13 @@ public class MonsterDirectionalAnimator : MonoBehaviour
             spriteRenderer = GetComponent<SpriteRenderer>();
         }
 
+        ResolveAnimationPrefix();
         RefreshMovementState();
+    }
+
+    void OnValidate()
+    {
+        activePrefix = NormalizePrefix(prefix);
     }
 
     public void SetMoveDirection(Vector2 direction)
@@ -78,6 +90,7 @@ public class MonsterDirectionalAnimator : MonoBehaviour
         isMoving = false;
         currentState = "";
         StopAllCoroutines();
+        ResolveAnimationPrefix();
         RefreshMovementState();
     }
 
@@ -121,9 +134,115 @@ public class MonsterDirectionalAnimator : MonoBehaviour
         }
     }
 
+    void ResolveAnimationPrefix()
+    {
+        activePrefix = NormalizePrefix(prefix);
+
+        if (!autoDetectPrefix || animator == null || animator.runtimeAnimatorController == null)
+        {
+            return;
+        }
+
+        HashSet<string> clipNames = GetClipNames();
+        if (HasAnyDirectionalClip(clipNames, activePrefix))
+        {
+            return;
+        }
+
+        string detectedPrefix = DetectBestPrefix(clipNames);
+        if (!string.IsNullOrEmpty(detectedPrefix))
+        {
+            activePrefix = detectedPrefix;
+        }
+    }
+
+    HashSet<string> GetClipNames()
+    {
+        HashSet<string> clipNames = new HashSet<string>();
+        AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
+
+        for (int i = 0; i < clips.Length; i++)
+        {
+            if (clips[i] != null && !string.IsNullOrEmpty(clips[i].name))
+            {
+                clipNames.Add(clips[i].name);
+            }
+        }
+
+        return clipNames;
+    }
+
+    bool HasAnyDirectionalClip(HashSet<string> clipNames, string statePrefix)
+    {
+        if (string.IsNullOrEmpty(statePrefix))
+        {
+            return false;
+        }
+
+        for (int actionIndex = 0; actionIndex < Actions.Length; actionIndex++)
+        {
+            for (int directionIndex = 0; directionIndex < Directions.Length; directionIndex++)
+            {
+                if (clipNames.Contains(statePrefix + "_" + Actions[actionIndex] + "_" + Directions[directionIndex]))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    string DetectBestPrefix(HashSet<string> clipNames)
+    {
+        Dictionary<string, int> scores = new Dictionary<string, int>();
+
+        foreach (string clipName in clipNames)
+        {
+            for (int actionIndex = 0; actionIndex < Actions.Length; actionIndex++)
+            {
+                for (int directionIndex = 0; directionIndex < Directions.Length; directionIndex++)
+                {
+                    string suffix = "_" + Actions[actionIndex] + "_" + Directions[directionIndex];
+                    if (!clipName.EndsWith(suffix))
+                    {
+                        continue;
+                    }
+
+                    string candidate = clipName.Substring(0, clipName.Length - suffix.Length);
+                    if (string.IsNullOrEmpty(candidate))
+                    {
+                        continue;
+                    }
+
+                    scores.TryGetValue(candidate, out int score);
+                    scores[candidate] = score + 1;
+                }
+            }
+        }
+
+        string bestPrefix = "";
+        int bestScore = 0;
+        foreach (KeyValuePair<string, int> score in scores)
+        {
+            if (score.Value > bestScore)
+            {
+                bestPrefix = score.Key;
+                bestScore = score.Value;
+            }
+        }
+
+        return bestPrefix;
+    }
+
     string BuildStateName(string action)
     {
-        return prefix + "_" + action + "_" + lastDirection;
+        return activePrefix + "_" + action + "_" + lastDirection;
+    }
+
+    string NormalizePrefix(string value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? "yeuthu" : value.Trim();
     }
 
     string ResolveDirection(Vector2 direction)
