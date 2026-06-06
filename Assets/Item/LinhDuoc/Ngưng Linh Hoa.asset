@@ -1,0 +1,65 @@
+﻿%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
+  m_Name: "Ng\u01B0ng Linh Hoa"
+  m_EditorClassIdentifier: Assembly-CSharp::StatItemData
+  itemName: "Ng\u01B0ng Linh Hoa"
+  description: "Linh hoa trung ph\u1EA9m sinh tr\u01B0\u1EDFng \u1EDF n\u01A1i linh
+    kh\xED t\u1EE5 l\u1EA1i l\xE2u n\u0103m. C\xE1nh hoa c\xF3 \xE1nh s\xE1ng xanh
+    nh\u1EA1t, c\xF3 kh\u1EA3 n\u0103ng ng\u01B0ng t\u1EE5 linh kh\xED xung quanh.
+    Khi d\xF9ng tr\u1EF1c ti\u1EBFp c\xF3 th\u1EC3 t\u0103ng tu vi kh\xE1 t\u1ED1t,
+    nh\u01B0ng luy\u1EC7n th\xE0nh \u0111an s\u1EBD gi\xFAp d\u01B0\u1EE3c l\u1EF1c
+    th\u1EA5m v\xE0o kinh m\u1EA1ch \u1ED5n \u0111\u1ECBnh h\u01A1n."
+  itemType: 2
+  grade: 1
+  validTargets: -1
+  price: 21129
+  icon: {fileID: 1407890270608727625, guid: 5148a41f9460c6649ab920e2b6158474, type: 3}
+  consumeOnUse: 1
+  equipmentSlot: 0
+  artifactKind: 0
+  pillKind: 0
+  manualKind: 0
+  materialKind: 1
+  foodKind: 0
+  useStyle: 2
+  conversionType: 0
+  canUseDirectly: 1
+  canBeSold: 1
+  canBeRefinedIntoPill: 1
+  canBeForgedIntoArtifact: 1
+  canBeStudied: 0
+  rawUseEfficiency: 0.401
+  useSuccessChance: 1
+  rawUsePolicy: 1
+  rawToxicityDamage: 27
+  npcIntent: 0
+  refineValueMultiplier: 1.5
+  sellValueMultiplier: 1
+  maxDurability: 0
+  durabilityLossPerUse: 1
+  breaksAtZero: 1
+  hpBonus: 0
+  cultivationBonus: 680342
+  breakthroughRealm: 0
+  damageBonus: 0
+  armorBonus: 0
+  effectResistanceBonus: 0
+  canBeTaught: 1
+  studyProgressPerUse: 1
+  manualBreakAfterYears: 10
+  tieuThanhPower: 0.3
+  trungThanhPower: 0.6
+  daiThanhPower: 1
+  isTemporary: 0
+  duration: 10
+  modifiers: []

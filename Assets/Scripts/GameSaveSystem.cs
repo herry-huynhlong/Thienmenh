@@ -11,6 +11,8 @@ public class SavedItemStack
     public int durability;
     public int maxDurability;
     public int mastery;
+    public float manualUseYears;
+    public bool broken;
     public bool applied;
 }
 
@@ -47,6 +49,7 @@ public static class GameSaveSystem
     const string WorldTimeMonthKey = SavePrefix + "WorldTime.Month";
     const string WorldTimeDayKey = SavePrefix + "WorldTime.Day";
     const string WorldTimeHourKey = SavePrefix + "WorldTime.Hour";
+    const string ManualUsePrefix = SavePrefix + "ManualUse.";
 
     static readonly Dictionary<string, StatItemData> itemByKey =
         new Dictionary<string, StatItemData>();
@@ -119,6 +122,31 @@ public static class GameSaveSystem
         return item.name;
     }
 
+    public static float GetManualUseYears(StatItemData item)
+    {
+        if (item == null)
+        {
+            return 0f;
+        }
+
+        return PlayerPrefs.GetFloat(
+            ManualUsePrefix + GetItemKey(item),
+            0f);
+    }
+
+    public static void AddManualUseYears(StatItemData item, float years)
+    {
+        if (item == null || years <= 0f)
+        {
+            return;
+        }
+
+        string key = ManualUsePrefix + GetItemKey(item);
+        PlayerPrefs.SetFloat(
+            key,
+            Mathf.Max(0f, PlayerPrefs.GetFloat(key, 0f) + years));
+        MarkSaveExists();
+    }
     public static void SaveCurrentScene(string sceneName = "")
     {
         if (string.IsNullOrEmpty(sceneName))
@@ -240,6 +268,8 @@ public static class GameSaveSystem
                     durability = stack.durability,
                     maxDurability = stack.maxDurability,
                     mastery = (int)stack.mastery,
+                    manualUseYears = stack.manualUseYears,
+                    broken = stack.broken,
                     applied = stack.applied
                 });
         }
@@ -302,6 +332,8 @@ public static class GameSaveSystem
                     maxDurability = savedStack.maxDurability,
                     mastery =
                         (CultivationManualMastery)savedStack.mastery,
+                    manualUseYears = savedStack.manualUseYears,
+                    broken = savedStack.broken,
                     applied = savedStack.applied
                 });
         }

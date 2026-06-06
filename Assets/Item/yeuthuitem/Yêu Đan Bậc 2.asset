@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -21,20 +21,20 @@ MonoBehaviour:
   itemType: 2
   grade: 0
   validTargets: -1
-  price: 12000
+  price: 676
   icon: {fileID: -3433266196814647393, guid: 483dfa4ddf30d4b49b1ed91603f1759c, type: 3}
   consumeOnUse: 1
-  useStyle: 0
+  useStyle: 2
   conversionType: 0
   canUseDirectly: 1
   canBeSold: 1
-  canBeRefinedIntoPill: 0
-  canBeForgedIntoArtifact: 0
-  canBeStudied: 1
-  rawUseEfficiency: 0.35
+  canBeRefinedIntoPill: 1
+  canBeForgedIntoArtifact: 1
+  canBeStudied: 0
+  rawUseEfficiency: 0.246
   useSuccessChance: 1
-  rawUsePolicy: 2
-  rawToxicityDamage: 5000
+  rawUsePolicy: 1
+  rawToxicityDamage: 8
   npcIntent: 0
   refineValueMultiplier: 1.5
   sellValueMultiplier: 1
@@ -42,16 +42,16 @@ MonoBehaviour:
   durabilityLossPerUse: 1
   breaksAtZero: 1
   hpBonus: 0
-  cultivationBonus: 0
+  cultivationBonus: 30171
   breakthroughRealm: 0
   damageBonus: 0
   armorBonus: 0
   effectResistanceBonus: 0
-  canBeTaught: 1
+  canBeTaught: 0
   studyProgressPerUse: 1
   tieuThanhPower: 0.3
   trungThanhPower: 0.6
   daiThanhPower: 1
   isTemporary: 0
-  duration: 0
+  duration: 10
   modifiers: []

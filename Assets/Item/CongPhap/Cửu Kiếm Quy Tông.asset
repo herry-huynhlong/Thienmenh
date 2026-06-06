@@ -1,0 +1,63 @@
+﻿%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
+  m_Name: "C\u1EEDu Ki\u1EBFm Quy T\xF4ng"
+  m_EditorClassIdentifier: Assembly-CSharp::StatItemData
+  itemName: "C\u1EEDu Ki\u1EBFm Quy T\xF4ng"
+  description: "Ki\u1EBFm \u0111\u1EA1o c\xF4ng ph\xE1p th\u01B0\u1EE3ng ph\u1EA9m,
+    ng\u01B0ng ki\u1EBFm \xFD th\xE0nh th\u1EBF, \u0111\u1EA1i th\xE0nh c\xF3 th\u1EC3
+    di\u1EC5n h\xF3a ki\u1EBFm quang h\u1ED9 th\u1EC3 ho\u1EB7c ki\u1EBFm v\u0169
+    c\xF4ng s\xE1t."
+  itemType: 3
+  grade: 2
+  validTargets: -1
+  price: 3999990
+  icon: {fileID: -1054131785224880206, guid: ba80ea8eefd9afb44af4a3176a562233, type: 3}
+  consumeOnUse: 0
+  equipmentSlot: 0
+  artifactKind: 0
+  pillKind: 0
+  manualKind: 1
+  materialKind: 0
+  foodKind: 0
+  useStyle: 4
+  conversionType: 0
+  canUseDirectly: 1
+  canBeSold: 1
+  canBeRefinedIntoPill: 0
+  canBeForgedIntoArtifact: 0
+  canBeStudied: 1
+  rawUseEfficiency: 1
+  useSuccessChance: 1
+  rawUsePolicy: 0
+  rawToxicityDamage: 0
+  npcIntent: 0
+  refineValueMultiplier: 1.5
+  sellValueMultiplier: 1
+  maxDurability: 0
+  durabilityLossPerUse: 1
+  breaksAtZero: 1
+  hpBonus: 0
+  cultivationBonus: 2501954
+  breakthroughRealm: 0
+  damageBonus: 84
+  armorBonus: 0
+  effectResistanceBonus: 0
+  canBeTaught: 1
+  studyProgressPerUse: 3
+  manualBreakAfterYears: 10
+  tieuThanhPower: 0.3
+  trungThanhPower: 0.6
+  daiThanhPower: 1
+  isTemporary: 0
+  duration: 10
+  modifiers: []

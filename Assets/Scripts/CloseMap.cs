@@ -34,8 +34,24 @@ public class CloseMap :
             lastScene = fallbackScene;
         }
 
-        SceneManager.LoadScene(
-            lastScene);
+        Scene returnScene =
+            SceneManager.GetSceneByName(lastScene);
+
+        Scene mapScene =
+            SceneManager.GetSceneByName("LiteMapScene");
+
+        if (returnScene.IsValid() &&
+            returnScene.isLoaded &&
+            mapScene.IsValid() &&
+            mapScene.isLoaded &&
+            SceneManager.sceneCount > 1)
+        {
+            SceneManager.SetActiveScene(returnScene);
+            SceneManager.UnloadSceneAsync(mapScene);
+            return;
+        }
+
+        SceneManager.LoadScene(lastScene);
     }
 
     bool IsValidReturnScene(string sceneName)

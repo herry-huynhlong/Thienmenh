@@ -58,6 +58,24 @@ public class HeavenGiftPlacementController : MonoBehaviour
         return instance;
     }
 
+    public static float GetImmortalLightningStartDelay()
+    {
+        HeavenGiftPlacementController controller = EnsureInstance();
+        return controller.skyDropHeight / Mathf.Max(0.1f, controller.fallSpeed);
+    }
+
+    public static float GetImmortalLightningTotalDuration()
+    {
+        HeavenGiftPlacementController controller = EnsureInstance();
+        int count = Mathf.Max(1, controller.immortalLightningCount);
+        float rainbowDuration =
+            controller.rainbowWaveCount *
+            (controller.rainbowWaveDuration + controller.rainbowWaveInterval);
+
+        return Mathf.Max(
+            count * controller.immortalLightningInterval,
+            rainbowDuration);
+    }
     void Awake()
     {
         if (instance != null &&
@@ -166,6 +184,7 @@ public class HeavenGiftPlacementController : MonoBehaviour
         EnsurePickupVisual(pickup, item);
         LogHeavenGift(item);
         PlayStartEffect(item, targetPosition, session);
+        TreasureFrenzySystem.AnnounceTreasure(pickup, item, targetPosition);
 
         SkyDropToPosition dropMovement =
             pickup.GetComponent<SkyDropToPosition>();

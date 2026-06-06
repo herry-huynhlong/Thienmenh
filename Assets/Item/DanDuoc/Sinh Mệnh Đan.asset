@@ -1,0 +1,63 @@
+﻿%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
+  m_Name: "Sinh M\u1EC7nh \u0110an"
+  m_EditorClassIdentifier: Assembly-CSharp::StatItemData
+  itemName: "Sinh M\u1EC7nh \u0110an"
+  description: "\u0110an d\u01B0\u1EE3c trung ph\u1EA9m luy\u1EC7n t\u1EEB Sinh M\u1EC7nh
+    Hoa. Vi\xEAn \u0111an ch\u1EE9a sinh c\u01A1 n\u1ED3ng \u0111\u1EADm, c\xF3 th\u1EC3
+    h\u1ED3i ph\u1EE5c th\u01B0\u01A1ng th\u1EBF, b\u1ED5 sung sinh m\u1EC7nh l\u1EF1c
+    v\xE0 gi\xFAp tu s\u0129 s\u1ED1ng s\xF3t l\xE2u h\u01A1n trong chi\u1EBFn \u0111\u1EA5u."
+  itemType: 0
+  grade: 1
+  validTargets: -1
+  price: 6669
+  icon: {fileID: 2515907659928298129, guid: 5b38fa581e403f6489e2d3a114cd5ecd, type: 3}
+  consumeOnUse: 1
+  equipmentSlot: 0
+  artifactKind: 0
+  pillKind: 1
+  manualKind: 0
+  materialKind: 0
+  foodKind: 0
+  useStyle: 1
+  conversionType: 0
+  canUseDirectly: 1
+  canBeSold: 1
+  canBeRefinedIntoPill: 0
+  canBeForgedIntoArtifact: 0
+  canBeStudied: 0
+  rawUseEfficiency: 1
+  useSuccessChance: 1
+  rawUsePolicy: 0
+  rawToxicityDamage: 0
+  npcIntent: 0
+  refineValueMultiplier: 1.5
+  sellValueMultiplier: 1
+  maxDurability: 0
+  durabilityLossPerUse: 1
+  breaksAtZero: 1
+  hpBonus: 292
+  cultivationBonus: 0
+  breakthroughRealm: 0
+  damageBonus: 0
+  armorBonus: 0
+  effectResistanceBonus: 0
+  canBeTaught: 1
+  studyProgressPerUse: 1
+  manualBreakAfterYears: 10
+  tieuThanhPower: 0.3
+  trungThanhPower: 0.6
+  daiThanhPower: 1
+  isTemporary: 0
+  duration: 10
+  modifiers: []

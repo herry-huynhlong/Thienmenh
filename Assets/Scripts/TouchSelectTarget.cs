@@ -62,6 +62,8 @@ public class TouchSelectTarget : MonoBehaviour
     public Vector3 panelOffset =
         new Vector3(0, 2f, 0);
 
+    public float panelScreenPadding = 12f;
+
     [Header("Tap")]
     public float tapThreshold = 10f;
 
@@ -270,7 +272,14 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (npcInventoryPanel != null)
         {
-            npcInventoryPanel.Show(selectedTarget);
+            if (CanShowInventoryForTarget(selectedTarget))
+            {
+                npcInventoryPanel.Show(selectedTarget);
+            }
+            else
+            {
+                npcInventoryPanel.HideContentOnly();
+            }
         }
 
         ShowInfoTab();
@@ -731,6 +740,19 @@ public class TouchSelectTarget : MonoBehaviour
     {
         return target != null &&
             target.GetComponent<WorldStatItemPickup>() != null;
+    }
+
+    bool CanShowInventoryForTarget(Transform target)
+    {
+        if (target == null ||
+            target.GetComponent<MonsterAI>() != null)
+        {
+            return false;
+        }
+
+        return target.GetComponent<SmartNpcAI>() != null ||
+            target.GetComponent<VillagerAI>() != null ||
+            target.GetComponent<ItemInventory>() != null;
     }
 
     void ShowWorldItemInfo(Transform target)
@@ -1700,8 +1722,16 @@ public class TouchSelectTarget : MonoBehaviour
 
     void HidePanel()
     {
+        Transform hiddenTarget = currentTarget;
+
         currentTarget = null;
         CurrentTarget = null;
+
+        if (cameraController != null &&
+            cameraController.followTarget == hiddenTarget)
+        {
+            cameraController.followTarget = null;
+        }
 
         if (infoPanel != null)
         {
@@ -1839,6 +1869,84 @@ public class TouchSelectTarget : MonoBehaviour
             eventCamera);
     }
 
+    void KeepCameraFollowingCurrentTarget()
+    {
+        if (cameraController == null ||
+            currentTarget == null ||
+            infoPanel == null ||
+            !infoPanel.activeInHierarchy)
+        {
+            return;
+        }
+
+        if (cameraController.followTarget != currentTarget)
+        {
+            cameraController.followTarget = currentTarget;
+        }
+    }
+
+    Vector3 ClampPanelToScreen(
+        RectTransform rect,
+        Vector3 screenPosition)
+    {
+        if (rect == null)
+        {
+            return screenPosition;
+        }
+
+        Vector2 rectSize = rect.rect.size;
+        Vector3 scale = rect.lossyScale;
+        float width = Mathf.Abs(rectSize.x * scale.x);
+        float height = Mathf.Abs(rectSize.y * scale.y);
+        Vector2 pivot = rect.pivot;
+        float padding = Mathf.Max(0f, panelScreenPadding);
+
+        float minX = padding + width * pivot.x;
+        float maxX = Screen.width - padding - width * (1f - pivot.x);
+        float minY = padding + height * pivot.y;
+        float maxY = Screen.height - padding - height * (1f - pivot.y);
+
+        if (maxX < minX)
+        {
+            screenPosition.x = Screen.width * 0.5f;
+        }
+        else
+        {
+            screenPosition.x = Mathf.Clamp(screenPosition.x, minX, maxX);
+        }
+
+        if (maxY < minY)
+        {
+            screenPosition.y = Screen.height * 0.5f;
+        }
+        else
+        {
+            screenPosition.y = Mathf.Clamp(screenPosition.y, minY, maxY);
+        }
+
+        return screenPosition;
+    }
+
+    void ClampNpcInventoryPanelToScreen()
+    {
+        if (npcInventoryPanel == null ||
+            npcInventoryPanel.panelRoot == null ||
+            !npcInventoryPanel.panelRoot.activeInHierarchy)
+        {
+            return;
+        }
+
+        RectTransform inventoryRect =
+            npcInventoryPanel.panelRoot.transform as RectTransform;
+
+        if (inventoryRect == null)
+        {
+            return;
+        }
+
+        inventoryRect.position =
+            ClampPanelToScreen(inventoryRect, inventoryRect.position);
+    }
     void UpdatePanelPosition()
     {
         if (currentTarget == null)
@@ -1847,6 +1955,11 @@ public class TouchSelectTarget : MonoBehaviour
         }
 
         bool isWorldItem = IsWorldItemTarget(currentTarget);
+
+        if (!isWorldItem)
+        {
+            KeepCameraFollowingCurrentTarget();
+        }
 
         if (isWorldItem)
         {
@@ -1889,11 +2002,15 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (isWorldItem)
         {
-            worldItemPanelRect.position = screenPos;
+            worldItemPanelRect.position =
+                ClampPanelToScreen(worldItemPanelRect, screenPos);
         }
         else
         {
-            panelRect.position = screenPos;
+            panelRect.position =
+                ClampPanelToScreen(panelRect, screenPos);
+
+            ClampNpcInventoryPanelToScreen();
         }
     }
 }

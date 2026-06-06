@@ -33,6 +33,7 @@ public class CharacterMovementAnimator : MonoBehaviour
     public bool sideSpriteFacesRight = true;
 
     Vector2 lastDirection = Vector2.down;
+    Vector3 lastPosition;
     int currentStateHash;
     float originalScaleX = 1f;
     float nextFlipTime;
@@ -73,6 +74,8 @@ public class CharacterMovementAnimator : MonoBehaviour
         {
             targetSpriteRenderer = visualRoot.GetComponent<SpriteRenderer>();
         }
+
+        lastPosition = transform.position;
 
         Transform flipTarget =
             visualRoot != null
@@ -138,12 +141,22 @@ public class CharacterMovementAnimator : MonoBehaviour
 
     Vector2 GetVelocity()
     {
-        if (targetRigidbody == null)
+        Vector2 velocity = Vector2.zero;
+
+        if (targetRigidbody != null)
         {
-            return Vector2.zero;
+            velocity = targetRigidbody.linearVelocity;
         }
 
-        return targetRigidbody.linearVelocity;
+        if (velocity.sqrMagnitude <= movingThreshold * movingThreshold &&
+            Time.deltaTime > 0f)
+        {
+            Vector3 positionDelta = transform.position - lastPosition;
+            velocity = positionDelta / Time.deltaTime;
+        }
+
+        lastPosition = transform.position;
+        return velocity;
     }
 
     void SetParameters(bool isMoving, Vector2 velocity, float speed)

@@ -8,9 +8,11 @@ public class NpcInventoryPanelUI : MonoBehaviour
     public GameObject panelRoot;
     public TMP_Text titleText;
     public TMP_Text infoText;
+
     [Header("NPC Wallet")]
     public TMP_Text npcLinhThachText;
     public bool showNpcLinhThach = true;
+
     public TMP_Text itemsText;
     public InventoryPanelUI itemGridPanel;
     public bool useItemGrid = true;
@@ -22,13 +24,16 @@ public class NpcInventoryPanelUI : MonoBehaviour
     public bool autoCreateInfoText = false;
     public float autoInfoHeight = 64f;
 
+    [Header("NPC Shop Inventory")]
+    public bool showNearbyShopInventory = true;
+    public bool preferActiveCounterBroker = true;
+    public float shopInventorySearchRadius = 4f;
 
     Transform currentNpc;
     ItemInventory currentInventory;
     bool gridDirty = true;
     float refreshTimer;
     bool createdInfoText;
-
 
     void Awake()
     {
@@ -61,6 +66,23 @@ public class NpcInventoryPanelUI : MonoBehaviour
 
         inventory.UsePrivateNpcRuntimeItems(false);
 
+        NpcShopStockRefill stockRefill =
+            ResolveShopStockRefill(npc);
+
+        if (stockRefill != null)
+        {
+            if (stockRefill.transform == npc)
+            {
+                stockRefill.sellerInventory = inventory;
+            }
+
+            stockRefill.EnsureStock();
+
+            if (stockRefill.sellerInventory != null)
+            {
+                inventory = stockRefill.sellerInventory;
+            }
+        }
         if (currentNpc != npc ||
             currentInventory != inventory)
         {
@@ -75,11 +97,108 @@ public class NpcInventoryPanelUI : MonoBehaviour
         if (panelRoot != null)
         {
             panelRoot.SetActive(true);
+
+            panelRoot.SendMessage(
+                "SetCurrentNpc",
+                npc.gameObject,
+                SendMessageOptions.DontRequireReceiver);
+        }
+        else
+        {
+            SendMessage(
+                "SetCurrentNpc",
+                npc.gameObject,
+                SendMessageOptions.DontRequireReceiver);
         }
 
         Refresh();
     }
 
+    NpcShopStockRefill ResolveShopStockRefill(Transform npc)
+    {
+        if (npc == null)
+        {
+            return null;
+        }
+
+        NpcShopStockRefill direct =
+            npc.GetComponent<NpcShopStockRefill>();
+
+        if (direct != null)
+        {
+            return direct;
+        }
+
+        if (!showNearbyShopInventory)
+        {
+            return null;
+        }
+
+        if (preferActiveCounterBroker &&
+            TryGetBrokerStockRefill(
+                npc,
+                NpcCounterBroker.Active,
+                out NpcShopStockRefill activeRefill))
+        {
+            return activeRefill;
+        }
+
+        NpcShopStockRefill[] refills =
+            FindObjectsByType<NpcShopStockRefill>(FindObjectsInactive.Include);
+
+        NpcShopStockRefill best = null;
+        float bestDistance = float.MaxValue;
+        float maxDistance = Mathf.Max(0.1f, shopInventorySearchRadius);
+
+        foreach (NpcShopStockRefill refill in refills)
+        {
+            if (refill == null)
+            {
+                continue;
+            }
+
+            float distance = Vector2.Distance(
+                npc.position,
+                refill.transform.position);
+
+            if (distance > maxDistance || distance >= bestDistance)
+            {
+                continue;
+            }
+
+            best = refill;
+            bestDistance = distance;
+        }
+
+        return best;
+    }
+
+    bool TryGetBrokerStockRefill(
+        Transform npc,
+        NpcCounterBroker broker,
+        out NpcShopStockRefill refill)
+    {
+        refill = null;
+
+        if (npc == null || broker == null)
+        {
+            return false;
+        }
+
+        refill = broker.GetComponent<NpcShopStockRefill>();
+        if (refill == null)
+        {
+            return false;
+        }
+
+        float maxDistance = Mathf.Max(
+            shopInventorySearchRadius,
+            broker.CustomerServiceRadius + 0.5f);
+
+        return Vector2.Distance(
+            npc.position,
+            broker.transform.position) <= maxDistance;
+    }
     public void Refresh()
     {
         if (currentNpc == null ||
@@ -101,6 +220,7 @@ public class NpcInventoryPanelUI : MonoBehaviour
             infoText.text = createdInfoText
                 ? BuildCompactInfoText(currentNpc, currentInventory)
                 : BuildInfoText(currentNpc, currentInventory);
+
             infoText.gameObject.SetActive(true);
         }
 
@@ -122,6 +242,7 @@ public class NpcInventoryPanelUI : MonoBehaviour
         if (ShouldUseItemGrid())
         {
             BindItemGrid();
+
             if (gridDirty)
             {
                 itemGridPanel.Refresh(true);
@@ -214,7 +335,6 @@ public class NpcInventoryPanelUI : MonoBehaviour
         }
     }
 
-
     void UpdateWalletText()
     {
         if (!showNpcLinhThach ||
@@ -227,8 +347,10 @@ public class NpcInventoryPanelUI : MonoBehaviour
         npcLinhThachText.text =
             NpcEconomy.FormatCurrency(
                 NpcEconomy.GetNpcLinhThach(currentNpc.gameObject));
+
         npcLinhThachText.gameObject.SetActive(true);
     }
+
     void EnsureInfoText()
     {
     }
@@ -295,6 +417,7 @@ public class NpcInventoryPanelUI : MonoBehaviour
             }
         }
     }
+
     void SetCanvasGroupVisible(
         GameObject target,
         bool visible)
@@ -363,6 +486,7 @@ public class NpcInventoryPanelUI : MonoBehaviour
     bool ShouldUseItemGrid()
     {
         AutoFindItemGridPanel();
+
         return useItemGrid &&
             itemGridPanel != null &&
             currentInventory != null;
@@ -400,6 +524,7 @@ public class NpcInventoryPanelUI : MonoBehaviour
         }
 
         refreshTimer += Time.deltaTime;
+
         if (refreshTimer < infoRefreshInterval)
         {
             return;
@@ -434,15 +559,17 @@ public class NpcInventoryPanelUI : MonoBehaviour
     {
         int inventoryValue =
             GetInventoryValue(inventory);
+
         int totalAssets =
             inventoryValue +
             NpcEconomy.GetNpcLinhThach(npc.gameObject);
 
         return "Balo: " +
             NpcEconomy.FormatCurrency(inventoryValue) +
-            " | T\u1ed5ng: " +
+            " | Tổng: " +
             NpcEconomy.FormatCurrency(totalAssets);
     }
+
     string BuildInfoText(
         Transform npc,
         ItemInventory inventory)
@@ -478,8 +605,10 @@ public class NpcInventoryPanelUI : MonoBehaviour
 
         int itemKindCount =
             GetItemKindCount(inventory);
+
         int itemTotalCount =
             GetItemTotalCount(inventory);
+
         int inventoryValue =
             GetInventoryValue(inventory);
 
@@ -488,24 +617,25 @@ public class NpcInventoryPanelUI : MonoBehaviour
             builder.AppendLine(
                 "Linh thạch: " +
                 NpcEconomy.FormatCurrency(Mathf.Max(0, money)));
+
             builder.AppendLine(
                 "Linh thạch tu luyện: " +
                 Mathf.Max(0, spiritStone));
         }
 
         builder.AppendLine(
-            "Gi\u00e1 tr\u1ecb balo: " +
+            "Giá trị balo: " +
             NpcEconomy.FormatCurrency(inventoryValue));
 
         builder.AppendLine(
-            "T\u1ed5ng t\u00e0i s\u1ea3n: " +
+            "Tổng tài sản: " +
             NpcEconomy.FormatCurrency(
                 inventoryValue +
                 NpcEconomy.GetNpcLinhThach(npc.gameObject)));
 
-        builder.Append("S\u1ed1 lo\u1ea1i h\u00e0ng: ");
+        builder.Append("Số loại hàng: ");
         builder.Append(itemKindCount);
-        builder.Append(" / T\u1ed5ng m\u00f3n: ");
+        builder.Append(" / Tổng món: ");
         builder.Append(itemTotalCount);
 
         return builder.ToString();
@@ -668,15 +798,12 @@ public class NpcInventoryPanelUI : MonoBehaviour
             graphic.raycastTarget = blockMapDrag;
         }
 
-        CanvasGroup group = GetComponent<CanvasGroup>();
+        CanvasGroup group =
+            GetComponent<CanvasGroup>();
+
         if (group != null)
         {
             group.interactable = true;
         }
     }
 }
-
-
-
-
-

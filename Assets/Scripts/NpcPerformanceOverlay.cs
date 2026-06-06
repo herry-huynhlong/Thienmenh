@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class NpcPerformanceOverlay : MonoBehaviour
 {
-    public bool visible = true;
+    public bool visible = false;
     public KeyCode toggleKey = KeyCode.F3;
     public float refreshInterval = 0.5f;
     [Header("Display")]
@@ -22,6 +22,8 @@ public class NpcPerformanceOverlay : MonoBehaviour
     static float pathMs;
 
     float nextRefreshTime;
+    float sampleDuration = 1f;
+    float lastSampleTime;
     float fps;
     float frameMs;
     int shownNpcFixedUpdates;
@@ -97,6 +99,13 @@ public class NpcPerformanceOverlay : MonoBehaviour
         float interval =
             Mathf.Max(0.05f, refreshInterval);
 
+        sampleDuration =
+            lastSampleTime > 0f
+            ? Mathf.Max(0.05f, Time.unscaledTime - lastSampleTime)
+            : interval;
+
+        lastSampleTime = Time.unscaledTime;
+
         nextRefreshTime =
             Time.unscaledTime + interval;
 
@@ -163,14 +172,19 @@ public class NpcPerformanceOverlay : MonoBehaviour
             new Rect(rect.x + 14f, rect.y + 12f, rect.width - 28f, rect.height - 24f));
 
         GUILayout.Label("NPC PERF DEBUG (F3)", labelStyle);
-        GUILayout.Label("FPS: " + Mathf.RoundToInt(fps) + " | Frame: " + frameMs.ToString("0.0") + " ms", labelStyle);
-        GUILayout.Label("Villagers active: " + villagerCount + " | NPC FixedUpdate ticks: " + shownNpcFixedUpdates, labelStyle);
-        GUILayout.Label("Monsters active: " + monsterCount + " | Fixed: " + shownMonsterFixedUpdates + " | Think: " + shownMonsterThinkUpdates + " | Detect: " + shownMonsterDetectScans, labelStyle);
-        GUILayout.Label("Path requests: " + shownPathRequests + " | success: " + shownPathSuccesses + " | cache: " + shownPathCacheHits, labelStyle);
-        GUILayout.Label("A* nodes: " + shownPathVisitedNodes + " | path time: " + shownPathMs.ToString("0.00") + " ms", labelStyle);
+        GUILayout.Label("FPS: " + Mathf.RoundToInt(fps) + " | Frame: " + frameMs.ToString("0.0") + " ms | Sample: " + sampleDuration.ToString("0.0") + "s", labelStyle);
+        GUILayout.Label("Villagers active: " + villagerCount + " | NPC Fixed/s: " + GetRateText(shownNpcFixedUpdates), labelStyle);
+        GUILayout.Label("Monsters active: " + monsterCount + " | Fixed/s: " + GetRateText(shownMonsterFixedUpdates) + " | Think/s: " + GetRateText(shownMonsterThinkUpdates) + " | Detect/s: " + GetRateText(shownMonsterDetectScans), labelStyle);
+        GUILayout.Label("Path/s: " + GetRateText(shownPathRequests) + " | success/s: " + GetRateText(shownPathSuccesses) + " | cache/s: " + GetRateText(shownPathCacheHits), labelStyle);
+        GUILayout.Label("A* nodes/s: " + GetRateText(shownPathVisitedNodes) + " | path ms/s: " + GetRateText(shownPathMs), labelStyle);
 
         GUILayout.EndArea();
         GUI.matrix = oldMatrix;
+    }
+
+    string GetRateText(float value)
+    {
+        return (value / Mathf.Max(0.05f, sampleDuration)).ToString("0.0");
     }
 
     float GetScale()

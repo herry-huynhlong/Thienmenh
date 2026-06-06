@@ -66,6 +66,7 @@ public class WorldSpawner : MonoBehaviour
     public bool spawnVillagersAtHomePoints = true;
     public bool spawnActorsOverTime = true;
     public float spawnInterval = 0.25f;
+    public int savedActorLoadBatchSize = 4;
 
     [Header("Villager Jobs")]
     public bool randomizeVillagerJobs = true;
@@ -109,7 +110,13 @@ public class WorldSpawner : MonoBehaviour
 
     IEnumerator SpawnStartupRoutine()
     {
-        if (loadSavedActors && TryLoadSpawnedActors())
+        bool loadedSavedActors = false;
+        if (loadSavedActors)
+        {
+            yield return StartCoroutine(TryLoadSpawnedActorsRoutine(loaded => loadedSavedActors = loaded));
+        }
+
+        if (loadedSavedActors)
         {
             if (topUpMissingActorsToInitialCounts)
             {
@@ -242,27 +249,35 @@ public class WorldSpawner : MonoBehaviour
         ConfigureSpawnedInventory(instance, marker.persistentId, true);
     }
 
-    bool TryLoadSpawnedActors()
+    IEnumerator TryLoadSpawnedActorsRoutine(Action<bool> onComplete)
     {
         if (!PlayerPrefs.HasKey(SaveKey))
         {
-            return false;
+            onComplete?.Invoke(false);
+            yield break;
         }
 
         SavedWorldActorCollection data = JsonUtility.FromJson<SavedWorldActorCollection>(PlayerPrefs.GetString(SaveKey));
         if (data == null || data.actors == null || data.actors.Count == 0)
         {
-            return false;
+            onComplete?.Invoke(false);
+            yield break;
         }
 
         DestroyExistingSpawnedActors();
 
-        foreach (SavedWorldActorData actorData in data.actors)
+        int batchSize = Mathf.Max(1, savedActorLoadBatchSize);
+        for (int i = 0; i < data.actors.Count; i++)
         {
-            LoadActor(actorData);
+            LoadActor(data.actors[i]);
+
+            if ((i + 1) % batchSize == 0)
+            {
+                yield return null;
+            }
         }
 
-        return true;
+        onComplete?.Invoke(true);
     }
 
     void LoadActor(SavedWorldActorData actorData)

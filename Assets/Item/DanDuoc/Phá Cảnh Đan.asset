@@ -1,0 +1,64 @@
+﻿%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
+  m_Name: "Ph\xE1 C\u1EA3nh \u0110an"
+  m_EditorClassIdentifier: Assembly-CSharp::StatItemData
+  itemName: "Ph\xE1 C\u1EA3nh \u0110an Trung"
+  description: "\u0110an d\u01B0\u1EE3c trung ph\u1EA9m chuy\xEAn d\xF9ng khi tu
+    s\u0129 g\u1EB7p b\xECnh c\u1EA3nh. D\u01B0\u1EE3c l\u1EF1c c\xF3 th\u1EC3 khai
+    th\xF4ng kinh m\u1EA1ch, \u1ED5n \u0111\u1ECBnh linh kh\xED trong \u0111an \u0111i\u1EC1n
+    v\xE0 t\u0103ng x\xE1c su\u1EA5t \u0111\u1ED9t ph\xE1. Th\xEDch h\u1EE3p cho
+    tu s\u0129 t\u1EEB Tr\xFAc C\u01A1 \u0111\u1EBFn Kim \u0110an s\u1EED d\u1EE5ng."
+  itemType: 0
+  grade: 1
+  validTargets: -1
+  price: 84688
+  icon: {fileID: 8469242981551012843, guid: 7ade26f660baeac4d82488caa725ff7a, type: 3}
+  consumeOnUse: 1
+  equipmentSlot: 0
+  artifactKind: 0
+  pillKind: 3
+  manualKind: 0
+  materialKind: 0
+  foodKind: 0
+  useStyle: 1
+  conversionType: 0
+  canUseDirectly: 1
+  canBeSold: 1
+  canBeRefinedIntoPill: 0
+  canBeForgedIntoArtifact: 0
+  canBeStudied: 0
+  rawUseEfficiency: 1
+  useSuccessChance: 1
+  rawUsePolicy: 0
+  rawToxicityDamage: 0
+  npcIntent: 0
+  refineValueMultiplier: 1.5
+  sellValueMultiplier: 1
+  maxDurability: 0
+  durabilityLossPerUse: 1
+  breaksAtZero: 1
+  hpBonus: 0
+  cultivationBonus: 372208
+  breakthroughRealm: 1
+  damageBonus: 0
+  armorBonus: 0
+  effectResistanceBonus: 0
+  canBeTaught: 1
+  studyProgressPerUse: 1
+  manualBreakAfterYears: 10
+  tieuThanhPower: 0.3
+  trungThanhPower: 0.6
+  daiThanhPower: 1
+  isTemporary: 0
+  duration: 10
+  modifiers: []

@@ -24,10 +24,10 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     public bool generateFromEntityProfile = true;
     public EntityProfile entityProfile;
 
-    [Header("Thông tin NPC")]
+    [Header("ThÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´ng tin NPC")]
     public string npcName = "NPC";
 
-    [Header("Bật / Tắt chức năng")]
+    [Header("BÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â­t / TÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¯t chÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â©c nÃƒÆ’Ã¢â‚¬Å¾Ãƒâ€ Ã¢â‚¬â„¢ng")]
     public bool canLive = true;
     public bool canCultivate = true;
     public bool canFight = true;
@@ -38,19 +38,19 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     public bool canCreateSect = true;
     public bool autonomousActivitiesEnabled = false;
 
-    [Header("Cảnh giới")]
+    [Header("CÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â£nh giÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Âºi")]
     public CultivationRealm realm = CultivationRealm.Mortal;
 
     [Range(1, 9)]
     public int realmStage = 1;
 
-    [Header("Thiên phú")]
+    [Header("ThiÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âªn phÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âº")]
     [Range(1, 100)]
     public int comprehension = 10;
 
     public PhysiqueType physique = PhysiqueType.MortalBody;
 
-    [Header("Chỉ số")]
+    [Header("ChÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â° sÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“")]
     public int maxHP = 100;
 
     public int currentHP = 100;
@@ -64,22 +64,22 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     public int lifespan = 80;
     public bool dieWhenLifespanEnds = true;
 
-    [Header("Tu luyện")]
+    [Header("Tu luyÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¡n")]
     public long cultivation = 0;
 
     public long breakthroughNeed = 100;
 
     public bool readyForHeavenlyTribulation = false;
 
-    [Header("Tài sản")]
-    [InspectorName("Linh Thạch")]
+    [Header("TÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â i sÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â£n")]
+    [InspectorName("Linh ThÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡ch")]
     public int money = 100;
 
     public int spiritStone = 0;
 
     public int pill = 0;
 
-    [Header("Tính cách")]
+    [Header("TÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­nh cÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ch")]
     [Range(0, 100)]
     public int bravery = 50;
 
@@ -89,14 +89,14 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     [Range(0, 100)]
     public int kindness = 50;
 
-    [Header("Nhu cầu sống")]
+    [Header("Nhu cÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â§u sÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ng")]
     [Range(0, 100)]
     public float hunger = 0;
 
     [Range(0, 100)]
     public float fatigue = 0;
 
-    [Header("Di chuyển")]
+    [Header("Di chuyÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€ Ã¢â‚¬â„¢n")]
     public float moveSpeed = 2f;
     public bool useKinematicNpcMovement = true;
     public LayerMask crowdLayers = ~0;
@@ -107,11 +107,16 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     public float crowdYieldDuration = 0.22f;
 
     public Transform currentTarget;
+    Transform treasureHuntTarget;
+    StatItemData treasureHuntItem;
+    bool waitingOutsideTreasureLightning;
+    Vector3 treasureWaitPosition;
+    bool hasTreasureWaitPosition;
 
     private Rigidbody2D rb;
     Collider2D[] selfColliders;
 
-    [Header("Chiến đấu")]
+    [Header("ChiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿n ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¥u")]
     public float attackRange = 1.5f;
 
     public float attackCooldown = 1f;
@@ -129,12 +134,12 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     public Transform firePoint;
 
-    [Header("Khoảng cách hoạt động")]
+    [Header("KhoÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â£ng cÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ch hoÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡t ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ng")]
     public float maxRoamDistance = 10f;
 
     private Vector3 spawnPosition;
 
-    [Header("Địa điểm")]
+    [Header("ÃƒÆ’Ã¢â‚¬Å¾Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¹a ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“iÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€ Ã¢â‚¬â„¢m")]
     public Transform homePoint;
 
     public Transform tavernPoint;
@@ -143,8 +148,8 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     public Transform farmPoint;
 
-    [Header("Trạng thái hiện tại")]
-    public string currentAction = "Đứng yên";
+    [Header("TrÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡ng thÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡i hiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¡n tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡i")]
+    public string currentAction = "ÃƒÆ’Ã¢â‚¬Å¾Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â©ng yÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âªn";
 
     private float thinkTimer = 0;
 
@@ -303,6 +308,17 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
         attackTimer += Time.deltaTime;
 
+        if (treasureHuntTarget != null || waitingOutsideTreasureLightning)
+        {
+            RefreshTreasureHuntAction();
+            thinkTimer = 0f;
+            if (canLive)
+            {
+                UpdateNeeds();
+            }
+            return;
+        }
+
         if (thinkTimer >= thinkDelay)
         {
             thinkTimer = 0;
@@ -343,19 +359,28 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (currentTarget == null)
+        bool movingToTreasureWait =
+            waitingOutsideTreasureLightning &&
+            hasTreasureWaitPosition;
+
+        if (currentTarget == null &&
+            !movingToTreasureWait)
         {
             rb.linearVelocity = Vector2.zero;
 
             return;
         }
 
+        Vector3 desiredTarget = movingToTreasureWait
+            ? treasureWaitPosition
+            : currentTarget.position;
+
         bool usingTeleportRoute;
         string routeAction;
         Vector3 moveTarget =
             NpcMapNavigator.GetNextMoveTarget(
                 gameObject,
-                currentTarget.position,
+                desiredTarget,
                 out usingTeleportRoute,
                 out routeAction);
 
@@ -368,7 +393,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         NpcMapArea spawnArea =
             NpcMapArea.FindArea(spawnPosition);
         NpcMapArea targetArea =
-            NpcMapArea.FindArea(currentTarget.position);
+            NpcMapArea.FindArea(desiredTarget);
         bool targetInSpawnArea =
             spawnArea == null ||
             targetArea == null ||
@@ -379,7 +404,9 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
                 transform.position,
                 spawnPosition);
 
-        if (!usingTeleportRoute &&
+        if (!movingToTreasureWait &&
+            treasureHuntTarget == null &&
+            !usingTeleportRoute &&
             targetInSpawnArea &&
             distanceFromSpawn > maxRoamDistance)
         {
@@ -428,6 +455,37 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         }
     }
 
+
+    public void ForceTreasureWait(
+        Vector3 origin,
+        float safeRadius,
+        StatItemData item,
+        bool lowPowerSkirmish)
+    {
+        if (item == null || IsDead)
+        {
+            return;
+        }
+
+        waitingOutsideTreasureLightning = true;
+        treasureHuntTarget = null;
+        treasureHuntItem = item;
+        currentTarget = null;
+
+        Vector2 away = transform.position - origin;
+        if (away.sqrMagnitude <= 0.01f)
+        {
+            away = Random.insideUnitCircle.normalized;
+        }
+
+        treasureWaitPosition =
+            origin +
+            (Vector3)away.normalized * Mathf.Max(0.5f, safeRadius);
+        hasTreasureWaitPosition = true;
+        currentAction = lowPowerSkirmish
+            ? "Hon chien vong ngoai " + item.itemName
+            : "Doi thien loi tan " + item.itemName;
+    }
     public void ForceTreasureHunt(
         Transform target,
         StatItemData item)
@@ -439,9 +497,55 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
+        waitingOutsideTreasureLightning = false;
+        hasTreasureWaitPosition = false;
+        treasureHuntTarget = target;
+        treasureHuntItem = item;
         currentTarget = target;
         currentAction =
-            "Truy đoạt " + item.itemName;
+            "Truy doat " + item.itemName;
+    }
+
+    public void ClearTreasureHunt()
+    {
+        if (treasureHuntTarget == null && treasureHuntItem == null)
+        {
+            return;
+        }
+
+        waitingOutsideTreasureLightning = false;
+        hasTreasureWaitPosition = false;
+        treasureHuntTarget = null;
+        treasureHuntItem = null;
+        if (currentTarget != null && currentAction.Contains("Truy doat"))
+        {
+            currentTarget = null;
+        }
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        currentAction = "Binh tinh tro lai";
+    }
+
+    void RefreshTreasureHuntAction()
+    {
+        if (waitingOutsideTreasureLightning)
+        {
+            return;
+        }
+
+        if (treasureHuntTarget == null || treasureHuntItem == null)
+        {
+            ClearTreasureHunt();
+            return;
+        }
+
+        currentTarget = treasureHuntTarget;
+        currentAction =
+            "Truy doat " + treasureHuntItem.itemName;
     }
 
     void ReturnToSpawn()
@@ -460,7 +564,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         rb.linearVelocity =
             direction * moveSpeed;
 
-        currentAction = "Quay về lãnh địa";
+        currentAction = "Quay vÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â lÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£nh ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¹a";
 
         float distance =
             Vector2.Distance(
@@ -791,7 +895,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
         if (ShouldDieFromOldAge())
         {
-            currentAction = "Thọ nguyên đã tận";
+            currentAction = "ThÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â nguyÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âªn ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£ tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â­n";
             Die();
             return;
         }
@@ -884,7 +988,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
-        currentAction = "Đi dạo trong làng";
+        currentAction = "ÃƒÆ’Ã¢â‚¬Å¾Ãƒâ€šÃ‚Âi dÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡o trong lÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â ng";
     }
 
     void UpdateNeeds()
@@ -924,15 +1028,15 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             money = 0;
         }
 
-        currentAction = "Đi ăn";
+        currentAction = "ÃƒÆ’Ã¢â‚¬Å¾Ãƒâ€šÃ‚Âi ÃƒÆ’Ã¢â‚¬Å¾Ãƒâ€ Ã¢â‚¬â„¢n";
 
         Debug.Log(
-            npcName + " đang đi ăn.");
+            npcName + " ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ang ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“i ÃƒÆ’Ã¢â‚¬Å¾Ãƒâ€ Ã¢â‚¬â„¢n.");
     }
 
     void Sleep()
     {
-        currentAction = "Đi ngủ";
+        currentAction = "ÃƒÆ’Ã¢â‚¬Å¾Ãƒâ€šÃ‚Âi ngÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â§";
 
         currentTarget = homePoint;
 
@@ -964,7 +1068,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             }
 
             Debug.Log(
-                npcName + " đang nghỉ ngơi.");
+                npcName + " ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ang nghÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â° ngÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â¡i.");
         }
     }
 
@@ -995,7 +1099,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
             Debug.Log(
                 npcName +
-                " hấp thụ đan dược tăng " +
+                " hÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¥p thÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â¥ ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“an dÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â°ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â£c tÃƒÆ’Ã¢â‚¬Å¾Ãƒâ€ Ã¢â‚¬â„¢ng " +
                 gain +
                 " tu vi.");
         }
@@ -1014,7 +1118,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
             Debug.Log(
                 npcName +
-                " hấp thụ linh thạch tăng " +
+                " hÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¥p thÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â¥ linh thÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡ch tÃƒÆ’Ã¢â‚¬Å¾Ãƒâ€ Ã¢â‚¬â„¢ng " +
                 gain +
                 " tu vi.");
         }
@@ -1119,11 +1223,11 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         {
             readyForHeavenlyTribulation = true;
 
-            currentAction = "Chờ thiên kiếp";
+            currentAction = "ChÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â thiÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âªn kiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿p";
 
             Debug.Log(
                 npcName +
-                " đã viên mãn Độ Kiếp.");
+                " ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£ viÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âªn mÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£n ÃƒÆ’Ã¢â‚¬Å¾Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ KiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿p.");
 
             return;
         }
@@ -1142,20 +1246,20 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         ApplyRealmPower();
         lifespan = GetLifespanForRealm(realm);
 
-        currentAction = "Đột phá";
+        currentAction = "ÃƒÆ’Ã¢â‚¬Å¾Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢t phÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡";
 
         Debug.Log(
             npcName +
-            " đột phá lên " +
+            " ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢t phÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ lÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âªn " +
             GetRealmName() +
-            " tầng " +
+            " tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â§ng " +
             realmStage);
     }
 
     void GoToTavernAndBuyPill()
     {
         currentAction =
-            "Đi tửu lâu";
+            "ÃƒÆ’Ã¢â‚¬Å¾Ãƒâ€šÃ‚Âi tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â­u lÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢u";
 
         currentTarget =
             tavernPoint;
@@ -1173,17 +1277,17 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
             Debug.Log(
                 npcName +
-                " mua đan dược.");
+                " mua ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“an dÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â°ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â£c.");
         }
     }
 
     void SearchMonster()
 {
-    // nếu đang có mục tiêu sống
-    // thì tiếp tục đánh luôn
+    // nÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿u ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ang cÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³ mÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â¥c tiÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âªu sÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ng
+    // thÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¬ tiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿p tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â¥c ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡nh luÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´n
     if (currentMonsterTarget != null)
     {
-        // quái chết thì bỏ target
+        // quÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡i chÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿t thÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¬ bÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â target
         if (currentMonsterTarget.currentHP <= 0)
         {
             currentMonsterTarget = null;
@@ -1198,7 +1302,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
                 transform.position,
                 currentMonsterTarget.transform.position);
 
-        // quái chạy quá xa
+        // quÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡i chÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡y quÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ xa
         if (currentDistance > maxRoamDistance)
         {
             currentMonsterTarget = null;
@@ -1208,7 +1312,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
-        // tiếp tục đánh
+        // tiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿p tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â¥c ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡nh
         TryAttackMonster();
 
         return;
@@ -1224,19 +1328,19 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     foreach (MonsterAI monster in monsters)
     {
-        // bỏ qua quái chết
+        // bÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â qua quÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡i chÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿t
         if (monster.currentHP <= 0)
         {
             continue;
         }
 
-        // kiểm tra nên đánh không
+        // kiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€ Ã¢â‚¬â„¢m tra nÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âªn ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡nh khÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´ng
         if (!ShouldFightMonster(monster))
         {
             continue;
         }
 
-        // quái quá xa lãnh địa
+        // quÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡i quÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ xa lÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£nh ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¹a
         float distanceFromSpawn =
             Vector2.Distance(
                 spawnPosition,
@@ -1248,13 +1352,13 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             continue;
         }
 
-        // khoảng cách hiện tại
+        // khoÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â£ng cÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ch hiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¡n tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡i
         float distance =
             Vector2.Distance(
                 transform.position,
                 monster.transform.position);
 
-        // chọn mục tiêu gần nhất
+        // chÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Ân mÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â¥c tiÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âªu gÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â§n nhÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¥t
         if (distance < closestDistance)
         {
             closestDistance =
@@ -1265,7 +1369,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         }
     }
 
-    // tìm được quái
+    // tÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¬m ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â°ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â£c quÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡i
     if (bestTarget != null)
     {
         currentMonsterTarget =
@@ -1275,7 +1379,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             bestTarget.transform;
 
         currentAction =
-            "Săn " +
+            "SÃƒÆ’Ã¢â‚¬Å¾Ãƒâ€ Ã¢â‚¬â„¢n " +
             bestTarget.monsterName;
     }
 }
@@ -1287,7 +1391,7 @@ void TryAttackMonster()
         return;
     }
 
-    // quái chết
+    // quÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡i chÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿t
     if (currentMonsterTarget.currentHP <= 0)
     {
         currentMonsterTarget = null;
@@ -1302,13 +1406,13 @@ void TryAttackMonster()
             transform.position,
             currentMonsterTarget.transform.position);
 
-    // chưa tới tầm đánh
+    // chÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â°a tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Âºi tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â§m ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡nh
     if (distance > attackRange)
     {
         return;
     }
 
-    // hồi chiêu
+    // hÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œi chiÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âªu
     if (attackTimer < attackCooldown)
     {
         return;
@@ -1317,20 +1421,20 @@ void TryAttackMonster()
     // reset cooldown
     attackTimer = 0;
 
-    // gây damage
+    // gÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢y damage
     currentMonsterTarget.TakeDamage(attack);
 
     currentAction =
-        "Đánh " +
+        "ÃƒÆ’Ã¢â‚¬Å¾Ãƒâ€šÃ‚ÂÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡nh " +
         currentMonsterTarget.monsterName;
 
     Debug.Log(
         npcName +
-        " tấn công " +
+        " tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¥n cÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´ng " +
         currentMonsterTarget.monsterName +
-        " gây " +
+        " gÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢y " +
         attack +
-        " sát thương.");
+        " sÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡t thÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â¡ng.");
 }
 
 public void ShootFireball()
@@ -1366,7 +1470,7 @@ public void ShootFireball()
 bool ShouldFightMonster(
     MonsterAI monster)
 {
-    // quái chết
+    // quÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡i chÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿t
     if (monster.currentHP <= 0)
     {
         return false;
@@ -1388,18 +1492,18 @@ bool ShouldFightMonster(
     float myHpPercent =
         (float)currentHP / maxHP;
 
-    // máu thấp thì chạy
+    // mÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡u thÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¥p thÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¬ chÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡y
     if (myHpPercent <= 0.3f)
     {
-        currentAction = "Bỏ chạy";
+        currentAction = "BÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â chÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡y";
 
         return false;
     }
 
-    // quái mạnh hơn nhiều
+    // quÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡i mÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡nh hÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â¡n nhiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Âu
     if (difference >= 2)
     {
-        // chỉ đánh nếu quái gần chết
+        // chÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â° ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡nh nÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿u quÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡i gÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â§n chÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿t
         if (monsterHpPercent <= 0.3f)
         {
             return true;
@@ -1413,11 +1517,11 @@ bool ShouldFightMonster(
     void MakeFriend()
     {
         currentAction =
-            "Kết bạn";
+            "KÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿t bÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡n";
 
         Debug.Log(
             npcName +
-            " đang giao tiếp.");
+            " ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ang giao tiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿p.");
     }
 
     void TryCreateSect()
@@ -1426,11 +1530,11 @@ bool ShouldFightMonster(
             CultivationRealm.SoulFormation)
         {
             currentAction =
-                "Lập tông môn";
+                "LÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â­p tÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´ng mÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´n";
 
             Debug.Log(
                 npcName +
-                " có thể lập tông môn.");
+                " cÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³ thÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€ Ã¢â‚¬â„¢ lÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â­p tÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´ng mÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´n.");
         }
     }
 
@@ -1461,9 +1565,9 @@ bool ShouldFightMonster(
 
         Debug.Log(
             npcName +
-            " nhận " +
+            " nhÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â­n " +
             finalDamage +
-            " sát thương.");
+            " sÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡t thÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â¡ng.");
 
         if (currentHP <= 0)
         {
@@ -1616,33 +1720,33 @@ bool ShouldFightMonster(
     {
         if (realm ==
             CultivationRealm.Mortal)
-            return "Người thường";
+            return "NgÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â°ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Âi thÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â°ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Âng";
 
         if (realm ==
             CultivationRealm.QiRefining)
-            return "Luyện Khí";
+            return "LuyÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¡n KhÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­";
 
         if (realm ==
             CultivationRealm.Foundation)
-            return "Trúc Cơ";
+            return "TrÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âºc CÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â¡";
 
         if (realm ==
             CultivationRealm.GoldenCore)
-            return "Kim Đan";
+            return "Kim ÃƒÆ’Ã¢â‚¬Å¾Ãƒâ€šÃ‚Âan";
 
         if (realm ==
             CultivationRealm.NascentSoul)
-            return "Nguyên Anh";
+            return "NguyÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âªn Anh";
 
         if (realm ==
             CultivationRealm.SoulFormation)
-            return "Hóa Thần";
+            return "HÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³a ThÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â§n";
 
         if (realm ==
             CultivationRealm.Tribulation)
-            return "Độ Kiếp";
+            return "ÃƒÆ’Ã¢â‚¬Å¾Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ KiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿p";
 
-        return "Không rõ";
+        return "KhÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´ng rÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âµ";
     }
 
     public int GetAge()

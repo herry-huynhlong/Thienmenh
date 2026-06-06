@@ -4,20 +4,22 @@ using UnityEngine.UI;
 
 public class FavoriteNpcListUI : MonoBehaviour
 {
-    [Header("Panel danh sách")]
+    [Header("List panel")]
     public GameObject panel;
     public Transform contentRoot;
     public FavoriteNpcRowUI rowPrefab;
 
-    [Header("Nút ngoài màn hình")]
+    [Header("Main screen buttons")]
     public Button openButton;
     public Button closeButton;
 
-    [Header("Thông tin")]
+    [Header("Info")]
     public TMP_Text countText;
 
     [Header("Camera")]
     public Camera targetCamera;
+
+    private NpcFavoriteManager manager;
 
     private void Awake()
     {
@@ -43,9 +45,11 @@ public class FavoriteNpcListUI : MonoBehaviour
             closeButton.onClick.AddListener(HidePanel);
         }
 
-        if (NpcFavoriteManager.Instance != null)
+        manager = NpcFavoriteManager.EnsureInstance();
+
+        if (manager != null)
         {
-            NpcFavoriteManager.Instance.OnFavoritesChanged += RebuildList;
+            manager.OnFavoritesChanged += RebuildList;
         }
 
         panel.SetActive(false);
@@ -53,9 +57,9 @@ public class FavoriteNpcListUI : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (NpcFavoriteManager.Instance != null)
+        if (manager != null)
         {
-            NpcFavoriteManager.Instance.OnFavoritesChanged -= RebuildList;
+            manager.OnFavoritesChanged -= RebuildList;
         }
     }
 
@@ -95,12 +99,14 @@ public class FavoriteNpcListUI : MonoBehaviour
             Destroy(contentRoot.GetChild(i).gameObject);
         }
 
-        if (NpcFavoriteManager.Instance == null)
+        manager = NpcFavoriteManager.EnsureInstance();
+
+        if (manager == null)
         {
             return;
         }
 
-        var list = NpcFavoriteManager.Instance.Favorites;
+        var list = manager.Favorites;
 
         for (int i = 0; i < list.Count; i++)
         {
@@ -117,7 +123,7 @@ public class FavoriteNpcListUI : MonoBehaviour
 
         if (countText != null)
         {
-            countText.text = list.Count + "/" + NpcFavoriteManager.Instance.maxFavorites;
+            countText.text = list.Count + "/" + manager.maxFavorites;
         }
     }
 

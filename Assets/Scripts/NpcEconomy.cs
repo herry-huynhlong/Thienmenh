@@ -15,6 +15,7 @@ public static class NpcEconomy
 {
     public const string CurrencyName = "Linh Thạch";
     public const string CurrencyShortName = "LT";
+    public const int CurrencyCultivationExp = CultivationProgression.SpiritStoneBaseExp;
 
     public static int GetItemValue(StatItemData item)
     {
@@ -306,22 +307,22 @@ public static class NpcEconomy
         switch (type)
         {
             case ItemType.DanDuoc:
-                return GetByGrade(grade, 1800, 30000, 500000, 50000000);
+                return GetByGrade(grade, 1000, 15000, 200000, 100000000);
 
             case ItemType.CongPhap:
-                return GetByGrade(grade, 9000, 120000, 1800000, 80000000);
+                return GetByGrade(grade, 3000, 50000, 700000, 50000000);
 
             case ItemType.PhapBao:
-                return GetByGrade(grade, 16000, 260000, 4200000, 120000000);
+                return GetByGrade(grade, 800, 8000, 80000, 5000000);
 
             case ItemType.ThucPham:
-                return 20;
+                return GetByGrade(grade, 80, 1000, 20000, 2000000);
 
             case ItemType.VatLieu:
-                return GetByGrade(grade, 80, 1200, 18000, 25000000);
+                return GetByGrade(grade, 100, 2000, 30000, 20000000);
 
             default:
-                return GetByGrade(grade, 50, 300, 2000, 30000000);
+                return GetByGrade(grade, 100, 1000, 10000, 1000000);
         }
     }
 
@@ -331,9 +332,9 @@ public static class NpcEconomy
             GetGradeMultiplier(item.grade);
 
         int value = 0;
+        int cultivationValue = GetCultivationExpValue(item);
 
         value += Mathf.Max(0, item.hpBonus) * 2;
-        value += Mathf.Max(0, item.cultivationBonus) * 8;
         value += Mathf.Max(0, item.damageBonus) * 16;
         value += Mathf.Max(0, item.armorBonus) * 16;
         value += Mathf.Max(0, item.effectResistanceBonus) * 12;
@@ -356,7 +357,43 @@ public static class NpcEconomy
             }
         }
 
-        return value * gradeMultiplier;
+        return value * gradeMultiplier + cultivationValue;
+    }
+
+
+    static int GetCultivationExpValue(StatItemData item)
+    {
+        int exp = Mathf.Max(0, item.cultivationBonus);
+        if (exp <= 0)
+        {
+            return 0;
+        }
+
+        float efficiency = 1f;
+
+        switch (item.itemType)
+        {
+            case ItemType.DanDuoc:
+                efficiency = item.pillKind == PillKind.Cultivation ? 3f : 1f;
+                break;
+
+            case ItemType.VatLieu:
+                efficiency = 1.5f;
+                break;
+
+            case ItemType.ThucPham:
+                efficiency = 0.6f;
+                break;
+
+            case ItemType.CongPhap:
+                efficiency = 0.35f;
+                break;
+        }
+
+        float divisor =
+            Mathf.Max(1f, CurrencyCultivationExp * efficiency);
+
+        return Mathf.Max(1, Mathf.RoundToInt(exp / divisor));
     }
 
     static float GetNpcNeedMultiplier(
@@ -434,3 +471,4 @@ public static class NpcEconomy
         }
     }
 }
+

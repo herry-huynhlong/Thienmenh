@@ -447,7 +447,23 @@ public class BottomMenuButtonRouter : MonoBehaviour
         PlayerPrefs.SetString("MapReturnScene", returnScene);
         PlayerPrefs.Save();
 
-        SceneManager.LoadScene(mapSceneName);
+        Scene mapScene =
+            SceneManager.GetSceneByName(mapSceneName);
+
+        if (!mapScene.isLoaded)
+        {
+            SceneManager.LoadScene(
+                mapSceneName,
+                LoadSceneMode.Additive);
+
+            mapScene =
+                SceneManager.GetSceneByName(mapSceneName);
+        }
+
+        if (mapScene.IsValid() && mapScene.isLoaded)
+        {
+            SceneManager.SetActiveScene(mapScene);
+        }
     }
 
     public void ToggleStory()

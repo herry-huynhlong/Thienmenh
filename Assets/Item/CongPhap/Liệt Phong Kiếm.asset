@@ -1,0 +1,62 @@
+﻿%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
+  m_Name: "Li\u1EC7t Phong Ki\u1EBFm"
+  m_EditorClassIdentifier: Assembly-CSharp::StatItemData
+  itemName: "Li\u1EC7t Phong Ki\u1EBFm"
+  description: "Ki\u1EBFm ph\xE1p nh\u1EADp m\xF4n, xu\u1EA5t ki\u1EBFm nhanh, kh\xED
+    th\u1EBF nh\u01B0 gi\xF3, th\xEDch h\u1EE3p cho tu s\u0129 tr\u1EBB tu\u1ED5i
+    m\u1EDBi t\u1EADp c\xF4ng k\xEDch."
+  itemType: 3
+  grade: 0
+  validTargets: -1
+  price: 11866
+  icon: {fileID: -5718994951289414667, guid: ea8a3efbf4456da46ab6d7201eded0ad, type: 3}
+  consumeOnUse: 0
+  equipmentSlot: 0
+  artifactKind: 0
+  pillKind: 0
+  manualKind: 1
+  materialKind: 0
+  foodKind: 0
+  useStyle: 4
+  conversionType: 0
+  canUseDirectly: 1
+  canBeSold: 1
+  canBeRefinedIntoPill: 0
+  canBeForgedIntoArtifact: 0
+  canBeStudied: 1
+  rawUseEfficiency: 1
+  useSuccessChance: 1
+  rawUsePolicy: 0
+  rawToxicityDamage: 0
+  npcIntent: 0
+  refineValueMultiplier: 1.5
+  sellValueMultiplier: 1
+  maxDurability: 0
+  durabilityLossPerUse: 1
+  breaksAtZero: 1
+  hpBonus: 0
+  cultivationBonus: 10298
+  breakthroughRealm: 0
+  damageBonus: 8
+  armorBonus: 0
+  effectResistanceBonus: 0
+  canBeTaught: 1
+  studyProgressPerUse: 1
+  manualBreakAfterYears: 10
+  tieuThanhPower: 0.3
+  trungThanhPower: 0.6
+  daiThanhPower: 1
+  isTemporary: 0
+  duration: 10
+  modifiers: []

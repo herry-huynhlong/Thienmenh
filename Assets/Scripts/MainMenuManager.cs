@@ -56,25 +56,17 @@ public class MainMenuManager : MonoBehaviour
 
     public void ContinueGame()
     {
-        string sceneToLoad = "";
-
-        if (GameSaveSystem.HasSave ||
-            PlayerPrefs.HasKey("PlayerName"))
-        {
-            sceneToLoad =
-                GameSaveSystem.LoadCurrentScene(firstGameScene);
-        }
-        else
-        {
-            sceneToLoad = characterCreateScene;
-        }
+        string sceneToLoad =
+            GameSaveSystem.HasSave || PlayerPrefs.HasKey("PlayerName")
+            ? firstGameScene
+            : characterCreateScene;
 
         if (string.IsNullOrEmpty(sceneToLoad) ||
             !Application.CanStreamedLevelBeLoaded(sceneToLoad))
         {
             Debug.LogWarning(
-                $"Cannot continue to scene '{sceneToLoad}'. Loading '{firstGameScene}' instead.");
-            sceneToLoad = firstGameScene;
+                $"Cannot continue to scene '{sceneToLoad}'. Loading '{characterCreateScene}' instead.");
+            sceneToLoad = characterCreateScene;
         }
 
         SceneManager.LoadScene(sceneToLoad);

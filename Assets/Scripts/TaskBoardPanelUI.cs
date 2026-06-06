@@ -5,6 +5,16 @@ public class TaskBoardPanelUI : MonoBehaviour
     public Transform content;
     public TaskBoardRowUI rowTemplate;
 
+    private void Awake()
+    {
+        HideRowTemplate();
+    }
+
+    private void OnEnable()
+    {
+        HideRowTemplate();
+    }
+
     public void Show(NpcTaskProvider provider)
     {
         if (provider == null)
@@ -13,16 +23,32 @@ public class TaskBoardPanelUI : MonoBehaviour
             return;
         }
 
+        if (content == null)
+        {
+            Debug.LogWarning("TaskBoardPanelUI chưa gán Content.");
+            return;
+        }
+
+        if (rowTemplate == null)
+        {
+            Debug.LogWarning("TaskBoardPanelUI chưa gán Row Template.");
+            return;
+        }
+
+        gameObject.SetActive(true);
+
+        HideRowTemplate();
         ClearOldRows();
 
         foreach (NpcTaskOffer offer in provider.offers)
         {
             TaskBoardRowUI row = Instantiate(rowTemplate, content);
+
             row.gameObject.SetActive(true);
             row.SetData(offer);
         }
 
-        gameObject.SetActive(true);
+        HideRowTemplate();
     }
 
     public void Hide()
@@ -36,10 +62,18 @@ public class TaskBoardPanelUI : MonoBehaviour
         {
             Transform child = content.GetChild(i);
 
-            if (child == rowTemplate.transform)
+            if (rowTemplate != null && child == rowTemplate.transform)
                 continue;
 
             Destroy(child.gameObject);
+        }
+    }
+
+    private void HideRowTemplate()
+    {
+        if (rowTemplate != null)
+        {
+            rowTemplate.gameObject.SetActive(false);
         }
     }
 }

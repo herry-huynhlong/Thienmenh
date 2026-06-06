@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -13,26 +13,35 @@ MonoBehaviour:
   m_Name: Huyet_Linh_Thao
   m_EditorClassIdentifier: Assembly-CSharp::StatItemData
   itemName: "Huy\u1EBFt Linh Th\u1EA3o"
-  description: "Linh d\u01B0\u1EE3c c\u1EA5p th\u1EA5p m\u1ECDc \u1EDF n\u01A1i linh
-    kh\xED pha l\u1EABn huy\u1EBFt kh\xED, th\xE2n c\u1ECF \u0111\u1ECF nh\u1EA1t,
-    d\u01B0\u1EE3c l\u1EF1c c\xF2n y\u1EBFu nh\u01B0ng d\u1EC5 luy\u1EC7n h\xF3a."
+  description: "Linh th\u1EA3o h\u1EA1 ph\u1EA9m c\xF3 th\xE2n \u0111\u1ECF nh\u1EA1t,
+    b\xEAn trong ch\u1EE9a huy\u1EBFt kh\xED \xF4n h\xF2a. Th\u01B0\u1EDDng \u0111\u01B0\u1EE3c
+    d\xF9ng \u0111\u1EC3 b\u1ED5 sung kh\xED huy\u1EBFt, h\u1ED3i ph\u1EE5c sinh
+    m\u1EC7nh v\xE0 l\xE0m nguy\xEAn li\u1EC7u luy\u1EC7n c\xE1c lo\u1EA1i \u0111an
+    h\u1ED3i m\xE1u c\u1EA5p th\u1EA5p. \u0102n s\u1ED1ng v\u1EABn c\xF3 t\xE1c d\u1EE5ng
+    nh\u01B0ng d\u1EC5 l\xE3ng ph\xED d\u01B0\u1EE3c l\u1EF1c."
   itemType: 2
   grade: 0
   validTargets: -1
-  price: 2500
+  price: 1385
   icon: {fileID: 1120446373898755333, guid: 9413a8f717391eb4695d1a236826be7c, type: 3}
   consumeOnUse: 1
-  useStyle: 0
+  equipmentSlot: 0
+  artifactKind: 0
+  pillKind: 0
+  manualKind: 0
+  materialKind: 1
+  foodKind: 0
+  useStyle: 2
   conversionType: 0
   canUseDirectly: 1
   canBeSold: 1
   canBeRefinedIntoPill: 1
-  canBeForgedIntoArtifact: 0
-  canBeStudied: 1
-  rawUseEfficiency: 0.35
+  canBeForgedIntoArtifact: 1
+  canBeStudied: 0
+  rawUseEfficiency: 0.228
   useSuccessChance: 1
   rawUsePolicy: 1
-  rawToxicityDamage: 15
+  rawToxicityDamage: 12
   npcIntent: 0
   refineValueMultiplier: 1.5
   sellValueMultiplier: 1
@@ -40,13 +49,14 @@ MonoBehaviour:
   durabilityLossPerUse: 1
   breaksAtZero: 1
   hpBonus: 0
-  cultivationBonus: 0
+  cultivationBonus: 19145
   breakthroughRealm: 0
   damageBonus: 0
   armorBonus: 0
   effectResistanceBonus: 0
   canBeTaught: 0
   studyProgressPerUse: 1
+  manualBreakAfterYears: 10
   tieuThanhPower: 0.3
   trungThanhPower: 0.6
   daiThanhPower: 1

@@ -1,0 +1,61 @@
+﻿%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
+  m_Name: "Xuy\xEAn V\xE2n Cung"
+  m_EditorClassIdentifier: Assembly-CSharp::StatItemData
+  itemName: "Xuy\xEAn V\xE2n Cung"
+  description: "Cung trung ph\u1EA9m c\xF3 l\u1EF1c b\u1EAFn m\u1EA1nh, m\u0169i
+    t\xEAn c\xF3 th\u1EC3 xuy\xEAn qua l\u1EDBp da d\xE0y c\u1EE7a y\xEAu th\xFA."
+  itemType: 1
+  grade: 1
+  validTargets: -1
+  price: 63337
+  icon: {fileID: 3720546242930542191, guid: 75c95576fd1e764419f4d44d91a71a38, type: 3}
+  consumeOnUse: 0
+  equipmentSlot: 1
+  artifactKind: 4
+  pillKind: 0
+  manualKind: 0
+  materialKind: 0
+  foodKind: 0
+  useStyle: 3
+  conversionType: 0
+  canUseDirectly: 1
+  canBeSold: 1
+  canBeRefinedIntoPill: 0
+  canBeForgedIntoArtifact: 0
+  canBeStudied: 0
+  rawUseEfficiency: 1
+  useSuccessChance: 1
+  rawUsePolicy: 0
+  rawToxicityDamage: 0
+  npcIntent: 0
+  refineValueMultiplier: 1.5
+  sellValueMultiplier: 1
+  maxDurability: 192
+  durabilityLossPerUse: 1
+  breaksAtZero: 1
+  hpBonus: 0
+  cultivationBonus: 0
+  breakthroughRealm: 0
+  damageBonus: 25
+  armorBonus: 3
+  effectResistanceBonus: 0
+  canBeTaught: 1
+  studyProgressPerUse: 1
+  manualBreakAfterYears: 10
+  tieuThanhPower: 0.3
+  trungThanhPower: 0.6
+  daiThanhPower: 1
+  isTemporary: 0
+  duration: 10
+  modifiers: []

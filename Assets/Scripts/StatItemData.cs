@@ -51,6 +51,73 @@ public enum ItemUseStyle
     StudyManual
 }
 
+public enum EquipmentSlot
+{
+    None,
+    Weapon,
+    Armor,
+    Accessory
+}
+
+public enum ArtifactKind
+{
+    None,
+    Sword,
+    Saber,
+    Spear,
+    Bow,
+    Staff,
+    Armor,
+    Robe,
+    Shield,
+    Ring,
+    Amulet,
+    Talisman
+}
+
+public enum PillKind
+{
+    None,
+    Heal,
+    Cultivation,
+    Breakthrough,
+    PermanentAttack,
+    PermanentDefense,
+    PermanentMaxHP,
+    Detox,
+    Poison
+}
+
+public enum ManualKind
+{
+    None,
+    Attack,
+    Defense,
+    Movement,
+    Cultivation,
+    Mixed
+}
+
+public enum MaterialKind
+{
+    None,
+    Herb,
+    Ore,
+    BeastCore,
+    BeastPart,
+    SpiritStone,
+    CraftingPart
+}
+
+public enum FoodKind
+{
+    None,
+    Meal,
+    Meat,
+    Fish,
+    Grain,
+    SpiritFruit
+}
 public enum ItemConversionType
 {
     None,
@@ -110,6 +177,14 @@ public class StatItemData : ScriptableObject
     public Sprite icon;
     public bool consumeOnUse = true;
 
+    [Header("Phan Loai Chi Tiet")]
+    public EquipmentSlot equipmentSlot = EquipmentSlot.None;
+    public ArtifactKind artifactKind = ArtifactKind.None;
+    public PillKind pillKind = PillKind.None;
+    public ManualKind manualKind = ManualKind.None;
+    public MaterialKind materialKind = MaterialKind.None;
+    public FoodKind foodKind = FoodKind.None;
+
     [Header("Sử Dụng & Chuyển Hóa")]
     public ItemUseStyle useStyle = ItemUseStyle.Auto;
     public ItemConversionType conversionType = ItemConversionType.None;
@@ -150,6 +225,7 @@ public class StatItemData : ScriptableObject
     [Header("Công Pháp")]
     public bool canBeTaught = true;
     public int studyProgressPerUse = 1;
+    public float manualBreakAfterYears = 10f;
     [Range(0f, 1f)]
     public float tieuThanhPower = 0.3f;
     [Range(0f, 1f)]
@@ -338,13 +414,14 @@ public class StatItemData : ScriptableObject
 
         if (resolvedStyle == ItemUseStyle.DurableEquipment)
         {
-            return GetNpcUseScore() >= GetNpcSellScore();
+            return GetEquipmentUseScore() > 0f;
         }
 
         if (resolvedStyle == ItemUseStyle.StudyManual)
         {
             return canBeStudied &&
-                GetNpcUseScore() >= GetNpcSellScore();
+                GetNpcUseScore() > 0f &&
+                !IsRiskyRawUse();
         }
 
         return false;
@@ -387,7 +464,8 @@ public class StatItemData : ScriptableObject
         return conversionType == ItemConversionType.Study ||
             (npcIntent == NpcItemIntent.Auto &&
             GetResolvedUseStyle() == ItemUseStyle.StudyManual &&
-            GetNpcUseScore() >= GetNpcSellScore());
+            GetNpcUseScore() > 0f &&
+            !IsRiskyRawUse());
     }
 
     public bool ShouldNpcPreferSell()
@@ -397,12 +475,34 @@ public class StatItemData : ScriptableObject
             return false;
         }
 
-        return npcIntent == NpcItemIntent.PreferSell ||
-            conversionType == ItemConversionType.Sell ||
-            (npcIntent == NpcItemIntent.Auto &&
+        if (npcIntent == NpcItemIntent.PreferSell ||
+            conversionType == ItemConversionType.Sell)
+        {
+            return true;
+        }
+
+        ItemUseStyle resolvedStyle =
+            GetResolvedUseStyle();
+
+        if (npcIntent == NpcItemIntent.Auto &&
+            (resolvedStyle == ItemUseStyle.DurableEquipment ||
+            resolvedStyle == ItemUseStyle.StudyManual) &&
+            GetNpcUseScore() > 0f)
+        {
+            return false;
+        }
+
+        return npcIntent == NpcItemIntent.Auto &&
             GetNpcSellScore() > Mathf.Max(
                 GetNpcUseScore(),
-                GetNpcConversionScore()));
+                GetNpcConversionScore());
+    }
+
+    public float GetEquipmentUseScore()
+    {
+        return Mathf.Max(0f, damageBonus) +
+            Mathf.Max(0f, armorBonus) +
+            Mathf.Max(0f, effectResistanceBonus);
     }
 
     public float GetNpcUseScore()
@@ -480,6 +580,59 @@ public class StatItemData : ScriptableObject
             Mathf.Max(0f, refineValueMultiplier);
     }
 
+    public EquipmentSlot GetResolvedEquipmentSlot()
+    {
+        if (itemType != ItemType.PhapBao)
+        {
+            return EquipmentSlot.None;
+        }
+
+        if (equipmentSlot != EquipmentSlot.None)
+        {
+            return equipmentSlot;
+        }
+
+        switch (artifactKind)
+        {
+            case ArtifactKind.Sword:
+            case ArtifactKind.Saber:
+            case ArtifactKind.Spear:
+            case ArtifactKind.Bow:
+            case ArtifactKind.Staff:
+                return EquipmentSlot.Weapon;
+            case ArtifactKind.Armor:
+            case ArtifactKind.Robe:
+            case ArtifactKind.Shield:
+                return EquipmentSlot.Armor;
+            case ArtifactKind.Ring:
+            case ArtifactKind.Amulet:
+            case ArtifactKind.Talisman:
+                return EquipmentSlot.Accessory;
+        }
+
+        if (damageBonus >= Mathf.Max(armorBonus, effectResistanceBonus))
+        {
+            return EquipmentSlot.Weapon;
+        }
+
+        return EquipmentSlot.Armor;
+    }
+
+    public bool IsManualBroken(ItemStack stack)
+    {
+        if (itemType != ItemType.CongPhap ||
+            stack == null)
+        {
+            return false;
+        }
+
+        float usedYears = Mathf.Max(
+            stack.manualUseYears,
+            GameSaveSystem.GetManualUseYears(this));
+
+        return manualBreakAfterYears > 0f &&
+            usedYears >= manualBreakAfterYears;
+    }
     public ItemUseStyle GetResolvedUseStyle()
     {
         if (useStyle != ItemUseStyle.Auto)

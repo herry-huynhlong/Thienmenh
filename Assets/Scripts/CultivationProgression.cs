@@ -3,6 +3,7 @@ using UnityEngine;
 public static class CultivationProgression
 {
     public const int MaxStage = 9;
+    public const int SpiritStoneBaseExp = 10;
 
     static readonly int[] mortalStageExp =
     {
@@ -78,18 +79,37 @@ public static class CultivationProgression
         CultivationRealm realm,
         int stage)
     {
-        int realmIndex =
-            Mathf.Max(0, (int)realm);
-
-        float stageBonus =
-            1f + (Mathf.Clamp(stage, 1, MaxStage) - 1) * 0.08f;
-
         return Mathf.Max(
             1,
             Mathf.RoundToInt(
-                20f *
-                Mathf.Pow(1.25f, realmIndex) *
-                stageBonus));
+                SpiritStoneBaseExp *
+                GetSpiritStoneEfficiency(realm)));
+    }
+
+    public static float GetSpiritStoneEfficiency(
+        CultivationRealm realm)
+    {
+        switch (realm)
+        {
+            case CultivationRealm.QiRefining:
+                return 0.9f;
+
+            case CultivationRealm.Foundation:
+                return 0.7f;
+
+            case CultivationRealm.GoldenCore:
+                return 0.45f;
+
+            case CultivationRealm.NascentSoul:
+                return 0.25f;
+
+            case CultivationRealm.SoulFormation:
+            case CultivationRealm.Tribulation:
+                return 0.1f;
+
+            default:
+                return 1f;
+        }
     }
 
     public static int GetRealmPower(
@@ -101,3 +121,4 @@ public static class CultivationProgression
             Mathf.Clamp(stage, 1, MaxStage);
     }
 }
+

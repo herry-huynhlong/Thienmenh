@@ -1,0 +1,62 @@
+﻿%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
+  m_Name: "Ng\u01B0ng Nguy\xEAn T\xE2m"
+  m_EditorClassIdentifier: Assembly-CSharp::StatItemData
+  itemName: "Ng\u01B0ng Nguy\xEAn T\xE2m"
+  description: "Tinh luy\u1EC7n linh kh\xED trong \u0111an \u0111i\u1EC1n, gi\xFAp
+    t\u1ED1c \u0111\u1ED9 tu luy\u1EC7n \u1ED5n \u0111\u1ECBnh v\xE0 \xEDt t\u1EA9u
+    h\u1ECFa h\u01A1n."
+  itemType: 3
+  grade: 1
+  validTargets: -1
+  price: 236696
+  icon: {fileID: 4464886508550124181, guid: eac1f52606f779d44921f194833126d3, type: 3}
+  consumeOnUse: 0
+  equipmentSlot: 0
+  artifactKind: 0
+  pillKind: 0
+  manualKind: 4
+  materialKind: 0
+  foodKind: 0
+  useStyle: 4
+  conversionType: 0
+  canUseDirectly: 1
+  canBeSold: 1
+  canBeRefinedIntoPill: 0
+  canBeForgedIntoArtifact: 0
+  canBeStudied: 1
+  rawUseEfficiency: 1
+  useSuccessChance: 1
+  rawUsePolicy: 0
+  rawToxicityDamage: 0
+  npcIntent: 0
+  refineValueMultiplier: 1.5
+  sellValueMultiplier: 1
+  maxDurability: 0
+  durabilityLossPerUse: 1
+  breaksAtZero: 1
+  hpBonus: 0
+  cultivationBonus: 302858
+  breakthroughRealm: 0
+  damageBonus: 0
+  armorBonus: 0
+  effectResistanceBonus: 0
+  canBeTaught: 1
+  studyProgressPerUse: 2
+  manualBreakAfterYears: 10
+  tieuThanhPower: 0.3
+  trungThanhPower: 0.6
+  daiThanhPower: 1
+  isTemporary: 0
+  duration: 10
+  modifiers: []

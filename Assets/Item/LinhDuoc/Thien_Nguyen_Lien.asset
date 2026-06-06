@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -13,28 +13,35 @@ MonoBehaviour:
   m_Name: Thien_Nguyen_Lien
   m_EditorClassIdentifier: Assembly-CSharp::StatItemData
   itemName: "Thi\xEAn Nguy\xEAn Li\xEAn"
-  description: "Linh d\u01B0\u1EE3c th\u01B0\u1EE3ng ph\u1EA9m sinh tr\u01B0\u1EDFng
-    \u1EDF n\u01A1i linh kh\xED tinh thu\u1EA7n h\u1ED9i t\u1EE5, c\xE1nh sen ch\u1EE9a
-    thi\xEAn nguy\xEAn chi kh\xED m\u1EA1nh m\u1EBD. C\xF3 th\u1EC3 d\xF9ng l\xE0m
-    nguy\xEAn li\u1EC7u luy\u1EC7n Thi\xEAn Nguy\xEAn \u0110an, Ph\xE1 C\u1EA3nh
-    \u0110an ho\u1EB7c b\xE1n \u0111\u1ED5i nhi\u1EC1u linh th\u1EA1ch."
+  description: "Linh li\xEAn th\u01B0\u1EE3ng ph\u1EA9m sinh tr\u01B0\u1EDFng trong
+    linh tr\xEC c\xF3 nguy\xEAn kh\xED tinh thu\u1EA7n. M\u1ED7i c\xE1nh sen \u0111\u1EC1u
+    t\xEDch t\u1EE5 thi\xEAn \u0111\u1ECBa linh l\u1EF1c, khi d\xF9ng c\xF3 th\u1EC3
+    t\u0103ng m\u1EA1nh tu vi v\xE0 c\u1EE7ng c\u1ED1 c\u0103n c\u01A1. N\u1EBFu
+    luy\u1EC7n th\xE0nh \u0111an, hi\u1EC7u qu\u1EA3 s\u1EBD v\u01B0\u1EE3t xa \u0103n
+    s\u1ED1ng."
   itemType: 2
   grade: 2
   validTargets: -1
-  price: 2500000
+  price: 1938222
   icon: {fileID: -5669467053765851958, guid: 9413a8f717391eb4695d1a236826be7c, type: 3}
   consumeOnUse: 1
-  useStyle: 0
+  equipmentSlot: 0
+  artifactKind: 0
+  pillKind: 0
+  manualKind: 0
+  materialKind: 1
+  foodKind: 0
+  useStyle: 2
   conversionType: 0
   canUseDirectly: 1
-  canBeSold: 0
-  canBeRefinedIntoPill: 0
-  canBeForgedIntoArtifact: 0
-  canBeStudied: 1
-  rawUseEfficiency: 0.35
+  canBeSold: 1
+  canBeRefinedIntoPill: 1
+  canBeForgedIntoArtifact: 1
+  canBeStudied: 0
+  rawUseEfficiency: 0.383
   useSuccessChance: 1
-  rawUsePolicy: 2
-  rawToxicityDamage: 0
+  rawUsePolicy: 1
+  rawToxicityDamage: 75
   npcIntent: 0
   refineValueMultiplier: 1.5
   sellValueMultiplier: 1
@@ -42,13 +49,14 @@ MonoBehaviour:
   durabilityLossPerUse: 1
   breaksAtZero: 1
   hpBonus: 0
-  cultivationBonus: 0
+  cultivationBonus: 3294000
   breakthroughRealm: 0
   damageBonus: 0
   armorBonus: 0
   effectResistanceBonus: 0
-  canBeTaught: 1
-  studyProgressPerUse: 1
+  canBeTaught: 0
+  studyProgressPerUse: 3
+  manualBreakAfterYears: 10
   tieuThanhPower: 0.3
   trungThanhPower: 0.6
   daiThanhPower: 1

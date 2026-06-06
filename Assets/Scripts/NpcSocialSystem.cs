@@ -1763,6 +1763,7 @@ public class NpcSocialWorldInstaller : MonoBehaviour
     public float installInterval = 3f;
     public bool disableLegacyDailyConversation = true;
 
+    readonly HashSet<int> installedNpcIds = new HashSet<int>();
     float timer;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -1828,6 +1829,14 @@ public class NpcSocialWorldInstaller : MonoBehaviour
         {
             return;
         }
+
+        int instanceId = npc.GetInstanceID();
+        if (installedNpcIds.Contains(instanceId))
+        {
+            return;
+        }
+
+        installedNpcIds.Add(instanceId);
 
         Ensure<NpcIdentity>(npc);
         Ensure<NpcNeeds>(npc);

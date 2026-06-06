@@ -1,0 +1,65 @@
+﻿%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
+  m_Name: "Huy\u1EC1n V\u0169 \u0110an"
+  m_EditorClassIdentifier: Assembly-CSharp::StatItemData
+  itemName: "Huy\u1EC1n V\u0169 \u0110an"
+  description: "\u0110an d\u01B0\u1EE3c th\u01B0\u1EE3ng ph\u1EA9m m\xF4 ph\u1ECFng
+    huy\u1EC1n l\u1EF1c c\u1EE7a Huy\u1EC1n V\u0169. D\u01B0\u1EE3c l\u1EF1c n\u1EB7ng
+    v\xE0 s\xE2u, gi\xFAp tu s\u0129 c\u01B0\u1EDDng h\xF3a th\xE2n th\u1EC3, t\u0103ng
+    m\u1EA1nh ph\xF2ng ng\u1EF1 v\xE0 sinh m\u1EC7nh l\u1EF1c. Th\xEDch h\u1EE3p
+    cho tu s\u0129 th\u01B0\u1EDDng xuy\xEAn chi\u1EBFn \u0111\u1EA5u ho\u1EB7c h\u1ED9
+    v\u1EC7 tuy\u1EBFn tr\u01B0\u1EDBc."
+  itemType: 0
+  grade: 2
+  validTargets: -1
+  price: 1433186
+  icon: {fileID: -5135785485154015220, guid: b6d572c31fd495d49bebb85694939bd0, type: 3}
+  consumeOnUse: 1
+  equipmentSlot: 0
+  artifactKind: 0
+  pillKind: 5
+  manualKind: 0
+  materialKind: 0
+  foodKind: 0
+  useStyle: 1
+  conversionType: 0
+  canUseDirectly: 1
+  canBeSold: 1
+  canBeRefinedIntoPill: 0
+  canBeForgedIntoArtifact: 0
+  canBeStudied: 0
+  rawUseEfficiency: 1
+  useSuccessChance: 1
+  rawUsePolicy: 0
+  rawToxicityDamage: 0
+  npcIntent: 0
+  refineValueMultiplier: 1.5
+  sellValueMultiplier: 1
+  maxDurability: 0
+  durabilityLossPerUse: 1
+  breaksAtZero: 1
+  hpBonus: 0
+  cultivationBonus: 0
+  breakthroughRealm: 0
+  damageBonus: 0
+  armorBonus: 36
+  effectResistanceBonus: 0
+  canBeTaught: 1
+  studyProgressPerUse: 1
+  manualBreakAfterYears: 10
+  tieuThanhPower: 0.3
+  trungThanhPower: 0.6
+  daiThanhPower: 1
+  isTemporary: 0
+  duration: 10
+  modifiers: []

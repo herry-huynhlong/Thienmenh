@@ -1,0 +1,60 @@
+﻿%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
+  m_Name: "Thi\xEAn L\xF4i Ph\xE1p Tr\u01B0\u1EE3ng"
+  m_EditorClassIdentifier: Assembly-CSharp::StatItemData
+  itemName: "Thi\xEAn L\xF4i Ph\xE1p Tr\u01B0\u1EE3ng"
+  description: "C\xF3 kh\u1EA3 n\u0103ng \u0111i\u1EC1u khi\u1EC3n thi\xEAn l\xF4i"
+  itemType: 1
+  grade: 2
+  validTargets: -1
+  price: 509993
+  icon: {fileID: -2256182945112371782, guid: d07e75647c8c33943826c5a73f52cc43, type: 3}
+  consumeOnUse: 0
+  equipmentSlot: 1
+  artifactKind: 5
+  pillKind: 0
+  manualKind: 0
+  materialKind: 0
+  foodKind: 0
+  useStyle: 3
+  conversionType: 0
+  canUseDirectly: 1
+  canBeSold: 1
+  canBeRefinedIntoPill: 0
+  canBeForgedIntoArtifact: 0
+  canBeStudied: 0
+  rawUseEfficiency: 1
+  useSuccessChance: 1
+  rawUsePolicy: 0
+  rawToxicityDamage: 0
+  npcIntent: 0
+  refineValueMultiplier: 1.5
+  sellValueMultiplier: 1
+  maxDurability: 443
+  durabilityLossPerUse: 1
+  breaksAtZero: 1
+  hpBonus: 0
+  cultivationBonus: 0
+  breakthroughRealm: 0
+  damageBonus: 72
+  armorBonus: 15
+  effectResistanceBonus: 0
+  canBeTaught: 1
+  studyProgressPerUse: 1
+  manualBreakAfterYears: 10
+  tieuThanhPower: 0.3
+  trungThanhPower: 0.6
+  daiThanhPower: 1
+  isTemporary: 0
+  duration: 10
+  modifiers: []

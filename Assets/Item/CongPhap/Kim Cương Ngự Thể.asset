@@ -1,0 +1,61 @@
+﻿%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
+  m_Name: "Kim C\u01B0\u01A1ng Ng\u1EF1 Th\u1EC3"
+  m_EditorClassIdentifier: Assembly-CSharp::StatItemData
+  itemName: "Kim C\u01B0\u01A1ng Ng\u1EF1 Th\u1EC3"
+  description: "Luy\u1EC7n th\u1EC3 trung ph\u1EA9m, th\xE2n th\u1EC3 c\u1EE9ng r\u1EAFn
+    nh\u01B0 kim th\u1EA1ch, r\u1EA5t h\u1EE3p tanker."
+  itemType: 3
+  grade: 1
+  validTargets: -1
+  price: 169531
+  icon: {fileID: 2540179759047964575, guid: 80517aa1d0d4a724aaa5004d14c8d744, type: 3}
+  consumeOnUse: 0
+  equipmentSlot: 0
+  artifactKind: 0
+  pillKind: 0
+  manualKind: 2
+  materialKind: 0
+  foodKind: 0
+  useStyle: 4
+  conversionType: 0
+  canUseDirectly: 1
+  canBeSold: 1
+  canBeRefinedIntoPill: 0
+  canBeForgedIntoArtifact: 0
+  canBeStudied: 1
+  rawUseEfficiency: 1
+  useSuccessChance: 1
+  rawUsePolicy: 0
+  rawToxicityDamage: 0
+  npcIntent: 0
+  refineValueMultiplier: 1.5
+  sellValueMultiplier: 1
+  maxDurability: 0
+  durabilityLossPerUse: 1
+  breaksAtZero: 1
+  hpBonus: 0
+  cultivationBonus: 46289
+  breakthroughRealm: 0
+  damageBonus: 0
+  armorBonus: 13
+  effectResistanceBonus: 6
+  canBeTaught: 1
+  studyProgressPerUse: 2
+  manualBreakAfterYears: 10
+  tieuThanhPower: 0.3
+  trungThanhPower: 0.6
+  daiThanhPower: 1
+  isTemporary: 0
+  duration: 10
+  modifiers: []

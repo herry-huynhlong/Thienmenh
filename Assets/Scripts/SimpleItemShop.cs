@@ -26,6 +26,9 @@ public class SimpleItemShop : MonoBehaviour
     };
     public int defaultStockAmount = 99;
 
+    [Header("Pricing")]
+    [Min(0f)] public float priceMultiplier = 1f;
+
     [Header("NPC Seller")]
     public bool sellFromNpcInventory;
     public bool allowPlayerBuyFromNpcInventory;
@@ -72,6 +75,43 @@ public class SimpleItemShop : MonoBehaviour
             : null;
     }
 
+    public int GetBuyPrice(StatItemData item)
+    {
+        if (item == null)
+        {
+            return 0;
+        }
+
+        int basePrice =
+            NpcEconomy.GetTradePrice(
+                item,
+                GetBuyContext());
+
+        return Mathf.Max(
+            basePrice > 0 ? 1 : 0,
+            Mathf.RoundToInt(basePrice * Mathf.Max(0f, priceMultiplier)));
+    }
+
+    public int GetNpcBuyPrice(
+        StatItemData item,
+        SmartNpcAI buyer)
+    {
+        if (item == null || buyer == null)
+        {
+            return 0;
+        }
+
+        int basePrice =
+            NpcEconomy.GetNpcBuyPrice(
+                item,
+                buyer.gameObject,
+                GetBuyContext());
+
+        return Mathf.Max(
+            basePrice > 0 ? 1 : 0,
+            Mathf.RoundToInt(basePrice * Mathf.Max(0f, priceMultiplier)));
+    }
+
     public ShopItemSlot GetSlot(int itemIndex)
     {
         if (itemIndex < 0 ||
@@ -106,17 +146,13 @@ public class SimpleItemShop : MonoBehaviour
             !NpcEconomy.CanTradeNormally(slot.item) ||
             !CanBuyerPay(
                 buyerWallet,
-                NpcEconomy.GetTradePrice(
-                    slot.item,
-                    GetBuyContext())))
+                GetBuyPrice(slot.item)))
         {
             return false;
         }
 
         int price =
-            NpcEconomy.GetTradePrice(
-                slot.item,
-                GetBuyContext());
+            GetBuyPrice(slot.item);
 
         if (sellFromNpcInventory &&
             sellerInventory != null)
@@ -195,10 +231,7 @@ public class SimpleItemShop : MonoBehaviour
         }
 
         int price =
-            NpcEconomy.GetNpcBuyPrice(
-                slot.item,
-                buyer.gameObject,
-                GetBuyContext());
+            GetNpcBuyPrice(slot.item, buyer);
 
         if (buyer.money < price)
         {
@@ -233,6 +266,17 @@ public class SimpleItemShop : MonoBehaviour
 
     public void RefreshFromSellerInventory()
     {
+        if (sellFromNpcInventory)
+        {
+            NpcShopStockRefill stockRefill =
+                GetComponent<NpcShopStockRefill>();
+
+            if (stockRefill != null)
+            {
+                stockRefill.EnsureStock();
+            }
+        }
+
         if (!sellFromNpcInventory ||
             sellerInventory == null)
         {

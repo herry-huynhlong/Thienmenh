@@ -46,6 +46,11 @@ public class MonsterAI : MonoBehaviour, IDamageable
     public bool autoConfigureRigidbody = true;
     public bool fallbackTransformMove = true;
 
+    [Header("===== CAMERA DISTANCE THROTTLE =====")]
+    public bool useCameraDistanceThrottle = true;
+    public float fullUpdateDistanceFromCamera = 14f;
+    public float reducedFixedUpdateInterval = 0.25f;
+
     [Header("===== LANH DIA =====")]
     public bool guardTerritory = true;
     public float territoryRadius = 5f;
@@ -116,6 +121,12 @@ public class MonsterAI : MonoBehaviour, IDamageable
     Vector2 desiredVelocity;
     float nextThinkTime;
     float nextDetectTime;
+    float nextReducedFixedUpdateTime;
+    Transform treasureHuntTarget;
+    StatItemData treasureHuntItem;
+    bool waitingOutsideTreasureLightning;
+    Vector3 treasureWaitPosition;
+    bool hasTreasureWaitPosition;
 
     public bool IsDead => isDead;
     public Transform DamageTransform => transform;
@@ -209,6 +220,12 @@ public class MonsterAI : MonoBehaviour, IDamageable
         UpdateBeastNeeds();
         attackTimer -= Time.deltaTime;
 
+        if (treasureHuntTarget != null || waitingOutsideTreasureLightning)
+        {
+            FollowTreasureHuntTarget();
+            return;
+        }
+
         if (HasValidTarget())
         {
             float distanceToTarget = Vector2.Distance(transform.position, currentTarget.position);
@@ -264,8 +281,6 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     void FixedUpdate()
     {
-        NpcPerformanceOverlay.RecordMonsterFixedUpdate();
-
         if (rb == null)
         {
             return;
@@ -278,6 +293,14 @@ public class MonsterAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (ShouldUseReducedFixedUpdate())
+        {
+            currentMoveVelocity = rb.linearVelocity;
+            return;
+        }
+
+        NpcPerformanceOverlay.RecordMonsterFixedUpdate();
+
         rb.linearVelocity = desiredVelocity;
         currentMoveVelocity = rb.linearVelocity;
 
@@ -287,6 +310,37 @@ public class MonsterAI : MonoBehaviour, IDamageable
         {
             transform.position += (Vector3)(desiredVelocity * Time.fixedDeltaTime);
         }
+    }
+
+    bool ShouldUseReducedFixedUpdate()
+    {
+        if (!useCameraDistanceThrottle ||
+            fullUpdateDistanceFromCamera <= 0f)
+        {
+            return false;
+        }
+
+        Camera camera = Camera.main;
+        if (camera == null)
+        {
+            return false;
+        }
+
+        float maxDistance = fullUpdateDistanceFromCamera;
+        if (((Vector2)transform.position - (Vector2)camera.transform.position).sqrMagnitude <=
+            maxDistance * maxDistance)
+        {
+            return false;
+        }
+
+        if (Time.time >= nextReducedFixedUpdateTime)
+        {
+            nextReducedFixedUpdateTime =
+                Time.time + Mathf.Max(Time.fixedDeltaTime, reducedFixedUpdateInterval);
+            return false;
+        }
+
+        return true;
     }
 
     float GetThinkDelay()
@@ -623,6 +677,116 @@ public class MonsterAI : MonoBehaviour, IDamageable
         }
     }
 
+    void FollowTreasureHuntTarget()
+    {
+        if (waitingOutsideTreasureLightning)
+        {
+            Vector2 waitDirection = treasureWaitPosition - transform.position;
+            float waitDistance = waitDirection.magnitude;
+            FaceDirection(waitDirection);
+
+            if (waitDistance > Mathf.Max(0.25f, attackRange * 0.5f))
+            {
+                desiredVelocity = waitDirection.normalized * moveSpeed;
+                currentAction = "Cho thien loi tan " +
+                    (treasureHuntItem != null ? treasureHuntItem.itemName : "bao vat");
+                SetMovingAnimation(true);
+                return;
+            }
+
+            desiredVelocity = Vector2.zero;
+            currentAction = "Ran minh ngoai vung set";
+            SetMovingAnimation(false);
+            return;
+        }
+
+        if (treasureHuntTarget == null)
+        {
+            ClearTreasureHunt();
+            return;
+        }
+
+        Vector2 direction = treasureHuntTarget.position - transform.position;
+        float distance = direction.magnitude;
+        FaceDirection(direction);
+
+        if (distance > Mathf.Max(0.25f, attackRange * 0.5f))
+        {
+            desiredVelocity = direction.normalized * moveSpeed;
+            currentAction = "Phat cuong tranh doat " +
+                (treasureHuntItem != null ? treasureHuntItem.itemName : "bao vat");
+            SetMovingAnimation(true);
+            return;
+        }
+
+        desiredVelocity = Vector2.zero;
+        currentAction = "Canh giu bao vat";
+        SetMovingAnimation(false);
+    }
+
+
+    public void ForceTreasureWait(
+        Vector3 origin,
+        float safeRadius,
+        StatItemData item,
+        bool lowPowerSkirmish)
+    {
+        if (item == null || IsDead)
+        {
+            return;
+        }
+
+        waitingOutsideTreasureLightning = true;
+        treasureHuntTarget = null;
+        treasureHuntItem = item;
+        ClearCurrentTarget();
+
+        Vector2 away = transform.position - origin;
+        if (away.sqrMagnitude <= 0.01f)
+        {
+            away = Random.insideUnitCircle.normalized;
+        }
+
+        treasureWaitPosition =
+            origin +
+            (Vector3)away.normalized * Mathf.Max(0.5f, safeRadius);
+        hasTreasureWaitPosition = true;
+        currentAction = lowPowerSkirmish
+            ? "Hon chien vong ngoai " + item.itemName
+            : "Doi thien loi tan " + item.itemName;
+    }
+    public void ForceTreasureHunt(
+        Transform target,
+        StatItemData item)
+    {
+        if (target == null || item == null || IsDead)
+        {
+            return;
+        }
+
+        waitingOutsideTreasureLightning = false;
+        hasTreasureWaitPosition = false;
+        treasureHuntTarget = target;
+        treasureHuntItem = item;
+        ClearCurrentTarget();
+        currentAction = "Phat cuong tranh doat " + item.itemName;
+    }
+
+    public void ClearTreasureHunt()
+    {
+        if (treasureHuntTarget == null && treasureHuntItem == null)
+        {
+            return;
+        }
+
+        waitingOutsideTreasureLightning = false;
+        hasTreasureWaitPosition = false;
+        treasureHuntTarget = null;
+        treasureHuntItem = null;
+        desiredVelocity = Vector2.zero;
+        currentAction = "Binh tinh tro lai";
+        SetMovingAnimation(false);
+    }
     void Attack()
     {
         attackTimer = attackCooldown;

@@ -297,9 +297,7 @@ public class ShopPanelUI : MonoBehaviour
         if (detailPriceText != null)
         {
             detailPriceText.text =
-                NpcEconomy.FormatTradePrice(
-                    slot.item,
-                    GetBuyContext());
+                FormatDisplayPrice(slot.item);
         }
 
         if (detailDescriptionText != null)
@@ -348,6 +346,18 @@ public class ShopPanelUI : MonoBehaviour
         SelectItem(selectedItemIndex);
     }
 
+
+    public int GetDisplayPrice(StatItemData item)
+    {
+        return shop != null
+            ? shop.GetBuyPrice(item)
+            : NpcEconomy.GetTradePrice(item, NpcTradeContext.MarketBuy);
+    }
+
+    public string FormatDisplayPrice(StatItemData item)
+    {
+        return NpcEconomy.FormatCurrency(GetDisplayPrice(item));
+    }
 
     public NpcTradeContext GetBuyContext()
     {
@@ -1444,10 +1454,7 @@ public class ShopPanelUI : MonoBehaviour
         bool canBuy =
             canTrade &&
             slot.amount > 0 &&
-            CanPay(
-                NpcEconomy.GetTradePrice(
-                    slot.item,
-                    GetBuyContext()));
+            CanPay(GetDisplayPrice(slot.item));
 
         buyButton.interactable = canBuy;
 

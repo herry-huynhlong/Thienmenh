@@ -4,14 +4,17 @@ using UnityEngine.SceneManagement;
 
 public class SceneLoader : MonoBehaviour
 {
+    public string fallbackGameplayScene = "Lang";
+
     IEnumerator Start()
     {
-        Scene langScene = SceneManager.GetSceneByName("Lang");
+        string gameplaySceneName = ResolveGameplaySceneName();
+        Scene gameplayScene = SceneManager.GetSceneByName(gameplaySceneName);
 
-        if (!langScene.isLoaded)
+        if (!gameplayScene.isLoaded)
         {
             AsyncOperation loadOperation = SceneManager.LoadSceneAsync(
-                "Lang",
+                gameplaySceneName,
                 LoadSceneMode.Additive);
 
             if (loadOperation != null)
@@ -19,12 +22,34 @@ public class SceneLoader : MonoBehaviour
                 yield return loadOperation;
             }
 
-            langScene = SceneManager.GetSceneByName("Lang");
+            gameplayScene = SceneManager.GetSceneByName(gameplaySceneName);
         }
 
-        if (langScene.IsValid() && langScene.isLoaded)
+        if (gameplayScene.IsValid() && gameplayScene.isLoaded)
         {
-            SceneManager.SetActiveScene(langScene);
+            SceneManager.SetActiveScene(gameplayScene);
         }
+    }
+
+    string ResolveGameplaySceneName()
+    {
+        string savedScene =
+            GameSaveSystem.LoadCurrentScene(fallbackGameplayScene);
+
+        if (!IsValidGameplayScene(savedScene))
+        {
+            return fallbackGameplayScene;
+        }
+
+        return savedScene;
+    }
+
+    bool IsValidGameplayScene(string sceneName)
+    {
+        return !string.IsNullOrEmpty(sceneName) &&
+            sceneName != "PersistentScene" &&
+            sceneName != "MainMenu" &&
+            sceneName != "LiteMapScene" &&
+            Application.CanStreamedLevelBeLoaded(sceneName);
     }
 }

@@ -3,13 +3,11 @@ using UnityEngine;
 
 public class NpcFavorite : MonoBehaviour
 {
-    [Header("Nếu để trống sẽ tự lấy tên từ NpcIdentity hoặc tên GameObject")]
+    [Header("Saved NPC info")]
     public string npcDisplayName = "";
+    public string realmText = "Pham nhan";
 
-    [Header("Chỉ dùng khi không đọc được CharacterStats")]
-    public string realmText = "Phàm nhân";
-
-    [Header("Dấu sao trên đầu NPC")]
+    [Header("Star mark above NPC")]
     public GameObject starMark;
 
     public bool IsFavorite { get; private set; }
@@ -21,9 +19,82 @@ public class NpcFavorite : MonoBehaviour
 
     public string GetDisplayName()
     {
-        if (!string.IsNullOrEmpty(npcDisplayName))
+        if (!string.IsNullOrWhiteSpace(npcDisplayName))
         {
             return npcDisplayName;
+        }
+
+        return ResolveDisplayName();
+    }
+
+    public string GetRealmText()
+    {
+        if (!string.IsNullOrWhiteSpace(realmText) && realmText != "Pham nhan")
+        {
+            return realmText;
+        }
+
+        string resolvedRealm = ResolveRealmText();
+        return string.IsNullOrWhiteSpace(resolvedRealm) ? realmText : resolvedRealm;
+    }
+
+    public void SetFavoriteState(bool value)
+    {
+        IsFavorite = value;
+
+        if (IsFavorite)
+        {
+            CaptureInfoSnapshot();
+        }
+
+        RefreshStar();
+    }
+
+    private void CaptureInfoSnapshot()
+    {
+        string name = ResolveDisplayName();
+
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            npcDisplayName = name;
+        }
+
+        string realm = ResolveRealmText();
+
+        if (!string.IsNullOrWhiteSpace(realm))
+        {
+            realmText = realm;
+        }
+    }
+
+    private string ResolveDisplayName()
+    {
+        string roleName = NpcRoleUtility.GetDisplayName(gameObject);
+
+        if (!string.IsNullOrWhiteSpace(roleName) && roleName != "NPC")
+        {
+            return roleName;
+        }
+
+        VillagerAI villager = GetComponent<VillagerAI>();
+
+        if (villager != null && !string.IsNullOrWhiteSpace(villager.villagerName))
+        {
+            return villager.villagerName;
+        }
+
+        SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
+
+        if (smartNpc != null && !string.IsNullOrWhiteSpace(smartNpc.npcName))
+        {
+            return smartNpc.npcName;
+        }
+
+        NpcData npcData = GetComponent<NpcData>();
+
+        if (npcData != null && !string.IsNullOrWhiteSpace(npcData.npcName))
+        {
+            return npcData.npcName;
         }
 
         Component identity = GetComponent("NpcIdentity");
@@ -32,17 +103,22 @@ public class NpcFavorite : MonoBehaviour
         {
             string name = ReadMember(identity, "npcName");
 
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrWhiteSpace(name))
             {
                 name = ReadMember(identity, "displayName");
             }
 
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrWhiteSpace(name))
             {
                 name = ReadMember(identity, "characterName");
             }
 
-            if (!string.IsNullOrEmpty(name))
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                name = ReadMember(identity, "entityName");
+            }
+
+            if (!string.IsNullOrWhiteSpace(name))
             {
                 return name;
             }
@@ -51,15 +127,8 @@ public class NpcFavorite : MonoBehaviour
         return gameObject.name;
     }
 
-    public string GetRealmText()
+    private string ResolveRealmText()
     {
-        Component stats = GetComponent("CharacterStats");
-
-        if (stats == null)
-        {
-            stats = GetComponentInChildren(typeof(Component), true);
-        }
-
         Component characterStats = GetComponent("CharacterStats");
 
         if (characterStats == null)
@@ -69,52 +138,46 @@ public class NpcFavorite : MonoBehaviour
 
         string realm = ReadMember(characterStats, "cultivationRealm");
 
-        if (string.IsNullOrEmpty(realm))
+        if (string.IsNullOrWhiteSpace(realm))
         {
             realm = ReadMember(characterStats, "realm");
         }
 
-        if (string.IsNullOrEmpty(realm))
+        if (string.IsNullOrWhiteSpace(realm))
         {
             realm = ReadMember(characterStats, "currentRealm");
         }
 
-        if (string.IsNullOrEmpty(realm))
+        if (string.IsNullOrWhiteSpace(realm))
         {
             realm = ReadMember(characterStats, "realmName");
         }
 
         string stage = ReadMember(characterStats, "realmStage");
 
-        if (string.IsNullOrEmpty(stage))
+        if (string.IsNullOrWhiteSpace(stage))
         {
             stage = ReadMember(characterStats, "stage");
         }
 
-        if (string.IsNullOrEmpty(stage))
+        if (string.IsNullOrWhiteSpace(stage))
         {
             stage = ReadMember(characterStats, "cultivationStage");
         }
 
-        if (string.IsNullOrEmpty(realm))
+        if (string.IsNullOrWhiteSpace(realm))
         {
             return realmText;
         }
 
         string vietnameseRealm = ConvertRealmToVietnamese(realm);
 
-        if (!string.IsNullOrEmpty(stage))
+        if (!string.IsNullOrWhiteSpace(stage))
         {
             return vietnameseRealm + " " + stage;
         }
 
         return vietnameseRealm;
-    }
-
-    public void SetFavoriteState(bool value)
-    {
-        IsFavorite = value;
-        RefreshStar();
     }
 
     private void RefreshStar()
@@ -133,7 +196,6 @@ public class NpcFavorite : MonoBehaviour
         }
 
         System.Type type = component.GetType();
-
         FieldInfo field = type.GetField(memberName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
         if (field != null)
@@ -158,39 +220,32 @@ public class NpcFavorite : MonoBehaviour
         switch (rawRealm)
         {
             case "Mortal":
-                return "Phàm nhân";
-
+                return "Pham nhan";
             case "QiRefining":
             case "LuyenKhi":
-            case "Luyện Khí":
-                return "Luyện Khí";
-
+            case "Luyen Khi":
+                return "Luyen Khi";
             case "Foundation":
             case "FoundationBuilding":
             case "TrucCo":
-            case "Trúc Cơ":
-                return "Trúc Cơ";
-
+            case "Truc Co":
+                return "Truc Co";
             case "GoldenCore":
             case "KimDan":
-            case "Kim Đan":
-                return "Kim Đan";
-
+            case "Kim Dan":
+                return "Kim Dan";
             case "NascentSoul":
             case "NguyenAnh":
-            case "Nguyên Anh":
-                return "Nguyên Anh";
-
+            case "Nguyen Anh":
+                return "Nguyen Anh";
             case "SoulFormation":
             case "HoaThan":
-            case "Hóa Thần":
-                return "Hóa Thần";
-
+            case "Hoa Than":
+                return "Hoa Than";
             case "Tribulation":
             case "DoKiep":
-            case "Độ Kiếp":
-                return "Độ Kiếp";
-
+            case "Do Kiep":
+                return "Do Kiep";
             default:
                 return rawRealm;
         }

@@ -37,7 +37,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     public EntityProfile entityProfile;
 
     [Header("Info")]
-    public string villagerName = "Người dân";
+    public string villagerName = "NgÃƒâ€ Ã‚Â°ÃƒÂ¡Ã‚Â»Ã‚Âi dÃƒÆ’Ã‚Â¢n";
     public VillagerAgeGroup ageGroup = VillagerAgeGroup.Adult;
     public VillagerJob job = VillagerJob.Farmer;
     public bool keepInspectorJob;
@@ -45,7 +45,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     [Header("Stats")]
     public int maxHP = 100;
     public int currentHP = 100;
-    [InspectorName("Linh Thạch")]
+    [InspectorName("Linh ThÃƒÂ¡Ã‚ÂºÃ‚Â¡ch")]
     public int money = 20;
     public int spiritStone;
     public float moveSpeed = 1.6f;
@@ -136,6 +136,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
     public int maxPickTargetAttempts = 16;
     public float blockedTargetRetryDelay = 0.8f;
 
+    [Header("Camera Distance Throttle")]
+    public bool useCameraDistanceThrottle = true;
+    public float fullUpdateDistanceFromCamera = 14f;
+    public float reducedUpdateInterval = 0.25f;
+
     [Header("Smart Obstacle Avoidance")]
     public bool useSmartPathfinding = true;
     public float pathCellSize = 0.7f;
@@ -206,9 +211,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
     }
 
     [Header("Runtime")]
-    public string currentAction = "Đứng yên";
+    public string currentAction = "Ãƒâ€žÃ‚ÂÃƒÂ¡Ã‚Â»Ã‚Â©ng yÃƒÆ’Ã‚Âªn";
     public Transform currentTarget;
     public string lastWorkProductStatus;
+    Transform treasureHuntTarget;
+    StatItemData treasureHuntItem;
+    bool waitingOutsideTreasureLightning;
 
     Rigidbody2D rb;
     NPCVisualAnimation visualAnimation;
@@ -235,6 +243,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     float stuckMoveTimer;
     float blockedMoveTimer;
     float crowdBlockedTimer;
+    float nextReducedMovementUpdateTime;
     Collider2D[] ownColliders;
     NpcMapArea currentMapArea;
     readonly List<Vector3> activePath =
@@ -500,6 +509,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
         thinkTimer += Time.deltaTime;
         actionTimer -= Time.deltaTime;
 
+        if (treasureHuntTarget != null || waitingOutsideTreasureLightning)
+        {
+            RefreshTreasureHuntAction();
+            return;
+        }
+
         if (IsBusyActionActive())
         {
             StopMoving();
@@ -518,7 +533,6 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     void FixedUpdate()
     {
-        NpcPerformanceOverlay.RecordNpcFixedUpdate();
         SyncFromCharacterStats();
 
         if (IsDead)
@@ -541,12 +555,34 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (treasureHuntTarget != null || waitingOutsideTreasureLightning)
+        {
+            NpcPerformanceOverlay.RecordNpcFixedUpdate();
+            ClampInsideCurrentMapArea();
+            RefreshCurrentMapArea();
+            MoveToCurrentTarget();
+            UpdateUnstuck();
+            ApplySmoothVelocity();
+            ClampInsideCurrentMapArea();
+            UpdateVisualAnimation();
+            return;
+        }
+
         if (IsBusyActionActive())
         {
             StopMoving();
             UpdateVisualAnimation();
             return;
         }
+
+        if (ShouldUseReducedMovementUpdate())
+        {
+            ApplySmoothVelocity();
+            UpdateVisualAnimation();
+            return;
+        }
+
+        NpcPerformanceOverlay.RecordNpcFixedUpdate();
 
         ClampInsideCurrentMapArea();
         RefreshCurrentMapArea();
@@ -555,6 +591,37 @@ public class VillagerAI : MonoBehaviour, IDamageable
         ApplySmoothVelocity();
         ClampInsideCurrentMapArea();
         UpdateVisualAnimation();
+    }
+
+    bool ShouldUseReducedMovementUpdate()
+    {
+        if (!useCameraDistanceThrottle ||
+            fullUpdateDistanceFromCamera <= 0f)
+        {
+            return false;
+        }
+
+        Camera camera = Camera.main;
+        if (camera == null)
+        {
+            return false;
+        }
+
+        float maxDistance = fullUpdateDistanceFromCamera;
+        if (((Vector2)transform.position - (Vector2)camera.transform.position).sqrMagnitude <=
+            maxDistance * maxDistance)
+        {
+            return false;
+        }
+
+        if (Time.time >= nextReducedMovementUpdateTime)
+        {
+            nextReducedMovementUpdateTime =
+                Time.time + Mathf.Max(Time.fixedDeltaTime, reducedUpdateInterval);
+            return false;
+        }
+
+        return true;
     }
 
     void SyncFromCharacterStats()
@@ -688,7 +755,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         if (ShouldDieFromOldAge())
         {
-            currentAction = "Thọ nguyên đã tận";
+            currentAction = "ThÃƒÂ¡Ã‚Â»Ã‚Â nguyÃƒÆ’Ã‚Âªn Ãƒâ€žÃ¢â‚¬ËœÃƒÆ’Ã‚Â£ tÃƒÂ¡Ã‚ÂºÃ‚Â­n";
             Die();
             return;
         }
@@ -755,7 +822,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         {
             case WorldTimePhase.Evening:
             case WorldTimePhase.Night:
-                GoHomeIdle("Đóng tiệm về nhà");
+                GoHomeIdle("Ãƒâ€žÃ‚ÂÃƒÆ’Ã‚Â³ng tiÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡m vÃƒÂ¡Ã‚Â»Ã‚Â nhÃƒÆ’Ã‚Â ");
                 return;
             default:
                 TryTradeOrTaskOrIdle();
@@ -778,7 +845,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        GoHomeIdle("Không có giao dịch");
+        GoHomeIdle("KhÃƒÆ’Ã‚Â´ng cÃƒÆ’Ã‚Â³ giao dÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¹ch");
     }
 
     void ThinkChild()
@@ -805,7 +872,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        GoHomeIdle("Ở gần nhà");
+        GoHomeIdle("ÃƒÂ¡Ã‚Â»Ã…Â¾ gÃƒÂ¡Ã‚ÂºÃ‚Â§n nhÃƒÆ’Ã‚Â ");
     }
 
     void ThinkAdult()
@@ -919,7 +986,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                         return;
                     }
 
-                    Wander("Đi dạo buổi tối trong làng");
+                    Wander("Ãƒâ€žÃ‚Âi dÃƒÂ¡Ã‚ÂºÃ‚Â¡o buÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¢i tÃƒÂ¡Ã‚Â»Ã¢â‚¬Ëœi trong lÃƒÆ’Ã‚Â ng");
                     return;
 
                 case WorldTimePhase.Night:
@@ -936,7 +1003,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         if (!autonomousWorkEnabled)
         {
-            Wander("Đi dạo trong làng");
+            Wander("Ãƒâ€žÃ‚Âi dÃƒÂ¡Ã‚ÂºÃ‚Â¡o trong lÃƒÆ’Ã‚Â ng");
             return;
         }
 
@@ -993,7 +1060,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     {
         if (!autonomousWorkEnabled)
         {
-            Wander("Đi dạo trong làng");
+            Wander("Ãƒâ€žÃ‚Âi dÃƒÂ¡Ã‚ÂºÃ‚Â¡o trong lÃƒÆ’Ã‚Â ng");
             return;
         }
 
@@ -1091,7 +1158,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             AddCultivationExp(
                 Mathf.Max(1, 2 + (int)realm + realmStage));
             actionTimer = Random.Range(4f, 8f);
-            currentAction = "Đang thu hoạch tài nguyên";
+            currentAction = "Ãƒâ€žÃ‚Âang thu hoÃƒÂ¡Ã‚ÂºÃ‚Â¡ch tÃƒÆ’Ã‚Â i nguyÃƒÆ’Ã‚Âªn";
         }
     }
 
@@ -1116,7 +1183,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             Mathf.Max(
                 thinkInterval,
                 Random.Range(6f, 12f));
-        currentAction = "Tu luyện hấp thụ linh khí";
+        currentAction = "Tu luyÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡n hÃƒÂ¡Ã‚ÂºÃ‚Â¥p thÃƒÂ¡Ã‚Â»Ã‚Â¥ linh khÃƒÆ’Ã‚Â­";
     }
 
     bool TryGoHomeForCultivation()
@@ -1527,7 +1594,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             {
                 Vector3 brokerPosition = broker.GetCustomerPositionFor(gameObject);
                 NpcMapZone? brokerZone = NpcMapNavigator.GetDestinationZone(broker.transform);
-                currentAction = "Đến Vạn Bảo Lâu gặp tạp hóa";
+                currentAction = "Ãƒâ€žÃ‚ÂÃƒÂ¡Ã‚ÂºÃ‚Â¿n VÃƒÂ¡Ã‚ÂºÃ‚Â¡n BÃƒÂ¡Ã‚ÂºÃ‚Â£o LÃƒÆ’Ã‚Â¢u gÃƒÂ¡Ã‚ÂºÃ‚Â·p tÃƒÂ¡Ã‚ÂºÃ‚Â¡p hÃƒÆ’Ã‚Â³a";
 
                 if (!IsInsideBrokerServiceArea(broker))
                 {
@@ -1548,7 +1615,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
                 vanBaoLauVisitStep = 1;
                 actionTimer = Mathf.Max(1f, thinkInterval);
-                currentAction = "Không có giao dịch";
+                currentAction = "KhÃƒÆ’Ã‚Â´ng cÃƒÆ’Ã‚Â³ giao dÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¹ch";
                 return;
             }
 
@@ -1578,7 +1645,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             MoveUsingRoad(
                 providerPosition,
                 providerZone.HasValue ? providerZone : NpcMapZone.VanBaoLau);
-            currentAction = "Đến Vạn Bảo Lâu xem việc";
+            currentAction = "Ãƒâ€žÃ‚ÂÃƒÂ¡Ã‚ÂºÃ‚Â¿n VÃƒÂ¡Ã‚ÂºÃ‚Â¡n BÃƒÂ¡Ã‚ÂºÃ‚Â£o LÃƒÆ’Ã‚Â¢u xem viÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡c";
 
             if (!IsNearTaskProvider(provider))
             {
@@ -1599,7 +1666,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         ClearMovementTargets();
         StopMoving();
         actionTimer = Mathf.Max(1f, thinkInterval);
-        currentAction = "Đã kiểm tra Vạn Bảo Lâu";
+        currentAction = "Ãƒâ€žÃ‚ÂÃƒÆ’Ã‚Â£ kiÃƒÂ¡Ã‚Â»Ã†â€™m tra VÃƒÂ¡Ã‚ÂºÃ‚Â¡n BÃƒÂ¡Ã‚ÂºÃ‚Â£o LÃƒÆ’Ã‚Â¢u";
     }
 
     void MarkDailyVanBaoLauVisited()
@@ -1644,11 +1711,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return false;
         }
 
-        return currentAction.Contains("Đang buôn bán") ||
-            currentAction.Contains("Đang chơi") ||
-            currentAction.Contains("Về nhà") ||
-            currentAction.Contains("gần nhà") ||
-            currentAction.Contains("sinh hoạt");
+        return currentAction.Contains("Ãƒâ€žÃ‚Âang buÃƒÆ’Ã‚Â´n bÃƒÆ’Ã‚Â¡n") ||
+            currentAction.Contains("Ãƒâ€žÃ‚Âang chÃƒâ€ Ã‚Â¡i") ||
+            currentAction.Contains("VÃƒÂ¡Ã‚Â»Ã‚Â nhÃƒÆ’Ã‚Â ") ||
+            currentAction.Contains("gÃƒÂ¡Ã‚ÂºÃ‚Â§n nhÃƒÆ’Ã‚Â ") ||
+            currentAction.Contains("sinh hoÃƒÂ¡Ã‚ÂºÃ‚Â¡t");
     }
 
     void TryTalkToPassingVillager()
@@ -1700,7 +1767,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     {
         Vector3 homePosition = GetHomePosition();
         MoveUsingRoad(homePosition);
-        currentAction = "Về nhà nghỉ ngơi";
+        currentAction = "VÃƒÂ¡Ã‚Â»Ã‚Â nhÃƒÆ’Ã‚Â  nghÃƒÂ¡Ã‚Â»Ã¢â‚¬Â° ngÃƒâ€ Ã‚Â¡i";
 
         if (IsAtPosition(homePosition))
         {
@@ -1720,7 +1787,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 currentHP = Mathf.Min(maxHP, currentHP + 10);
             }
             actionTimer = restDuration;
-            currentAction = "Đang nghỉ ngơi";
+            currentAction = "Ãƒâ€žÃ‚Âang nghÃƒÂ¡Ã‚Â»Ã¢â‚¬Â° ngÃƒâ€ Ã‚Â¡i";
             ResetDailyTargets();
 
             NpcHomeResident resident = GetComponent<NpcHomeResident>();
@@ -1745,7 +1812,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         MoveUsingRoad(currentEatTarget);
-        currentAction = "Đi ăn";
+        currentAction = "Ãƒâ€žÃ‚Âi Ãƒâ€žÃ†â€™n";
 
         if (IsAtPosition(currentEatTarget))
         {
@@ -1755,7 +1822,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             hunger = 0f;
             money = Mathf.Max(0, money - 1);
             actionTimer = eatDuration;
-            currentAction = "Đang ăn";
+            currentAction = "Ãƒâ€žÃ‚Âang Ãƒâ€žÃ†â€™n";
         }
     }
 
@@ -1766,20 +1833,20 @@ public class VillagerAI : MonoBehaviour, IDamageable
         hunger = 0f;
         money = Mathf.Max(0, money - 1);
         actionTimer = eatDuration;
-        currentAction = "Ăn tại tiệm";
+        currentAction = "Ãƒâ€žÃ¢â‚¬Å¡n tÃƒÂ¡Ã‚ÂºÃ‚Â¡i tiÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡m";
     }
 
     void GatherAndPlay()
     {
         if (playPoint == null)
         {
-            GoHomeIdle("Nghỉ ngơi gần nhà");
+            GoHomeIdle("NghÃƒÂ¡Ã‚Â»Ã¢â‚¬Â° ngÃƒâ€ Ã‚Â¡i gÃƒÂ¡Ã‚ÂºÃ‚Â§n nhÃƒÆ’Ã‚Â ");
             return;
         }
 
         SetTarget(
             playPoint,
-            "Tụ tập đi chơi");
+            "TÃƒÂ¡Ã‚Â»Ã‚Â¥ tÃƒÂ¡Ã‚ÂºÃ‚Â­p Ãƒâ€žÃ¢â‚¬Ëœi chÃƒâ€ Ã‚Â¡i");
 
         if (HasArrived())
         {
@@ -1787,7 +1854,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             StopMoving();
             fun = 100f;
             actionTimer = playDuration;
-            currentAction = "Đang chơi cùng bạn";
+            currentAction = "Ãƒâ€žÃ‚Âang chÃƒâ€ Ã‚Â¡i cÃƒÆ’Ã‚Â¹ng bÃƒÂ¡Ã‚ÂºÃ‚Â¡n";
             TalkToNearbyVillager();
         }
     }
@@ -1837,7 +1904,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                     : Vector3.zero;
                 currentWorkTargetZone = NpcMapNavigator.GetDestinationZone(workPoint);
 
-                // Hồ đông thì đổi nghề tạm
+                // HÃƒÂ¡Ã‚Â»Ã¢â‚¬Å“ Ãƒâ€žÃ¢â‚¬ËœÃƒÆ’Ã‚Â´ng thÃƒÆ’Ã‚Â¬ Ãƒâ€žÃ¢â‚¬ËœÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¢i nghÃƒÂ¡Ã‚Â»Ã‚Â tÃƒÂ¡Ã‚ÂºÃ‚Â¡m
                 if (currentWorkTarget ==
                     Vector3.zero)
                 {
@@ -1847,7 +1914,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                         : Vector3.zero;
 
                     currentAction =
-                        "Hồ đông người, đổi đi làm ruộng";
+                        "HÃƒÂ¡Ã‚Â»Ã¢â‚¬Å“ Ãƒâ€žÃ¢â‚¬ËœÃƒÆ’Ã‚Â´ng ngÃƒâ€ Ã‚Â°ÃƒÂ¡Ã‚Â»Ã‚Âi, Ãƒâ€žÃ¢â‚¬ËœÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¢i Ãƒâ€žÃ¢â‚¬Ëœi lÃƒÆ’Ã‚Â m ruÃƒÂ¡Ã‚Â»Ã¢â€žÂ¢ng";
                 }
 
                 break;
@@ -1964,7 +2031,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             }
 
             actionTimer = Mathf.Max(1f, thinkInterval);
-            currentAction = "Không có giao dịch";
+            currentAction = "KhÃƒÆ’Ã‚Â´ng cÃƒÆ’Ã‚Â³ giao dÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¹ch";
         }
     }
 
@@ -1992,7 +2059,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         if (traded)
         {
             actionTimer = tradeDuration;
-            currentAction = "Đang buôn bán";
+            currentAction = "Ãƒâ€žÃ‚Âang buÃƒÆ’Ã‚Â´n bÃƒÆ’Ã‚Â¡n";
             return true;
         }
 
@@ -2017,7 +2084,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         MoveUsingRoad(currentSellTarget, currentSellTargetZone);
-        currentAction = "Mang hàng đến trước quầy";
+        currentAction = "Mang hÃƒÆ’Ã‚Â ng Ãƒâ€žÃ¢â‚¬ËœÃƒÂ¡Ã‚ÂºÃ‚Â¿n trÃƒâ€ Ã‚Â°ÃƒÂ¡Ã‚Â»Ã¢â‚¬Âºc quÃƒÂ¡Ã‚ÂºÃ‚Â§y";
 
         NpcCounterBroker activeBroker = NpcCounterBroker.Active;
         bool arrivedToSell = activeBroker != null && activeBroker.receiveAllNpcRequests
@@ -2038,12 +2105,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
             hasSellTarget = false;
             currentSellTargetZone = null;
             actionTimer = sellGoodsDuration;
-            currentAction = "Đã bán hàng hóa";
+            currentAction = "Ãƒâ€žÃ‚ÂÃƒÆ’Ã‚Â£ bÃƒÆ’Ã‚Â¡n hÃƒÆ’Ã‚Â ng hÃƒÆ’Ã‚Â³a";
             return;
         }
 
         actionTimer = sellGoodsDuration;
-        currentAction = "Chờ thương nhân mua hàng";
+        currentAction = "ChÃƒÂ¡Ã‚Â»Ã‚Â thÃƒâ€ Ã‚Â°Ãƒâ€ Ã‚Â¡ng nhÃƒÆ’Ã‚Â¢n mua hÃƒÆ’Ã‚Â ng";
     }
 
     void TalkToNearbyVillager()
@@ -2150,25 +2217,25 @@ public class VillagerAI : MonoBehaviour, IDamageable
     {
         if (mood == VillagerMood.Happy)
         {
-            return "Vui vẻ nói chuyện với " + other.villagerName;
+            return "Vui vÃƒÂ¡Ã‚ÂºÃ‚Â» nÃƒÆ’Ã‚Â³i chuyÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡n vÃƒÂ¡Ã‚Â»Ã¢â‚¬Âºi " + other.villagerName;
         }
 
         if (mood == VillagerMood.Sad)
         {
-            return "Tâm sự với " + other.villagerName;
+            return "TÃƒÆ’Ã‚Â¢m sÃƒÂ¡Ã‚Â»Ã‚Â± vÃƒÂ¡Ã‚Â»Ã¢â‚¬Âºi " + other.villagerName;
         }
 
         if (mood == VillagerMood.Tired)
         {
-            return "Hỏi thăm " + other.villagerName;
+            return "HÃƒÂ¡Ã‚Â»Ã‚Âi thÃƒâ€žÃ†â€™m " + other.villagerName;
         }
 
         if (acquaintances.Contains(other))
         {
-            return "Gặp người quen: " + other.villagerName;
+            return "GÃƒÂ¡Ã‚ÂºÃ‚Â·p ngÃƒâ€ Ã‚Â°ÃƒÂ¡Ã‚Â»Ã‚Âi quen: " + other.villagerName;
         }
 
-        return "Nói chuyện với " + other.villagerName;
+        return "NÃƒÆ’Ã‚Â³i chuyÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡n vÃƒÂ¡Ã‚Â»Ã¢â‚¬Âºi " + other.villagerName;
     }
 
     void GoHomeIdle(string action)
@@ -2426,8 +2493,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
         if (product == null)
         {
             money += GetWorkIncome();
-            lastWorkProductStatus = "Không có sản phẩm, nhận tiền công";
-            currentAction = "Làm việc nhận tiền công";
+            lastWorkProductStatus = "KhÃƒÆ’Ã‚Â´ng cÃƒÆ’Ã‚Â³ sÃƒÂ¡Ã‚ÂºÃ‚Â£n phÃƒÂ¡Ã‚ÂºÃ‚Â©m, nhÃƒÂ¡Ã‚ÂºÃ‚Â­n tiÃƒÂ¡Ã‚Â»Ã‚Ân cÃƒÆ’Ã‚Â´ng";
+            currentAction = "LÃƒÆ’Ã‚Â m viÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡c nhÃƒÂ¡Ã‚ÂºÃ‚Â­n tiÃƒÂ¡Ã‚Â»Ã‚Ân cÃƒÆ’Ã‚Â´ng";
             return true;
         }
 
@@ -2444,10 +2511,10 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         inventory.AddItem(product, amount);
         lastWorkProductStatus =
-            "Đã thêm " + product.itemName + " x" + amount +
+            "Ãƒâ€žÃ‚ÂÃƒÆ’Ã‚Â£ thÃƒÆ’Ã‚Âªm " + product.itemName + " x" + amount +
             ", trong balo: " + inventory.GetAmount(product);
         currentAction =
-            "Thu hoạch " + product.itemName + " x" + amount;
+            "Thu hoÃƒÂ¡Ã‚ÂºÃ‚Â¡ch " + product.itemName + " x" + amount;
         return true;
     }
 
@@ -2460,8 +2527,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
             !IsFarmerHarvestTime(timeSystem.CurrentPhase))
         {
             lastWorkProductStatus =
-                "Chưa thu hoạch: chỉ thu vào Dawn/Morning";
-            currentAction = "Chăm sóc ruộng, chưa đến giờ thu hoạch";
+                "ChÃƒâ€ Ã‚Â°a thu hoÃƒÂ¡Ã‚ÂºÃ‚Â¡ch: chÃƒÂ¡Ã‚Â»Ã¢â‚¬Â° thu vÃƒÆ’Ã‚Â o Dawn/Morning";
+            currentAction = "ChÃƒâ€žÃ†â€™m sÃƒÆ’Ã‚Â³c ruÃƒÂ¡Ã‚Â»Ã¢â€žÂ¢ng, chÃƒâ€ Ã‚Â°a Ãƒâ€žÃ¢â‚¬ËœÃƒÂ¡Ã‚ÂºÃ‚Â¿n giÃƒÂ¡Ã‚Â»Ã‚Â thu hoÃƒÂ¡Ã‚ÂºÃ‚Â¡ch";
             return false;
         }
 
@@ -2474,8 +2541,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
             lastFarmerHarvestDay == currentDay)
         {
             lastWorkProductStatus =
-                "Chưa thu hoạch: đã nhận trong ngày " + currentDay;
-            currentAction = "Đã thu hoạch hôm nay";
+                "ChÃƒâ€ Ã‚Â°a thu hoÃƒÂ¡Ã‚ÂºÃ‚Â¡ch: Ãƒâ€žÃ¢â‚¬ËœÃƒÆ’Ã‚Â£ nhÃƒÂ¡Ã‚ÂºÃ‚Â­n trong ngÃƒÆ’Ã‚Â y " + currentDay;
+            currentAction = "Ãƒâ€žÃ‚ÂÃƒÆ’Ã‚Â£ thu hoÃƒÂ¡Ã‚ÂºÃ‚Â¡ch hÃƒÆ’Ã‚Â´m nay";
             return false;
         }
 
@@ -2486,10 +2553,10 @@ public class VillagerAI : MonoBehaviour, IDamageable
         inventory.AddItem(product, amount);
         lastFarmerHarvestDay = currentDay;
         lastWorkProductStatus =
-            "Đã thêm " + product.itemName + " x" + amount +
+            "Ãƒâ€žÃ‚ÂÃƒÆ’Ã‚Â£ thÃƒÆ’Ã‚Âªm " + product.itemName + " x" + amount +
             ", trong balo: " + inventory.GetAmount(product);
         currentAction =
-            "Thu hoạch " + product.itemName + " x" + amount;
+            "Thu hoÃƒÂ¡Ã‚ÂºÃ‚Â¡ch " + product.itemName + " x" + amount;
         return true;
     }
 
@@ -2725,7 +2792,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             if (!TryPickWanderTarget(out wanderTarget))
             {
                 ClearMovementTargets();
-                currentAction = "Quan sát đường đi";
+                currentAction = "Quan sÃƒÆ’Ã‚Â¡t Ãƒâ€žÃ¢â‚¬ËœÃƒâ€ Ã‚Â°ÃƒÂ¡Ã‚Â»Ã‚Âng Ãƒâ€žÃ¢â‚¬Ëœi";
                 StopMoving();
                 return;
             }
@@ -2756,6 +2823,37 @@ public class VillagerAI : MonoBehaviour, IDamageable
         currentAction = action;
     }
 
+
+    public void ForceTreasureWait(
+        Vector3 origin,
+        float safeRadius,
+        StatItemData item,
+        bool lowPowerSkirmish)
+    {
+        if (item == null || IsDead)
+        {
+            return;
+        }
+
+        waitingOutsideTreasureLightning = true;
+        treasureHuntTarget = null;
+        treasureHuntItem = item;
+
+        Vector2 away = transform.position - origin;
+        if (away.sqrMagnitude <= 0.01f)
+        {
+            away = Random.insideUnitCircle.normalized;
+        }
+
+        Vector3 waitPosition =
+            origin +
+            (Vector3)away.normalized * Mathf.Max(0.5f, safeRadius);
+
+        SetDirectMoveTarget(waitPosition);
+        currentAction = lowPowerSkirmish
+            ? "Hon chien vong ngoai " + item.itemName
+            : "Doi thien loi tan " + item.itemName;
+    }
     public void ForceTreasureHunt(
         Transform target,
         StatItemData item)
@@ -2767,9 +2865,49 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
+        waitingOutsideTreasureLightning = false;
+        treasureHuntTarget = target;
+        treasureHuntItem = item;
+        actionTimer = 0f;
         SetTarget(
             target,
-            "Truy đoạt " + item.itemName);
+            "Truy doat " + item.itemName);
+    }
+
+    public void ClearTreasureHunt()
+    {
+        if (treasureHuntTarget == null && treasureHuntItem == null)
+        {
+            return;
+        }
+
+        waitingOutsideTreasureLightning = false;
+        treasureHuntTarget = null;
+        treasureHuntItem = null;
+        if (currentTarget != null && currentAction.Contains("Truy doat"))
+        {
+            ClearMovementTargets();
+        }
+
+        currentAction = "Binh tinh tro lai";
+    }
+
+    void RefreshTreasureHuntAction()
+    {
+        if (waitingOutsideTreasureLightning)
+        {
+            return;
+        }
+
+        if (treasureHuntTarget == null || treasureHuntItem == null)
+        {
+            ClearTreasureHunt();
+            return;
+        }
+
+        SetTarget(
+            treasureHuntTarget,
+            "Truy doat " + treasureHuntItem.itemName);
     }
 
     bool HasArrived()
@@ -2921,7 +3059,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         MoveToPosition(roadWaypoint);
 
         currentAction =
-            "Đang đi trên đường";
+            "Ãƒâ€žÃ‚Âang Ãƒâ€žÃ¢â‚¬Ëœi trÃƒÆ’Ã‚Âªn Ãƒâ€žÃ¢â‚¬ËœÃƒâ€ Ã‚Â°ÃƒÂ¡Ã‚Â»Ã‚Âng";
 
         return;
     }
@@ -2954,8 +3092,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         return mood == VillagerMood.Afraid ||
-            currentAction.Contains("Hoảng sợ") ||
-            currentAction.Contains("bỏ chạy");
+            currentAction.Contains("HoÃƒÂ¡Ã‚ÂºÃ‚Â£ng sÃƒÂ¡Ã‚Â»Ã‚Â£") ||
+            currentAction.Contains("bÃƒÂ¡Ã‚Â»Ã‚Â chÃƒÂ¡Ã‚ÂºÃ‚Â¡y");
     }
 
     void MoveToPosition(Vector3 position)
@@ -3821,7 +3959,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 desiredVelocity =
                     toCandidate.normalized *
                     moveSpeed;
-                currentAction = "Äá»•i hÆ°á»›ng trÃ¡nh váº­t cáº£n";
+                currentAction = "Ãƒâ€žÃ‚ÂÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¢i hÃƒâ€ Ã‚Â°ÃƒÂ¡Ã‚Â»Ã¢â‚¬Âºng trÃƒÆ’Ã‚Â¡nh vÃƒÂ¡Ã‚ÂºÃ‚Â­t cÃƒÂ¡Ã‚ÂºÃ‚Â£n";
                 return true;
             }
         }
@@ -5136,21 +5274,21 @@ public class VillagerAI : MonoBehaviour, IDamageable
         switch (job)
         {
             case VillagerJob.Farmer:
-                return "Ra đồng làm ruộng";
+                return "Ra Ãƒâ€žÃ¢â‚¬ËœÃƒÂ¡Ã‚Â»Ã¢â‚¬Å“ng lÃƒÆ’Ã‚Â m ruÃƒÂ¡Ã‚Â»Ã¢â€žÂ¢ng";
             case VillagerJob.Worker:
-                return "Đi làm việc";
+                return "Ãƒâ€žÃ‚Âi lÃƒÆ’Ã‚Â m viÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡c";
             case VillagerJob.Guard:
-                return "Đi tuần tra";
+                return "Ãƒâ€žÃ‚Âi tuÃƒÂ¡Ã‚ÂºÃ‚Â§n tra";
             case VillagerJob.Healer:
-                return "Đi chữa trị";
+                return "Ãƒâ€žÃ‚Âi chÃƒÂ¡Ã‚Â»Ã‚Â¯a trÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¹";
             case VillagerJob.Fisher:
-                return "Đi câu cá";
+                return "Ãƒâ€žÃ‚Âi cÃƒÆ’Ã‚Â¢u cÃƒÆ’Ã‚Â¡";
             case VillagerJob.Hunter:
-                return "Đi săn bắn";
+                return "Ãƒâ€žÃ‚Âi sÃƒâ€žÃ†â€™n bÃƒÂ¡Ã‚ÂºÃ‚Â¯n";
             case VillagerJob.Trader:
-                return "Ra chợ buôn bán";
+                return "Ra chÃƒÂ¡Ã‚Â»Ã‚Â£ buÃƒÆ’Ã‚Â´n bÃƒÆ’Ã‚Â¡n";
             default:
-                return "Đi làm";
+                return "Ãƒâ€žÃ‚Âi lÃƒÆ’Ã‚Â m";
         }
     }
 
@@ -5159,21 +5297,21 @@ public class VillagerAI : MonoBehaviour, IDamageable
         switch (job)
         {
             case VillagerJob.Farmer:
-                return "Đang làm ruộng";
+                return "Ãƒâ€žÃ‚Âang lÃƒÆ’Ã‚Â m ruÃƒÂ¡Ã‚Â»Ã¢â€žÂ¢ng";
             case VillagerJob.Worker:
-                return "Đang làm việc";
+                return "Ãƒâ€žÃ‚Âang lÃƒÆ’Ã‚Â m viÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡c";
             case VillagerJob.Guard:
-                return "Đang tuần tra";
+                return "Ãƒâ€žÃ‚Âang tuÃƒÂ¡Ã‚ÂºÃ‚Â§n tra";
             case VillagerJob.Healer:
-                return "Đang chữa trị";
+                return "Ãƒâ€žÃ‚Âang chÃƒÂ¡Ã‚Â»Ã‚Â¯a trÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¹";
             case VillagerJob.Fisher:
-                return "Đang câu cá";
+                return "Ãƒâ€žÃ‚Âang cÃƒÆ’Ã‚Â¢u cÃƒÆ’Ã‚Â¡";
             case VillagerJob.Hunter:
-                return "Đang săn bắn";
+                return "Ãƒâ€žÃ‚Âang sÃƒâ€žÃ†â€™n bÃƒÂ¡Ã‚ÂºÃ‚Â¯n";
             case VillagerJob.Trader:
-                return "Đang buôn bán";
+                return "Ãƒâ€žÃ‚Âang buÃƒÆ’Ã‚Â´n bÃƒÆ’Ã‚Â¡n";
             default:
-                return "Đang làm";
+                return "Ãƒâ€žÃ‚Âang lÃƒÆ’Ã‚Â m";
         }
     }
 
@@ -5254,7 +5392,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         ApplyRealmPower();
         currentHP = maxHP;
         lifespan = GetLifespanForRealm(realm);
-        currentAction = "Đột phá lên " + GetRealmText();
+        currentAction = "Ãƒâ€žÃ‚ÂÃƒÂ¡Ã‚Â»Ã¢â€žÂ¢t phÃƒÆ’Ã‚Â¡ lÃƒÆ’Ã‚Âªn " + GetRealmText();
     }
 
     void ApplyRealmPower()
@@ -5296,19 +5434,19 @@ public class VillagerAI : MonoBehaviour, IDamageable
         switch (realm)
         {
             case CultivationRealm.Mortal:
-                return "Phàm Nhân";
+                return "PhÃƒÆ’Ã‚Â m NhÃƒÆ’Ã‚Â¢n";
             case CultivationRealm.QiRefining:
-                return "Luyện Khí";
+                return "LuyÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡n KhÃƒÆ’Ã‚Â­";
             case CultivationRealm.Foundation:
-                return "Trúc Cơ";
+                return "TrÃƒÆ’Ã‚Âºc CÃƒâ€ Ã‚Â¡";
             case CultivationRealm.GoldenCore:
-                return "Kim Đan";
+                return "Kim Ãƒâ€žÃ‚Âan";
             case CultivationRealm.NascentSoul:
-                return "Nguyên Anh";
+                return "NguyÃƒÆ’Ã‚Âªn Anh";
             case CultivationRealm.SoulFormation:
-                return "Hóa Thần";
+                return "HÃƒÆ’Ã‚Â³a ThÃƒÂ¡Ã‚ÂºÃ‚Â§n";
             case CultivationRealm.Tribulation:
-                return "Độ Kiếp";
+                return "Ãƒâ€žÃ‚ÂÃƒÂ¡Ã‚Â»Ã¢â€žÂ¢ KiÃƒÂ¡Ã‚ÂºÃ‚Â¿p";
             default:
                 return realm.ToString();
         }
@@ -5380,7 +5518,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             }
             else if (bravery < 50)
             {
-                currentAction = "Hoảng sợ bỏ chạy";
+                currentAction = "HoÃƒÂ¡Ã‚ÂºÃ‚Â£ng sÃƒÂ¡Ã‚Â»Ã‚Â£ bÃƒÂ¡Ã‚Â»Ã‚Â chÃƒÂ¡Ã‚ÂºÃ‚Â¡y";
                 currentTarget = homePoint;
             }
 
@@ -5400,7 +5538,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
         else if (bravery < 50)
         {
-            currentAction = "Hoảng sợ bỏ chạy";
+            currentAction = "HoÃƒÂ¡Ã‚ÂºÃ‚Â£ng sÃƒÂ¡Ã‚Â»Ã‚Â£ bÃƒÂ¡Ã‚Â»Ã‚Â chÃƒÂ¡Ã‚ÂºÃ‚Â¡y";
             currentTarget = homePoint;
         }
     }
@@ -5494,7 +5632,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     void Die()
     {
         currentHP = 0;
-        currentAction = "Đã chết";
+        currentAction = "Ãƒâ€žÃ‚ÂÃƒÆ’Ã‚Â£ chÃƒÂ¡Ã‚ÂºÃ‚Â¿t";
         StopMoving();
 
         Collider2D collider2d =

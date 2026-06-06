@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System;
 using UnityEngine;
 
@@ -11,6 +11,8 @@ public class ItemStack
     public int maxDurability;
     public CultivationManualMastery mastery =
         CultivationManualMastery.None;
+    public float manualUseYears;
+    public bool broken;
     public bool applied;
 }
 
@@ -602,6 +604,8 @@ public class ItemInventory : MonoBehaviour
                 durability = source.durability,
                 maxDurability = source.maxDurability,
                 mastery = source.mastery,
+                manualUseYears = source.manualUseYears,
+                broken = source.broken,
                 applied = source.applied
             };
 

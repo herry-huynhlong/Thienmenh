@@ -9,6 +9,7 @@ public class OpenMap :
     public void OpenWorldMap()
     {
         CloseInventoryPanel();
+        FullGameSaveController.EnsureInstance().SaveFullGame();
 
         string returnScene =
             GetCurrentGameplaySceneName("LiteMapScene");
@@ -21,8 +22,23 @@ public class OpenMap :
             returnScene);
         PlayerPrefs.Save();
 
-        SceneManager.LoadScene(
-            "LiteMapScene");
+        Scene mapScene =
+            SceneManager.GetSceneByName("LiteMapScene");
+
+        if (!mapScene.isLoaded)
+        {
+            SceneManager.LoadScene(
+                "LiteMapScene",
+                LoadSceneMode.Additive);
+
+            mapScene =
+                SceneManager.GetSceneByName("LiteMapScene");
+        }
+
+        if (mapScene.IsValid() && mapScene.isLoaded)
+        {
+            SceneManager.SetActiveScene(mapScene);
+        }
     }
 
     string GetCurrentGameplaySceneName(string mapSceneName)
