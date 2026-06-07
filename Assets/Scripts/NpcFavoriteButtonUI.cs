@@ -7,13 +7,29 @@ public class NpcFavoriteButtonUI : MonoBehaviour
 {
     [Header("Star UI")]
     public Button starButton;
+    public Image starImage;
     public TMP_Text starText;
+
+    [Header("Star Sprite")]
+    public Sprite normalStarSprite; // sao trắng / sao rỗng
+    public Sprite markedStarSprite; // sao vàng / đã đánh dấu
+    public bool hideTextWhenUsingImage = true;
 
     private NpcFavorite currentNpc;
     private Transform lastSelectedTarget;
 
     private void Awake()
     {
+        if (starButton == null)
+        {
+            starButton = GetComponent<Button>();
+        }
+
+        if (starImage == null)
+        {
+            starImage = GetComponent<Image>();
+        }
+
         if (starButton != null)
         {
             starButton.onClick.RemoveAllListeners();
@@ -21,13 +37,13 @@ public class NpcFavoriteButtonUI : MonoBehaviour
         }
 
         RefreshFromSelectedTarget();
-        RefreshStarText();
+        RefreshStarVisual();
     }
 
     private void OnEnable()
     {
         RefreshFromSelectedTarget();
-        RefreshStarText();
+        RefreshStarVisual();
     }
 
     private void Update()
@@ -35,14 +51,14 @@ public class NpcFavoriteButtonUI : MonoBehaviour
         if (TouchSelectTarget.CurrentTarget != lastSelectedTarget)
         {
             RefreshFromSelectedTarget();
-            RefreshStarText();
+            RefreshStarVisual();
         }
     }
 
     public void SetCurrentNpc(GameObject npcObject)
     {
         currentNpc = GetOrCreateFavorite(npcObject);
-        RefreshStarText();
+        RefreshStarVisual();
     }
 
     private void ToggleFavorite()
@@ -69,8 +85,15 @@ public class NpcFavoriteButtonUI : MonoBehaviour
         }
 
         manager.ToggleFavorite(currentNpc);
-        RefreshStarText();
-        FullGameSaveController.EnsureInstance().SaveFullGame();
+        RefreshStarVisual();
+
+        FullGameSaveController saveController =
+            FullGameSaveController.EnsureInstance();
+
+        if (saveController != null)
+        {
+            saveController.SaveFullGame();
+        }
     }
 
     private void RefreshFromSelectedTarget()
@@ -191,19 +214,40 @@ public class NpcFavoriteButtonUI : MonoBehaviour
         }
     }
 
-    private void RefreshStarText()
+    private void RefreshStarVisual()
     {
-        if (starText == null)
+        bool isMarked =
+            currentNpc != null &&
+            currentNpc.IsFavorite;
+
+        if (starImage != null)
         {
-            return;
+            if (isMarked)
+            {
+                if (markedStarSprite != null)
+                {
+                    starImage.sprite = markedStarSprite;
+                }
+            }
+            else
+            {
+                if (normalStarSprite != null)
+                {
+                    starImage.sprite = normalStarSprite;
+                }
+            }
         }
 
-        if (currentNpc == null)
+        if (starText != null)
         {
-            starText.text = "+";
-            return;
+            if (hideTextWhenUsingImage && starImage != null)
+            {
+                starText.text = "";
+            }
+            else
+            {
+                starText.text = isMarked ? "*" : "+";
+            }
         }
-
-        starText.text = currentNpc.IsFavorite ? "*" : "+";
     }
 }

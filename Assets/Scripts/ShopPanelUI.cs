@@ -286,18 +286,18 @@ public class ShopPanelUI : MonoBehaviour
 
         if (detailGradeText != null)
         {
-            detailGradeText.text = GetGradeText(slot.item.grade);
+            detailGradeText.text = "Phẩm chất: " + GetGradeText(slot.item.grade);
         }
 
         if (detailTargetsText != null)
         {
-            detailTargetsText.text = GetTargetText(slot.item.validTargets);
+            detailTargetsText.text = "Dùng cho: " + GetTargetText(slot.item.validTargets);
         }
 
         if (detailPriceText != null)
         {
             detailPriceText.text =
-                FormatDisplayPrice(slot.item);
+                "Giá: " + FormatDisplayPrice(slot.item);
         }
 
         if (detailDescriptionText != null)
@@ -434,6 +434,76 @@ public class ShopPanelUI : MonoBehaviour
             }
         }
 
+        if (detailPanel == null)
+        {
+            Transform foundDetailPanel =
+                FindChildByName(transform, "DetailPanel");
+
+            if (foundDetailPanel != null)
+            {
+                detailPanel = foundDetailPanel.gameObject;
+            }
+        }
+
+        if (detailPanel != null)
+        {
+            Transform detailTransform = detailPanel.transform;
+
+            if (detailIcon == null)
+            {
+                Transform foundDetailIcon =
+                    FindChildByName(detailTransform, "DetailIcon");
+
+                if (foundDetailIcon != null)
+                {
+                    detailIcon =
+                        foundDetailIcon.GetComponent<Image>();
+                }
+            }
+
+            if (detailNameText == null)
+            {
+                detailNameText =
+                    FindTextByName(detailTransform, "DetailNameText");
+            }
+
+            if (detailTypeText == null)
+            {
+                detailTypeText =
+                    FindTextByName(detailTransform, "DetailTypeText");
+            }
+
+            if (detailGradeText == null)
+            {
+                detailGradeText =
+                    FindTextByName(detailTransform, "DetailGradeText");
+            }
+
+            if (detailTargetsText == null)
+            {
+                detailTargetsText =
+                    FindTextByName(detailTransform, "DetailTargetsText");
+            }
+
+            if (detailPriceText == null)
+            {
+                detailPriceText =
+                    FindTextByName(detailTransform, "DetailPriceText");
+            }
+
+            if (detailDescriptionText == null)
+            {
+                detailDescriptionText =
+                    FindTextByName(detailTransform, "DetailDescriptionText");
+            }
+
+            if (detailStatsText == null)
+            {
+                detailStatsText =
+                    FindTextByName(detailTransform, "DetailStatsText");
+            }
+        }
+
         if (buyPanel != null &&
             !buyPanel.transform.IsChildOf(transform))
         {
@@ -565,6 +635,21 @@ public class ShopPanelUI : MonoBehaviour
         }
 
         return null;
+    }
+
+    TMP_Text FindTextByName(
+        Transform parent,
+        string childName)
+    {
+        Transform child =
+            FindChildByName(parent, childName);
+
+        if (child == null)
+        {
+            return null;
+        }
+
+        return child.GetComponent<TMP_Text>();
     }
 
     void RebuildItemGrid()
@@ -1507,7 +1592,8 @@ public class ShopPanelUI : MonoBehaviour
 
         if (item.armorBonus != 0)
         {
-            builder.AppendLine("Giáp +" + item.armorBonus);
+            builder.AppendLine("Công dụng:");
+            builder.AppendLine("- Tăng phòng ngự +" + item.armorBonus);
         }
 
         if (item.effectResistanceBonus != 0)

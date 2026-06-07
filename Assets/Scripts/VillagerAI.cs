@@ -1899,7 +1899,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                     : Vector3.zero;
                 currentWorkTargetZone = NpcMapNavigator.GetDestinationZone(workPoint);
 
-                // HÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´ng thÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¬ ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢i nghÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡m
+                // Neu khong co diem cau ca thi doi sang lam ruong tam.
                 if (currentWorkTarget ==
                     Vector3.zero)
                 {

@@ -35,7 +35,7 @@ public class InventoryPanelUI : MonoBehaviour
         new Vector2(8f, 8f);
     public Vector2 itemGridPadding =
         new Vector2(16f, 18f);
-    public int itemColumns = 4;
+    public int itemColumns = 8;
 
     [Header("Detail")]
     public GameObject detailPanel;
@@ -342,28 +342,28 @@ public class InventoryPanelUI : MonoBehaviour
 
         if (detailAmountText != null)
         {
-            detailAmountText.text = "x" + stack.amount;
+            detailAmountText.text = "Số lượng: x" + stack.amount;
         }
 
         if (detailTypeText != null)
         {
-            detailTypeText.text = GetTypeText(stack.item.itemType);
+            detailTypeText.text = "Loại: " + GetTypeText(stack.item.itemType);
         }
 
         if (detailGradeText != null)
         {
-            detailGradeText.text = GetGradeText(stack.item.grade);
+            detailGradeText.text = "Phẩm chất: " + GetGradeText(stack.item.grade);
         }
 
         if (detailTargetsText != null)
         {
-            detailTargetsText.text = GetTargetText(stack.item.validTargets);
+            detailTargetsText.text = "Dùng cho: " + GetTargetText(stack.item.validTargets);
         }
 
         if (detailPriceText != null)
         {
             detailPriceText.text =
-                NpcEconomy.FormatPrice(stack.item);
+                "Giá: " + NpcEconomy.FormatPrice(stack.item);
         }
 
         if (detailDescriptionText != null)
