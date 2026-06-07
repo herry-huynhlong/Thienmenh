@@ -328,6 +328,8 @@ public class NpcTradeAgent : MonoBehaviour
         StatItemData item,
         bool considerUse)
     {
+        ItemEffectSpawner.PlayBuyEffect(item, transform);
+
         NpcItemCollector collector =
             GetComponent<NpcItemCollector>();
 

@@ -87,54 +87,6 @@ public class NpcSocialRelationship
     public string lastTopic;
 }
 
-[CreateAssetMenu(
-    fileName = "NpcConversationProfile",
-    menuName = "ThienMenh/NPC Conversation Profile")]
-public class NpcConversationProfile : ScriptableObject
-{
-    public string[] greetings =
-    {
-        "Hôm nay đạo hữu định đi đâu?",
-        "Gần đây có nghe tin gì không?",
-        "Linh khí hôm nay có vẻ yên ổn."
-    };
-
-    public string[] replies =
-    {
-        "Ta cũng chỉ đang xem tình hình.",
-        "Chưa có gì chắc chắn, để ta nghe ngóng thêm.",
-        "Nếu có tin mới ta sẽ báo ngươi."
-    };
-
-    public string[] resourceRumors =
-    {
-        "Hôm qua nghe nói ven suối có linh thảo.",
-        "Chân núi có vài cây linh dược mới mọc.",
-        "Rừng ngoài gần đây có dấu linh khí tụ lại."
-    };
-
-    public string[] tradeLines =
-    {
-        "Giá này có thể thương lượng một chút.",
-        "Hàng tốt thì không nên ép giá quá thấp.",
-        "Nếu mua bán công bằng, lần sau ta còn tìm ngươi."
-    };
-
-    public string[] hostileLines =
-    {
-        "Ta vẫn nhớ chuyện lần trước.",
-        "Đừng tưởng ta đã quên món nợ đó.",
-        "Nếu còn ép người quá đáng, ta sẽ không nhịn nữa."
-    };
-
-    public string[] friendlyFollowUps =
-    {
-        "Hôm qua ngươi nói chuyện đó, nay thế nào rồi?",
-        "Tin lần trước ngươi kể có đúng không?",
-        "Việc hôm qua đã xử lý xong chưa?"
-    };
-}
-
 public static class NpcSocialEventBus
 {
     public static event Action<GameObject, GameObject, StatItemData, int> TradeCompleted;
@@ -745,8 +697,6 @@ public class NpcConversationAgent : MonoBehaviour
 {
     static readonly List<NpcConversationSession> sessions =
         new List<NpcConversationSession>();
-
-    public NpcConversationProfile profile;
     public float scanRadius = 1.4f;
     public LayerMask npcLayers = ~0;
     public float scanInterval = 2f;
@@ -879,15 +829,15 @@ public class NpcConversationAgent : MonoBehaviour
             1f,
             5);
 
-        if (topic.Contains("linh thảo") ||
-            topic.Contains("linh dược") ||
-            topic.Contains("ven suối"))
+        if (ContainsJsonKeyword(topic, "spiritHerb") ||
+            ContainsJsonKeyword(topic, "spiritMedicine") ||
+            ContainsJsonKeyword(topic, "stream"))
         {
             NpcSocialEventBus.PublishRumorShared(gameObject, other.gameObject, topic);
         }
 
-        NpcRoleUtility.SetAction(gameObject, "Đang trò chuyện");
-        NpcRoleUtility.SetAction(other.gameObject, "Đang trò chuyện");
+        NpcRoleUtility.SetAction(gameObject, NpcText.Action("talking"));
+        NpcRoleUtility.SetAction(other.gameObject, NpcText.Action("talking"));
         return true;
     }
 
@@ -1031,15 +981,15 @@ public class NpcConversationAgent : MonoBehaviour
         if (relation != null &&
             (relation.grudge >= 65 || relation.hostility >= 65))
         {
-            return Pick(GetHostileLines(), "Ta vẫn nhớ chuyện lần trước.");
+            return Pick(GetHostileLines(), NpcText.DialogueLine("hostileFallback"));
         }
 
         if (UnityEngine.Random.value < 0.35f)
         {
-            return Pick(GetRumorLines(), "Ven suối hình như có linh thảo.");
+            return Pick(GetRumorLines(), NpcText.DialogueLine("rumorFallback"));
         }
 
-        return Pick(GetGreetingLines(), "Hôm nay đạo hữu thế nào?");
+        return Pick(GetGreetingLines(), NpcText.DialogueLine("genericGreeting"));
     }
 
     string BuildLineFor(
@@ -1052,7 +1002,7 @@ public class NpcConversationAgent : MonoBehaviour
             !string.IsNullOrEmpty(unresolved.topic) &&
             NpcSocialTime.Day > unresolved.worldDay)
         {
-            return "Hôm qua nói chuyện " + unresolved.topic + ", nay thế nào rồi?";
+            return NpcText.Format(NpcText.Dialogue("followUpTopic"), unresolved.topic);
         }
 
         if (opener)
@@ -1060,103 +1010,81 @@ public class NpcConversationAgent : MonoBehaviour
             return topic;
         }
 
-        return Pick(GetReplyLines(), "Ta sẽ ghi nhớ chuyện này.");
+        return Pick(GetReplyLines(), NpcText.DialogueLine("replyFallback"));
+    }
+    string[] GetJsonLines(string key)
+    {
+        string[] lines = NpcText.Lines("dialogue", key);
+        return lines != null && lines.Length > 0 ? lines : null;
+    }
+
+    bool ContainsJsonKeyword(string text, string key)
+    {
+        string keyword = NpcText.Get("dialogueKeywords", key, "");
+        return !string.IsNullOrEmpty(text) &&
+            !string.IsNullOrEmpty(keyword) &&
+            text.Contains(keyword);
     }
 
     string[] GetGreetingLines()
     {
-        if (profile != null && profile.greetings != null && profile.greetings.Length > 0)
-        {
-            return profile.greetings;
-        }
-
         VillagerAI villager = GetComponent<VillagerAI>();
         if (villager != null && villager.job == VillagerJob.Farmer)
         {
-            return new[]
+            string[] farmerLines = GetJsonLines("farmerGreetings");
+            if (farmerLines != null)
             {
-                "Hôm nay ra đồng sớm vậy?",
-                "Linh điền bên ngươi thế nào?",
-                "Mùa này linh cốc có vẻ tốt."
-            };
+                return farmerLines;
+            }
         }
 
         NpcTradeAgent trader = GetComponent<NpcTradeAgent>();
         if (trader != null && trader.isMarketTrader)
         {
-            return new[]
+            string[] traderLines = GetJsonLines("traderGreetings");
+            if (traderLines != null)
             {
-                "Đạo hữu muốn xem hàng gì?",
-                "Hàng hôm nay còn khá đủ.",
-                "Nếu mua nhiều, giá có thể bàn lại."
-            };
+                return traderLines;
+            }
         }
 
-        return null;
+        return GetJsonLines("greetings");
     }
 
     string[] GetReplyLines()
     {
-        if (profile != null && profile.replies != null && profile.replies.Length > 0)
-        {
-            return profile.replies;
-        }
-
         VillagerAI villager = GetComponent<VillagerAI>();
         if (villager != null && villager.job == VillagerJob.Farmer)
         {
-            return new[]
+            string[] farmerLines = GetJsonLines("farmerReplies");
+            if (farmerLines != null)
             {
-                "Cũng tạm, linh khí hơi mỏng.",
-                "Ta đang tranh thủ trước khi trời tối.",
-                "Nếu được một trận mưa linh khí thì tốt hơn."
-            };
+                return farmerLines;
+            }
         }
 
         NpcTradeAgent trader = GetComponent<NpcTradeAgent>();
         if (trader != null && trader.isMarketTrader)
         {
-            return new[]
+            string[] traderLines = GetJsonLines("traderReplies");
+            if (traderLines != null)
             {
-                "Giá này đã mềm rồi.",
-                "Chỗ quen biết thì ta giảm chút.",
-                "Hàng tốt không nên ép quá thấp."
-            };
+                return traderLines;
+            }
         }
 
-        return null;
+        return GetJsonLines("replies");
     }
 
     string[] GetRumorLines()
     {
-        if (profile != null && profile.resourceRumors != null && profile.resourceRumors.Length > 0)
-        {
-            return profile.resourceRumors;
-        }
-
-        return new[]
-        {
-            "Hôm qua nghe nói ven suối có linh thảo.",
-            "Chân núi có vài cây linh dược mới mọc.",
-            "Rừng ngoài gần đây có dấu linh khí tụ lại."
-        };
+        return GetJsonLines("resourceRumors");
     }
 
     string[] GetHostileLines()
     {
-        if (profile != null && profile.hostileLines != null && profile.hostileLines.Length > 0)
-        {
-            return profile.hostileLines;
-        }
-
-        return new[]
-        {
-            "Ta vẫn nhớ chuyện lần trước.",
-            "Đừng tưởng ta đã quên món nợ đó.",
-            "Nếu còn ép người quá đáng, ta sẽ không nhịn nữa."
-        };
+        return GetJsonLines("hostileLines");
     }
-
     string Pick(string[] lines, string fallback)
     {
         if (lines == null || lines.Length == 0)
@@ -1436,12 +1364,12 @@ public class NpcDecisionBrain : MonoBehaviour
             robbery ? 8 : 18,
             target.transform.position,
             robbery ? "cướp bóc" : "trả thù");
-        NpcRoleUtility.SetAction(gameObject, robbery ? "Đang cướp bóc" : "Đang trả thù");
+        NpcRoleUtility.SetAction(gameObject, robbery ? NpcText.Action("rob") : NpcText.Action("revenge"));
 
         NpcOverheadDialogueUI overhead = GetComponent<NpcOverheadDialogueUI>();
         if (overhead != null)
         {
-            overhead.ShowLine(robbery ? "Giao đồ ra!" : "Món nợ này phải trả!", 3f);
+            overhead.ShowLine(robbery ? NpcText.DialogueLine("robberyThreat") : NpcText.DialogueLine("revengeThreat"), 3f);
         }
 
         if (!robbery)
@@ -1459,13 +1387,13 @@ public class NpcDecisionBrain : MonoBehaviour
         switch (decision)
         {
             case NpcDecisionKind.Rest:
-                NpcRoleUtility.SetAction(gameObject, "Đang nghỉ ngơi");
+                NpcRoleUtility.SetAction(gameObject, NpcText.Action("rest"));
                 break;
             case NpcDecisionKind.Trade:
-                NpcRoleUtility.SetAction(gameObject, "Đang tìm cơ hội buôn bán");
+                NpcRoleUtility.SetAction(gameObject, NpcText.Action("tradeSeek"));
                 break;
             case NpcDecisionKind.GatherResource:
-                NpcRoleUtility.SetAction(gameObject, "Đang để ý linh thảo");
+                NpcRoleUtility.SetAction(gameObject, NpcText.Action("gatherResource"));
                 break;
             default:
                 break;
@@ -1709,7 +1637,7 @@ public abstract class NpcLawZoneInternal : MonoBehaviour
         overhead.ShowLine(witnessLine, 3f);
         NpcRoleUtility.SetAction(
             witness,
-            "Công kích kẻ vi phạm luật " + zoneName);
+            NpcText.ActionFormat("lawAttack", zoneName));
 
         if (callNearbyNpcsToAttack)
         {

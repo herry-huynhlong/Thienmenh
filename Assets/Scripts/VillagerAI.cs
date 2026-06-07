@@ -37,7 +37,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     public EntityProfile entityProfile;
 
     [Header("Info")]
-    public string villagerName = "NgÃƒâ€ Ã‚Â°ÃƒÂ¡Ã‚Â»Ã‚Âi dÃƒÆ’Ã‚Â¢n";
+    public string villagerName = "Người dân";
     public VillagerAgeGroup ageGroup = VillagerAgeGroup.Adult;
     public VillagerJob job = VillagerJob.Farmer;
     public bool keepInspectorJob;
@@ -45,7 +45,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     [Header("Stats")]
     public int maxHP = 100;
     public int currentHP = 100;
-    [InspectorName("Linh ThÃƒÂ¡Ã‚ÂºÃ‚Â¡ch")]
+    [InspectorName("Linh Thạch")]
     public int money = 20;
     public int spiritStone;
     public float moveSpeed = 1.6f;
@@ -211,7 +211,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     }
 
     [Header("Runtime")]
-    public string currentAction = "Ãƒâ€žÃ‚ÂÃƒÂ¡Ã‚Â»Ã‚Â©ng yÃƒÆ’Ã‚Âªn";
+    public string currentAction = NpcText.Action("idle");
     public Transform currentTarget;
     public string lastWorkProductStatus;
     Transform treasureHuntTarget;
@@ -755,7 +755,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         if (ShouldDieFromOldAge())
         {
-            currentAction = "ThÃƒÂ¡Ã‚Â»Ã‚Â nguyÃƒÆ’Ã‚Âªn Ãƒâ€žÃ¢â‚¬ËœÃƒÆ’Ã‚Â£ tÃƒÂ¡Ã‚ÂºÃ‚Â­n";
+            currentAction = NpcText.Action("oldAgeDeath");
             Die();
             return;
         }
@@ -822,7 +822,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         {
             case WorldTimePhase.Evening:
             case WorldTimePhase.Night:
-                GoHomeIdle("Ãƒâ€žÃ‚ÂÃƒÆ’Ã‚Â³ng tiÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡m vÃƒÂ¡Ã‚Â»Ã‚Â nhÃƒÆ’Ã‚Â ");
+                GoHomeIdle(NpcText.Action("closeShopGoHome"));
                 return;
             default:
                 TryTradeOrTaskOrIdle();
@@ -845,7 +845,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        GoHomeIdle("KhÃƒÆ’Ã‚Â´ng cÃƒÆ’Ã‚Â³ giao dÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¹ch");
+        GoHomeIdle(NpcText.Action("noTrade"));
     }
 
     void ThinkChild()
@@ -872,7 +872,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        GoHomeIdle("ÃƒÂ¡Ã‚Â»Ã…Â¾ gÃƒÂ¡Ã‚ÂºÃ‚Â§n nhÃƒÆ’Ã‚Â ");
+        GoHomeIdle(NpcText.Action("stayNearHome"));
     }
 
     void ThinkAdult()
@@ -940,7 +940,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                     }
                     else
                     {
-                        Wander("Nghi trua trong lang");
+                        Wander(NpcText.Action("restVillageNoon"));
                     }
                     return;
 
@@ -986,7 +986,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                         return;
                     }
 
-                    Wander("Ãƒâ€žÃ‚Âi dÃƒÂ¡Ã‚ÂºÃ‚Â¡o buÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¢i tÃƒÂ¡Ã‚Â»Ã¢â‚¬Ëœi trong lÃƒÆ’Ã‚Â ng");
+                    Wander(NpcText.Action("eveningWalkVillage"));
                     return;
 
                 case WorldTimePhase.Night:
@@ -1003,7 +1003,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         if (!autonomousWorkEnabled)
         {
-            Wander("Ãƒâ€žÃ‚Âi dÃƒÂ¡Ã‚ÂºÃ‚Â¡o trong lÃƒÆ’Ã‚Â ng");
+            Wander(NpcText.Action("wanderVillage"));
             return;
         }
 
@@ -1060,7 +1060,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     {
         if (!autonomousWorkEnabled)
         {
-            Wander("Ãƒâ€žÃ‚Âi dÃƒÂ¡Ã‚ÂºÃ‚Â¡o trong lÃƒÆ’Ã‚Â ng");
+            Wander(NpcText.Action("wanderVillage"));
             return;
         }
 
@@ -1100,7 +1100,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 WorldTilemapManager.Instance != null
                 ? WorldTilemapManager.Instance.GetHuntingTile()
                 : Vector3.zero,
-                "Di san yeu thu / tim tai nguyen rung",
+                NpcText.Action("huntForestResource"),
                 NpcMapZone.MaThuSonMach);
             return;
         }
@@ -1109,7 +1109,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             workPoint != null
             ? workPoint.position
             : GetFallbackActivityPosition(),
-            "Thu hoach tai nguyen quanh lang",
+            NpcText.Action("gatherVillageResource"),
             NpcMapZone.Lang);
     }
 
@@ -1158,7 +1158,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             AddCultivationExp(
                 Mathf.Max(1, 2 + (int)realm + realmStage));
             actionTimer = Random.Range(4f, 8f);
-            currentAction = "Ãƒâ€žÃ‚Âang thu hoÃƒÂ¡Ã‚ÂºÃ‚Â¡ch tÃƒÆ’Ã‚Â i nguyÃƒÆ’Ã‚Âªn";
+            currentAction = NpcText.Action("harvestResource");
         }
     }
 
@@ -1183,7 +1183,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             Mathf.Max(
                 thinkInterval,
                 Random.Range(6f, 12f));
-        currentAction = "Tu luyÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡n hÃƒÂ¡Ã‚ÂºÃ‚Â¥p thÃƒÂ¡Ã‚Â»Ã‚Â¥ linh khÃƒÆ’Ã‚Â­";
+        currentAction = NpcText.Action("cultivateAbsorbQi");
     }
 
     bool TryGoHomeForCultivation()
@@ -1195,7 +1195,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         MoveUsingRoad(homePosition);
-        currentAction = "Ve nha tu luyen";
+        currentAction = NpcText.Action("goHomeCultivate");
         return true;
     }
 
@@ -1339,7 +1339,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         if (broker == null)
         {
-            currentAction = "Thieu vat pham nhiem vu";
+            currentAction = NpcText.Action("missingTaskItems");
             return false;
         }
 
@@ -1360,19 +1360,16 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 missingNeed.item,
                 missingAmount);
 
-        currentAction =
-            "Gui yeu cau mua " + missingNeed.item.itemName;
+        currentAction = NpcText.ActionFormat("requestBuyTaskItem", missingNeed.item.itemName);
 
         if (requiredMoney > 0 &&
             NpcEconomy.GetNpcMoney(gameObject) < requiredMoney)
         {
-            currentAction =
-                "Khong du Linh Thach, di lam nhiem vu";
+            currentAction = NpcText.Action("notEnoughSpiritStoneWorkTask");
             return false;
         }
 
-        currentAction =
-            "Den store mua " + missingNeed.item.itemName;
+        currentAction = NpcText.ActionFormat("goStoreBuyItem", missingNeed.item.itemName);
 
         if (!IsInsideBrokerServiceArea(broker))
         {
@@ -1397,8 +1394,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 missingAmount,
                 false))
         {
-            currentAction =
-                "Da mua vat pham nhiem vu: " + missingNeed.item.itemName;
+            currentAction = NpcText.ActionFormat("boughtTaskItem", missingNeed.item.itemName);
 
             if (GetMissingDailyTaskItemAmount(missingNeed) <= 0)
             {
@@ -1409,8 +1405,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         dailyTaskNeeds.Remove(missingNeed);
-        currentAction =
-            "Store khong co " + missingNeed.item.itemName;
+        currentAction = NpcText.ActionFormat("storeMissingItem", missingNeed.item.itemName);
         return GetFirstMissingDailyTaskNeed() != null;
     }
 
@@ -1518,7 +1513,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         NpcMapZone? providerZone =
             NpcMapNavigator.GetDestinationZone(provider.transform);
 
-        currentAction = "Den nhan nhiem vu trong ke hoach ngay";
+        currentAction = NpcText.Action("goTaskProviderDaily");
 
         if (!IsNearTaskProvider(provider))
         {
@@ -1539,7 +1534,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         dailyTaskPlanIndex++;
         actionTimer = Mathf.Max(1f, thinkInterval);
-        currentAction = "Bo qua nhiem vu khong the nhan";
+        currentAction = NpcText.Action("skipUnavailableTask");
         return true;
     }
 
@@ -1594,7 +1589,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             {
                 Vector3 brokerPosition = broker.GetCustomerPositionFor(gameObject);
                 NpcMapZone? brokerZone = NpcMapNavigator.GetDestinationZone(broker.transform);
-                currentAction = "Ãƒâ€žÃ‚ÂÃƒÂ¡Ã‚ÂºÃ‚Â¿n VÃƒÂ¡Ã‚ÂºÃ‚Â¡n BÃƒÂ¡Ã‚ÂºÃ‚Â£o LÃƒÆ’Ã‚Â¢u gÃƒÂ¡Ã‚ÂºÃ‚Â·p tÃƒÂ¡Ã‚ÂºÃ‚Â¡p hÃƒÆ’Ã‚Â³a";
+                currentAction = NpcText.Action("goVanBaoLauBroker");
 
                 if (!IsInsideBrokerServiceArea(broker))
                 {
@@ -1615,7 +1610,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
                 vanBaoLauVisitStep = 1;
                 actionTimer = Mathf.Max(1f, thinkInterval);
-                currentAction = "KhÃƒÆ’Ã‚Â´ng cÃƒÆ’Ã‚Â³ giao dÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¹ch";
+                currentAction = NpcText.Action("noTrade");
                 return;
             }
 
@@ -1638,14 +1633,14 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 ClearMovementTargets();
                 StopMoving();
                 actionTimer = Mathf.Max(1f, thinkInterval);
-                currentAction = "Da gap NPC giao nhiem vu";
+                currentAction = NpcText.Action("visitedTaskProvider");
                 return;
             }
 
             MoveUsingRoad(
                 providerPosition,
                 providerZone.HasValue ? providerZone : NpcMapZone.VanBaoLau);
-            currentAction = "Ãƒâ€žÃ‚ÂÃƒÂ¡Ã‚ÂºÃ‚Â¿n VÃƒÂ¡Ã‚ÂºÃ‚Â¡n BÃƒÂ¡Ã‚ÂºÃ‚Â£o LÃƒÆ’Ã‚Â¢u xem viÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡c";
+            currentAction = NpcText.Action("goVanBaoLauTask");
 
             if (!IsNearTaskProvider(provider))
             {
@@ -1666,7 +1661,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         ClearMovementTargets();
         StopMoving();
         actionTimer = Mathf.Max(1f, thinkInterval);
-        currentAction = "Ãƒâ€žÃ‚ÂÃƒÆ’Ã‚Â£ kiÃƒÂ¡Ã‚Â»Ã†â€™m tra VÃƒÂ¡Ã‚ÂºÃ‚Â¡n BÃƒÂ¡Ã‚ÂºÃ‚Â£o LÃƒÆ’Ã‚Â¢u";
+        currentAction = NpcText.Action("checkedVanBaoLau");
     }
 
     void MarkDailyVanBaoLauVisited()
@@ -1711,11 +1706,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return false;
         }
 
-        return currentAction.Contains("Ãƒâ€žÃ‚Âang buÃƒÆ’Ã‚Â´n bÃƒÆ’Ã‚Â¡n") ||
-            currentAction.Contains("Ãƒâ€žÃ‚Âang chÃƒâ€ Ã‚Â¡i") ||
-            currentAction.Contains("VÃƒÂ¡Ã‚Â»Ã‚Â nhÃƒÆ’Ã‚Â ") ||
-            currentAction.Contains("gÃƒÂ¡Ã‚ÂºÃ‚Â§n nhÃƒÆ’Ã‚Â ") ||
-            currentAction.Contains("sinh hoÃƒÂ¡Ã‚ÂºÃ‚Â¡t");
+        return currentAction.Contains(NpcText.Action("trading")) ||
+            currentAction.Contains(NpcText.Action("playWithFriends")) ||
+            currentAction.Contains(NpcText.Action("goHomeRest")) ||
+            currentAction.Contains(NpcText.Action("restNearHome")) ||
+            currentAction.Contains(NpcText.Action("stayNearHome"));
     }
 
     void TryTalkToPassingVillager()
@@ -1767,7 +1762,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     {
         Vector3 homePosition = GetHomePosition();
         MoveUsingRoad(homePosition);
-        currentAction = "VÃƒÂ¡Ã‚Â»Ã‚Â nhÃƒÆ’Ã‚Â  nghÃƒÂ¡Ã‚Â»Ã¢â‚¬Â° ngÃƒâ€ Ã‚Â¡i";
+        currentAction = NpcText.Action("goHomeRest");
 
         if (IsAtPosition(homePosition))
         {
@@ -1787,7 +1782,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 currentHP = Mathf.Min(maxHP, currentHP + 10);
             }
             actionTimer = restDuration;
-            currentAction = "Ãƒâ€žÃ‚Âang nghÃƒÂ¡Ã‚Â»Ã¢â‚¬Â° ngÃƒâ€ Ã‚Â¡i";
+            currentAction = NpcText.Action("rest");
             ResetDailyTargets();
 
             NpcHomeResident resident = GetComponent<NpcHomeResident>();
@@ -1812,7 +1807,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         MoveUsingRoad(currentEatTarget);
-        currentAction = "Ãƒâ€žÃ‚Âi Ãƒâ€žÃ†â€™n";
+        currentAction = NpcText.Action("eat");
 
         if (IsAtPosition(currentEatTarget))
         {
@@ -1822,7 +1817,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             hunger = 0f;
             money = Mathf.Max(0, money - 1);
             actionTimer = eatDuration;
-            currentAction = "Ãƒâ€žÃ‚Âang Ãƒâ€žÃ†â€™n";
+            currentAction = NpcText.Action("eating");
         }
     }
 
@@ -1833,20 +1828,20 @@ public class VillagerAI : MonoBehaviour, IDamageable
         hunger = 0f;
         money = Mathf.Max(0, money - 1);
         actionTimer = eatDuration;
-        currentAction = "Ãƒâ€žÃ¢â‚¬Å¡n tÃƒÂ¡Ã‚ÂºÃ‚Â¡i tiÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡m";
+        currentAction = NpcText.Action("eatAtShop");
     }
 
     void GatherAndPlay()
     {
         if (playPoint == null)
         {
-            GoHomeIdle("NghÃƒÂ¡Ã‚Â»Ã¢â‚¬Â° ngÃƒâ€ Ã‚Â¡i gÃƒÂ¡Ã‚ÂºÃ‚Â§n nhÃƒÆ’Ã‚Â ");
+            GoHomeIdle(NpcText.Action("restNearHome"));
             return;
         }
 
         SetTarget(
             playPoint,
-            "TÃƒÂ¡Ã‚Â»Ã‚Â¥ tÃƒÂ¡Ã‚ÂºÃ‚Â­p Ãƒâ€žÃ¢â‚¬Ëœi chÃƒâ€ Ã‚Â¡i");
+            NpcText.Action("goPlay"));
 
         if (HasArrived())
         {
@@ -1854,7 +1849,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             StopMoving();
             fun = 100f;
             actionTimer = playDuration;
-            currentAction = "Ãƒâ€žÃ‚Âang chÃƒâ€ Ã‚Â¡i cÃƒÆ’Ã‚Â¹ng bÃƒÂ¡Ã‚ÂºÃ‚Â¡n";
+            currentAction = NpcText.Action("playWithFriends");
             TalkToNearbyVillager();
         }
     }
@@ -1904,7 +1899,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                     : Vector3.zero;
                 currentWorkTargetZone = NpcMapNavigator.GetDestinationZone(workPoint);
 
-                // HÃƒÂ¡Ã‚Â»Ã¢â‚¬Å“ Ãƒâ€žÃ¢â‚¬ËœÃƒÆ’Ã‚Â´ng thÃƒÆ’Ã‚Â¬ Ãƒâ€žÃ¢â‚¬ËœÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¢i nghÃƒÂ¡Ã‚Â»Ã‚Â tÃƒÂ¡Ã‚ÂºÃ‚Â¡m
+                // HÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´ng thÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¬ ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢i nghÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡m
                 if (currentWorkTarget ==
                     Vector3.zero)
                 {
@@ -1913,8 +1908,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                         ? worldTilemap.GetFarmTile()
                         : Vector3.zero;
 
-                    currentAction =
-                        "HÃƒÂ¡Ã‚Â»Ã¢â‚¬Å“ Ãƒâ€žÃ¢â‚¬ËœÃƒÆ’Ã‚Â´ng ngÃƒâ€ Ã‚Â°ÃƒÂ¡Ã‚Â»Ã‚Âi, Ãƒâ€žÃ¢â‚¬ËœÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¢i Ãƒâ€žÃ¢â‚¬Ëœi lÃƒÆ’Ã‚Â m ruÃƒÂ¡Ã‚Â»Ã¢â€žÂ¢ng";
+                    currentAction = NpcText.Action("noFishingSpotFarmFallback");
                 }
 
                 break;
@@ -2011,7 +2005,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         MoveUsingRoad(currentTradeTarget, currentTradeTargetZone);
-        currentAction = "Ra cho buon ban";
+        currentAction = NpcText.Action("goMarketTrade");
 
         NpcCounterBroker activeBroker = NpcCounterBroker.Active;
         bool arrivedForTrade = activeBroker != null && activeBroker.receiveAllNpcRequests
@@ -2031,7 +2025,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             }
 
             actionTimer = Mathf.Max(1f, thinkInterval);
-            currentAction = "KhÃƒÆ’Ã‚Â´ng cÃƒÆ’Ã‚Â³ giao dÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¹ch";
+            currentAction = NpcText.Action("noTrade");
         }
     }
 
@@ -2059,7 +2053,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         if (traded)
         {
             actionTimer = tradeDuration;
-            currentAction = "Ãƒâ€žÃ‚Âang buÃƒÆ’Ã‚Â´n bÃƒÆ’Ã‚Â¡n";
+            currentAction = NpcText.Action("trading");
             return true;
         }
 
@@ -2084,7 +2078,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         MoveUsingRoad(currentSellTarget, currentSellTargetZone);
-        currentAction = "Mang hÃƒÆ’Ã‚Â ng Ãƒâ€žÃ¢â‚¬ËœÃƒÂ¡Ã‚ÂºÃ‚Â¿n trÃƒâ€ Ã‚Â°ÃƒÂ¡Ã‚Â»Ã¢â‚¬Âºc quÃƒÂ¡Ã‚ÂºÃ‚Â§y";
+        currentAction = NpcText.Action("bringGoodsToCounter");
 
         NpcCounterBroker activeBroker = NpcCounterBroker.Active;
         bool arrivedToSell = activeBroker != null && activeBroker.receiveAllNpcRequests
@@ -2105,12 +2099,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
             hasSellTarget = false;
             currentSellTargetZone = null;
             actionTimer = sellGoodsDuration;
-            currentAction = "Ãƒâ€žÃ‚ÂÃƒÆ’Ã‚Â£ bÃƒÆ’Ã‚Â¡n hÃƒÆ’Ã‚Â ng hÃƒÆ’Ã‚Â³a";
+            currentAction = NpcText.Action("soldGoods");
             return;
         }
 
         actionTimer = sellGoodsDuration;
-        currentAction = "ChÃƒÂ¡Ã‚Â»Ã‚Â thÃƒâ€ Ã‚Â°Ãƒâ€ Ã‚Â¡ng nhÃƒÆ’Ã‚Â¢n mua hÃƒÆ’Ã‚Â ng";
+        currentAction = NpcText.Action("waitTraderBuyGoods");
     }
 
     void TalkToNearbyVillager()
@@ -2217,25 +2211,25 @@ public class VillagerAI : MonoBehaviour, IDamageable
     {
         if (mood == VillagerMood.Happy)
         {
-            return "Vui vÃƒÂ¡Ã‚ÂºÃ‚Â» nÃƒÆ’Ã‚Â³i chuyÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡n vÃƒÂ¡Ã‚Â»Ã¢â‚¬Âºi " + other.villagerName;
+            return NpcText.ActionFormat("happyTalkWith", other.villagerName);
         }
 
         if (mood == VillagerMood.Sad)
         {
-            return "TÃƒÆ’Ã‚Â¢m sÃƒÂ¡Ã‚Â»Ã‚Â± vÃƒÂ¡Ã‚Â»Ã¢â‚¬Âºi " + other.villagerName;
+            return NpcText.ActionFormat("sadTalkWith", other.villagerName);
         }
 
         if (mood == VillagerMood.Tired)
         {
-            return "HÃƒÂ¡Ã‚Â»Ã‚Âi thÃƒâ€žÃ†â€™m " + other.villagerName;
+            return NpcText.ActionFormat("tiredTalkWith", other.villagerName);
         }
 
         if (acquaintances.Contains(other))
         {
-            return "GÃƒÂ¡Ã‚ÂºÃ‚Â·p ngÃƒâ€ Ã‚Â°ÃƒÂ¡Ã‚Â»Ã‚Âi quen: " + other.villagerName;
+            return NpcText.ActionFormat("meetKnown", other.villagerName);
         }
 
-        return "NÃƒÆ’Ã‚Â³i chuyÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡n vÃƒÂ¡Ã‚Â»Ã¢â‚¬Âºi " + other.villagerName;
+        return NpcText.ActionFormat("talkingWith", other.villagerName);
     }
 
     void GoHomeIdle(string action)
@@ -2493,8 +2487,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
         if (product == null)
         {
             money += GetWorkIncome();
-            lastWorkProductStatus = "KhÃƒÆ’Ã‚Â´ng cÃƒÆ’Ã‚Â³ sÃƒÂ¡Ã‚ÂºÃ‚Â£n phÃƒÂ¡Ã‚ÂºÃ‚Â©m, nhÃƒÂ¡Ã‚ÂºÃ‚Â­n tiÃƒÂ¡Ã‚Â»Ã‚Ân cÃƒÆ’Ã‚Â´ng";
-            currentAction = "LÃƒÆ’Ã‚Â m viÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡c nhÃƒÂ¡Ã‚ÂºÃ‚Â­n tiÃƒÂ¡Ã‚Â»Ã‚Ân cÃƒÆ’Ã‚Â´ng";
+            lastWorkProductStatus = NpcText.Get("workStatus", "noProductPaid");
+            currentAction = NpcText.Action("paidWork");
             return true;
         }
 
@@ -2511,10 +2505,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         inventory.AddItem(product, amount);
         lastWorkProductStatus =
-            "Ãƒâ€žÃ‚ÂÃƒÆ’Ã‚Â£ thÃƒÆ’Ã‚Âªm " + product.itemName + " x" + amount +
-            ", trong balo: " + inventory.GetAmount(product);
-        currentAction =
-            "Thu hoÃƒÂ¡Ã‚ÂºÃ‚Â¡ch " + product.itemName + " x" + amount;
+            NpcText.Format(
+                NpcText.Get("workStatus", "addedItemAmountInventory"),
+                product.itemName,
+                amount,
+                inventory.GetAmount(product));
+        currentAction = NpcText.ActionFormat("harvestItemAmount", product.itemName, amount);
         return true;
     }
 
@@ -2526,9 +2522,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
             timeSystem != null &&
             !IsFarmerHarvestTime(timeSystem.CurrentPhase))
         {
-            lastWorkProductStatus =
-                "ChÃƒâ€ Ã‚Â°a thu hoÃƒÂ¡Ã‚ÂºÃ‚Â¡ch: chÃƒÂ¡Ã‚Â»Ã¢â‚¬Â° thu vÃƒÆ’Ã‚Â o Dawn/Morning";
-            currentAction = "ChÃƒâ€žÃ†â€™m sÃƒÆ’Ã‚Â³c ruÃƒÂ¡Ã‚Â»Ã¢â€žÂ¢ng, chÃƒâ€ Ã‚Â°a Ãƒâ€žÃ¢â‚¬ËœÃƒÂ¡Ã‚ÂºÃ‚Â¿n giÃƒÂ¡Ã‚Â»Ã‚Â thu hoÃƒÂ¡Ã‚ÂºÃ‚Â¡ch";
+            lastWorkProductStatus = NpcText.Get("workStatus", "farmerWaitMorning");
+            currentAction = NpcText.Action("farmerWaitHarvest");
             return false;
         }
 
@@ -2541,8 +2536,10 @@ public class VillagerAI : MonoBehaviour, IDamageable
             lastFarmerHarvestDay == currentDay)
         {
             lastWorkProductStatus =
-                "ChÃƒâ€ Ã‚Â°a thu hoÃƒÂ¡Ã‚ÂºÃ‚Â¡ch: Ãƒâ€žÃ¢â‚¬ËœÃƒÆ’Ã‚Â£ nhÃƒÂ¡Ã‚ÂºÃ‚Â­n trong ngÃƒÆ’Ã‚Â y " + currentDay;
-            currentAction = "Ãƒâ€žÃ‚ÂÃƒÆ’Ã‚Â£ thu hoÃƒÂ¡Ã‚ÂºÃ‚Â¡ch hÃƒÆ’Ã‚Â´m nay";
+                NpcText.Format(
+                    NpcText.Get("workStatus", "farmerHarvestedDay"),
+                    currentDay);
+            currentAction = NpcText.Action("farmerHarvestedToday");
             return false;
         }
 
@@ -2553,10 +2550,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
         inventory.AddItem(product, amount);
         lastFarmerHarvestDay = currentDay;
         lastWorkProductStatus =
-            "Ãƒâ€žÃ‚ÂÃƒÆ’Ã‚Â£ thÃƒÆ’Ã‚Âªm " + product.itemName + " x" + amount +
-            ", trong balo: " + inventory.GetAmount(product);
-        currentAction =
-            "Thu hoÃƒÂ¡Ã‚ÂºÃ‚Â¡ch " + product.itemName + " x" + amount;
+            NpcText.Format(
+                NpcText.Get("workStatus", "addedItemAmountInventory"),
+                product.itemName,
+                amount,
+                inventory.GetAmount(product));
+        currentAction = NpcText.ActionFormat("harvestItemAmount", product.itemName, amount);
         return true;
     }
 
@@ -2792,7 +2791,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             if (!TryPickWanderTarget(out wanderTarget))
             {
                 ClearMovementTargets();
-                currentAction = "Quan sÃƒÆ’Ã‚Â¡t Ãƒâ€žÃ¢â‚¬ËœÃƒâ€ Ã‚Â°ÃƒÂ¡Ã‚Â»Ã‚Âng Ãƒâ€žÃ¢â‚¬Ëœi";
+                currentAction = NpcText.Action("watchRoad");
                 StopMoving();
                 return;
             }
@@ -2851,8 +2850,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         SetDirectMoveTarget(waitPosition);
         currentAction = lowPowerSkirmish
-            ? "Hon chien vong ngoai " + item.itemName
-            : "Doi thien loi tan " + item.itemName;
+            ? NpcText.ActionFormat("outerSkirmishNamed", item.itemName)
+            : NpcText.ActionFormat("waitLightningNamed", item.itemName);
     }
     public void ForceTreasureHunt(
         Transform target,
@@ -2871,7 +2870,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         actionTimer = 0f;
         SetTarget(
             target,
-            "Truy doat " + item.itemName);
+            NpcText.ActionFormat("treasureHuntNamed", item.itemName));
     }
 
     public void ClearTreasureHunt()
@@ -2884,12 +2883,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
         waitingOutsideTreasureLightning = false;
         treasureHuntTarget = null;
         treasureHuntItem = null;
-        if (currentTarget != null && currentAction.Contains("Truy doat"))
+        if (currentTarget != null && currentAction.Contains(NpcText.Action("treasureHunt")))
         {
             ClearMovementTargets();
         }
 
-        currentAction = "Binh tinh tro lai";
+        currentAction = NpcText.Action("calm");
     }
 
     void RefreshTreasureHuntAction()
@@ -2907,7 +2906,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         SetTarget(
             treasureHuntTarget,
-            "Truy doat " + treasureHuntItem.itemName);
+            NpcText.ActionFormat("treasureHuntNamed", treasureHuntItem.itemName));
     }
 
     bool HasArrived()
@@ -3058,8 +3057,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     {
         MoveToPosition(roadWaypoint);
 
-        currentAction =
-            "Ãƒâ€žÃ‚Âang Ãƒâ€žÃ¢â‚¬Ëœi trÃƒÆ’Ã‚Âªn Ãƒâ€žÃ¢â‚¬ËœÃƒâ€ Ã‚Â°ÃƒÂ¡Ã‚Â»Ã‚Âng";
+        currentAction = NpcText.Action("walkingRoad");
 
         return;
     }
@@ -3092,8 +3090,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         return mood == VillagerMood.Afraid ||
-            currentAction.Contains("HoÃƒÂ¡Ã‚ÂºÃ‚Â£ng sÃƒÂ¡Ã‚Â»Ã‚Â£") ||
-            currentAction.Contains("bÃƒÂ¡Ã‚Â»Ã‚Â chÃƒÂ¡Ã‚ÂºÃ‚Â¡y");
+            currentAction.Contains(NpcText.Action("panicBurned"));
     }
 
     void MoveToPosition(Vector3 position)
@@ -3959,7 +3956,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 desiredVelocity =
                     toCandidate.normalized *
                     moveSpeed;
-                currentAction = "Ãƒâ€žÃ‚ÂÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¢i hÃƒâ€ Ã‚Â°ÃƒÂ¡Ã‚Â»Ã¢â‚¬Âºng trÃƒÆ’Ã‚Â¡nh vÃƒÂ¡Ã‚ÂºÃ‚Â­t cÃƒÂ¡Ã‚ÂºÃ‚Â£n";
+                currentAction = NpcText.Action("avoidObstacle");
                 return true;
             }
         }
@@ -5274,21 +5271,21 @@ public class VillagerAI : MonoBehaviour, IDamageable
         switch (job)
         {
             case VillagerJob.Farmer:
-                return "Ra Ãƒâ€žÃ¢â‚¬ËœÃƒÂ¡Ã‚Â»Ã¢â‚¬Å“ng lÃƒÆ’Ã‚Â m ruÃƒÂ¡Ã‚Â»Ã¢â€žÂ¢ng";
+                return NpcText.Action("goFarmWork");
             case VillagerJob.Worker:
-                return "Ãƒâ€žÃ‚Âi lÃƒÆ’Ã‚Â m viÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡c";
+                return NpcText.Action("goWork");
             case VillagerJob.Guard:
-                return "Ãƒâ€žÃ‚Âi tuÃƒÂ¡Ã‚ÂºÃ‚Â§n tra";
+                return NpcText.Action("goPatrol");
             case VillagerJob.Healer:
-                return "Ãƒâ€žÃ‚Âi chÃƒÂ¡Ã‚Â»Ã‚Â¯a trÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¹";
+                return NpcText.Action("goHeal");
             case VillagerJob.Fisher:
-                return "Ãƒâ€žÃ‚Âi cÃƒÆ’Ã‚Â¢u cÃƒÆ’Ã‚Â¡";
+                return NpcText.Action("goFish");
             case VillagerJob.Hunter:
-                return "Ãƒâ€žÃ‚Âi sÃƒâ€žÃ†â€™n bÃƒÂ¡Ã‚ÂºÃ‚Â¯n";
+                return NpcText.Action("goHunt");
             case VillagerJob.Trader:
-                return "Ra chÃƒÂ¡Ã‚Â»Ã‚Â£ buÃƒÆ’Ã‚Â´n bÃƒÆ’Ã‚Â¡n";
+                return NpcText.Action("goMarketTrade");
             default:
-                return "Ãƒâ€žÃ‚Âi lÃƒÆ’Ã‚Â m";
+                return NpcText.Action("goWork");
         }
     }
 
@@ -5297,21 +5294,21 @@ public class VillagerAI : MonoBehaviour, IDamageable
         switch (job)
         {
             case VillagerJob.Farmer:
-                return "Ãƒâ€žÃ‚Âang lÃƒÆ’Ã‚Â m ruÃƒÂ¡Ã‚Â»Ã¢â€žÂ¢ng";
+                return NpcText.Action("workingFarm");
             case VillagerJob.Worker:
-                return "Ãƒâ€žÃ‚Âang lÃƒÆ’Ã‚Â m viÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡c";
+                return NpcText.Action("working");
             case VillagerJob.Guard:
-                return "Ãƒâ€žÃ‚Âang tuÃƒÂ¡Ã‚ÂºÃ‚Â§n tra";
+                return NpcText.Action("patrolling");
             case VillagerJob.Healer:
-                return "Ãƒâ€žÃ‚Âang chÃƒÂ¡Ã‚Â»Ã‚Â¯a trÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¹";
+                return NpcText.Action("healing");
             case VillagerJob.Fisher:
-                return "Ãƒâ€žÃ‚Âang cÃƒÆ’Ã‚Â¢u cÃƒÆ’Ã‚Â¡";
+                return NpcText.Action("fishing");
             case VillagerJob.Hunter:
-                return "Ãƒâ€žÃ‚Âang sÃƒâ€žÃ†â€™n bÃƒÂ¡Ã‚ÂºÃ‚Â¯n";
+                return NpcText.Action("hunting");
             case VillagerJob.Trader:
-                return "Ãƒâ€žÃ‚Âang buÃƒÆ’Ã‚Â´n bÃƒÆ’Ã‚Â¡n";
+                return NpcText.Action("trading");
             default:
-                return "Ãƒâ€žÃ‚Âang lÃƒÆ’Ã‚Â m";
+                return NpcText.Action("working");
         }
     }
 
@@ -5392,7 +5389,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         ApplyRealmPower();
         currentHP = maxHP;
         lifespan = GetLifespanForRealm(realm);
-        currentAction = "Ãƒâ€žÃ‚ÂÃƒÂ¡Ã‚Â»Ã¢â€žÂ¢t phÃƒÆ’Ã‚Â¡ lÃƒÆ’Ã‚Âªn " + GetRealmText();
+        currentAction = NpcText.ActionFormat("breakthroughTo", GetRealmText());
     }
 
     void ApplyRealmPower()
@@ -5431,25 +5428,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return characterStats.GetRealmText();
         }
 
-        switch (realm)
-        {
-            case CultivationRealm.Mortal:
-                return "PhÃƒÆ’Ã‚Â m NhÃƒÆ’Ã‚Â¢n";
-            case CultivationRealm.QiRefining:
-                return "LuyÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡n KhÃƒÆ’Ã‚Â­";
-            case CultivationRealm.Foundation:
-                return "TrÃƒÆ’Ã‚Âºc CÃƒâ€ Ã‚Â¡";
-            case CultivationRealm.GoldenCore:
-                return "Kim Ãƒâ€žÃ‚Âan";
-            case CultivationRealm.NascentSoul:
-                return "NguyÃƒÆ’Ã‚Âªn Anh";
-            case CultivationRealm.SoulFormation:
-                return "HÃƒÆ’Ã‚Â³a ThÃƒÂ¡Ã‚ÂºÃ‚Â§n";
-            case CultivationRealm.Tribulation:
-                return "Ãƒâ€žÃ‚ÂÃƒÂ¡Ã‚Â»Ã¢â€žÂ¢ KiÃƒÂ¡Ã‚ÂºÃ‚Â¿p";
-            default:
-                return realm.ToString();
-        }
+        return NpcText.Realm(realm);
     }
 
     public int GetAge()
@@ -5518,7 +5497,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             }
             else if (bravery < 50)
             {
-                currentAction = "HoÃƒÂ¡Ã‚ÂºÃ‚Â£ng sÃƒÂ¡Ã‚Â»Ã‚Â£ bÃƒÂ¡Ã‚Â»Ã‚Â chÃƒÂ¡Ã‚ÂºÃ‚Â¡y";
+                currentAction = NpcText.Action("panicBurned");
                 currentTarget = homePoint;
             }
 
@@ -5538,7 +5517,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
         else if (bravery < 50)
         {
-            currentAction = "HoÃƒÂ¡Ã‚ÂºÃ‚Â£ng sÃƒÂ¡Ã‚Â»Ã‚Â£ bÃƒÂ¡Ã‚Â»Ã‚Â chÃƒÂ¡Ã‚ÂºÃ‚Â¡y";
+            currentAction = NpcText.Action("panicBurned");
             currentTarget = homePoint;
         }
     }
@@ -5632,7 +5611,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     void Die()
     {
         currentHP = 0;
-        currentAction = "Ãƒâ€žÃ‚ÂÃƒÆ’Ã‚Â£ chÃƒÂ¡Ã‚ÂºÃ‚Â¿t";
+        currentAction = NpcText.Action("dead");
         StopMoving();
 
         Collider2D collider2d =

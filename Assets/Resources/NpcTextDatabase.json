@@ -1,0 +1,397 @@
+{
+  "categories": [
+    {
+      "name": "labels",
+      "entries": [
+        { "key": "name", "value": "Tên" },
+        { "key": "age", "value": "Tuổi" },
+        { "key": "lifespan", "value": "Thọ nguyên" },
+        { "key": "job", "value": "Nghề" },
+        { "key": "realm", "value": "Tu vi" },
+        { "key": "health", "value": "Máu" },
+        { "key": "manual", "value": "Công pháp" },
+        { "key": "action", "value": "Hành động" },
+        { "key": "damage", "value": "Sát thương" },
+        { "key": "type", "value": "Loại" },
+        { "key": "grade", "value": "Phẩm chất" },
+        { "key": "amount", "value": "Số lượng" },
+        { "key": "loot", "value": "Rơi vật phẩm" },
+        { "key": "level", "value": "Cấp" }
+      ]
+    },
+    {
+      "name": "entityTypes",
+      "entries": [
+        { "key": "monster", "value": "Yêu Thú" },
+        { "key": "npc", "value": "NPC" },
+        { "key": "villager", "value": "Dân làng" }
+      ]
+    },
+    {
+      "name": "actions",
+      "entries": [
+        { "key": "idle", "value": "Đứng yên" },
+        { "key": "wanderVillage", "value": "Đi dạo trong làng" },
+        { "key": "returnTerritory", "value": "Quay về lãnh địa" },
+        { "key": "eat", "value": "Đi ăn" },
+        { "key": "sleep", "value": "Nghỉ ngơi" },
+        { "key": "cultivate", "value": "Tu luyện" },
+        { "key": "cultivateAbsorbQi", "value": "Tu luyện hấp thụ linh khí" },
+        { "key": "goHomeCultivate", "value": "Về nhà tu luyện" },
+        { "key": "breakthrough", "value": "Đột phá" },
+        { "key": "breakthroughTo", "value": "Đột phá lên {0}" },
+        { "key": "waitTribulation", "value": "Chờ thiên kiếp" },
+        { "key": "goTavern", "value": "Đi tửu lâu" },
+        { "key": "buyPill", "value": "Mua đan dược" },
+        { "key": "fight", "value": "Chiến đấu" },
+        { "key": "huntMonster", "value": "Săn yêu thú" },
+        { "key": "huntMonsterNamed", "value": "Săn {0}" },
+        { "key": "attackMonsterNamed", "value": "Đánh {0}" },
+        { "key": "takeTask", "value": "Nhận nhiệm vụ" },
+        { "key": "taskWorking", "value": "Đang làm nhiệm vụ" },
+        { "key": "injured", "value": "Bị thương" },
+        { "key": "dead", "value": "Đã chết" },
+        { "key": "oldAgeDeath", "value": "Thọ nguyên đã tận" },
+        { "key": "treasureHunt", "value": "Truy đoạt" },
+        { "key": "treasureHuntNamed", "value": "Truy đoạt {0}" },
+        { "key": "waitLightning", "value": "Đợi thiên lôi tan" },
+        { "key": "waitLightningNamed", "value": "Đợi thiên lôi tan: {0}" },
+        { "key": "outerSkirmish", "value": "Hỗn chiến vòng ngoài" },
+        { "key": "outerSkirmishNamed", "value": "Hỗn chiến vòng ngoài: {0}" },
+        { "key": "calm", "value": "Bình tĩnh trở lại" },
+        { "key": "makeFriend", "value": "Kết bạn" },
+        { "key": "createSect", "value": "Lập tông môn" },
+        { "key": "talking", "value": "Đang trò chuyện" },
+        { "key": "conversationLine", "value": "Nói chuyện: {0}" },
+        { "key": "talkingWith", "value": "Nói chuyện với {0}" },
+        { "key": "happyTalkWith", "value": "Vui vẻ nói chuyện với {0}" },
+        { "key": "sadTalkWith", "value": "Tâm sự với {0}" },
+        { "key": "tiredTalkWith", "value": "Hỏi thăm {0}" },
+        { "key": "meetKnown", "value": "Gặp người quen: {0}" },
+        { "key": "rob", "value": "Đang cướp bóc" },
+        { "key": "revenge", "value": "Đang trả thù" },
+        { "key": "rest", "value": "Đang nghỉ ngơi" },
+        { "key": "tradeSeek", "value": "Đang tìm cơ hội buôn bán" },
+        { "key": "gatherResource", "value": "Đang để ý linh thảo" },
+        { "key": "closeShopGoHome", "value": "Đóng tiệm về nhà" },
+        { "key": "noTrade", "value": "Không có giao dịch" },
+        { "key": "stayNearHome", "value": "Ở gần nhà" },
+        { "key": "restNearHome", "value": "Nghỉ ngơi gần nhà" },
+        { "key": "restVillageNoon", "value": "Nghỉ trưa trong làng" },
+        { "key": "eveningWalkVillage", "value": "Đi dạo buổi tối trong làng" },
+        { "key": "huntForestResource", "value": "Đi săn yêu thú / tìm tài nguyên rừng" },
+        { "key": "gatherVillageResource", "value": "Thu hoạch tài nguyên quanh làng" },
+        { "key": "harvestResource", "value": "Đang thu hoạch tài nguyên" },
+        { "key": "missingTaskItems", "value": "Thiếu vật phẩm nhiệm vụ" },
+        { "key": "requestBuyTaskItem", "value": "Gửi yêu cầu mua {0}" },
+        { "key": "notEnoughSpiritStoneWorkTask", "value": "Không đủ Linh Thạch, đi làm nhiệm vụ" },
+        { "key": "goStoreBuyItem", "value": "Đến cửa hàng mua {0}" },
+        { "key": "boughtTaskItem", "value": "Đã mua vật phẩm nhiệm vụ: {0}" },
+        { "key": "storeMissingItem", "value": "Cửa hàng không có {0}" },
+        { "key": "goTaskProviderDaily", "value": "Đến nhận nhiệm vụ trong kế hoạch ngày" },
+        { "key": "skipUnavailableTask", "value": "Bỏ qua nhiệm vụ không thể nhận" },
+        { "key": "goVanBaoLauBroker", "value": "Đến Vạn Bảo Lâu gặp tạp hóa" },
+        { "key": "visitedTaskProvider", "value": "Đã gặp NPC giao nhiệm vụ" },
+        { "key": "goVanBaoLauTask", "value": "Đến Vạn Bảo Lâu xem việc" },
+        { "key": "checkedVanBaoLau", "value": "Đã kiểm tra Vạn Bảo Lâu" },
+        { "key": "goHomeRest", "value": "Về nhà nghỉ ngơi" },
+        { "key": "eating", "value": "Đang ăn" },
+        { "key": "eatAtShop", "value": "Ăn tại tiệm" },
+        { "key": "goPlay", "value": "Tụ tập đi chơi" },
+        { "key": "playWithFriends", "value": "Đang chơi cùng bạn" },
+        { "key": "goMarketTrade", "value": "Ra chợ buôn bán" },
+        { "key": "trading", "value": "Đang buôn bán" },
+        { "key": "bringGoodsToCounter", "value": "Mang hàng đến trước quầy" },
+        { "key": "soldGoods", "value": "Đã bán hàng hóa" },
+        { "key": "waitTraderBuyGoods", "value": "Chờ thương nhân mua hàng" },
+        { "key": "paidWork", "value": "Làm việc nhận tiền công" },
+        { "key": "harvestItemAmount", "value": "Thu hoạch {0} x{1}" },
+        { "key": "farmerWaitHarvest", "value": "Chăm sóc ruộng, chưa đến giờ thu hoạch" },
+        { "key": "farmerHarvestedToday", "value": "Đã thu hoạch hôm nay" },
+        { "key": "noFishingSpotFarmFallback", "value": "Hồ đông người, đổi đi làm ruộng" },
+        { "key": "watchRoad", "value": "Quan sát đường đi" },
+        { "key": "walkingRoad", "value": "Đang đi trên đường" },
+        { "key": "avoidObstacle", "value": "Đổi hướng tránh vật cản" },
+        { "key": "panicBurned", "value": "Hoảng sợ bỏ chạy" },
+        { "key": "goFarmWork", "value": "Ra đồng làm ruộng" },
+        { "key": "goWork", "value": "Đi làm việc" },
+        { "key": "goPatrol", "value": "Đi tuần tra" },
+        { "key": "goHeal", "value": "Đi chữa trị" },
+        { "key": "goFish", "value": "Đi câu cá" },
+        { "key": "goHunt", "value": "Đi săn bắn" },
+        { "key": "workingFarm", "value": "Đang làm ruộng" },
+        { "key": "working", "value": "Đang làm việc" },
+        { "key": "patrolling", "value": "Đang tuần tra" },
+        { "key": "healing", "value": "Đang chữa trị" },
+        { "key": "fishing", "value": "Đang câu cá" },
+        { "key": "hunting", "value": "Đang săn bắn" },
+        { "key": "lawAttack", "value": "Công kích kẻ vi phạm luật {0}" }
+      ]
+    },
+    {
+      "name": "dialogue",
+      "entries": [
+        { "key": "genericGreeting", "value": "Hôm nay đạo hữu thế nào?" },
+        { "key": "replyFallback", "value": "Ta sẽ ghi nhớ chuyện này." },
+        { "key": "rumorFallback", "value": "Ven suối hình như có linh thảo." },
+        { "key": "hostileFallback", "value": "Ta vẫn nhớ chuyện lần trước." },
+        { "key": "followUpTopic", "value": "Hôm qua nói chuyện {0}, nay thế nào rồi?" },
+        { "key": "robberyThreat", "value": "Giao đồ ra!" },
+        { "key": "revengeThreat", "value": "Món nợ này phải trả!" },
+        { "key": "dailyFallback", "value": "Đạo hữu." }
+      ],
+      "lists": [
+        {
+          "key": "greetings",
+          "values": [
+            "Hôm nay đạo hữu định đi đâu?",
+            "Gần đây có nghe tin gì không?",
+            "Linh khí hôm nay có vẻ yên ổn.",
+            "Đạo hữu gần đây tu luyện thuận lợi chứ?",
+            "Trong làng hôm nay có gì đáng chú ý không?"
+          ]
+        },
+        {
+          "key": "replies",
+          "values": [
+            "Ta cũng chỉ đang xem tình hình.",
+            "Chưa có gì chắc chắn, để ta nghe ngóng thêm.",
+            "Nếu có tin mới ta sẽ báo ngươi.",
+            "Cũng ổn, hôm nay ta còn vài việc phải làm.",
+            "Ta vừa đi ngang qua, thấy mọi thứ vẫn bình thường."
+          ]
+        },
+        {
+          "key": "resourceRumors",
+          "values": [
+            "Hôm qua nghe nói ven suối có linh thảo.",
+            "Chân núi có vài cây linh dược mới mọc.",
+            "Rừng ngoài gần đây có dấu linh khí tụ lại.",
+            "Có người thấy ánh sáng lạ gần bãi đá phía đông."
+          ]
+        },
+        {
+          "key": "hostileLines",
+          "values": [
+            "Ta vẫn nhớ chuyện lần trước.",
+            "Đừng tưởng ta đã quên món nợ đó.",
+            "Nếu còn ép người quá đáng, ta sẽ không nhịn nữa."
+          ]
+        },
+        {
+          "key": "friendlyFollowUps",
+          "values": [
+            "Hôm qua ngươi nói chuyện đó, nay thế nào rồi?",
+            "Tin lần trước ngươi kể có đúng không?",
+            "Việc hôm qua đã xử lý xong chưa?"
+          ]
+        },
+        {
+          "key": "farmerGreetings",
+          "values": [
+            "Hôm nay ra đồng sớm vậy?",
+            "Linh điền bên ngươi thế nào?",
+            "Mùa này linh cốc có vẻ tốt."
+          ]
+        },
+        {
+          "key": "farmerReplies",
+          "values": [
+            "Cũng tạm, linh khí hơi mỏng.",
+            "Ta đang tranh thủ trước khi trời tối.",
+            "Nếu được một trận mưa linh khí thì tốt hơn."
+          ]
+        },
+        {
+          "key": "traderGreetings",
+          "values": [
+            "Đạo hữu muốn xem hàng gì?",
+            "Hàng hôm nay còn khá đủ.",
+            "Nếu mua nhiều, giá có thể bàn lại."
+          ]
+        },
+        {
+          "key": "traderReplies",
+          "values": [
+            "Giá này đã mềm rồi.",
+            "Chỗ quen biết thì ta giảm chút.",
+            "Hàng tốt không nên ép quá thấp."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "dialogueKeywords",
+      "entries": [
+        { "key": "spiritHerb", "value": "linh thảo" },
+        { "key": "spiritMedicine", "value": "linh dược" },
+        { "key": "stream", "value": "ven suối" }
+      ]
+    },
+    {
+      "name": "taskNames",
+      "entries": [
+        { "key": "gatherResource", "value": "Thu thập tài nguyên" },
+        { "key": "gatherLowSpiritHerb", "value": "Thu thập linh thảo hạ phẩm" },
+        { "key": "patrolOutsideVillage", "value": "Tuần tra ngoài làng" },
+        { "key": "huntDangerousMonster", "value": "Săn yêu thú nguy hiểm" },
+        { "key": "gatherHerbsAroundForest", "value": "Thu thập linh thảo quanh rừng" },
+        { "key": "gatherLowHerbs", "value": "Thu thập dược thảo hạ phẩm" },
+        { "key": "gatherSpiritMaterialsNearMaThuSon", "value": "Thu thập linh tài ven Ma Thu Sơn" },
+        { "key": "gatherMidSpiritMedicine", "value": "Thu thập linh dược trung phẩm" },
+        { "key": "findRareHerbDeepMountain", "value": "Tìm linh dược quý trong núi sâu" },
+        { "key": "huntBeastLv1ForDemonCore", "value": "Hạ yêu thú cấp 1 lấy yêu đan" },
+        { "key": "clearBeastGroupLv1", "value": "Tiêu diệt đàn yêu thú cấp 1" },
+        { "key": "huntBeastLv2ForDemonCore", "value": "Săn yêu thú cấp 2 lấy yêu đan" },
+        { "key": "clearBeastDenLv2", "value": "Quét sạch ổ yêu thú cấp 2" },
+        { "key": "huntBeastLv3ForInnerCore", "value": "Săn yêu thú cấp 3 lấy nội đan" },
+        { "key": "killGoldenCoreDangerousBeast", "value": "Diệt yêu thú Kim Đan nguy hiểm" },
+        { "key": "pursueBeastLv4", "value": "Truy sát yêu thú cấp 4" },
+        { "key": "huntDeerAntler", "value": "Săn nai lấy lộc giác" },
+        { "key": "trapForestRabbit", "value": "Bẫy thỏ rừng" },
+        { "key": "patrolVillageEdge", "value": "Tuần tra ven làng" },
+        { "key": "patrolMaThuSonRoad", "value": "Tuần tra đường vào Ma Thu Sơn" },
+        { "key": "suppressDemonicAura", "value": "Trấn áp khí tức yêu ma" },
+        { "key": "escortCaravan", "value": "Hộ tống thương đội" },
+        { "key": "transportSpiritMaterial", "value": "Vận chuyển linh tài" },
+        { "key": "protectCultivation", "value": "Hộ pháp tu luyện" }
+      ]
+    },
+    {
+      "name": "taskRanks",
+      "entries": [
+        { "key": "Ha", "value": "Hạ" },
+        { "key": "Trung", "value": "Trung" },
+        { "key": "Thuong", "value": "Thượng" }
+      ]
+    },
+    {
+      "name": "professions",
+      "entries": [
+        { "key": "tavernManager", "value": "Quản Sự Tửu Quán" }
+      ]
+    },
+    {
+      "name": "taskDisplay",
+      "entries": [
+        { "key": "rankedTask", "value": "{0}: {1}" },
+        { "key": "itemObjective", "value": " - {0} x{1}" },
+        { "key": "huntObjective", "value": " - {0}{1} x{2}" },
+        { "key": "beast", "value": "yêu thú" },
+        { "key": "beastLevel", "value": " cấp {0}" },
+        { "key": "reward", "value": " - thưởng {0} LT" },
+        { "key": "spiritHerb", "value": "linh thảo" }
+      ]
+    },
+    {
+      "name": "taskActions",
+      "entries": [
+        { "key": "pausedTask", "value": "Tạm dừng nhiệm vụ" },
+        { "key": "pausedMeal", "value": "Tạm dừng bữa ăn" },
+        { "key": "goMealPoint", "value": "Đi tới khu ăn" },
+        { "key": "serveMeal", "value": "Phục vụ bữa ăn" },
+        { "key": "receiveTask", "value": "Đang nhận nhiệm vụ {0}" },
+        { "key": "askProviderFindTask", "value": "Hỏi quản sự tìm nhiệm vụ" },
+        { "key": "assignedTask", "value": "Nhận việc được giao" },
+        { "key": "giveTask", "value": "Giao nhiệm vụ {0}: {1}" },
+        { "key": "showTaskBoard", "value": "Chỉ bảng nhiệm vụ cho khách" },
+        { "key": "assignNpcWork", "value": "Giao việc cho NPC" },
+        { "key": "goTavernMealPoint", "value": "Đi tới khu ăn trong tửu quán" },
+        { "key": "eatingAtTavern", "value": "Đang ăn uống tại tửu quán" },
+        { "key": "goCounterTrade", "value": "Đến quầy kiểm tra mua bán" },
+        { "key": "checkingCounterTrade", "value": "Đang kiểm tra mua bán tại quầy" },
+        { "key": "viewTaskBoard", "value": "Xem bảng nhiệm vụ {0}" },
+        { "key": "chooseTask", "value": "Chọn nhiệm vụ {0}" },
+        { "key": "returnProviderReceiveTask", "value": "Quay lại quản sự nhận nhiệm vụ" },
+        { "key": "goWorkTask", "value": "Đi làm nhiệm vụ {0}" },
+        { "key": "workingTask", "value": "Đang làm nhiệm vụ {0}" },
+        { "key": "waitHuntRespawn", "value": "Tạm nghỉ, chờ yêu thú hồi sinh {0}" },
+        { "key": "returnTurnInTask", "value": "Mang kết quả về trả nhiệm vụ {0}" },
+        { "key": "turnInTask", "value": "Đang trả nhiệm vụ {0}" },
+        { "key": "searchGatherItem", "value": "Vào khu hái tìm {0} {1}" },
+        { "key": "goGatherItem", "value": "Đến khu hái lấy {0} {1}" },
+        { "key": "gatheringItem", "value": "Đang hái {0} {1}" },
+        { "key": "pickHuntEvidence", "value": "Nhặt vật chứng săn yêu {0}" },
+        { "key": "huntSearch", "value": "Truy tìm yêu thú ở Ma Thu Sơn Mạch {0}" },
+        { "key": "huntFight", "value": "Đang chiến đấu với yêu thú {0}" },
+        { "key": "pickItem", "value": "Đến nhặt {0} {1}" },
+        { "key": "fleeMonsterArea", "value": "Rút lui khỏi khu có yêu thú" },
+        { "key": "guardSpiritHerbMonster", "value": "Cảnh giác yêu thú gần linh thảo" },
+        { "key": "fightBlockingMonster", "value": "Chuyển sang chiến đấu với yêu thú cản đường" },
+        { "key": "clearHarvestMonster", "value": "Đang diệt yêu thú chiếm khu hái" },
+        { "key": "tooStrongChangeHarvestArea", "value": "Yêu thú quá mạnh, đổi khu hái khác" },
+        { "key": "mealComplete", "value": "Ăn uống xong tại tửu quán" },
+        { "key": "missingTurnInItems", "value": "Không đủ vật phẩm để trả nhiệm vụ {0}" },
+        { "key": "taskCompleted", "value": "Hoàn thành nhiệm vụ {0}: {1}" },
+        { "key": "counterTradeWithCustomer", "value": "Nói chuyện mua bán với khách" },
+        { "key": "followTaskRoute", "value": "Đi theo nhiệm vụ" }
+      ]
+    },    {
+      "name": "realms",
+      "entries": [
+        { "key": "Mortal", "value": "Phàm Nhân" },
+        { "key": "QiRefining", "value": "Luyện Khí" },
+        { "key": "Foundation", "value": "Trúc Cơ" },
+        { "key": "GoldenCore", "value": "Kim Đan" },
+        { "key": "NascentSoul", "value": "Nguyên Anh" },
+        { "key": "SoulFormation", "value": "Hóa Thần" },
+        { "key": "Tribulation", "value": "Độ Kiếp" }
+      ]
+    },
+    {
+      "name": "logs",
+      "entries": [
+        { "key": "eat", "value": "{0} đang đi ăn." },
+        { "key": "sleep", "value": "{0} đang nghỉ ngơi." },
+        { "key": "absorbPill", "value": "{0} hấp thụ đan dược tăng {1} tu vi." },
+        { "key": "absorbSpiritStone", "value": "{0} hấp thụ linh thạch tăng {1} tu vi." },
+        { "key": "tribulationReady", "value": "{0} đã viên mãn Độ Kiếp." },
+        { "key": "breakthrough", "value": "{0} đột phá lên {1} tầng {2}." },
+        { "key": "buyPill", "value": "{0} mua đan dược." },
+        { "key": "attackMonster", "value": "{0} tấn công {1} gây {2} sát thương." },
+        { "key": "makeFriend", "value": "{0} đang giao tiếp." },
+        { "key": "createSect", "value": "{0} có thể lập tông môn." },
+        { "key": "takeDamage", "value": "{0} nhận {1} sát thương." },
+        { "key": "dead", "value": "{0} đã chết." },
+        { "key": "taskCompletedWorld", "value": "{0} hoàn thành nhiệm vụ {1}, nhận {2} LT." }
+      ]
+    },
+    {
+      "name": "workStatus",
+      "entries": [
+        { "key": "noProductPaid", "value": "Không có sản phẩm, nhận tiền công" },
+        { "key": "addedItemAmountInventory", "value": "Đã thêm {0} x{1}, trong balo: {2}" },
+        { "key": "farmerWaitMorning", "value": "Chưa thu hoạch: chưa đến giờ thu hoạch" },
+        { "key": "farmerHarvestedDay", "value": "Chưa thu hoạch: đã nhận trong ngày {0}" }
+      ]
+    },
+    {
+      "name": "health",
+      "entries": [
+        { "key": "healthy", "value": "Khỏe mạnh" },
+        { "key": "injured", "value": "Bị thương" },
+        { "key": "critical", "value": "Trọng thương" },
+        { "key": "dead", "value": "Đã chết" }
+      ]
+    },
+    {
+      "name": "itemTypes",
+      "entries": [
+        { "key": "DanDuoc", "value": "Đan Dược" },
+        { "key": "PhapBao", "value": "Pháp Bảo" },
+        { "key": "VatLieu", "value": "Vật Liệu" },
+        { "key": "CongPhap", "value": "Công Pháp" },
+        { "key": "ThucPham", "value": "Thực Phẩm" }
+      ]
+    },
+    {
+      "name": "itemGrades",
+      "entries": [
+        { "key": "Ha", "value": "Hạ" },
+        { "key": "Trung", "value": "Trung" },
+        { "key": "Thuong", "value": "Thượng" },
+        { "key": "Tien", "value": "Tiên" }
+      ]
+    }
+  ]
+}

@@ -402,6 +402,8 @@ public class NpcItemCollector : MonoBehaviour
                 equippedItems.Add(item);
             }
 
+            ItemEffectSpawner.PlayBuyEffect(item, transform);
+
             stack.applied = true;
             inventory.MarkDirty();
             return true;

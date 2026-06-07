@@ -207,7 +207,7 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (cam == null)
         {
-            Debug.Log("Không tìm thấy Camera Main");
+            Debug.Log("Kh\u00F4ng t\u00ECm th\u1EA5y Camera Main");
             return;
         }
 
@@ -436,25 +436,25 @@ public class TouchSelectTarget : MonoBehaviour
                     infoPanel.transform,
                     "InfoButton",
                     "Thong Tin",
-                    "Thông Tin");
+                    "Th\u00F4ng Tin");
         }
 
         if (infoText == null &&
             infoButton != null)
         {
             Transform buttonText =
-                FindChildByName(infoButton.transform, "InfoText");
+                FindChildByName(infoButton.transform, "Th\u00F4ng Tin");
 
             if (buttonText == null)
             {
                 buttonText =
-                    FindChildByName(infoButton.transform, "Thong Tin");
+                    FindChildByName(infoButton.transform, "Th\u00F4ng Tin");
             }
 
             if (buttonText == null)
             {
                 buttonText =
-                    FindChildByName(infoButton.transform, "Thông Tin");
+                    FindChildByName(infoButton.transform, "Th\u00F4ng Tin");
             }
 
             if (buttonText != null)
@@ -1226,7 +1226,7 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (smartNpc != null)
         {
-            return smartNpc.realm + " " + smartNpc.realmStage;
+            return NpcText.Realm(smartNpc.realm) + " " + smartNpc.realmStage;
         }
 
         VillagerAI villager =
@@ -1243,7 +1243,7 @@ public class TouchSelectTarget : MonoBehaviour
         if (monster != null &&
             monster.entityProfile != null)
         {
-            return monster.entityProfile.stats.realm +
+            return NpcText.Realm(monster.entityProfile.stats.realm) +
                 " " +
                 monster.entityProfile.stats.realmStage;
         }
@@ -1348,7 +1348,7 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (monster != null)
         {
-            return "Sát thương: " + monster.damage;
+            return NpcText.Label("damage") + ": " + monster.damage;
         }
 
         return "";
@@ -1376,23 +1376,23 @@ public class TouchSelectTarget : MonoBehaviour
         StringBuilder builder =
             new StringBuilder();
 
-        builder.AppendLine("Tên: " + GetTargetName(target));
-        builder.AppendLine("Tuổi: " + GetTargetAge(target));
-        builder.AppendLine("Thọ Nguyên: " + GetTargetLifespan(target));
-        builder.AppendLine("Nghề: " + GetTargetJob(target));
-        builder.AppendLine("Tu Vi: " + GetTargetRealm(target));
-        builder.AppendLine("Máu: " + BuildHealthText(target));
+        builder.AppendLine(NpcText.Label("name") + ": " + GetTargetName(target));
+        builder.AppendLine(NpcText.Label("age") + ": " + GetTargetAge(target));
+        builder.AppendLine(NpcText.Label("lifespan") + ": " + GetTargetLifespan(target));
+        builder.AppendLine(NpcText.Label("job") + ": " + GetTargetJob(target));
+        builder.AppendLine(NpcText.Label("realm") + ": " + GetTargetRealm(target));
+        builder.AppendLine(NpcText.Label("health") + ": " + BuildHealthText(target));
 
         string manuals =
             BuildManualStudyText(target);
 
         if (!string.IsNullOrEmpty(manuals))
         {
-            builder.AppendLine("Công Pháp:");
+            builder.AppendLine(NpcText.Label("manual") + ":");
             builder.Append(manuals);
         }
 
-        builder.AppendLine("Hành động: " + GetTargetAction(target));
+        builder.AppendLine(NpcText.Label("action") + ": " + GetTargetAction(target));
 
         return builder.ToString().TrimEnd();
     }
@@ -1407,12 +1407,12 @@ public class TouchSelectTarget : MonoBehaviour
         StringBuilder builder =
             new StringBuilder();
 
-        builder.AppendLine("T\u00EAn: " + monster.monsterName);
-        builder.AppendLine("Lo\u1EA1i: Y\u00EAu Th\u00FA");
-        builder.AppendLine("C\u1EA5p: " + Mathf.Max(1, monster.beastLevel));
-        builder.AppendLine("Tu Vi: " + GetTargetRealm(monster.transform));
-        builder.AppendLine("M\u00E1u: " + BuildHealthText(monster.transform));
-        builder.AppendLine("R\u01A1i v\u1EADt ph\u1EA9m: " + GetMonsterLootText(monster));
+        builder.AppendLine(NpcText.Label("name") + ": " + monster.monsterName);
+        builder.AppendLine(NpcText.Label("type") + ": " + NpcText.Get("entityTypes", "monster", "Yêu Thú"));
+        builder.AppendLine(NpcText.Label("level") + ": " + Mathf.Max(1, monster.beastLevel));
+        builder.AppendLine(NpcText.Label("realm") + ": " + GetTargetRealm(monster.transform));
+        builder.AppendLine(NpcText.Label("health") + ": " + BuildHealthText(monster.transform));
+        builder.AppendLine(NpcText.Label("loot") + ": " + GetMonsterLootText(monster));
 
         return builder.ToString().TrimEnd();
     }
@@ -1456,7 +1456,7 @@ public class TouchSelectTarget : MonoBehaviour
         StringBuilder builder =
             new StringBuilder();
 
-        builder.AppendLine("T\u00EAn: " + pickup.item.itemName);
+        builder.AppendLine(NpcText.Label("name") + ": " + pickup.item.itemName);
         builder.Append(BuildWorldItemBodyInfo(pickup));
 
         return builder.ToString().TrimEnd();
@@ -1470,9 +1470,9 @@ public class TouchSelectTarget : MonoBehaviour
         StringBuilder builder =
             new StringBuilder();
 
-        builder.AppendLine("Lo\u1EA1i: " + GetItemTypeText(item.itemType));
-        builder.AppendLine("Ph\u1EA9m ch\u1EA5t: " + GetItemGradeText(item.grade));
-        builder.AppendLine("S\u1ED1 l\u01B0\u1EE3ng: " + Mathf.Max(0, pickup.amount));
+        builder.AppendLine(NpcText.Label("type") + ": " + GetItemTypeText(item.itemType));
+        builder.AppendLine(NpcText.Label("grade") + ": " + GetItemGradeText(item.grade));
+        builder.AppendLine(NpcText.Label("amount") + ": " + Mathf.Max(0, pickup.amount));
 
         if (!string.IsNullOrWhiteSpace(item.description))
         {
@@ -1485,38 +1485,12 @@ public class TouchSelectTarget : MonoBehaviour
 
     string GetItemTypeText(ItemType itemType)
     {
-        switch (itemType)
-        {
-            case ItemType.DanDuoc:
-                return "Đan Dược";
-            case ItemType.PhapBao:
-                return "Pháp Bảo";
-            case ItemType.VatLieu:
-                return "Vật Liệu";
-            case ItemType.CongPhap:
-                return "Công Pháp";
-            case ItemType.ThucPham:
-                return "Thực Phẩm";
-            default:
-                return itemType.ToString();
-        }
+        return NpcText.ItemType(itemType);
     }
 
     string GetItemGradeText(ItemGrade grade)
     {
-        switch (grade)
-        {
-            case ItemGrade.Ha:
-                return "Hạ";
-            case ItemGrade.Trung:
-                return "Trung";
-            case ItemGrade.Thuong:
-                return "Thường";
-            case ItemGrade.Tien:
-                return "Tiên";
-            default:
-                return grade.ToString();
-        }
+        return NpcText.ItemGrade(grade);
     }
 
     string GetTargetAge(Transform target)
@@ -1594,7 +1568,10 @@ public class TouchSelectTarget : MonoBehaviour
             " " +
             currentHP +
             " / " +
-            maxHP;
+            maxHP +
+            " (" +
+            NpcText.HealthStatus(currentHP, maxHP) +
+            ")";
     }
 
     string BuildBar(
@@ -1658,13 +1635,13 @@ public class TouchSelectTarget : MonoBehaviour
         switch (mastery)
         {
             case CultivationManualMastery.TieuThanh:
-                return "Tiểu Thành";
+                return "Ti\u1EC3u Th\u00E0nh";
             case CultivationManualMastery.TrungThanh:
-                return "Trung Thành";
+                return "Trung Th\u00E0nh";
             case CultivationManualMastery.DaiThanh:
-                return "Đại Thành";
+                return "\u0110\u1EA1i Th\u00E0nh";
             default:
-                return "Chưa học";
+                return "Ch\u01B0a h\u1ECDc";
         }
     }
 
@@ -1693,7 +1670,7 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (inventory == null)
         {
-            return "Trống";
+            return "Tr\u1ED1ng";
         }
 
         int itemKinds = 0;
@@ -1714,10 +1691,10 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (itemKinds <= 0)
         {
-            return "Trống";
+            return "Tr\u1ED1ng";
         }
 
-        return itemKinds + " loại / " + totalAmount + " món";
+        return itemKinds + " lo\u1EA1i / " + totalAmount + " m\u00F3n";
     }
 
     void HidePanel()
@@ -2014,4 +1991,5 @@ public class TouchSelectTarget : MonoBehaviour
         }
     }
 }
+
 

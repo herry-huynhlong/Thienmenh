@@ -11,12 +11,8 @@ public class DailyConversation : MonoBehaviour
     public int minRelationshipToTalk = 8;
 
     [Header("Dialogue")]
-    public string[] greetingLines =
-    {
-        "Đạo hữu gần đây thế nào?",
-        "Hôm nay có thu hoạch gì không?",
-        "Nghe nói gần đây yêu thú xuất hiện nhiều."
-    };
+    public string greetingDialogueKey = "greetings";
+    public string replyDialogueKey = "replies";
 
     float scanTimer;
     float nextTalkTime;
@@ -31,32 +27,22 @@ public class DailyConversation : MonoBehaviour
         }
 
         scanTimer = scanInterval;
-
         TryTalk();
     }
 
     void TryTalk()
     {
-        if (Time.time < nextTalkTime)
-        {
-            return;
-        }
-
-        if (IsDead())
+        if (Time.time < nextTalkTime || IsDead())
         {
             return;
         }
 
         Collider2D[] hits =
-            Physics2D.OverlapCircleAll(
-                transform.position,
-                talkRadius,
-                npcLayers);
+            Physics2D.OverlapCircleAll(transform.position, talkRadius, npcLayers);
 
         foreach (Collider2D hit in hits)
         {
-            if (hit == null ||
-                hit.gameObject == gameObject)
+            if (hit == null || hit.gameObject == gameObject)
             {
                 continue;
             }
@@ -86,27 +72,21 @@ public class DailyConversation : MonoBehaviour
 
     void StartConversation(DailyConversation other)
     {
-        nextTalkTime =
-            Time.time + conversationCooldown;
+        nextTalkTime = Time.time + conversationCooldown;
+        other.nextTalkTime = Time.time + other.conversationCooldown;
 
-        other.nextTalkTime =
-            Time.time + other.conversationCooldown;
-
-        string myLine =
-            GetRandomLine();
-
-        string otherLine =
-            other.GetRandomLine();
+        string myLine = GetRandomLine(greetingDialogueKey);
+        string otherLine = other.GetRandomLine(other.replyDialogueKey);
 
         NpcRoleUtility.StopForConversation(gameObject);
         NpcRoleUtility.StopForConversation(other.gameObject);
 
-        SetAction("Nói chuyện: " + myLine);
-        other.SetAction("Nói chuyện: " + otherLine);
+        SetAction(NpcText.ActionFormat("conversationLine", myLine));
+        other.SetAction(NpcText.ActionFormat("conversationLine", otherLine));
 
         Debug.Log(
             GetDisplayName() +
-            " noi voi " +
+            " nói với " +
             other.GetDisplayName() +
             ": " +
             myLine);
@@ -140,35 +120,31 @@ public class DailyConversation : MonoBehaviour
             minRelationshipToTalk;
     }
 
-    string GetRandomLine()
+    string GetRandomLine(string key)
     {
-        if (greetingLines == null ||
-            greetingLines.Length == 0)
-        {
-            return "Dao huu.";
-        }
-
-        return greetingLines[
-            Random.Range(0, greetingLines.Length)];
+        return NpcText.DialogueLine(
+            key,
+            NpcText.Dialogue("dailyFallback"));
     }
 
     bool IsDead()
     {
-        IDamageable damageable =
-            GetComponent<IDamageable>();
-
-        return damageable != null &&
-            damageable.IsDead;
+        IDamageable damageable = GetComponent<IDamageable>();
+        return damageable != null && damageable.IsDead;
     }
 
     string GetDisplayName()
     {
-        SmartNpcAI ai =
-            GetComponent<SmartNpcAI>();
-
-        if (ai != null)
+        SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
         {
-            return ai.npcName;
+            return smartNpc.npcName;
+        }
+
+        VillagerAI villager = GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            return villager.villagerName;
         }
 
         return name;
@@ -176,20 +152,22 @@ public class DailyConversation : MonoBehaviour
 
     void SetAction(string action)
     {
-        SmartNpcAI ai =
-            GetComponent<SmartNpcAI>();
-
-        if (ai != null)
+        SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
         {
-            ai.currentAction = action;
+            smartNpc.currentAction = action;
+        }
+
+        VillagerAI villager = GetComponent<VillagerAI>();
+        if (villager != null && !villager.IsActionLocked)
+        {
+            villager.currentAction = action;
         }
     }
 
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(
-            transform.position,
-            talkRadius);
+        Gizmos.DrawWireSphere(transform.position, talkRadius);
     }
 }

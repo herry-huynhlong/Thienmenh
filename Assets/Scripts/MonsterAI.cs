@@ -25,6 +25,24 @@ public class MonsterAI : MonoBehaviour, IDamageable
     [Min(1)] public int beastLevel = 1;
     public HuntTargetType huntTargetType = HuntTargetType.Beast;
 
+    [Header("===== TU LUYEN YEU THU =====")]
+    public bool autoStatsFromRealm = true;
+    public bool syncBeastLevelFromRealm = true;
+    public CultivationRealm realm = CultivationRealm.QiRefining;
+    [Range(1, 9)] public int realmStage = 1;
+    public long cultivationExp;
+    public int baseExpToNextRealm = 100;
+    public int baseMaxHP = 80;
+    public int baseDamage = 8;
+    public int baseDefense = 3;
+    public int baseEffectResistance;
+    public float baseMoveSpeed = 2f;
+    [Min(0f)] public float naturalCultivationExpPerSecond = 0.35f;
+    [Range(0f, 1f)] public float hungryCultivationEfficiency = 0.45f;
+    [Range(0f, 1f)] public float npcDevourExpMultiplier = 0.35f;
+    [Min(0)] public int minNpcDevourExp = 20;
+    public bool healAfterDevouringNpc = true;
+
     [Header("===== DAMAGE =====")]
     public int damage = 10;
     public int defense = 0;
@@ -128,6 +146,8 @@ public class MonsterAI : MonoBehaviour, IDamageable
     Vector3 treasureWaitPosition;
     bool hasTreasureWaitPosition;
 
+    float naturalCultivationRemainder;
+
     public bool IsDead => isDead;
     public Transform DamageTransform => transform;
 
@@ -138,7 +158,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
             ApplyEntityProfile();
         }
 
-        currentHP = maxHP;
+        RecalculateRealmStats(true);
         animator = GetComponent<Animator>();
         directionalAnimator = GetComponent<MonsterDirectionalAnimator>();
         rb = GetComponent<Rigidbody2D>();
@@ -195,12 +215,25 @@ public class MonsterAI : MonoBehaviour, IDamageable
         }
 
         monsterName = entityProfile.identity.entityName;
-        maxHP = entityProfile.stats.maxHP;
-        currentHP = entityProfile.stats.currentHP;
-        damage = entityProfile.stats.attack;
-        defense = entityProfile.stats.defense;
-        effectResistance = entityProfile.stats.effectResistance;
-        moveSpeed = entityProfile.stats.moveSpeed;
+
+        if (!autoStatsFromRealm)
+        {
+            realm = entityProfile.stats.realm;
+            realmStage = entityProfile.stats.realmStage;
+            cultivationExp = Mathf.Max(0, entityProfile.stats.cultivationExp);
+
+            int realmMultiplier = GetRealmMultiplier();
+            baseMaxHP = Mathf.Max(1, entityProfile.stats.maxHP / realmMultiplier);
+            baseDamage = Mathf.Max(1, entityProfile.stats.attack / realmMultiplier);
+            baseDefense = Mathf.Max(0, entityProfile.stats.defense / realmMultiplier);
+            baseEffectResistance = Mathf.Max(0, entityProfile.stats.effectResistance);
+            baseMoveSpeed = Mathf.Max(0.1f, entityProfile.stats.moveSpeed);
+            currentHP =
+                Mathf.Clamp(
+                    entityProfile.stats.currentHP,
+                    1,
+                    Mathf.Max(1, entityProfile.stats.maxHP));
+        }
         beastInstinct = Mathf.Clamp(45f + entityProfile.talent.combatMultiplier * 15f, 0f, 100f);
         aggression = Mathf.Clamp(entityProfile.personality.bravery + entityProfile.personality.hotTemper * 0.5f, 0f, 100f);
         fear = Mathf.Clamp(100f - entityProfile.personality.bravery, 0f, 100f);
@@ -366,6 +399,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
     void UpdateBeastNeeds()
     {
         hunger = Mathf.Clamp(hunger + Time.deltaTime * 0.4f, 0f, 100f);
+        AbsorbWorldSpiritualEnergy();
 
         WeatherSystem weather = WeatherSystem.Instance;
         if (weather != null)
@@ -383,8 +417,44 @@ public class MonsterAI : MonoBehaviour, IDamageable
         {
             entityProfile.needs.hunger = hunger;
             entityProfile.emotion.fear = fear;
+            SyncEntityProfileStats();
         }
     }
+
+    void AbsorbWorldSpiritualEnergy()
+    {
+        if (naturalCultivationExpPerSecond <= 0f ||
+            realm == CultivationRealm.Tribulation)
+        {
+            return;
+        }
+
+        float hungerRatio = Mathf.Clamp01(hunger / 100f);
+        float hungerEfficiency =
+            Mathf.Lerp(1f, hungryCultivationEfficiency, hungerRatio);
+
+        float realmEfficiency =
+            Mathf.Clamp01(
+                CultivationProgression.GetSpiritStoneEfficiency(realm));
+
+        naturalCultivationRemainder +=
+            naturalCultivationExpPerSecond *
+            hungerEfficiency *
+            Mathf.Max(0.05f, realmEfficiency) *
+            Time.deltaTime;
+
+        int wholeExp =
+            Mathf.FloorToInt(naturalCultivationRemainder);
+
+        if (wholeExp <= 0)
+        {
+            return;
+        }
+
+        naturalCultivationRemainder -= wholeExp;
+        AddCultivationExp(wholeExp);
+    }
+
 
     void AcquireIntruderTarget()
     {
@@ -828,7 +898,16 @@ public class MonsterAI : MonoBehaviour, IDamageable
             return;
         }
 
-        currentTargetDamageable.TakeDamage(damage);
+        Transform damagedTarget = currentTarget;
+        IDamageable damagedTargetDamageable = currentTargetDamageable;
+
+        damagedTargetDamageable.TakeDamage(damage);
+
+        if (damagedTargetDamageable.IsDead)
+        {
+            DevourDefeatedNpc(damagedTarget);
+            ClearCurrentTarget();
+        }
     }
 
     void EndAttack()
@@ -921,6 +1000,258 @@ public class MonsterAI : MonoBehaviour, IDamageable
             Die();
         }
     }
+
+    public int GetRealmMultiplier()
+    {
+        int multiplier = 1;
+        int realmIndex = Mathf.Max(0, (int)realm);
+        int stage =
+            Mathf.Clamp(
+                realmStage,
+                1,
+                CultivationProgression.MaxStage);
+
+        for (int i = 0; i < realmIndex; i++)
+        {
+            multiplier *= 10;
+        }
+
+        return Mathf.Max(1, multiplier * stage);
+    }
+
+    public long ExpToNextRealm()
+    {
+        return CultivationProgression.GetExpToNextLong(
+            realm,
+            realmStage,
+            baseExpToNextRealm);
+    }
+
+    public void AddCultivationExp(int amount)
+    {
+        if (amount <= 0 || realm == CultivationRealm.Tribulation)
+        {
+            return;
+        }
+
+        cultivationExp += amount;
+
+        while (cultivationExp >= ExpToNextRealm() &&
+            realm != CultivationRealm.Tribulation)
+        {
+            cultivationExp -= ExpToNextRealm();
+            Breakthrough();
+        }
+            SyncEntityProfileStats();
+    }
+
+    public void Breakthrough()
+    {
+        if (realm == CultivationRealm.Tribulation)
+        {
+            cultivationExp = 0;
+            return;
+        }
+
+        realmStage += 1;
+
+        if (realmStage > CultivationProgression.MaxStage)
+        {
+            realmStage = 1;
+            realm = (CultivationRealm)((int)realm + 1);
+        }
+
+        RecalculateRealmStats(true);
+        currentAction = "Dot pha " + GetRealmText();
+    }
+
+    public void RecalculateRealmStats(bool fillHP)
+    {
+        if (!autoStatsFromRealm)
+        {
+            currentHP = Mathf.Clamp(currentHP, 0, maxHP);
+            return;
+        }
+
+        int oldMaxHP = Mathf.Max(1, maxHP);
+        float hpPercent = Mathf.Clamp01((float)currentHP / oldMaxHP);
+        int multiplier = GetRealmMultiplier();
+
+        maxHP = Mathf.Max(1, baseMaxHP) * multiplier;
+        damage = Mathf.Max(1, baseDamage) * multiplier;
+        defense = Mathf.Max(0, baseDefense) * multiplier;
+        effectResistance =
+            Mathf.Max(
+                0,
+                baseEffectResistance +
+                (int)realm * 2 +
+                Mathf.Max(0, realmStage - 1) / 3);
+        moveSpeed =
+            Mathf.Max(
+                0.1f,
+                baseMoveSpeed +
+                Mathf.Max(0, (int)realm) * 0.12f +
+                Mathf.Max(0, realmStage - 1) * 0.02f);
+
+        if (syncBeastLevelFromRealm)
+        {
+            beastLevel = GetBeastLevelForRealm();
+        }
+
+        currentHP = fillHP
+            ? maxHP
+            : Mathf.Clamp(
+                Mathf.RoundToInt(maxHP * hpPercent),
+                0,
+                maxHP);
+            SyncEntityProfileStats();
+    }
+
+    int GetBeastLevelForRealm()
+    {
+        switch (realm)
+        {
+            case CultivationRealm.Mortal:
+            case CultivationRealm.QiRefining:
+                return 1;
+            case CultivationRealm.Foundation:
+                return 2;
+            case CultivationRealm.GoldenCore:
+                return 3;
+            default:
+                return 4;
+        }
+    }
+
+    void DevourDefeatedNpc(Transform target)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        if (target.GetComponentInParent<PlayerHealth>() != null ||
+            target.GetComponentInParent<MonsterAI>() != null)
+        {
+            return;
+        }
+
+        int exp = GetDevourExp(target);
+        if (exp <= 0)
+        {
+            return;
+        }
+
+        AddCultivationExp(exp);
+        hunger = Mathf.Clamp(hunger - 35f, 0f, 100f);
+        bloodlust = Mathf.Clamp(bloodlust + 10f, 0f, 100f);
+
+        if (healAfterDevouringNpc)
+        {
+            currentHP =
+                Mathf.Clamp(
+                    currentHP + Mathf.Max(1, maxHP / 5),
+                    0,
+                    maxHP);
+        }
+
+        if (entityProfile != null)
+        {
+            entityProfile.Remember(
+                target.name,
+                "devoured_npc",
+                Mathf.Clamp(exp / 100, 1, 100));
+        }
+
+        currentAction = "An thit hap thu " + exp + " tu vi";
+            SyncEntityProfileStats();
+    }
+
+    int GetDevourExp(Transform target)
+    {
+        CharacterStats stats = target.GetComponentInParent<CharacterStats>();
+        if (stats != null)
+        {
+            return CalculateDevourExp(
+                stats.realm,
+                stats.realmStage,
+                stats.attack + stats.defense + stats.finalHP / 10);
+        }
+
+        VillagerAI villager = target.GetComponentInParent<VillagerAI>();
+        if (villager != null)
+        {
+            return CalculateDevourExp(
+                villager.realm,
+                villager.realmStage,
+                villager.attack + villager.defense + villager.maxHP / 10);
+        }
+
+        SmartNpcAI smartNpc = target.GetComponentInParent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            return CalculateDevourExp(
+                smartNpc.realm,
+                smartNpc.realmStage,
+                smartNpc.attack + smartNpc.defense + smartNpc.maxHP / 10);
+        }
+
+        return minNpcDevourExp;
+    }
+
+    int CalculateDevourExp(
+        CultivationRealm targetRealm,
+        int targetStage,
+        int targetPower)
+    {
+        long realmExp =
+            CultivationProgression.GetExpToNextLong(
+                targetRealm,
+                targetStage,
+                baseExpToNextRealm);
+
+        if (realmExp == long.MaxValue)
+        {
+            realmExp = int.MaxValue;
+        }
+
+        long value =
+            Mathf.Max(0, minNpcDevourExp) +
+            Mathf.Max(0, targetPower) * 3L +
+            (long)(realmExp * Mathf.Clamp01(npcDevourExpMultiplier));
+
+        long minValue = Mathf.Max(0, minNpcDevourExp);
+        value = System.Math.Max(minValue, value);
+        value = System.Math.Min(int.MaxValue, value);
+        return (int)value;
+    }
+
+    void SyncEntityProfileStats()
+    {
+        if (entityProfile == null)
+        {
+            return;
+        }
+
+        entityProfile.stats.realm = realm;
+        entityProfile.stats.realmStage =
+            Mathf.Clamp(
+                realmStage,
+                1,
+                CultivationProgression.MaxStage);
+        entityProfile.stats.maxHP = maxHP;
+        entityProfile.stats.currentHP = Mathf.Clamp(currentHP, 0, maxHP);
+        entityProfile.stats.attack = damage;
+        entityProfile.stats.defense = defense;
+        entityProfile.stats.effectResistance = effectResistance;
+        entityProfile.stats.moveSpeed = moveSpeed;
+        entityProfile.stats.cultivationExp =
+            Mathf.Clamp(
+                cultivationExp > int.MaxValue ? int.MaxValue : (int)cultivationExp,
+                0,
+                int.MaxValue);
+    }
+
 
     void Die()
     {
@@ -1115,7 +1446,12 @@ public class MonsterAI : MonoBehaviour, IDamageable
     }
     public int GetRealmPower()
     {
-        return Mathf.Max(1, damage + defense + maxHP / 10);
+        return Mathf.Max(
+            1,
+            CultivationProgression.GetRealmPower(realm, realmStage) * 100 +
+            damage +
+            defense +
+            maxHP / 10);
     }
 
     public void ApplyItem(StatItemData item)
@@ -1156,7 +1492,8 @@ public class MonsterAI : MonoBehaviour, IDamageable
         switch (modifier.statType)
         {
             case StatType.MaxHP:
-                maxHP += intValue;
+                baseMaxHP += intValue;
+                RecalculateRealmStats(false);
                 currentHP += intValue;
                 break;
             case StatType.CurrentHP:
@@ -1164,19 +1501,86 @@ public class MonsterAI : MonoBehaviour, IDamageable
                 break;
             case StatType.Damage:
             case StatType.Attack:
-                damage += intValue;
+                baseDamage += intValue;
+                RecalculateRealmStats(false);
                 break;
             case StatType.Defense:
-                defense += intValue;
+                baseDefense += intValue;
+                RecalculateRealmStats(false);
                 break;
             case StatType.EffectResistance:
-                effectResistance += intValue;
+                baseEffectResistance += intValue;
+                RecalculateRealmStats(false);
                 break;
             case StatType.MoveSpeed:
-                moveSpeed += floatValue;
+                baseMoveSpeed += floatValue;
+                RecalculateRealmStats(false);
+                break;
+            case StatType.Cultivation:
+                if (direction > 0)
+                {
+                    AddCultivationExp(modifier.intValue);
+                }
+                else
+                {
+                    cultivationExp =
+                        System.Math.Max(
+                            0L,
+                            cultivationExp - modifier.intValue);
+                }
+                break;
+            case StatType.Breakthrough:
+                if (direction > 0)
+                {
+                    Breakthrough();
+                }
                 break;
         }
     }
+
+    public string GetRealmText()
+    {
+        switch (realm)
+        {
+            case CultivationRealm.Mortal:
+                return "Pham Nhan";
+            case CultivationRealm.QiRefining:
+                return "Luyen Khi";
+            case CultivationRealm.Foundation:
+                return "Truc Co";
+            case CultivationRealm.GoldenCore:
+                return "Kim Dan";
+            case CultivationRealm.NascentSoul:
+                return "Nguyen Anh";
+            case CultivationRealm.SoulFormation:
+                return "Hoa Than";
+            case CultivationRealm.Tribulation:
+                return "Do Kiep";
+            default:
+                return realm.ToString();
+        }
+    }
+
+    void OnValidate()
+    {
+        realmStage =
+            Mathf.Clamp(
+                realmStage,
+                1,
+                CultivationProgression.MaxStage);
+        baseMaxHP = Mathf.Max(1, baseMaxHP);
+        baseDamage = Mathf.Max(1, baseDamage);
+        baseDefense = Mathf.Max(0, baseDefense);
+        baseEffectResistance = Mathf.Max(0, baseEffectResistance);
+        baseMoveSpeed = Mathf.Max(0.1f, baseMoveSpeed);
+        baseExpToNextRealm = Mathf.Max(1, baseExpToNextRealm);
+
+        if (!Application.isPlaying)
+        {
+            RecalculateRealmStats(false);
+        }
+    }
+
 
     void OnDrawGizmosSelected()
     {
