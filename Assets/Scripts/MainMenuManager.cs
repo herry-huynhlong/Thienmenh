@@ -1,11 +1,16 @@
+using System.Globalization;
+using System.Text;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class MainMenuManager : MonoBehaviour
 {
-    public string characterCreateScene = "CharacterCreate";
     public string firstGameScene = "PersistentScene";
+
+    [Header("New Game Intro")]
+    public NewGameIntroPanel newGameIntroPanel;
 
     [Header("Settings")]
     public GameObject settingsPanel;
@@ -25,7 +30,8 @@ public class MainMenuManager : MonoBehaviour
 
     void Awake()
     {
-        ApplySavedSettings();
+        // ApplySavedSettings();
+        // HookMainMenuButtonsByName();
         HookSettingsControls();
         HookSettingsButtonByName();
 
@@ -37,13 +43,41 @@ public class MainMenuManager : MonoBehaviour
 
     public void NewGame()
     {
+        Debug.Log("MainMenuManager: NewGame clicked. Showing intro.");
+
+        if (newGameIntroPanel == null)
+        {
+            newGameIntroPanel =
+                FindFirstObjectByType<NewGameIntroPanel>(
+                    FindObjectsInactive.Include);
+        }
+
+        if (newGameIntroPanel != null)
+        {
+            newGameIntroPanel.ShowIntro();
+            return;
+        }
+
+        Debug.LogWarning(
+            "MainMenuManager: Khong tim thay NewGameIntroPanel, vao game luon.");
+
+        StartNewGameNow();
+    }
+
+    public void StartNewGameNow()
+    {
+        Debug.Log("MainMenuManager: Starting new game. Clearing save.");
+
         float savedVolume = PlayerPrefs.GetFloat(VolumePrefKey, 1f);
         int savedFullscreen =
             PlayerPrefs.GetInt(FullscreenPrefKey, Screen.fullScreen ? 1 : 0);
         int savedTargetFps = PlayerPrefs.GetInt(TargetFpsPrefKey, 60);
 
+        GameSaveSystem.RequestNewGameStart();
         GameSaveSystem.ClearSave();
+
         PlayerPrefs.DeleteAll();
+
         PlayerPrefs.SetFloat(VolumePrefKey, savedVolume);
         PlayerPrefs.SetInt(FullscreenPrefKey, savedFullscreen);
         PlayerPrefs.SetInt(TargetFpsPrefKey, savedTargetFps);
@@ -51,25 +85,148 @@ public class MainMenuManager : MonoBehaviour
 
         ItemInventory.ClearRuntimeCache();
         SimpleItemShop.ClearRuntimeStockCache();
-        SceneManager.LoadScene(characterCreateScene);
+
+        LoadFirstGameScene();
     }
 
     public void ContinueGame()
     {
-        string sceneToLoad =
-            GameSaveSystem.HasSave || PlayerPrefs.HasKey("PlayerName")
-            ? firstGameScene
-            : characterCreateScene;
+        Debug.Log("MainMenuManager: ContinueGame clicked.");
 
-        if (string.IsNullOrEmpty(sceneToLoad) ||
-            !Application.CanStreamedLevelBeLoaded(sceneToLoad))
+        if (!GameSaveSystem.HasSave)
         {
-            Debug.LogWarning(
-                $"Cannot continue to scene '{sceneToLoad}'. Loading '{characterCreateScene}' instead.");
-            sceneToLoad = characterCreateScene;
+            NewGame();
+            return;
         }
 
-        SceneManager.LoadScene(sceneToLoad);
+        GameSaveSystem.RequestContinueGameStart();
+        LoadFirstGameScene();
+    }
+
+    void LoadFirstGameScene()
+    {
+        if (string.IsNullOrEmpty(firstGameScene) ||
+            !Application.CanStreamedLevelBeLoaded(firstGameScene))
+        {
+            Debug.LogWarning(
+                $"Cannot load first game scene '{firstGameScene}'.");
+            return;
+        }
+
+        SceneManager.LoadScene(firstGameScene);
+    }
+
+    void HookMainMenuButtonsByName()
+    {
+        Button[] buttons =
+            FindObjectsByType<Button>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+
+        foreach (Button button in buttons)
+        {
+            if (button == null)
+            {
+                continue;
+            }
+
+            string key = GetButtonKey(button);
+
+            if (IsNewGameButtonKey(key))
+            {
+                ReplaceButtonClick(button, NewGame);
+                continue;
+            }
+
+            if (IsContinueButtonKey(key))
+            {
+                ReplaceButtonClick(button, ContinueGame);
+            }
+        }
+    }
+
+    void ReplaceButtonClick(
+        Button button,
+        UnityEngine.Events.UnityAction action)
+    {
+        button.onClick = new Button.ButtonClickedEvent();
+        button.onClick.AddListener(action);
+    }
+
+    string GetButtonKey(Button button)
+    {
+        if (button == null)
+        {
+            return "";
+        }
+
+        string label = GetButtonLabel(button);
+        return NormalizeMenuKey(button.name + " " + label);
+    }
+
+    string GetButtonLabel(Button button)
+    {
+        TMP_Text tmpText = button.GetComponentInChildren<TMP_Text>(true);
+
+        if (tmpText != null)
+        {
+            return tmpText.text;
+        }
+
+        Text legacyText = button.GetComponentInChildren<Text>(true);
+        return legacyText != null ? legacyText.text : "";
+    }
+
+    bool IsNewGameButtonKey(string key)
+    {
+        return key.Contains("newgame") ||
+            key.Contains("batdau") ||
+            key.Contains("start") ||
+            key.Contains("play") ||
+            key.Contains("choimoi");
+    }
+
+    bool IsContinueButtonKey(string key)
+    {
+        return key.Contains("continue") ||
+            key.Contains("contine") ||
+            key.Contains("tieptuc") ||
+            key.Contains("loadgame");
+    }
+
+    string NormalizeMenuKey(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return "";
+        }
+
+        string normalized = value.Normalize(NormalizationForm.FormD);
+        StringBuilder builder = new StringBuilder(normalized.Length);
+
+        for (int i = 0; i < normalized.Length; i++)
+        {
+            char c = normalized[i];
+            UnicodeCategory category = CharUnicodeInfo.GetUnicodeCategory(c);
+
+            if (category == UnicodeCategory.NonSpacingMark)
+            {
+                continue;
+            }
+
+            if (c == '\u0111' || c == '\u0110')
+            {
+                builder.Append('d');
+                continue;
+            }
+
+            if (char.IsLetterOrDigit(c))
+            {
+                builder.Append(char.ToLowerInvariant(c));
+            }
+        }
+
+        return builder.ToString();
     }
 
     public void About()
@@ -127,7 +284,9 @@ public class MainMenuManager : MonoBehaviour
 
         bool fullscreen = fullscreenToggle != null
             ? fullscreenToggle.isOn
-            : PlayerPrefs.GetInt(FullscreenPrefKey, Screen.fullScreen ? 1 : 0) == 1;
+            : PlayerPrefs.GetInt(
+                FullscreenPrefKey,
+                Screen.fullScreen ? 1 : 0) == 1;
 
         int fps = GetSelectedTargetFps();
 
@@ -187,7 +346,9 @@ public class MainMenuManager : MonoBehaviour
     {
         float volume = PlayerPrefs.GetFloat(VolumePrefKey, 1f);
         bool fullscreen =
-            PlayerPrefs.GetInt(FullscreenPrefKey, Screen.fullScreen ? 1 : 0) == 1;
+            PlayerPrefs.GetInt(
+                FullscreenPrefKey,
+                Screen.fullScreen ? 1 : 0) == 1;
         int fps = PlayerPrefs.GetInt(TargetFpsPrefKey, 60);
 
         ApplyRuntimeSettings(volume, fullscreen, fps);
@@ -363,9 +524,11 @@ public class MainMenuManager : MonoBehaviour
         }
 
         Canvas canvas = FindFirstObjectByType<Canvas>();
+
         if (canvas == null)
         {
-            Debug.LogWarning("MainMenuManager: No Canvas found for settings panel.");
+            Debug.LogWarning(
+                "MainMenuManager: No Canvas found for settings panel.");
             return;
         }
 
@@ -465,6 +628,7 @@ public class MainMenuManager : MonoBehaviour
         slider.targetGraphic = handle.GetComponent<Image>();
         slider.fillRect = fill.GetComponent<RectTransform>();
         slider.handleRect = handle.GetComponent<RectTransform>();
+
         background.GetComponent<RectTransform>().sizeDelta = new Vector2(250f, 10f);
         fill.GetComponent<RectTransform>().sizeDelta = new Vector2(250f, 10f);
         handle.GetComponent<RectTransform>().sizeDelta = new Vector2(22f, 22f);
@@ -495,22 +659,27 @@ public class MainMenuManager : MonoBehaviour
         toggleObject.transform.SetParent(parent, false);
 
         Toggle toggle = toggleObject.AddComponent<Toggle>();
+
         RectTransform rect = toggle.GetComponent<RectTransform>();
         rect.anchoredPosition = position;
         rect.sizeDelta = new Vector2(360f, 42f);
 
         GameObject background = new GameObject("Background");
         background.transform.SetParent(toggleObject.transform, false);
+
         Image backgroundImage = background.AddComponent<Image>();
         backgroundImage.color = Color.white;
+
         RectTransform backgroundRect = background.GetComponent<RectTransform>();
         backgroundRect.anchoredPosition = new Vector2(-155f, 0f);
         backgroundRect.sizeDelta = new Vector2(28f, 28f);
 
         GameObject checkmark = new GameObject("Checkmark");
         checkmark.transform.SetParent(background.transform, false);
+
         Image checkmarkImage = checkmark.AddComponent<Image>();
         checkmarkImage.color = new Color(0.28f, 0.68f, 1f);
+
         RectTransform checkmarkRect = checkmark.GetComponent<RectTransform>();
         checkmarkRect.anchoredPosition = Vector2.zero;
         checkmarkRect.sizeDelta = new Vector2(18f, 18f);

@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
   m_Name: "Y\xEAu \u0110an B\u1EADc 3"
   m_EditorClassIdentifier: Assembly-CSharp::StatItemData
+  itemId: ba44ae147d7978448ab44ec1282c0163
   itemName: "Y\xEAu \u0110an B\u1EADc 3"
   description: "N\u1ED9i \u0111an c\u1EE7a y\xEAu th\xFA b\u1EADc 3, y\xEAu l\u1EF1c
     \u0111\xE3 kh\xE1 \u1ED5n \u0111\u1ECBnh, b\xEAn trong ch\u1EE9a tinh huy\u1EBFt
@@ -24,6 +25,12 @@ MonoBehaviour:
   price: 1848
   icon: {fileID: 4829371866304094584, guid: 2b318319400092040a18ba0a20f3cbcc, type: 3}
   consumeOnUse: 1
+  equipmentSlot: 0
+  artifactKind: 0
+  pillKind: 0
+  manualKind: 0
+  materialKind: 0
+  foodKind: 0
   useStyle: 2
   conversionType: 0
   canUseDirectly: 1
@@ -49,9 +56,14 @@ MonoBehaviour:
   effectResistanceBonus: 0
   canBeTaught: 0
   studyProgressPerUse: 1
+  manualBreakAfterYears: 10
   tieuThanhPower: 0.3
   trungThanhPower: 0.6
   daiThanhPower: 1
+  playBuyEffect: 0
+  buyEffectPrefab: {fileID: 0}
+  buyEffectOffset: {x: 0, y: 0.15, z: 0}
+  buyEffectScale: 1
   isTemporary: 0
   duration: 10
   modifiers: []

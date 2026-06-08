@@ -56,6 +56,13 @@ public class NpcInventoryPanelUI : MonoBehaviour
             return;
         }
 
+        if (IsNpcTarget(npc) &&
+            !HasHeavenDaoPower(HeavenDaoPower.ViewBasicNpcInfo))
+        {
+            HideContentOnly();
+            return;
+        }
+
         ItemInventory inventory =
             npc.GetComponent<ItemInventory>();
 
@@ -279,6 +286,20 @@ public class NpcInventoryPanelUI : MonoBehaviour
     public void HideContentOnly()
     {
         SetContentVisible(false);
+    }
+
+    bool IsNpcTarget(Transform target)
+    {
+        return target != null &&
+            (target.GetComponent<VillagerAI>() != null ||
+            target.GetComponent<SmartNpcAI>() != null ||
+            target.GetComponent<NpcData>() != null);
+    }
+
+    bool HasHeavenDaoPower(HeavenDaoPower power)
+    {
+        return HeavenDaoSystem.Instance != null &&
+            HeavenDaoSystem.Instance.HasPower(power);
     }
 
     public void SetContentVisible(bool visible)

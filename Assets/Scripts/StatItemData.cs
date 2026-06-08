@@ -1,5 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public enum ItemType
 {
@@ -167,6 +170,7 @@ public class StatModifier
 public class StatItemData : ScriptableObject
 {
     [Header("Info")]
+    public string itemId;
     public string itemName;
     [TextArea]
     public string description;
@@ -247,6 +251,38 @@ public class StatItemData : ScriptableObject
     public List<StatModifier> modifiers =
         new List<StatModifier>();
 
+    public string ItemId =>
+        string.IsNullOrWhiteSpace(itemId)
+        ? name
+        : itemId.Trim();
+
+#if UNITY_EDITOR
+    void OnValidate()
+    {
+        EnsureItemId();
+    }
+
+    void EnsureItemId()
+    {
+        if (!string.IsNullOrWhiteSpace(itemId))
+        {
+            itemId = itemId.Trim();
+            return;
+        }
+
+        string path = AssetDatabase.GetAssetPath(this);
+        string guid = !string.IsNullOrEmpty(path)
+            ? AssetDatabase.AssetPathToGUID(path)
+            : "";
+
+        itemId = !string.IsNullOrEmpty(guid)
+            ? guid
+            : System.Guid.NewGuid().ToString("N");
+
+        EditorUtility.SetDirty(this);
+    }
+#endif
+
     public List<StatModifier> GetAllModifiers()
     {
         return GetAllModifiers(1f);
@@ -300,7 +336,21 @@ public class StatItemData : ScriptableObject
             StatType.EffectResistance,
             Mathf.RoundToInt(effectResistanceBonus * useMultiplier));
 
-        result.AddRange(modifiers);
+        foreach (StatModifier modifier in modifiers)
+        {
+            if (modifier == null)
+            {
+                continue;
+            }
+
+            result.Add(
+                new StatModifier
+                {
+                    statType = modifier.statType,
+                    intValue = Mathf.RoundToInt(modifier.intValue * useMultiplier),
+                    floatValue = modifier.floatValue * useMultiplier
+                });
+        }
 
         return result;
     }

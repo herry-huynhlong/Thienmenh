@@ -645,7 +645,13 @@ public class TreasureFrenzySystem : MonoBehaviour
             IDamageable damageable = victim.GetComponentInParent<IDamageable>();
             if (damageable != null && !damageable.IsDead)
             {
-                damageable.TakeDamage(damage);
+                int modifiedDamage =
+                    NpcCombatTechniqueSystem.ModifyOutgoingDamage(
+                        attacker.actor,
+                        victim,
+                        damage);
+
+                damageable.TakeDamage(modifiedDamage);
             }
         }
     }

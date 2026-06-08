@@ -24,8 +24,8 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     public bool generateFromEntityProfile = true;
     public EntityProfile entityProfile;
 
-    [Header("Thong tin NPC")]
-    public string npcName = "NPC";
+    [Header("Thong tin Tu si")]
+    public string npcName = "Tu sĩ";
 
     [Header("Bat / Tat chuc nang")]
     public bool canLive = true;
@@ -149,7 +149,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     public Transform farmPoint;
 
     [Header("Trang thai hien tai")]
-    public string currentAction = NpcText.Action("idle");
+    public string currentAction = "idle";
 
     private float thinkTimer = 0;
 
@@ -165,6 +165,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     void Start()
     {
+        currentAction = NpcText.Action("idle");
         ItemInventory inventory = GetComponent<ItemInventory>();
         if (inventory == null)
         {
@@ -188,9 +189,11 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
         characterStats = GetComponent<CharacterStats>();
 
+        bool appliedProfile = false;
         if (generateFromEntityProfile)
         {
             ApplyEntityProfile();
+            appliedProfile = entityProfile != null;
         }
 
         if (characterStats != null)
@@ -203,7 +206,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         }
         else
         {
-            ApplyRealmPower();
+            ApplyRealmPower(!appliedProfile);
         }
     }
 
@@ -233,7 +236,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         physique = ToPhysique(entityProfile.talent.grade);
         maxHP = entityProfile.stats.maxHP;
         currentHP =
-            Mathf.Clamp(entityProfile.stats.currentHP, 1, maxHP);
+            Mathf.Clamp(entityProfile.stats.currentHP, 0, maxHP);
         attack = entityProfile.stats.attack;
         defense = entityProfile.stats.defense;
         effectResistance = entityProfile.stats.effectResistance;
@@ -1026,14 +1029,20 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             money = 0;
         }
 
-        currentAction = NpcText.Action("eat");
+        currentAction = NpcText.Action("eating");
 
         Debug.Log(NpcText.Format(NpcText.Get("logs", "eat"), npcName));
     }
 
     void Sleep()
     {
-        currentAction = NpcText.Action("sleep");
+        if (homePoint == null)
+        {
+            fatigue = 0;
+            currentTarget = null;
+            currentAction = NpcText.Action("rest");
+            return;
+        }
 
         currentTarget = homePoint;
 
@@ -1041,6 +1050,14 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             Vector2.Distance(
                 transform.position,
                 homePoint.position);
+
+        if (distance >= 1.5f)
+        {
+            currentAction = NpcText.Action("goHomeRest");
+            return;
+        }
+
+        currentAction = NpcText.Action("rest");
 
         if (distance < 1.5f)
         {
@@ -1229,7 +1246,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             realm += 1;
         }
 
-        ApplyRealmPower();
+        ApplyRealmPower(true);
         lifespan = GetLifespanForRealm(realm);
 
         currentAction = NpcText.Action("breakthrough");
@@ -1239,6 +1256,13 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     void GoToTavernAndBuyPill()
     {
+        if (tavernPoint == null)
+        {
+            currentTarget = null;
+            currentAction = NpcText.Action("calm");
+            return;
+        }
+
         currentAction = NpcText.Action("goTavern");
 
         currentTarget =
@@ -1251,6 +1275,8 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
         if (distance < 1.5f)
         {
+            currentAction = NpcText.Action("buyPill");
+
             money -= 50;
 
             pill += 1;
@@ -1397,12 +1423,25 @@ void TryAttackMonster()
     // reset cooldown
     attackTimer = 0;
 
+    int attackDamage =
+        NpcCombatTechniqueSystem.ModifyOutgoingDamage(
+            gameObject,
+            currentMonsterTarget.gameObject,
+            attack);
+
     // Gay damage.
-    currentMonsterTarget.TakeDamage(attack);
+    NpcSocialEventBus.PublishHostility(
+        gameObject,
+        currentMonsterTarget.gameObject,
+        Mathf.Clamp(attackDamage, 1, 100),
+        currentMonsterTarget.transform.position,
+        NpcText.Dialogue("combatMonsterReason"));
+
+    currentMonsterTarget.TakeDamage(attackDamage);
 
     currentAction = NpcText.ActionFormat("attackMonsterNamed", currentMonsterTarget.monsterName);
 
-    Debug.Log(NpcText.Format(NpcText.Get("logs", "attackMonster"), npcName, currentMonsterTarget.monsterName, attack));
+    Debug.Log(NpcText.Format(NpcText.Get("logs", "attackMonster"), npcName, currentMonsterTarget.monsterName, attackDamage));
 }
 
 public void ShootFireball()
@@ -1502,6 +1541,11 @@ bool ShouldFightMonster(
 
     public void TakeDamage(int damage)
     {
+        if (IsDead)
+        {
+            return;
+        }
+
         if (characterStats != null)
         {
             characterStats.TakeDamage(damage);
@@ -1523,7 +1567,19 @@ bool ShouldFightMonster(
             finalDamage = 1;
         }
 
-        currentHP -= finalDamage;
+        currentHP = Mathf.Clamp(currentHP - finalDamage, 0, maxHP);
+
+        if (entityProfile != null)
+        {
+            entityProfile.stats.currentHP = currentHP;
+        }
+
+        if (currentHP > 0)
+        {
+            NpcCombatTechniqueSystem.ReactToDamageTaken(
+                gameObject,
+                damage);
+        }
 
         Debug.Log(NpcText.Format(NpcText.Get("logs", "takeDamage"), npcName, finalDamage));
 
@@ -1650,8 +1706,11 @@ bool ShouldFightMonster(
         }
     }
 
-    void ApplyRealmPower()
+    void ApplyRealmPower(bool fillHP = false)
     {
+        int oldMaxHP = Mathf.Max(1, maxHP);
+        float hpPercent = Mathf.Clamp01(currentHP / (float)oldMaxHP);
+
         int power =
             GetRealmPower();
 
@@ -1659,7 +1718,12 @@ bool ShouldFightMonster(
             100 + power * 40;
 
         currentHP =
-            maxHP;
+            fillHP
+                ? maxHP
+                : Mathf.Clamp(
+                    Mathf.RoundToInt(maxHP * hpPercent),
+                    0,
+                    maxHP);
 
         attack =
             10 + power * 8;

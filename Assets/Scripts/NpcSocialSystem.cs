@@ -105,6 +105,18 @@ public static class NpcSocialEventBus
             return;
         }
 
+        if (NpcRoleUtility.IsDead(buyer) ||
+            NpcRoleUtility.IsDead(seller))
+        {
+            return;
+        }
+
+        if (NpcRoleUtility.IsInCombat(buyer) ||
+            NpcRoleUtility.IsInCombat(seller))
+        {
+            return;
+        }
+
         TradeCompleted?.Invoke(buyer, seller, item, price);
     }
 
@@ -140,7 +152,7 @@ public static class NpcSocialEventBus
             target,
             clampedSeverity,
             target.transform.position,
-            "xung đột");
+            NpcText.Dialogue("hostilityReasonFallback"));
     }
 
     public static void PublishHostility(
@@ -164,7 +176,9 @@ public static class NpcSocialEventBus
             target,
             clampedSeverity,
             position,
-            string.IsNullOrEmpty(reason) ? "xung đột" : reason);
+            string.IsNullOrEmpty(reason)
+                ? NpcText.Dialogue("hostilityReasonFallback")
+                : reason);
     }
 }
 
@@ -378,28 +392,31 @@ public class NpcRelationshipGraph : MonoBehaviour
         relationship.trust = Mathf.Clamp(relationship.trust - amount, -100, 100);
         relationship.affection = Mathf.Clamp(relationship.affection - amount, -100, 100);
         relationship.lastInteractionDay = NpcSocialTime.Day;
-        relationship.lastTopic = "xung đột";
+        relationship.lastTopic = NpcText.Dialogue("hostilityReasonFallback");
     }
 }
 
 public class NpcMemory : MonoBehaviour
 {
     public int maxMemories = 50;
+    public float combatLineCooldown = 4f;
     public List<NpcMemoryRecord> memories =
         new List<NpcMemoryRecord>();
+
+    float nextCombatLineTime;
 
     void OnEnable()
     {
         NpcSocialEventBus.TradeCompleted += HandleTradeCompleted;
         NpcSocialEventBus.RumorShared += HandleRumorShared;
-        NpcSocialEventBus.HostilityHappened += HandleHostility;
+        NpcSocialEventBus.HostilityDetailedHappened += HandleHostility;
     }
 
     void OnDisable()
     {
         NpcSocialEventBus.TradeCompleted -= HandleTradeCompleted;
         NpcSocialEventBus.RumorShared -= HandleRumorShared;
-        NpcSocialEventBus.HostilityHappened -= HandleHostility;
+        NpcSocialEventBus.HostilityDetailedHappened -= HandleHostility;
     }
 
     public void Remember(
@@ -527,15 +544,67 @@ public class NpcMemory : MonoBehaviour
         }
 
         GameObject other = buyer == gameObject ? seller : buyer;
-        string itemName = item != null ? item.itemName : "vật phẩm";
+        string itemName = GetItemDisplayName(item);
         Remember(
             NpcMemoryType.TradeCompleted,
             other,
             gameObject,
-            "Giao dịch " + itemName + " giá " + price + " LT",
+            NpcText.DialogueFormat("tradeMemoryTopic", itemName, price),
             2f,
             1f,
             12);
+
+        NpcRelationshipGraph relationshipGraph = GetComponent<NpcRelationshipGraph>();
+        if (relationshipGraph != null)
+        {
+            relationshipGraph.AddTrade(other, 2);
+        }
+
+        ShowTradeOverhead(buyer, itemName, price);
+    }
+
+    void ShowTradeOverhead(GameObject buyer, string itemName, int price)
+    {
+        if (NpcRoleUtility.IsInCombat(gameObject))
+        {
+            return;
+        }
+
+        bool isBuyer = buyer == gameObject;
+        string lineKey = isBuyer ? "tradeBuyerLines" : "tradeSellerLines";
+        string fallbackKey = isBuyer ? "tradeBuyerFallback" : "tradeSellerFallback";
+        string template = NpcText.DialogueLine(
+            lineKey,
+            NpcText.Dialogue(fallbackKey, ""));
+        string line = NpcText.Format(template, itemName, price);
+
+        ShowOverheadLine(line, 2.8f, 1);
+    }
+
+    void ShowOverheadLine(string line, float duration, int priority = 0)
+    {
+        if (string.IsNullOrEmpty(line))
+        {
+            return;
+        }
+
+        NpcOverheadDialogueUI overhead = GetComponent<NpcOverheadDialogueUI>();
+        if (overhead == null)
+        {
+            overhead = gameObject.AddComponent<NpcOverheadDialogueUI>();
+        }
+
+        overhead.ShowLine(line, duration, priority);
+    }
+
+    string GetItemDisplayName(StatItemData item)
+    {
+        if (item != null && !string.IsNullOrEmpty(item.itemName))
+        {
+            return item.itemName;
+        }
+
+        return NpcText.Label("item");
     }
 
     void HandleRumorShared(GameObject speaker, GameObject listener, string topic)
@@ -556,7 +625,12 @@ public class NpcMemory : MonoBehaviour
             8);
     }
 
-    void HandleHostility(GameObject actor, GameObject target, int severity)
+    void HandleHostility(
+        GameObject actor,
+        GameObject target,
+        int severity,
+        Vector3 position,
+        string reason)
     {
         if (actor != gameObject && target != gameObject)
         {
@@ -568,10 +642,83 @@ public class NpcMemory : MonoBehaviour
             NpcMemoryType.Attack,
             other,
             gameObject,
-            "xung đột",
+            string.IsNullOrEmpty(reason)
+                ? NpcText.Dialogue("hostilityReasonFallback")
+                : reason,
             severity * 0.1f,
             1f,
             60);
+
+        ShowCombatOverhead(actor, target);
+    }
+
+    void ShowCombatOverhead(GameObject actor, GameObject target)
+    {
+        if (Time.time < nextCombatLineTime)
+        {
+            return;
+        }
+
+        bool isActor = actor == gameObject;
+        bool lowHealth = !isActor && GetHealthRatio(gameObject) <= 0.35f;
+        string lineKey = lowHealth
+            ? "combatLowHealthLines"
+            : isActor
+                ? "combatAttackLines"
+                : "combatDefendLines";
+        string fallbackKey = lowHealth
+            ? "combatLowHealthFallback"
+            : isActor
+                ? "combatAttackFallback"
+                : "combatDefendFallback";
+        string line = NpcText.DialogueLine(
+            lineKey,
+            NpcText.Dialogue(fallbackKey, ""));
+
+        ShowOverheadLine(line, 3f, 4);
+        nextCombatLineTime = Time.time + Mathf.Max(0.5f, combatLineCooldown);
+    }
+
+    float GetHealthRatio(GameObject target)
+    {
+        if (target == null)
+        {
+            return 1f;
+        }
+
+        CharacterStats stats = target.GetComponent<CharacterStats>();
+        if (stats != null)
+        {
+            return stats.finalHP > 0
+                ? Mathf.Clamp01(stats.currentHP / (float)stats.finalHP)
+                : 0f;
+        }
+
+        VillagerAI villager = target.GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            return villager.maxHP > 0
+                ? Mathf.Clamp01(villager.currentHP / (float)villager.maxHP)
+                : 0f;
+        }
+
+        SmartNpcAI smartNpc = target.GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            return smartNpc.maxHP > 0
+                ? Mathf.Clamp01(smartNpc.currentHP / (float)smartNpc.maxHP)
+                : 0f;
+        }
+
+        MonsterAI monster = target.GetComponent<MonsterAI>();
+        if (monster != null)
+        {
+            return monster.maxHP > 0
+                ? Mathf.Clamp01(monster.currentHP / (float)monster.maxHP)
+                : 0f;
+        }
+
+        return 1f;
     }
 }
 
@@ -587,6 +734,7 @@ public class NpcOverheadDialogueUI : MonoBehaviour
 
     TextMeshPro text;
     float hideAt;
+    int activePriority = int.MinValue;
 
     void Awake()
     {
@@ -622,9 +770,22 @@ public class NpcOverheadDialogueUI : MonoBehaviour
 
     public void ShowLine(string line, float duration)
     {
+        ShowLine(line, duration, 0);
+    }
+
+    public void ShowLine(string line, float duration, int priority)
+    {
         if (string.IsNullOrEmpty(line))
         {
-            Hide();
+            if (CanReplace(priority))
+            {
+                Hide();
+            }
+            return;
+        }
+
+        if (!CanReplace(priority))
+        {
             return;
         }
 
@@ -633,6 +794,7 @@ public class NpcOverheadDialogueUI : MonoBehaviour
         text.text = line;
         text.gameObject.SetActive(true);
         hideAt = Time.time + Mathf.Max(0.2f, duration);
+        activePriority = priority;
     }
 
     public void Hide()
@@ -641,6 +803,16 @@ public class NpcOverheadDialogueUI : MonoBehaviour
         {
             text.gameObject.SetActive(false);
         }
+
+        activePriority = int.MinValue;
+    }
+
+    bool CanReplace(int priority)
+    {
+        return text == null ||
+            !text.gameObject.activeSelf ||
+            Time.time >= hideAt ||
+            priority >= activePriority;
     }
 
     void EnsureText()
@@ -651,6 +823,7 @@ public class NpcOverheadDialogueUI : MonoBehaviour
         }
 
         GameObject textObject = new GameObject("OverheadDialogue");
+        textObject.layer = gameObject.layer;
         textObject.transform.SetParent(transform, false);
         text = textObject.AddComponent<TextMeshPro>();
         text.alignment = TextAlignmentOptions.Center;
@@ -661,9 +834,47 @@ public class NpcOverheadDialogueUI : MonoBehaviour
         MeshRenderer renderer = text.GetComponent<MeshRenderer>();
         if (renderer != null)
         {
-            renderer.sortingOrder = sortingOrder;
+            renderer.sortingLayerID = GetDialogueSortingLayerId();
+            renderer.sortingOrder = GetDialogueSortingOrder();
         }
     }
+
+    int GetDialogueSortingLayerId()
+    {
+        string[] preferredLayers =
+        {
+            "UI",
+            "Foreground",
+            "Characters"
+        };
+
+        foreach (string layerName in preferredLayers)
+        {
+            int layerId = SortingLayer.NameToID(layerName);
+            if (layerId != 0 || layerName == "Default")
+            {
+                return layerId;
+            }
+        }
+
+        return SortingLayer.NameToID("Default");
+    }
+
+    int GetDialogueSortingOrder()
+    {
+        int order = sortingOrder;
+        SpriteRenderer[] sprites = GetComponentsInChildren<SpriteRenderer>(true);
+        for (int i = 0; i < sprites.Length; i++)
+        {
+            if (sprites[i] != null)
+            {
+                order = Mathf.Max(order, sprites[i].sortingOrder + 20);
+            }
+        }
+
+        return order;
+    }
+
     void ApplyTextStyle()
     {
         if (text == null)
@@ -703,7 +914,16 @@ public class NpcConversationAgent : MonoBehaviour
     public float conversationCooldown = 25f;
     public float conversationDuration = 2.5f;
     public bool requireFriendlyRelationship = true;
+    public bool allowNeutralSmallTalk = true;
     public float minRelationshipToTalk = 8f;
+    public float hostileConversationBlock = 60f;
+    public float minConversationScore = 38f;
+    [Range(0f, 1f)] public float firstMeetingTalkChance = 0.45f;
+    [Range(0f, 1f)] public float weatherTalkChance = 0.35f;
+    [Range(0f, 1f)] public float needsTalkChance = 0.30f;
+    public bool respectSocialContext = true;
+    public bool allowNightConversation;
+    public bool allowDangerZoneConversation;
     public float interruptThreshold = 80f;
     public float defaultLockStrength = 45f;
     public bool allowGroupConversation = true;
@@ -754,7 +974,9 @@ public class NpcConversationAgent : MonoBehaviour
         if (other == null ||
             other == this ||
             NpcRoleUtility.IsDead(gameObject) ||
-            NpcRoleUtility.IsDead(other.gameObject))
+            NpcRoleUtility.IsDead(other.gameObject) ||
+            NpcRoleUtility.IsInCombat(gameObject) ||
+            NpcRoleUtility.IsInCombat(other.gameObject))
         {
             return false;
         }
@@ -764,6 +986,8 @@ public class NpcConversationAgent : MonoBehaviour
         if (!force &&
             (Time.time < nextConversationTime ||
             Time.time < other.nextConversationTime ||
+            !IsSocialContextAllowed() ||
+            !other.IsSocialContextAllowed() ||
             !CanSocializeWith(other) ||
             !other.CanSocializeWith(this)))
         {
@@ -880,19 +1104,69 @@ public class NpcConversationAgent : MonoBehaviour
             return false;
         }
 
-        if (!requireFriendlyRelationship)
-        {
-            return true;
-        }
-
         NpcSocialRelationship relation = relationships.Get(other.gameObject);
         if (relation == null)
         {
             return false;
         }
 
-        return Mathf.Max(relation.affection, relation.alliance) >=
-            minRelationshipToTalk;
+        if (IsHostileBlocked(relation))
+        {
+            return false;
+        }
+
+        if (!requireFriendlyRelationship)
+        {
+            return true;
+        }
+
+        if (Mathf.Max(relation.affection, relation.alliance) >=
+            minRelationshipToTalk)
+        {
+            return true;
+        }
+
+        return allowNeutralSmallTalk &&
+            relation.affection > -35 &&
+            relation.trust > -35;
+    }
+
+    bool IsSocialContextAllowed()
+    {
+        if (!respectSocialContext)
+        {
+            return true;
+        }
+
+        if (!allowNightConversation && IsQuietTime())
+        {
+            return false;
+        }
+
+        if (!allowDangerZoneConversation && IsDangerZone())
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool IsQuietTime()
+    {
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        if (timeSystem == null)
+        {
+            return false;
+        }
+
+        return timeSystem.CurrentPhase == WorldTimePhase.Night ||
+            timeSystem.CurrentPhase == WorldTimePhase.Dawn;
+    }
+
+    bool IsDangerZone()
+    {
+        NpcMapArea area = NpcMapArea.FindArea(transform.position);
+        return area != null && area.zone == NpcMapZone.MaThuSonMach;
     }
 
     public float GetConversationScore(NpcConversationAgent other)
@@ -900,6 +1174,9 @@ public class NpcConversationAgent : MonoBehaviour
         if (other == null ||
             Time.time < nextConversationTime ||
             IsBusyTalking ||
+            NpcRoleUtility.IsInCombat(gameObject) ||
+            NpcRoleUtility.IsInCombat(other.gameObject) ||
+            !IsSocialContextAllowed() ||
             !CanSocializeWith(other))
         {
             return 0f;
@@ -914,6 +1191,7 @@ public class NpcConversationAgent : MonoBehaviour
 
         return socialNeed +
             personality.sociability * 0.5f +
+            personality.curiosity * 0.15f +
             Mathf.Abs(affection) * 0.2f +
             grudge * 0.3f;
     }
@@ -962,7 +1240,7 @@ public class NpcConversationAgent : MonoBehaviour
             }
         }
 
-        if (best != null && bestScore >= 45f)
+        if (best != null && bestScore >= minConversationScore)
         {
             TryStartConversation(best, false);
         }
@@ -979,9 +1257,15 @@ public class NpcConversationAgent : MonoBehaviour
 
         NpcSocialRelationship relation = relationships.Get(other.gameObject);
         if (relation != null &&
-            (relation.grudge >= 65 || relation.hostility >= 65))
+            IsHostileBlocked(relation))
         {
             return Pick(GetHostileLines(), NpcText.DialogueLine("hostileFallback"));
+        }
+
+        string contextTopic = PickContextTopic(relation);
+        if (!string.IsNullOrEmpty(contextTopic))
+        {
+            return contextTopic;
         }
 
         if (UnityEngine.Random.value < 0.35f)
@@ -1010,7 +1294,150 @@ public class NpcConversationAgent : MonoBehaviour
             return topic;
         }
 
+        string contextReply = PickContextReply(other);
+        if (!string.IsNullOrEmpty(contextReply))
+        {
+            return contextReply;
+        }
+
         return Pick(GetReplyLines(), NpcText.DialogueLine("replyFallback"));
+    }
+
+    string PickContextTopic(NpcSocialRelationship relation)
+    {
+        if (relation != null &&
+            relation.lastInteractionDay < 0 &&
+            UnityEngine.Random.value < firstMeetingTalkChance)
+        {
+            return Pick(GetJsonLines("firstMeetingLines"), NpcText.DialogueLine("genericGreeting"));
+        }
+
+        string weatherTopic = PickWeatherLine(false);
+        if (!string.IsNullOrEmpty(weatherTopic))
+        {
+            return weatherTopic;
+        }
+
+        string needTopic = PickNeedsLine(false);
+        if (!string.IsNullOrEmpty(needTopic))
+        {
+            return needTopic;
+        }
+
+        if (relation != null &&
+            relation.affection >= 25 &&
+            UnityEngine.Random.value < 0.35f)
+        {
+            return Pick(GetJsonLines("friendlyFollowUps"), NpcText.DialogueLine("genericGreeting"));
+        }
+
+        if (allowNeutralSmallTalk && UnityEngine.Random.value < 0.25f)
+        {
+            return Pick(GetJsonLines("smallTalkNeutralLines"), NpcText.DialogueLine("genericGreeting"));
+        }
+
+        return "";
+    }
+
+    string PickContextReply(NpcConversationAgent other)
+    {
+        NpcSocialRelationship relation = relationships.Get(other.gameObject);
+        if (relation != null &&
+            relation.lastInteractionDay < 0 &&
+            UnityEngine.Random.value < 0.7f)
+        {
+            return Pick(GetJsonLines("firstMeetingReplies"), NpcText.DialogueLine("replyFallback"));
+        }
+
+        string weatherReply = PickWeatherLine(true);
+        if (!string.IsNullOrEmpty(weatherReply))
+        {
+            return weatherReply;
+        }
+
+        string needReply = PickNeedsLine(true);
+        if (!string.IsNullOrEmpty(needReply))
+        {
+            return needReply;
+        }
+
+        return "";
+    }
+
+    string PickWeatherLine(bool reply)
+    {
+        if (UnityEngine.Random.value >= weatherTalkChance)
+        {
+            return "";
+        }
+
+        WeatherSystem weather = WeatherSystem.Instance;
+        if (weather == null)
+        {
+            return "";
+        }
+
+        switch (weather.CurrentWeather)
+        {
+            case WorldWeather.Clear:
+                if (IsQuietTime())
+                {
+                    return "";
+                }
+                return Pick(GetJsonLines(reply ? "weatherClearReplies" : "weatherClearLines"), "");
+            case WorldWeather.Rain:
+                return Pick(GetJsonLines(reply ? "weatherRainReplies" : "weatherRainLines"), "");
+            case WorldWeather.Thunder:
+                return Pick(GetJsonLines(reply ? "weatherThunderReplies" : "weatherThunderLines"), "");
+            case WorldWeather.Snow:
+                return Pick(GetJsonLines(reply ? "weatherSnowReplies" : "weatherSnowLines"), "");
+            case WorldWeather.DenseSpiritualQi:
+                return Pick(GetJsonLines(reply ? "weatherQiReplies" : "weatherQiLines"), "");
+            default:
+                return "";
+        }
+    }
+
+    string PickNeedsLine(bool reply)
+    {
+        if (UnityEngine.Random.value >= needsTalkChance)
+        {
+            return "";
+        }
+
+        NpcNeeds needs = GetComponent<NpcNeeds>();
+        if (needs == null)
+        {
+            return "";
+        }
+
+        if (needs.hunger >= 70f)
+        {
+            return Pick(GetJsonLines(reply ? "hungryReplies" : "hungryLines"), "");
+        }
+
+        if (needs.fatigue >= 70f)
+        {
+            return Pick(GetJsonLines(reply ? "tiredReplies" : "tiredLines"), "");
+        }
+
+        if (needs.resourceNeed >= 70f)
+        {
+            return Pick(GetJsonLines(reply ? "resourceNeedReplies" : "resourceNeedLines"), "");
+        }
+
+        if (needs.cultivationNeed >= 70f)
+        {
+            return Pick(GetJsonLines(reply ? "cultivationNeedReplies" : "cultivationNeedLines"), "");
+        }
+
+        return "";
+    }
+
+    bool IsHostileBlocked(NpcSocialRelationship relation)
+    {
+        return relation != null &&
+            Mathf.Max(relation.grudge, relation.hostility) >= hostileConversationBlock;
     }
     string[] GetJsonLines(string key)
     {
@@ -1363,13 +1790,16 @@ public class NpcDecisionBrain : MonoBehaviour
             target.gameObject,
             robbery ? 8 : 18,
             target.transform.position,
-            robbery ? "cướp bóc" : "trả thù");
+            robbery ? NpcText.Dialogue("robberyReason") : NpcText.Dialogue("revengeReason"));
         NpcRoleUtility.SetAction(gameObject, robbery ? NpcText.Action("rob") : NpcText.Action("revenge"));
 
         NpcOverheadDialogueUI overhead = GetComponent<NpcOverheadDialogueUI>();
         if (overhead != null)
         {
-            overhead.ShowLine(robbery ? NpcText.DialogueLine("robberyThreat") : NpcText.DialogueLine("revengeThreat"), 3f);
+            overhead.ShowLine(
+                robbery ? NpcText.DialogueLine("robberyThreat") : NpcText.DialogueLine("revengeThreat"),
+                3f,
+                4);
         }
 
         if (!robbery)
@@ -1378,7 +1808,7 @@ public class NpcDecisionBrain : MonoBehaviour
                 gameObject,
                 target.gameObject,
                 Mathf.Max(1, NpcRoleUtility.GetAttack(gameObject) / 2),
-                "trả thù");
+                NpcText.Dialogue("revengeReason"));
         }
     }
 
@@ -1456,17 +1886,37 @@ public class NpcNegotiationAgent : MonoBehaviour
 
     public void RecordRejectedOffer(GameObject other, StatItemData item, int offeredPrice)
     {
-        string itemName = item != null ? item.itemName : "vật phẩm";
+        string itemName = item != null && !string.IsNullOrEmpty(item.itemName)
+            ? item.itemName
+            : NpcText.Label("item");
         memory.Remember(
             NpcMemoryType.TradeRejected,
             other,
             gameObject,
-            "trả giá thấp cho " + itemName + " giá " + offeredPrice + " LT",
+            NpcText.DialogueFormat("tradeRejectedMemoryTopic", itemName, offeredPrice),
             2f,
             1f,
             12);
 
         relationships.AddTrade(other, -2);
+
+        string line = NpcText.Format(
+            NpcText.DialogueLine(
+                "tradeRejectLines",
+                NpcText.Dialogue("tradeRejectFallback", "")),
+            itemName,
+            offeredPrice);
+
+        NpcOverheadDialogueUI overhead = GetComponent<NpcOverheadDialogueUI>();
+        if (overhead == null)
+        {
+            overhead = gameObject.AddComponent<NpcOverheadDialogueUI>();
+        }
+
+        if (!NpcRoleUtility.IsInCombat(gameObject))
+        {
+            overhead.ShowLine(line, 2.8f, 1);
+        }
     }
 }
 
@@ -1634,7 +2084,7 @@ public abstract class NpcLawZoneInternal : MonoBehaviour
                 witness.AddComponent<NpcOverheadDialogueUI>();
         }
 
-        overhead.ShowLine(witnessLine, 3f);
+        overhead.ShowLine(witnessLine, 3f, 3);
         NpcRoleUtility.SetAction(
             witness,
             NpcText.ActionFormat("lawAttack", zoneName));

@@ -103,6 +103,91 @@ public static class NpcRoleUtility
         return stats != null && stats.IsDead;
     }
 
+    public static bool IsInCombat(GameObject npc)
+    {
+        if (npc == null || IsDead(npc))
+        {
+            return false;
+        }
+
+        string action = GetCurrentAction(npc);
+        if (string.IsNullOrEmpty(action))
+        {
+            return false;
+        }
+
+        return ContainsActionPattern(action, "fight") ||
+            ContainsActionPattern(action, "huntMonster") ||
+            ContainsActionPattern(action, "huntMonsterNamed") ||
+            ContainsActionPattern(action, "attackMonsterNamed") ||
+            ContainsActionPattern(action, "treasureHunt") ||
+            ContainsActionPattern(action, "treasureHuntNamed") ||
+            ContainsActionPattern(action, "outerSkirmish") ||
+            ContainsActionPattern(action, "outerSkirmishNamed") ||
+            ContainsActionPattern(action, "waitLightning") ||
+            ContainsActionPattern(action, "waitLightningNamed") ||
+            ContainsActionPattern(action, "rob") ||
+            ContainsActionPattern(action, "revenge") ||
+            ContainsActionPattern(action, "injured") ||
+            ContainsActionPattern(action, "panicBurned") ||
+            ContainsLiteral(action, "Tan cong") ||
+            ContainsLiteral(action, "Duoi ke") ||
+            ContainsLiteral(action, "Phat hien") ||
+            ContainsLiteral(action, "Bo chay") ||
+            ContainsLiteral(action, "Hon chien") ||
+            ContainsLiteral(action, "Phat cuong") ||
+            ContainsLiteral(action, "Canh giu") ||
+            ContainsLiteral(action, "Ran minh") ||
+            ContainsLiteral(action, "Doi thien loi");
+    }
+
+    static string GetCurrentAction(GameObject npc)
+    {
+        VillagerAI villager = npc.GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            return villager.currentAction;
+        }
+
+        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            return smartNpc.currentAction;
+        }
+
+        MonsterAI monster = npc.GetComponent<MonsterAI>();
+        if (monster != null)
+        {
+            return monster.currentAction;
+        }
+
+        return "";
+    }
+
+    static bool ContainsActionPattern(string action, string key)
+    {
+        string pattern = NpcText.Get("actions", key, "");
+        if (string.IsNullOrEmpty(pattern))
+        {
+            return false;
+        }
+
+        int placeholderIndex = pattern.IndexOf('{');
+        if (placeholderIndex >= 0)
+        {
+            pattern = pattern.Substring(0, placeholderIndex).Trim();
+        }
+
+        return ContainsLiteral(action, pattern);
+    }
+
+    static bool ContainsLiteral(string action, string pattern)
+    {
+        return !string.IsNullOrEmpty(action) &&
+            !string.IsNullOrEmpty(pattern) &&
+            action.IndexOf(pattern, System.StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
     public static int GetAttack(GameObject npc)
     {
         if (npc == null)
@@ -309,7 +394,7 @@ public static class NpcRoleUtility
 
     public static void Damage(GameObject target, int amount)
     {
-        Damage(null, target, amount, "tấn công");
+        Damage(null, target, amount, NpcText.Dialogue("attackReasonFallback"));
     }
 
     public static void Damage(
@@ -323,6 +408,11 @@ public static class NpcRoleUtility
         {
             return;
         }
+
+        amount = NpcCombatTechniqueSystem.ModifyOutgoingDamage(
+            actor,
+            target,
+            amount);
 
         if (actor != null &&
             actor != target)

@@ -172,7 +172,7 @@ GameObject:
   - component: {fileID: 6276180156909816663}
   - component: {fileID: 2821579135239088634}
   m_Layer: 5
-  m_Name: "\u0110\u1EBFn NPC"
+  m_Name: "\u0110\u1EBFn Tu s\u0129"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -225,7 +225,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u0110\u1EBFn NPC"
+  m_text: "\u0110\u1EBFn Tu s\u0129"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -502,7 +502,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "X\xF3a NPC"
+  m_text: "X\xF3a Tu s\u0129"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

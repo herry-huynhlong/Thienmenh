@@ -93,6 +93,25 @@ public class Fireball : MonoBehaviour
                 continue;
             }
 
+            if (owner != null && damageable.DamageTransform != null)
+            {
+                int modifiedDamage =
+                    NpcCombatTechniqueSystem.ModifyOutgoingDamage(
+                        owner,
+                        damageable.DamageTransform.gameObject,
+                        damage);
+
+                NpcSocialEventBus.PublishHostility(
+                    owner,
+                    damageable.DamageTransform.gameObject,
+                    Mathf.Clamp(modifiedDamage, 1, 100),
+                    damageable.DamageTransform.position,
+                    NpcText.Dialogue("combatSpellReason"));
+
+                damageable.TakeDamage(modifiedDamage);
+                continue;
+            }
+
             damageable.TakeDamage(damage);
         }
 

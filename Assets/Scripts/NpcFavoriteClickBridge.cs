@@ -95,7 +95,7 @@ public class NpcFavoriteClickBridge : MonoBehaviour
 
                 if (debugLog)
                 {
-                    Debug.Log("Da gan NPC cho nut sao: " + npcObject.name);
+                    Debug.Log("Da gan Tu si cho nut sao: " + npcObject.name);
                 }
             }
 
@@ -104,7 +104,7 @@ public class NpcFavoriteClickBridge : MonoBehaviour
 
         if (debugLog)
         {
-            Debug.Log("NpcFavoriteClickBridge: Co collider nhung khong tim thay NPC tren object duoc click.");
+            Debug.Log("NpcFavoriteClickBridge: Co collider nhung khong tim thay Tu si tren object duoc click.");
         }
     }
 

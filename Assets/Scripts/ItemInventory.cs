@@ -32,6 +32,8 @@ public class ItemInventory : MonoBehaviour
 
     void Awake()
     {
+        ConfigurePrivateNpcInventoryIfNeeded();
+
         List<ItemStack> inspectorItems =
             CloneItems(items);
 
@@ -126,6 +128,27 @@ public class ItemInventory : MonoBehaviour
         UsePrivateRuntimeItems(
             BuildNpcRuntimeKey(),
             clearCurrentItems);
+    }
+
+    void ConfigurePrivateNpcInventoryIfNeeded()
+    {
+        if (!shareRuntimeItems ||
+            !string.IsNullOrEmpty(runtimeKey) ||
+            !IsNpcInventoryOwner())
+        {
+            return;
+        }
+
+        runtimeKey = BuildNpcRuntimeKey();
+        shareRuntimeItems = false;
+    }
+
+    bool IsNpcInventoryOwner()
+    {
+        return GetComponent<SpawnedWorldActor>() != null ||
+            GetComponent<VillagerAI>() != null ||
+            GetComponent<SmartNpcAI>() != null ||
+            GetComponent<NpcData>() != null;
     }
 
     string BuildNpcRuntimeKey()

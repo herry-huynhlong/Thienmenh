@@ -16,14 +16,15 @@
         { "key": "grade", "value": "Phẩm chất" },
         { "key": "amount", "value": "Số lượng" },
         { "key": "loot", "value": "Rơi vật phẩm" },
-        { "key": "level", "value": "Cấp" }
+        { "key": "level", "value": "Cấp" },
+        { "key": "item", "value": "vật phẩm" }
       ]
     },
     {
       "name": "entityTypes",
       "entries": [
         { "key": "monster", "value": "Yêu Thú" },
-        { "key": "npc", "value": "NPC" },
+        { "key": "npc", "value": "Tu sĩ" },
         { "key": "villager", "value": "Dân làng" }
       ]
     },
@@ -91,7 +92,7 @@
         { "key": "goTaskProviderDaily", "value": "Đến nhận nhiệm vụ trong kế hoạch ngày" },
         { "key": "skipUnavailableTask", "value": "Bỏ qua nhiệm vụ không thể nhận" },
         { "key": "goVanBaoLauBroker", "value": "Đến Vạn Bảo Lâu gặp tạp hóa" },
-        { "key": "visitedTaskProvider", "value": "Đã gặp NPC giao nhiệm vụ" },
+        { "key": "visitedTaskProvider", "value": "Đã gặp Tu sĩ giao nhiệm vụ" },
         { "key": "goVanBaoLauTask", "value": "Đến Vạn Bảo Lâu xem việc" },
         { "key": "checkedVanBaoLau", "value": "Đã kiểm tra Vạn Bảo Lâu" },
         { "key": "goHomeRest", "value": "Về nhà nghỉ ngơi" },
@@ -138,7 +139,22 @@
         { "key": "followUpTopic", "value": "Hôm qua nói chuyện {0}, nay thế nào rồi?" },
         { "key": "robberyThreat", "value": "Giao đồ ra!" },
         { "key": "revengeThreat", "value": "Món nợ này phải trả!" },
-        { "key": "dailyFallback", "value": "Đạo hữu." }
+        { "key": "dailyFallback", "value": "Đạo hữu." },
+        { "key": "tradeMemoryTopic", "value": "Giao dịch {0} giá {1} LT" },
+        { "key": "tradeRejectedMemoryTopic", "value": "Trả giá thấp cho {0} giá {1} LT" },
+        { "key": "tradeBuyerFallback", "value": "Ta lấy {0}, gửi ngươi {1} LT." },
+        { "key": "tradeSellerFallback", "value": "Đã bán {0}, nhận {1} LT." },
+        { "key": "tradeRejectFallback", "value": "Giá {1} LT cho {0} thì thấp quá." },
+        { "key": "hostilityReasonFallback", "value": "xung đột" },
+        { "key": "attackReasonFallback", "value": "tấn công" },
+        { "key": "robberyReason", "value": "cướp bóc" },
+        { "key": "revengeReason", "value": "trả thù" },
+        { "key": "combatMonsterReason", "value": "đánh yêu thú" },
+        { "key": "combatBeastReason", "value": "yêu thú tập kích" },
+        { "key": "combatSpellReason", "value": "pháp thuật công kích" },
+        { "key": "combatAttackFallback", "value": "Đừng ép ta liều mạng!" },
+        { "key": "combatDefendFallback", "value": "Dám ra tay với ta?" },
+        { "key": "combatLowHealthFallback", "value": "Còn sống mới còn cơ hội!" }
       ],
       "lists": [
         {
@@ -217,6 +233,225 @@
             "Chỗ quen biết thì ta giảm chút.",
             "Hàng tốt không nên ép quá thấp."
           ]
+        },
+        {
+          "key": "firstMeetingLines",
+          "values": [
+            "Lần đầu gặp, mong đạo hữu chỉ giáo.",
+            "Ta chưa từng thấy ngươi quanh đây, mới tới sao?",
+            "Gặp nhau cũng là duyên, sau này giúp đỡ lẫn nhau."
+          ]
+        },
+        {
+          "key": "firstMeetingReplies",
+          "values": [
+            "Dễ nói, có việc cứ hỏi ta.",
+            "Ta cũng mới để ý ngươi, sau này gặp thì chào nhau.",
+            "Đạo hữu khách khí rồi."
+          ]
+        },
+        {
+          "key": "smallTalkNeutralLines",
+          "values": [
+            "Hôm nay trong làng khá yên ổn.",
+            "Đi ngang thấy ngươi bận rộn, mọi chuyện ổn chứ?",
+            "Có tin mới thì nói ta nghe với."
+          ]
+        },
+        {
+          "key": "tradeBuyerLines",
+          "values": [
+            "Ta lấy {0}, gửi ngươi {1} LT.",
+            "Vật này đúng lúc cần, cảm tạ.",
+            "Giá này được, giao dịch xong."
+          ]
+        },
+        {
+          "key": "tradeSellerLines",
+          "values": [
+            "Đã bán {0}, nhận {1} LT.",
+            "Hàng tốt, dùng cho cẩn thận.",
+            "Giao dịch thuận lợi, lần sau lại ghé."
+          ]
+        },
+        {
+          "key": "tradeRejectLines",
+          "values": [
+            "Giá {1} LT cho {0} thì thấp quá.",
+            "Món này không thể bán rẻ vậy được.",
+            "Nếu thành tâm mua, trả thêm chút đi."
+          ]
+        },
+        {
+          "key": "combatAttackLines",
+          "values": [
+            "Đừng ép ta liều mạng!",
+            "Hôm nay ta liều sống liều chết với ngươi!",
+            "Muốn sống thì tránh đường!",
+            "Đã ra tay thì đừng trách ta nặng tay."
+          ]
+        },
+        {
+          "key": "combatDefendLines",
+          "values": [
+            "Dám ra tay với ta?",
+            "Ta không nhịn nữa đâu!",
+            "Đừng tưởng ta dễ bị bắt nạt!",
+            "Muốn đánh thì ta theo đến cùng."
+          ]
+        },
+        {
+          "key": "combatLowHealthLines",
+          "values": [
+            "Không ổn, phải giữ mạng trước!",
+            "Máu cạn rồi, rút trước đã!",
+            "Còn sống mới còn cơ hội!",
+            "Trận này quá hiểm, không thể liều nữa."
+          ]
+        },
+        {
+          "key": "weatherClearLines",
+          "values": [
+            "Trời hôm nay mát quá.",
+            "Gió nhẹ thế này đi lại dễ chịu thật.",
+            "Thời tiết yên ổn, làm việc cũng thuận hơn."
+          ]
+        },
+        {
+          "key": "weatherClearReplies",
+          "values": [
+            "Ừ, hôm nay hợp ra ngoài làm việc.",
+            "Trời quang như vậy hiếm khi làm người khó chịu.",
+            "Nếu ngày nào cũng dịu thế này thì tốt."
+          ]
+        },
+        {
+          "key": "weatherRainLines",
+          "values": [
+            "Mưa xuống rồi, ruộng linh cốc chắc tốt hơn.",
+            "Đường trơn, đi xa nhớ cẩn thận.",
+            "Trận mưa này làm linh khí dịu lại."
+          ]
+        },
+        {
+          "key": "weatherRainReplies",
+          "values": [
+            "Ừ, hôm nay nên làm việc gần làng.",
+            "Mưa vừa phải thì tốt, đừng thành bão là được.",
+            "Ta cũng thấy linh điền cần trận mưa này."
+          ]
+        },
+        {
+          "key": "weatherThunderLines",
+          "values": [
+            "Sấm động dữ quá, đừng ra rìa rừng lúc này.",
+            "Trời chuyển sấm, yêu thú thường hung hơn.",
+            "Nghe tiếng sấm mà lòng khó yên."
+          ]
+        },
+        {
+          "key": "weatherThunderReplies",
+          "values": [
+            "Ta cũng tính tránh đường núi hôm nay.",
+            "Cẩn thận vẫn hơn, đợi trời yên rồi đi.",
+            "Nếu có việc gấp thì gọi thêm người đi cùng."
+          ]
+        },
+        {
+          "key": "weatherSnowLines",
+          "values": [
+            "Tuyết rơi rồi, bước chậm một chút.",
+            "Ngày tuyết hiếm, cảnh trong làng khác hẳn.",
+            "Lạnh thế này, nhớ giữ linh lực ổn định."
+          ]
+        },
+        {
+          "key": "weatherSnowReplies",
+          "values": [
+            "Ừ, tuyết đẹp nhưng đi lại khó hơn.",
+            "Ta sẽ về sớm, khỏi nhiễm hàn khí.",
+            "Ngày này hợp nghỉ ngơi hơn chạy việc."
+          ]
+        },
+        {
+          "key": "weatherQiLines",
+          "values": [
+            "Linh khí đang dày lên, hôm nay tu luyện tốt đấy.",
+            "Cảm nhận được không, khí tức quanh đây mạnh hơn.",
+            "Nếu muốn đột phá, hôm nay nên chuẩn bị."
+          ]
+        },
+        {
+          "key": "weatherQiReplies",
+          "values": [
+            "Ta cũng định tìm nơi yên tĩnh tu luyện.",
+            "Cơ hội tốt, đừng bỏ phí.",
+            "Linh khí như vậy hiếm khi gặp."
+          ]
+        },
+        {
+          "key": "hungryLines",
+          "values": [
+            "Ta hơi đói rồi, lát nữa tìm gì ăn đã.",
+            "Bụng réo quá, làm việc cũng chậm hẳn.",
+            "Trong làng còn chỗ nào bán đồ ăn không?"
+          ]
+        },
+        {
+          "key": "hungryReplies",
+          "values": [
+            "Đi ăn trước đi, việc để sau cũng được.",
+            "Ta thấy gần chợ còn đồ ăn đấy.",
+            "Đừng để đói quá rồi ngất giữa đường."
+          ]
+        },
+        {
+          "key": "tiredLines",
+          "values": [
+            "Hôm nay mệt thật, chắc phải nghỉ sớm.",
+            "Làm cả ngày rồi, thân thể hơi nặng.",
+            "Có lẽ ta nên về nhà nghỉ một lát."
+          ]
+        },
+        {
+          "key": "tiredReplies",
+          "values": [
+            "Nghỉ đi, gắng quá dễ hỏng việc.",
+            "Giữ sức cũng là một cách tu hành.",
+            "Ta ở gần đây, cần gì cứ gọi."
+          ]
+        },
+        {
+          "key": "resourceNeedLines",
+          "values": [
+            "Ta đang thiếu ít tài nguyên, phải đi tìm thêm.",
+            "Gần đây nguyên liệu dùng nhanh quá.",
+            "Nếu thấy linh thảo tốt, nhớ báo ta một tiếng."
+          ]
+        },
+        {
+          "key": "resourceNeedReplies",
+          "values": [
+            "Ta nghe ven suối đôi khi có linh thảo.",
+            "Đi tìm tài nguyên thì nhớ tránh khu yêu thú.",
+            "Có dư vật liệu ta sẽ để ý cho ngươi."
+          ]
+        },
+        {
+          "key": "cultivationNeedLines",
+          "values": [
+            "Tu vi chậm quá, ta phải chăm luyện hơn.",
+            "Gần đây tâm cảnh hơi vướng, khó tiến thêm.",
+            "Nếu có đan dược phù hợp, ta muốn thử một lần."
+          ]
+        },
+        {
+          "key": "cultivationNeedReplies",
+          "values": [
+            "Đừng nóng, căn cơ vững mới đi xa được.",
+            "Có thời gian thì chọn nơi linh khí ổn định.",
+            "Ta nghe đan dược tốt phải dùng đúng lúc."
+          ]
         }
       ]
     },
@@ -232,6 +467,7 @@
       "name": "taskNames",
       "entries": [
         { "key": "gatherResource", "value": "Thu thập tài nguyên" },
+        { "key": "harvestLinhRice", "value": "Thu hoạch linh gạo" },
         { "key": "gatherLowSpiritHerb", "value": "Thu thập linh thảo hạ phẩm" },
         { "key": "patrolOutsideVillage", "value": "Tuần tra ngoài làng" },
         { "key": "huntDangerousMonster", "value": "Săn yêu thú nguy hiểm" },
@@ -280,6 +516,7 @@
         { "key": "beast", "value": "yêu thú" },
         { "key": "beastLevel", "value": " cấp {0}" },
         { "key": "reward", "value": " - thưởng {0} LT" },
+        { "key": "linhRice", "value": "linh gạo" },
         { "key": "spiritHerb", "value": "linh thảo" }
       ]
     },
@@ -295,7 +532,7 @@
         { "key": "assignedTask", "value": "Nhận việc được giao" },
         { "key": "giveTask", "value": "Giao nhiệm vụ {0}: {1}" },
         { "key": "showTaskBoard", "value": "Chỉ bảng nhiệm vụ cho khách" },
-        { "key": "assignNpcWork", "value": "Giao việc cho NPC" },
+        { "key": "assignNpcWork", "value": "Giao việc cho Tu sĩ" },
         { "key": "goTavernMealPoint", "value": "Đi tới khu ăn trong tửu quán" },
         { "key": "eatingAtTavern", "value": "Đang ăn uống tại tửu quán" },
         { "key": "goCounterTrade", "value": "Đến quầy kiểm tra mua bán" },

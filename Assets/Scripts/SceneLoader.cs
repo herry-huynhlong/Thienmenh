@@ -33,11 +33,23 @@ public class SceneLoader : MonoBehaviour
 
     string ResolveGameplaySceneName()
     {
+        if (!GameSaveSystem.SavedGameLoadRequested)
+        {
+            GameSaveSystem.ClearSave();
+            return fallbackGameplayScene;
+        }
+
+        if (!GameSaveSystem.ShouldLoadSavedGame)
+        {
+            return fallbackGameplayScene;
+        }
+
         string savedScene =
             GameSaveSystem.LoadCurrentScene(fallbackGameplayScene);
 
         if (!IsValidGameplayScene(savedScene))
         {
+            GameSaveSystem.ClearSave();
             return fallbackGameplayScene;
         }
 

@@ -14,93 +14,6 @@ TextureImporter:
   - first:
       213: 7474775470343269257
     second: tuongquan_3
-  - first:
-      213: 7354675973767557131
-    second: tuongquan_4
-  - first:
-      213: 581049095427390302
-    second: tuongquan_5
-  - first:
-      213: -1893549721554824493
-    second: tuongquan_6
-  - first:
-      213: -4497233134678180149
-    second: tuongquan_7
-  - first:
-      213: -724969925527437419
-    second: tuongquan_8
-  - first:
-      213: 364812760498035570
-    second: tuongquan_9
-  - first:
-      213: -5338461467422018225
-    second: tuongquan_10
-  - first:
-      213: -7848594443387311281
-    second: tuongquan_11
-  - first:
-      213: 4280273513657512390
-    second: tuongquan_12
-  - first:
-      213: -1402199590221350245
-    second: tuongquan_13
-  - first:
-      213: -6865799704454146373
-    second: tuongquan_14
-  - first:
-      213: -4936479306697689455
-    second: tuongquan_15
-  - first:
-      213: 3214218758359479897
-    second: tuongquan_16
-  - first:
-      213: -5924712118422156926
-    second: tuongquan_17
-  - first:
-      213: 2055745738606373642
-    second: tuongquan_18
-  - first:
-      213: 6175202871868440017
-    second: tuongquan_19
-  - first:
-      213: 7551852776954400032
-    second: tuongquan_20
-  - first:
-      213: -7133743610746826377
-    second: tuongquan_21
-  - first:
-      213: -6102029029946424206
-    second: tuongquan_22
-  - first:
-      213: -8589030285184553576
-    second: tuongquan_23
-  - first:
-      213: -2139567381829656298
-    second: tuongquan_24
-  - first:
-      213: -5651213420010651847
-    second: tuongquan_25
-  - first:
-      213: 1498384338952949260
-    second: tuongquan_26
-  - first:
-      213: -7066255309155797321
-    second: tuongquan_27
-  - first:
-      213: -7545655922749650781
-    second: tuongquan_28
-  - first:
-      213: 6286182542360803573
-    second: tuongquan_29
-  - first:
-      213: 1827743191323507943
-    second: tuongquan_30
-  - first:
-      213: -3595505965415988149
-    second: tuongquan_31
-  - first:
-      213: 1005140028661723510
-    second: tuongquan_32
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -196,12 +109,12 @@ TextureImporter:
     buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: 4
+    textureFormat: -1
     textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
-    overridden: 1
+    overridden: 0
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
@@ -222,13 +135,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: tuongquan_1
+      name: tuongquan_0
       rect:
         serializedVersion: 2
-        x: 96
-        y: 372
-        width: 91
-        height: 118
+        x: 10
+        y: 20
+        width: 252
+        height: 348
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -237,30 +150,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3f89786df5d7b24c0800000000000000
-      internalID: -4311214367702542093
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: tuongquan_2
-      rect:
-        serializedVersion: 2
-        x: 204
-        y: 373
-        width: 84
-        height: 116
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 484da98cda5c263a0800000000000000
-      internalID: -6673554347624049532
+      spriteID: 7420d8fd63702fad0800000000000000
+      internalID: -2670063696817094073
       vertices: []
       indices: 
       edges: []
@@ -269,13 +160,13 @@ TextureImporter:
       name: tuongquan_3
       rect:
         serializedVersion: 2
-        x: 306
-        y: 372
-        width: 84
-        height: 118
+        x: 266
+        y: 18
+        width: 283
+        height: 348
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      border: {x: 4, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
@@ -287,297 +178,11 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: tuongquan_4
-      rect:
-        serializedVersion: 2
-        x: 405
-        y: 372
-        width: 84
-        height: 117
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b00f386d4de011660800000000000000
-      internalID: 7354675973767557131
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: tuongquan_9
-      rect:
-        serializedVersion: 2
-        x: 88
-        y: 252
-        width: 89
-        height: 111
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 27bd307d543101500800000000000000
-      internalID: 364812760498035570
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: tuongquan_10
-      rect:
-        serializedVersion: 2
-        x: 195
-        y: 252
-        width: 87
-        height: 111
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f45333b6499f9e5b0800000000000000
-      internalID: -5338461467422018225
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: tuongquan_11
-      rect:
-        serializedVersion: 2
-        x: 297
-        y: 252
-        width: 87
-        height: 111
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f4b6bc7ffe0341390800000000000000
-      internalID: -7848594443387311281
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: tuongquan_12
-      rect:
-        serializedVersion: 2
-        x: 396
-        y: 252
-        width: 87
-        height: 110
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 6c1b1133516966b30800000000000000
-      internalID: 4280273513657512390
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: tuongquan_17
-      rect:
-        serializedVersion: 2
-        x: 95
-        y: 133
-        width: 85
-        height: 105
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 289cef008b137cda0800000000000000
-      internalID: -5924712118422156926
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: tuongquan_18
-      rect:
-        serializedVersion: 2
-        x: 198
-        y: 133
-        width: 85
-        height: 105
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: a0be7228bd9778c10800000000000000
-      internalID: 2055745738606373642
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: tuongquan_19
-      rect:
-        serializedVersion: 2
-        x: 301
-        y: 133
-        width: 85
-        height: 105
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 1ddb0b95b4ab2b550800000000000000
-      internalID: 6175202871868440017
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: tuongquan_20
-      rect:
-        serializedVersion: 2
-        x: 397
-        y: 133
-        width: 89
-        height: 105
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 02d0a66d6129dc860800000000000000
-      internalID: 7551852776954400032
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: tuongquan_26
-      rect:
-        serializedVersion: 2
-        x: 84
-        y: 12
-        width: 85
-        height: 105
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c0e8c441e945bc410800000000000000
-      internalID: 1498384338952949260
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: tuongquan_27
-      rect:
-        serializedVersion: 2
-        x: 191
-        y: 12
-        width: 84
-        height: 105
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 7b6fc852c3e9fed90800000000000000
-      internalID: -7066255309155797321
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: tuongquan_28
-      rect:
-        serializedVersion: 2
-        x: 291
-        y: 12
-        width: 84
-        height: 105
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 3a84f27bae1784790800000000000000
-      internalID: -7545655922749650781
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: tuongquan_29
-      rect:
-        serializedVersion: 2
-        x: 393
-        y: 12
-        width: 84
-        height: 105
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 5f87da677b10d3750800000000000000
-      internalID: 6286182542360803573
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 4fd3bbf54f5ff0647bfddc579b8d8b1f
+    spriteID: 357e76424ebe4d54dbb47a36ef22df5c
     internalID: 0
     vertices: []
     indices: 
@@ -589,37 +194,8 @@ TextureImporter:
     nameFileIdTable:
       tuongquan_0: -2670063696817094073
       tuongquan_1: -4311214367702542093
-      tuongquan_10: -5338461467422018225
-      tuongquan_11: -7848594443387311281
-      tuongquan_12: 4280273513657512390
-      tuongquan_13: -1402199590221350245
-      tuongquan_14: -6865799704454146373
-      tuongquan_15: -4936479306697689455
-      tuongquan_16: 3214218758359479897
-      tuongquan_17: -5924712118422156926
-      tuongquan_18: 2055745738606373642
-      tuongquan_19: 6175202871868440017
       tuongquan_2: -6673554347624049532
-      tuongquan_20: 7551852776954400032
-      tuongquan_21: -7133743610746826377
-      tuongquan_22: -6102029029946424206
-      tuongquan_23: -8589030285184553576
-      tuongquan_24: -2139567381829656298
-      tuongquan_25: -5651213420010651847
-      tuongquan_26: 1498384338952949260
-      tuongquan_27: -7066255309155797321
-      tuongquan_28: -7545655922749650781
-      tuongquan_29: 6286182542360803573
       tuongquan_3: 7474775470343269257
-      tuongquan_30: 1827743191323507943
-      tuongquan_31: -3595505965415988149
-      tuongquan_32: 1005140028661723510
-      tuongquan_4: 7354675973767557131
-      tuongquan_5: 581049095427390302
-      tuongquan_6: -1893549721554824493
-      tuongquan_7: -4497233134678180149
-      tuongquan_8: -724969925527437419
-      tuongquan_9: 364812760498035570
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

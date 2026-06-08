@@ -5,12 +5,6 @@ public static class WorldSimulationBootstrap
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void EnsureWorldSimulationSystems()
     {
-        if (WorldTimeSystem.Instance == null)
-        {
-            GameObject timeObject = new GameObject("WorldTimeSystem");
-            timeObject.AddComponent<WorldTimeSystem>();
-        }
-
         if (DayNightLightingSystem.Instance == null)
         {
             GameObject lightingObject = new GameObject("DayNightLightingSystem");
@@ -21,6 +15,12 @@ public static class WorldSimulationBootstrap
         {
             GameObject weatherObject = new GameObject("WeatherSystem");
             weatherObject.AddComponent<WeatherSystem>();
+        }
+
+        if (WeatherVisualSystem.Instance == null)
+        {
+            GameObject weatherVisualObject = new GameObject("WeatherVisualSystem");
+            weatherVisualObject.AddComponent<WeatherVisualSystem>();
         }
 
         if (HeavenSystem.Instance == null)

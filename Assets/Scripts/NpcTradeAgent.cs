@@ -29,6 +29,11 @@ public class NpcTradeAgent : MonoBehaviour
 
     void Awake()
     {
+        EnsureInventory();
+    }
+
+    void EnsureInventory()
+    {
         if (inventory == null)
         {
             inventory = GetComponent<ItemInventory>();
@@ -38,10 +43,18 @@ public class NpcTradeAgent : MonoBehaviour
         {
             inventory = gameObject.AddComponent<ItemInventory>();
         }
+
+        inventory.UsePrivateNpcRuntimeItems(false);
     }
 
     void Update()
     {
+        if (NpcRoleUtility.IsDead(gameObject) ||
+            NpcRoleUtility.IsInCombat(gameObject))
+        {
+            return;
+        }
+
         tradeTimer += Time.deltaTime;
 
         if (Time.time < nextCounterTradeTime)
@@ -122,6 +135,13 @@ public class NpcTradeAgent : MonoBehaviour
             return false;
         }
 
+        if (seller == null ||
+            NpcRoleUtility.IsInCombat(gameObject) ||
+            NpcRoleUtility.IsInCombat(seller.gameObject))
+        {
+            return false;
+        }
+
         StatItemData itemToBuy = null;
         int priceToPay = 0;
         float bestScore = 0f;
@@ -187,7 +207,9 @@ public class NpcTradeAgent : MonoBehaviour
             !buyProduceFromVillagers ||
             seller == null ||
             sellerInventory == null ||
-            inventory == null)
+            inventory == null ||
+            NpcRoleUtility.IsInCombat(gameObject) ||
+            NpcRoleUtility.IsInCombat(seller.gameObject))
         {
             return false;
         }
@@ -328,10 +350,11 @@ public class NpcTradeAgent : MonoBehaviour
         StatItemData item,
         bool considerUse)
     {
+        EnsureInventory();
         ItemEffectSpawner.PlayBuyEffect(item, transform);
 
         NpcItemCollector collector =
-            GetComponent<NpcItemCollector>();
+            GetCollectorForBoughtItem(item, considerUse);
 
         if (collector != null)
         {
@@ -343,6 +366,31 @@ public class NpcTradeAgent : MonoBehaviour
         }
 
         inventory.AddItem(item, 1);
+    }
+
+    NpcItemCollector GetCollectorForBoughtItem(
+        StatItemData item,
+        bool considerUse)
+    {
+        NpcItemCollector collector =
+            GetComponent<NpcItemCollector>();
+
+        if (collector == null &&
+            considerUse &&
+            item != null &&
+            item.ShouldNpcUseDirectly())
+        {
+            collector = gameObject.AddComponent<NpcItemCollector>();
+            collector.canPickupItems = false;
+            collector.autoUsePickedItems = false;
+        }
+
+        if (collector != null)
+        {
+            collector.inventory = inventory;
+        }
+
+        return collector;
     }
 
     public float GetBuyScore(StatItemData item, int price)

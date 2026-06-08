@@ -470,6 +470,11 @@ public class TreasureHeatSystem : MonoBehaviour
                 ? 80
                 : 25;
 
+        damage = NpcCombatTechniqueSystem.ModifyOutgoingDamage(
+            robber,
+            owner,
+            damage);
+
         VillagerAI villager =
             owner.GetComponent<VillagerAI>();
 

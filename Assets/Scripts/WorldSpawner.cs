@@ -428,7 +428,7 @@ public class WorldSpawner : MonoBehaviour
             villager.realmStage = profile.stats.realmStage;
             villager.cultivationExp = profile.stats.cultivationExp;
             villager.maxHP = profile.stats.maxHP;
-            villager.currentHP = Mathf.Clamp(profile.stats.currentHP, 1, profile.stats.maxHP);
+            villager.currentHP = Mathf.Clamp(profile.stats.currentHP, 0, profile.stats.maxHP);
             villager.attack = profile.stats.attack;
             villager.defense = profile.stats.defense;
             villager.moveSpeed = profile.stats.moveSpeed;
@@ -745,8 +745,7 @@ public class WorldSpawner : MonoBehaviour
     {
         if (WorldTimeSystem.Instance == null)
         {
-            GameObject time = new GameObject("WorldTimeSystem");
-            time.AddComponent<WorldTimeSystem>();
+            WorldTimeSystem.EnsureInstance();
         }
 
         if (WeatherSystem.Instance == null)

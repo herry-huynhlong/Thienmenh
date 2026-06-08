@@ -78,7 +78,7 @@ public class NpcFavoriteManager : MonoBehaviour
 
         if (favorites.Count >= maxFavorites)
         {
-            Debug.Log("Da danh dau toi da " + maxFavorites + " NPC.");
+            Debug.Log("Da danh dau toi da " + maxFavorites + " Tu si.");
             return false;
         }
 

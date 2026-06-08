@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Globalization;
+using System.Text;
 using UnityEngine;
 
 public enum NpcTaskType
@@ -7,7 +9,8 @@ public enum NpcTaskType
     HuntMonster,
     Cultivate,
     Patrol,
-    Deliver
+    Deliver,
+    HarvestAndDeliver
 }
 
 public enum NpcTaskRank
@@ -114,8 +117,14 @@ class PendingTaskGoods
 
 public class NpcTaskProvider : MonoBehaviour
 {
+    const string LinhRiceItemId = "caf4f5e611fac2d4bb6815a50dc1060b";
+
     static readonly List<NpcTaskProvider> providers =
         new List<NpcTaskProvider>();
+    static readonly Dictionary<GameObject, int> busyNpcCounts =
+        new Dictionary<GameObject, int>();
+    static readonly List<GameObject> staleBusyNpcs =
+        new List<GameObject>();
 
     public static NpcTaskProvider FindNearestProvider(Vector3 position)
     {
@@ -143,6 +152,76 @@ public class NpcTaskProvider : MonoBehaviour
 
         return best;
     }
+
+    public static bool IsNpcBusyWithAnyProvider(GameObject npc)
+    {
+        if (npc == null)
+        {
+            return false;
+        }
+
+        CleanupBusyNpcEntries();
+
+        int count;
+        return busyNpcCounts.TryGetValue(npc, out count) &&
+            count > 0;
+    }
+
+    static void MarkNpcBusyWithProvider(GameObject npc)
+    {
+        if (npc == null)
+        {
+            return;
+        }
+
+        CleanupBusyNpcEntries();
+
+        int count;
+        busyNpcCounts.TryGetValue(npc, out count);
+        busyNpcCounts[npc] = count + 1;
+    }
+
+    static void UnmarkNpcBusyWithProvider(GameObject npc)
+    {
+        if (npc == null)
+        {
+            return;
+        }
+
+        int count;
+        if (!busyNpcCounts.TryGetValue(npc, out count))
+        {
+            return;
+        }
+
+        count--;
+        if (count <= 0)
+        {
+            busyNpcCounts.Remove(npc);
+            return;
+        }
+
+        busyNpcCounts[npc] = count;
+    }
+
+    static void CleanupBusyNpcEntries()
+    {
+        staleBusyNpcs.Clear();
+
+        foreach (KeyValuePair<GameObject, int> pair in busyNpcCounts)
+        {
+            if (pair.Key == null || pair.Value <= 0)
+            {
+                staleBusyNpcs.Add(pair.Key);
+            }
+        }
+
+        foreach (GameObject npc in staleBusyNpcs)
+        {
+            busyNpcCounts.Remove(npc);
+        }
+    }
+
     [Header("Tavern Service")]
     public bool serveMeals = true;
     public int mealCost = 1;
@@ -192,6 +271,31 @@ public class NpcTaskProvider : MonoBehaviour
     public Transform gatherPoint;
     public Transform patrolPoint;
     public Transform deliverPoint;
+
+    [Header("Harvest Delivery")]
+    public bool includeLinhRiceHarvestTask = true;
+    public StatItemData linhRiceItem;
+    public Transform linhRiceFieldPoint;
+    [Min(1)] public int linhRiceAmountMin = 5;
+    [Min(1)] public int linhRiceAmountMax = 9;
+    public int linhRiceRewardSpiritStone = 900;
+    public int linhRiceRewardCultivationExp = 12;
+    public float linhRiceHarvestDuration = 8f;
+
+    [Header("Task Acceptance")]
+    public bool requireNpcTaskWillingness = true;
+    public bool autoAssignRequiresTaskIntent = true;
+    [Range(0f, 100f)]
+    public float maxTaskAcceptFatigue = 78f;
+    [Range(0f, 100f)]
+    public float maxTaskAcceptHunger = 70f;
+    [Range(0, 100)]
+    public int minHuntTaskBravery = 45;
+    [Range(0f, 100f)]
+    public float minTaskWillingnessScore = 20f;
+    [Range(0f, 100f)]
+    public float minAutoAssignWillingnessScore = 45f;
+    public bool rejectNonAdultVillagerTasks = true;
 
     [Header("Provider Placement")]
     public bool keepProviderStationary = true;
@@ -382,6 +486,8 @@ public class NpcTaskProvider : MonoBehaviour
                 return TaskName("protectCultivation");
             case NpcTaskType.Deliver:
                 return TaskName("transportSpiritMaterial");
+            case NpcTaskType.HarvestAndDeliver:
+                return TaskName("harvestLinhRice");
             case NpcTaskType.GatherResource:
                 if (offer.rank == NpcTaskRank.Thuong)
                 {
@@ -400,7 +506,7 @@ public class NpcTaskProvider : MonoBehaviour
     }
     NpcTaskOffer[] BuildExpandedDefaultOffers()
     {
-        return new NpcTaskOffer[]
+        List<NpcTaskOffer> defaultOffers = new List<NpcTaskOffer>
         {
             CreateGatherOffer(TaskName("gatherHerbsAroundForest"), NpcTaskRank.Ha, CultivationRealm.QiRefining, 1, 6, 900, 15, 10f),
             CreateGatherOffer(TaskName("gatherLowHerbs"), NpcTaskRank.Ha, CultivationRealm.QiRefining, 3, 8, 1400, 25, 12f),
@@ -423,6 +529,35 @@ public class NpcTaskProvider : MonoBehaviour
             CreateSimpleOffer(TaskName("transportSpiritMaterial"), NpcTaskType.Deliver, NpcTaskRank.Trung, CultivationRealm.Foundation, 2, 15000, 150, 20f),
             CreateSimpleOffer(TaskName("protectCultivation"), NpcTaskType.Cultivate, NpcTaskRank.Trung, CultivationRealm.Foundation, 1, 18000, 260, 26f),
         };
+
+        if (includeLinhRiceHarvestTask)
+        {
+            defaultOffers.Insert(0, CreateLinhRiceHarvestOffer());
+        }
+
+        return defaultOffers.ToArray();
+    }
+
+    NpcTaskOffer CreateLinhRiceHarvestOffer()
+    {
+        NpcTaskOffer offer = CreateSimpleOffer(
+            TaskName("harvestLinhRice"),
+            NpcTaskType.HarvestAndDeliver,
+            NpcTaskRank.Ha,
+            CultivationRealm.Mortal,
+            1,
+            linhRiceRewardSpiritStone,
+            linhRiceRewardCultivationExp,
+            linhRiceHarvestDuration);
+
+        offer.requiredItem = ResolveLinhRiceItem();
+        offer.requiredAmount = Mathf.Max(1, linhRiceAmountMin);
+        offer.randomizeRequiredItemAmount = true;
+        offer.requiredItemAmountMin = Mathf.Max(1, linhRiceAmountMin);
+        offer.requiredItemAmountMax = Mathf.Max(offer.requiredItemAmountMin, linhRiceAmountMax);
+        offer.autoPriceRequiredItemReward = true;
+        offer.consumeRequiredItemsOnTurnIn = true;
+        return offer;
     }
 
     NpcTaskOffer CreateGatherOffer(string name, NpcTaskRank rank, CultivationRealm realm, int stage, int amount, int reward, int exp, float duration)
@@ -516,6 +651,7 @@ public class NpcTaskProvider : MonoBehaviour
                 ConsumeTaskItems(task);
 
             runningTasks.RemoveAt(i);
+            UnmarkNpcBusyWithProvider(task != null ? task.npc : null);
             ResumeBaseAi(task);
 
             if (canReward)
@@ -535,6 +671,7 @@ public class NpcTaskProvider : MonoBehaviour
         {
             RunningTavernMeal meal = runningMeals[i];
             runningMeals.RemoveAt(i);
+            UnmarkNpcBusyWithProvider(meal != null ? meal.npc : null);
             ResumeBaseAi(meal);
 
             if (meal != null &&
@@ -633,10 +770,10 @@ public class NpcTaskProvider : MonoBehaviour
             offers != null &&
             offers.Length > 0)
         {
-            NpcTaskOffer offer = PickOfferFor(npc);
-            if (offer != null)
+            NpcTaskOffer offer = PickOfferFor(npc, false);
+            if (offer != null &&
+                StartTaskRequest(npc, offer))
             {
-                StartTaskRequest(npc, offer);
                 return true;
             }
         }
@@ -658,8 +795,7 @@ public class NpcTaskProvider : MonoBehaviour
             return false;
         }
 
-        StartTaskRequest(npc, offer, true);
-        return true;
+        return StartTaskRequest(npc, offer, true);
     }
 
     public List<NpcTaskOffer> PickDailyOffersFor(
@@ -724,15 +860,27 @@ public class NpcTaskProvider : MonoBehaviour
 
     public StatItemData GetPlannedRequiredItem(NpcTaskOffer offer)
     {
-        return offer != null
-            ? offer.requiredItem
+        if (offer == null)
+        {
+            return null;
+        }
+
+        if (offer.requiredItem != null)
+        {
+            return offer.requiredItem;
+        }
+
+        return offer.taskType == NpcTaskType.HarvestAndDeliver
+            ? ResolveLinhRiceItem()
             : null;
     }
 
     public int GetPlannedRequiredAmount(NpcTaskOffer offer)
     {
+        StatItemData plannedItem = GetPlannedRequiredItem(offer);
+
         if (offer == null ||
-            offer.requiredItem == null)
+            plannedItem == null)
         {
             return 0;
         }
@@ -804,14 +952,16 @@ public class NpcTaskProvider : MonoBehaviour
                 continue;
             }
 
-            NpcTaskOffer offer = PickOfferFor(npc);
+            NpcTaskOffer offer = PickOfferFor(npc, true);
             if (offer == null)
             {
                 continue;
             }
 
-            StartTaskRequest(npc, offer);
-            return;
+            if (StartTaskRequest(npc, offer))
+            {
+                return;
+            }
         }
     }
 
@@ -880,22 +1030,39 @@ public class NpcTaskProvider : MonoBehaviour
 
         PauseBaseAi(meal);
         runningMeals.Add(meal);
+        MarkNpcBusyWithProvider(npc);
 
         NpcRoleUtility.SetAction(npc, TaskAction("goMealPoint"));
         NpcRoleUtility.SetAction(gameObject, TaskAction("serveMeal"));
     }
 
-    void StartTaskRequest(GameObject npc, NpcTaskOffer offer)
+    bool StartTaskRequest(GameObject npc, NpcTaskOffer offer)
     {
-        StartTaskRequest(npc, offer, false);
+        return StartTaskRequest(npc, offer, false);
     }
 
-    void StartTaskRequest(
+    bool StartTaskRequest(
         GameObject npc,
         NpcTaskOffer offer,
         bool startAtProvider)
     {
+        if (npc == null ||
+            offer == null ||
+            npc == gameObject ||
+            HasBusyNpc(npc) ||
+            NpcRoleUtility.IsDead(npc) ||
+            !CanNpcAcceptOffer(npc, offer))
+        {
+            return false;
+        }
+
         StatItemData requiredItem = ResolveTaskRequiredItem(npc, offer);
+        if (RequiresExplicitRequiredItem(offer) &&
+            requiredItem == null)
+        {
+            return false;
+        }
+
         int requiredAmount = ResolveTaskRequiredAmount(offer, requiredItem);
         int rewardSpiritStone =
             ResolveTaskRewardSpiritStone(offer, requiredItem, requiredAmount);
@@ -922,7 +1089,7 @@ public class NpcTaskProvider : MonoBehaviour
                 ? Mathf.Max(1f, providerReceiveDuration)
                 : formalFlow
                 ? Mathf.Max(8f, chooseTaskDuration)
-                : Mathf.Max(1f, offer != null ? offer.workDuration : 1f),
+                : Mathf.Max(1f, offer.workDuration),
             requiredItem = requiredItem,
             requiredAmount = requiredAmount,
             rewardSpiritStone = rewardSpiritStone,
@@ -937,6 +1104,7 @@ public class NpcTaskProvider : MonoBehaviour
 
         PauseBaseAi(task);
         runningTasks.Add(task);
+        MarkNpcBusyWithProvider(npc);
 
         NpcRoleUtility.SetAction(
             npc,
@@ -953,6 +1121,8 @@ public class NpcTaskProvider : MonoBehaviour
             : formalFlow
             ? TaskAction("showTaskBoard")
             : TaskAction("assignNpcWork"));
+
+        return true;
     }
 
     void UpdateMeals()
@@ -1218,6 +1388,11 @@ public class NpcTaskProvider : MonoBehaviour
             return FindDeathLootForHuntOffer(offer);
         }
 
+        if (offer.taskType == NpcTaskType.HarvestAndDeliver)
+        {
+            return ResolveLinhRiceItem();
+        }
+
         if (offer.taskType != NpcTaskType.GatherResource)
         {
             return null;
@@ -1229,6 +1404,164 @@ public class NpcTaskProvider : MonoBehaviour
         return pickup != null
             ? pickup.item
             : null;
+    }
+
+    bool RequiresExplicitRequiredItem(NpcTaskOffer offer)
+    {
+        return offer != null &&
+            offer.taskType == NpcTaskType.HarvestAndDeliver;
+    }
+
+    StatItemData ResolveLinhRiceItem()
+    {
+        if (IsLinhRiceItem(linhRiceItem))
+        {
+            GameSaveSystem.RegisterItem(linhRiceItem);
+            return linhRiceItem;
+        }
+
+        StatItemData item = FindLinhRiceItemInResourceFields();
+        if (item == null)
+        {
+            item = FindLinhRiceItemInPickups();
+        }
+
+        if (item == null)
+        {
+            item = FindLinhRiceItemInVillagers();
+        }
+
+        if (item != null)
+        {
+            linhRiceItem = item;
+            GameSaveSystem.RegisterItem(item);
+        }
+
+        return item;
+    }
+
+    StatItemData FindLinhRiceItemInResourceFields()
+    {
+        foreach (WorldResourceField field in WorldResourceField.Fields)
+        {
+            if (field == null || field.items == null)
+            {
+                continue;
+            }
+
+            foreach (ResourceFieldItemEntry entry in field.items)
+            {
+                if (entry != null && IsLinhRiceItem(entry.item))
+                {
+                    return entry.item;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    StatItemData FindLinhRiceItemInPickups()
+    {
+        foreach (WorldStatItemPickup pickup in FindObjectsByType<WorldStatItemPickup>(FindObjectsInactive.Exclude))
+        {
+            if (pickup != null && IsLinhRiceItem(pickup.item))
+            {
+                return pickup.item;
+            }
+        }
+
+        return null;
+    }
+
+    StatItemData FindLinhRiceItemInVillagers()
+    {
+        foreach (VillagerAI villager in FindObjectsByType<VillagerAI>(FindObjectsInactive.Include))
+        {
+            if (villager != null && IsLinhRiceItem(villager.farmProduct))
+            {
+                return villager.farmProduct;
+            }
+        }
+
+        return null;
+    }
+
+    bool IsLinhRiceItem(StatItemData item)
+    {
+        if (item == null)
+        {
+            return false;
+        }
+
+        if (item.ItemId == LinhRiceItemId)
+        {
+            return true;
+        }
+
+        string itemName = !string.IsNullOrWhiteSpace(item.itemName)
+            ? item.itemName
+            : item.name;
+
+        if (string.IsNullOrWhiteSpace(itemName))
+        {
+            return false;
+        }
+
+        string normalized = RemoveDiacritics(itemName).Trim().ToLowerInvariant();
+        return normalized == "lua" ||
+            normalized == "lúa" ||
+            normalized.Contains("linh gao") ||
+            normalized.Contains("linh gạo");
+    }
+
+    string RemoveDiacritics(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return string.Empty;
+        }
+
+        string normalized = value.Normalize(NormalizationForm.FormD);
+        StringBuilder builder = new StringBuilder(normalized.Length);
+
+        foreach (char character in normalized)
+        {
+            UnicodeCategory category =
+                CharUnicodeInfo.GetUnicodeCategory(character);
+
+            if (category != UnicodeCategory.NonSpacingMark)
+            {
+                builder.Append(character);
+            }
+        }
+
+        return builder.ToString().Normalize(NormalizationForm.FormC);
+    }
+
+    bool HasAvailableTaskPickup(
+        NpcTaskOffer offer,
+        StatItemData requiredItem)
+    {
+        if (offer == null)
+        {
+            return false;
+        }
+
+        if (!IsGatherTaskType(offer.taskType))
+        {
+            return true;
+        }
+
+        if (RequiresExplicitRequiredItem(offer) && requiredItem == null)
+        {
+            return false;
+        }
+
+        return WorldResourceField.GetNearestAvailablePickupInAllFields(
+            GetWorkPosition(offer),
+            requiredItem,
+            GetGatherRequiredZone(offer)) != null;
     }
 
     StatItemData FindDeathLootForHuntOffer(NpcTaskOffer offer)
@@ -2129,7 +2462,7 @@ public class NpcTaskProvider : MonoBehaviour
         return WorldResourceField.GetNearestAvailablePickupInAllFields(
             GetTaskSearchPosition(task),
             GetTaskRequiredItem(task),
-            NpcMapZone.MaThuSonMach);
+            GetGatherRequiredZone(task.offer));
     }
 
     Vector3 GetTaskSearchPosition(RunningNpcTask task)
@@ -2161,7 +2494,25 @@ public class NpcTaskProvider : MonoBehaviour
     {
         return task != null &&
             task.offer != null &&
-            task.offer.taskType == NpcTaskType.GatherResource;
+            IsGatherTaskType(task.offer.taskType);
+    }
+
+    bool IsGatherTaskType(NpcTaskType taskType)
+    {
+        return taskType == NpcTaskType.GatherResource ||
+            taskType == NpcTaskType.HarvestAndDeliver;
+    }
+
+    NpcMapZone? GetGatherRequiredZone(NpcTaskOffer offer)
+    {
+        if (offer == null)
+        {
+            return null;
+        }
+
+        return offer.taskType == NpcTaskType.GatherResource
+            ? NpcMapZone.MaThuSonMach
+            : (NpcMapZone?)null;
     }
 
     bool HasGatherObjectiveComplete(RunningNpcTask task)
@@ -2214,6 +2565,13 @@ public class NpcTaskProvider : MonoBehaviour
             !string.IsNullOrEmpty(item.itemName))
         {
             return item.itemName;
+        }
+
+        if (task != null &&
+            task.offer != null &&
+            task.offer.taskType == NpcTaskType.HarvestAndDeliver)
+        {
+            return TaskDisplay("linhRice");
         }
 
         return NpcText.Get("taskDisplay", "spiritHerb", "linh thảo");
@@ -2365,11 +2723,18 @@ public class NpcTaskProvider : MonoBehaviour
 
     string GetRequiredItemName(NpcTaskOffer offer)
     {
-        if (offer != null &&
-            offer.requiredItem != null &&
-            !string.IsNullOrEmpty(offer.requiredItem.itemName))
+        StatItemData requiredItem = GetPlannedRequiredItem(offer);
+
+        if (requiredItem != null &&
+            !string.IsNullOrEmpty(requiredItem.itemName))
         {
-            return offer.requiredItem.itemName;
+            return requiredItem.itemName;
+        }
+
+        if (offer != null &&
+            offer.taskType == NpcTaskType.HarvestAndDeliver)
+        {
+            return TaskDisplay("linhRice");
         }
 
         return NpcText.Get("taskDisplay", "spiritHerb", "linh thảo");
@@ -2621,6 +2986,7 @@ public class NpcTaskProvider : MonoBehaviour
     {
         RunningTavernMeal meal = runningMeals[index];
         runningMeals.RemoveAt(index);
+        UnmarkNpcBusyWithProvider(meal != null ? meal.npc : null);
         ResumeBaseAi(meal);
 
         if (completed &&
@@ -2649,6 +3015,7 @@ public class NpcTaskProvider : MonoBehaviour
         }
 
         runningTasks.RemoveAt(index);
+        UnmarkNpcBusyWithProvider(task != null ? task.npc : null);
         ResumeBaseAi(task);
 
         if (!completed ||
@@ -2689,12 +3056,18 @@ public class NpcTaskProvider : MonoBehaviour
 
     NpcTaskOffer PickOfferFor(GameObject npc)
     {
+        return PickOfferFor(npc, false);
+    }
+
+    NpcTaskOffer PickOfferFor(GameObject npc, bool autoAssigned)
+    {
         NpcTaskOffer best = null;
-        float bestScore = 0f;
+        float minScore = GetMinAcceptanceScore(autoAssigned);
+        float bestScore = minScore - 0.01f;
 
         foreach (NpcTaskOffer offer in offers)
         {
-            float score = GetOfferSuitabilityScore(npc, offer);
+            float score = GetOfferAcceptanceScore(npc, offer, autoAssigned);
             if (score <= bestScore)
             {
                 continue;
@@ -2709,7 +3082,206 @@ public class NpcTaskProvider : MonoBehaviour
 
     bool CanNpcAcceptOffer(GameObject npc, NpcTaskOffer offer)
     {
-        return GetOfferSuitabilityScore(npc, offer) > 0f;
+        return GetOfferAcceptanceScore(npc, offer, false) >=
+            GetMinAcceptanceScore(false);
+    }
+
+    float GetOfferAcceptanceScore(
+        GameObject npc,
+        NpcTaskOffer offer,
+        bool autoAssigned)
+    {
+        float score = GetOfferSuitabilityScore(npc, offer);
+        if (score <= 0f)
+        {
+            return 0f;
+        }
+
+        if (!requireNpcTaskWillingness)
+        {
+            return score;
+        }
+
+        if (autoAssigned &&
+            autoAssignRequiresTaskIntent &&
+            !HasNpcTaskIntent(npc))
+        {
+            return 0f;
+        }
+
+        if (ShouldDeclineTaskByState(npc, offer))
+        {
+            return 0f;
+        }
+
+        return Mathf.Max(0f, score + GetNpcTaskWillingnessBonus(npc, offer));
+    }
+
+    float GetMinAcceptanceScore(bool autoAssigned)
+    {
+        if (!requireNpcTaskWillingness)
+        {
+            return 0.01f;
+        }
+
+        float score = Mathf.Max(0f, minTaskWillingnessScore);
+        if (autoAssigned)
+        {
+            score = Mathf.Max(score, minAutoAssignWillingnessScore);
+        }
+
+        return score;
+    }
+
+    bool ShouldDeclineTaskByState(GameObject npc, NpcTaskOffer offer)
+    {
+        if (npc == null || offer == null)
+        {
+            return true;
+        }
+
+        VillagerAI villager = npc.GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            if (rejectNonAdultVillagerTasks &&
+                villager.ageGroup != VillagerAgeGroup.Adult)
+            {
+                return true;
+            }
+
+            if (villager.fatigue >= maxTaskAcceptFatigue)
+            {
+                return true;
+            }
+
+            if (villager.realm < CultivationRealm.Foundation &&
+                villager.hunger >= maxTaskAcceptHunger)
+            {
+                return true;
+            }
+
+            return offer.taskType == NpcTaskType.HuntMonster &&
+                villager.bravery < minHuntTaskBravery;
+        }
+
+        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            if (smartNpc.fatigue >= maxTaskAcceptFatigue)
+            {
+                return true;
+            }
+
+            if (smartNpc.realm < CultivationRealm.Foundation &&
+                smartNpc.hunger >= maxTaskAcceptHunger)
+            {
+                return true;
+            }
+
+            if (offer.taskType == NpcTaskType.HuntMonster &&
+                (!smartNpc.canFight || smartNpc.bravery < minHuntTaskBravery))
+            {
+                return true;
+            }
+
+            return offer.taskType == NpcTaskType.Cultivate &&
+                !smartNpc.canCultivate;
+        }
+
+        return false;
+    }
+
+    float GetNpcTaskWillingnessBonus(GameObject npc, NpcTaskOffer offer)
+    {
+        float bonus = Mathf.Clamp(
+            Mathf.Max(0, offer.rewardSpiritStone) / 1000f,
+            0f,
+            20f);
+
+        VillagerAI villager = npc.GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            bonus += Mathf.Clamp(100f - villager.fatigue, 0f, 100f) * 0.08f;
+
+            if (villager.realm < CultivationRealm.Foundation)
+            {
+                bonus += Mathf.Clamp(100f - villager.hunger, 0f, 100f) * 0.05f;
+            }
+
+            bonus += (villager.diligence - 50) * 0.2f;
+
+            if (offer.taskType == NpcTaskType.HuntMonster ||
+                offer.taskType == NpcTaskType.Patrol)
+            {
+                bonus += (villager.bravery - 50) * 0.25f;
+            }
+        }
+
+        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            bonus += Mathf.Clamp(100f - smartNpc.fatigue, 0f, 100f) * 0.08f;
+
+            if (smartNpc.realm < CultivationRealm.Foundation)
+            {
+                bonus += Mathf.Clamp(100f - smartNpc.hunger, 0f, 100f) * 0.05f;
+            }
+
+            if (offer.taskType == NpcTaskType.HuntMonster && smartNpc.canFight)
+            {
+                bonus += 20f;
+            }
+
+            if (offer.taskType == NpcTaskType.Cultivate && smartNpc.canCultivate)
+            {
+                bonus += 20f;
+            }
+
+            bonus += (smartNpc.bravery - 50) * 0.25f;
+        }
+
+        return bonus;
+    }
+
+    bool HasNpcTaskIntent(GameObject npc)
+    {
+        string action = GetNpcCurrentAction(npc);
+        if (string.IsNullOrEmpty(action))
+        {
+            return false;
+        }
+
+        return CurrentActionContains(action, "goTaskProviderDaily") ||
+            CurrentActionContains(action, "goVanBaoLauTask") ||
+            CurrentActionContains(action, "askProviderFindTask") ||
+            CurrentActionContains(action, "returnProviderReceiveTask") ||
+            CurrentActionContains(action, "receiveTask");
+    }
+
+    bool CurrentActionContains(string action, string key)
+    {
+        string text = TaskAction(key);
+        return !string.IsNullOrEmpty(text) &&
+            action.Contains(text);
+    }
+
+    string GetNpcCurrentAction(GameObject npc)
+    {
+        if (npc == null)
+        {
+            return string.Empty;
+        }
+
+        VillagerAI villager = npc.GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            return villager.currentAction;
+        }
+
+        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
+        return smartNpc != null
+            ? smartNpc.currentAction
+            : string.Empty;
     }
 
     bool MeetsHuntBeastPowerRequirement(int npcPower, NpcTaskOffer offer)
@@ -2757,6 +3329,15 @@ public class NpcTaskProvider : MonoBehaviour
             offer.minRealm,
             Mathf.Clamp(offer.minRealmStage, 1, CultivationProgression.MaxStage));
 
+        if (RequiresExplicitRequiredItem(offer))
+        {
+            StatItemData requiredItem = ResolveTaskRequiredItem(npc, offer);
+            if (!HasAvailableTaskPickup(offer, requiredItem))
+            {
+                return 0f;
+            }
+        }
+
         score += Mathf.Clamp(npcPower - requiredPower, 0, 80) * 0.25f;
 
         if (!MeetsHuntBeastPowerRequirement(npcPower, offer))
@@ -2782,7 +3363,8 @@ public class NpcTaskProvider : MonoBehaviour
                 case VillagerJob.Fisher:
                 case VillagerJob.Worker:
                     if (offer.taskType == NpcTaskType.GatherResource ||
-                        offer.taskType == NpcTaskType.Deliver)
+                        offer.taskType == NpcTaskType.Deliver ||
+                        offer.taskType == NpcTaskType.HarvestAndDeliver)
                     {
                         score += 30f;
                     }
@@ -2790,7 +3372,8 @@ public class NpcTaskProvider : MonoBehaviour
 
                 case VillagerJob.Trader:
                     if (offer.taskType == NpcTaskType.Deliver ||
-                        offer.taskType == NpcTaskType.GatherResource)
+                        offer.taskType == NpcTaskType.GatherResource ||
+                        offer.taskType == NpcTaskType.HarvestAndDeliver)
                     {
                         score += 20f;
                     }
@@ -3023,7 +3606,8 @@ public class NpcTaskProvider : MonoBehaviour
 
     bool HasBusyNpc(GameObject npc)
     {
-        return HasRunningTask(npc) ||
+        return IsNpcBusyWithAnyProvider(npc) ||
+            HasRunningTask(npc) ||
             HasRunningMeal(npc);
     }
 
@@ -3173,6 +3757,19 @@ public class NpcTaskProvider : MonoBehaviour
                         gatherPoint,
                         GetDepthMinForRank(offer.rank, gatherDepthMin),
                         GetDepthMaxForRank(offer.rank, gatherDepthMax));
+
+                case NpcTaskType.HarvestAndDeliver:
+                    if (linhRiceFieldPoint != null)
+                    {
+                        return linhRiceFieldPoint.position;
+                    }
+
+                    if (gatherPoint != null)
+                    {
+                        return gatherPoint.position;
+                    }
+
+                    return GetFallbackWorkPosition();
 
                 case NpcTaskType.Patrol:
                     return patrolPoint != null

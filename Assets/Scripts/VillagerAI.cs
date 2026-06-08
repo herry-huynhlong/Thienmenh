@@ -211,7 +211,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     }
 
     [Header("Runtime")]
-    public string currentAction = NpcText.Action("idle");
+    public string currentAction = "idle";
     public Transform currentTarget;
     public string lastWorkProductStatus;
     Transform treasureHuntTarget;
@@ -255,6 +255,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     Vector3 activePathTarget;
     int activePathIndex;
     float nextSmartPathAllowedTime;
+    int consecutiveSmartPathFailures;
     int lastPlanResetDay = -1;
     int lastDailyTaskPlanDay = -1;
     int dailyTaskPlanIndex;
@@ -299,6 +300,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     void Awake()
     {
+        currentAction = NpcText.Action("idle");
         rb = GetComponent<Rigidbody2D>();
         ownColliders = GetComponentsInChildren<Collider2D>();
         lastUnstuckPosition = transform.position;
@@ -314,6 +316,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         inventory.UsePrivateNpcRuntimeItems(false);
+
+        ApplyRuntimePathPerformanceLimits();
 
         spawnPosition = transform.position;
         RefreshCurrentMapArea(false);
@@ -340,8 +344,25 @@ public class VillagerAI : MonoBehaviour, IDamageable
             baseAttack = Mathf.Max(1, attack);
             baseDefense = Mathf.Max(0, defense);
             ApplyRealmPower();
-            currentHP = Mathf.Clamp(currentHP, 1, maxHP);
+            currentHP = Mathf.Clamp(currentHP, 0, maxHP);
         }
+    }
+
+    void ApplyRuntimePathPerformanceLimits()
+    {
+        if (!useSmartPathfinding)
+        {
+            return;
+        }
+
+        pathCellSize = Mathf.Max(pathCellSize, 0.7f);
+        pathReplanCooldown = Mathf.Max(pathReplanCooldown, 2f);
+        maxPathNodes = Mathf.Clamp(maxPathNodes, 64, 500);
+        maxPathSteps = Mathf.Clamp(maxPathSteps, 32, 160);
+        sharedPathMemoryCellSize =
+            Mathf.Max(sharedPathMemoryCellSize, pathCellSize * 3f);
+        compareRememberedPathWithNewPath = false;
+        useLocalDetour = true;
     }
 
 #if UNITY_EDITOR
@@ -408,7 +429,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         baseDefense = Mathf.Max(0, entityProfile.stats.defense);
         maxHP = entityProfile.stats.maxHP;
         currentHP =
-            Mathf.Clamp(entityProfile.stats.currentHP, 1, maxHP);
+            Mathf.Clamp(entityProfile.stats.currentHP, 0, maxHP);
         attack = entityProfile.stats.attack;
         defense = entityProfile.stats.defense;
         moveSpeed = entityProfile.stats.moveSpeed;
@@ -1959,16 +1980,22 @@ public class VillagerAI : MonoBehaviour, IDamageable
         hasWorkTarget = true;
     }
 
-    currentAction = GetWorkAction();
-
-    MoveUsingRoad(
-        currentWorkTarget,
-        currentWorkTargetZone);
-
     float distance =
         Vector2.Distance(
             transform.position,
             currentWorkTarget);
+
+    if (distance >= 0.5f)
+    {
+        currentAction = GetWorkAction();
+
+        MoveUsingRoad(
+            currentWorkTarget,
+            currentWorkTargetZone);
+        return;
+    }
+
+    currentAction = GetWorkingAction();
 
     if (distance < 0.5f)
     {
@@ -4546,10 +4573,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             pathCellSize <= 0.05f ||
             !IsInsideCurrentMapArea(finalTarget))
         {
-            NpcPerformanceOverlay.RecordPathResult(
-                false,
-                visited,
-                GetElapsedPathMs(pathStartTime));
+            RecordSmartPathResult(false, visited, pathStartTime);
             return false;
         }
 
@@ -4561,10 +4585,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         if (!IsInsidePathSearchDistance(start, finalTarget))
         {
-            NpcPerformanceOverlay.RecordPathResult(
-                false,
-                visited,
-                GetElapsedPathMs(pathStartTime));
+            RecordSmartPathResult(false, visited, pathStartTime);
             return false;
         }
 
@@ -4577,20 +4598,14 @@ public class VillagerAI : MonoBehaviour, IDamageable
         if (!IsPathCellWalkable(startCell) &&
             !TryFindNearestWalkableCell(startCell, out startCell))
         {
-            NpcPerformanceOverlay.RecordPathResult(
-                false,
-                visited,
-                GetElapsedPathMs(pathStartTime));
+            RecordSmartPathResult(false, visited, pathStartTime);
             return false;
         }
 
         if (!IsPathCellWalkable(targetCell) &&
             !TryFindNearestWalkableCell(targetCell, out targetCell))
         {
-            NpcPerformanceOverlay.RecordPathResult(
-                false,
-                visited,
-                GetElapsedPathMs(pathStartTime));
+            RecordSmartPathResult(false, visited, pathStartTime);
             return false;
         }
 
@@ -4607,10 +4622,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             !compareRememberedPathWithNewPath)
         {
             NpcPerformanceOverlay.RecordPathCacheHit();
-            NpcPerformanceOverlay.RecordPathResult(
-                true,
-                visited,
-                GetElapsedPathMs(pathStartTime));
+            RecordSmartPathResult(true, visited, pathStartTime);
             return ApplyRememberedPath(start, finalTarget);
         }
 
@@ -4648,10 +4660,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                         NpcPerformanceOverlay.RecordPathCacheHit();
                     }
 
-                    NpcPerformanceOverlay.RecordPathResult(
-                        hasRememberedPath,
-                        visited,
-                        GetElapsedPathMs(pathStartTime));
+                    RecordSmartPathResult(hasRememberedPath, visited, pathStartTime);
                     return hasRememberedPath &&
                         ApplyRememberedPath(start, finalTarget);
                 }
@@ -4663,10 +4672,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                         computedPathBuffer))
                 {
                     NpcPerformanceOverlay.RecordPathCacheHit();
-                    NpcPerformanceOverlay.RecordPathResult(
-                        true,
-                        visited,
-                        GetElapsedPathMs(pathStartTime));
+                    RecordSmartPathResult(true, visited, pathStartTime);
                     return ApplyRememberedPath(start, finalTarget);
                 }
 
@@ -4675,10 +4681,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
                     finalTarget);
 
                 RememberActivePath(start, finalTarget);
-                NpcPerformanceOverlay.RecordPathResult(
-                    activePath.Count > 0,
-                    visited,
-                    GetElapsedPathMs(pathStartTime));
+                RecordSmartPathResult(activePath.Count > 0, visited, pathStartTime);
                 return activePath.Count > 0;
             }
 
@@ -4739,10 +4742,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             NpcPerformanceOverlay.RecordPathCacheHit();
         }
 
-        NpcPerformanceOverlay.RecordPathResult(
-            hasRememberedPath,
-            visited,
-            GetElapsedPathMs(pathStartTime));
+        RecordSmartPathResult(hasRememberedPath, visited, pathStartTime);
 
         return hasRememberedPath &&
             ApplyRememberedPath(start, finalTarget);
@@ -4751,6 +4751,35 @@ public class VillagerAI : MonoBehaviour, IDamageable
     float GetElapsedPathMs(float pathStartTime)
     {
         return (Time.realtimeSinceStartup - pathStartTime) * 1000f;
+    }
+
+    void RecordSmartPathResult(
+        bool success,
+        int visited,
+        float pathStartTime)
+    {
+        NpcPerformanceOverlay.RecordPathResult(
+            success,
+            visited,
+            GetElapsedPathMs(pathStartTime));
+
+        float baseDelay = Mathf.Max(2f, pathReplanCooldown);
+        if (success)
+        {
+            consecutiveSmartPathFailures = 0;
+            nextSmartPathAllowedTime = Time.time + baseDelay;
+            return;
+        }
+
+        consecutiveSmartPathFailures =
+            Mathf.Min(consecutiveSmartPathFailures + 1, 4);
+
+        float failDelay =
+            Mathf.Min(
+                Mathf.Max(8f, baseDelay),
+                baseDelay * (1f + consecutiveSmartPathFailures));
+
+        nextSmartPathAllowedTime = Time.time + failDelay;
     }
 
     void BuildPathCandidate(
@@ -5509,7 +5538,24 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        currentHP -= Mathf.Max(1, damage);
+        int finalDamage = Mathf.Max(1, damage - defense);
+        currentHP -= finalDamage;
+        currentHP = Mathf.Clamp(
+            currentHP,
+            0,
+            Mathf.Max(1, maxHP));
+
+        if (entityProfile != null)
+        {
+            entityProfile.stats.currentHP = currentHP;
+        }
+
+        if (currentHP > 0)
+        {
+            NpcCombatTechniqueSystem.ReactToDamageTaken(
+                gameObject,
+                damage);
+        }
 
         if (currentHP <= 0)
         {

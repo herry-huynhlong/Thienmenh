@@ -127,7 +127,9 @@ public class FullGameSaveController : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (!GameSaveSystem.HasSave || IsMenuScene(scene.name) || scene.name == "PersistentScene")
+        if (!GameSaveSystem.ShouldLoadSavedGame ||
+            IsMenuScene(scene.name) ||
+            scene.name == "PersistentScene")
         {
             return;
         }
@@ -138,7 +140,7 @@ public class FullGameSaveController : MonoBehaviour
     public void SaveFullGame()
     {
         string sceneName = GetCurrentGameplaySceneName();
-        if (string.IsNullOrEmpty(sceneName) || IsMenuScene(sceneName))
+        if (string.IsNullOrEmpty(sceneName) || IsNonGameplayScene(sceneName))
         {
             return;
         }
@@ -166,6 +168,7 @@ public class FullGameSaveController : MonoBehaviour
 
     public void LoadFullGameNow()
     {
+        GameSaveSystem.RequestContinueGameStart();
         StartCoroutine(ApplyFullSaveAfterSceneLoad());
     }
 
@@ -404,10 +407,7 @@ public class FullGameSaveController : MonoBehaviour
 
         if (GameSaveSystem.TryLoadWorldTime(out int year, out int month, out int day, out float hour))
         {
-            time.currentYear = year;
-            time.currentMonth = month;
-            time.currentDay = day;
-            time.currentHour = hour;
+            time.SetTime(year, month, day, hour);
         }
     }
 
@@ -468,7 +468,7 @@ public class FullGameSaveController : MonoBehaviour
             }
         }
 
-        return active.isLoaded ? active.name : "";
+        return "";
     }
 
     bool IsMenuScene()
@@ -478,7 +478,7 @@ public class FullGameSaveController : MonoBehaviour
 
     bool IsMenuScene(string sceneName)
     {
-        return sceneName == "MainMenu" || sceneName == "CharacterCreate";
+        return sceneName == "MainMenu";
     }
 
     bool IsNonGameplayScene(string sceneName)
@@ -486,7 +486,6 @@ public class FullGameSaveController : MonoBehaviour
         return string.IsNullOrEmpty(sceneName) ||
             sceneName == "PersistentScene" ||
             sceneName == "MainMenu" ||
-            sceneName == "CharacterCreate" ||
             sceneName == "LiteMapScene";
     }
 }

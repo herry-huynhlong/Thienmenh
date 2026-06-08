@@ -163,6 +163,8 @@ public class NpcCounterBroker : MonoBehaviour
             npc.gameObject == gameObject ||
             npc.inventory == null ||
             inventory == null ||
+            IsBusyForTrade(gameObject) ||
+            IsBusyForTrade(npc.gameObject) ||
             !npc.CanUseCounterTrade())
         {
             return false;
@@ -178,6 +180,8 @@ public class NpcCounterBroker : MonoBehaviour
             buyer == null ||
             buyer.inventory == null ||
             inventory == null ||
+            IsBusyForTrade(gameObject) ||
+            IsBusyForTrade(buyer.gameObject) ||
             buyer.GetMoney() <= 0)
         {
             return false;
@@ -213,7 +217,9 @@ public class NpcCounterBroker : MonoBehaviour
         if (!buyGoodsFromNpcs ||
             seller == null ||
             seller.inventory == null ||
-            inventory == null)
+            inventory == null ||
+            IsBusyForTrade(gameObject) ||
+            IsBusyForTrade(seller.gameObject))
         {
             return false;
         }
@@ -247,6 +253,12 @@ public class NpcCounterBroker : MonoBehaviour
     {
         if (npc == null ||
             npc.gameObject == gameObject)
+        {
+            return false;
+        }
+
+        if (IsBusyForTrade(gameObject) ||
+            IsBusyForTrade(npc.gameObject))
         {
             return false;
         }
@@ -291,7 +303,9 @@ public class NpcCounterBroker : MonoBehaviour
 
         if (buyer == null ||
             buyer.inventory == null ||
-            inventory == null)
+            inventory == null ||
+            IsBusyForTrade(gameObject) ||
+            IsBusyForTrade(buyer.gameObject))
         {
             return false;
         }
@@ -364,7 +378,9 @@ public class NpcCounterBroker : MonoBehaviour
     {
         if (!buyGoodsFromNpcs ||
             seller == null ||
-            sellerInventory == null)
+            sellerInventory == null ||
+            IsBusyForTrade(gameObject) ||
+            IsBusyForTrade(seller.gameObject))
         {
             return false;
         }
@@ -407,7 +423,9 @@ public class NpcCounterBroker : MonoBehaviour
     {
         if (!buyGoodsFromNpcs ||
             seller == null ||
-            sellerInventory == null)
+            sellerInventory == null ||
+            IsBusyForTrade(gameObject) ||
+            IsBusyForTrade(seller.gameObject))
         {
             return false;
         }
@@ -492,7 +510,9 @@ public class NpcCounterBroker : MonoBehaviour
     bool TryBuyItemFromNpc(NpcTradeAgent seller)
     {
         if (seller == null ||
-            seller.inventory == null)
+            seller.inventory == null ||
+            IsBusyForTrade(gameObject) ||
+            IsBusyForTrade(seller.gameObject))
         {
             return false;
         }
@@ -575,6 +595,13 @@ public class NpcCounterBroker : MonoBehaviour
         return false;
     }
 
+    bool IsBusyForTrade(GameObject target)
+    {
+        return target == null ||
+            NpcRoleUtility.IsDead(target) ||
+            NpcRoleUtility.IsInCombat(target);
+    }
+
     public bool TrySellSpecificItemTo(
         NpcTradeAgent buyer,
         StatItemData item,
@@ -596,6 +623,8 @@ public class NpcCounterBroker : MonoBehaviour
             inventory == null ||
             item == null ||
             amount <= 0 ||
+            IsBusyForTrade(gameObject) ||
+            IsBusyForTrade(buyer.gameObject) ||
             !NpcEconomy.CanTradeNormally(item))
         {
             return false;

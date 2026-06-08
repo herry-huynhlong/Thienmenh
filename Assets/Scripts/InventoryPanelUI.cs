@@ -761,6 +761,12 @@ public class InventoryPanelUI : MonoBehaviour
 
     public void GiveSelectedItemToSelectedNpc()
     {
+        if (!HasHeavenDaoPower(HeavenDaoPower.DirectGiftItem))
+        {
+            Debug.Log("Thiên Đạo chưa đủ Chưởng Khống. Cần 10% để ban phát vật phẩm trực tiếp.");
+            return;
+        }
+
         if (readOnly ||
             inventory == null ||
             selectedItemIndex < 0)
@@ -784,7 +790,7 @@ public class InventoryPanelUI : MonoBehaviour
         if (selectedTarget == null ||
             !CanReceiveItem(selectedTarget))
         {
-            Debug.Log("Chưa chọn NPC để phát vật phẩm.");
+            Debug.Log("Chưa chọn Tu sĩ để phát vật phẩm.");
             return;
         }
 
@@ -796,6 +802,8 @@ public class InventoryPanelUI : MonoBehaviour
             targetInventory =
                 selectedTarget.gameObject.AddComponent<ItemInventory>();
         }
+
+        targetInventory.UsePrivateNpcRuntimeItems(false);
 
         currentNpcInventory = targetInventory;
         playerInventory = inventory;
@@ -819,6 +827,12 @@ public class InventoryPanelUI : MonoBehaviour
 
     public void BeginHeavenGiftPlacement()
     {
+        if (!HasHeavenDaoPower(HeavenDaoPower.DropOpportunityArea))
+        {
+            Debug.Log("Thiên Đạo chưa đủ Chưởng Khống. Cần 20% để thả cơ duyên xuống khu vực.");
+            return;
+        }
+
         if (readOnly ||
             inventory == null ||
             selectedItemIndex < 0)
@@ -845,6 +859,12 @@ public class InventoryPanelUI : MonoBehaviour
     {
         return target.GetComponent<VillagerAI>() != null ||
             target.GetComponent<SmartNpcAI>() != null;
+    }
+
+    bool HasHeavenDaoPower(HeavenDaoPower power)
+    {
+        return HeavenDaoSystem.Instance != null &&
+            HeavenDaoSystem.Instance.HasPower(power);
     }
 
     void RebuildItemGrid()
@@ -1538,7 +1558,7 @@ public class InventoryPanelUI : MonoBehaviour
         }
 
         builder.AppendLine(
-            "NPC ưu tiên: " +
+            "Tu sĩ ưu tiên: " +
             GetNpcIntentText(item.npcIntent));
     }
 

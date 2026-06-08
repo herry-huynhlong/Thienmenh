@@ -1660,7 +1660,7 @@ public class ShopPanelUI : MonoBehaviour
         }
 
         builder.AppendLine(
-            "NPC ưu tiên: " +
+            "Tu sĩ ưu tiên: " +
             GetNpcIntentText(item.npcIntent));
     }
 

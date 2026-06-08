@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
   m_Name: "T\u1EE5 Linh Quy\u1EBFt"
   m_EditorClassIdentifier: Assembly-CSharp::StatItemData
+  itemId: 7e9878b98e6902a468c3e2ecce7da2bb
   itemName: "T\u1EE5 Linh Quy\u1EBFt"
   description: "C\xF4ng ph\xE1p ph\u1ED5 bi\u1EBFn nh\u1EA5t trong gi\u1EDBi tu ti\xEAn
     s\u01A1 c\u1EA5p, chuy\xEAn d\xF9ng \u0111\u1EC3 t\xEDch l\u0169y linh kh\xED."

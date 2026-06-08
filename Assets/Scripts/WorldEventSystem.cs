@@ -43,9 +43,7 @@ public class WorldEventSystem : MonoBehaviour
             return;
         }
 
-        float worldHour =
-            timeSystem.CurrentDay * 24f +
-            timeSystem.CurrentHour;
+        float worldHour = timeSystem.CurrentWorldHour;
 
         if (worldHour < nextCheckWorldHour)
         {
@@ -198,7 +196,7 @@ public class WorldEventSystem : MonoBehaviour
     {
         WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
         float worldHour = timeSystem != null
-            ? timeSystem.currentDay * 24f + timeSystem.currentHour
+            ? timeSystem.CurrentWorldHour
             : 0f;
         nextCheckWorldHour = worldHour + Mathf.Max(0.25f, eventCheckHours);
     }

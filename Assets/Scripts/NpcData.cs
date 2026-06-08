@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class NpcData : MonoBehaviour
 {
-    public string npcName = "NPC";
+    public string npcName = "Tu sĩ";
 
     public string realm = "Mortals";
 

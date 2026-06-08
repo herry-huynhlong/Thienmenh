@@ -153,12 +153,14 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     void Start()
     {
+        bool appliedProfile = false;
         if (generateFromEntityProfile)
         {
             ApplyEntityProfile();
+            appliedProfile = entityProfile != null;
         }
 
-        RecalculateRealmStats(true);
+        RecalculateRealmStats(!appliedProfile);
         animator = GetComponent<Animator>();
         directionalAnimator = GetComponent<MonsterDirectionalAnimator>();
         rb = GetComponent<Rigidbody2D>();
@@ -215,6 +217,12 @@ public class MonsterAI : MonoBehaviour, IDamageable
         }
 
         monsterName = entityProfile.identity.entityName;
+        maxHP = Mathf.Max(1, entityProfile.stats.maxHP);
+        currentHP =
+            Mathf.Clamp(
+                entityProfile.stats.currentHP,
+                0,
+                maxHP);
 
         if (!autoStatsFromRealm)
         {
@@ -228,11 +236,6 @@ public class MonsterAI : MonoBehaviour, IDamageable
             baseDefense = Mathf.Max(0, entityProfile.stats.defense / realmMultiplier);
             baseEffectResistance = Mathf.Max(0, entityProfile.stats.effectResistance);
             baseMoveSpeed = Mathf.Max(0.1f, entityProfile.stats.moveSpeed);
-            currentHP =
-                Mathf.Clamp(
-                    entityProfile.stats.currentHP,
-                    1,
-                    Mathf.Max(1, entityProfile.stats.maxHP));
         }
         beastInstinct = Mathf.Clamp(45f + entityProfile.talent.combatMultiplier * 15f, 0f, 100f);
         aggression = Mathf.Clamp(entityProfile.personality.bravery + entityProfile.personality.hotTemper * 0.5f, 0f, 100f);
@@ -901,6 +904,16 @@ public class MonsterAI : MonoBehaviour, IDamageable
         Transform damagedTarget = currentTarget;
         IDamageable damagedTargetDamageable = currentTargetDamageable;
 
+        if (damagedTarget != null)
+        {
+            NpcSocialEventBus.PublishHostility(
+                gameObject,
+                damagedTarget.gameObject,
+                Mathf.Clamp(damage, 1, 100),
+                damagedTarget.position,
+                NpcText.Dialogue("combatBeastReason"));
+        }
+
         damagedTargetDamageable.TakeDamage(damage);
 
         if (damagedTargetDamageable.IsDead)
@@ -982,12 +995,19 @@ public class MonsterAI : MonoBehaviour, IDamageable
         }
 
         int finalDamage = Mathf.Max(1, damageAmount - defense);
-        currentHP -= finalDamage;
+        currentHP = Mathf.Clamp(currentHP - finalDamage, 0, maxHP);
 
         if (entityProfile != null)
         {
-            entityProfile.stats.currentHP = Mathf.Max(0, currentHP);
+            entityProfile.stats.currentHP = currentHP;
             entityProfile.Remember("attacker", "was_attacked", -finalDamage);
+        }
+
+        if (currentHP > 0)
+        {
+            NpcCombatTechniqueSystem.ReactToDamageTaken(
+                gameObject,
+                damageAmount);
         }
 
         if (animator != null && useAnimation && directionalAnimator == null)

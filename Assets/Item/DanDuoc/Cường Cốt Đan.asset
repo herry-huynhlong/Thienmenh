@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
   m_Name: "C\u01B0\u1EDDng C\u1ED1t \u0110an"
   m_EditorClassIdentifier: Assembly-CSharp::StatItemData
+  itemId: 65d3b20d6384c2b479a2693b5e4c9a55
   itemName: "C\u01B0\u1EDDng C\u1ED1t \u0110an"
   description: "\u0110an d\u01B0\u1EE3c h\u1EA1 ph\u1EA9m luy\u1EC7n t\u1EEB C\u01B0\u1EDDng
     C\u1ED1t Th\u1EA3o. D\u01B0\u1EE3c l\u1EF1c th\u1EA5m v\xE0o g\xE2n c\u1ED1t,
@@ -59,6 +60,10 @@ MonoBehaviour:
   tieuThanhPower: 0.3
   trungThanhPower: 0.6
   daiThanhPower: 1
+  playBuyEffect: 0
+  buyEffectPrefab: {fileID: 0}
+  buyEffectOffset: {x: 0, y: 0.15, z: 0}
+  buyEffectScale: 1
   isTemporary: 0
   duration: 10
   modifiers: []

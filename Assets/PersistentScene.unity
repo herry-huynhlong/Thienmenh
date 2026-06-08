@@ -2158,6 +2158,53 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -20, y: -20}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &260925075
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 260925077}
+  - component: {fileID: 260925076}
+  m_Layer: 0
+  m_Name: PlayerWallet
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &260925076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 260925075}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0374d88d8f0ec474da7c181f68579cd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerWallet
+  money: 1000
+  currencyName: "Linh Th\u1EA1ch"
+  saveWallet: 1
+--- !u!4 &260925077
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 260925075}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 952.0768, y: 1831.5848, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &276768833
 GameObject:
   m_ObjectHideFlags: 0
@@ -3520,7 +3567,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.983, y: -1.0005}
+  m_AnchoredPosition: {x: -75, y: -1.0005}
   m_SizeDelta: {x: 226.234, y: 65.999}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &387108303
@@ -3626,7 +3673,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 129.7149, y: -0.7717285, z: -29.692505, w: 0.053955078}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -4434,6 +4481,8 @@ MonoBehaviour:
   currentMonth: 1
   currentDay: 1
   currentHour: 6
+  loadSavedTimeOnAwake: 1
+  autoSaveWorldTime: 1
   autoSaveInterval: 10
 --- !u!4 &555824011
 Transform:
@@ -7805,7 +7854,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Cho NPC
+  m_text: "Ch\u1EE3 Tu s\u0129"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -8070,6 +8119,7 @@ GameObject:
   - component: {fileID: 1095585153}
   - component: {fileID: 1095585155}
   - component: {fileID: 1095585154}
+  - component: {fileID: 1095585156}
   m_Layer: 5
   m_Name: LinhThachBar
   m_TagString: Untagged
@@ -8136,6 +8186,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1095585152}
   m_CullTransparentMesh: 1
+--- !u!114 &1095585156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1095585152}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e73ce66492488541ac9c5e178f3c97c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RewardedLTAdsButton
+  watchAdButton: {fileID: 1317148563}
+  statusText: {fileID: 0}
+  playerWallet: {fileID: 260925076}
+  rewardLinhThach: 500
+  androidAdUnitId: Rewarded_Android
+  iosAdUnitId: Rewarded_iOS
 --- !u!1 &1095620987
 GameObject:
   m_ObjectHideFlags: 0
@@ -9374,8 +9442,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 8.289, y: 5}
-  m_SizeDelta: {x: 211.622, y: 65.999}
+  m_AnchoredPosition: {x: 92.6811, y: -2.924}
+  m_SizeDelta: {x: 87.2128, y: 81.8473}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1317148563
 MonoBehaviour:
@@ -9420,19 +9488,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1317148564}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1292103296}
-        m_TargetAssemblyTypeName: OpenShopUI, Assembly-CSharp
-        m_MethodName: OpenShop
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1317148564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9615,6 +9671,53 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -20, y: -20}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1377181448
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1377181450}
+  - component: {fileID: 1377181449}
+  m_Layer: 0
+  m_Name: AdsManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1377181449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1377181448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d100f9df36f3686479df280e6ec493e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AdsInitializer
+  androidGameId: 6131599
+  iosGameId: 0
+  testMode: 1
+--- !u!4 &1377181450
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1377181448}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 126.42136, y: 3.80299, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1392221972
 GameObject:
   m_ObjectHideFlags: 0
@@ -11686,7 +11789,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -15, y: -94}
-  m_SizeDelta: {x: 70, y: 70}
+  m_SizeDelta: {x: 120, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1720011757
 MonoBehaviour:
@@ -12357,8 +12460,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 40
-  m_fontSizeBase: 40
+  m_fontSize: 35
+  m_fontSizeBase: 35
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -15541,3 +15644,5 @@ SceneRoots:
   - {fileID: 555824011}
   - {fileID: 1089089146}
   - {fileID: 1292103297}
+  - {fileID: 1377181450}
+  - {fileID: 260925077}

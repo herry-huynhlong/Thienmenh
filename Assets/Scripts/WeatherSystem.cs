@@ -15,11 +15,21 @@ public class WeatherSystem : MonoBehaviour
     public static WeatherSystem Instance { get; private set; }
 
     public WorldWeather CurrentWeather { get; private set; } = WorldWeather.Clear;
+
+    [Header("Calendar Schedule")]
+    public bool useCalendarSchedule = true;
+    [Min(1)] public int rainEveryDays = 5;
+    [Range(0f, 24f)] public float rainDurationHours = 24f;
+    [Range(1, 30)] public int snowDayOfMonth = 15;
+    [Range(0f, 24f)] public float snowDurationHours = 24f;
+
+    [Header("Random Fallback")]
     public float weatherDurationHours = 4f;
 
     public event Action<WorldWeather> OnWeatherChanged;
 
     float nextChangeWorldHour;
+    bool hasScheduledChange;
 
     void Awake()
     {
@@ -31,7 +41,6 @@ public class WeatherSystem : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
-        ScheduleNextChange();
     }
 
     void Update()
@@ -42,14 +51,38 @@ public class WeatherSystem : MonoBehaviour
             return;
         }
 
-        float currentWorldHour =
-            timeSystem.CurrentDay * 24f +
-            timeSystem.CurrentHour;
+        if (useCalendarSchedule)
+        {
+            SetWeather(ResolveScheduledWeather(timeSystem), false);
+            return;
+        }
+
+        if (!hasScheduledChange)
+        {
+            ScheduleNextChange(timeSystem);
+            return;
+        }
+
+        float currentWorldHour = timeSystem.CurrentWorldHour;
 
         if (currentWorldHour >= nextChangeWorldHour)
         {
             RollWeather();
-            ScheduleNextChange();
+            ScheduleNextChange(timeSystem);
+        }
+    }
+
+    public void SetWeather(WorldWeather weather, bool reschedule = true)
+    {
+        if (CurrentWeather != weather)
+        {
+            CurrentWeather = weather;
+            OnWeatherChanged?.Invoke(CurrentWeather);
+        }
+
+        if (reschedule && !useCalendarSchedule && WorldTimeSystem.Instance != null)
+        {
+            ScheduleNextChange(WorldTimeSystem.Instance);
         }
     }
 
@@ -85,6 +118,46 @@ public class WeatherSystem : MonoBehaviour
         return CurrentWeather == WorldWeather.Thunder ? 25f : 0f;
     }
 
+    WorldWeather ResolveScheduledWeather(WorldTimeSystem timeSystem)
+    {
+        if (timeSystem == null)
+        {
+            return CurrentWeather;
+        }
+
+        if (IsSnowTime(timeSystem))
+        {
+            return WorldWeather.Snow;
+        }
+
+        if (IsRainTime(timeSystem))
+        {
+            return WorldWeather.Rain;
+        }
+
+        return WorldWeather.Clear;
+    }
+
+    bool IsSnowTime(WorldTimeSystem timeSystem)
+    {
+        int scheduledSnowDay = Mathf.Clamp(snowDayOfMonth, 1, 30);
+        float duration = Mathf.Clamp(snowDurationHours, 0f, 24f);
+
+        return duration > 0f &&
+            timeSystem.currentDay == scheduledSnowDay &&
+            timeSystem.CurrentHour < duration;
+    }
+
+    bool IsRainTime(WorldTimeSystem timeSystem)
+    {
+        int interval = Mathf.Max(1, rainEveryDays);
+        float duration = Mathf.Clamp(rainDurationHours, 0f, 24f);
+
+        return duration > 0f &&
+            timeSystem.CurrentAbsoluteDay % interval == 0 &&
+            timeSystem.CurrentHour < duration;
+    }
+
     void RollWeather()
     {
         float roll = UnityEngine.Random.value;
@@ -101,20 +174,20 @@ public class WeatherSystem : MonoBehaviour
         }
 
         CurrentWeather = nextWeather;
-        if (OnWeatherChanged != null)
-        {
-            OnWeatherChanged(CurrentWeather);
-        }
+        OnWeatherChanged?.Invoke(CurrentWeather);
     }
 
-    void ScheduleNextChange()
+    void ScheduleNextChange(WorldTimeSystem timeSystem)
     {
-        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
-        float currentWorldHour = timeSystem != null
-            ? timeSystem.currentDay * 24f + timeSystem.currentHour
-            : 0f;
+        if (timeSystem == null)
+        {
+            return;
+        }
+
+        float currentWorldHour = timeSystem.CurrentWorldHour;
         nextChangeWorldHour =
             currentWorldHour +
             Mathf.Max(1f, weatherDurationHours);
+        hasScheduledChange = true;
     }
 }

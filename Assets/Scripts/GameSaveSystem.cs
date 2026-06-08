@@ -54,8 +54,26 @@ public static class GameSaveSystem
     static readonly Dictionary<string, StatItemData> itemByKey =
         new Dictionary<string, StatItemData>();
 
+    static bool savedGameLoadRequested;
+
+    public static bool SavedGameLoadRequested =>
+        savedGameLoadRequested;
+
+    public static bool ShouldLoadSavedGame =>
+        savedGameLoadRequested && HasSave;
+
     public static bool HasSave =>
         PlayerPrefs.GetInt(HasSaveKey, 0) == 1;
+
+    public static void RequestNewGameStart()
+    {
+        savedGameLoadRequested = false;
+    }
+
+    public static void RequestContinueGameStart()
+    {
+        savedGameLoadRequested = HasSave;
+    }
 
     public static void MarkSaveExists()
     {
@@ -64,6 +82,7 @@ public static class GameSaveSystem
 
     public static void ClearSave()
     {
+        savedGameLoadRequested = false;
         itemByKey.Clear();
         ItemInventory.ClearRuntimeCache();
         SimpleItemShop.ClearRuntimeStockCache();
@@ -98,7 +117,9 @@ public static class GameSaveSystem
             return;
         }
 
-        itemByKey[GetItemKey(item)] = item;
+        RegisterItemKey(GetItemKey(item), item, true);
+        RegisterItemKey(item.name, item, false);
+        RegisterItemKey(item.itemName, item, false);
     }
 
     public static StatItemData FindItem(string itemKey)
@@ -108,7 +129,7 @@ public static class GameSaveSystem
             return null;
         }
 
-        itemByKey.TryGetValue(itemKey, out StatItemData item);
+        itemByKey.TryGetValue(itemKey.Trim(), out StatItemData item);
         return item;
     }
 
@@ -119,7 +140,24 @@ public static class GameSaveSystem
             return "";
         }
 
-        return item.name;
+        return item.ItemId;
+    }
+
+    static void RegisterItemKey(
+        string itemKey,
+        StatItemData item,
+        bool overwrite)
+    {
+        if (string.IsNullOrWhiteSpace(itemKey) || item == null)
+        {
+            return;
+        }
+
+        string normalizedKey = itemKey.Trim();
+        if (overwrite || !itemByKey.ContainsKey(normalizedKey))
+        {
+            itemByKey[normalizedKey] = item;
+        }
     }
 
     public static float GetManualUseYears(StatItemData item)
@@ -129,9 +167,25 @@ public static class GameSaveSystem
             return 0f;
         }
 
-        return PlayerPrefs.GetFloat(
+        float years = PlayerPrefs.GetFloat(
             ManualUsePrefix + GetItemKey(item),
             0f);
+
+        if (!string.IsNullOrEmpty(item.name))
+        {
+            years = Mathf.Max(
+                years,
+                PlayerPrefs.GetFloat(ManualUsePrefix + item.name, 0f));
+        }
+
+        if (!string.IsNullOrEmpty(item.itemName))
+        {
+            years = Mathf.Max(
+                years,
+                PlayerPrefs.GetFloat(ManualUsePrefix + item.itemName, 0f));
+        }
+
+        return years;
     }
 
     public static void AddManualUseYears(StatItemData item, float years)
@@ -145,6 +199,7 @@ public static class GameSaveSystem
         PlayerPrefs.SetFloat(
             key,
             Mathf.Max(0f, PlayerPrefs.GetFloat(key, 0f) + years));
+        RegisterDynamicSaveKey(key);
         MarkSaveExists();
     }
     public static void SaveCurrentScene(string sceneName = "")

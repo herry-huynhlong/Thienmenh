@@ -309,6 +309,28 @@ public class TouchSelectTarget : MonoBehaviour
 
     public void ShowInventoryTab()
     {
+        if (IsNpcTarget(currentTarget) &&
+            !HasHeavenDaoPower(HeavenDaoPower.ViewBasicNpcInfo))
+        {
+            showingInventory = false;
+
+            SetInventoryContentVisible(false);
+            SetInfoIconVisible(false);
+            SetInfoContentVisible(true);
+
+            if (infoText != null)
+            {
+                infoText.text = "Thiên Đạo chưa đủ Chưởng Khống.\nCần 5% để xem kho Tu sĩ.";
+            }
+
+            if (npcInventoryPanel != null)
+            {
+                npcInventoryPanel.HideContentOnly();
+            }
+
+            return;
+        }
+
         showingInventory = true;
 
         SetInfoContentVisible(false);
@@ -746,6 +768,11 @@ public class TouchSelectTarget : MonoBehaviour
     {
         if (target == null ||
             target.GetComponent<MonsterAI>() != null)
+        {
+            return false;
+        }
+
+        if (!HasHeavenDaoPower(HeavenDaoPower.ViewBasicNpcInfo))
         {
             return false;
         }
@@ -1373,6 +1400,12 @@ public class TouchSelectTarget : MonoBehaviour
             return BuildMonsterInfo(monster);
         }
 
+        if (IsNpcTarget(target) &&
+            !HasHeavenDaoPower(HeavenDaoPower.ViewBasicNpcInfo))
+        {
+            return "Thiên Đạo chưa đủ Chưởng Khống.\nCần 5% để xem thông tin Tu sĩ.";
+        }
+
         StringBuilder builder =
             new StringBuilder();
 
@@ -1415,6 +1448,20 @@ public class TouchSelectTarget : MonoBehaviour
         builder.AppendLine(NpcText.Label("loot") + ": " + GetMonsterLootText(monster));
 
         return builder.ToString().TrimEnd();
+    }
+
+    bool IsNpcTarget(Transform target)
+    {
+        return target != null &&
+            (target.GetComponent<VillagerAI>() != null ||
+            target.GetComponent<SmartNpcAI>() != null ||
+            target.GetComponent<NpcData>() != null);
+    }
+
+    bool HasHeavenDaoPower(HeavenDaoPower power)
+    {
+        return HeavenDaoSystem.Instance != null &&
+            HeavenDaoSystem.Instance.HasPower(power);
     }
 
     string GetMonsterLootText(MonsterAI monster)

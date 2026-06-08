@@ -44,12 +44,14 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
     void Awake()
     {
+        bool appliedProfile = false;
         if (generateFromEntityProfile)
         {
             ApplyEntityProfile();
+            appliedProfile = entityProfile != null;
         }
 
-        RecalculateStats(true);
+        RecalculateStats(!appliedProfile);
     }
 
     public void ApplyEntityProfile()
@@ -72,10 +74,11 @@ public class CharacterStats : MonoBehaviour, IDamageable
         baseAttack = Mathf.Max(1, entityProfile.stats.attack / realmMultiplier);
         baseDefense = Mathf.Max(0, entityProfile.stats.defense / realmMultiplier);
         baseMoveSpeed = Mathf.Max(0.1f, entityProfile.stats.moveSpeed);
+        finalHP = Mathf.Max(1, entityProfile.stats.maxHP);
         currentHP =
             Mathf.Clamp(
                 entityProfile.stats.currentHP,
-                1,
+                0,
                 Mathf.Max(1, entityProfile.stats.maxHP));
     }
 
@@ -327,6 +330,13 @@ public class CharacterStats : MonoBehaviour, IDamageable
         if (entityProfile != null)
         {
             entityProfile.stats.currentHP = currentHP;
+        }
+
+        if (!IsDead)
+        {
+            NpcCombatTechniqueSystem.ReactToDamageTaken(
+                gameObject,
+                damage);
         }
     }
 

@@ -22,6 +22,7 @@ public class WorldEventManager : MonoBehaviour
     public static WorldEventManager Instance;
     private List<LogEntry> worldLogs = new List<LogEntry>();
     public static event Action OnLogUpdated;
+    public static event Action<LogEntry> LogAdded;
 
     void Awake()
     {
@@ -48,6 +49,7 @@ public class WorldEventManager : MonoBehaviour
         string timeStr = GetWorldTimeFormatted();
         LogEntry newLog = new LogEntry(timeStr, content, colorType);
         worldLogs.Insert(0, newLog); 
+        LogAdded?.Invoke(newLog);
         OnLogUpdated?.Invoke();     
     }
 
@@ -71,6 +73,7 @@ public class WorldEventManager : MonoBehaviour
         string timeStr = GetWorldTimeFormatted();
         LogEntry newLog = new LogEntry(timeStr, content, convertedColor);
         worldLogs.Insert(0, newLog); 
+        LogAdded?.Invoke(newLog);
         OnLogUpdated?.Invoke(); 
     }
 

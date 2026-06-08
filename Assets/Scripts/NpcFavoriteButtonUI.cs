@@ -72,7 +72,7 @@ public class NpcFavoriteButtonUI : MonoBehaviour
 
         if (currentNpc == null)
         {
-            Debug.Log("Chua chon NPC de danh dau.");
+            Debug.Log("Chua chon Tu si de danh dau.");
             return;
         }
 
@@ -208,7 +208,7 @@ public class NpcFavoriteButtonUI : MonoBehaviour
 
             if (currentNpc != null)
             {
-                Debug.Log("Da tu lay NPC cho nut sao: " + npcTransform.name);
+                Debug.Log("Da tu lay Tu si cho nut sao: " + npcTransform.name);
                 return;
             }
         }
