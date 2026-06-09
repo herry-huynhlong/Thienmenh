@@ -88,7 +88,8 @@ public enum PillKind
     PermanentDefense,
     PermanentMaxHP,
     Detox,
-    Poison
+    Poison,
+    TribulationProtection
 }
 
 public enum ManualKind

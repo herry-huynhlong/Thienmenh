@@ -13,6 +13,7 @@ public class CharacterStats : MonoBehaviour, IDamageable
     public int realmStage = 1;
     public long cultivationExp;
     public int baseExpToNextRealm = 100;
+    public bool waitingForHeavenlyTribulation;
 
     [Header("Base Stats")]
     public int baseMaxHP = 100;
@@ -127,6 +128,7 @@ public class CharacterStats : MonoBehaviour, IDamageable
     public void AddCultivationExp(int amount)
     {
         if (amount <= 0 ||
+            waitingForHeavenlyTribulation ||
             realm == CultivationRealm.Tribulation)
         {
             return;
@@ -134,7 +136,8 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
         cultivationExp += amount;
 
-        while (cultivationExp >= ExpToNextRealm() &&
+        while (!waitingForHeavenlyTribulation &&
+            cultivationExp >= ExpToNextRealm() &&
             realm != CultivationRealm.Tribulation)
         {
             cultivationExp -= ExpToNextRealm();
@@ -144,9 +147,28 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
     public void Breakthrough()
     {
+        if (waitingForHeavenlyTribulation)
+        {
+            return;
+        }
+
         if (realm == CultivationRealm.Tribulation)
         {
             cultivationExp = 0;
+            return;
+        }
+
+        if (realmStage >= CultivationProgression.MaxStage)
+        {
+            CultivationRealm targetRealm =
+                (CultivationRealm)((int)realm + 1);
+
+            waitingForHeavenlyTribulation = true;
+            HeavenlyTribulationSystem.Request(
+                gameObject,
+                gameObject.name,
+                targetRealm,
+                () => CompleteMajorBreakthrough(targetRealm));
             return;
         }
 
@@ -159,6 +181,20 @@ public class CharacterStats : MonoBehaviour, IDamageable
                 (CultivationRealm)((int)realm + 1);
         }
 
+        RecalculateStats(true);
+        currentHP = finalHP;
+    }
+
+    void CompleteMajorBreakthrough(CultivationRealm targetRealm)
+    {
+        waitingForHeavenlyTribulation = false;
+        if (IsDead)
+        {
+            return;
+        }
+
+        realmStage = 1;
+        realm = targetRealm;
         RecalculateStats(true);
         currentHP = finalHP;
     }
@@ -234,6 +270,13 @@ public class CharacterStats : MonoBehaviour, IDamageable
         if (item == null)
         {
             return;
+        }
+
+        if (direction > 0)
+        {
+            HeavenlyTribulationSystem.MarkPillProtectionIfEligible(
+                gameObject,
+                item);
         }
 
         foreach (StatModifier modifier in item.GetAllModifiers(powerMultiplier))

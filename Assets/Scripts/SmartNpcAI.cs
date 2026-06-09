@@ -70,6 +70,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     public long breakthroughNeed = 100;
 
     public bool readyForHeavenlyTribulation = false;
+    public bool waitingForHeavenlyTribulation;
 
     [Header("Tai san")]
     [InspectorName("Linh Thach")]
@@ -105,6 +106,10 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     public float crowdLookAheadDistance = 0.7f;
     public float crowdDetourDistance = 0.6f;
     public float crowdYieldDuration = 0.22f;
+    public float unstuckCheckDelay = 1.1f;
+    public float unstuckMinMoveDistance = 0.03f;
+    public float unstuckOffsetRadius = 0.9f;
+    public float escapeTargetReachDistance = 0.18f;
 
     public Transform currentTarget;
     Transform treasureHuntTarget;
@@ -115,6 +120,10 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     private Rigidbody2D rb;
     Collider2D[] selfColliders;
+    Vector3 lastUnstuckPosition;
+    Vector3 escapeTarget;
+    float stuckMoveTimer;
+    bool hasEscapeTarget;
 
     [Header("Chien dau")]
     public float attackRange = 1.5f;
@@ -186,6 +195,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         selfColliders = GetComponentsInChildren<Collider2D>();
 
         spawnPosition = transform.position;
+        lastUnstuckPosition = transform.position;
 
         characterStats = GetComponent<CharacterStats>();
 
@@ -370,6 +380,9 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             !movingToTreasureWait)
         {
             rb.linearVelocity = Vector2.zero;
+            hasEscapeTarget = false;
+            stuckMoveTimer = 0f;
+            lastUnstuckPosition = transform.position;
 
             return;
         }
@@ -377,6 +390,19 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         Vector3 desiredTarget = movingToTreasureWait
             ? treasureWaitPosition
             : currentTarget.position;
+
+        if (hasEscapeTarget)
+        {
+            if (Vector2.Distance(transform.position, escapeTarget) <=
+                escapeTargetReachDistance)
+            {
+                hasEscapeTarget = false;
+            }
+            else
+            {
+                desiredTarget = escapeTarget;
+            }
+        }
 
         bool usingTeleportRoute;
         string routeAction;
@@ -431,6 +457,8 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
         rb.linearVelocity =
             direction * moveSpeed;
+
+        UpdateUnstuck(direction);
     }
 
     void OnNpcMapTeleported(GameObject gateObject)
@@ -595,6 +623,62 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         {
             rb.linearVelocity = Vector2.zero;
         }
+    }
+
+    void UpdateUnstuck(Vector2 moveDirection)
+    {
+        if (moveDirection.sqrMagnitude <= 0.0001f)
+        {
+            stuckMoveTimer = 0f;
+            lastUnstuckPosition = transform.position;
+            return;
+        }
+
+        float moved = Vector2.Distance(
+            transform.position,
+            lastUnstuckPosition);
+
+        if (moved <= unstuckMinMoveDistance)
+        {
+            stuckMoveTimer += Time.fixedDeltaTime;
+        }
+        else
+        {
+            stuckMoveTimer = 0f;
+            lastUnstuckPosition = transform.position;
+        }
+
+        if (stuckMoveTimer < unstuckCheckDelay)
+        {
+            return;
+        }
+
+        escapeTarget = PickUnstuckEscapeTarget(moveDirection);
+        hasEscapeTarget = true;
+        stuckMoveTimer = 0f;
+        lastUnstuckPosition = transform.position;
+    }
+
+    Vector3 PickUnstuckEscapeTarget(Vector2 moveDirection)
+    {
+        Vector2 direction = moveDirection.sqrMagnitude > 0.0001f
+            ? moveDirection.normalized
+            : Random.insideUnitCircle.normalized;
+
+        if (direction.sqrMagnitude <= 0.0001f)
+        {
+            direction = Vector2.up;
+        }
+
+        Vector2 side = new Vector2(-direction.y, direction.x);
+        float distance = Mathf.Max(0.35f, unstuckOffsetRadius);
+        int sideSign = (GetInstanceID() & 1) == 0 ? 1 : -1;
+
+        Vector2 escapeDirection =
+            (direction * 0.35f + side * sideSign).normalized;
+
+        return transform.position +
+            (Vector3)(escapeDirection * distance);
     }
 
     bool TryResolveCrowdAhead(
@@ -1159,7 +1243,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     void AddCultivationProgress(int amount)
     {
-        if (IsDead)
+        if (IsDead || waitingForHeavenlyTribulation)
         {
             return;
         }
@@ -1173,7 +1257,8 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
         cultivation += amount;
 
-        while (cultivation >= breakthroughNeed &&
+        while (!waitingForHeavenlyTribulation &&
+            cultivation >= breakthroughNeed &&
             realm != CultivationRealm.Tribulation)
         {
             cultivation -= breakthroughNeed;
@@ -1215,11 +1300,18 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     void Breakthrough()
     {
+        if (waitingForHeavenlyTribulation)
+        {
+            return;
+        }
+
         if (characterStats != null)
         {
             characterStats.Breakthrough();
             SyncFromCharacterStats();
-            currentAction = NpcText.Action("breakthrough");
+            currentAction = characterStats.waitingForHeavenlyTribulation
+                ? NpcText.Action("waitTribulation")
+                : NpcText.Action("breakthrough");
             return;
         }
 
@@ -1237,6 +1329,21 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
         cultivation = 0;
 
+        if (realmStage >= CultivationProgression.MaxStage)
+        {
+            CultivationRealm targetRealm =
+                (CultivationRealm)((int)realm + 1);
+
+            waitingForHeavenlyTribulation = true;
+            currentAction = NpcText.Action("waitTribulation");
+            HeavenlyTribulationSystem.Request(
+                gameObject,
+                npcName,
+                targetRealm,
+                () => CompleteMajorBreakthrough(targetRealm));
+            return;
+        }
+
         realmStage += 1;
 
         if (realmStage > 9)
@@ -1251,6 +1358,22 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
         currentAction = NpcText.Action("breakthrough");
 
+        Debug.Log(NpcText.Format(NpcText.Get("logs", "breakthrough"), npcName, GetRealmName(), realmStage));
+    }
+
+    void CompleteMajorBreakthrough(CultivationRealm targetRealm)
+    {
+        waitingForHeavenlyTribulation = false;
+        if (IsDead)
+        {
+            return;
+        }
+
+        realmStage = 1;
+        realm = targetRealm;
+        ApplyRealmPower(true);
+        lifespan = GetLifespanForRealm(realm);
+        currentAction = NpcText.Action("breakthrough");
         Debug.Log(NpcText.Format(NpcText.Get("logs", "breakthrough"), npcName, GetRealmName(), realmStage));
     }
 
@@ -1621,6 +1744,13 @@ bool ShouldFightMonster(
         if (item == null)
         {
             return;
+        }
+
+        if (direction > 0)
+        {
+            HeavenlyTribulationSystem.MarkPillProtectionIfEligible(
+                gameObject,
+                item);
         }
 
         foreach (StatModifier modifier in item.GetAllModifiers(powerMultiplier))

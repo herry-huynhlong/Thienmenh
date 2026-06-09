@@ -64,6 +64,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     public int defense = 2;
     public int lifespan = 80;
     public bool dieWhenLifespanEnds = true;
+    public bool waitingForHeavenlyTribulation;
 
     [Header("Personality")]
     [Range(0, 100)]
@@ -126,6 +127,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     public float unstuckCheckDelay = 1.2f;
     public float unstuckMinMoveDistance = 0.03f;
     public float unstuckOffsetRadius = 0.7f;
+    public float minWanderTargetDistance = 0.8f;
     public float movementAcceleration = 8f;
     public float movementDeceleration = 12f;
     public float animationIdleSpeed = 0.03f;
@@ -3575,6 +3577,9 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         ClearActivePath();
+        hasObstacleAvoidTarget = false;
+        hasRoadPreference = false;
+        movingToRoad = false;
         SetDirectMoveTarget(escapeTarget);
         stuckMoveTimer = 0f;
         lastUnstuckPosition = transform.position;
@@ -3723,7 +3728,10 @@ public class VillagerAI : MonoBehaviour, IDamageable
             Vector2 random = Random.insideUnitCircle * Mathf.Max(0.1f, wanderRadius);
             Vector3 candidate = ClampToCurrentMapArea(center + new Vector3(random.x, random.y, 0f));
 
-            if (IsMoveTargetFeasible(candidate) && HasClearLineTo(candidate))
+            if (Vector2.Distance(transform.position, candidate) >=
+                Mathf.Max(arriveDistance * 2f, minWanderTargetDistance) &&
+                IsMoveTargetFeasible(candidate) &&
+                HasClearLineTo(candidate))
             {
                 target = candidate;
                 return true;
@@ -5383,6 +5391,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         if (amount <= 0 ||
+            waitingForHeavenlyTribulation ||
             realm == CultivationRealm.Tribulation)
         {
             return;
@@ -5390,7 +5399,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         cultivationExp += amount;
 
-        while (cultivationExp >= ExpToNextRealm() &&
+        while (!waitingForHeavenlyTribulation &&
+            cultivationExp >= ExpToNextRealm() &&
             realm != CultivationRealm.Tribulation)
         {
             cultivationExp -= ExpToNextRealm();
@@ -5400,9 +5410,29 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     void Breakthrough()
     {
+        if (waitingForHeavenlyTribulation)
+        {
+            return;
+        }
+
         if (realm == CultivationRealm.Tribulation)
         {
             cultivationExp = 0;
+            return;
+        }
+
+        if (realmStage >= CultivationProgression.MaxStage)
+        {
+            CultivationRealm targetRealm =
+                (CultivationRealm)((int)realm + 1);
+
+            waitingForHeavenlyTribulation = true;
+            currentAction = NpcText.Action("waitTribulation");
+            HeavenlyTribulationSystem.Request(
+                gameObject,
+                villagerName,
+                targetRealm,
+                () => CompleteMajorBreakthrough(targetRealm));
             return;
         }
 
@@ -5415,6 +5445,22 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 (CultivationRealm)((int)realm + 1);
         }
 
+        ApplyRealmPower();
+        currentHP = maxHP;
+        lifespan = GetLifespanForRealm(realm);
+        currentAction = NpcText.ActionFormat("breakthroughTo", GetRealmText());
+    }
+
+    void CompleteMajorBreakthrough(CultivationRealm targetRealm)
+    {
+        waitingForHeavenlyTribulation = false;
+        if (IsDead)
+        {
+            return;
+        }
+
+        realmStage = 1;
+        realm = targetRealm;
         ApplyRealmPower();
         currentHP = maxHP;
         lifespan = GetLifespanForRealm(realm);
@@ -5595,6 +5641,13 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (direction > 0)
+        {
+            HeavenlyTribulationSystem.MarkPillProtectionIfEligible(
+                gameObject,
+                item);
+        }
+
         foreach (StatModifier modifier in item.GetAllModifiers(powerMultiplier))
         {
             ApplyModifier(modifier, direction);
@@ -5650,6 +5703,13 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
             case StatType.MoveSpeed:
                 moveSpeed += modifier.floatValue * direction;
+                break;
+
+            case StatType.Breakthrough:
+                if (direction > 0)
+                {
+                    Breakthrough();
+                }
                 break;
         }
     }

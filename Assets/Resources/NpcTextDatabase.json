@@ -467,7 +467,7 @@
       "name": "taskNames",
       "entries": [
         { "key": "gatherResource", "value": "Thu thập tài nguyên" },
-        { "key": "harvestLinhRice", "value": "Thu hoạch linh gạo" },
+        { "key": "harvestLinhRice", "value": "Thu hoạch Linh Mễ" },
         { "key": "gatherLowSpiritHerb", "value": "Thu thập linh thảo hạ phẩm" },
         { "key": "patrolOutsideVillage", "value": "Tuần tra ngoài làng" },
         { "key": "huntDangerousMonster", "value": "Săn yêu thú nguy hiểm" },
