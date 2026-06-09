@@ -6,6 +6,7 @@ using UnityEngine;
 public class HeavenlyTribulationSystem : MonoBehaviour
 {
     public static HeavenlyTribulationSystem Instance { get; private set; }
+
     static readonly Dictionary<int, float> pillProtectionUntil =
         new Dictionary<int, float>();
 
@@ -20,12 +21,19 @@ public class HeavenlyTribulationSystem : MonoBehaviour
     [Range(0f, 1f)] public float breakthroughPillDamageReduction = 0.3f;
     public float pillProtectionDuration = 30f;
 
-    [Header("Visual")]
+    [Header("Prefab Thiên Kiếp Mới")]
+    public bool useStrikePrefab = true;
+    public ThienKiepStrikePrefab strikePrefab;
+    public bool useFallbackIfNoPrefab = true;
+
+    [Header("Visual Fallback Cũ")]
     public float cloudHeight = 3.2f;
     public float boltLife = 0.22f;
     public float boltWidth = 0.1f;
     public Color boltCoreColor = Color.white;
     public Color boltOuterColor = new Color(0.25f, 0.85f, 1f, 1f);
+
+    static Material cachedLineMaterial;
 
     void Awake()
     {
@@ -51,6 +59,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         }
 
         HeavenlyTribulationSystem system = Instance;
+
         if (system == null)
         {
             GameObject systemObject = new GameObject("Heavenly Tribulation System");
@@ -86,6 +95,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         }
 
         HeavenlyTribulationSystem system = Instance;
+
         float duration = system != null
             ? system.pillProtectionDuration
             : 30f;
@@ -106,18 +116,25 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         }
 
         IDamageable damageable = target.GetComponentInParent<IDamageable>();
+
         if (damageable == null || damageable.IsDead)
         {
             yield break;
         }
 
         TribulationRuntime runtime = BuildRuntime(target, targetRealm);
+
         Vector3 center = FindOpenArea(target.transform.position, target);
+
         MoveTargetToCenter(target, center);
-        AddWorldLog(displayName + " dẫn động Thiên Kiếp, chuẩn bị đột phá " +
-            NpcText.Realm(targetRealm) + ".", 2);
+
+        AddWorldLog(
+            displayName + " dẫn động Thiên Kiếp, chuẩn bị đột phá " +
+            NpcText.Realm(targetRealm) + ".",
+            2);
 
         yield return PlayCloudGathering(center, runtime);
+
         yield return new WaitForSeconds(0.35f);
 
         HeavenSystem heaven = HeavenSystem.Instance;
@@ -132,7 +149,9 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 
             Vector2 offset = UnityEngine.Random.insideUnitCircle * strikeRadius;
             Vector3 strikePosition = center + (Vector3)offset;
+
             Strike(heaven, strikePosition, runtime.damagePerStrike);
+
             yield return new WaitForSeconds(Mathf.Max(0.05f, lightningInterval));
         }
 
@@ -142,6 +161,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         }
 
         Strike(heaven, target.transform.position, runtime.finalStrikeDamage);
+
         yield return new WaitForSeconds(0.1f);
 
         if (target == null || damageable.IsDead)
@@ -151,8 +171,11 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         }
 
         onPassed?.Invoke();
-        AddWorldLog(displayName + " vượt qua Thiên Kiếp, đột phá " +
-            NpcText.Realm(targetRealm) + ".", 1);
+
+        AddWorldLog(
+            displayName + " vượt qua Thiên Kiếp, đột phá " +
+            NpcText.Realm(targetRealm) + ".",
+            1);
     }
 
     struct TribulationRuntime
@@ -170,7 +193,9 @@ public class HeavenlyTribulationSystem : MonoBehaviour
     {
         float talentFactor = GetTalentFactor(target);
         float realmFactor = 1f + Mathf.Max(0, (int)targetRealm) * 0.12f;
+
         bool protectedByPill = ConsumePillProtection(target);
+
         float pillMultiplier = protectedByPill
             ? 1f - Mathf.Clamp01(breakthroughPillDamageReduction)
             : 1f;
@@ -181,6 +206,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
                 Mathf.RoundToInt(lightningCount * talentFactor * realmFactor),
                 3,
                 36),
+
             damagePerStrike = Mathf.Max(
                 1,
                 Mathf.RoundToInt(
@@ -188,6 +214,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
                     (0.75f + talentFactor * 0.55f) *
                     realmFactor *
                     pillMultiplier)),
+
             finalStrikeDamage = Mathf.Max(
                 1,
                 Mathf.RoundToInt(
@@ -195,6 +222,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
                     (0.75f + talentFactor * 0.55f) *
                     realmFactor *
                     pillMultiplier)),
+
             usedProtectionPill = protectedByPill,
             talentFactor = talentFactor
         };
@@ -205,6 +233,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         float score = 20f;
 
         EntityProfile profile = target.GetComponent<EntityProfile>();
+
         if (profile != null && profile.talent != null)
         {
             score = Mathf.Max(
@@ -216,12 +245,14 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         }
 
         SmartNpcAI smartNpc = target.GetComponent<SmartNpcAI>();
+
         if (smartNpc != null)
         {
             score = Mathf.Max(score, smartNpc.comprehension);
         }
 
         MonsterAI monster = target.GetComponent<MonsterAI>();
+
         if (monster != null)
         {
             score = Mathf.Max(
@@ -241,12 +272,14 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         }
 
         int key = target.GetHashCode();
+
         if (!pillProtectionUntil.TryGetValue(key, out float expiresAt))
         {
             return false;
         }
 
         pillProtectionUntil.Remove(key);
+
         return Time.time <= expiresAt;
     }
 
@@ -256,23 +289,31 @@ public class HeavenlyTribulationSystem : MonoBehaviour
     {
         GameObject cloudObject = new GameObject("Tribulation Cloud Ring");
         LineRenderer cloud = cloudObject.AddComponent<LineRenderer>();
-        cloud.useWorldSpace = true;
+
+        SetupLineRenderer(
+            cloud,
+            true,
+            48,
+            0.08f,
+            0.08f,
+            runtime.usedProtectionPill
+                ? new Color(0.25f, 0.95f, 0.65f, 0.85f)
+                : new Color(0.45f, 0.18f, 0.85f, 0.85f),
+            runtime.usedProtectionPill
+                ? new Color(0.25f, 0.95f, 0.65f, 0.85f)
+                : new Color(0.45f, 0.18f, 0.85f, 0.85f),
+            95);
+
         cloud.loop = true;
-        cloud.positionCount = 48;
-        cloud.startWidth = 0.08f;
-        cloud.endWidth = 0.08f;
-        cloud.startColor = runtime.usedProtectionPill
-            ? new Color(0.25f, 0.95f, 0.65f, 0.85f)
-            : new Color(0.45f, 0.18f, 0.85f, 0.85f);
-        cloud.endColor = cloud.startColor;
-        cloud.sortingOrder = 95;
 
         float radius = strikeRadius * Mathf.Clamp(runtime.talentFactor, 1f, 2f);
         Vector3 cloudCenter = center + Vector3.up * cloudHeight;
+
         for (int i = 0; i < cloud.positionCount; i++)
         {
             float angle = i / (float)cloud.positionCount * Mathf.PI * 2f;
             float wobble = UnityEngine.Random.Range(-0.12f, 0.12f);
+
             cloud.SetPosition(
                 i,
                 cloudCenter +
@@ -292,22 +333,65 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 
     void Strike(HeavenSystem heaven, Vector3 position, int damage)
     {
-        StartCoroutine(PlayFallbackLightning(position));
-
         float radius = heaven != null
             ? heaven.punishmentRadius
             : 1.2f;
+
         LayerMask damageLayers = heaven != null
             ? heaven.damageLayers
             : ~0;
 
+        PlayStrikeVisual(position);
+
+        ApplyStrikeDamage(position, radius, damageLayers, damage);
+    }
+
+    void PlayStrikeVisual(Vector3 position)
+    {
+        if (useStrikePrefab && strikePrefab != null)
+        {
+            ThienKiepStrikePrefab strike =
+                Instantiate(strikePrefab, position, Quaternion.identity);
+
+            LayerMask noDamageLayers = 0;
+
+            strike.Play(0, noDamageLayers);
+
+            return;
+        }
+
+        if (useFallbackIfNoPrefab)
+        {
+            StartCoroutine(PlayFallbackLightning(position));
+        }
+        else
+        {
+            Debug.LogWarning(
+                "HeavenlyTribulationSystem chưa gán Strike Prefab và fallback đang tắt.",
+                gameObject);
+        }
+    }
+
+    void ApplyStrikeDamage(
+        Vector3 position,
+        float radius,
+        LayerMask damageLayers,
+        int damage)
+    {
         Collider2D[] hits = Physics2D.OverlapCircleAll(
             position,
             radius,
             damageLayers);
+
         foreach (Collider2D hit in hits)
         {
+            if (hit == null)
+            {
+                continue;
+            }
+
             IDamageable damageable = hit.GetComponentInParent<IDamageable>();
+
             if (damageable == null || damageable.IsDead)
             {
                 continue;
@@ -319,40 +403,69 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 
     IEnumerator PlayFallbackLightning(Vector3 position)
     {
-        GameObject lightningObject = new GameObject("Heavenly Tribulation Lightning");
+        GameObject lightningObject =
+            new GameObject("Heavenly Tribulation Lightning");
+
+        if (lightningObject == null)
+        {
+            yield break;
+        }
+
         LineRenderer outer = lightningObject.AddComponent<LineRenderer>();
-
-        outer.useWorldSpace = true;
-        outer.positionCount = 8;
-        outer.startWidth = boltWidth * 1.8f;
-        outer.endWidth = boltWidth * 0.45f;
-        outer.startColor = boltOuterColor;
-        outer.endColor = boltOuterColor;
-        outer.sortingOrder = 120;
-
         LineRenderer core = lightningObject.AddComponent<LineRenderer>();
-        core.useWorldSpace = true;
-        core.positionCount = outer.positionCount;
-        core.startWidth = boltWidth;
-        core.endWidth = boltWidth * 0.25f;
-        core.startColor = boltCoreColor;
-        core.endColor = boltCoreColor;
-        core.sortingOrder = 121;
+
+        if (outer == null || core == null)
+        {
+            if (lightningObject != null)
+            {
+                Destroy(lightningObject);
+            }
+
+            yield break;
+        }
+
+        int pointCount = 8;
+
+        SetupLineRenderer(
+            outer,
+            true,
+            pointCount,
+            boltWidth * 1.8f,
+            boltWidth * 0.45f,
+            boltOuterColor,
+            boltOuterColor,
+            120);
+
+        SetupLineRenderer(
+            core,
+            true,
+            pointCount,
+            boltWidth,
+            boltWidth * 0.25f,
+            boltCoreColor,
+            boltCoreColor,
+            121);
 
         Vector3 top = position + Vector3.up * cloudHeight;
-        for (int i = 0; i < outer.positionCount; i++)
+
+        for (int i = 0; i < pointCount; i++)
         {
-            float progress = i / Mathf.Max(1f, outer.positionCount - 1f);
+            float progress = i / Mathf.Max(1f, pointCount - 1f);
             Vector3 point = Vector3.Lerp(top, position, progress);
+
             point.x += UnityEngine.Random.Range(-0.26f, 0.26f) *
                 Mathf.Lerp(1f, 0.2f, progress);
+
             outer.SetPosition(i, point);
             core.SetPosition(i, point);
         }
 
-        for (int i = 2; i < outer.positionCount - 2; i += 2)
+        for (int i = 2; i < pointCount - 2; i += 2)
         {
-            PlayLightningBranch(lightningObject, outer.GetPosition(i));
+            if (outer != null && lightningObject != null)
+            {
+                PlayLightningBranch(lightningObject, outer.GetPosition(i));
+            }
         }
 
         PlayImpactRing(position);
@@ -367,44 +480,82 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 
     void PlayLightningBranch(GameObject parent, Vector3 start)
     {
+        if (parent == null)
+        {
+            return;
+        }
+
         GameObject branchObject = new GameObject("Lightning Branch");
         branchObject.transform.SetParent(parent.transform, true);
+
         LineRenderer branch = branchObject.AddComponent<LineRenderer>();
-        branch.useWorldSpace = true;
-        branch.positionCount = 3;
-        branch.startWidth = boltWidth * 0.45f;
-        branch.endWidth = boltWidth * 0.1f;
-        branch.startColor = boltOuterColor;
-        branch.endColor = boltCoreColor;
-        branch.sortingOrder = 119;
+
+        if (branch == null)
+        {
+            Destroy(branchObject);
+            return;
+        }
+
+        SetupLineRenderer(
+            branch,
+            true,
+            3,
+            boltWidth * 0.45f,
+            boltWidth * 0.1f,
+            boltOuterColor,
+            boltCoreColor,
+            119);
 
         Vector3 end = start + new Vector3(
             UnityEngine.Random.Range(-0.65f, 0.65f),
             UnityEngine.Random.Range(-0.35f, 0.15f),
             0f);
+
         branch.SetPosition(0, start);
-        branch.SetPosition(1, Vector3.Lerp(start, end, 0.5f) +
+
+        branch.SetPosition(
+            1,
+            Vector3.Lerp(start, end, 0.5f) +
             new Vector3(UnityEngine.Random.Range(-0.15f, 0.15f), 0f, 0f));
+
         branch.SetPosition(2, end);
     }
 
     void PlayImpactRing(Vector3 position)
     {
         GameObject ringObject = new GameObject("Lightning Impact Ring");
+
+        if (ringObject == null)
+        {
+            return;
+        }
+
         LineRenderer ring = ringObject.AddComponent<LineRenderer>();
-        ring.useWorldSpace = true;
+
+        if (ring == null)
+        {
+            Destroy(ringObject);
+            return;
+        }
+
+        SetupLineRenderer(
+            ring,
+            true,
+            28,
+            0.04f,
+            0.04f,
+            boltOuterColor,
+            Color.white,
+            118);
+
         ring.loop = true;
-        ring.positionCount = 28;
-        ring.startWidth = 0.04f;
-        ring.endWidth = 0.04f;
-        ring.startColor = boltOuterColor;
-        ring.endColor = Color.white;
-        ring.sortingOrder = 118;
 
         float radius = 0.32f;
+
         for (int i = 0; i < ring.positionCount; i++)
         {
             float angle = i / (float)ring.positionCount * Mathf.PI * 2f;
+
             ring.SetPosition(
                 i,
                 position + new Vector3(
@@ -416,6 +567,67 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         Destroy(ringObject, boltLife);
     }
 
+    void SetupLineRenderer(
+        LineRenderer line,
+        bool useWorldSpace,
+        int positionCount,
+        float startWidth,
+        float endWidth,
+        Color startColor,
+        Color endColor,
+        int sortingOrder)
+    {
+        if (line == null)
+        {
+            return;
+        }
+
+        line.useWorldSpace = useWorldSpace;
+        line.positionCount = Mathf.Max(2, positionCount);
+        line.startWidth = startWidth;
+        line.endWidth = endWidth;
+        line.startColor = startColor;
+        line.endColor = endColor;
+        line.sortingOrder = sortingOrder;
+
+        Material material = GetLineMaterial();
+
+        if (material != null)
+        {
+            line.material = material;
+        }
+    }
+
+    Material GetLineMaterial()
+    {
+        if (cachedLineMaterial != null)
+        {
+            return cachedLineMaterial;
+        }
+
+        Shader shader = Shader.Find("Sprites/Default");
+
+        if (shader == null)
+        {
+            shader = Shader.Find("Universal Render Pipeline/2D/Sprite-Unlit-Default");
+        }
+
+        if (shader == null)
+        {
+            shader = Shader.Find("Unlit/Color");
+        }
+
+        if (shader == null)
+        {
+            return null;
+        }
+
+        cachedLineMaterial = new Material(shader);
+        cachedLineMaterial.name = "Runtime_Lightning_Line_Material";
+
+        return cachedLineMaterial;
+    }
+
     Vector3 FindOpenArea(Vector3 origin, GameObject target)
     {
         if (IsOpen(origin, target))
@@ -424,11 +636,20 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         }
 
         float maxRadius = Mathf.Max(1f, openAreaSearchRadius);
+
         for (int i = 0; i < 36; i++)
         {
             float radius = Mathf.Lerp(1f, maxRadius, i / 35f);
-            Vector2 offset = UnityEngine.Random.insideUnitCircle.normalized * radius;
+            Vector2 randomDirection = UnityEngine.Random.insideUnitCircle;
+
+            if (randomDirection.sqrMagnitude <= 0.001f)
+            {
+                randomDirection = Vector2.right;
+            }
+
+            Vector2 offset = randomDirection.normalized * radius;
             Vector3 candidate = origin + new Vector3(offset.x, offset.y, 0f);
+
             if (IsOpen(candidate, target))
             {
                 return candidate;
@@ -464,7 +685,13 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 
     void MoveTargetToCenter(GameObject target, Vector3 center)
     {
+        if (target == null)
+        {
+            return;
+        }
+
         Rigidbody2D rb = target.GetComponent<Rigidbody2D>();
+
         if (rb != null)
         {
             rb.position = center;
