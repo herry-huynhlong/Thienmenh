@@ -20,7 +20,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/BenTau.unity
     guid: ce6ce1ebe3999934d854c9d9c2f12624
-  - enabled: 1
+  - enabled: 0
     path: Assets/DefaceGames/LiteMapScene.unity
     guid: e8b8b1d6c848d514197aa695ebeb564e
   m_configObjects:
