@@ -66,9 +66,11 @@ public class NpcMapMover2D : MonoBehaviour
     float blockedTimer;
     float blockedMoveTimer;
     float crowdBlockedTimer;
-    float movementPausedUntil;
-    float crowdYieldUntil;
-    Vector2 obstacleAvoidTarget;
+      float movementPausedUntil;
+      float crowdYieldUntil;
+      float crowdDirectionCommitUntil;
+      Vector2 crowdCommittedDirection;
+      Vector2 obstacleAvoidTarget;
     float obstacleAvoidUntil;
     bool waitingAfterArrive;
     bool hasTarget;
@@ -332,7 +334,18 @@ public class NpcMapMover2D : MonoBehaviour
 
                 if (blockedMoveTimer >= blockedTargetRetryDelay)
                 {
-                    StopAndWait(false, blockedRetryWait);
+                    if (!TryPickStuckEscapeTarget(direction, out Vector2 escapeTarget))
+                    {
+                        StopAndWait(false, blockedRetryWait);
+                        return;
+                    }
+
+                    obstacleAvoidTarget = escapeTarget;
+                    obstacleAvoidUntil = Time.time + 1.4f;
+                    hasObstacleAvoidTarget = true;
+                    blockedMoveTimer = 0f;
+                    stuckTimer = 0f;
+                    currentAction = "Escape Block";
                 }
 
                 return;
@@ -1002,14 +1015,21 @@ public class NpcMapMover2D : MonoBehaviour
         return (direction + push.normalized * separationStrength).normalized;
     }
 
-    bool TryResolveCrowdAhead(
-        Vector2 desiredDirection,
-        out Vector2 resolvedDirection)
-    {
-        resolvedDirection = desiredDirection;
+      bool TryResolveCrowdAhead(
+          Vector2 desiredDirection,
+          out Vector2 resolvedDirection)
+      {
+          resolvedDirection = desiredDirection;
 
-        if (desiredDirection.sqrMagnitude <= 0.0001f ||
-            crowdLookAheadDistance <= 0f)
+          if (Time.time < crowdDirectionCommitUntil &&
+              crowdCommittedDirection.sqrMagnitude > 0.0001f)
+          {
+              resolvedDirection = crowdCommittedDirection.normalized;
+              return true;
+          }
+
+          if (desiredDirection.sqrMagnitude <= 0.0001f ||
+              crowdLookAheadDistance <= 0f)
         {
             return true;
         }
@@ -1032,31 +1052,104 @@ public class NpcMapMover2D : MonoBehaviour
             return true;
         }
 
-        if (ShouldYieldToNpc(other))
+        if (TryForceCrowdStepAside(desiredDirection, other, out resolvedDirection))
         {
-            crowdYieldUntil =
-                Time.time +
-                Mathf.Max(0.05f, crowdYieldDuration) *
-                Random.Range(0.75f, 1.35f);
-            StopRigidbodyMotion();
-            currentAction = "Yielding";
-            return false;
-        }
-
-        if (TryChooseCrowdDetourDirection(
-                desiredDirection,
-                other,
-                out resolvedDirection))
-        {
+            crowdBlockedTimer = 0f;
             return true;
         }
 
-        crowdYieldUntil =
-            Time.time +
-            Mathf.Max(0.05f, crowdYieldDuration) *
-            Random.Range(0.75f, 1.35f);
-        StopRigidbodyMotion();
-        currentAction = "Yielding";
+          if (ShouldYieldToNpc(other))
+          {
+              crowdYieldUntil =
+                  Time.time +
+                  Mathf.Max(0.05f, crowdYieldDuration) *
+                  Random.Range(0.75f, 1.35f);
+              crowdCommittedDirection = desiredDirection;
+              crowdDirectionCommitUntil =
+                  Time.time + Mathf.Max(0.1f, crowdYieldDuration * 0.5f);
+              StopRigidbodyMotion();
+              currentAction = "Yielding";
+              return false;
+          }
+
+          if (TryChooseCrowdDetourDirection(
+                  desiredDirection,
+                  other,
+                  out resolvedDirection))
+          {
+              crowdCommittedDirection = resolvedDirection;
+              crowdDirectionCommitUntil = Time.time + 0.35f;
+              return true;
+          }
+
+          crowdYieldUntil =
+              Time.time +
+              Mathf.Max(0.05f, crowdYieldDuration) *
+              Random.Range(0.75f, 1.35f);
+          crowdCommittedDirection = desiredDirection;
+          crowdDirectionCommitUntil =
+              Time.time + Mathf.Max(0.1f, crowdYieldDuration * 0.5f);
+          StopRigidbodyMotion();
+          currentAction = "Yielding";
+          return false;
+      }
+
+    bool TryForceCrowdStepAside(
+        Vector2 desiredDirection,
+        Collider2D other,
+        out Vector2 detourDirection)
+    {
+        detourDirection = desiredDirection;
+
+        if (desiredDirection.sqrMagnitude <= 0.0001f)
+        {
+            return false;
+        }
+
+        Vector2 desired = desiredDirection.normalized;
+        Vector2 side = new Vector2(-desired.y, desired.x);
+
+        if (ShouldUseRightSide(other))
+        {
+            side = -side;
+        }
+
+        float distance = Mathf.Max(
+            crowdDetourDistance,
+            separationRadius,
+            targetClearRadius * 2.5f);
+
+        Vector2[] candidates =
+        {
+            side,
+            -side,
+            side + desired * 0.25f,
+            -side + desired * 0.25f
+        };
+
+        for (int i = 0; i < candidates.Length; i++)
+        {
+            Vector2 candidate = candidates[i];
+            if (candidate.sqrMagnitude <= 0.0001f)
+            {
+                continue;
+            }
+
+            candidate.Normalize();
+            Vector2 nextPoint = rb.position + candidate * distance;
+
+              if (IsPositionBlocked(nextPoint) ||
+                  !HasClearLineTo(nextPoint))
+              {
+                  continue;
+              }
+
+              detourDirection = candidate;
+              crowdCommittedDirection = detourDirection;
+              crowdDirectionCommitUntil = Time.time + 0.35f;
+              return true;
+          }
+
         return false;
     }
 
@@ -1232,14 +1325,108 @@ public class NpcMapMover2D : MonoBehaviour
 
         if (stuckTimer >= stuckTimeToPickNewTarget)
         {
-            if (onlyPickNewTargetAfterArrive)
+            Vector2 desiredDirection =
+                hasObstacleAvoidTarget
+                ? obstacleAvoidTarget - rb.position
+                : currentTarget - rb.position;
+
+            if (TryPickStuckEscapeTarget(desiredDirection, out Vector2 escapeTarget))
             {
-                StopAndWait(false, blockedRetryWait);
+                obstacleAvoidTarget = escapeTarget;
+                obstacleAvoidUntil = Time.time + 1.4f;
+                hasObstacleAvoidTarget = true;
+                blockedMoveTimer = 0f;
+                stuckTimer = 0f;
+                currentAction = "Escape Stuck";
                 return;
             }
 
             StopAndWait(false, blockedRetryWait);
         }
+    }
+
+    bool TryPickStuckEscapeTarget(
+        Vector2 blockedDirection,
+        out Vector2 target)
+    {
+        target = rb != null ? rb.position : (Vector2)transform.position;
+
+        if (rb == null)
+        {
+            return false;
+        }
+
+        Vector2 forward =
+            blockedDirection.sqrMagnitude > 0.0001f
+            ? blockedDirection.normalized
+            : Random.insideUnitCircle.normalized;
+
+        if (forward.sqrMagnitude <= 0.0001f)
+        {
+            forward = Vector2.up;
+        }
+
+        Vector2 side = new Vector2(-forward.y, forward.x);
+        int sideSign = (GetInstanceID() & 1) == 0 ? 1 : -1;
+
+        Vector2[] directions =
+        {
+            side * sideSign,
+            -side * sideSign,
+            (side * sideSign - forward * 0.5f).normalized,
+            (-side * sideSign - forward * 0.5f).normalized,
+            -forward,
+            (side * sideSign + forward * 0.25f).normalized,
+            (-side * sideSign + forward * 0.25f).normalized
+        };
+
+        float baseDistance =
+            Mathf.Max(targetClearRadius * 4f, obstacleDetourLookAhead, 0.45f);
+        float bestScore = float.NegativeInfinity;
+        Vector2 best = target;
+        bool found = false;
+
+        for (int radiusStep = 0; radiusStep < 4; radiusStep++)
+        {
+            float distance =
+                baseDistance + radiusStep * Mathf.Max(targetClearRadius * 2f, 0.35f);
+
+            for (int i = 0; i < directions.Length; i++)
+            {
+                Vector2 direction = directions[i];
+                if (direction.sqrMagnitude <= 0.0001f)
+                {
+                    continue;
+                }
+
+                direction.Normalize();
+                Vector2 candidate =
+                    ClampToAllowedArea(rb.position + direction * distance);
+
+                if (!IsInsideAllowedArea(candidate) ||
+                    IsPositionBlocked(candidate) ||
+                    !HasClearLineTo(candidate) ||
+                    IsBlocked(direction))
+                {
+                    continue;
+                }
+
+                float score =
+                    GetClearDistance(direction, GetObstacleLookAheadDistance()) +
+                    Mathf.Max(-0.25f, Vector2.Dot(direction, -forward)) *
+                    baseDistance;
+
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = candidate;
+                    found = true;
+                }
+            }
+        }
+
+        target = best;
+        return found;
     }
 
     bool IsInsideAllowedArea(Vector2 position)

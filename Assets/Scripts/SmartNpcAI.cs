@@ -742,13 +742,27 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
-        escapeTarget = PickUnstuckEscapeTarget(moveDirection);
-        hasEscapeTarget = true;
+        if (TryPickUnstuckEscapeTarget(moveDirection, out escapeTarget))
+        {
+            hasEscapeTarget = true;
+            hasObstacleAvoidTarget = false;
+            blockedMoveTimer = 0f;
+        }
+        else
+        {
+            hasEscapeTarget = false;
+            HandleBlockedMovement(
+                transform.position + (Vector3)moveDirection,
+                currentTarget != null ? currentTarget.position : transform.position);
+        }
+
         stuckMoveTimer = 0f;
         lastUnstuckPosition = transform.position;
     }
 
-    Vector3 PickUnstuckEscapeTarget(Vector2 moveDirection)
+    bool TryPickUnstuckEscapeTarget(
+        Vector2 moveDirection,
+        out Vector3 target)
     {
         Vector2 direction = moveDirection.sqrMagnitude > 0.0001f
             ? moveDirection.normalized
@@ -760,14 +774,68 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         }
 
         Vector2 side = new Vector2(-direction.y, direction.x);
-        float distance = Mathf.Max(0.35f, unstuckOffsetRadius);
         int sideSign = (GetInstanceID() & 1) == 0 ? 1 : -1;
 
-        Vector2 escapeDirection =
-            (direction * 0.35f + side * sideSign).normalized;
+        Vector2[] directions =
+        {
+            side * sideSign,
+            -side * sideSign,
+            (side * sideSign - direction * 0.5f).normalized,
+            (-side * sideSign - direction * 0.5f).normalized,
+            -direction,
+            (side * sideSign + direction * 0.25f).normalized,
+            (-side * sideSign + direction * 0.25f).normalized
+        };
 
-        return transform.position +
-            (Vector3)(escapeDirection * distance);
+        float baseDistance =
+            Mathf.Max(0.35f, unstuckOffsetRadius, targetClearRadius * 3f);
+        float bestScore = float.NegativeInfinity;
+        Vector3 best = transform.position;
+        bool found = false;
+
+        for (int radiusStep = 0; radiusStep < 4; radiusStep++)
+        {
+            float distance =
+                baseDistance + radiusStep * Mathf.Max(targetClearRadius * 2f, 0.35f);
+
+            for (int i = 0; i < directions.Length; i++)
+            {
+                Vector2 escapeDirection = directions[i];
+                if (escapeDirection.sqrMagnitude <= 0.0001f)
+                {
+                    continue;
+                }
+
+                escapeDirection.Normalize();
+                Vector3 candidate =
+                    transform.position +
+                    (Vector3)(escapeDirection * distance);
+
+                candidate.z = transform.position.z;
+
+                if (!IsMoveTargetFeasible(candidate) ||
+                    !HasClearLineTo(candidate) ||
+                    IsMovementBlocked(escapeDirection))
+                {
+                    continue;
+                }
+
+                float score =
+                    GetClearDistance(escapeDirection, GetObstacleLookAheadDistance()) +
+                    Mathf.Max(-0.25f, Vector2.Dot(escapeDirection, -direction)) *
+                    baseDistance;
+
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = candidate;
+                    found = true;
+                }
+            }
+        }
+
+        target = best;
+        return found;
     }
 
     bool IsMoveTargetFeasible(Vector3 position)

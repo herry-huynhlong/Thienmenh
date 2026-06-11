@@ -231,9 +231,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
     float actionTimer;
     float nextSocialScanTime;
     float nextConversationAllowedTime;
-    float movementPausedUntil;
-    float crowdYieldUntil;
-    Vector3 obstacleAvoidTarget;
+      float movementPausedUntil;
+      float crowdYieldUntil;
+      float crowdDirectionCommitUntil;
+      Vector2 crowdCommittedDirection;
+      Vector3 obstacleAvoidTarget;
     float obstacleAvoidUntil;
     bool hasObstacleAvoidTarget;
     bool hasWanderTarget;
@@ -360,12 +362,31 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        pathCellSize = Mathf.Max(pathCellSize, 0.7f);
-        pathReplanCooldown = Mathf.Max(pathReplanCooldown, 2f);
-        maxPathNodes = Mathf.Clamp(maxPathNodes, 64, 500);
-        maxPathSteps = Mathf.Clamp(maxPathSteps, 32, 160);
-        sharedPathMemoryCellSize =
-            Mathf.Max(sharedPathMemoryCellSize, pathCellSize * 3f);
+        if (Application.isMobilePlatform)
+        {
+            useCameraDistanceThrottle = true;
+            fullUpdateDistanceFromCamera =
+                Mathf.Min(fullUpdateDistanceFromCamera, 10f);
+            reducedUpdateInterval =
+                Mathf.Max(reducedUpdateInterval, 0.45f);
+
+            pathCellSize = Mathf.Max(pathCellSize, 1f);
+            pathReplanCooldown = Mathf.Max(pathReplanCooldown, 3f);
+            maxPathNodes = Mathf.Clamp(maxPathNodes, 48, 220);
+            maxPathSteps = Mathf.Clamp(maxPathSteps, 24, 96);
+            sharedPathMemoryCellSize =
+                Mathf.Max(sharedPathMemoryCellSize, pathCellSize * 4f);
+        }
+        else
+        {
+            pathCellSize = Mathf.Max(pathCellSize, 0.7f);
+            pathReplanCooldown = Mathf.Max(pathReplanCooldown, 2f);
+            maxPathNodes = Mathf.Clamp(maxPathNodes, 64, 500);
+            maxPathSteps = Mathf.Clamp(maxPathSteps, 32, 160);
+            sharedPathMemoryCellSize =
+                Mathf.Max(sharedPathMemoryCellSize, pathCellSize * 3f);
+        }
+
         compareRememberedPathWithNewPath = false;
         useLocalDetour = true;
     }
@@ -3599,7 +3620,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         Vector3 escapeTarget;
-        if (!TryPickCrowdEscapeTarget(out escapeTarget))
+        Vector2 escapeDirection = desiredVelocity.sqrMagnitude > 0.0001f
+            ? desiredVelocity.normalized
+            : GetDirectionToActiveMoveTarget();
+
+        if (!TryPickObstacleEscapeTarget(escapeDirection, out escapeTarget) &&
+            !TryPickCrowdEscapeTarget(out escapeTarget))
         {
             Vector2 offset =
                 Random.insideUnitCircle.normalized *
@@ -4177,15 +4203,22 @@ public class VillagerAI : MonoBehaviour, IDamageable
         return false;
     }
 
-    bool TryResolveCrowdAhead(
-        Vector2 desiredDirection,
-        Vector3 finalTarget,
-        out Vector2 resolvedDirection)
-    {
-        resolvedDirection = desiredDirection;
+      bool TryResolveCrowdAhead(
+          Vector2 desiredDirection,
+          Vector3 finalTarget,
+          out Vector2 resolvedDirection)
+      {
+          resolvedDirection = desiredDirection;
 
-        if (desiredDirection.sqrMagnitude <= 0.0001f ||
-            crowdLookAheadDistance <= 0f)
+          if (Time.time < crowdDirectionCommitUntil &&
+              crowdCommittedDirection.sqrMagnitude > 0.0001f)
+          {
+              resolvedDirection = crowdCommittedDirection.normalized;
+              return true;
+          }
+
+          if (desiredDirection.sqrMagnitude <= 0.0001f ||
+              crowdLookAheadDistance <= 0f)
         {
             return true;
         }
@@ -4212,33 +4245,53 @@ public class VillagerAI : MonoBehaviour, IDamageable
             crowdBlockedTimer = 0f;
         }
 
-        if (ShouldYieldToNpc(other))
-        {
-            crowdYieldUntil =
-                Time.time +
-                Mathf.Max(0.05f, crowdYieldDuration) *
-                Random.Range(0.75f, 1.35f);
-            StopMoving();
-            return false;
-        }
+          if (TryForceCrowdStepAside(
+                  desiredDirection,
+                  finalTarget,
+                  other,
+                  out resolvedDirection))
+          {
+              crowdBlockedTimer = 0f;
+              crowdCommittedDirection = resolvedDirection;
+              crowdDirectionCommitUntil = Time.time + 0.35f;
+              return true;
+          }
 
-        if (TryChooseCrowdDetourDirection(
-                desiredDirection,
-                finalTarget,
-                other,
-                out resolvedDirection))
-        {
-            crowdBlockedTimer = 0f;
-            return true;
-        }
+          if (ShouldYieldToNpc(other))
+          {
+              crowdYieldUntil =
+                  Time.time +
+                  Mathf.Max(0.05f, crowdYieldDuration) *
+                  Random.Range(0.75f, 1.35f);
+              crowdCommittedDirection = desiredDirection;
+              crowdDirectionCommitUntil =
+                  Time.time + Mathf.Max(0.1f, crowdYieldDuration * 0.5f);
+              StopMoving();
+              return false;
+          }
 
-        crowdYieldUntil =
-            Time.time +
-            Mathf.Max(0.05f, crowdYieldDuration) *
-            Random.Range(0.75f, 1.35f);
-        StopMoving();
-        return false;
-    }
+          if (TryChooseCrowdDetourDirection(
+                  desiredDirection,
+                  finalTarget,
+                  other,
+                  out resolvedDirection))
+          {
+              crowdBlockedTimer = 0f;
+              crowdCommittedDirection = resolvedDirection;
+              crowdDirectionCommitUntil = Time.time + 0.35f;
+              return true;
+          }
+
+          crowdYieldUntil =
+              Time.time +
+              Mathf.Max(0.05f, crowdYieldDuration) *
+              Random.Range(0.75f, 1.35f);
+          crowdCommittedDirection = desiredDirection;
+          crowdDirectionCommitUntil =
+              Time.time + Mathf.Max(0.1f, crowdYieldDuration * 0.5f);
+          StopMoving();
+          return false;
+      }
 
     bool TryFindNpcAhead(
         Vector2 direction,
@@ -4386,6 +4439,194 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         return false;
+    }
+
+    bool TryForceCrowdStepAside(
+        Vector2 desiredDirection,
+        Vector3 finalTarget,
+        Collider2D other,
+        out Vector2 detourDirection)
+    {
+        detourDirection = desiredDirection;
+
+        if (desiredDirection.sqrMagnitude <= 0.0001f)
+        {
+            return false;
+        }
+
+        Vector2 desired = desiredDirection.normalized;
+        Vector2 targetDirection =
+            ((Vector2)finalTarget - (Vector2)transform.position);
+        if (targetDirection.sqrMagnitude <= 0.0001f)
+        {
+            targetDirection = desired;
+        }
+        else
+        {
+            targetDirection.Normalize();
+        }
+
+        Vector2 side = new Vector2(-desired.y, desired.x);
+        if (ShouldUseRightSide(other))
+        {
+            side = -side;
+        }
+
+        float distance = Mathf.Max(
+            crowdDetourDistance,
+            separationRadius,
+            targetClearRadius * 2.5f);
+
+        Vector2[] candidates =
+        {
+            side,
+            -side,
+            side + desired * 0.25f,
+            -side + desired * 0.25f
+        };
+
+        for (int i = 0; i < candidates.Length; i++)
+        {
+            Vector2 candidate = candidates[i];
+            if (candidate.sqrMagnitude <= 0.0001f)
+            {
+                continue;
+            }
+
+            candidate.Normalize();
+            Vector2 nextPoint =
+                (Vector2)transform.position + candidate * distance;
+
+              if (!IsInsideCurrentMapArea(nextPoint) ||
+                  IsPositionBlocked(nextPoint) ||
+                  !HasClearLineTo(nextPoint))
+              {
+                  continue;
+              }
+
+              float progress = Vector2.Dot(candidate, targetDirection);
+              if (progress < -0.05f)
+              {
+                  continue;
+              }
+
+              detourDirection = candidate;
+              crowdCommittedDirection = detourDirection;
+              crowdDirectionCommitUntil = Time.time + 0.35f;
+              return true;
+          }
+
+        return false;
+    }
+
+    Vector2 GetDirectionToActiveMoveTarget()
+    {
+        Vector3 targetPosition =
+            hasObstacleAvoidTarget
+            ? obstacleAvoidTarget
+            : hasDirectMoveTarget
+                ? directMoveTarget
+                : hasWanderTarget
+                    ? wanderTarget
+                    : currentTarget != null
+                        ? currentTarget.position
+                        : transform.position;
+
+        Vector2 direction =
+            (Vector2)targetPosition - (Vector2)transform.position;
+
+        return direction.sqrMagnitude > 0.0001f
+            ? direction.normalized
+            : Vector2.zero;
+    }
+
+    bool TryPickObstacleEscapeTarget(
+        Vector2 blockedDirection,
+        out Vector3 target)
+    {
+        target = transform.position;
+
+        Vector2 forward =
+            blockedDirection.sqrMagnitude > 0.0001f
+            ? blockedDirection.normalized
+            : GetDirectionToActiveMoveTarget();
+
+        if (forward.sqrMagnitude <= 0.0001f)
+        {
+            forward = Random.insideUnitCircle.normalized;
+        }
+
+        if (forward.sqrMagnitude <= 0.0001f)
+        {
+            forward = Vector2.up;
+        }
+
+        Vector2 side = new Vector2(-forward.y, forward.x);
+        float baseDistance =
+            Mathf.Max(unstuckOffsetRadius, targetClearRadius * 3f);
+
+        Vector2[] directions =
+        {
+            side,
+            -side,
+            (side - forward * 0.5f).normalized,
+            (-side - forward * 0.5f).normalized,
+            -forward,
+            (side + forward * 0.25f).normalized,
+            (-side + forward * 0.25f).normalized
+        };
+
+        float bestScore = float.NegativeInfinity;
+        Vector3 bestTarget = transform.position;
+        bool found = false;
+
+        for (int radiusStep = 0; radiusStep < 4; radiusStep++)
+        {
+            float distance =
+                baseDistance + radiusStep * Mathf.Max(targetClearRadius * 2f, 0.35f);
+
+            for (int i = 0; i < directions.Length; i++)
+            {
+                Vector2 direction = directions[i];
+                if (direction.sqrMagnitude <= 0.0001f)
+                {
+                    continue;
+                }
+
+                direction.Normalize();
+                Vector3 candidate =
+                    ClampToCurrentMapArea(
+                        transform.position +
+                        (Vector3)(direction * distance));
+
+                if (!IsMoveTargetFeasible(candidate) ||
+                    !HasClearLineTo(candidate) ||
+                    IsMovementBlocked(direction))
+                {
+                    continue;
+                }
+
+                float score =
+                    GetClearDistance(direction, GetObstacleLookAheadDistance()) +
+                    Mathf.Max(-0.25f, Vector2.Dot(direction, -forward)) *
+                    baseDistance;
+
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    bestTarget = candidate;
+                    found = true;
+                }
+            }
+        }
+
+        if (!found)
+        {
+            return false;
+        }
+
+        target = bestTarget;
+        return true;
     }
 
     bool ShouldYieldToNpc(Collider2D other)
@@ -5705,10 +5946,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
     {
         if (characterStats != null)
         {
-            return characterStats.GetRealmText();
+            return NpcText.RealmWithStage(
+                characterStats.realm,
+                characterStats.realmStage);
         }
 
-        return NpcText.Realm(realm);
+        return NpcText.RealmWithStage(realm, realmStage);
     }
 
     public int GetAge()

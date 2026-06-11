@@ -93,6 +93,7 @@ public static class NpcSocialEventBus
     public static event Action<GameObject, GameObject, string> RumorShared;
     public static event Action<GameObject, GameObject, int> HostilityHappened;
     public static event Action<GameObject, GameObject, int, Vector3, string> HostilityDetailedHappened;
+    public static event Action<MonsterAI, Vector3, string, int> MonsterDefeated;
 
     public static void PublishTradeCompleted(
         GameObject buyer,
@@ -179,6 +180,283 @@ public static class NpcSocialEventBus
             string.IsNullOrEmpty(reason)
                 ? NpcText.Dialogue("hostilityReasonFallback")
                 : reason);
+    }
+
+    public static void PublishMonsterDefeated(MonsterAI monster)
+    {
+        if (monster == null)
+        {
+            return;
+        }
+
+        string monsterName = !string.IsNullOrWhiteSpace(monster.monsterName)
+            ? monster.monsterName
+            : NpcText.Get("entityTypes", "monster", "Yeu thu");
+
+        MonsterDefeated?.Invoke(
+            monster,
+            monster.transform.position,
+            monsterName,
+            Mathf.Max(1, monster.beastLevel));
+    }
+}
+
+public static class NpcMonsterCombatDialogue
+{
+    class CombatRecord
+    {
+        public readonly List<GameObject> attackers = new List<GameObject>();
+        public float lastHitTime;
+    }
+
+    static readonly Dictionary<int, CombatRecord> records =
+        new Dictionary<int, CombatRecord>();
+    static bool subscribed;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    static void EnsureSubscribed()
+    {
+        if (subscribed)
+        {
+            return;
+        }
+
+        subscribed = true;
+        NpcSocialEventBus.HostilityDetailedHappened += HandleHostility;
+        NpcSocialEventBus.MonsterDefeated += HandleMonsterDefeated;
+    }
+
+    static void HandleHostility(
+        GameObject actor,
+        GameObject target,
+        int severity,
+        Vector3 position,
+        string reason)
+    {
+        if (actor == null || target == null || !IsNpc(actor))
+        {
+            return;
+        }
+
+        MonsterAI monster = target.GetComponent<MonsterAI>();
+        if (monster == null)
+        {
+            return;
+        }
+
+        int id = monster.GetInstanceID();
+        if (!records.TryGetValue(id, out CombatRecord record))
+        {
+            record = new CombatRecord();
+            records[id] = record;
+        }
+
+        if (!record.attackers.Contains(actor))
+        {
+            record.attackers.Add(actor);
+        }
+
+        record.lastHitTime = Time.time;
+    }
+
+    static void HandleMonsterDefeated(
+        MonsterAI monster,
+        Vector3 position,
+        string monsterName,
+        int monsterLevel)
+    {
+        if (monster == null)
+        {
+            return;
+        }
+
+        int id = monster.GetInstanceID();
+        records.TryGetValue(id, out CombatRecord record);
+        records.Remove(id);
+
+        List<GameObject> fighters = CollectValidFighters(record, position);
+        if (fighters.Count <= 0)
+        {
+            fighters = FindNearbyNpcs(position, 4.5f, null);
+        }
+
+        if (fighters.Count <= 0)
+        {
+            return;
+        }
+
+        GameObject first = fighters[0];
+        GameObject second = fighters.Count > 1 ? fighters[1] : FindNearbyNpc(position, first);
+
+        if (second != null)
+        {
+            ShowFormattedLine(
+                first,
+                "monsterVictoryAllyLines",
+                4.5f,
+                5,
+                GetName(first),
+                GetName(second),
+                monsterName,
+                monsterLevel);
+            ShowFormattedLine(
+                second,
+                "monsterVictoryAllyReplies",
+                4.5f,
+                5,
+                GetName(second),
+                GetName(first),
+                monsterName,
+                monsterLevel);
+            AddSharedRespect(first, second);
+            return;
+        }
+
+        ShowFormattedLine(
+            first,
+            "monsterVictorySoloLines",
+            4.5f,
+            5,
+            GetName(first),
+            monsterName,
+            monsterLevel);
+    }
+
+    static List<GameObject> CollectValidFighters(
+        CombatRecord record,
+        Vector3 position)
+    {
+        List<GameObject> fighters = new List<GameObject>();
+        if (record == null || Time.time - record.lastHitTime > 20f)
+        {
+            return fighters;
+        }
+
+        for (int i = 0; i < record.attackers.Count; i++)
+        {
+            GameObject npc = record.attackers[i];
+            if (npc == null ||
+                NpcRoleUtility.IsDead(npc) ||
+                Vector2.Distance(npc.transform.position, position) > 10f)
+            {
+                continue;
+            }
+
+            fighters.Add(npc);
+        }
+
+        return fighters;
+    }
+
+    static GameObject FindNearbyNpc(Vector3 position, GameObject exclude)
+    {
+        List<GameObject> nearby = FindNearbyNpcs(position, 4.5f, exclude);
+        return nearby.Count > 0 ? nearby[0] : null;
+    }
+
+    static List<GameObject> FindNearbyNpcs(
+        Vector3 position,
+        float radius,
+        GameObject exclude)
+    {
+        List<GameObject> result = new List<GameObject>();
+        Collider2D[] hits = Physics2D.OverlapCircleAll(position, radius);
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            if (hits[i] == null)
+            {
+                continue;
+            }
+
+            GameObject npc = GetNpcRoot(hits[i]);
+            if (npc == null ||
+                npc == exclude ||
+                result.Contains(npc) ||
+                NpcRoleUtility.IsDead(npc))
+            {
+                continue;
+            }
+
+            result.Add(npc);
+        }
+
+        return result;
+    }
+
+    static GameObject GetNpcRoot(Collider2D hit)
+    {
+        VillagerAI villager = hit.GetComponentInParent<VillagerAI>();
+        if (villager != null)
+        {
+            return villager.gameObject;
+        }
+
+        SmartNpcAI smartNpc = hit.GetComponentInParent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            return smartNpc.gameObject;
+        }
+
+        return null;
+    }
+
+    static bool IsNpc(GameObject actor)
+    {
+        return actor.GetComponent<VillagerAI>() != null ||
+            actor.GetComponent<SmartNpcAI>() != null;
+    }
+
+    static void ShowFormattedLine(
+        GameObject npc,
+        string key,
+        float duration,
+        int priority,
+        params object[] args)
+    {
+        if (npc == null)
+        {
+            return;
+        }
+
+        string template = NpcText.DialogueLine(key, "");
+        if (string.IsNullOrEmpty(template))
+        {
+            return;
+        }
+
+        NpcOverheadDialogueUI overhead =
+            npc.GetComponent<NpcOverheadDialogueUI>();
+
+        if (overhead == null)
+        {
+            overhead = npc.AddComponent<NpcOverheadDialogueUI>();
+        }
+
+        overhead.ShowLine(NpcText.Format(template, args), duration, priority);
+    }
+
+    static void AddSharedRespect(GameObject first, GameObject second)
+    {
+        NpcRelationshipGraph firstGraph =
+            first.GetComponent<NpcRelationshipGraph>();
+        NpcRelationshipGraph secondGraph =
+            second.GetComponent<NpcRelationshipGraph>();
+
+        if (firstGraph != null)
+        {
+            firstGraph.AddSocial(second, 3, 4, NpcText.Dialogue("combatMonsterReason"));
+        }
+
+        if (secondGraph != null)
+        {
+            secondGraph.AddSocial(first, 3, 4, NpcText.Dialogue("combatMonsterReason"));
+        }
+    }
+
+    static string GetName(GameObject npc)
+    {
+        return NpcRoleUtility.GetDisplayName(npc);
     }
 }
 
@@ -661,12 +939,17 @@ public class NpcMemory : MonoBehaviour
 
         bool isActor = actor == gameObject;
         bool lowHealth = !isActor && GetHealthRatio(gameObject) <= 0.35f;
-        string lineKey = lowHealth
+        bool bulliedByStronger = !isActor && IsBulliedByStronger(actor, gameObject);
+        string lineKey = bulliedByStronger
+            ? "bulliedLowRealmLines"
+            : lowHealth
             ? "combatLowHealthLines"
             : isActor
                 ? "combatAttackLines"
                 : "combatDefendLines";
-        string fallbackKey = lowHealth
+        string fallbackKey = bulliedByStronger
+            ? "combatDefendFallback"
+            : lowHealth
             ? "combatLowHealthFallback"
             : isActor
                 ? "combatAttackFallback"
@@ -675,8 +958,34 @@ public class NpcMemory : MonoBehaviour
             lineKey,
             NpcText.Dialogue(fallbackKey, ""));
 
+        if (bulliedByStronger)
+        {
+            line = NpcText.Format(
+                line,
+                NpcRoleUtility.GetDisplayName(gameObject),
+                NpcRoleUtility.GetDisplayName(actor));
+        }
+
         ShowOverheadLine(line, 3f, 4);
         nextCombatLineTime = Time.time + Mathf.Max(0.5f, combatLineCooldown);
+    }
+
+    bool IsBulliedByStronger(GameObject actor, GameObject target)
+    {
+        if (actor == null || target == null)
+        {
+            return false;
+        }
+
+        int actorPower = NpcRoleUtility.GetRealmPower(actor);
+        int targetPower = NpcRoleUtility.GetRealmPower(target);
+        if (actorPower <= 0 || targetPower <= 0)
+        {
+            return false;
+        }
+
+        return actorPower >= targetPower + 2 ||
+            actorPower >= targetPower * 2;
     }
 
     float GetHealthRatio(GameObject target)
@@ -921,6 +1230,10 @@ public class NpcConversationAgent : MonoBehaviour
     [Range(0f, 1f)] public float firstMeetingTalkChance = 0.45f;
     [Range(0f, 1f)] public float weatherTalkChance = 0.35f;
     [Range(0f, 1f)] public float needsTalkChance = 0.30f;
+    [Range(0f, 1f)] public float namedLongTalkChance = 0.12f;
+    [Range(0f, 1f)] public float monsterHuntTalkChance = 0.22f;
+    public float nearbyMonsterTalkRadius = 8f;
+    public int strongMonsterTalkLevel = 2;
     public bool respectSocialContext = true;
     public bool allowNightConversation;
     public bool allowDangerZoneConversation;
@@ -1262,7 +1575,7 @@ public class NpcConversationAgent : MonoBehaviour
             return Pick(GetHostileLines(), NpcText.DialogueLine("hostileFallback"));
         }
 
-        string contextTopic = PickContextTopic(relation);
+        string contextTopic = PickContextTopic(relation, other);
         if (!string.IsNullOrEmpty(contextTopic))
         {
             return contextTopic;
@@ -1303,13 +1616,39 @@ public class NpcConversationAgent : MonoBehaviour
         return Pick(GetReplyLines(), NpcText.DialogueLine("replyFallback"));
     }
 
-    string PickContextTopic(NpcSocialRelationship relation)
+    string PickContextTopic(
+        NpcSocialRelationship relation,
+        NpcConversationAgent other)
     {
         if (relation != null &&
             relation.lastInteractionDay < 0 &&
             UnityEngine.Random.value < firstMeetingTalkChance)
         {
+            string namedFirstMeeting = PickNamedLine(
+                "namedFirstMeetingLines",
+                other,
+                "");
+            if (!string.IsNullOrEmpty(namedFirstMeeting))
+            {
+                return namedFirstMeeting;
+            }
+
             return Pick(GetJsonLines("firstMeetingLines"), NpcText.DialogueLine("genericGreeting"));
+        }
+
+        string monsterTopic = PickMonsterHuntTopic(other);
+        if (!string.IsNullOrEmpty(monsterTopic))
+        {
+            return monsterTopic;
+        }
+
+        if (UnityEngine.Random.value < namedLongTalkChance)
+        {
+            string longTopic = PickNamedLine("longPersonalLines", other, "");
+            if (!string.IsNullOrEmpty(longTopic))
+            {
+                return longTopic;
+            }
         }
 
         string weatherTopic = PickWeatherLine(false);
@@ -1328,6 +1667,15 @@ public class NpcConversationAgent : MonoBehaviour
             relation.affection >= 25 &&
             UnityEngine.Random.value < 0.35f)
         {
+            string namedFollowUp = PickNamedLine(
+                "namedFriendlyFollowUps",
+                other,
+                "");
+            if (!string.IsNullOrEmpty(namedFollowUp))
+            {
+                return namedFollowUp;
+            }
+
             return Pick(GetJsonLines("friendlyFollowUps"), NpcText.DialogueLine("genericGreeting"));
         }
 
@@ -1346,7 +1694,31 @@ public class NpcConversationAgent : MonoBehaviour
             relation.lastInteractionDay < 0 &&
             UnityEngine.Random.value < 0.7f)
         {
+            string namedFirstReply = PickNamedLine(
+                "namedFirstMeetingReplies",
+                other,
+                "");
+            if (!string.IsNullOrEmpty(namedFirstReply))
+            {
+                return namedFirstReply;
+            }
+
             return Pick(GetJsonLines("firstMeetingReplies"), NpcText.DialogueLine("replyFallback"));
+        }
+
+        string monsterReply = PickMonsterHuntReply(other);
+        if (!string.IsNullOrEmpty(monsterReply))
+        {
+            return monsterReply;
+        }
+
+        if (UnityEngine.Random.value < namedLongTalkChance)
+        {
+            string longReply = PickNamedLine("longPersonalReplies", other, "");
+            if (!string.IsNullOrEmpty(longReply))
+            {
+                return longReply;
+            }
         }
 
         string weatherReply = PickWeatherLine(true);
@@ -1362,6 +1734,114 @@ public class NpcConversationAgent : MonoBehaviour
         }
 
         return "";
+    }
+
+    string PickMonsterHuntTopic(NpcConversationAgent other)
+    {
+        if (UnityEngine.Random.value >= monsterHuntTalkChance)
+        {
+            return "";
+        }
+
+        MonsterAI monster = FindNearbyStrongMonster();
+        if (monster == null)
+        {
+            return "";
+        }
+
+        return PickMonsterLine("monsterHuntInvites", other, monster);
+    }
+
+    string PickMonsterHuntReply(NpcConversationAgent other)
+    {
+        if (UnityEngine.Random.value >= monsterHuntTalkChance)
+        {
+            return "";
+        }
+
+        MonsterAI monster = FindNearbyStrongMonster();
+        if (monster == null)
+        {
+            return "";
+        }
+
+        return PickMonsterLine("monsterHuntReplies", other, monster);
+    }
+
+    MonsterAI FindNearbyStrongMonster()
+    {
+        MonsterAI[] monsters =
+            FindObjectsByType<MonsterAI>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+
+        MonsterAI best = null;
+        float bestDistance = float.MaxValue;
+
+        for (int i = 0; i < monsters.Length; i++)
+        {
+            MonsterAI monster = monsters[i];
+            if (monster == null ||
+                monster.currentHP <= 0 ||
+                monster.beastLevel < strongMonsterTalkLevel)
+            {
+                continue;
+            }
+
+            float distance =
+                Vector2.Distance(transform.position, monster.transform.position);
+
+            if (distance > nearbyMonsterTalkRadius ||
+                distance >= bestDistance)
+            {
+                continue;
+            }
+
+            best = monster;
+            bestDistance = distance;
+        }
+
+        return best;
+    }
+
+    string PickMonsterLine(
+        string key,
+        NpcConversationAgent other,
+        MonsterAI monster)
+    {
+        if (monster == null)
+        {
+            return "";
+        }
+
+        string template = Pick(GetJsonLines(key), "");
+        if (string.IsNullOrEmpty(template))
+        {
+            return "";
+        }
+
+        string monsterName = !string.IsNullOrWhiteSpace(monster.monsterName)
+            ? monster.monsterName
+            : NpcText.Get("entityTypes", "monster", "Yeu thu");
+
+        return NpcText.Format(
+            template,
+            GetSelfName(),
+            GetOtherName(other),
+            monsterName,
+            Mathf.Max(1, monster.beastLevel));
+    }
+
+    string PickNamedLine(
+        string key,
+        NpcConversationAgent other,
+        string fallback)
+    {
+        string template = Pick(GetJsonLines(key), fallback);
+        if (string.IsNullOrEmpty(template))
+        {
+            return "";
+        }
+
+        return NpcText.Format(template, GetSelfName(), GetOtherName(other));
     }
 
     string PickWeatherLine(bool reply)
@@ -1512,6 +1992,19 @@ public class NpcConversationAgent : MonoBehaviour
     {
         return GetJsonLines("hostileLines");
     }
+
+    string GetSelfName()
+    {
+        return NpcRoleUtility.GetDisplayName(gameObject);
+    }
+
+    string GetOtherName(NpcConversationAgent other)
+    {
+        return other != null
+            ? NpcRoleUtility.GetDisplayName(other.gameObject)
+            : NpcText.Get("entityTypes", "npc", "Tu si");
+    }
+
     string Pick(string[] lines, string fallback)
     {
         if (lines == null || lines.Length == 0)

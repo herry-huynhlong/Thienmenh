@@ -167,7 +167,22 @@ public class MonsterAI : MonoBehaviour, IDamageable
         rb = GetComponent<Rigidbody2D>();
         cachedRenderers = GetComponentsInChildren<Renderer>(true);
         cachedColliders = GetComponentsInChildren<Collider2D>(true);
+        NpcCollisionRegistry.Register(this, cachedColliders);
         ConfigureRigidbody();
+
+        if (Application.isMobilePlatform)
+        {
+            useCameraDistanceThrottle = true;
+            fullUpdateDistanceFromCamera =
+                Mathf.Min(fullUpdateDistanceFromCamera, 10f);
+            reducedFixedUpdateInterval =
+                Mathf.Max(reducedFixedUpdateInterval, 0.45f);
+            usePerformanceThrottle = true;
+            thinkInterval = Mathf.Max(thinkInterval, 0.35f);
+            detectInterval = Mathf.Max(detectInterval, 0.6f);
+            detectRange = Mathf.Min(detectRange, 5f);
+        }
+
         startPosition = transform.position;
         waitTimer = waitTime;
         nextThinkTime = Time.time + Random.Range(0f, GetThinkDelay());
@@ -179,6 +194,16 @@ public class MonsterAI : MonoBehaviour, IDamageable
         }
 
         forgetTargetRange = Mathf.Max(forgetTargetRange, detectRange + 1f);
+    }
+
+    void OnDisable()
+    {
+        NpcCollisionRegistry.Unregister(this);
+    }
+
+    void OnDestroy()
+    {
+        NpcCollisionRegistry.Unregister(this);
     }
 
     void ConfigureRigidbody()
@@ -1321,6 +1346,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
         isDead = true;
         desiredVelocity = Vector2.zero;
         ClearCurrentTarget();
+        NpcSocialEventBus.PublishMonsterDefeated(this);
 
         CancelInvoke(nameof(ApplyAttackDamage));
         CancelInvoke(nameof(EndAttack));

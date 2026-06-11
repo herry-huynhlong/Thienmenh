@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CharacterStats : MonoBehaviour, IDamageable
 {
@@ -390,26 +390,9 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
     public string GetRealmText()
     {
-        switch (realm)
-        {
-            case CultivationRealm.Mortal:
-                return "Phàm Nhân";
-            case CultivationRealm.QiRefining:
-                return "Luyện Khí";
-            case CultivationRealm.Foundation:
-                return "Trúc Cơ";
-            case CultivationRealm.GoldenCore:
-                return "Kim Đan";
-            case CultivationRealm.NascentSoul:
-                return "Nguyên Anh";
-            case CultivationRealm.SoulFormation:
-                return "Hóa Thần";
-            case CultivationRealm.Tribulation:
-                return "Độ Kiếp";
-            default:
-                return realm.ToString();
-        }
+        return NpcText.RealmWithStage(realm, realmStage);
     }
+
 
     void OnValidate()
     {

@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -30,8 +31,10 @@ public class MainMenuManager : MonoBehaviour
 
     void Awake()
     {
+        EnsureSingleActiveEventSystem();
+        EnsureCanvasRaycaster();
         // ApplySavedSettings();
-        // HookMainMenuButtonsByName();
+        HookMainMenuButtonsByName();
         HookSettingsControls();
         HookSettingsButtonByName();
 
@@ -141,8 +144,137 @@ public class MainMenuManager : MonoBehaviour
             if (IsContinueButtonKey(key))
             {
                 ReplaceButtonClick(button, ContinueGame);
+                continue;
+            }
+
+            if (IsSettingsButtonKey(key))
+            {
+                ReplaceButtonClick(button, OpenSettings);
+                continue;
+            }
+
+            if (IsAboutButtonKey(key))
+            {
+                ReplaceButtonClick(button, About);
+                continue;
+            }
+
+            if (IsExitButtonKey(key))
+            {
+                ReplaceButtonClick(button, QuitGame);
             }
         }
+    }
+
+    void EnsureSingleActiveEventSystem()
+    {
+        EventSystem[] systems =
+            FindObjectsByType<EventSystem>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+
+        if (systems.Length == 0)
+        {
+            GameObject eventSystemObject = new GameObject("EventSystem");
+            eventSystemObject.AddComponent<EventSystem>();
+            eventSystemObject.AddComponent<StandaloneInputModule>();
+            return;
+        }
+
+        EventSystem keep = ChoosePreferredEventSystem(systems);
+
+        foreach (EventSystem system in systems)
+        {
+            if (system == null || system == keep)
+            {
+                continue;
+            }
+
+            if (system.gameObject.activeSelf)
+            {
+                Debug.LogWarning(
+                    $"MainMenuManager: disabling duplicate EventSystem '{system.name}'.");
+                system.gameObject.SetActive(false);
+            }
+        }
+
+        if (keep == null)
+        {
+            return;
+        }
+
+        if (!keep.gameObject.activeSelf)
+        {
+            keep.gameObject.SetActive(true);
+        }
+
+        keep.enabled = true;
+        EventSystem.current = keep;
+
+        BaseInputModule[] modules = keep.GetComponents<BaseInputModule>();
+
+        foreach (BaseInputModule module in modules)
+        {
+            if (module != null)
+            {
+                module.enabled = true;
+            }
+        }
+    }
+
+    EventSystem ChoosePreferredEventSystem(EventSystem[] systems)
+    {
+        EventSystem firstActive = null;
+
+        foreach (EventSystem system in systems)
+        {
+            if (system == null)
+            {
+                continue;
+            }
+
+            if (firstActive == null && system.gameObject.activeInHierarchy)
+            {
+                firstActive = system;
+            }
+
+            BaseInputModule[] modules = system.GetComponents<BaseInputModule>();
+
+            foreach (BaseInputModule module in modules)
+            {
+                if (module == null)
+                {
+                    continue;
+                }
+
+                if (module.GetType().Name.Contains("InputSystemUIInputModule"))
+                {
+                    return system;
+                }
+            }
+        }
+
+        return firstActive != null ? firstActive : systems[0];
+    }
+
+    void EnsureCanvasRaycaster()
+    {
+        Canvas canvas = FindFirstObjectByType<Canvas>();
+
+        if (canvas == null)
+        {
+            return;
+        }
+
+        GraphicRaycaster raycaster = canvas.GetComponent<GraphicRaycaster>();
+
+        if (raycaster == null)
+        {
+            canvas.gameObject.AddComponent<GraphicRaycaster>();
+            return;
+        }
+
+        raycaster.enabled = true;
     }
 
     void ReplaceButtonClick(
@@ -192,6 +324,28 @@ public class MainMenuManager : MonoBehaviour
             key.Contains("contine") ||
             key.Contains("tieptuc") ||
             key.Contains("loadgame");
+    }
+
+    bool IsSettingsButtonKey(string key)
+    {
+        return key.Contains("settings") ||
+            key.Contains("setting") ||
+            key.Contains("options") ||
+            key.Contains("caidat");
+    }
+
+    bool IsAboutButtonKey(string key)
+    {
+        return key.Contains("about") ||
+            key.Contains("gioithieu") ||
+            key.Contains("intro");
+    }
+
+    bool IsExitButtonKey(string key)
+    {
+        return key.Contains("exit") ||
+            key.Contains("quit") ||
+            key.Contains("thoat");
     }
 
     string NormalizeMenuKey(string value)
@@ -410,7 +564,7 @@ public class MainMenuManager : MonoBehaviour
         foreach (Button button in buttons)
         {
             if (button == null ||
-                !IsSettingsButtonName(button.name))
+                !IsSettingsButtonKey(GetButtonKey(button)))
             {
                 continue;
             }

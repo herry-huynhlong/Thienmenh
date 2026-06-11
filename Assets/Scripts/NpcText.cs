@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -154,6 +154,19 @@ public static class NpcText
     public static string Realm(CultivationRealm realm)
     {
         return Get("realms", realm.ToString(), realm.ToString());
+    }
+
+    public static string RealmWithStage(CultivationRealm realm, int stage)
+    {
+        string realmName = Realm(realm);
+        int safeStage = Mathf.Max(1, stage);
+
+        if (realm == CultivationRealm.Tribulation)
+        {
+            return realmName;
+        }
+
+        return Format(Label("realmStageFormat"), realmName, safeStage);
     }
 
     public static string ItemType(ItemType itemType)

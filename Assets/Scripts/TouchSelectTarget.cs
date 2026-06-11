@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using TMPro;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -324,7 +324,7 @@ public class TouchSelectTarget : MonoBehaviour
 
             if (infoText != null)
             {
-                infoText.text = "Thiên Đạo chưa đủ Chưởng Khống.\nCần 5% để xem kho Tu sĩ.";
+                infoText.text = NpcText.Get("dialogue", "heavenDaoBasicLocked", "Thiên Đạo chưa đủ Chưởng Khống.\nCần 5% để xem thông tin Tu sĩ.");
             }
 
             if (npcInventoryPanel != null)
@@ -1354,9 +1354,9 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (characterStats != null)
         {
-            return characterStats.GetRealmText() +
-                " " +
-                characterStats.realmStage;
+            return NpcText.RealmWithStage(
+                characterStats.realm,
+                characterStats.realmStage);
         }
 
         SmartNpcAI smartNpc =
@@ -1364,7 +1364,7 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (smartNpc != null)
         {
-            return NpcText.Realm(smartNpc.realm) + " " + smartNpc.realmStage;
+            return NpcText.RealmWithStage(smartNpc.realm, smartNpc.realmStage);
         }
 
         VillagerAI villager =
@@ -1381,9 +1381,9 @@ public class TouchSelectTarget : MonoBehaviour
         if (monster != null &&
             monster.entityProfile != null)
         {
-            return NpcText.Realm(monster.entityProfile.stats.realm) +
-                " " +
-                monster.entityProfile.stats.realmStage;
+            return NpcText.RealmWithStage(
+                monster.entityProfile.stats.realm,
+                monster.entityProfile.stats.realmStage);
         }
 
         return "Y\u00EAu Th\u00FA";
@@ -1710,7 +1710,7 @@ public class TouchSelectTarget : MonoBehaviour
         if (IsNpcTarget(target) &&
             !HasHeavenDaoPower(HeavenDaoPower.ViewBasicNpcInfo))
         {
-            return "Thiên Đạo chưa đủ Chưởng Khống.\nCần 5% để xem thông tin Tu sĩ.";
+            return NpcText.Get("dialogue", "heavenDaoBasicLocked", "Thiên Đạo chưa đủ Chưởng Khống.\nCần 5% để xem thông tin Tu sĩ.");
         }
 
         StringBuilder builder =
@@ -1737,6 +1737,7 @@ public class TouchSelectTarget : MonoBehaviour
         return builder.ToString().TrimEnd();
     }
 
+
     string BuildMonsterInfo(MonsterAI monster)
     {
         if (monster == null)
@@ -1747,7 +1748,7 @@ public class TouchSelectTarget : MonoBehaviour
         StringBuilder builder =
             new StringBuilder();
 
-        builder.AppendLine(NpcText.Label("type") + ": " + NpcText.Get("entityTypes", "monster", "Yêu Thú"));
+        builder.AppendLine(NpcText.Label("type") + ": " + NpcText.Get("entityTypes", "monster", "YÃªu ThÃº"));
         builder.AppendLine(NpcText.Label("level") + ": " + Mathf.Max(1, monster.beastLevel));
         builder.AppendLine(NpcText.Label("damage") + ": " + FormatMaybeInt(GetTargetAttack(monster.transform)));
         builder.AppendLine(NpcText.Label("defense") + ": " + FormatMaybeInt(GetTargetDefense(monster.transform)));
