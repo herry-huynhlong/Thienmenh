@@ -33,9 +33,14 @@ public class NpcMapMover2D : MonoBehaviour
     [Header("Obstacle Check")]
     public LayerMask obstacleLayers = ~0;
     public float obstacleCheckDistance = 0.35f;
+    public float obstacleDetourLookAhead = 0.65f;
+    public float obstacleScanDistance = 8f;
+    public float obstacleScanStep = 0.35f;
     public float targetClearRadius = 0.25f;
+    public float blockedTargetRetryDelay = 0.8f;
     public int maxPickTargetAttempts = 16;
     public float stuckTimeToPickNewTarget = 0.8f;
+    public bool useObstacleAvoidance = true;
 
     [Header("Crowd Avoidance")]
     public LayerMask crowdLayers = ~0;
@@ -59,11 +64,15 @@ public class NpcMapMover2D : MonoBehaviour
     float waitTimer;
     float stuckTimer;
     float blockedTimer;
+    float blockedMoveTimer;
     float crowdBlockedTimer;
     float movementPausedUntil;
     float crowdYieldUntil;
+    Vector2 obstacleAvoidTarget;
+    float obstacleAvoidUntil;
     bool waitingAfterArrive;
     bool hasTarget;
+    bool hasObstacleAvoidTarget;
     bool currentTargetIgnoresAllowedArea;
 
     void Awake()
@@ -84,6 +93,7 @@ public class NpcMapMover2D : MonoBehaviour
 
         visualAnimation = GetComponent<NPCVisualAnimation>();
         selfColliders = GetComponentsInChildren<Collider2D>();
+        NpcCollisionRegistry.Register(this, selfColliders);
         ConfigureRigidbody();
         AutoResolveMapBounds();
 
@@ -99,6 +109,16 @@ public class NpcMapMover2D : MonoBehaviour
         }
 
         PickNewTarget();
+    }
+
+    void OnDisable()
+    {
+        NpcCollisionRegistry.Unregister(this);
+    }
+
+    void OnDestroy()
+    {
+        NpcCollisionRegistry.Unregister(this);
     }
     void AutoResolveMapBounds()
     {
@@ -171,7 +191,9 @@ public class NpcMapMover2D : MonoBehaviour
         waitTimer = Mathf.Max(waitTimer, 0.15f);
         currentVelocity = Vector2.zero;
         blockedTimer = 0f;
+        blockedMoveTimer = 0f;
         crowdBlockedTimer = 0f;
+        ClearObstacleAvoidance();
         currentAction = "Teleported";
 
         if (rb != null)
@@ -250,48 +272,75 @@ public class NpcMapMover2D : MonoBehaviour
             return;
         }
 
-        Vector2 toTarget = currentTarget - position;
+        Vector2 routeTarget = currentTarget;
+        if (hasObstacleAvoidTarget)
+        {
+            if (Time.time >= obstacleAvoidUntil ||
+                Vector2.Distance(position, obstacleAvoidTarget) <= arriveDistance ||
+                IsPositionBlocked(obstacleAvoidTarget))
+            {
+                hasObstacleAvoidTarget = false;
+            }
+            else
+            {
+                routeTarget = obstacleAvoidTarget;
+            }
+        }
+
+        Vector2 toTarget = routeTarget - position;
 
         if (toTarget.magnitude <= arriveDistance)
         {
+            if (hasObstacleAvoidTarget)
+            {
+                hasObstacleAvoidTarget = false;
+                currentAction = "Detour Complete";
+                return;
+            }
+
             StopAndWait(true);
             return;
         }
 
         Vector2 direction = toTarget.normalized;
-        if (!TryResolveCrowdAhead(direction, out direction))
-        {
-            return;
-        }
 
         if (IsBlocked(direction))
         {
-            if (TryChooseObstacleDetourDirection(direction, out direction))
+            if (TryCommitObstacleScanTarget(direction, currentTarget))
             {
                 blockedTimer = 0f;
-                direction = ApplyCrowdAvoidance(direction);
-                currentVelocity = direction * moveSpeed;
-                currentAction = "Detour";
-                UpdateVisualAnimation();
-                DetectStuck();
+                blockedMoveTimer = 0f;
+                currentAction = "Scan";
                 return;
             }
 
-            currentAction = "Blocked";
-            blockedTimer += Time.deltaTime;
-            currentVelocity = Vector2.zero;
-
-            if (onlyPickNewTargetAfterArrive)
+            if (useObstacleAvoidance &&
+                TryChooseObstacleDetourDirection(direction, currentTarget, out Vector2 detourDirection) &&
+                TryCommitObstacleAvoidTarget(detourDirection))
             {
-                if (blockedTimer >= stuckTimeToPickNewTarget)
+                blockedTimer = 0f;
+                blockedMoveTimer = 0f;
+                direction = detourDirection;
+            }
+            else
+            {
+                blockedMoveTimer += Time.deltaTime;
+                currentAction = "Blocked";
+                currentVelocity = Vector2.zero;
+                UpdateVisualAnimation();
+                DetectStuck();
+
+                if (blockedMoveTimer >= blockedTargetRetryDelay)
                 {
                     StopAndWait(false, blockedRetryWait);
                 }
 
                 return;
             }
+        }
 
-            StopAndWait(false, blockedRetryWait);
+        if (!TryResolveCrowdAhead(direction, out direction))
+        {
             return;
         }
 
@@ -345,6 +394,8 @@ public class NpcMapMover2D : MonoBehaviour
         waitTimer = 0f;
         stuckTimer = 0f;
         blockedTimer = 0f;
+        blockedMoveTimer = 0f;
+        ClearObstacleAvoidance();
         currentAction = action;
     }
 
@@ -360,6 +411,7 @@ public class NpcMapMover2D : MonoBehaviour
             Time.time + Mathf.Max(0.2f, duration));
         currentVelocity = Vector2.zero;
         currentAction = "Talking";
+        ClearObstacleAvoidance();
 
         if (rb != null)
         {
@@ -384,6 +436,8 @@ public class NpcMapMover2D : MonoBehaviour
 
     public void PickNewTarget()
     {
+        ClearObstacleAvoidance();
+
         for (int i = 0; i < maxPickTargetAttempts; i++)
         {
             Vector2 randomOffset =
@@ -434,7 +488,9 @@ public class NpcMapMover2D : MonoBehaviour
         waitTimer = Mathf.Max(0f, time);
         waitingAfterArrive = arrived;
         blockedTimer = 0f;
+        blockedMoveTimer = 0f;
         crowdBlockedTimer = 0f;
+        ClearObstacleAvoidance();
         UpdateVisualAnimation();
 
         currentAction =
@@ -443,13 +499,25 @@ public class NpcMapMover2D : MonoBehaviour
             : "Retry Wait";
     }
 
+    void ClearObstacleAvoidance()
+    {
+        hasObstacleAvoidTarget = false;
+        obstacleAvoidUntil = 0f;
+        blockedMoveTimer = 0f;
+    }
+
     bool IsBlocked(Vector2 direction)
     {
+        if (direction.sqrMagnitude <= 0.0001f)
+        {
+            return false;
+        }
+
         RaycastHit2D[] hits =
             Physics2D.RaycastAll(
                 rb.position,
-                direction,
-                obstacleCheckDistance,
+                direction.normalized,
+                GetObstacleLookAheadDistance(),
                 obstacleLayers);
 
         foreach (RaycastHit2D hit in hits)
@@ -468,20 +536,29 @@ public class NpcMapMover2D : MonoBehaviour
 
     bool IsPositionBlocked(Vector2 position)
     {
-        Collider2D hit =
-            Physics2D.OverlapCircle(
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(
                 position,
                 targetClearRadius,
                 obstacleLayers);
 
-        return hit != null &&
-            !hit.isTrigger &&
-            !IsSelfCollider(hit) &&
-            !IsNpcCollider(hit);
+        foreach (Collider2D hit in hits)
+        {
+            if (hit != null &&
+                !hit.isTrigger &&
+                !IsSelfCollider(hit) &&
+                !IsNpcCollider(hit))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     bool TryChooseObstacleDetourDirection(
         Vector2 desiredDirection,
+        Vector2 finalTarget,
         out Vector2 detourDirection)
     {
         detourDirection = desiredDirection;
@@ -492,38 +569,361 @@ public class NpcMapMover2D : MonoBehaviour
         }
 
         Vector2 desired = desiredDirection.normalized;
-        Vector2 side = new Vector2(-desired.y, desired.x);
-        float step = Mathf.Max(targetClearRadius * 2f, obstacleCheckDistance);
-
-        for (int i = 0; i < 4; i++)
+        Vector2 targetDirection = finalTarget - rb.position;
+        if (targetDirection.sqrMagnitude <= 0.0001f)
         {
-            Vector2 candidateDirection =
-                i == 0 ? side :
-                i == 1 ? -side :
-                i == 2 ? (side + desired * 0.35f).normalized :
-                (-side + desired * 0.35f).normalized;
+            targetDirection = desired;
+        }
+        else
+        {
+            targetDirection.Normalize();
+        }
 
-            if (candidateDirection.sqrMagnitude <= 0.0001f)
+        float lookAhead = GetObstacleLookAheadDistance();
+        float detourStep = Mathf.Max(
+            targetClearRadius * 4f,
+            obstacleDetourLookAhead * 3f,
+            moveSpeed * 1.5f);
+        float bestScore = float.NegativeInfinity;
+        bool found = false;
+
+        for (int i = 0; i < DetourAngles.Length; i++)
+        {
+            float angle = DetourAngles[i];
+
+            if (TryScoreDetourDirection(
+                    RotateDirection(desired, angle),
+                    desired,
+                    targetDirection,
+                    Mathf.Max(lookAhead, detourStep),
+                    out float score) &&
+                score > bestScore)
+            {
+                bestScore = score;
+                detourDirection = RotateDirection(desired, angle);
+                found = true;
+            }
+
+            if (Mathf.Approximately(angle, 0f))
             {
                 continue;
             }
 
-            Vector2 candidatePosition =
-                ClampToAllowedArea(rb.position + candidateDirection * step);
-
-            if (!IsInsideAllowedArea(candidatePosition) ||
-                IsPositionBlocked(candidatePosition) ||
-                IsBlocked(candidateDirection))
+            if (TryScoreDetourDirection(
+                    RotateDirection(desired, -angle),
+                    desired,
+                    targetDirection,
+                    Mathf.Max(lookAhead, detourStep),
+                    out score) &&
+                score > bestScore)
             {
-                continue;
+                bestScore = score;
+                detourDirection = RotateDirection(desired, -angle);
+                found = true;
+            }
+        }
+
+        if (!found)
+        {
+            return false;
+        }
+
+        detourDirection.Normalize();
+        return true;
+    }
+
+    bool TryCommitObstacleAvoidTarget(Vector2 direction)
+    {
+        if (direction.sqrMagnitude <= 0.0001f)
+        {
+            return false;
+        }
+
+        Vector2 desired = direction.normalized;
+        float distance = Mathf.Max(
+            targetClearRadius * 5f,
+            obstacleDetourLookAhead * 2.5f,
+            moveSpeed * 1.5f);
+
+        Vector2 candidate = rb.position + desired * distance;
+        Vector2 clearPoint;
+        if (!TryFindClearPointNear(candidate, out clearPoint))
+        {
+            clearPoint = candidate;
+        }
+
+        if (IsPositionBlocked(clearPoint) ||
+            !HasClearLineTo(clearPoint))
+        {
+            return false;
+        }
+
+        obstacleAvoidTarget = clearPoint;
+        obstacleAvoidUntil = Time.time + 1.2f;
+        hasObstacleAvoidTarget = true;
+        blockedMoveTimer = 0f;
+        currentAction = "Detour";
+        return true;
+    }
+
+    bool TryCommitObstacleScanTarget(
+        Vector2 desiredDirection,
+        Vector2 finalTarget)
+    {
+        if (desiredDirection.sqrMagnitude <= 0.0001f)
+        {
+            return false;
+        }
+
+        Vector2 desired = desiredDirection.normalized;
+        float scanDistance = Mathf.Max(
+            obstacleCheckDistance * 2f,
+            obstacleScanDistance);
+        float scanStep = Mathf.Max(
+            0.1f,
+            obstacleScanStep);
+        float startDistance = Mathf.Max(
+            targetClearRadius * 2f,
+            obstacleCheckDistance * 0.75f);
+
+        Vector2 side = new Vector2(-desired.y, desired.x);
+        float bestScore = float.NegativeInfinity;
+        bool found = false;
+        Vector2 best = Vector2.zero;
+
+        for (float distance = startDistance; distance <= scanDistance; distance += scanStep)
+        {
+            Vector2 forwardPoint = rb.position + desired * distance;
+            Vector2 towardTarget = (finalTarget - rb.position).normalized;
+            float targetProgress = Vector2.Dot(
+                (forwardPoint - rb.position).normalized,
+                towardTarget);
+
+            if (IsInsideAllowedArea(forwardPoint) &&
+                !IsPositionBlocked(forwardPoint) &&
+                HasClearLineTo(forwardPoint))
+            {
+                if (targetProgress > bestScore)
+                {
+                    bestScore = targetProgress;
+                    best = forwardPoint;
+                    found = true;
+                }
             }
 
-            detourDirection = candidateDirection.normalized;
+            Vector2 sideOffset = side * Mathf.Max(targetClearRadius * 1.5f, 0.3f);
+            Vector2[] candidatePoints =
+            {
+                forwardPoint + sideOffset,
+                forwardPoint - sideOffset
+            };
+
+            for (int i = 0; i < candidatePoints.Length; i++)
+            {
+                Vector2 candidate = candidatePoints[i];
+                if (!IsInsideAllowedArea(candidate) ||
+                    IsPositionBlocked(candidate) ||
+                    !HasClearLineTo(candidate))
+                {
+                    continue;
+                }
+
+                float score =
+                    Vector2.Dot(
+                        (candidate - rb.position).normalized,
+                        towardTarget) +
+                    distance * 0.05f;
+
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = candidate;
+                    found = true;
+                }
+            }
+        }
+
+        if (!found)
+        {
+            return false;
+        }
+
+        obstacleAvoidTarget = best;
+        obstacleAvoidUntil = Time.time + 1.5f;
+        hasObstacleAvoidTarget = true;
+        blockedMoveTimer = 0f;
+        return true;
+    }
+
+    bool TryScoreDetourDirection(
+        Vector2 candidate,
+        Vector2 desired,
+        Vector2 targetDirection,
+        float lookAhead,
+        out float score)
+    {
+        score = 0f;
+
+        if (candidate.sqrMagnitude <= 0.0001f)
+        {
+            return false;
+        }
+
+        candidate.Normalize();
+
+        Vector2 nextPoint =
+            rb.position +
+            candidate * Mathf.Max(targetClearRadius * 4f, lookAhead * 1.1f);
+
+        if (!IsInsideAllowedArea(nextPoint) ||
+            IsPositionBlocked(nextPoint) ||
+            !HasClearLineTo(nextPoint))
+        {
+            return false;
+        }
+
+        float clearDistance = GetClearDistance(candidate, lookAhead);
+        if (clearDistance < targetClearRadius * 2f)
+        {
+            return false;
+        }
+
+        float progressScore = Mathf.Max(-0.5f, Vector2.Dot(candidate, targetDirection));
+        if (progressScore < -0.05f)
+        {
+            return false;
+        }
+
+        float smoothScore = Mathf.Max(-0.5f, Vector2.Dot(candidate, desired));
+
+        score =
+            clearDistance / Mathf.Max(0.01f, lookAhead) * 3f +
+            progressScore * 2f +
+            smoothScore;
+        return true;
+    }
+
+    bool TryFindClearPointNear(Vector2 preferred, out Vector2 result)
+    {
+        preferred = ClampToAllowedArea(preferred);
+
+        if (!IsPositionBlocked(preferred))
+        {
+            result = preferred;
             return true;
         }
 
-        return false;
+        float baseRadius = Mathf.Max(targetClearRadius * 2f, 0.25f);
+        for (int i = 0; i < maxPickTargetAttempts; i++)
+        {
+            float radius = baseRadius + i * 0.15f;
+            Vector2 offset = Random.insideUnitCircle.normalized * radius;
+            Vector2 candidate = ClampToAllowedArea(preferred + offset);
+
+            if (!IsPositionBlocked(candidate) &&
+                HasClearLineTo(candidate))
+            {
+                result = candidate;
+                return true;
+            }
+        }
+
+        result = rb.position;
+        return !IsPositionBlocked(result);
     }
+
+    bool HasClearLineTo(Vector2 target)
+    {
+        Vector2 origin = rb.position;
+        Vector2 delta = target - origin;
+        float distance = delta.magnitude;
+
+        if (distance <= targetClearRadius)
+        {
+            return true;
+        }
+
+        RaycastHit2D[] hits =
+            Physics2D.CircleCastAll(
+                origin,
+                Mathf.Max(0.01f, targetClearRadius),
+                delta.normalized,
+                distance,
+                obstacleLayers);
+
+        foreach (RaycastHit2D hit in hits)
+        {
+            if (hit.collider != null &&
+                !hit.collider.isTrigger &&
+                !IsSelfCollider(hit.collider) &&
+                !IsNpcCollider(hit.collider))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    float GetClearDistance(Vector2 direction, float maxDistance)
+    {
+        RaycastHit2D[] hits =
+            Physics2D.CircleCastAll(
+                rb.position,
+                Mathf.Max(0.01f, targetClearRadius),
+                direction.normalized,
+                maxDistance,
+                obstacleLayers);
+
+        float best = maxDistance;
+        foreach (RaycastHit2D hit in hits)
+        {
+            if (hit.collider != null &&
+                !hit.collider.isTrigger &&
+                !IsSelfCollider(hit.collider) &&
+                !IsNpcCollider(hit.collider))
+            {
+                best = Mathf.Min(best, hit.distance);
+            }
+        }
+
+        return best;
+    }
+
+    float GetObstacleLookAheadDistance()
+    {
+        float speedLookAhead =
+            Mathf.Max(0f, moveSpeed) * 0.25f + targetClearRadius * 2f;
+
+        return Mathf.Max(
+            obstacleCheckDistance,
+            obstacleDetourLookAhead,
+            targetClearRadius * 3f,
+            speedLookAhead);
+    }
+
+    Vector2 RotateDirection(Vector2 direction, float degrees)
+    {
+        float radians = degrees * Mathf.Deg2Rad;
+        float sin = Mathf.Sin(radians);
+        float cos = Mathf.Cos(radians);
+
+        return new Vector2(
+            direction.x * cos - direction.y * sin,
+            direction.x * sin + direction.y * cos);
+    }
+
+    static readonly float[] DetourAngles =
+    {
+        0f,
+        20f,
+        35f,
+        50f,
+        70f,
+        90f,
+        120f,
+        150f
+    };
 
     bool IsSelfCollider(Collider2D hit)
     {
@@ -663,6 +1063,7 @@ public class NpcMapMover2D : MonoBehaviour
     void StopRigidbodyMotion()
     {
         currentVelocity = Vector2.zero;
+        blockedMoveTimer = 0f;
 
         if (rb != null)
         {

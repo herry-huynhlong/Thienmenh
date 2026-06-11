@@ -15,7 +15,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
     public EntityProfile entityProfile;
 
     [Header("===== THONG TIN =====")]
-    public string monsterName = "Yeu Thu";
+    public string monsterName = "";
 
     [Header("===== MAU =====")]
     public int maxHP = 100;
@@ -217,7 +217,6 @@ public class MonsterAI : MonoBehaviour, IDamageable
             entityProfile.lockGeneratedValues = true;
         }
 
-        monsterName = entityProfile.identity.entityName;
         maxHP = Mathf.Max(1, entityProfile.stats.maxHP);
         currentHP =
             Mathf.Clamp(
@@ -1082,10 +1081,22 @@ public class MonsterAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (realmStage >= CultivationProgression.MaxStage)
+        if (realm == CultivationRealm.Mortal &&
+            realmStage >= CultivationProgression.MaxStage)
+        {
+            realmStage = 1;
+            realm = CultivationRealm.QiRefining;
+            RecalculateRealmStats(true);
+            currentAction = "Dot pha " + GetRealmText();
+            return;
+        }
+
+        if (CultivationProgression.RequiresHeavenlyTribulation(
+                realm,
+                realmStage))
         {
             CultivationRealm targetRealm =
-                (CultivationRealm)((int)realm + 1);
+                CultivationProgression.GetNextRealm(realm);
 
             waitingForHeavenlyTribulation = true;
             currentAction = "Cho thien kiep";
@@ -1098,12 +1109,6 @@ public class MonsterAI : MonoBehaviour, IDamageable
         }
 
         realmStage += 1;
-
-        if (realmStage > CultivationProgression.MaxStage)
-        {
-            realmStage = 1;
-            realm = (CultivationRealm)((int)realm + 1);
-        }
 
         RecalculateRealmStats(true);
         currentAction = "Dot pha " + GetRealmText();

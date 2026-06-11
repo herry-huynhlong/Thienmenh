@@ -135,6 +135,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
     public LayerMask obstacleLayers = ~0;
     public float obstacleCheckDistance = 0.35f;
     public float targetClearRadius = 0.25f;
+    public float obstacleScanDistance = 8f;
+    public float obstacleScanStep = 0.35f;
     public int maxPickTargetAttempts = 16;
     public float blockedTargetRetryDelay = 0.8f;
 
@@ -305,6 +307,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         currentAction = NpcText.Action("idle");
         rb = GetComponent<Rigidbody2D>();
         ownColliders = GetComponentsInChildren<Collider2D>();
+        NpcCollisionRegistry.Register(this, ownColliders);
         lastUnstuckPosition = transform.position;
         visualAnimation = GetComponent<NPCVisualAnimation>();
         characterStats = GetComponent<CharacterStats>();
@@ -3153,7 +3156,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             }
             else
             {
-                HandleBlockedMovement(position);
+                HandleBlockedMovement(position, finalTarget);
                 return;
             }
         }
@@ -3199,23 +3202,37 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 toPosition = position - transform.position;
                 direction = toPosition.normalized;
             }
+            else if (TryCommitObstacleScanTarget(direction, finalTarget))
+            {
+                return;
+            }
             else if (useLocalDetour &&
                 TryChooseDetourDirection(
                 direction,
                 finalTarget,
                 out Vector2 detourDirection))
             {
+                if (TryCommitObstacleAvoidTarget(detourDirection))
+                {
+                    return;
+                }
+
                 direction = detourDirection;
             }
             else
             {
                 ClearActivePath();
+                if (TryCommitObstacleScanTarget(direction, finalTarget))
+                {
+                    return;
+                }
+
                 if (TrySetObstacleAvoidTarget(direction, finalTarget))
                 {
                     return;
                 }
 
-                HandleBlockedMovement(position);
+                HandleBlockedMovement(position, finalTarget);
                 return;
             }
         }
@@ -3239,17 +3256,27 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 finalTarget,
                 out Vector2 detourDirection))
             {
+                if (TryCommitObstacleAvoidTarget(detourDirection))
+                {
+                    return;
+                }
+
                 direction = detourDirection;
             }
             else
             {
+                if (TryCommitObstacleScanTarget(direction, finalTarget))
+                {
+                    return;
+                }
+
                 ClearActivePath();
                 if (TrySetObstacleAvoidTarget(direction, finalTarget))
                 {
                     return;
                 }
 
-                HandleBlockedMovement(position);
+                HandleBlockedMovement(position, finalTarget);
                 return;
             }
         }
@@ -3273,21 +3300,26 @@ public class VillagerAI : MonoBehaviour, IDamageable
         {
             if (useLocalDetour &&
                 TryChooseDetourDirection(
-                    direction,
-                    finalTarget,
-                    out Vector2 finalDetourDirection))
+                direction,
+                finalTarget,
+                out Vector2 finalDetourDirection))
             {
                 direction = finalDetourDirection;
             }
             else
             {
+                if (TryCommitObstacleScanTarget(direction, finalTarget))
+                {
+                    return;
+                }
+
                 ClearActivePath();
                 if (TrySetObstacleAvoidTarget(direction, finalTarget))
                 {
                     return;
                 }
 
-                HandleBlockedMovement(position);
+                HandleBlockedMovement(position, finalTarget);
                 return;
             }
         }
@@ -3999,6 +4031,152 @@ public class VillagerAI : MonoBehaviour, IDamageable
         return false;
     }
 
+    bool TryCommitObstacleAvoidTarget(Vector2 direction)
+    {
+        if (direction.sqrMagnitude <= 0.0001f)
+        {
+            return false;
+        }
+
+        Vector2 desired = direction.normalized;
+        float distance = Mathf.Max(
+            unstuckOffsetRadius,
+            obstacleDetourLookAhead,
+            targetClearRadius * 3f);
+
+        Vector3 candidate =
+            ClampToCurrentMapArea(
+                transform.position +
+                (Vector3)(desired * distance));
+
+        Vector3 clearPoint;
+        if (!TryFindClearPointNear(candidate, out clearPoint))
+        {
+            clearPoint = candidate;
+        }
+
+        if (!IsMoveTargetFeasible(clearPoint) ||
+            !HasClearLineTo(clearPoint))
+        {
+            return false;
+        }
+
+        obstacleAvoidTarget = clearPoint;
+        obstacleAvoidUntil = Time.time + 1.1f;
+        hasObstacleAvoidTarget = true;
+        blockedMoveTimer = 0f;
+        desiredVelocity = desired * moveSpeed;
+        currentAction = NpcText.Action("avoidObstacle");
+        return true;
+    }
+
+    void OnDisable()
+    {
+        NpcCollisionRegistry.Unregister(this);
+    }
+
+    void OnDestroy()
+    {
+        NpcCollisionRegistry.Unregister(this);
+    }
+
+    bool TryCommitObstacleScanTarget(
+        Vector2 desiredDirection,
+        Vector3 finalTarget)
+    {
+        if (desiredDirection.sqrMagnitude <= 0.0001f)
+        {
+            return false;
+        }
+
+        Vector2 desired = desiredDirection.normalized;
+        Vector2 targetDirection =
+            ((Vector2)finalTarget - (Vector2)transform.position);
+        if (targetDirection.sqrMagnitude <= 0.0001f)
+        {
+            targetDirection = desired;
+        }
+        else
+        {
+            targetDirection.Normalize();
+        }
+
+        float scanDistance = Mathf.Max(
+            obstacleCheckDistance * 2f,
+            obstacleScanDistance,
+            obstacleDetourLookAhead * 2f);
+        float scanStep = Mathf.Max(0.1f, obstacleScanStep);
+        float startDistance = Mathf.Max(
+            targetClearRadius * 2f,
+            obstacleCheckDistance * 0.75f);
+        Vector2 side = new Vector2(-desired.y, desired.x);
+        Vector2 sideOffset =
+            side * Mathf.Max(targetClearRadius * 1.5f, 0.3f);
+
+        bool sawBlocked = false;
+
+        for (float distance = startDistance;
+            distance <= scanDistance;
+            distance += scanStep)
+        {
+            Vector2 forwardPoint =
+                (Vector2)transform.position + desired * distance;
+
+            bool forwardBlocked =
+                !IsInsideCurrentMapArea(forwardPoint) ||
+                IsPositionBlocked(forwardPoint) ||
+                !HasClearLineTo(forwardPoint);
+
+            if (forwardBlocked)
+            {
+                sawBlocked = true;
+            }
+
+            if (!sawBlocked)
+            {
+                continue;
+            }
+
+            Vector2[] candidates =
+            {
+                forwardPoint,
+                forwardPoint + sideOffset,
+                forwardPoint - sideOffset
+            };
+
+            for (int i = 0; i < candidates.Length; i++)
+            {
+                Vector2 candidate = ClampToCurrentMapArea(candidates[i]);
+
+                if (!IsInsideCurrentMapArea(candidate) ||
+                    IsPositionBlocked(candidate) ||
+                    !HasClearLineTo(candidate))
+                {
+                    continue;
+                }
+
+                Vector2 toCandidate =
+                    candidate - (Vector2)transform.position;
+
+                if (toCandidate.sqrMagnitude <= 0.0001f ||
+                    Vector2.Dot(toCandidate.normalized, targetDirection) < -0.05f)
+                {
+                    continue;
+                }
+
+                obstacleAvoidTarget = candidate;
+                obstacleAvoidUntil = Time.time + 1.6f;
+                hasObstacleAvoidTarget = true;
+                blockedMoveTimer = 0f;
+                desiredVelocity = toCandidate.normalized * moveSpeed;
+                currentAction = NpcText.Action("avoidObstacle");
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     bool TryResolveCrowdAhead(
         Vector2 desiredDirection,
         Vector3 finalTarget,
@@ -4437,8 +4615,28 @@ public class VillagerAI : MonoBehaviour, IDamageable
         return false;
     }
 
-    void HandleBlockedMovement(Vector3 blockedTarget)
+    void HandleBlockedMovement(Vector3 blockedTarget, Vector3 finalTarget)
     {
+        if (TryCommitObstacleScanTarget(
+                (Vector2)finalTarget - (Vector2)transform.position,
+                finalTarget))
+        {
+            return;
+        }
+
+        Vector2 escapeDirection =
+            (Vector2)finalTarget - (Vector2)transform.position;
+
+        if (escapeDirection.sqrMagnitude > 0.0001f &&
+            TryChooseDetourDirection(
+                escapeDirection,
+                finalTarget,
+                out Vector2 detourDirection) &&
+            TryCommitObstacleAvoidTarget(detourDirection))
+        {
+            return;
+        }
+
         blockedMoveTimer += Time.fixedDeltaTime;
         StopMoving();
         ClearActivePath();
@@ -5421,10 +5619,24 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (realmStage >= CultivationProgression.MaxStage)
+        if (realm == CultivationRealm.Mortal &&
+            realmStage >= CultivationProgression.MaxStage)
+        {
+            realmStage = 1;
+            realm = CultivationRealm.QiRefining;
+            ApplyRealmPower();
+            currentHP = maxHP;
+            lifespan = GetLifespanForRealm(realm);
+            currentAction = NpcText.ActionFormat("breakthroughTo", GetRealmText());
+            return;
+        }
+
+        if (CultivationProgression.RequiresHeavenlyTribulation(
+                realm,
+                realmStage))
         {
             CultivationRealm targetRealm =
-                (CultivationRealm)((int)realm + 1);
+                CultivationProgression.GetNextRealm(realm);
 
             waitingForHeavenlyTribulation = true;
             currentAction = NpcText.Action("waitTribulation");
@@ -5437,13 +5649,6 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         realmStage += 1;
-
-        if (realmStage > CultivationProgression.MaxStage)
-        {
-            realmStage = 1;
-            realm =
-                (CultivationRealm)((int)realm + 1);
-        }
 
         ApplyRealmPower();
         currentHP = maxHP;

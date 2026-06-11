@@ -158,10 +158,22 @@ public class CharacterStats : MonoBehaviour, IDamageable
             return;
         }
 
-        if (realmStage >= CultivationProgression.MaxStage)
+        if (realm == CultivationRealm.Mortal &&
+            realmStage >= CultivationProgression.MaxStage)
+        {
+            realmStage = 1;
+            realm = CultivationRealm.QiRefining;
+            RecalculateStats(true);
+            currentHP = finalHP;
+            return;
+        }
+
+        if (CultivationProgression.RequiresHeavenlyTribulation(
+                realm,
+                realmStage))
         {
             CultivationRealm targetRealm =
-                (CultivationRealm)((int)realm + 1);
+                CultivationProgression.GetNextRealm(realm);
 
             waitingForHeavenlyTribulation = true;
             HeavenlyTribulationSystem.Request(
@@ -173,13 +185,6 @@ public class CharacterStats : MonoBehaviour, IDamageable
         }
 
         realmStage += 1;
-
-        if (realmStage > CultivationProgression.MaxStage)
-        {
-            realmStage = 1;
-            realm =
-                (CultivationRealm)((int)realm + 1);
-        }
 
         RecalculateStats(true);
         currentHP = finalHP;

@@ -101,6 +101,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     public float moveSpeed = 2f;
     public bool useKinematicNpcMovement = true;
     public LayerMask crowdLayers = ~0;
+    public LayerMask obstacleLayers = ~0;
     public float separationRadius = 0.55f;
     public float separationStrength = 1.5f;
     public float crowdLookAheadDistance = 0.7f;
@@ -110,6 +111,11 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     public float unstuckMinMoveDistance = 0.03f;
     public float unstuckOffsetRadius = 0.9f;
     public float escapeTargetReachDistance = 0.18f;
+    public float obstacleCheckDistance = 0.35f;
+    public float obstacleDetourLookAhead = 0.65f;
+    public float targetClearRadius = 0.25f;
+    public float blockedTargetRetryDelay = 0.8f;
+    public bool useObstacleAvoidance = true;
 
     public Transform currentTarget;
     Transform treasureHuntTarget;
@@ -122,8 +128,12 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     Collider2D[] selfColliders;
     Vector3 lastUnstuckPosition;
     Vector3 escapeTarget;
+    Vector3 obstacleAvoidTarget;
+    float obstacleAvoidUntil;
     float stuckMoveTimer;
+    float blockedMoveTimer;
     bool hasEscapeTarget;
+    bool hasObstacleAvoidTarget;
 
     [Header("Chien dau")]
     public float attackRange = 1.5f;
@@ -193,6 +203,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         }
 
         selfColliders = GetComponentsInChildren<Collider2D>();
+        NpcCollisionRegistry.Register(this, selfColliders);
 
         spawnPosition = transform.position;
         lastUnstuckPosition = transform.position;
@@ -391,6 +402,21 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             ? treasureWaitPosition
             : currentTarget.position;
 
+        if (hasObstacleAvoidTarget)
+        {
+            if (Time.time >= obstacleAvoidUntil ||
+                Vector2.Distance(transform.position, obstacleAvoidTarget) <=
+                escapeTargetReachDistance ||
+                !IsMoveTargetFeasible(obstacleAvoidTarget))
+            {
+                hasObstacleAvoidTarget = false;
+            }
+            else
+            {
+                desiredTarget = obstacleAvoidTarget;
+            }
+        }
+
         if (hasEscapeTarget)
         {
             if (Vector2.Distance(transform.position, escapeTarget) <=
@@ -448,6 +474,39 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             (moveTarget -
             transform.position).normalized;
 
+        if (!useObstacleAvoidance)
+        {
+            if (!TryResolveCrowdAhead(direction, out direction))
+            {
+                return;
+            }
+
+            direction = ApplyCrowdAvoidance(direction);
+            rb.linearVelocity = direction * moveSpeed;
+            UpdateUnstuck(direction);
+            return;
+        }
+
+        if (IsMovementBlocked(direction))
+        {
+            if (TryChooseObstacleDetourDirection(direction, desiredTarget, out Vector2 detourDirection))
+            {
+                if (TryCommitObstacleAvoidTarget(detourDirection))
+                {
+                    blockedMoveTimer = 0f;
+                    return;
+                }
+
+                HandleBlockedMovement(moveTarget, desiredTarget);
+                return;
+            }
+            else
+            {
+                HandleBlockedMovement(moveTarget, desiredTarget);
+                return;
+            }
+        }
+
         if (!TryResolveCrowdAhead(direction, out direction))
         {
             return;
@@ -459,6 +518,16 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             direction * moveSpeed;
 
         UpdateUnstuck(direction);
+    }
+
+    void OnDisable()
+    {
+        NpcCollisionRegistry.Unregister(this);
+    }
+
+    void OnDestroy()
+    {
+        NpcCollisionRegistry.Unregister(this);
     }
 
     void OnNpcMapTeleported(GameObject gateObject)
@@ -583,6 +652,26 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             (spawnPosition -
             transform.position).normalized;
 
+        if (useObstacleAvoidance &&
+            IsMovementBlocked(direction))
+        {
+            if (TryChooseObstacleDetourDirection(direction, spawnPosition, out Vector2 spawnDetour))
+            {
+                if (TryCommitObstacleAvoidTarget(spawnDetour))
+                {
+                    return;
+                }
+
+                HandleBlockedMovement(spawnPosition, spawnPosition);
+                return;
+            }
+            else
+            {
+                HandleBlockedMovement(spawnPosition, spawnPosition);
+                return;
+            }
+        }
+
         if (!TryResolveCrowdAhead(direction, out direction))
         {
             return;
@@ -680,6 +769,415 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         return transform.position +
             (Vector3)(escapeDirection * distance);
     }
+
+    bool IsMoveTargetFeasible(Vector3 position)
+    {
+        return !IsPositionBlocked(position);
+    }
+
+    bool IsPositionBlocked(Vector3 position)
+    {
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(
+                position,
+                targetClearRadius,
+                obstacleLayers);
+
+        foreach (Collider2D hit in hits)
+        {
+            if (IsBlockingObstacle(hit))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool HasClearLineTo(Vector3 target)
+    {
+        Vector2 origin = transform.position;
+        Vector2 delta = (Vector2)target - origin;
+        float distance = delta.magnitude;
+
+        if (distance <= targetClearRadius)
+        {
+            return true;
+        }
+
+        RaycastHit2D[] hits =
+            Physics2D.CircleCastAll(
+                origin,
+                Mathf.Max(0.01f, targetClearRadius),
+                delta.normalized,
+                distance,
+                obstacleLayers);
+
+        foreach (RaycastHit2D hit in hits)
+        {
+            if (IsBlockingObstacle(hit.collider))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool IsMovementBlocked(Vector2 direction)
+    {
+        if (direction.sqrMagnitude <= 0.0001f)
+        {
+            return false;
+        }
+
+        RaycastHit2D[] hits =
+            Physics2D.CircleCastAll(
+                transform.position,
+                Mathf.Max(0.01f, targetClearRadius),
+                direction.normalized,
+                Mathf.Max(obstacleCheckDistance, obstacleDetourLookAhead),
+                obstacleLayers);
+
+        foreach (RaycastHit2D hit in hits)
+        {
+            if (IsBlockingObstacle(hit.collider))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool TryChooseObstacleDetourDirection(
+        Vector2 desiredDirection,
+        Vector3 finalTarget,
+        out Vector2 detourDirection)
+    {
+        detourDirection = desiredDirection;
+
+        if (desiredDirection.sqrMagnitude <= 0.0001f)
+        {
+            return false;
+        }
+
+        Vector2 desired = desiredDirection.normalized;
+        Vector2 targetDirection =
+            ((Vector2)finalTarget - (Vector2)transform.position);
+        if (targetDirection.sqrMagnitude <= 0.0001f)
+        {
+            targetDirection = desired;
+        }
+        else
+        {
+            targetDirection.Normalize();
+        }
+
+        float lookAhead = GetObstacleLookAheadDistance();
+        float detourStep = Mathf.Max(
+            targetClearRadius * 3f,
+            obstacleDetourLookAhead * 2f,
+            moveSpeed * 0.75f);
+        float bestScore = float.NegativeInfinity;
+        bool found = false;
+
+        for (int i = 0; i < DetourAngles.Length; i++)
+        {
+            float angle = DetourAngles[i];
+
+            if (TryScoreObstacleDetourDirection(
+                    RotateDirection(desired, angle),
+                    desired,
+                    targetDirection,
+                    Mathf.Max(lookAhead, detourStep),
+                    out float score) &&
+                score > bestScore)
+            {
+                bestScore = score;
+                detourDirection = RotateDirection(desired, angle);
+                found = true;
+            }
+
+            if (Mathf.Approximately(angle, 0f))
+            {
+                continue;
+            }
+
+            if (TryScoreObstacleDetourDirection(
+                    RotateDirection(desired, -angle),
+                    desired,
+                    targetDirection,
+                    Mathf.Max(lookAhead, detourStep),
+                    out score) &&
+                score > bestScore)
+            {
+                bestScore = score;
+                detourDirection = RotateDirection(desired, -angle);
+                found = true;
+            }
+        }
+
+        if (!found)
+        {
+            return false;
+        }
+
+        detourDirection.Normalize();
+        return true;
+    }
+
+    bool TryCommitObstacleAvoidTarget(Vector2 direction)
+    {
+        if (direction.sqrMagnitude <= 0.0001f)
+        {
+            return false;
+        }
+
+        Vector2 desired = direction.normalized;
+        float distance = Mathf.Max(
+            unstuckOffsetRadius * 1.5f,
+            obstacleDetourLookAhead * 1.5f,
+            targetClearRadius * 4f,
+            moveSpeed * 0.5f);
+
+        Vector3 candidate =
+            transform.position +
+            (Vector3)(desired * distance);
+
+        Vector3 clearPoint;
+        if (!TryFindClearPointNear(candidate, out clearPoint))
+        {
+            clearPoint = candidate;
+        }
+
+        if (!IsMoveTargetFeasible(clearPoint) ||
+            !HasClearLineTo(clearPoint))
+        {
+            return false;
+        }
+
+        obstacleAvoidTarget = clearPoint;
+        obstacleAvoidUntil = Time.time + 1.1f;
+        hasObstacleAvoidTarget = true;
+        blockedMoveTimer = 0f;
+        currentAction = NpcText.Action("avoidObstacle");
+        return true;
+    }
+
+    bool TryScoreObstacleDetourDirection(
+        Vector2 candidate,
+        Vector2 desired,
+        Vector2 targetDirection,
+        float lookAhead,
+        out float score)
+    {
+        score = 0f;
+
+        if (candidate.sqrMagnitude <= 0.0001f)
+        {
+            return false;
+        }
+
+        candidate.Normalize();
+
+        Vector3 nextPoint =
+            transform.position +
+            (Vector3)(candidate * Mathf.Max(targetClearRadius * 3f, lookAhead * 0.85f));
+
+        if (!IsMoveTargetFeasible(nextPoint) ||
+            !HasClearLineTo(nextPoint))
+        {
+            return false;
+        }
+
+        float clearDistance = GetClearDistance(candidate, lookAhead);
+        if (clearDistance < targetClearRadius * 2f)
+        {
+            return false;
+        }
+
+        float progressScore = Mathf.Max(-0.5f, Vector2.Dot(candidate, targetDirection));
+        if (progressScore < -0.05f)
+        {
+            return false;
+        }
+
+        float smoothScore = Mathf.Max(-0.5f, Vector2.Dot(candidate, desired));
+
+        score =
+            clearDistance / Mathf.Max(0.01f, lookAhead) * 3f +
+            progressScore * 2f +
+            smoothScore;
+
+        return true;
+    }
+
+    bool TryFindClearPointNear(Vector3 preferred, out Vector3 result)
+    {
+        preferred.z = transform.position.z;
+
+        if (IsMoveTargetFeasible(preferred))
+        {
+            result = preferred;
+            return true;
+        }
+
+        float baseRadius = Mathf.Max(targetClearRadius * 2f, 0.25f);
+        for (int i = 0; i < 10; i++)
+        {
+            float radius = baseRadius + i * 0.15f;
+            Vector2 offset = Random.insideUnitCircle.normalized * radius;
+            Vector3 candidate =
+                preferred + new Vector3(offset.x, offset.y, 0f);
+
+            if (IsMoveTargetFeasible(candidate) &&
+                HasClearLineTo(candidate))
+            {
+                result = candidate;
+                return true;
+            }
+        }
+
+        result = transform.position;
+        return IsMoveTargetFeasible(result);
+    }
+
+    Vector3 GetBlockedEscapeSeed(Vector3 blockedTarget, Vector3 finalTarget)
+    {
+        Vector2 away = (Vector2)(transform.position - blockedTarget);
+        Vector2 towardFinal = (Vector2)finalTarget - (Vector2)transform.position;
+
+        if (towardFinal.sqrMagnitude > 0.0001f)
+        {
+            towardFinal.Normalize();
+            away += towardFinal * 0.45f;
+        }
+
+        if (away.sqrMagnitude <= 0.0001f)
+        {
+            away = Random.insideUnitCircle;
+        }
+
+        if (away.sqrMagnitude <= 0.0001f)
+        {
+            away = Vector2.up;
+        }
+
+        away.Normalize();
+
+        return transform.position +
+            (Vector3)(away * Mathf.Max(unstuckOffsetRadius, targetClearRadius * 3f));
+    }
+
+    void HandleBlockedMovement(Vector3 blockedTarget, Vector3 finalTarget)
+    {
+        blockedMoveTimer += Time.fixedDeltaTime;
+        rb.linearVelocity = Vector2.zero;
+
+        if (blockedMoveTimer < blockedTargetRetryDelay)
+        {
+            return;
+        }
+
+        blockedMoveTimer = 0f;
+
+        Vector2 escapeDirection =
+            (Vector2)finalTarget - (Vector2)transform.position;
+
+        if (TryChooseObstacleDetourDirection(
+                escapeDirection,
+                finalTarget,
+                out Vector2 detourDirection) &&
+            TryCommitObstacleAvoidTarget(detourDirection))
+        {
+            return;
+        }
+
+        Vector3 escapeSeed =
+            GetBlockedEscapeSeed(blockedTarget, finalTarget);
+
+        if (TryFindClearPointNear(escapeSeed, out Vector3 clear))
+        {
+            obstacleAvoidTarget = clear;
+            obstacleAvoidUntil = Time.time + 1f;
+            hasObstacleAvoidTarget = true;
+            hasEscapeTarget = false;
+            currentAction = NpcText.Action("avoidObstacle");
+        }
+    }
+
+    bool IsBlockingObstacle(Collider2D hit)
+    {
+        if (hit == null || hit.isTrigger || IsSelfCollider(hit))
+        {
+            return false;
+        }
+
+        return hit.GetComponentInParent<VillagerAI>() == null &&
+            hit.GetComponentInParent<SmartNpcAI>() == null &&
+            hit.GetComponentInParent<NpcMapMover2D>() == null;
+    }
+
+    float GetClearDistance(
+        Vector2 direction,
+        float maxDistance)
+    {
+        RaycastHit2D[] hits =
+            Physics2D.CircleCastAll(
+                transform.position,
+                Mathf.Max(0.01f, targetClearRadius),
+                direction.normalized,
+                maxDistance,
+                obstacleLayers);
+
+        float best = maxDistance;
+
+        foreach (RaycastHit2D hit in hits)
+        {
+            if (IsBlockingObstacle(hit.collider))
+            {
+                best = Mathf.Min(best, hit.distance);
+            }
+        }
+
+        return best;
+    }
+
+    float GetObstacleLookAheadDistance()
+    {
+        float speedLookAhead =
+            Mathf.Max(0f, moveSpeed) * 0.25f + targetClearRadius * 2f;
+
+        return Mathf.Max(
+            obstacleCheckDistance,
+            obstacleDetourLookAhead,
+            targetClearRadius * 3f,
+            speedLookAhead);
+    }
+
+    Vector2 RotateDirection(Vector2 direction, float degrees)
+    {
+        float radians = degrees * Mathf.Deg2Rad;
+        float sin = Mathf.Sin(radians);
+        float cos = Mathf.Cos(radians);
+
+        return new Vector2(
+            direction.x * cos - direction.y * sin,
+            direction.x * sin + direction.y * cos);
+    }
+
+    static readonly float[] DetourAngles =
+    {
+        0f,
+        20f,
+        35f,
+        50f,
+        70f,
+        90f,
+        120f,
+        150f
+    };
 
     bool TryResolveCrowdAhead(
         Vector2 desiredDirection,
@@ -1329,10 +1827,23 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
         cultivation = 0;
 
-        if (realmStage >= CultivationProgression.MaxStage)
+        if (realm == CultivationRealm.Mortal &&
+            realmStage >= CultivationProgression.MaxStage)
+        {
+            realmStage = 1;
+            realm = CultivationRealm.QiRefining;
+            ApplyRealmPower(true);
+            lifespan = GetLifespanForRealm(realm);
+            currentAction = NpcText.Action("breakthrough");
+            return;
+        }
+
+        if (CultivationProgression.RequiresHeavenlyTribulation(
+                realm,
+                realmStage))
         {
             CultivationRealm targetRealm =
-                (CultivationRealm)((int)realm + 1);
+                CultivationProgression.GetNextRealm(realm);
 
             waitingForHeavenlyTribulation = true;
             currentAction = NpcText.Action("waitTribulation");
@@ -1345,13 +1856,6 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         }
 
         realmStage += 1;
-
-        if (realmStage > 9)
-        {
-            realmStage = 1;
-
-            realm += 1;
-        }
 
         ApplyRealmPower(true);
         lifespan = GetLifespanForRealm(realm);

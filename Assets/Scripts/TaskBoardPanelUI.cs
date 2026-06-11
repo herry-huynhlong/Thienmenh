@@ -5,6 +5,8 @@ public class TaskBoardPanelUI : MonoBehaviour
     public Transform content;
     public TaskBoardRowUI rowTemplate;
 
+    bool warnedMissingProvider;
+
     private void Awake()
     {
         HideRowTemplate();
@@ -19,19 +21,29 @@ public class TaskBoardPanelUI : MonoBehaviour
     {
         if (provider == null)
         {
-            Debug.LogWarning("Chưa gán NpcTaskProvider cho bảng nhiệm vụ.");
+            provider = FindFirstObjectByType<NpcTaskProvider>();
+        }
+
+        if (provider == null)
+        {
+            if (!warnedMissingProvider)
+            {
+                warnedMissingProvider = true;
+                Debug.LogWarning("Missing NpcTaskProvider for task board.");
+            }
+
             return;
         }
 
         if (content == null)
         {
-            Debug.LogWarning("TaskBoardPanelUI chưa gán Content.");
+            Debug.LogWarning("TaskBoardPanelUI missing Content.");
             return;
         }
 
         if (rowTemplate == null)
         {
-            Debug.LogWarning("TaskBoardPanelUI chưa gán Row Template.");
+            Debug.LogWarning("TaskBoardPanelUI missing Row Template.");
             return;
         }
 
@@ -43,7 +55,6 @@ public class TaskBoardPanelUI : MonoBehaviour
         foreach (NpcTaskOffer offer in provider.offers)
         {
             TaskBoardRowUI row = Instantiate(rowTemplate, content);
-
             row.gameObject.SetActive(true);
             row.SetData(offer);
         }
@@ -56,20 +67,22 @@ public class TaskBoardPanelUI : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    private void ClearOldRows()
+    void ClearOldRows()
     {
         for (int i = content.childCount - 1; i >= 0; i--)
         {
             Transform child = content.GetChild(i);
 
             if (rowTemplate != null && child == rowTemplate.transform)
+            {
                 continue;
+            }
 
             Destroy(child.gameObject);
         }
     }
 
-    private void HideRowTemplate()
+    void HideRowTemplate()
     {
         if (rowTemplate != null)
         {

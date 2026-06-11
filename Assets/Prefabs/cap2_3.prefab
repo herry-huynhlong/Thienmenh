@@ -191,7 +191,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAI
   generateFromEntityProfile: 1
   entityProfile: {fileID: 0}
-  monsterName: Yeu Thu
+  monsterName: ""
   maxHP: 100
   currentHP: 100
   beastLevel: 1

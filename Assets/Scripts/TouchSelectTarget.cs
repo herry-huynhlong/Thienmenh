@@ -29,6 +29,15 @@ public class TouchSelectTarget : MonoBehaviour
 
     public Button inventoryButton;
 
+    [Header("Target Header")]
+    public TMP_Text nameText;
+
+    public TMP_Text realmText;
+
+    public TMP_Text hpText;
+
+    public Image hpFillImage;
+
     [Header("World Item Panel")]
     public GameObject worldItemInfoPanel;
 
@@ -86,6 +95,8 @@ public class TouchSelectTarget : MonoBehaviour
     Vector4 originalInfoTextMargin;
 
     bool hasOriginalInfoTextMargin;
+
+    bool splitTargetHeaderLayout;
 
     void Start()
     {
@@ -289,14 +300,7 @@ public class TouchSelectTarget : MonoBehaviour
     {
         showingInventory = false;
 
-        if (infoText != null &&
-            currentTarget != null)
-        {
-            infoText.text =
-                BuildTargetInfo(currentTarget);
-        }
-
-        UpdateInfoIcon(currentTarget);
+        RefreshTargetInfo(currentTarget);
 
         SetInfoContentVisible(true);
         SetInventoryContentVisible(false);
@@ -407,6 +411,24 @@ public class TouchSelectTarget : MonoBehaviour
         return false;
     }
 
+    void RefreshTargetInfo(Transform target)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        AutoFindTabReferences();
+
+        UpdateTargetHeader(target);
+        UpdateInfoIcon(target);
+
+        if (infoText != null)
+        {
+            infoText.text = BuildTargetInfo(target);
+        }
+    }
+
     void AutoFindTabReferences()
     {
         AutoFindWorldItemPanelReferences();
@@ -491,6 +513,43 @@ public class TouchSelectTarget : MonoBehaviour
             }
         }
 
+        if (nameText == null)
+        {
+            Transform nameTransform =
+                infoContentRoot != null
+                ? FindChildByName(infoContentRoot.transform, "NameText")
+                : FindChildByName(infoPanel.transform, "NameText");
+
+            if (nameTransform != null)
+            {
+                nameText = nameTransform.GetComponent<TMP_Text>();
+            }
+        }
+
+        if (realmText == null)
+        {
+            Transform realmTransform =
+                infoContentRoot != null
+                ? FindChildByName(infoContentRoot.transform, "RealmText")
+                : FindChildByName(infoPanel.transform, "RealmText");
+
+            if (realmTransform != null)
+            {
+                realmText = realmTransform.GetComponent<TMP_Text>();
+            }
+        }
+
+        if (hpText == null)
+        {
+            Transform hpTransform =
+                FindChildByName(infoPanel.transform, "HpText");
+
+            if (hpTransform != null)
+            {
+                hpText = hpTransform.GetComponent<TMP_Text>();
+            }
+        }
+
         if (inventoryButton == null)
         {
             inventoryButton =
@@ -503,7 +562,13 @@ public class TouchSelectTarget : MonoBehaviour
         if (infoIcon == null)
         {
             Transform iconTransform =
-                FindChildByName(infoPanel.transform, "InfoIcon");
+                FindChildByName(infoPanel.transform, "FactionIcon");
+
+            if (iconTransform == null)
+            {
+                iconTransform =
+                    FindChildByName(infoPanel.transform, "InfoIcon");
+            }
 
             if (iconTransform == null)
             {
@@ -529,7 +594,32 @@ public class TouchSelectTarget : MonoBehaviour
             }
         }
 
+        if (hpFillImage == null)
+        {
+            Transform targetHealthBar =
+                FindChildByName(infoPanel.transform, "TargetHealthBar");
+
+            Transform fillTransform =
+                targetHealthBar != null
+                ? FindChildByName(targetHealthBar, "Fill")
+                : FindChildByName(infoPanel.transform, "Fill");
+
+            if (fillTransform != null)
+            {
+                hpFillImage = fillTransform.GetComponent<Image>();
+            }
+        }
+
         EnsureInfoIcon();
+        splitTargetHeaderLayout = HasSplitTargetHeaderLayout();
+    }
+
+    bool HasSplitTargetHeaderLayout()
+    {
+        return nameText != null ||
+            realmText != null ||
+            hpText != null ||
+            hpFillImage != null;
     }
 
     Button FindButtonByName(
@@ -844,12 +934,17 @@ public class TouchSelectTarget : MonoBehaviour
         }
 
         infoIcon.sprite = icon;
+        infoIcon.color = GetFactionTint(target);
         ConfigureInfoIconLayout(isWorldItem);
         SetInfoIconVisible(true);
-        ApplyInfoTextMargin(
-            isWorldItem
-            ? worldItemTextLeftPadding
-            : characterTextLeftPadding);
+
+        if (!HasSplitTargetHeaderLayout())
+        {
+            ApplyInfoTextMargin(
+                isWorldItem
+                ? worldItemTextLeftPadding
+                : characterTextLeftPadding);
+        }
     }
 
     Sprite GetPickupIcon(WorldStatItemPickup pickup)
@@ -895,7 +990,16 @@ public class TouchSelectTarget : MonoBehaviour
             return portraitIcon.icon;
         }
 
-        if (!autoUseCharacterSprite)
+        bool forceSprite =
+            target.GetComponent<MonsterAI>() != null ||
+            target.GetComponent<BicanhBoneMonsterAI>() != null ||
+            target.GetComponent<VillagerAI>() != null ||
+            target.GetComponent<SmartNpcAI>() != null ||
+            target.GetComponent<CharacterStats>() != null ||
+            target.GetComponent<PlayerHealth>() != null;
+
+        if (!autoUseCharacterSprite &&
+            !forceSprite)
         {
             return null;
         }
@@ -938,6 +1042,13 @@ public class TouchSelectTarget : MonoBehaviour
     {
         if (infoIcon == null)
         {
+            return;
+        }
+
+        if (HasSplitTargetHeaderLayout())
+        {
+            infoIcon.preserveAspect = true;
+            infoIcon.raycastTarget = false;
             return;
         }
 
@@ -1375,10 +1486,206 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (monster != null)
         {
-            return NpcText.Label("damage") + ": " + monster.damage;
+            return monster.currentAction;
         }
 
         return "";
+    }
+
+    void UpdateTargetHeader(Transform target)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        if (nameText != null)
+        {
+            nameText.text = GetTargetName(target);
+        }
+
+        if (realmText != null)
+        {
+            realmText.text = GetTargetRealm(target);
+        }
+
+        UpdateHealthDisplay(target);
+    }
+
+    void UpdateHealthDisplay(Transform target)
+    {
+        int maxHP = Mathf.Max(1, GetTargetMaxHP(target));
+        int currentHP = Mathf.Clamp(GetTargetCurrentHP(target), 0, maxHP);
+        float fill = Mathf.Clamp01(currentHP / (float)maxHP);
+
+        if (hpFillImage != null)
+        {
+            hpFillImage.type = Image.Type.Filled;
+            hpFillImage.fillAmount = fill;
+            hpFillImage.color = Color.Lerp(
+                new Color(0.62f, 0.12f, 0.12f, 1f),
+                new Color(0.18f, 0.72f, 0.24f, 1f),
+                fill);
+        }
+
+        if (hpText != null)
+        {
+            hpText.text = currentHP + " / " + maxHP;
+        }
+    }
+
+    Color GetFactionTint(Transform target)
+    {
+        if (target == null)
+        {
+            return Color.white;
+        }
+
+        if (target.GetComponent<BicanhBoneMonsterAI>() != null)
+        {
+            return new Color(0.82f, 0.78f, 0.96f, 1f);
+        }
+
+        if (target.GetComponent<MonsterAI>() != null)
+        {
+            return new Color(1f, 0.72f, 0.42f, 1f);
+        }
+
+        if (target.CompareTag("Player") ||
+            target.GetComponentInParent<PlayerHealth>() != null)
+        {
+            return new Color(0.55f, 0.88f, 1f, 1f);
+        }
+
+        if (target.GetComponent<VillagerAI>() != null ||
+            target.GetComponent<SmartNpcAI>() != null ||
+            target.GetComponent<NpcData>() != null)
+        {
+            return new Color(0.45f, 1f, 0.62f, 1f);
+        }
+
+        return Color.white;
+    }
+
+    string FormatMaybeInt(int value)
+    {
+        return value < 0 ? "-" : value.ToString();
+    }
+
+    string FormatMaybeFloat(float value)
+    {
+        return value < 0f ? "-" : value.ToString("0.##");
+    }
+
+    int GetTargetAttack(Transform target)
+    {
+        CharacterStats characterStats =
+            target.GetComponent<CharacterStats>();
+
+        if (characterStats != null)
+        {
+            return characterStats.attack;
+        }
+
+        SmartNpcAI smartNpc =
+            target.GetComponent<SmartNpcAI>();
+
+        if (smartNpc != null)
+        {
+            return smartNpc.attack;
+        }
+
+        VillagerAI villager =
+            target.GetComponent<VillagerAI>();
+
+        if (villager != null)
+        {
+            return villager.attack;
+        }
+
+        MonsterAI monster =
+            target.GetComponent<MonsterAI>();
+
+        if (monster != null)
+        {
+            return monster.damage;
+        }
+
+        return -1;
+    }
+
+    int GetTargetDefense(Transform target)
+    {
+        CharacterStats characterStats =
+            target.GetComponent<CharacterStats>();
+
+        if (characterStats != null)
+        {
+            return characterStats.defense;
+        }
+
+        SmartNpcAI smartNpc =
+            target.GetComponent<SmartNpcAI>();
+
+        if (smartNpc != null)
+        {
+            return smartNpc.defense;
+        }
+
+        VillagerAI villager =
+            target.GetComponent<VillagerAI>();
+
+        if (villager != null)
+        {
+            return villager.defense;
+        }
+
+        MonsterAI monster =
+            target.GetComponent<MonsterAI>();
+
+        if (monster != null)
+        {
+            return monster.defense;
+        }
+
+        return -1;
+    }
+
+    float GetTargetMoveSpeed(Transform target)
+    {
+        CharacterStats characterStats =
+            target.GetComponent<CharacterStats>();
+
+        if (characterStats != null)
+        {
+            return characterStats.moveSpeed;
+        }
+
+        SmartNpcAI smartNpc =
+            target.GetComponent<SmartNpcAI>();
+
+        if (smartNpc != null)
+        {
+            return smartNpc.moveSpeed;
+        }
+
+        VillagerAI villager =
+            target.GetComponent<VillagerAI>();
+
+        if (villager != null)
+        {
+            return villager.moveSpeed;
+        }
+
+        MonsterAI monster =
+            target.GetComponent<MonsterAI>();
+
+        if (monster != null)
+        {
+            return monster.moveSpeed;
+        }
+
+        return -1f;
     }
 
     string BuildTargetInfo(Transform target)
@@ -1409,12 +1716,12 @@ public class TouchSelectTarget : MonoBehaviour
         StringBuilder builder =
             new StringBuilder();
 
-        builder.AppendLine(NpcText.Label("name") + ": " + GetTargetName(target));
         builder.AppendLine(NpcText.Label("age") + ": " + GetTargetAge(target));
         builder.AppendLine(NpcText.Label("lifespan") + ": " + GetTargetLifespan(target));
         builder.AppendLine(NpcText.Label("job") + ": " + GetTargetJob(target));
-        builder.AppendLine(NpcText.Label("realm") + ": " + GetTargetRealm(target));
-        builder.AppendLine(NpcText.Label("health") + ": " + BuildHealthText(target));
+        builder.AppendLine(NpcText.Label("attack") + ": " + FormatMaybeInt(GetTargetAttack(target)));
+        builder.AppendLine(NpcText.Label("defense") + ": " + FormatMaybeInt(GetTargetDefense(target)));
+        builder.AppendLine(NpcText.Label("speed") + ": " + FormatMaybeFloat(GetTargetMoveSpeed(target)));
 
         string manuals =
             BuildManualStudyText(target);
@@ -1440,12 +1747,13 @@ public class TouchSelectTarget : MonoBehaviour
         StringBuilder builder =
             new StringBuilder();
 
-        builder.AppendLine(NpcText.Label("name") + ": " + monster.monsterName);
         builder.AppendLine(NpcText.Label("type") + ": " + NpcText.Get("entityTypes", "monster", "Yêu Thú"));
         builder.AppendLine(NpcText.Label("level") + ": " + Mathf.Max(1, monster.beastLevel));
-        builder.AppendLine(NpcText.Label("realm") + ": " + GetTargetRealm(monster.transform));
-        builder.AppendLine(NpcText.Label("health") + ": " + BuildHealthText(monster.transform));
+        builder.AppendLine(NpcText.Label("damage") + ": " + FormatMaybeInt(GetTargetAttack(monster.transform)));
+        builder.AppendLine(NpcText.Label("defense") + ": " + FormatMaybeInt(GetTargetDefense(monster.transform)));
+        builder.AppendLine(NpcText.Label("speed") + ": " + FormatMaybeFloat(GetTargetMoveSpeed(monster.transform)));
         builder.AppendLine(NpcText.Label("loot") + ": " + GetMonsterLootText(monster));
+        builder.AppendLine(NpcText.Label("action") + ": " + GetTargetAction(monster.transform));
 
         return builder.ToString().TrimEnd();
     }
@@ -2006,11 +2314,7 @@ public class TouchSelectTarget : MonoBehaviour
                 return;
             }
 
-            if (infoText != null)
-            {
-                infoText.text =
-                    BuildTargetInfo(currentTarget);
-            }
+            RefreshTargetInfo(currentTarget);
         }
 
         if (npcInventoryPanel != null)

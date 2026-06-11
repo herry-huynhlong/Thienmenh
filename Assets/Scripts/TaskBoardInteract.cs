@@ -6,11 +6,18 @@ public class TaskBoardInteract : MonoBehaviour
     public NpcTaskProvider provider;
     public TaskBoardPanelUI panel;
 
-    private Collider2D boardCollider;
+    Collider2D boardCollider;
+    bool warnedMissingProvider;
 
     void Awake()
     {
         boardCollider = GetComponent<Collider2D>();
+        ResolveProvider();
+    }
+
+    void OnEnable()
+    {
+        ResolveProvider();
     }
 
     void Update()
@@ -40,13 +47,13 @@ public class TaskBoardInteract : MonoBehaviour
 
         if (panel == null)
         {
-            Debug.LogWarning("Chưa gán TaskBoardPanelUI.");
+            Debug.LogWarning("Missing TaskBoardPanelUI.");
             return;
         }
 
-        if (provider == null)
+        if (provider == null && !ResolveProvider())
         {
-            Debug.LogWarning("Chưa gán NpcTaskProvider.");
+            WarnMissingProviderOnce();
             return;
         }
 
@@ -59,7 +66,7 @@ public class TaskBoardInteract : MonoBehaviour
 
         if (cam == null)
         {
-            Debug.LogWarning("Không tìm thấy Camera trong scene.");
+            Debug.LogWarning("Camera not found in scene.");
             return;
         }
 
@@ -70,7 +77,7 @@ public class TaskBoardInteract : MonoBehaviour
 
         if (boardCollider == null)
         {
-            Debug.LogWarning("Bảng nhiệm vụ chưa có Collider2D.");
+            Debug.LogWarning("Task board is missing a Collider2D.");
             return;
         }
 
@@ -82,6 +89,28 @@ public class TaskBoardInteract : MonoBehaviour
         }
 
         panel.Show(provider);
+    }
+
+    bool ResolveProvider()
+    {
+        if (provider != null)
+        {
+            return true;
+        }
+
+        provider = FindFirstObjectByType<NpcTaskProvider>();
+        return provider != null;
+    }
+
+    void WarnMissingProviderOnce()
+    {
+        if (warnedMissingProvider)
+        {
+            return;
+        }
+
+        warnedMissingProvider = true;
+        Debug.LogWarning("Missing NpcTaskProvider.");
     }
 
     bool IsPointerOverUI(int fingerId)

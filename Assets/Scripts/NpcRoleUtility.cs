@@ -9,6 +9,12 @@ public static class NpcRoleUtility
             return "Không rõ";
         }
 
+        MonsterAI monster = npc.GetComponent<MonsterAI>();
+        if (monster != null)
+        {
+            return monster.monsterName;
+        }
+
         EntityProfile profile = npc.GetComponent<EntityProfile>();
         if (profile != null &&
             profile.identity != null &&

@@ -7,19 +7,27 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 {
     public static HeavenlyTribulationSystem Instance { get; private set; }
 
-    static readonly Dictionary<int, float> pillProtectionUntil =
-        new Dictionary<int, float>();
+    struct PillProtectionState
+    {
+        public float expiresAt;
+        public float damageReduction;
+    }
+
+    static readonly Dictionary<int, PillProtectionState> pillProtectionUntil =
+        new Dictionary<int, PillProtectionState>();
 
     [Header("Tribulation")]
-    public int lightningCount = 9;
+    public int baseLightningCount = 2;
+    public int lightningCountPerMajorRealm = 1;
     public float lightningInterval = 0.45f;
     public float strikeRadius = 1.8f;
     public float openAreaSearchRadius = 8f;
     public float openAreaClearRadius = 0.9f;
     public int damagePerStrike = 35;
     public int finalStrikeDamage = 70;
-    [Range(0f, 1f)] public float breakthroughPillDamageReduction = 0.3f;
     public float pillProtectionDuration = 30f;
+    public float damageGrowthPerMajorRealm = 0.35f;
+    public float finalStrikeGrowthPerMajorRealm = 0.45f;
 
     [Header("Prefab Thiên Kiếp Mới")]
     public bool useStrikePrefab = true;
@@ -100,8 +108,32 @@ public class HeavenlyTribulationSystem : MonoBehaviour
             ? system.pillProtectionDuration
             : 30f;
 
-        pillProtectionUntil[target.GetHashCode()] =
-            Time.time + Mathf.Max(1f, duration);
+        pillProtectionUntil[target.GetInstanceID()] =
+            new PillProtectionState
+            {
+                expiresAt = Time.time + Mathf.Max(1f, duration),
+                damageReduction = GetPillDamageReduction(item)
+            };
+    }
+
+    static float GetPillDamageReduction(StatItemData item)
+    {
+        if (item == null)
+        {
+            return 0f;
+        }
+
+        if (item.grade == ItemGrade.Ha)
+        {
+            return 0.1f;
+        }
+
+        if (item.grade == ItemGrade.Trung)
+        {
+            return 0.2f;
+        }
+
+        return 0.3f;
     }
 
     IEnumerator RunTribulation(
@@ -127,6 +159,8 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         Vector3 center = FindOpenArea(target.transform.position, target);
 
         MoveTargetToCenter(target, center);
+        Vector3 strikeCenter = GetTribulationStrikeCenter(target, center);
+        Vector3 visualCenter = GetTribulationVisualCenter(target, strikeCenter);
 
         AddWorldLog(
             displayName + " dẫn động Thiên Kiếp, chuẩn bị đột phá " +
@@ -147,10 +181,11 @@ public class HeavenlyTribulationSystem : MonoBehaviour
                 yield break;
             }
 
-            Vector2 offset = UnityEngine.Random.insideUnitCircle * strikeRadius;
-            Vector3 strikePosition = center + (Vector3)offset;
-
-            Strike(heaven, strikePosition, runtime.damagePerStrike);
+            Strike(
+                heaven,
+                visualCenter,
+                strikeCenter,
+                runtime.damagePerStrike);
 
             yield return new WaitForSeconds(Mathf.Max(0.05f, lightningInterval));
         }
@@ -160,7 +195,11 @@ public class HeavenlyTribulationSystem : MonoBehaviour
             yield break;
         }
 
-        Strike(heaven, target.transform.position, runtime.finalStrikeDamage);
+        Strike(
+            heaven,
+            visualCenter,
+            strikeCenter,
+            runtime.finalStrikeDamage);
 
         yield return new WaitForSeconds(0.1f);
 
@@ -187,40 +226,47 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         public float talentFactor;
     }
 
+    int GetMajorRealmTier(CultivationRealm targetRealm)
+    {
+        return Mathf.Clamp(
+            (int)targetRealm - (int)CultivationRealm.Foundation,
+            0,
+            4);
+    }
+
     TribulationRuntime BuildRuntime(
         GameObject target,
         CultivationRealm targetRealm)
     {
         float talentFactor = GetTalentFactor(target);
-        float realmFactor = 1f + Mathf.Max(0, (int)targetRealm) * 0.12f;
+        int majorTier = GetMajorRealmTier(targetRealm);
 
-        bool protectedByPill = ConsumePillProtection(target);
+        bool protectedByPill =
+            ConsumePillProtection(target, out float pillReduction);
 
         float pillMultiplier = protectedByPill
-            ? 1f - Mathf.Clamp01(breakthroughPillDamageReduction)
+            ? 1f - Mathf.Clamp01(pillReduction)
             : 1f;
 
         return new TribulationRuntime
         {
             lightningCount = Mathf.Clamp(
-                Mathf.RoundToInt(lightningCount * talentFactor * realmFactor),
-                3,
-                36),
+                baseLightningCount + majorTier * lightningCountPerMajorRealm,
+                2,
+                6),
 
             damagePerStrike = Mathf.Max(
                 1,
                 Mathf.RoundToInt(
                     damagePerStrike *
-                    (0.75f + talentFactor * 0.55f) *
-                    realmFactor *
+                    (1f + majorTier * damageGrowthPerMajorRealm) *
                     pillMultiplier)),
 
             finalStrikeDamage = Mathf.Max(
                 1,
                 Mathf.RoundToInt(
                     finalStrikeDamage *
-                    (0.75f + talentFactor * 0.55f) *
-                    realmFactor *
+                    (1f + majorTier * finalStrikeGrowthPerMajorRealm) *
                     pillMultiplier)),
 
             usedProtectionPill = protectedByPill,
@@ -264,23 +310,110 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         return 1f + Mathf.Clamp(score, 0f, 100f) / 100f;
     }
 
-    bool ConsumePillProtection(GameObject target)
+    Vector3 GetTribulationStrikeCenter(
+        GameObject target,
+        Vector3 fallbackCenter)
     {
+        if (target == null)
+        {
+            return fallbackCenter;
+        }
+
+        Collider2D[] colliders = target.GetComponentsInChildren<Collider2D>();
+        Bounds? bounds = null;
+
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            Collider2D collider = colliders[i];
+            if (collider == null || collider.isTrigger)
+            {
+                continue;
+            }
+
+            bounds = bounds.HasValue
+                ? Encapsulate(bounds.Value, collider.bounds)
+                : collider.bounds;
+        }
+
+        if (bounds.HasValue)
+        {
+            return bounds.Value.center;
+        }
+
+        Rigidbody2D rb = target.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            return rb.position;
+        }
+
+        return fallbackCenter;
+    }
+
+    Vector3 GetTribulationVisualCenter(
+        GameObject target,
+        Vector3 strikeCenter)
+    {
+        float headOffset = 1.1f;
+
+        if (target != null)
+        {
+            Collider2D[] colliders = target.GetComponentsInChildren<Collider2D>();
+            float top = float.NegativeInfinity;
+
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                Collider2D collider = colliders[i];
+                if (collider == null || collider.isTrigger)
+                {
+                    continue;
+                }
+
+                top = Mathf.Max(top, collider.bounds.max.y);
+            }
+
+            if (!float.IsNegativeInfinity(top))
+            {
+                headOffset = Mathf.Max(0.8f, top - strikeCenter.y + 0.25f);
+            }
+        }
+
+        return strikeCenter + Vector3.up * headOffset;
+    }
+
+    Bounds Encapsulate(Bounds first, Bounds second)
+    {
+        first.Encapsulate(second.min);
+        first.Encapsulate(second.max);
+        return first;
+    }
+
+    bool ConsumePillProtection(GameObject target, out float damageReduction)
+    {
+        damageReduction = 0f;
+
         if (target == null)
         {
             return false;
         }
 
-        int key = target.GetHashCode();
+        int key = target.GetInstanceID();
 
-        if (!pillProtectionUntil.TryGetValue(key, out float expiresAt))
+        if (!pillProtectionUntil.TryGetValue(
+                key,
+                out PillProtectionState state))
         {
             return false;
         }
 
-        pillProtectionUntil.Remove(key);
+        if (Time.time > state.expiresAt)
+        {
+            pillProtectionUntil.Remove(key);
+            return false;
+        }
 
-        return Time.time <= expiresAt;
+        damageReduction = Mathf.Clamp01(state.damageReduction);
+        pillProtectionUntil.Remove(key);
+        return true;
     }
 
     IEnumerator PlayCloudGathering(
@@ -331,7 +464,11 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         }
     }
 
-    void Strike(HeavenSystem heaven, Vector3 position, int damage)
+    void Strike(
+        HeavenSystem heaven,
+        Vector3 visualPosition,
+        Vector3 impactPosition,
+        int damage)
     {
         float radius = heaven != null
             ? heaven.punishmentRadius
@@ -341,28 +478,28 @@ public class HeavenlyTribulationSystem : MonoBehaviour
             ? heaven.damageLayers
             : ~0;
 
-        PlayStrikeVisual(position);
+        PlayStrikeVisual(visualPosition, impactPosition);
 
-        ApplyStrikeDamage(position, radius, damageLayers, damage);
+        ApplyStrikeDamage(impactPosition, radius, damageLayers, damage);
     }
 
-    void PlayStrikeVisual(Vector3 position)
+    void PlayStrikeVisual(Vector3 visualPosition, Vector3 impactPosition)
     {
         if (useStrikePrefab && strikePrefab != null)
         {
             ThienKiepStrikePrefab strike =
-                Instantiate(strikePrefab, position, Quaternion.identity);
+                Instantiate(strikePrefab, visualPosition, Quaternion.identity);
 
             LayerMask noDamageLayers = 0;
 
-            strike.Play(0, noDamageLayers);
+            strike.Play(0, noDamageLayers, impactPosition);
 
             return;
         }
 
         if (useFallbackIfNoPrefab)
         {
-            StartCoroutine(PlayFallbackLightning(position));
+            StartCoroutine(PlayFallbackLightning(visualPosition, impactPosition));
         }
         else
         {
@@ -401,7 +538,9 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         }
     }
 
-    IEnumerator PlayFallbackLightning(Vector3 position)
+    IEnumerator PlayFallbackLightning(
+        Vector3 visualPosition,
+        Vector3 impactPosition)
     {
         GameObject lightningObject =
             new GameObject("Heavenly Tribulation Lightning");
@@ -446,12 +585,12 @@ public class HeavenlyTribulationSystem : MonoBehaviour
             boltCoreColor,
             121);
 
-        Vector3 top = position + Vector3.up * cloudHeight;
+        Vector3 top = visualPosition + Vector3.up * cloudHeight;
 
         for (int i = 0; i < pointCount; i++)
         {
             float progress = i / Mathf.Max(1f, pointCount - 1f);
-            Vector3 point = Vector3.Lerp(top, position, progress);
+            Vector3 point = Vector3.Lerp(top, impactPosition, progress);
 
             point.x += UnityEngine.Random.Range(-0.26f, 0.26f) *
                 Mathf.Lerp(1f, 0.2f, progress);
@@ -468,7 +607,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
             }
         }
 
-        PlayImpactRing(position);
+        PlayImpactRing(impactPosition);
 
         yield return new WaitForSeconds(Mathf.Max(0.05f, boltLife));
 

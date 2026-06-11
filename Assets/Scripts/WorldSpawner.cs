@@ -33,6 +33,7 @@ public class SavedWorldActorData
     public int professionLevel;
     public int professionExp;
     public string currentAction;
+    public string monsterName;
 }
 
 [Serializable]
@@ -387,6 +388,7 @@ public class WorldSpawner : MonoBehaviour
         if (monster != null)
         {
             saved.currentAction = monster.currentAction;
+            saved.monsterName = monster.monsterName;
         }
 
         return saved;
@@ -462,6 +464,18 @@ public class WorldSpawner : MonoBehaviour
             smartNpc.hunger = profile.needs.hunger;
             smartNpc.fatigue = profile.needs.fatigue;
         }
+
+        MonsterAI monster = instance.GetComponent<MonsterAI>();
+        if (monster != null)
+        {
+            monster.entityProfile = profile;
+            monster.generateFromEntityProfile = false;
+            monster.maxHP = profile.stats.maxHP;
+            monster.currentHP = Mathf.Clamp(profile.stats.currentHP, 0, profile.stats.maxHP);
+            monster.damage = profile.stats.attack;
+            monster.defense = profile.stats.defense;
+            monster.moveSpeed = profile.stats.moveSpeed;
+        }
     }
 
     void ApplySavedRuntime(GameObject instance, SavedWorldActorData saved)
@@ -477,6 +491,20 @@ public class WorldSpawner : MonoBehaviour
             if (!string.IsNullOrEmpty(saved.currentAction))
             {
                 villager.currentAction = saved.currentAction;
+            }
+        }
+
+        MonsterAI monster = instance.GetComponent<MonsterAI>();
+        if (monster != null)
+        {
+            if (!string.IsNullOrWhiteSpace(saved.monsterName))
+            {
+                monster.monsterName = saved.monsterName;
+            }
+
+            if (!string.IsNullOrEmpty(saved.currentAction))
+            {
+                monster.currentAction = saved.currentAction;
             }
         }
     }

@@ -112,6 +112,33 @@ public static class CultivationProgression
         }
     }
 
+    public static bool RequiresHeavenlyTribulation(
+        CultivationRealm realm,
+        int stage)
+    {
+        return realm >= CultivationRealm.QiRefining &&
+            realm < CultivationRealm.Tribulation &&
+            stage >= MaxStage;
+    }
+
+    public static bool IsMajorRealmBreakthrough(
+        CultivationRealm realm)
+    {
+        return realm >= CultivationRealm.QiRefining &&
+            realm < CultivationRealm.Tribulation;
+    }
+
+    public static CultivationRealm GetNextRealm(
+        CultivationRealm realm)
+    {
+        if (realm >= CultivationRealm.Tribulation)
+        {
+            return CultivationRealm.Tribulation;
+        }
+
+        return (CultivationRealm)((int)realm + 1);
+    }
+
     public static int GetRealmPower(
         CultivationRealm realm,
         int stage)

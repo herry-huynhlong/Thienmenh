@@ -61,6 +61,8 @@ public class ThienKiepStrikePrefab : MonoBehaviour
 
     private bool started;
     private Vector3 originalCloudScale = Vector3.one;
+    private Vector3 impactPosition;
+    private bool hasImpactPosition;
 
     private void Awake()
     {
@@ -91,8 +93,18 @@ public class ThienKiepStrikePrefab : MonoBehaviour
 
     public void Play(int newDamage, LayerMask newDamageLayers)
     {
+        Play(newDamage, newDamageLayers, transform.position);
+    }
+
+    public void Play(
+        int newDamage,
+        LayerMask newDamageLayers,
+        Vector3 newImpactPosition)
+    {
         damage = newDamage;
         damageLayers = newDamageLayers;
+        impactPosition = newImpactPosition;
+        hasImpactPosition = true;
 
         if (started)
             return;
@@ -159,7 +171,7 @@ public class ThienKiepStrikePrefab : MonoBehaviour
 
         if (useHitLightningBurst)
         {
-            PlayHitLightningBurst(transform.position);
+            PlayHitLightningBurst(GetImpactPosition());
         }
 
         if (hitEffect != null)
@@ -285,7 +297,7 @@ public class ThienKiepStrikePrefab : MonoBehaviour
 
         lightningLine.positionCount = segmentCount;
 
-        Vector3 endPosition = transform.position;
+        Vector3 endPosition = GetImpactPosition();
         Vector3 startPosition;
 
         if (cloudStrikeOrigin != null)
@@ -355,7 +367,11 @@ public class ThienKiepStrikePrefab : MonoBehaviour
 
     private void DamageAround()
     {
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, damageRadius, damageLayers);
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(
+                GetImpactPosition(),
+                damageRadius,
+                damageLayers);
 
         HashSet<GameObject> damagedObjects = new HashSet<GameObject>();
 
@@ -380,6 +396,13 @@ public class ThienKiepStrikePrefab : MonoBehaviour
         {
             obj.SetActive(active);
         }
+    }
+
+    Vector3 GetImpactPosition()
+    {
+        return hasImpactPosition
+            ? impactPosition
+            : transform.position;
     }
 
     private void SetLineActive(LineRenderer line, bool active)
