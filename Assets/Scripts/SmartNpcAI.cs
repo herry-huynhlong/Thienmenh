@@ -116,6 +116,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     public float targetClearRadius = 0.25f;
     public float blockedTargetRetryDelay = 0.8f;
     public bool useObstacleAvoidance = true;
+    public bool ignoreNpcBodyCollisions = true;
 
     public Transform currentTarget;
     Transform treasureHuntTarget;
@@ -125,6 +126,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     bool hasTreasureWaitPosition;
 
     private Rigidbody2D rb;
+    NPCVisualAnimation visualAnimation;
     Collider2D[] selfColliders;
     Vector3 lastUnstuckPosition;
     Vector3 escapeTarget;
@@ -185,6 +187,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     void Start()
     {
         currentAction = NpcText.Action("idle");
+        visualAnimation = NPCVisualAnimation.EnsureOn(gameObject);
         ItemInventory inventory = GetComponent<ItemInventory>();
         if (inventory == null)
         {
@@ -369,6 +372,29 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         }
 
         UpdateMovement();
+        UpdateVisualAnimation();
+    }
+
+    void UpdateVisualAnimation()
+    {
+        if (visualAnimation == null)
+        {
+            visualAnimation = NPCVisualAnimation.EnsureOn(gameObject);
+            if (visualAnimation == null)
+            {
+                return;
+            }
+        }
+
+        Vector2 animationVelocity =
+            rb != null
+            ? rb.linearVelocity
+            : Vector2.zero;
+
+        bool isIdle = animationVelocity.sqrMagnitude <= 0.0001f;
+        Vector2 direction = isIdle ? Vector2.zero : animationVelocity.normalized;
+
+        visualAnimation.UpdateNPCAnimation(direction, isIdle);
     }
 
     void UpdateMovement()
@@ -552,6 +578,47 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
+        }
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        TryIgnoreNpcCollision(collision.collider);
+    }
+
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        TryIgnoreNpcCollision(collision.collider);
+    }
+
+    void TryIgnoreNpcCollision(Collider2D other)
+    {
+        if (!ignoreNpcBodyCollisions || other == null || other.isTrigger)
+        {
+            return;
+        }
+
+        if (other.GetComponentInParent<VillagerAI>() == null &&
+            other.GetComponentInParent<SmartNpcAI>() == null &&
+            other.GetComponentInParent<NpcMapMover2D>() == null)
+        {
+            return;
+        }
+
+        if (selfColliders == null || selfColliders.Length == 0)
+        {
+            selfColliders = GetComponentsInChildren<Collider2D>();
+        }
+
+        for (int i = 0; i < selfColliders.Length; i++)
+        {
+            Collider2D own = selfColliders[i];
+            if (own != null &&
+                !own.isTrigger &&
+                own != other)
+            {
+                Physics2D.IgnoreCollision(own, other, true);
+            }
         }
     }
 
@@ -1555,6 +1622,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         if (timeSystem != null)
         {
             if (timeSystem.CurrentPhase == WorldTimePhase.Night &&
+                !IgnoresMortalNeeds() &&
                 bravery < 55 &&
                 currentMonsterTarget == null)
             {
@@ -1590,7 +1658,9 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (canLive && fatigue >= 85)
+        if (canLive &&
+            !IgnoresMortalNeeds() &&
+            fatigue >= 85)
         {
             Sleep();
 
@@ -1686,63 +1756,34 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     void Sleep()
     {
-        if (homePoint == null)
-        {
-            fatigue = 0;
-            currentTarget = null;
-            currentAction = NpcText.Action("rest");
-            return;
-        }
-
-        currentTarget = homePoint;
-
-        float distance =
-            Vector2.Distance(
-                transform.position,
-                homePoint.position);
-
-        if (distance >= 1.5f)
-        {
-            currentAction = NpcText.Action("goHomeRest");
-            return;
-        }
-
         currentAction = NpcText.Action("rest");
 
-        if (distance < 1.5f)
+        fatigue = 0;
+
+        if (characterStats != null)
         {
-            fatigue = 0;
-
-            if (characterStats != null)
-            {
-                characterStats.currentHP =
-                    Mathf.Min(
-                        characterStats.finalHP,
-                        characterStats.currentHP + 30);
-                SyncFromCharacterStats();
-            }
-            else
-            {
-                currentHP += 30;
-
-                if (currentHP > maxHP)
-                {
-                    currentHP = maxHP;
-                }
-            }
-
-            Debug.Log(NpcText.Format(NpcText.Get("logs", "sleep"), npcName));
+            characterStats.currentHP =
+                Mathf.Min(
+                    characterStats.finalHP,
+                    characterStats.currentHP + 30);
+            SyncFromCharacterStats();
         }
+        else
+        {
+            currentHP += 30;
+
+            if (currentHP > maxHP)
+            {
+                currentHP = maxHP;
+            }
+        }
+
+        Debug.Log(NpcText.Format(NpcText.Get("logs", "sleep"), npcName));
     }
 
     void Cultivate()
     {
         if (IsDead)
-        {
-            return;
-        }
-
-        if (TryGoHomeForCultivation())
         {
             return;
         }
@@ -1782,24 +1823,12 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     bool TryGoHomeForCultivation()
     {
-        if (homePoint == null)
-        {
-            return false;
-        }
+        return false;
+    }
 
-        float distance =
-            Vector2.Distance(
-                transform.position,
-                homePoint.position);
-
-        if (distance <= 1.2f)
-        {
-            return false;
-        }
-
-        currentTarget = homePoint;
-        currentAction = NpcText.Action("goHomeCultivate");
-        return true;
+    bool IgnoresMortalNeeds()
+    {
+        return realm >= CultivationRealm.Foundation;
     }
 
     bool NeedsFood()

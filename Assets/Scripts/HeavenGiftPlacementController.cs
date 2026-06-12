@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Rendering.Universal;
@@ -24,8 +25,20 @@ public class HeavenGiftPlacementController : MonoBehaviour
     public int immortalLightningCount = 49;
     public float immortalLightningInterval = 0.35f;
     public float immortalLightningRadius = 2.2f;
+    public int immortalLightningDamage = 65;
     public float immortalLightningScale = 2.4f;
-
+    [Header("Summon")]
+    public GameObject[] upperGradeSummonPrefabs;
+    public GameObject[] immortalGradeSummonPrefabs;
+    [Range(0f, 1f)] public float upperGradeSummonChance = 0.5f;
+    [Range(0f, 1f)] public float immortalGradeSummonChance = 0.9f;
+    public float upperGradeSummonRadius = 3.5f;
+    public float immortalGradeSummonRadius = 5f;
+    public int upperGradeLightningCount = 19;
+    public int upperGradeLightningDamage = 45;
+    public float upperGradeLightningRadius = 1.9f;
+    public float upperGradeLightningInterval = 0.25f;
+    public float upperGradeLightningScale = 1.65f;
     ItemInventory sourceInventory;
     StatItemData pendingItem;
     bool waitingForPlacement;
@@ -216,25 +229,27 @@ public class HeavenGiftPlacementController : MonoBehaviour
         switch (item.grade)
         {
             case ItemGrade.Trung:
-                if (IsNight())
-                {
-                    StartCoroutine(FlashNightSky(session));
-                }
-
                 StartCoroutine(
-                    PlayMiddleGradeGlowWaves(
+                    PlayRainbowAuraWaves(
                         targetPosition,
-                        session));
+                        session,
+                        GetRainbowPalette(7)));
                 break;
 
             case ItemGrade.Thuong:
-                if (item.itemType == ItemType.PhapBao)
-                {
-                    StartCoroutine(
-                        PlayRainbowAuraWaves(
-                            targetPosition,
-                            session));
-                }
+                StartCoroutine(
+                    PlayRainbowAuraWaves(
+                        targetPosition,
+                        session,
+                        GetRainbowPalette(5)));
+                break;
+
+            case ItemGrade.Tien:
+                StartCoroutine(
+                    PlayRainbowAuraWaves(
+                        targetPosition,
+                        session,
+                        GetRainbowPalette(7)));
                 break;
         }
     }
@@ -247,18 +262,45 @@ public class HeavenGiftPlacementController : MonoBehaviour
         if (item == null ||
             session == null ||
             !session.IsActive ||
-            item.grade != ItemGrade.Tien)
+            (item.grade != ItemGrade.Thuong &&
+            item.grade != ItemGrade.Tien))
         {
             return;
         }
 
-        if (item.itemType == ItemType.PhapBao)
+        if (item.grade == ItemGrade.Thuong)
         {
             StartCoroutine(
-                PlayImmortalTreasureSequence(
+                PlayLightningSummonSequence(
                     targetPosition,
-                    session));
+                    session,
+                    upperGradeLightningCount,
+                    upperGradeLightningDamage,
+                    upperGradeLightningRadius,
+                    upperGradeLightningScale,
+                    item.grade,
+                    upperGradeSummonChance,
+                    upperGradeSummonPrefabs,
+                    CultivationRealm.NascentSoul,
+                    upperGradeSummonRadius,
+                    "Nguyen Anh"));
+            return;
         }
+
+        StartCoroutine(
+            PlayLightningSummonSequence(
+                    targetPosition,
+                    session,
+                    immortalLightningCount,
+                    immortalLightningDamage,
+                    immortalLightningRadius,
+                    immortalLightningScale,
+                    item.grade,
+                    immortalGradeSummonChance,
+                    immortalGradeSummonPrefabs,
+                    CultivationRealm.SoulFormation,
+                    immortalGradeSummonRadius,
+                    "duoi Hoa Than"));
     }
 
     bool IsNight()
@@ -408,7 +450,8 @@ public class HeavenGiftPlacementController : MonoBehaviour
 
     IEnumerator PlayRainbowAuraWaves(
         Vector3 center,
-        HeavenGiftEffectSession session)
+        HeavenGiftEffectSession session,
+        Color[] colors)
     {
         if (session == null ||
             !session.IsActive)
@@ -416,12 +459,13 @@ public class HeavenGiftPlacementController : MonoBehaviour
             yield break;
         }
 
+        Color[] palette = GetValidPalette(colors);
         int waves =
             Mathf.Max(1, rainbowWaveCount);
 
         for (int i = 0; i < waves && session.IsActive; i++)
         {
-            yield return PlayRainbowAuraWave(center, session);
+            yield return PlayRainbowAuraWave(center, session, palette);
 
             if (rainbowWaveInterval > 0f &&
                 i < waves - 1)
@@ -433,18 +477,10 @@ public class HeavenGiftPlacementController : MonoBehaviour
 
     IEnumerator PlayRainbowAuraWave(
         Vector3 center,
-        HeavenGiftEffectSession session)
+        HeavenGiftEffectSession session,
+        Color[] colors)
     {
-        Color[] colors =
-        {
-            Color.red,
-            new Color(1f, 0.5f, 0f),
-            Color.yellow,
-            Color.green,
-            Color.cyan,
-            Color.blue,
-            new Color(0.65f, 0.25f, 1f)
-        };
+        Color[] palette = GetValidPalette(colors);
 
         GameObject auraRoot =
             new GameObject("Heaven Rainbow Aura");
@@ -453,15 +489,15 @@ public class HeavenGiftPlacementController : MonoBehaviour
         session.Register(auraRoot);
 
         LineRenderer[] rings =
-            new LineRenderer[colors.Length];
+            new LineRenderer[palette.Length];
 
-        for (int i = 0; i < colors.Length; i++)
+        for (int i = 0; i < palette.Length; i++)
         {
             GameObject ringObject =
                 new GameObject("Rainbow Ring " + i);
 
             ringObject.transform.SetParent(auraRoot.transform, false);
-            rings[i] = CreateRingRenderer(ringObject, colors[i], i);
+            rings[i] = CreateRingRenderer(ringObject, palette[i], i);
         }
 
         float duration =
@@ -482,7 +518,7 @@ public class HeavenGiftPlacementController : MonoBehaviour
                 float alpha =
                     Mathf.Sin(progress * Mathf.PI);
 
-                UpdateRing(rings[i], radius, colors[i], alpha);
+                UpdateRing(rings[i], radius, palette[i], alpha);
             }
 
             auraRoot.transform.Rotate(0f, 0f, 60f * Time.deltaTime);
@@ -544,19 +580,52 @@ public class HeavenGiftPlacementController : MonoBehaviour
         }
     }
 
-    IEnumerator PlayImmortalTreasureSequence(
-        Vector3 center,
-        HeavenGiftEffectSession session)
+    Color[] GetRainbowPalette(int colorCount)
     {
-        StartCoroutine(
-            PlayRainbowAuraWaves(center, session));
+        Color[] fullPalette =
+        {
+            Color.red,
+            new Color(1f, 0.5f, 0f),
+            Color.yellow,
+            Color.green,
+            Color.cyan,
+            Color.blue,
+            new Color(0.65f, 0.25f, 1f)
+        };
 
-        yield return PlayImmortalLightning(center, session);
+        int count = Mathf.Clamp(colorCount, 1, fullPalette.Length);
+        Color[] palette = new Color[count];
+        for (int i = 0; i < count; i++)
+        {
+            palette[i] = fullPalette[i];
+        }
+
+        return palette;
     }
 
-    IEnumerator PlayImmortalLightning(
+    Color[] GetValidPalette(Color[] colors)
+    {
+        if (colors == null || colors.Length == 0)
+        {
+            return GetRainbowPalette(7);
+        }
+
+        return colors;
+    }
+
+    IEnumerator PlayLightningSummonSequence(
         Vector3 center,
-        HeavenGiftEffectSession session)
+        HeavenGiftEffectSession session,
+        int strikeCount,
+        int strikeDamage,
+        float strikeRadius,
+        float strikeScale,
+        ItemGrade grade,
+        float summonChance,
+        GameObject[] summonPrefabs,
+        CultivationRealm summonRealm,
+        float summonRadius,
+        string summonLabel)
     {
         if (session == null ||
             !session.IsActive)
@@ -564,20 +633,24 @@ public class HeavenGiftPlacementController : MonoBehaviour
             yield break;
         }
 
+        TrySummonTreasureBeast(
+            center,
+            summonChance,
+            summonPrefabs,
+            summonRealm,
+            summonRadius,
+            summonLabel);
+
         HeavenSystem heaven =
             HeavenSystem.Instance;
 
         int count =
-            Mathf.Max(1, immortalLightningCount);
+            Mathf.Max(1, strikeCount);
 
-        float totalRainbowDuration =
-            Mathf.Max(
-                count * immortalLightningInterval,
-                rainbowWaveCount *
-                (rainbowWaveDuration + rainbowWaveInterval));
-
-        float lightningInterval =
-            Mathf.Max(0.12f, totalRainbowDuration / count);
+        float interval =
+            grade == ItemGrade.Tien
+            ? Mathf.Max(0.12f, immortalLightningInterval)
+            : Mathf.Max(0.12f, upperGradeLightningInterval);
 
         for (int i = 0; i < count && session.IsActive; i++)
         {
@@ -589,7 +662,7 @@ public class HeavenGiftPlacementController : MonoBehaviour
 
             Vector2 offset =
                 Random.insideUnitCircle *
-                immortalLightningRadius *
+                Mathf.Max(0.5f, strikeRadius) *
                 Mathf.Lerp(1.1f, 0.55f, progress);
 
             Vector3 strikePosition =
@@ -600,25 +673,214 @@ public class HeavenGiftPlacementController : MonoBehaviour
             {
                 GameObject lightning =
                     Instantiate(
-                    heaven.lightningEffectPrefab,
-                    strikePosition,
-                    Quaternion.identity);
+                        heaven.lightningEffectPrefab,
+                        strikePosition,
+                        Quaternion.identity);
 
                 lightning.transform.localScale *=
-                    immortalLightningScale * strength;
+                    strikeScale * strength;
 
                 session.Register(lightning);
             }
-            else
+
+            StartCoroutine(
+                PlayFallbackLightning(
+                    strikePosition,
+                    strikeScale * strength,
+                    session));
+
+            StrikeLightningDamage(
+                strikePosition,
+                Mathf.Max(0.5f, strikeRadius),
+                strikeDamage);
+
+            yield return new WaitForSeconds(interval);
+        }
+    }
+
+    void TrySummonTreasureBeast(
+        Vector3 center,
+        float summonChance,
+        GameObject[] summonPrefabs,
+        CultivationRealm summonRealm,
+        float summonRadius,
+        string summonLabel)
+    {
+        if (summonChance <= 0f ||
+            Random.value > summonChance)
+        {
+            return;
+        }
+
+        Vector2 offset =
+            Random.insideUnitCircle;
+
+        if (offset.sqrMagnitude <= 0.0001f)
+        {
+            offset = Vector2.right;
+        }
+
+        offset.Normalize();
+        offset *= Mathf.Max(0.75f, summonRadius) * Random.Range(0.45f, 0.9f);
+
+        Vector3 spawnPosition =
+            center + (Vector3)offset;
+
+        GameObject beastObject =
+            SpawnSummonedMonsterObject(
+                summonPrefabs,
+                spawnPosition);
+
+        MonsterAI monster = null;
+        if (beastObject != null)
+        {
+            monster = beastObject.GetComponent<MonsterAI>();
+            if (monster == null)
             {
-                StartCoroutine(
-                    PlayFallbackLightning(
-                        strikePosition,
-                        immortalLightningScale * strength,
-                        session));
+                monster = beastObject.AddComponent<MonsterAI>();
+            }
+        }
+
+        if (monster == null)
+        {
+            return;
+        }
+
+        ConfigureSummonedMonster(
+            monster,
+            summonRealm,
+            summonLabel);
+    }
+
+    GameObject SpawnSummonedMonsterObject(
+        GameObject[] summonPrefabs,
+        Vector3 spawnPosition)
+    {
+        GameObject prefab =
+            PickSummonPrefab(summonPrefabs);
+
+        if (prefab != null)
+        {
+            return Instantiate(prefab, spawnPosition, Quaternion.identity);
+        }
+
+        GameObject fallback =
+            new GameObject("Summoned Beast");
+
+        fallback.transform.position = spawnPosition;
+        fallback.AddComponent<Rigidbody2D>();
+        fallback.AddComponent<CapsuleCollider2D>().isTrigger = false;
+        fallback.AddComponent<SpriteRenderer>();
+        return fallback;
+    }
+
+    GameObject PickSummonPrefab(GameObject[] summonPrefabs)
+    {
+        if (summonPrefabs == null ||
+            summonPrefabs.Length == 0)
+        {
+            return null;
+        }
+
+        List<GameObject> validPrefabs = new List<GameObject>();
+        for (int i = 0; i < summonPrefabs.Length; i++)
+        {
+            if (summonPrefabs[i] != null)
+            {
+                validPrefabs.Add(summonPrefabs[i]);
+            }
+        }
+
+        if (validPrefabs.Count == 0)
+        {
+            return null;
+        }
+
+        return validPrefabs[Random.Range(0, validPrefabs.Count)];
+    }
+
+    void ConfigureSummonedMonster(
+        MonsterAI monster,
+        CultivationRealm summonRealm,
+        string summonLabel)
+    {
+        if (monster == null)
+        {
+            return;
+        }
+
+        monster.generateFromEntityProfile = true;
+        monster.autoStatsFromRealm = true;
+        monster.syncBeastLevelFromRealm = true;
+        monster.guardTerritory = true;
+        monster.attackPlayer = true;
+        monster.attackVillagers = true;
+        monster.attackSmartNpcs = true;
+        monster.attackOtherMonsters = false;
+        monster.huntTargetType = HuntTargetType.Any;
+        monster.realm = summonRealm;
+        monster.realmStage = Random.Range(1, CultivationProgression.MaxStage + 1);
+        monster.currentAction = "Diem linh " + summonLabel;
+
+        if (string.IsNullOrEmpty(monster.monsterName))
+        {
+            monster.monsterName = "Yeu thu linh giang";
+        }
+
+        monster.name = monster.monsterName;
+
+        EntityProfile profile =
+            monster.GetComponent<EntityProfile>();
+
+        if (profile == null)
+        {
+            profile =
+                monster.gameObject.AddComponent<EntityProfile>();
+        }
+
+        profile.kind = EntityKind.Beast;
+        if (!profile.lockGeneratedValues)
+        {
+            EntityGenerator.FillProfile(profile, EntityKind.Beast);
+        }
+
+        profile.lockGeneratedValues = true;
+        profile.stats.realm = summonRealm;
+        profile.stats.realmStage = monster.realmStage;
+        profile.stats.currentHP = Mathf.Max(1, profile.stats.maxHP);
+    }
+
+    void StrikeLightningDamage(
+        Vector3 position,
+        float radius,
+        int damage)
+    {
+        if (damage <= 0 ||
+            radius <= 0f)
+        {
+            return;
+        }
+
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(position, radius);
+
+        foreach (Collider2D hit in hits)
+        {
+            if (hit == null)
+            {
+                continue;
             }
 
-            yield return new WaitForSeconds(lightningInterval);
+            IDamageable damageable =
+                hit.GetComponentInParent<IDamageable>();
+
+            if (damageable == null ||
+                damageable.IsDead)
+            {
+                continue;
+            }
+
+            damageable.TakeDamage(damage);
         }
     }
 

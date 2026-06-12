@@ -553,7 +553,8 @@ public class WorldResourceField : MonoBehaviour
     public WorldStatItemPickup GetNearestAvailablePickup(
         Vector3 position,
         StatItemData requiredItem = null,
-        NpcMapZone? requiredZone = null)
+        NpcMapZone? requiredZone = null,
+        GameObject requester = null)
     {
         WorldStatItemPickup[] pickups = GetComponentsInChildren<WorldStatItemPickup>(true);
 
@@ -563,6 +564,7 @@ public class WorldResourceField : MonoBehaviour
         foreach (WorldStatItemPickup pickup in pickups)
         {
             if (!IsAvailable(pickup) ||
+                pickup.IsReservedByOther(requester) ||
                 !MatchesRequiredItem(pickup, requiredItem) ||
                 !MatchesRequiredZone(pickup, requiredZone))
                 continue;
@@ -582,7 +584,8 @@ public class WorldResourceField : MonoBehaviour
     public static WorldStatItemPickup GetNearestAvailablePickupInAllFields(
         Vector3 position,
         StatItemData requiredItem = null,
-        NpcMapZone? requiredZone = null)
+        NpcMapZone? requiredZone = null,
+        GameObject requester = null)
     {
         WorldStatItemPickup best = null;
         float bestDistance = float.MaxValue;
@@ -593,7 +596,7 @@ public class WorldResourceField : MonoBehaviour
                 continue;
 
             WorldStatItemPickup candidate =
-                field.GetNearestAvailablePickup(position, requiredItem, requiredZone);
+                field.GetNearestAvailablePickup(position, requiredItem, requiredZone, requester);
 
             if (candidate == null)
                 continue;

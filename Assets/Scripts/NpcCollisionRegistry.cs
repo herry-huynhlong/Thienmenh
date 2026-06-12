@@ -28,7 +28,8 @@ public static class NpcCollisionRegistry
 
         foreach (Collider2D collider in colliders)
         {
-            if (collider != null)
+            if (collider != null &&
+                !collider.isTrigger)
             {
                 entry.colliders.Add(collider);
             }
@@ -157,6 +158,11 @@ public static class NpcCollisionRegistry
             {
                 Collider2D b = second[j];
                 if (b == null || a == b)
+                {
+                    continue;
+                }
+
+                if (a.isTrigger || b.isTrigger)
                 {
                     continue;
                 }

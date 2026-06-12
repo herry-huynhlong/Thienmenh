@@ -89,6 +89,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     [Header("Places")]
     public Transform homePoint;
+    public bool hideAtHome = true;
+    public bool homeRoutineManagedExternally;
     public Transform workPoint;
     public Transform marketPoint;
     public Transform playPoint;
@@ -98,6 +100,9 @@ public class VillagerAI : MonoBehaviour, IDamageable
     public float arriveDistance = 0.25f;
     public float wanderRadius = 3f;
     public float talkRadius = 1.2f;
+    public float sharedTargetSpacingRadius = 0.45f;
+    public float sharedTargetOccupancyRadius = 0.3f;
+    public float sharedAnchorSpacingRadius = 0.7f;
     public LayerMask villagerLayers = ~0;
     public int acquaintanceTalkChanceBonus = 30;
     public bool requireKnownVillagerToTalk = true;
@@ -221,9 +226,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
     Transform treasureHuntTarget;
     StatItemData treasureHuntItem;
     bool waitingOutsideTreasureLightning;
+    bool hiddenAtHome;
 
     Rigidbody2D rb;
     NPCVisualAnimation visualAnimation;
+    SpawnedWorldActor spawnedWorldActor;
     Vector3 spawnPosition;
     Vector3 wanderTarget;
     Vector3 directMoveTarget;
@@ -251,6 +258,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     float crowdBlockedTimer;
     float nextReducedMovementUpdateTime;
     Collider2D[] ownColliders;
+    Renderer[] ownRenderers;
     NpcMapArea currentMapArea;
     readonly List<Vector3> activePath =
         new List<Vector3>();
@@ -302,6 +310,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
     public bool IsActionLocked =>
         IsBusyActionActive();
 
+    public bool IsHiddenAtHome => hiddenAtHome;
+
     public Transform DamageTransform => transform;
 
     void Awake()
@@ -309,9 +319,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
         currentAction = NpcText.Action("idle");
         rb = GetComponent<Rigidbody2D>();
         ownColliders = GetComponentsInChildren<Collider2D>();
+        ownRenderers = GetComponentsInChildren<Renderer>(true);
+        spawnedWorldActor = GetComponent<SpawnedWorldActor>();
         NpcCollisionRegistry.Register(this, ownColliders);
         lastUnstuckPosition = transform.position;
-        visualAnimation = GetComponent<NPCVisualAnimation>();
+        visualAnimation = NPCVisualAnimation.EnsureOn(gameObject);
         characterStats = GetComponent<CharacterStats>();
         inventory = inventory != null
             ? inventory
@@ -339,7 +351,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         if (characterStats != null)
         {
-            characterStats.generatedEntityKind = EntityKind.Villager;
+            characterStats.generatedEntityKind = EntityKind.Commoner;
             characterStats.generateFromEntityProfile = true;
             characterStats.entityProfile = entityProfile;
             characterStats.ApplyEntityProfile();
@@ -352,6 +364,61 @@ public class VillagerAI : MonoBehaviour, IDamageable
             baseDefense = Mathf.Max(0, defense);
             ApplyRealmPower();
             currentHP = Mathf.Clamp(currentHP, 0, maxHP);
+        }
+    }
+
+    public void ForceHiddenAtHome(bool hidden)
+    {
+        hiddenAtHome = hidden;
+        if (spawnedWorldActor != null)
+        {
+            spawnedWorldActor.isHiddenAtHome = hidden;
+        }
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.simulated = !hidden;
+        }
+
+        if (ownRenderers == null || ownRenderers.Length == 0)
+        {
+            ownRenderers = GetComponentsInChildren<Renderer>(true);
+        }
+
+        if (ownColliders == null || ownColliders.Length == 0)
+        {
+            ownColliders = GetComponentsInChildren<Collider2D>(true);
+        }
+
+        for (int i = 0; i < ownRenderers.Length; i++)
+        {
+            if (ownRenderers[i] != null)
+            {
+                ownRenderers[i].enabled = !hidden;
+            }
+        }
+
+        for (int i = 0; i < ownColliders.Length; i++)
+        {
+            if (ownColliders[i] != null)
+            {
+                ownColliders[i].enabled = !hidden;
+            }
+        }
+
+        if (hidden)
+        {
+            StopMoving();
+            ClearMovementTargets();
+            currentAction = NpcText.Action("rest");
+            actionTimer = Mathf.Max(actionTimer, restDuration);
+        }
+        else
+        {
+            currentAction = NpcText.Action("idle");
+            thinkTimer = 0f;
+            actionTimer = 0f;
         }
     }
 
@@ -427,16 +494,16 @@ public class VillagerAI : MonoBehaviour, IDamageable
         entityProfile =
             EntityGenerator.EnsureProfile(
                 gameObject,
-                EntityKind.Villager);
+                EntityKind.Commoner);
 
         if (entityProfile == null)
         {
             return;
         }
 
-        if (entityProfile.kind != EntityKind.Villager)
+        if (entityProfile.kind != EntityKind.Commoner)
         {
-            EntityGenerator.FillProfile(entityProfile, EntityKind.Villager);
+            EntityGenerator.FillProfile(entityProfile, EntityKind.Commoner);
             entityProfile.lockGeneratedValues = true;
         }
 
@@ -483,7 +550,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             }
         }
 
-        entityProfile.kind = EntityKind.Villager;
+        entityProfile.kind = EntityKind.Commoner;
         entityProfile.ReloadGeneratedProfile();
         ApplyEntityProfile();
 
@@ -542,6 +609,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     void Update()
     {
+        if (hiddenAtHome)
+        {
+            return;
+        }
+
         SyncFromCharacterStats();
 
         if (IsDead)
@@ -580,6 +652,15 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     void FixedUpdate()
     {
+        if (hiddenAtHome)
+        {
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+            return;
+        }
+
         SyncFromCharacterStats();
 
         if (IsDead)
@@ -789,6 +870,15 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 ResetDailyTargets();
             }
         }
+
+        if (homeRoutineManagedExternally &&
+            (WorldTimeSystem.Instance == null ||
+            WorldTimeSystem.Instance.CurrentPhase == WorldTimePhase.Night ||
+            fatigue >= 85f))
+        {
+            return;
+        }
+
         if (actionTimer > 0f)
         {
             return;
@@ -1235,6 +1325,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     bool TryGoHomeForCultivation()
     {
+        if (homeRoutineManagedExternally)
+        {
+            return false;
+        }
+
         Vector3 homePosition = GetHomePosition();
         if (IsAtPosition(homePosition))
         {
@@ -1805,7 +1900,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         StartConversation(other);
     }
 
-    void GoHomeToRest()
+    public void GoHomeToRest()
     {
         Vector3 homePosition = GetHomePosition();
         MoveUsingRoad(homePosition);
@@ -1832,10 +1927,9 @@ public class VillagerAI : MonoBehaviour, IDamageable
             currentAction = NpcText.Action("rest");
             ResetDailyTargets();
 
-            NpcHomeResident resident = GetComponent<NpcHomeResident>();
-            if (resident != null && resident.hideAtHome)
+            if (hideAtHome)
             {
-                resident.ForceHiddenAtHome(true);
+                ForceHiddenAtHome(true);
             }
         }
     }
@@ -1900,11 +1994,21 @@ public class VillagerAI : MonoBehaviour, IDamageable
             TalkToNearbyVillager();
         }
     }
-    void GoWork()
+void GoWork()
 {
     if (job == VillagerJob.Trader)
     {
         TryTradeOrTaskOrIdle();
+        return;
+    }
+
+    NpcResourceGatherer gatherer = GetComponent<NpcResourceGatherer>();
+    if (gatherer != null &&
+        gatherer.enabled &&
+        gatherer.canGather &&
+        gatherer.TryStartGatheringNow())
+    {
+        currentAction = GetWorkingAction();
         return;
     }
 
@@ -2521,6 +2625,82 @@ public class VillagerAI : MonoBehaviour, IDamageable
             position) <= arriveDistance;
     }
 
+    Vector3 GetApproachPosition(Transform target)
+    {
+        if (target == null)
+        {
+            return transform.position;
+        }
+
+        Vector3 targetPosition = target.position;
+        if (!ShouldUseSharedTargetSpacing(target) ||
+            !IsSharedTargetOccupied(targetPosition))
+        {
+            return targetPosition;
+        }
+
+        int slotCount = 6;
+        int slotIndex = Mathf.Abs(
+            gameObject.GetInstanceID() ^
+            target.gameObject.GetInstanceID()) % slotCount;
+        float angle = (Mathf.PI * 2f * slotIndex) / slotCount;
+        Vector3 offset = new Vector3(
+            Mathf.Cos(angle),
+            Mathf.Sin(angle),
+            0f) * Mathf.Max(arriveDistance, sharedTargetSpacingRadius);
+
+        return ClampToCurrentMapArea(targetPosition + offset);
+    }
+
+    bool ShouldUseSharedTargetSpacing(Transform target)
+    {
+        return target == workPoint ||
+            target == marketPoint ||
+            target == playPoint ||
+            target == homePoint ||
+            target.GetComponent<NpcTaskProvider>() != null ||
+            target.GetComponent<NpcCounterBroker>() != null;
+    }
+
+    bool IsSharedTargetOccupied(Vector3 targetPosition)
+    {
+        float radius = Mathf.Max(0.05f, sharedTargetOccupancyRadius);
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(
+                targetPosition,
+                radius,
+                villagerLayers);
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Collider2D hit = hits[i];
+            if (hit == null)
+            {
+                continue;
+            }
+
+            VillagerAI otherVillager =
+                hit.GetComponentInParent<VillagerAI>();
+            if (otherVillager != null &&
+                otherVillager != this &&
+                !otherVillager.IsDead)
+            {
+                return true;
+            }
+
+            SmartNpcAI otherCultivator =
+                hit.GetComponentInParent<SmartNpcAI>();
+            if (otherCultivator != null &&
+                otherCultivator.gameObject != gameObject &&
+                !otherCultivator.IsDead)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     bool AddWorkProduct()
     {
         StatItemData product =
@@ -2926,6 +3106,25 @@ public class VillagerAI : MonoBehaviour, IDamageable
             NpcText.ActionFormat("treasureHuntNamed", item.itemName));
     }
 
+    public void ForceGatherTarget(
+        Transform target,
+        StatItemData item)
+    {
+        if (target == null || IsDead)
+        {
+            return;
+        }
+
+        ClearTreasureHunt();
+        actionTimer = 0f;
+
+        string action = item != null
+            ? "Đi hái " + item.itemName
+            : NpcText.Action("gatherVillageResource");
+
+        SetTarget(target, action);
+    }
+
     public void ClearTreasureHunt()
     {
         if (treasureHuntTarget == null && treasureHuntItem == null)
@@ -2971,7 +3170,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         return Vector2.Distance(
             transform.position,
-            currentTarget.position) <= arriveDistance;
+            GetApproachPosition(currentTarget)) <= arriveDistance;
     }
 
     void MoveToCurrentTarget()
@@ -3004,7 +3203,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         MoveUsingRoad(
-            currentTarget.position,
+            GetApproachPosition(currentTarget),
             GetTargetZone(currentTarget));
     }
     NpcMapZone? GetTargetZone(Transform target)
@@ -3037,7 +3236,30 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return area.GetRandomPoint();
         }
 
-        return workPoint.position;
+        return GetDistributedPointAround(workPoint.position, workPoint);
+    }
+
+    Vector3 GetDistributedPointAround(
+        Vector3 center,
+        Transform anchor,
+        int slotCount = 6)
+    {
+        if (anchor == null)
+        {
+            return center;
+        }
+
+        int safeSlotCount = Mathf.Max(3, slotCount);
+        int slotIndex = Mathf.Abs(
+            gameObject.GetInstanceID() ^
+            anchor.gameObject.GetInstanceID()) % safeSlotCount;
+        float angle = (Mathf.PI * 2f * slotIndex) / safeSlotCount;
+        Vector3 offset = new Vector3(
+            Mathf.Cos(angle),
+            Mathf.Sin(angle),
+            0f) * Mathf.Max(arriveDistance, sharedAnchorSpacingRadius);
+
+        return ClampToCurrentMapArea(center + offset);
     }
     void MoveUsingRoad(Vector3 target, NpcMapZone? targetZone = null)
 {
@@ -3718,7 +3940,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     }
     void TryIgnoreNpcCollision(Collider2D other)
     {
-        if (!ignoreNpcBodyCollisions || other == null)
+        if (!ignoreNpcBodyCollisions || other == null || other.isTrigger)
         {
             return;
         }
@@ -3737,7 +3959,9 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         foreach (Collider2D own in ownColliders)
         {
-            if (own != null && own != other)
+            if (own != null &&
+                !own.isTrigger &&
+                own != other)
             {
                 Physics2D.IgnoreCollision(own, other, true);
             }

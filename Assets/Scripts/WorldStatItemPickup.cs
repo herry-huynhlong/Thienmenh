@@ -12,6 +12,9 @@ public class WorldStatItemPickup : MonoBehaviour
     public float harvestDuration = 8f;
     public event Action OnDepleted;
 
+    GameObject reservedBy;
+    float reservationExpiresAt;
+
     public bool RequiresNpcHarvestAction()
     {
         return requireNpcHarvestAction ||
@@ -40,6 +43,62 @@ public class WorldStatItemPickup : MonoBehaviour
         }
 
         return true;
+    }
+
+    public bool TryReserve(GameObject reserver, float duration)
+    {
+        if (reserver == null ||
+            item == null ||
+            amount <= 0)
+        {
+            return false;
+        }
+
+        if (reservedBy != null &&
+            reservedBy != reserver &&
+            reservationExpiresAt > Time.time)
+        {
+            return false;
+        }
+
+        reservedBy = reserver;
+        reservationExpiresAt = Time.time + Mathf.Max(0.25f, duration);
+        return true;
+    }
+
+    public bool IsReservedByOther(GameObject requester)
+    {
+        if (reservedBy == null ||
+            reservedBy == requester ||
+            reservationExpiresAt <= Time.time)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void RefreshReservation(GameObject reserver, float duration)
+    {
+        if (reserver == null ||
+            reservedBy != reserver)
+        {
+            return;
+        }
+
+        reservationExpiresAt = Time.time + Mathf.Max(0.25f, duration);
+    }
+
+    public void ClearReservation(GameObject reserver)
+    {
+        if (reserver == null ||
+            reservedBy != reserver)
+        {
+            return;
+        }
+
+        reservedBy = null;
+        reservationExpiresAt = 0f;
     }
 
     void OnTriggerEnter2D(Collider2D other)

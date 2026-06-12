@@ -115,6 +115,7 @@ class PendingTaskGoods
     public int amount;
 }
 
+[RequireComponent(typeof(NpcSpecialProfession))]
 public class NpcTaskProvider : MonoBehaviour
 {
     const string LinhRiceItemId = "caf4f5e611fac2d4bb6815a50dc1060b";
@@ -449,7 +450,9 @@ public class NpcTaskProvider : MonoBehaviour
             (value.Contains("Ã") ||
                 value.Contains("Â") ||
                 value.Contains("â€") ||
-                value.Contains("\u008D"));
+                value.Contains("\u0081") ||
+                value.Contains("\u008D") ||
+                value.Contains("\u0090"));
     }
 
     string GetOfferTaskName(NpcTaskOffer offer)
@@ -717,7 +720,7 @@ public class NpcTaskProvider : MonoBehaviour
 
         if (profession == null)
         {
-            profession = gameObject.AddComponent<NpcSpecialProfession>();
+            return;
         }
 
         profession.professionName = NpcText.Get("professions", "tavernManager", "Quản Sự Tửu Quán");

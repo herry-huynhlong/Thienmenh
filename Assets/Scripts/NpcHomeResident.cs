@@ -1,1 +1,0 @@
-﻿// NpcHomeResident is compiled from WorldSpawner.cs so existing compiler response files see it immediately.

@@ -1748,7 +1748,7 @@ public class TouchSelectTarget : MonoBehaviour
         StringBuilder builder =
             new StringBuilder();
 
-        builder.AppendLine(NpcText.Label("type") + ": " + NpcText.Get("entityTypes", "monster", "YÃªu ThÃº"));
+        builder.AppendLine(NpcText.Label("type") + ": " + NpcText.Get("entityTypes", "monster", "Yêu Thú"));
         builder.AppendLine(NpcText.Label("level") + ": " + Mathf.Max(1, monster.beastLevel));
         builder.AppendLine(NpcText.Label("damage") + ": " + FormatMaybeInt(GetTargetAttack(monster.transform)));
         builder.AppendLine(NpcText.Label("defense") + ": " + FormatMaybeInt(GetTargetDefense(monster.transform)));

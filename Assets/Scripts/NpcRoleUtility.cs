@@ -2,6 +2,33 @@ using UnityEngine;
 
 public static class NpcRoleUtility
 {
+    public static bool IsCommoner(GameObject npc)
+    {
+        return npc != null &&
+            npc.GetComponent<VillagerAI>() != null;
+    }
+
+    public static bool IsCultivator(GameObject npc)
+    {
+        return npc != null &&
+            npc.GetComponent<SmartNpcAI>() != null;
+    }
+
+    public static string GetRoleLabel(GameObject npc)
+    {
+        if (IsCommoner(npc))
+        {
+            return "Người dân";
+        }
+
+        if (IsCultivator(npc))
+        {
+            return "Tu sĩ";
+        }
+
+        return "Không rõ";
+    }
+
     public static string GetDisplayName(GameObject npc)
     {
         if (npc == null)

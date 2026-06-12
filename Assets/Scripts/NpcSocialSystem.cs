@@ -1037,6 +1037,7 @@ public class NpcOverheadDialogueUI : MonoBehaviour
     public float defaultDuration = 3f;
     public int sortingOrder = 50;
     public float fontSize = 3.4f;
+    public Vector3 worldTextScale = Vector3.one;
     public Color textColor = Color.white;
     public Color outlineColor = Color.black;
     public float outlineWidth = 0.2f;
@@ -1066,6 +1067,8 @@ public class NpcOverheadDialogueUI : MonoBehaviour
             text.transform.rotation = camera.transform.rotation;
         }
 
+        NormalizeTextTransform();
+
         if (text.gameObject.activeSelf && Time.time >= hideAt)
         {
             Hide();
@@ -1084,6 +1087,8 @@ public class NpcOverheadDialogueUI : MonoBehaviour
 
     public void ShowLine(string line, float duration, int priority)
     {
+        line = NpcText.CleanDisplayText(line);
+
         if (string.IsNullOrEmpty(line))
         {
             if (CanReplace(priority))
@@ -1139,6 +1144,7 @@ public class NpcOverheadDialogueUI : MonoBehaviour
         ApplyTextStyle();
         text.enableWordWrapping = true;
         text.rectTransform.sizeDelta = new Vector2(5.6f, 1.8f);
+        NormalizeTextTransform();
 
         MeshRenderer renderer = text.GetComponent<MeshRenderer>();
         if (renderer != null)
@@ -1195,6 +1201,28 @@ public class NpcOverheadDialogueUI : MonoBehaviour
         text.color = textColor;
         text.outlineColor = outlineColor;
         text.outlineWidth = outlineWidth;
+        NormalizeTextTransform();
+    }
+
+    void NormalizeTextTransform()
+    {
+        if (text == null)
+        {
+            return;
+        }
+
+        Vector3 parentScale = transform.lossyScale;
+        text.transform.localScale = new Vector3(
+            SafeInverse(parentScale.x) * worldTextScale.x,
+            SafeInverse(parentScale.y) * worldTextScale.y,
+            SafeInverse(parentScale.z) * worldTextScale.z);
+    }
+
+    float SafeInverse(float value)
+    {
+        return Mathf.Abs(value) <= 0.0001f
+            ? 1f
+            : 1f / value;
     }
 }
 
@@ -1222,12 +1250,14 @@ public class NpcConversationAgent : MonoBehaviour
     public float scanInterval = 2f;
     public float conversationCooldown = 25f;
     public float conversationDuration = 2.5f;
+    public float conversationBreakDistance = 2.1f;
+    public bool allowFirstMeetingConversation = true;
     public bool requireFriendlyRelationship = true;
-    public bool allowNeutralSmallTalk = true;
+    public bool allowNeutralSmallTalk = false;
     public float minRelationshipToTalk = 8f;
     public float hostileConversationBlock = 60f;
     public float minConversationScore = 38f;
-    [Range(0f, 1f)] public float firstMeetingTalkChance = 0.45f;
+    [Range(0f, 1f)] public float firstMeetingTalkChance = 0.15f;
     [Range(0f, 1f)] public float weatherTalkChance = 0.35f;
     [Range(0f, 1f)] public float needsTalkChance = 0.30f;
     [Range(0f, 1f)] public float namedLongTalkChance = 0.12f;
@@ -1265,9 +1295,13 @@ public class NpcConversationAgent : MonoBehaviour
     {
         CleanupSessions();
 
-        if (activeSession != null && Time.time >= activeSession.endTime)
+        if (activeSession != null)
         {
-            activeSession = null;
+            if (Time.time >= activeSession.endTime ||
+                IsConversationBroken(activeSession))
+            {
+                EndConversation(activeSession);
+            }
         }
 
         scanTimer -= Time.deltaTime;
@@ -1295,6 +1329,15 @@ public class NpcConversationAgent : MonoBehaviour
         }
 
         other.EnsureReferences();
+
+        bool firstMeeting = IsFirstMeetingWith(other);
+        if (!force &&
+            firstMeeting &&
+            (!allowFirstMeetingConversation ||
+                UnityEngine.Random.value > firstMeetingTalkChance))
+        {
+            return false;
+        }
 
         if (!force &&
             (Time.time < nextConversationTime ||
@@ -1378,6 +1421,62 @@ public class NpcConversationAgent : MonoBehaviour
         return true;
     }
 
+    bool IsFirstMeetingWith(NpcConversationAgent other)
+    {
+        if (other == null || relationships == null)
+        {
+            return false;
+        }
+
+        NpcSocialRelationship relation = relationships.Get(other.gameObject);
+        return relation != null && relation.lastInteractionDay < 0;
+    }
+
+    bool IsConversationBroken(NpcConversationSession session)
+    {
+        if (session == null || session.first == null || session.second == null)
+        {
+            return true;
+        }
+
+        if (Vector2.Distance(session.first.transform.position, session.second.transform.position) >
+            Mathf.Max(0.5f, conversationBreakDistance))
+        {
+            return true;
+        }
+
+        return NpcRoleUtility.IsDead(session.first.gameObject) ||
+            NpcRoleUtility.IsDead(session.second.gameObject);
+    }
+
+    void EndConversation(NpcConversationSession session)
+    {
+        if (session == null)
+        {
+            activeSession = null;
+            return;
+        }
+
+        session.endTime = Time.time;
+
+        if (activeSession == session)
+        {
+            activeSession = null;
+        }
+
+        if (session.first != null && session.first.activeSession == session)
+        {
+            session.first.activeSession = null;
+            NpcRoleUtility.SetAction(session.first.gameObject, NpcText.Action("idle"));
+        }
+
+        if (session.second != null && session.second.activeSession == session)
+        {
+            session.second.activeSession = null;
+            NpcRoleUtility.SetAction(session.second.gameObject, NpcText.Action("idle"));
+        }
+    }
+
     public bool CanInterrupt(NpcConversationAgent interrupter)
     {
         if (interrupter == null || activeSession == null)
@@ -1428,6 +1527,11 @@ public class NpcConversationAgent : MonoBehaviour
             return false;
         }
 
+        if (relation.lastInteractionDay < 0)
+        {
+            return allowFirstMeetingConversation;
+        }
+
         if (!requireFriendlyRelationship)
         {
             return true;
@@ -1439,9 +1543,14 @@ public class NpcConversationAgent : MonoBehaviour
             return true;
         }
 
-        return allowNeutralSmallTalk &&
-            relation.affection > -35 &&
-            relation.trust > -35;
+        if (allowNeutralSmallTalk)
+        {
+            return relation.affection > -35 &&
+                relation.trust > -35;
+        }
+
+        return relation.affection >= 0 &&
+            relation.trust >= 0;
     }
 
     bool IsSocialContextAllowed()

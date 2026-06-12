@@ -45,6 +45,10 @@ public class HeavenDaoSystem : MonoBehaviour
     public int karma;
     public int maxRecentLogs = 5;
 
+    [Header("Development")]
+    [Tooltip("Khi bật, các quyền Thiên Đạo sẽ được xem là mở sẵn trong giai đoạn dev, trừ khi bị khóa cứng bằng code.")]
+    public bool bypassUnlockRequirements = true;
+
     [Header("Unlocks")]
     public HeavenDaoUnlock[] unlocks =
     {
@@ -110,11 +114,13 @@ public class HeavenDaoSystem : MonoBehaviour
 
     readonly List<string> recentLogs = new List<string>();
     readonly HashSet<string> processedStoryLogs = new HashSet<string>();
+    readonly HashSet<HeavenDaoPower> forcedLockedPowers = new HashSet<HeavenDaoPower>();
 
     public event Action OnChanged;
 
     public int ControlPercent => GetControlPercent();
     public IReadOnlyList<string> RecentLogs => recentLogs;
+    public bool HasForcedLocks => forcedLockedPowers.Count > 0;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void EnsureInstance()
@@ -155,6 +161,21 @@ public class HeavenDaoSystem : MonoBehaviour
 
     public bool HasPower(HeavenDaoPower power)
     {
+        if (forcedLockedPowers.Contains(power))
+        {
+            return false;
+        }
+
+        if (bypassUnlockRequirements)
+        {
+            return true;
+        }
+
+        return HasPowerStrict(power);
+    }
+
+    public bool HasPowerStrict(HeavenDaoPower power)
+    {
         if (power == HeavenDaoPower.ObserveWorld)
         {
             return true;
@@ -174,13 +195,75 @@ public class HeavenDaoSystem : MonoBehaviour
         return false;
     }
 
+    public bool IsPowerForcedLocked(HeavenDaoPower power)
+    {
+        return forcedLockedPowers.Contains(power);
+    }
+
+    public void SetPowerLocked(HeavenDaoPower power, bool locked)
+    {
+        if (power == HeavenDaoPower.ObserveWorld)
+        {
+            return;
+        }
+
+        bool changed = locked
+            ? forcedLockedPowers.Add(power)
+            : forcedLockedPowers.Remove(power);
+
+        if (!changed)
+        {
+            return;
+        }
+
+        OnChanged?.Invoke();
+    }
+
+    public void ClearForcedPowerLocks()
+    {
+        if (forcedLockedPowers.Count == 0)
+        {
+            return;
+        }
+
+        forcedLockedPowers.Clear();
+        OnChanged?.Invoke();
+    }
+
+    public void SetBypassUnlockRequirements(bool bypass)
+    {
+        if (bypassUnlockRequirements == bypass)
+        {
+            return;
+        }
+
+        bypassUnlockRequirements = bypass;
+        OnChanged?.Invoke();
+    }
+
     public int GetNextRequiredOrigin()
     {
+        if (bypassUnlockRequirements && forcedLockedPowers.Count == 0)
+        {
+            return Mathf.Max(origin, 1);
+        }
+
         int next = 0;
         for (int i = 0; i < unlocks.Length; i++)
         {
             HeavenDaoUnlock unlock = unlocks[i];
-            if (unlock == null || unlock.requiredOrigin <= origin)
+            if (unlock == null)
+            {
+                continue;
+            }
+
+            bool forcedLocked = forcedLockedPowers.Contains(unlock.power);
+            if (!forcedLocked && bypassUnlockRequirements)
+            {
+                continue;
+            }
+
+            if (!forcedLocked && unlock.requiredOrigin <= origin)
             {
                 continue;
             }
@@ -196,11 +279,27 @@ public class HeavenDaoSystem : MonoBehaviour
 
     public HeavenDaoUnlock GetNextUnlock()
     {
+        if (bypassUnlockRequirements && forcedLockedPowers.Count == 0)
+        {
+            return null;
+        }
+
         HeavenDaoUnlock next = null;
         for (int i = 0; i < unlocks.Length; i++)
         {
             HeavenDaoUnlock unlock = unlocks[i];
-            if (unlock == null || unlock.requiredOrigin <= origin)
+            if (unlock == null)
+            {
+                continue;
+            }
+
+            bool forcedLocked = forcedLockedPowers.Contains(unlock.power);
+            if (!forcedLocked && bypassUnlockRequirements)
+            {
+                continue;
+            }
+
+            if (!forcedLocked && unlock.requiredOrigin <= origin)
             {
                 continue;
             }

@@ -901,7 +901,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
             }
             else if (animator != null)
             {
-                animator.SetTrigger("attack");
+                SetAnimatorTriggerIfExists("attack");
             }
         }
 
@@ -1008,7 +1008,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
         if (animator != null && useAnimation)
         {
-            animator.SetBool("isMoving", isMoving);
+            SetAnimatorBoolIfExists("isMoving", isMoving);
         }
     }
 
@@ -1037,7 +1037,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
         if (animator != null && useAnimation && directionalAnimator == null)
         {
-            animator.SetTrigger("hurt");
+            SetAnimatorTriggerIfExists("hurt");
         }
 
         if (currentHP <= 0)
@@ -1364,7 +1364,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
             }
             else if (animator != null)
             {
-                animator.SetBool("isDead", true);
+                SetAnimatorBoolIfExists("isDead", true);
             }
         }
 
@@ -1654,6 +1654,42 @@ public class MonsterAI : MonoBehaviour, IDamageable
                 return "Do Kiep";
             default:
                 return realm.ToString();
+        }
+    }
+
+    bool HasAnimatorParameter(string parameterName, AnimatorControllerParameterType parameterType)
+    {
+        if (animator == null || string.IsNullOrEmpty(parameterName))
+        {
+            return false;
+        }
+
+        AnimatorControllerParameter[] parameters = animator.parameters;
+        for (int i = 0; i < parameters.Length; i++)
+        {
+            if (parameters[i].type == parameterType &&
+                parameters[i].name == parameterName)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void SetAnimatorBoolIfExists(string parameterName, bool value)
+    {
+        if (HasAnimatorParameter(parameterName, AnimatorControllerParameterType.Bool))
+        {
+            animator.SetBool(parameterName, value);
+        }
+    }
+
+    void SetAnimatorTriggerIfExists(string parameterName)
+    {
+        if (HasAnimatorParameter(parameterName, AnimatorControllerParameterType.Trigger))
+        {
+            animator.SetTrigger(parameterName);
         }
     }
 

@@ -1,8 +1,8 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class NpcData : MonoBehaviour
 {
-    public string npcName = "Tu sĩ";
+    public string npcName = "Nguoi dan";
 
     public string realm = "Mortals";
 

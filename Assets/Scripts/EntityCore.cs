@@ -5,7 +5,7 @@ using UnityEngine;
 public enum EntityKind
 {
     Player,
-    Villager,
+    Commoner,
     Cultivator,
     Beast
 }
@@ -163,7 +163,7 @@ public class EntityProfile : MonoBehaviour
 {
     public bool generateOnAwake = true;
     public bool lockGeneratedValues;
-    public EntityKind kind = EntityKind.Villager;
+    public EntityKind kind = EntityKind.Commoner;
     public EntityIdentity identity = new EntityIdentity();
     public EntityStats stats = new EntityStats();
     public EntityTalent talent = new EntityTalent();
@@ -279,7 +279,18 @@ public static class EntityGenerator
         FillPersonality(profile.personality, kind);
         FillEmotion(profile.emotion);
         FillNeeds(profile.needs, profile.personality, kind);
-        profile.currentGoal = kind == EntityKind.Beast ? EntityGoal.Hunt : EntityGoal.Survive;
+        if (kind == EntityKind.Beast)
+        {
+            profile.currentGoal = EntityGoal.Hunt;
+        }
+        else if (kind == EntityKind.Cultivator)
+        {
+            profile.currentGoal = EntityGoal.Cultivate;
+        }
+        else
+        {
+            profile.currentGoal = EntityGoal.Work;
+        }
     }
 
     static void FillIdentity(EntityIdentity identity, EntityKind kind)
@@ -364,24 +375,46 @@ public static class EntityGenerator
         }
 
         float talentPower = TalentPower(talent.grade);
-        int baseHp = kind == EntityKind.Beast
-            ? UnityEngine.Random.Range(70, 180)
-            : UnityEngine.Random.Range(70, 130);
-        int baseAttack = kind == EntityKind.Beast
-            ? UnityEngine.Random.Range(8, 22)
-            : UnityEngine.Random.Range(4, 16);
+        int baseHp;
+        int baseAttack;
+        float baseMoveSpeed;
+        int baseMoney;
+        int baseSpiritStone;
+
+        if (kind == EntityKind.Beast)
+        {
+            baseHp = UnityEngine.Random.Range(70, 180);
+            baseAttack = UnityEngine.Random.Range(8, 22);
+            baseMoveSpeed = UnityEngine.Random.Range(1.6f, 3.2f);
+            baseMoney = 0;
+            baseSpiritStone = 0;
+        }
+        else if (kind == EntityKind.Cultivator)
+        {
+            baseHp = UnityEngine.Random.Range(70, 130);
+            baseAttack = UnityEngine.Random.Range(4, 16);
+            baseMoveSpeed = UnityEngine.Random.Range(1.2f, 2.1f);
+            baseMoney = UnityEngine.Random.Range(5, 220);
+            baseSpiritStone = UnityEngine.Random.Range(0, 12);
+        }
+        else
+        {
+            baseHp = UnityEngine.Random.Range(55, 110);
+            baseAttack = UnityEngine.Random.Range(2, 10);
+            baseMoveSpeed = UnityEngine.Random.Range(1.0f, 1.8f);
+            baseMoney = UnityEngine.Random.Range(2, 140);
+            baseSpiritStone = UnityEngine.Random.Range(0, 5);
+        }
 
         stats.maxHP = Mathf.Max(1, Mathf.RoundToInt(baseHp * realmPower * talentPower));
         stats.currentHP = stats.maxHP;
         stats.attack = Mathf.Max(1, Mathf.RoundToInt(baseAttack * realmPower * talent.combatMultiplier));
         stats.defense = Mathf.Max(0, Mathf.RoundToInt(UnityEngine.Random.Range(1, 8) * realmPower * 0.7f));
         stats.effectResistance = Mathf.RoundToInt(UnityEngine.Random.Range(0, 8) * talentPower);
-        stats.moveSpeed = kind == EntityKind.Beast
-            ? UnityEngine.Random.Range(1.6f, 3.2f)
-            : UnityEngine.Random.Range(1.2f, 2.1f);
+        stats.moveSpeed = baseMoveSpeed;
         stats.cultivationExp = UnityEngine.Random.Range(0, 80) * Mathf.Max(1, (int)stats.realm + 1);
-        stats.money = kind == EntityKind.Beast ? 0 : UnityEngine.Random.Range(5, 220);
-        stats.spiritStone = kind == EntityKind.Beast ? 0 : UnityEngine.Random.Range(0, 12);
+        stats.money = baseMoney;
+        stats.spiritStone = baseSpiritStone;
     }
 
     static CultivationRealm WeightedRealm(EntityKind kind)
@@ -394,6 +427,16 @@ public static class EntityGenerator
             if (roll < 0.94f) return CultivationRealm.Foundation;
             if (roll < 0.985f) return CultivationRealm.GoldenCore;
             if (roll < 0.997f) return CultivationRealm.NascentSoul;
+            return CultivationRealm.SoulFormation;
+        }
+
+        if (kind == EntityKind.Commoner)
+        {
+            if (roll < 0.72f) return CultivationRealm.Mortal;
+            if (roll < 0.92f) return CultivationRealm.QiRefining;
+            if (roll < 0.985f) return CultivationRealm.Foundation;
+            if (roll < 0.997f) return CultivationRealm.GoldenCore;
+            if (roll < 0.999f) return CultivationRealm.NascentSoul;
             return CultivationRealm.SoulFormation;
         }
 
@@ -411,16 +454,34 @@ public static class EntityGenerator
         personality.greed = UnityEngine.Random.Range(0, 101);
         personality.bravery = kind == EntityKind.Beast
             ? UnityEngine.Random.Range(35, 101)
-            : UnityEngine.Random.Range(0, 101);
-        personality.kindness = kind == EntityKind.Beast ? 0 : UnityEngine.Random.Range(0, 101);
-        personality.sociability = kind == EntityKind.Beast ? 0 : UnityEngine.Random.Range(0, 101);
-        personality.diligence = UnityEngine.Random.Range(0, 101);
+            : kind == EntityKind.Commoner
+                ? UnityEngine.Random.Range(5, 71)
+                : UnityEngine.Random.Range(0, 101);
+        personality.kindness = kind == EntityKind.Beast ? 0 : UnityEngine.Random.Range(25, 101);
+        personality.sociability = kind == EntityKind.Beast
+            ? 0
+            : kind == EntityKind.Commoner
+                ? UnityEngine.Random.Range(45, 101)
+                : UnityEngine.Random.Range(10, 85);
+        personality.diligence = kind == EntityKind.Commoner
+            ? UnityEngine.Random.Range(40, 101)
+            : UnityEngine.Random.Range(10, 101);
         personality.hotTemper = UnityEngine.Random.Range(0, 101);
-        personality.funSeeking = kind == EntityKind.Beast ? 0 : UnityEngine.Random.Range(0, 101);
-        personality.loneliness = kind == EntityKind.Beast ? 0 : UnityEngine.Random.Range(0, 101);
+        personality.funSeeking = kind == EntityKind.Beast
+            ? 0
+            : kind == EntityKind.Commoner
+                ? UnityEngine.Random.Range(35, 101)
+                : UnityEngine.Random.Range(0, 65);
+        personality.loneliness = kind == EntityKind.Beast
+            ? 0
+            : kind == EntityKind.Commoner
+                ? UnityEngine.Random.Range(20, 91)
+                : UnityEngine.Random.Range(0, 70);
         personality.cultivationDesire = kind == EntityKind.Beast
             ? UnityEngine.Random.Range(0, 40)
-            : UnityEngine.Random.Range(0, 101);
+            : kind == EntityKind.Commoner
+                ? UnityEngine.Random.Range(0, 35)
+                : UnityEngine.Random.Range(45, 101);
     }
 
     static void FillEmotion(EntityEmotion emotion)
@@ -439,9 +500,11 @@ public static class EntityGenerator
         needs.fatigue = UnityEngine.Random.Range(0f, 35f);
         needs.socialNeed = kind == EntityKind.Beast
             ? 0f
-            : Mathf.Clamp(UnityEngine.Random.Range(0f, 45f) + personality.sociability * 0.25f, 0f, 100f);
+            : kind == EntityKind.Commoner
+                ? Mathf.Clamp(UnityEngine.Random.Range(10f, 60f) + personality.sociability * 0.3f, 0f, 100f)
+                : Mathf.Clamp(UnityEngine.Random.Range(0f, 45f) + personality.sociability * 0.25f, 0f, 100f);
         needs.cultivationNeed = Mathf.Clamp(
-            UnityEngine.Random.Range(0f, 35f) + personality.cultivationDesire * 0.35f,
+            UnityEngine.Random.Range(0f, kind == EntityKind.Commoner ? 20f : 35f) + personality.cultivationDesire * 0.35f,
             0f,
             100f);
     }

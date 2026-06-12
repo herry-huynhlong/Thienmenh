@@ -49,10 +49,10 @@ public static class NpcText
         string lookupKey = category + "." + key;
         if (values != null && values.TryGetValue(lookupKey, out string value))
         {
-            return value;
+            return CleanDisplayText(value);
         }
 
-        return string.IsNullOrEmpty(fallback) ? key : fallback;
+        return CleanDisplayText(string.IsNullOrEmpty(fallback) ? key : fallback);
     }
 
     public static string Label(string key)
@@ -100,7 +100,7 @@ public static class NpcText
             lines != null &&
             lines.Length > 0)
         {
-            return lines[UnityEngine.Random.Range(0, lines.Length)];
+            return CleanDisplayText(lines[UnityEngine.Random.Range(0, lines.Length)]);
         }
 
         return Get(category, key, fallback);
@@ -143,11 +143,11 @@ public static class NpcText
 
         try
         {
-            return string.Format(template, args);
+            return CleanDisplayText(string.Format(template, args));
         }
         catch (FormatException)
         {
-            return template;
+            return CleanDisplayText(template);
         }
     }
 
@@ -256,5 +256,40 @@ public static class NpcText
                 }
             }
         }
+    }
+
+    public static string CleanDisplayText(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return value;
+        }
+
+        System.Text.StringBuilder builder = null;
+
+        for (int i = 0; i < value.Length; i++)
+        {
+            char c = value[i];
+            bool isControl = (c < 32 && c != '\n' && c != '\r' && c != '\t') ||
+                (c >= 0x80 && c <= 0x9F);
+
+            if (!isControl)
+            {
+                if (builder != null)
+                {
+                    builder.Append(c);
+                }
+
+                continue;
+            }
+
+            if (builder == null)
+            {
+                builder = new System.Text.StringBuilder(value.Length);
+                builder.Append(value, 0, i);
+            }
+        }
+
+        return builder == null ? value : builder.ToString();
     }
 }

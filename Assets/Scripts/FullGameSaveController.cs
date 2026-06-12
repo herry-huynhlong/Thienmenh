@@ -153,8 +153,6 @@ public class FullGameSaveController : MonoBehaviour
         SaveFavorites(data);
         SaveWorldTime();
         SaveWallets();
-        SaveWorldSpawners();
-
         PlayerPrefs.SetString(FullSaveKey, JsonUtility.ToJson(data));
         GameSaveSystem.RegisterDynamicSaveKey(FullSaveKey);
         GameSaveSystem.SaveCurrentScene(sceneName);
@@ -418,17 +416,6 @@ public class FullGameSaveController : MonoBehaviour
             if (wallet != null)
             {
                 wallet.Save();
-            }
-        }
-    }
-
-    void SaveWorldSpawners()
-    {
-        foreach (WorldSpawner spawner in FindObjectsByType<WorldSpawner>(FindObjectsInactive.Include))
-        {
-            if (spawner != null)
-            {
-                spawner.SaveSpawnedWorld();
             }
         }
     }

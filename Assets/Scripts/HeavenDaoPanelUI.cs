@@ -123,8 +123,14 @@ public class HeavenDaoPanelUI : MonoBehaviour
             return;
         }
 
+        bool devBypassActive =
+            system.bypassUnlockRequirements &&
+            !system.HasForcedLocks;
+
         int nextRequired = Mathf.Max(1, system.GetNextRequiredOrigin());
-        float fill = Mathf.Clamp01(system.origin / (float)nextRequired);
+        float fill = devBypassActive
+            ? 1f
+            : Mathf.Clamp01(system.origin / (float)nextRequired);
 
         if (originValueText != null)
         {
@@ -171,7 +177,7 @@ public class HeavenDaoPanelUI : MonoBehaviour
             }
 
             HeavenDaoUnlock unlock = system.unlocks[i];
-            bool unlocked = system.origin >= unlock.requiredOrigin;
+            bool unlocked = system.HasPower(unlock.power);
             row.text =
                 (unlocked
                     ? "<color=#39E66D>V</color> "
@@ -185,9 +191,16 @@ public class HeavenDaoPanelUI : MonoBehaviour
         HeavenDaoUnlock next = system.GetNextUnlock();
         if (nextUnlockText != null)
         {
-            nextUnlockText.text = next != null
-                ? "Sắp mở " + next.controlPercent + "%: " + next.displayName
-                : "Đã mở hết mốc hiện tại";
+            if (system.bypassUnlockRequirements && !system.HasForcedLocks)
+            {
+                nextUnlockText.text = "Đang mở tất cả quyền trong chế độ dev";
+            }
+            else
+            {
+                nextUnlockText.text = next != null
+                    ? "Sắp mở " + next.controlPercent + "%: " + next.displayName
+                    : "Đã mở hết mức hiện tại";
+            }
         }
     }
 

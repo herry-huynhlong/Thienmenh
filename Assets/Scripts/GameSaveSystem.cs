@@ -505,7 +505,6 @@ public static class GameSaveSystem
         yield return ShopPrefix + "ShopPanel";
         yield return ShopPrefix + "Shop";
         yield return ShopPrefix + "CuaHang";
-        yield return SavePrefix + "WorldSpawner.Actors";
         yield return DynamicKeysKey;
         yield return WorldTimeYearKey;
         yield return WorldTimeMonthKey;

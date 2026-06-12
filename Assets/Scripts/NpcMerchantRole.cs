@@ -1,5 +1,9 @@
+using System.Collections;
 using UnityEngine;
 
+[RequireComponent(typeof(ItemInventory))]
+[RequireComponent(typeof(NpcTradeAgent))]
+[RequireComponent(typeof(NpcSpecialProfession))]
 public class NpcMerchantRole : MonoBehaviour
 {
     [Header("Merchant Role")]
@@ -16,23 +20,41 @@ public class NpcMerchantRole : MonoBehaviour
     public bool forceVillagerJobTrader = true;
 
     NpcTradeAgent tradeAgent;
+    bool setupQueued;
 
     void Awake()
     {
-        EnsureMerchantSetup();
     }
 
     void Start()
     {
-        EnsureMerchantSetup();
+        QueueEnsureMerchantSetup();
     }
 
     void OnValidate()
     {
         if (Application.isPlaying)
         {
-            EnsureMerchantSetup();
+            QueueEnsureMerchantSetup();
         }
+    }
+
+    void QueueEnsureMerchantSetup()
+    {
+        if (setupQueued)
+        {
+            return;
+        }
+
+        setupQueued = true;
+        StartCoroutine(EnsureMerchantSetupNextFrame());
+    }
+
+    IEnumerator EnsureMerchantSetupNextFrame()
+    {
+        yield return null;
+        setupQueued = false;
+        EnsureMerchantSetup();
     }
 
     [ContextMenu("Apply Merchant Setup")]
@@ -46,13 +68,13 @@ public class NpcMerchantRole : MonoBehaviour
         ItemInventory inventory = GetComponent<ItemInventory>();
         if (inventory == null)
         {
-            inventory = gameObject.AddComponent<ItemInventory>();
+            return;
         }
 
         tradeAgent = GetComponent<NpcTradeAgent>();
         if (tradeAgent == null)
         {
-            tradeAgent = gameObject.AddComponent<NpcTradeAgent>();
+            return;
         }
 
         tradeAgent.inventory = inventory;
@@ -75,7 +97,7 @@ public class NpcMerchantRole : MonoBehaviour
             GetComponent<NpcSpecialProfession>();
         if (profession == null)
         {
-            profession = gameObject.AddComponent<NpcSpecialProfession>();
+            return;
         }
 
         profession.professionName = "Thương Nhân";

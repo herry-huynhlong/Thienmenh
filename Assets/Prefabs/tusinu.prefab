@@ -11,9 +11,7 @@ GameObject:
   - component: {fileID: 8002957989317268842}
   - component: {fileID: 8362687194981446776}
   - component: {fileID: 2797366103420642835}
-  - component: {fileID: 6975322286709021372}
   - component: {fileID: 153191322607926107}
-  - component: {fileID: 3811732205134020580}
   - component: {fileID: -4077039923451159028}
   m_Layer: 0
   m_Name: tusinu
@@ -118,40 +116,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!114 &6975322286709021372
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5511893061176817771}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 174c522a8ea171a4797af97bed5e9ea6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CharacterMovementAnimator
-  disableWhenNpcVisualAnimationExists: 1
-  targetRigidbody: {fileID: 0}
-  targetAnimator: {fileID: 0}
-  targetSpriteRenderer: {fileID: 0}
-  visualRoot: {fileID: 0}
-  downIdleState: tusinu_idledown
-  upIdleState: tusinu_idleup
-  sideIdleState: tusinu_idleright
-  downWalkState: tusinu_walkdown
-  upWalkState: tusinu_walkup
-  sideWalkState: tusinu_walkright
-  setAnimatorParameters: 1
-  isMovingParameter: isMoving
-  moveXParameter: moveX
-  moveYParameter: moveY
-  speedParameter: speed
-  movingThreshold: 0.02
-  directionChangeThreshold: 0.15
-  sideFlipCooldown: 0.12
-  flipSideByDirection: 1
-  useSpriteRendererFlip: 1
-  sideSpriteFacesRight: 1
 --- !u!50 &153191322607926107
 Rigidbody2D:
   serializedVersion: 5
@@ -179,59 +143,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &3811732205134020580
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5511893061176817771}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 75e7fa703e987f647b5368ac4f27289c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcMapMover2D
-  moveSpeed: 2
-  movementAcceleration: 8
-  movementDeceleration: 12
-  arriveDistance: 0.12
-  waitTimeMin: 5
-  waitTimeMax: 5
-  wanderRadius: 5
-  useKinematicNpcMovement: 1
-  onlyPickNewTargetAfterArrive: 1
-  blockedRetryWait: 1
-  centerPoint: {fileID: 0}
-  useSpawnAsCenter: 1
-  keepInsideWanderRadius: 1
-  returnInsidePadding: 0.5
-  mapBounds: {fileID: 0}
-  keepInsideMapBounds: 1
-  allowCrossMapAreas: 1
-  keepInsideCombinedMapAreas: 0
-  autoResolveMapArea: 1
-  useNearestAreaWhenOutsideBounds: 0
-  clampInitialPositionToBounds: 0
-  useMapBoundsCenterWhenAvailable: 1
-  mapBoundsEdgePadding: 0.25
-  obstacleLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  obstacleCheckDistance: 0.35
-  targetClearRadius: 0.25
-  maxPickTargetAttempts: 16
-  stuckTimeToPickNewTarget: 0.8
-  crowdLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  separationRadius: 0.45
-  separationStrength: 1.4
-  crowdLookAheadDistance: 0.65
-  crowdDetourDistance: 0.55
-  crowdYieldDuration: 0.2
-  currentTarget: {x: 0, y: 0}
-  currentAction: Idle
-  currentVelocity: {x: 0, y: 0}
 --- !u!114 &-4077039923451159028
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -244,6 +155,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 035dda1e98fba654eafdf701956291b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NpcFavorite
-  npcDisplayName: Tu sĩ
+  npcDisplayName: "Tu s\u0129"
   realmText: "Ph\xE0m nh\xE2n"
   starMark: {fileID: 0}

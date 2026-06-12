@@ -146,6 +146,52 @@ public class MobileCameraController : MonoBehaviour
             cam = mainCamera;
             SetupBounds();
         }
+
+        EnsureAudioListener();
+    }
+
+    void EnsureAudioListener()
+    {
+        if (cam == null)
+        {
+            return;
+        }
+
+        AudioListener currentListener =
+            cam.GetComponent<AudioListener>();
+
+        AudioListener[] listeners =
+            FindObjectsByType<AudioListener>(FindObjectsInactive.Include);
+
+        AudioListener activeOtherListener = null;
+
+        for (int i = 0; i < listeners.Length; i++)
+        {
+            AudioListener listener = listeners[i];
+            if (listener == null || listener == currentListener)
+            {
+                continue;
+            }
+
+            if (listener.enabled &&
+                listener.gameObject.activeInHierarchy)
+            {
+                activeOtherListener = listener;
+                break;
+            }
+        }
+
+        if (currentListener == null &&
+            activeOtherListener == null)
+        {
+            cam.gameObject.AddComponent<AudioListener>();
+            return;
+        }
+
+        if (currentListener != null)
+        {
+            currentListener.enabled = true;
+        }
     }
 
     public void RefreshMapBounds()

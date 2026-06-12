@@ -99,11 +99,11 @@
         },
         {
           "key": "returnTerritory",
-          "value": "Quay vá» lÃ£nh Ä‘á»‹a"
+          "value": "Quay về lãnh địa"
         },
         {
           "key": "eat",
-          "value": "Äi Äƒn"
+          "value": "Đi ăn"
         },
         {
           "key": "sleep",
@@ -119,15 +119,15 @@
         },
         {
           "key": "goHomeCultivate",
-          "value": "Vá» nhÃ  tu luyá»‡n"
+          "value": "Về nhà tu luyện"
         },
         {
           "key": "breakthrough",
-          "value": "Äá»™t phÃ¡"
+          "value": "Đột phá"
         },
         {
           "key": "breakthroughTo",
-          "value": "Äá»™t phÃ¡ lÃªn {0}"
+          "value": "Đột phá lên {0}"
         },
         {
           "key": "waitTribulation",
@@ -163,7 +163,7 @@
         },
         {
           "key": "taskWorking",
-          "value": "Äang lÃ m nhiá»‡m vá»¥"
+          "value": "Đang làm nhiệm vụ"
         },
         {
           "key": "injured",
@@ -175,7 +175,7 @@
         },
         {
           "key": "oldAgeDeath",
-          "value": "Thá» nguyÃªn Ä‘Ã£ táº­n"
+          "value": "Thọ nguyên đã tận"
         },
         {
           "key": "treasureHunt",
@@ -215,7 +215,7 @@
         },
         {
           "key": "talking",
-          "value": "Äang trÃ² chuyá»‡n"
+          "value": "Đang trò chuyện"
         },
         {
           "key": "conversationLine",
@@ -235,7 +235,7 @@
         },
         {
           "key": "tiredTalkWith",
-          "value": "Há»i thÄƒm {0}"
+          "value": "Hỏi thăm {0}"
         },
         {
           "key": "meetKnown",
@@ -243,7 +243,7 @@
         },
         {
           "key": "rob",
-          "value": "Äang cÆ°á»›p bÃ³c"
+          "value": "Đang cướp bóc"
         },
         {
           "key": "revenge",
@@ -251,19 +251,19 @@
         },
         {
           "key": "rest",
-          "value": "Äang nghá»‰ ngÆ¡i"
+          "value": "Đang nghỉ ngơi"
         },
         {
           "key": "tradeSeek",
-          "value": "Äang tÃ¬m cÆ¡ há»™i buÃ´n bÃ¡n"
+          "value": "Đang tìm cơ hội buôn bán"
         },
         {
           "key": "gatherResource",
-          "value": "Äang Ä‘á»ƒ Ã½ linh tháº£o"
+          "value": "Đang để ý linh thảo"
         },
         {
           "key": "closeShopGoHome",
-          "value": "ÄÃ³ng tiá»‡m vá» nhÃ "
+          "value": "Đóng tiệm về nhà"
         },
         {
           "key": "noTrade",
@@ -283,11 +283,11 @@
         },
         {
           "key": "eveningWalkVillage",
-          "value": "Äi dáº¡o buá»•i tá»‘i trong lÃ ng"
+          "value": "Đi dạo buổi tối trong làng"
         },
         {
           "key": "huntForestResource",
-          "value": "Äi sÄƒn yÃªu thÃº / tÃ¬m tÃ i nguyÃªn rá»«ng"
+          "value": "Đi săn yêu thú / tìm tài nguyên rừng"
         },
         {
           "key": "gatherVillageResource",
@@ -315,7 +315,7 @@
         },
         {
           "key": "boughtTaskItem",
-          "value": "ÄÃ£ mua váº­t pháº©m nhiá»‡m vá»¥: {0}"
+          "value": "Đã mua vật phẩm nhiệm vụ: {0}"
         },
         {
           "key": "storeMissingItem",
@@ -323,11 +323,11 @@
         },
         {
           "key": "goTaskProviderDaily",
-          "value": "Äáº¿n nháº­n nhiá»‡m vá»¥ trong káº¿ hoáº¡ch ngÃ y"
+          "value": "Đến nhận nhiệm vụ trong kế hoạch ngày"
         },
         {
           "key": "skipUnavailableTask",
-          "value": "Bá» qua nhiá»‡m vá»¥ khÃ´ng thá»ƒ nháº­n"
+          "value": "Bỏ qua nhiệm vụ không thể nhận"
         },
         {
           "key": "goVanBaoLauBroker",
@@ -335,23 +335,23 @@
         },
         {
           "key": "visitedTaskProvider",
-          "value": "ÄÃ£ gáº·p Tu sÄ© giao nhiá»‡m vá»¥"
+          "value": "Đã gặp Tu sĩ giao nhiệm vụ"
         },
         {
           "key": "goVanBaoLauTask",
-          "value": "Äáº¿n Váº¡n Báº£o LÃ¢u xem viá»‡c"
+          "value": "Đến Vạn Bảo Lâu xem việc"
         },
         {
           "key": "checkedVanBaoLau",
-          "value": "ÄÃ£ kiá»ƒm tra Váº¡n Báº£o LÃ¢u"
+          "value": "Đã kiểm tra Vạn Bảo Lâu"
         },
         {
           "key": "goHomeRest",
-          "value": "Vá» nhÃ  nghá»‰ ngÆ¡i"
+          "value": "Về nhà nghỉ ngơi"
         },
         {
           "key": "eating",
-          "value": "Äang Äƒn"
+          "value": "Đang ăn"
         },
         {
           "key": "eatAtShop",
@@ -387,7 +387,7 @@
         },
         {
           "key": "paidWork",
-          "value": "LÃ m viá»‡c nháº­n tiá»n cÃ´ng"
+          "value": "Làm việc nhận tiền công"
         },
         {
           "key": "harvestItemAmount",
@@ -395,7 +395,7 @@
         },
         {
           "key": "farmerWaitHarvest",
-          "value": "ChÄƒm sÃ³c ruá»™ng, chÆ°a Ä‘áº¿n giá» thu hoáº¡ch"
+          "value": "Chăm sóc ruộng, chưa đến giờ thu hoạch"
         },
         {
           "key": "farmerHarvestedToday",
@@ -403,19 +403,19 @@
         },
         {
           "key": "noFishingSpotFarmFallback",
-          "value": "Há»“ Ä‘Ã´ng ngÆ°á»i, Ä‘á»•i Ä‘i lÃ m ruá»™ng"
+          "value": "Hồ đông người, đổi đi làm ruộng"
         },
         {
           "key": "watchRoad",
-          "value": "Quan sÃ¡t Ä‘Æ°á»ng Ä‘i"
+          "value": "Quan sát đường đi"
         },
         {
           "key": "walkingRoad",
-          "value": "Äang Ä‘i trÃªn Ä‘Æ°á»ng"
+          "value": "Đang đi trên đường"
         },
         {
           "key": "avoidObstacle",
-          "value": "Äá»•i hÆ°á»›ng trÃ¡nh váº­t cáº£n"
+          "value": "Đổi hướng tránh vật cản"
         },
         {
           "key": "panicBurned",
@@ -427,7 +427,7 @@
         },
         {
           "key": "goWork",
-          "value": "Äi lÃ m viá»‡c"
+          "value": "Đi làm việc"
         },
         {
           "key": "goPatrol",
@@ -435,7 +435,7 @@
         },
         {
           "key": "goHeal",
-          "value": "Äi chá»¯a trá»‹"
+          "value": "Đi chữa trị"
         },
         {
           "key": "goFish",
@@ -443,15 +443,15 @@
         },
         {
           "key": "goHunt",
-          "value": "Äi sÄƒn báº¯n"
+          "value": "Đi săn bắn"
         },
         {
           "key": "workingFarm",
-          "value": "Äang lÃ m ruá»™ng"
+          "value": "Đang làm ruộng"
         },
         {
           "key": "working",
-          "value": "Äang lÃ m viá»‡c"
+          "value": "Đang làm việc"
         },
         {
           "key": "patrolling",
@@ -459,7 +459,7 @@
         },
         {
           "key": "healing",
-          "value": "Äang chá»¯a trá»‹"
+          "value": "Đang chữa trị"
         },
         {
           "key": "fishing",
@@ -467,7 +467,7 @@
         },
         {
           "key": "hunting",
-          "value": "Äang sÄƒn báº¯n"
+          "value": "Đang săn bắn"
         },
         {
           "key": "lawAttack",
@@ -579,154 +579,141 @@
         {
           "key": "greetings",
           "values": [
-            "Äáº¡o há»¯u nhÃ¬n máº·t hÆ¡i xanh, lÃ  Ä‘á»™t phÃ¡ há»¥t hay Äƒn nháº§m Ä‘an quÃ¡ háº¡n?",
-            "HÃ´m nay khÃ­ sáº¯c ngÆ°Æ¡i khÃ¡ hÆ¡n rá»“i, Ã­t nháº¥t khÃ´ng giá»‘ng ngÆ°á»i vá»«a bá»‹ thiÃªn kiáº¿p nháº¯m trÆ°á»£t.",
-            "Äi Ä‘á»©ng cáº©n tháº­n nhÃ©, hÃ´m qua cÃ³ ngÆ°á»i váº¥p cá»¥c Ä‘Ã¡ mÃ  nÃ³i lÃ  gáº·p cÆ¡ duyÃªn.",
-            "Náº¿u tháº¥y ta ngá»“i thá»Ÿ dÃ i thÃ¬ Ä‘á»«ng lo, ta chá»‰ Ä‘ang giáº£ vá» lÄ©nh ngá»™ Ä‘áº¡i Ä‘áº¡o thÃ´i.",
-            "Hôm nay đạo hữu định đi đâu?",
-            "Gần đây có nghe tin gì không?",
-            "Linh khí hôm nay có vẻ yên ổn.",
-            "Äáº¡o há»¯u gáº§n Ä‘Ã¢y tu luyá»‡n thuáº­n lá»£i chá»©?",
-            "Trong làng hôm nay có gì đáng chú ý không?"
+            "Hôm nay trời sáng, đi lại chắc cũng thuận hơn.",
+            "Người nhìn có vẻ vội, có việc gì cần làm sớm không?",
+            "Trong làng dạo này yên hơn hết, thật hiếm."
           ]
         },
         {
           "key": "replies",
           "values": [
-            "Ổn thì có ổn, chỉ là túi Linh Thạch của ta tu luyện còn nhanh hơn chủ nhân.",
-            "Äá»«ng há»i tu vi, hÃ´m nay tÃ¢m cáº£nh ta yáº¿u láº¯m, nghe xong dá»… tá»± Ã¡i.",
-            "Tin mới thì chưa có, tin cũ là ta vẫn nghèo.",
-            "Ta đang nghe ngóng đây. Nếu nghe được cơ duyên, ta sẽ cân nhắc báo ngươi sau khi ta chạy trước.",
-            "Ta cũng chỉ đang xem tình hình.",
-            "Chưa có gì chắc chắn, để ta nghe ngóng thêm.",
-            "Nếu có tin mới ta sẽ báo ngươi.",
-            "Cũng ổn, hôm nay ta còn vài việc phải làm.",
-            "Ta vá»«a Ä‘i ngang qua, tháº¥y má»i thá»© váº«n bÃ¬nh thÆ°á»ng."
+            "Ta vừa định nghỉ một lát rồi làm tiếp.",
+            "Mọi việc vẫn ổn, chỉ là hơi bận tay.",
+            "Cũng tạm, hôm nay chưa có chuyện gì lớn."
           ]
         },
         {
           "key": "resourceRumors",
           "values": [
-            "Hôm qua nghe nói ven suối có linh thảo.",
-            "ChÃ¢n nÃºi cÃ³ vÃ i cÃ¢y linh dÆ°á»£c má»›i má»c.",
-            "Rừng ngoài gần đây có dấu linh khí tụ lại.",
-            "CÃ³ ngÆ°á»i tháº¥y Ã¡nh sÃ¡ng láº¡ gáº§n bÃ£i Ä‘Ã¡ phÃ­a Ä‘Ã´ng."
+            "Nghe nói ven rừng có một luồng linh khí mới tụ lại.",
+            "Nếu đi sớm, có thể gặp linh thảo còn chưa bị hái hết.",
+            "Rìa núi gần đây hay có dấu vết yêu thú, đừng đi một mình."
           ]
         },
         {
           "key": "hostileLines",
           "values": [
             "Ta vẫn nhớ chuyện lần trước.",
-            "Äá»«ng tÆ°á»Ÿng ta Ä‘Ã£ quÃªn mÃ³n ná»£ Ä‘Ã³.",
-            "Náº¿u cÃ²n Ã©p ngÆ°á»i quÃ¡ Ä‘Ã¡ng, ta sáº½ khÃ´ng nhá»‹n ná»¯a."
+            "Đừng tưởng ta đã quên món nợ đó.",
+            "Nếu còn ép người quá đáng, ta sẽ không nhịn nữa."
           ]
         },
         {
           "key": "friendlyFollowUps",
           "values": [
-            "Hôm qua ngươi nói chuyện đó, nay thế nào rồi?",
-            "Tin lần trước ngươi kể có đúng không?",
-            "Việc hôm qua đã xử lý xong chưa?"
+            "Lần trước ngươi nói chuyện đó, ta vẫn còn nhớ.",
+            "Hôm nay nhìn ngươi có vẻ rảnh hơn hôm qua.",
+            "Sau này có tin mới, nhớ nói với ta một tiếng."
           ]
         },
         {
           "key": "farmerGreetings",
           "values": [
-            "Hôm nay ra đồng sớm vậy?",
-            "Linh Ä‘iá»n bÃªn ngÆ°Æ¡i tháº¿ nÃ o?",
-            "Mùa này linh cốc có vẻ tốt."
+            "Đồng ruộng hôm nay còn ẩm, làm sớm cũng được.",
+            "Nếu trời đẹp thế này, lúa linh sẽ lớn nhanh.",
+            "Ngươi làm ruộng chỉ mong mưa đúng lúc thôi."
           ]
         },
         {
           "key": "farmerReplies",
           "values": [
-            "Cũng tạm, linh khí hơi mỏng.",
-            "Ta Ä‘ang tranh thá»§ trÆ°á»›c khi trá»i tá»‘i.",
-            "Nếu được một trận mưa linh khí thì tốt hơn."
+            "Ử, việc ruộng đồng không thể gấp quá được.",
+            "Ta vẫn còn vài việc phải coi lại ngoài bờ ruộng.",
+            "Hôm nay nếu xong sớm, ta còn kịp mang hàng đi đổi."
           ]
         },
         {
           "key": "traderGreetings",
           "values": [
-            "Äáº¡o há»¯u muá»‘n xem hÃ ng gÃ¬?",
-            "Hàng hôm nay còn khá đủ.",
-            "Náº¿u mua nhiá»u, giÃ¡ cÃ³ thá»ƒ bÃ n láº¡i."
+            "Muốn xem hàng gì, cứ hỏi thẳng ta.",
+            "Hàng hôm nay không thiếu, chỉ thiếu người mua nhanh.",
+            "Nếu ngươi có vật tốt, ta cũng sản sàng đổi."
           ]
         },
         {
           "key": "traderReplies",
           "values": [
-            "GiÃ¡ nÃ y Ä‘Ã£ má»m rá»“i.",
-            "Chỗ quen biết thì ta giảm chút.",
-            "Hàng tốt không nên ép quá thấp."
+            "Giá này đã mềm tay rồi, khó mà bớt nữa.",
+            "Giao dịch xong là đôi bên đều dễ chịu.",
+            "Có qua có lại, lần sau ta giữ giá tốt hơn cho người."
           ]
         },
         {
           "key": "firstMeetingLines",
           "values": [
-            "Lần đầu gặp, mong đạo hữu chỉ giáo.",
-            "Ta chưa từng thấy ngươi quanh đây, mới tới sao?",
-            "Gặp nhau cũng là duyên, sau này giúp đỡ lẫn nhau."
+            "Lần đầu gặp, mong sau này còn có dịp trò chuyện.",
+            "Người đi qua nơi này là duyên rồi, cứ xem như quen mặt trước.",
+            "Ta nhớ mặt người rồi, lần sau còn nhận ra."
           ]
         },
         {
           "key": "firstMeetingReplies",
           "values": [
-            "Dá»… nÃ³i, cÃ³ viá»‡c cá»© há»i ta.",
-            "Ta cũng mới để ý ngươi, sau này gặp thì chào nhau.",
-            "Äáº¡o há»¯u khÃ¡ch khÃ­ rá»“i."
+            "Ử, cứ từ từ làm quen thôi.",
+            "Đạo hữu yên tâm, ta không khó nói chuyện.",
+            "Gặp nhau ở đây cũng là có duyên."
           ]
         },
         {
           "key": "namedFirstMeetingLines",
           "values": [
-            "{1}, ta nghe ngÆ°á»i trong lÃ ng nháº¯c Ä‘áº¿n ngÆ°Æ¡i vÃ i láº§n. HÃ´m nay gáº·p máº·t, tháº¥y khÃ­ tá»©c cá»§a ngÆ°Æ¡i á»•n Ä‘á»‹nh hÆ¡n lá»i Ä‘á»“n, xem ra khÃ´ng pháº£i káº» chá»‰ biáº¿t nÃ³i suÃ´ng.",
-            "{1}, láº§n Ä‘áº§u gáº·p nhÆ°ng ta Ä‘Ã£ Ä‘á»ƒ Ã½ bÆ°á»›c chÃ¢n cá»§a ngÆ°Æ¡i tá»« xa. NgÆ°á»i thÆ°á»ng Ä‘i qua chá»— nÃ y hay háº¥p táº¥p, cÃ²n ngÆ°Æ¡i thÃ¬ giá»¯ khoáº£ng cÃ¡ch ráº¥t cháº¯c, háº³n Ä‘Ã£ quen ra ngoÃ i lá»‹ch luyá»‡n.",
-            "{1}, náº¿u sau nÃ y cÃ¹ng Ä‘i qua rÃ¬a rá»«ng, cá»© gá»i ta má»™t tiáº¿ng. Má»™t mÃ¬nh giá»¯ máº¡ng thÃ¬ dá»…, nhÆ°ng gáº·p chuyá»‡n lá»›n cÃ³ thÃªm ngÆ°á»i Ä‘Ã¡ng tin váº«n hÆ¡n."
+            "{1}, ta nghe người trong làng nhắc đến ngươi vài lần. Hôm nay gặp mặt, thấy khí tức của ngươi ổn định hơn lời đồn, xem ra không phải kẻ chỉ biết nói suông.",
+            "{1}, lần đầu gặp nhưng ta đã để ý bước chân của ngươi từ xa. Người thường đi qua chỗ này hay hấp tấp, còn ngươi thì giữ khoảng cách rất chắc, hẳn đã quen ra ngoài lịch luyện.",
+            "{1}, nếu sau này cùng đi qua rìa rừng, cứ gọi ta một tiếng. Một mình giữ mạng thì dễ, nhưng gặp chuyện lớn có thêm người đáng tin vẫn hơn."
           ]
         },
         {
           "key": "namedFirstMeetingReplies",
           "values": [
-            "{1}, lá»i ngÆ°Æ¡i nÃ³i ta ghi nháº­n. á»ž nÆ¡i nÃ y quen biáº¿t thÃªm má»™t ngÆ°á»i giá»¯ chá»¯ tÃ­n cÃ²n quÃ½ hÆ¡n nháº·t Ä‘Æ°á»£c vÃ i viÃªn Linh Tháº¡ch.",
-            "{1}, váº­y sau nÃ y náº¿u cÃ³ tin vá» linh tháº£o, yÃªu thÃº hay Ä‘Æ°á»ng nÃºi báº¥t thÆ°á»ng, chÃºng ta bÃ¡o cho nhau trÆ°á»›c. Äi cháº­m má»™t chÃºt cÃ²n hÆ¡n Ä‘i nhanh rá»“i máº¥t máº¡ng.",
+            "{1}, lời ngươi nói ta ghi nhận. Ở nơi này quen biết thêm một người giữ chữ tín còn quý hơn nhặt được vài viên Linh Thạch.",
+            "{1}, vậy sau này nếu có tin về linh thảo, yêu thú hay đường núi bất thường, chúng ta báo cho nhau trước. Đi chậm một chút còn hơn đi nhanh rồi mất mạng.",
             "{1}, ta cũng không thích kết giao qua loa. Hôm nay coi như nhận mặt, sau này gặp việc thật rồi sẽ biết ai đáng tin."
           ]
         },
         {
           "key": "namedFriendlyFollowUps",
           "values": [
-            "{1}, láº§n trÆ°á»›c ngÆ°Æ¡i nÃ³i khu ven suá»‘i cÃ³ dáº¥u linh khÃ­ tá»¥ láº¡i. Ta Ä‘Ã£ Ä‘i ngang qua, quáº£ tháº­t Ä‘áº¥t má»m hÆ¡n bÃ¬nh thÆ°á»ng, cÃ³ láº½ vÃ i ngÃ y ná»¯a sáº½ má»c linh tháº£o.",
-            "{1}, chuyá»‡n hÃ´m trÆ°á»›c ngÆ°Æ¡i nháº¯c ta váº«n cÃ²n nghÄ©. Náº¿u tin Ä‘Ã³ Ä‘Ãºng, chÃºng ta nÃªn Ä‘i sá»›m trÆ°á»›c khi ngÆ°á»i khÃ¡c kÃ©o Ä‘áº¿n quÃ¡ Ä‘Ã´ng.",
+            "{1}, lần trước ngươi nói khu ven suối có dấu linh khí tụ lại. Ta đã đi ngang qua, quả thật đất mềm hơn bình thường, có lẽ vài ngày nữa sẽ mọc linh thảo.",
+            "{1}, chuyện hôm trước ngươi nhắc ta vẫn còn nghĩ. Nếu tin đó đúng, chúng ta nên đi sớm trước khi người khác kéo đến quá đông.",
             "{1}, ta thấy dạo này ngươi bớt vội hơn trước. Có phải sau trận vừa rồi tâm cảnh đã ổn lại không?"
           ]
         },
         {
           "key": "longPersonalLines",
           "values": [
-            "{1}, hÃ´m nay ta Ä‘i qua cá»•ng lÃ ng, tháº¥y vÃ i váº¿t chÃ¢n yÃªu thÃº cÃ²n má»›i. Chuyá»‡n nhá» thÃ¬ ai cÅ©ng bá» qua, nhÆ°ng nhiá»u chuyá»‡n nhá» chá»“ng láº¡i sáº½ thÃ nh Ä‘áº¡i há»a. Náº¿u trong vÃ i ngÃ y tá»›i ngÆ°Æ¡i nghe tiáº¿ng Ä‘á»™ng á»Ÿ rÃ¬a rá»«ng, Ä‘á»«ng Ä‘i má»™t mÃ¬nh.",
-            "{1}, trÆ°á»›c kia ta nghÄ© chá»‰ cáº§n tu luyá»‡n nhanh lÃ  Ä‘á»§. Sau vÃ i láº§n tháº¥y ngÆ°á»i quen bá»‹ thÆ°Æ¡ng vÃ¬ ham tiáº¿n vÃ o nÃºi sÃ¢u, ta má»›i hiá»ƒu giá»¯ Ä‘Æ°á»£c Ä‘Æ°á»ng lui cÅ©ng lÃ  báº£n lÄ©nh. Tu vi cao mÃ  khÃ´ng biáº¿t lÆ°á»£ng sá»©c thÃ¬ chá»‰ lÃ  tá»± Ä‘Æ°a mÃ¬nh vÃ o hiá»ƒm cáº£nh.",
-            "{1}, trong lÃ ng nhÃ¬n yÃªn á»•n nhÆ°ng lÃ²ng ngÆ°á»i vÃ  yÃªu khÃ­ Ä‘á»u thay Ä‘á»•i tá»«ng ngÃ y. Náº¿u cÃ³ lÃºc ngÆ°Æ¡i pháº£i chá»n giá»¯a tranh má»™t mÃ³n lá»£i nhá» vÃ  giá»¯ quan há»‡ vá»›i ngÆ°á»i bÃªn cáº¡nh, ta khuyÃªn nÃªn nghÄ© xa hÆ¡n má»™t chÃºt."
+            "Ta từng nghĩ chỉ cần tu luyện là đủ, sau mới hiểu còn phải biết nhìn người.",
+            "Đi đường xa nhiều rồi mới thấy, giữ được mạng cũng là một loại bản lĩnh.",
+            "Có lúc ngồi yên quan sát một ngày, còn học được nhiều hơn chạy khắp nơi."
           ]
         },
         {
           "key": "longPersonalReplies",
           "values": [
-            "{1}, ta hiá»ƒu Ã½ ngÆ°Æ¡i. CÃ³ nhá»¯ng chuyá»‡n nhÃ¬n qua tÆ°á»Ÿng lÃ  lá»i nháº¯c bÃ¬nh thÆ°á»ng, Ä‘áº¿n lÃºc gáº·p nguy má»›i biáº¿t ai tháº­t sá»± chá»‹u má»Ÿ miá»‡ng cáº£nh bÃ¡o mÃ¬nh.",
-            "{1}, lá»i nÃ y khÃ´ng sai. Äi Ä‘Æ°á»ng tu hÃ nh khÃ´ng chá»‰ nhÃ¬n cáº£nh giá»›i, cÃ²n pháº£i nhÃ¬n ngÆ°á»i nÃ o cÃ³ thá»ƒ Ä‘á»©ng cáº¡nh mÃ¬nh khi giÃ³ Ä‘á»•i chiá»u.",
-            "{1}, váº­y náº¿u ta phÃ¡t hiá»‡n dáº¥u váº¿t báº¥t thÆ°á»ng, ta sáº½ bÃ¡o láº¡i. Má»™t tin nhá» Ä‘Ãºng lÃºc Ä‘Ã´i khi cá»©u Ä‘Æ°á»£c cáº£ chuyáº¿n Ä‘i."
+            "Nghe vậy cũng có lý, đôi khi đi chậm lại mới nhìn rõ được chuyện.",
+            "Ta hiểu, có những việc nóng vội chỉ làm hỏng thêm.",
+            "Nói chuyện với ngươi cũng không tệ, ít ra không phí thời gian."
           ]
         },
         {
           "key": "monsterHuntInvites",
           "values": [
-            "{1}, ta tháº¥y {2} cáº¥p {3} ngoÃ i kia nhÃ¬n chÃºng ta nhÆ° nhÃ¬n thá»±c Ä‘Æ¡n. Hay lÃ  ta ra tay trÆ°á»›c, giá»¯ chÃºt tÃ´n nghiÃªm cho ngÆ°á»i tu tiÃªn?",
-            "{1}, con {2} cáº¥p {3} vá»«a gáº§m má»™t tiáº¿ng ráº¥t thiáº¿u lá»… phÃ©p. Ta Ä‘á» nghá»‹ chÃºng ta thay trá»i hÃ nh Ä‘áº¡o, tiá»‡n thá»ƒ xem nÃ³ cÃ³ rÆ¡i gÃ¬ Ä‘Ã¡ng giÃ¡ khÃ´ng.",
-            "{1}, náº¿u lÃ¡t ná»¯a ta nÃ³i 'káº¿ hoáº¡ch váº«n á»•n' thÃ¬ nghÄ©a lÃ  ngÆ°Æ¡i cháº¡y trÆ°á»›c Ä‘i. CÃ²n bÃ¢y giá», cÃ¹ng xá»­ lÃ½ {2} cáº¥p {3} chá»©?",
-            "{1}, {2} cáº¥p {3} Ä‘á»©ng Ä‘Ã³ lÃ¢u quÃ¡ rá»“i. NÃ³ khÃ´ng tu luyá»‡n, khÃ´ng Ä‘Ã³ng thuáº¿, láº¡i cÃ²n dá»a ngÆ°á»i qua Ä‘Æ°á»ng. Ta tháº¥y ráº¥t cÃ³ lÃ½ do Ä‘á»ƒ Ä‘Ã¡nh.",
-            "{1}, gáº§n Ä‘Ã¢y {2} cáº¥p {3} cá»© láº£ng váº£ng quanh rÃ¬a Ä‘Æ°á»ng. Má»™t mÃ¬nh xÃ´ng lÃªn thÃ¬ quÃ¡ liá»u, nhÆ°ng náº¿u hai ta chia hÆ°á»›ng Ã©p nÃ³ rá»i khá»i bá»¥i cÃ¢y, cÆ¡ há»™i háº¡ nÃ³ sáº½ cao hÆ¡n nhiá»u.",
-            "{1}, ta vá»«a tháº¥y dáº¥u váº¿t cá»§a {2} cáº¥p {3}. Con nÃ y khÃ´ng nÃªn Ä‘á»ƒ nÃ³ Ã¡p sÃ¡t lÃ ng. Náº¿u ngÆ°Æ¡i cÃ²n Ä‘á»§ linh lá»±c, chÃºng ta cÃ³ thá»ƒ gá»i thÃªm ngÆ°á»i rá»“i Ä‘Ã¡nh nhanh trÆ°á»›c khi trá»i tá»‘i.",
-            "{1}, {2} cáº¥p {3} khÃ´ng pháº£i loáº¡i dá»… xá»­ lÃ½. NhÆ°ng náº¿u Ä‘á»ƒ nÃ³ quen mÃ¹i ngÆ°á»i á»Ÿ khu nÃ y, sau nÃ y dÃ¢n lÃ ng Ä‘i hÃ¡i thuá»‘c sáº½ gáº·p náº¡n. NgÆ°Æ¡i cÃ³ dÃ¡m cÃ¹ng ta thá»­ má»™t tráº­n khÃ´ng?"
+            "{1}, ta thấy {2} cấp {3} ngoài kia nhìn chúng ta như nhìn thực đơn. Hay là ta ra tay trước, giữ chút tôn nghiêm cho người tu tiên?",
+            "{1}, con {2} cấp {3} vừa gầm một tiếng rất thiếu lễ phép. Ta đề nghị chúng ta thay trời hành đạo, tiện thể xem nó có rơi gì đáng giá không.",
+            "{1}, nếu lát nữa ta nói 'kế hoạch vẫn ổn' thì nghĩa là ngươi chạy trước đi. Còn bây giờ, cùng xử lý {2} cấp {3} chứ?",
+            "{1}, {2} cấp {3} đứng đó lâu quá rồi. Nó không tu luyện, không đóng thuế, lại còn dọa người qua đường. Ta thấy rất có lý do để đánh.",
+            "{1}, gần đây {2} cấp {3} cứ lảng vảng quanh rìa đường. Một mình xông lên thì quá liều, nhưng nếu hai ta chia hướng ép nó rời khỏi bụi cây, cơ hội hạ nó sẽ cao hơn nhiều.",
+            "{1}, ta vừa thấy dấu vết của {2} cấp {3}. Con này không nên để nó áp sát làng. Nếu ngươi còn đủ linh lực, chúng ta có thể gọi thêm người rồi đánh nhanh trước khi trời tối.",
+            "{1}, {2} cấp {3} không phải loại dễ xử lý. Nhưng nếu để nó quen mùi người ở khu này, sau này dân làng đi hái thuốc sẽ gặp nạn. Ngươi có dám cùng ta thử một trận không?"
           ]
         },
         {
@@ -734,46 +721,46 @@
           "values": [
             "{1}, được, nhưng nói trước: nếu {2} cấp {3} há miệng quá to, ta sẽ ưu tiên bảo toàn đạo tâm và đôi chân.",
             "{1}, ta đi cùng. Nhưng nếu thắng thì chia chiến lợi phẩm, nếu thua thì chia nhau chạy.",
-            "{1}, nghe há»£p lÃ½. Ta phá»¥ trÃ¡ch Ä‘Ã¡nh, ngÆ°Æ¡i phá»¥ trÃ¡ch Ä‘á»«ng Ä‘á»ƒ ta bá»‹ Ä‘Ã¡nh quÃ¡ nhiá»u.",
+            "{1}, nghe hợp lý. Ta phụ trách đánh, ngươi phụ trách đừng để ta bị đánh quá nhiều.",
             "{1}, cứ thử. Cùng lắm hôm nay chúng ta lĩnh ngộ sâu sắc hai chữ 'lượng sức'.",
-            "{1}, ta khÃ´ng thÃ­ch liá»u máº¡ng vÃ´ nghÄ©a, nhÆ°ng con {2} cáº¥p {3} Ä‘Ãºng lÃ  má»‘i há»a. ChÃºng ta quan sÃ¡t Ä‘Æ°á»ng lui trÆ°á»›c, rá»“i má»›i ra tay.",
+            "{1}, ta không thích liều mạng vô nghĩa, nhưng con {2} cấp {3} đúng là mối họa. Chúng ta quan sát đường lui trước, rồi mới ra tay.",
             "{1}, được. Ta giữ khoảng cách bên trái, ngươi đừng ham truy quá sâu. Nếu {2} cấp {3} đổi hướng lao vào làng thì phải chặn ngay.",
-            "{1}, gá»i thÃªm má»™t ngÆ°á»i ná»¯a cÃ ng tá»‘t. ÄÃ¡nh yÃªu thÃº máº¡nh khÃ´ng cáº§n khoe gan, cáº§n sá»‘ng sÃ³t mang tin vá»."
+            "{1}, gọi thêm một người nữa càng tốt. Đánh yêu thú mạnh không cần khoe gan, cần sống sót mang tin về."
           ]
         },
         {
           "key": "monsterVictorySoloLines",
           "values": [
             "{0} nhìn {1} cấp {2} ngã xuống rồi thở phào: \"May quá, vừa rồi ta suýt phải dùng tuyệt kỹ chạy rất nhanh.\"",
-            "{0} chá»‰nh láº¡i Ã¡o: \"Tráº­n nÃ y tháº¯ng nhá» thá»±c lá»±c. Pháº§n run tay lÃ  do linh khÃ­ dao Ä‘á»™ng, Ä‘á»«ng ai hiá»ƒu láº§m.\"",
+            "{0} chỉnh lại áo: \"Trận này thắng nhờ thực lực. Phần run tay là do linh khí dao động, đừng ai hiểu lầm.\"",
             "{0} nhìn quanh: \"Có ai thấy không? Không thấy thì thôi, lát nữa ta kể lại sẽ thêm chút khí thế.\"",
-            "{0} láº©m báº©m: \"Háº¡ Ä‘Æ°á»£c {1} cáº¥p {2}, hÃ´m nay vá» Äƒn thÃªm bÃ¡t cÆ¡m cÅ©ng khÃ´ng quÃ¡ pháº­n.\"",
+            "{0} lẩm bẩm: \"Hạ được {1} cấp {2}, hôm nay về ăn thêm bát cơm cũng không quá phận.\"",
             "{0} hạ được {1} cấp {2} rồi. Trận này nhìn thì ngắn, nhưng chỉ cần chậm nửa nhịp là móng vuốt của nó đã chạm tới tim.",
-            "{0} thá»Ÿ ra má»™t hÆ¡i, nhÃ¬n xÃ¡c {1} cáº¥p {2}: \"Con nÃ y mÃ  lá»t vÃ o ruá»™ng linh cá»‘c thÃ¬ cáº£ lÃ ng máº¥t ngá»§. May lÃ  cháº·n ká»‹p.\"",
-            "{0} lau váº¿t mÃ¡u trÃªn tay: \"{1} cáº¥p {2} khÃ´ng yáº¿u. Láº§n sau gáº·p dáº¥u chÃ¢n nhÆ° váº­y, pháº£i bÃ¡o má»i ngÆ°á»i sá»›m hÆ¡n.\""
+            "{0} thở ra một hơi, nhìn xác {1} cấp {2}: \"Con này mà lọt vào ruộng linh cốc thì cả làng mất ngủ. May là chặn kịp.\"",
+            "{0} lau vết máu trên tay: \"{1} cấp {2} không yếu. Lần sau gặp dấu chân như vậy, phải báo mọi người sớm hơn.\""
           ]
         },
         {
           "key": "monsterVictoryAllyLines",
           "values": [
             "{1}, vừa rồi ngươi đánh rất đúng lúc. Ta đang định nói 'cứu ta', nhưng ngươi ra tay trước nên giữ được thể diện cho ta.",
-            "{1}, phá»‘i há»£p tá»‘t Ä‘áº¥y. Náº¿u cÃ³ ngÆ°á»i há»i, cá»© nÃ³i chÃºng ta Ä‘Ã£ tÃ­nh toÃ¡n tá»« Ä‘áº§u, Ä‘á»«ng nháº¯c Ä‘oáº¡n ta lÃ¹i hÆ¡i nhanh.",
+            "{1}, phối hợp tốt đấy. Nếu có người hỏi, cứ nói chúng ta đã tính toán từ đầu, đừng nhắc đoạn ta lùi hơi nhanh.",
             "{1}, {2} cấp {3} cũng mạnh thật. May mà nó không biết chúng ta vừa đánh vừa cầu đừng trượt.",
-            "{1}, tráº­n nÃ y Ä‘Ã¡ng ghi vÃ o kÃ½ á»©c. NhÆ°ng ghi ngáº¯n thÃ´i, Ä‘oáº¡n ta suÃ½t ngÃ£ thÃ¬ bá» qua.",
+            "{1}, trận này đáng ghi vào ký ức. Nhưng ghi ngắn thôi, đoạn ta suýt ngã thì bỏ qua.",
             "{1}, vừa rồi ngươi chặn hướng rất đúng. Nếu không có nhịp đó, {2} cấp {3} đã thoát vào rừng rồi.",
             "{1}, trận này chúng ta phối hợp không tệ. {2} cấp {3} mạnh hơn ta tưởng, nhưng nó không chịu nổi khi bị ép từ hai phía.",
-            "{1}, nhá»› ká»¹ váº¿t gáº§m cá»§a {2} cáº¥p {3}. Láº§n sau nghe tiáº¿ng Ä‘Ã³ tá»« xa thÃ¬ Ä‘á»«ng Ä‘á»©ng má»™t mÃ¬nh ngoÃ i Ä‘Æ°á»ng nÃºi."
+            "{1}, nhớ kỹ vết gầm của {2} cấp {3}. Lần sau nghe tiếng đó từ xa thì đừng đứng một mình ngoài đường núi."
           ]
         },
         {
           "key": "monsterVictoryAllyReplies",
           "values": [
             "{1}, yên tâm, đoạn ngươi lùi ba bước ta sẽ nói là chiến thuật dụ địch.",
-            "{1}, tháº¯ng lÃ  Ä‘Æ°á»£c. Tu tiÃªn giá»›i chá»‰ nhá»› káº¿t quáº£, cÃ²n tÆ° tháº¿ lÃºc cháº¡y thÃ¬ khÃ´ng nÃªn truyá»n ra.",
+            "{1}, thắng là được. Tu tiên giới chỉ nhớ kết quả, còn tư thế lúc chạy thì không nên truyền ra.",
             "{1}, lần sau vẫn đánh cùng, nhưng trước đó nhớ ăn no. Ta không muốn nghe bụng ngươi gầm át cả {2}.",
             "{1}, nếu chiến lợi phẩm ít thì gọi là trừ hại cho dân. Nếu nhiều thì gọi là cơ duyên chung.",
-            "{1}, cÃ´ng cá»§a ngÆ°Æ¡i cÅ©ng khÃ´ng nhá». Náº¿u ngÆ°Æ¡i khÃ´ng kÃ©o nÃ³ lá»‡ch hÆ°á»›ng, ta Ä‘Ã£ khÃ´ng cÃ³ khoáº£ng trá»‘ng Ä‘á»ƒ ra tay.",
-            "{1}, ta cÃ²n tÆ°á»Ÿng tráº­n nÃ y pháº£i rÃºt lui. Háº¡ Ä‘Æ°á»£c {2} cáº¥p {3} rá»“i, nhÆ°ng nÃªn rá»i khá»i Ä‘Ã¢y trÆ°á»›c khi mÃ¹i mÃ¡u kÃ©o thÃªm yÃªu thÃº khÃ¡c tá»›i.",
+            "{1}, công của ngươi cũng không nhỏ. Nếu ngươi không kéo nó lệch hướng, ta đã không có khoảng trống để ra tay.",
+            "{1}, ta còn tưởng trận này phải rút lui. Hạ được {2} cấp {3} rồi, nhưng nên rời khỏi đây trước khi mùi máu kéo thêm yêu thú khác tới.",
             "{1}, phối hợp như vậy mới đáng tin. Sau này nếu gặp yêu thú mạnh hơn, ít nhất ta biết có thể giao lưng cho ai."
           ]
         },
@@ -781,11 +768,11 @@
           "key": "smallTalkNeutralLines",
           "values": [
             "Sáng nay ta thử ngộ đạo dưới gốc cây, kết quả ngộ ra mình nên ăn sáng trước.",
-            "Trong lÃ ng yÃªn á»•n quÃ¡, khiáº¿n ta nghi ngá» cÃ³ Ä‘áº¡i sá»± Ä‘ang lÆ°á»i biáº¿ng chÆ°a chá»‹u xáº£y ra.",
-            "Ta vá»«a tháº¥y má»™t ngÆ°á»i nhÃ¬n trá»i ba canh giá», cháº¯c Ä‘ang chá» cÆ¡ duyÃªn rÆ¡i tháº³ng vÃ o miá»‡ng.",
-            "Äáº¡o há»¯u cÃ³ tháº¥y khÃ´ng, má»—i láº§n ta Ä‘á»‹nh chÄƒm chá»‰ tu luyá»‡n thÃ¬ tá»­u quÃ¡n láº¡i tá»a mÃ¹i ráº¥t cÃ³ ma lá»±c.",
+            "Trong làng yên ổn quá, khiến ta nghi ngờ có đại sự đang lười biếng chưa chịu xảy ra.",
+            "Ta vừa thấy một người nhìn trời ba canh giờ, chắc đang chờ cơ duyên rơi thẳng vào miệng.",
+            "Đạo hữu có thấy không, mỗi lần ta định chăm chỉ tu luyện thì tửu quán lại tỏa mùi rất có ma lực.",
             "Hôm nay trong làng khá yên ổn.",
-            "Äi ngang tháº¥y ngÆ°Æ¡i báº­n rá»™n, má»i chuyá»‡n á»•n chá»©?",
+            "Đi ngang thấy ngươi bận rộn, mọi chuyện ổn chứ?",
             "Có tin mới thì nói ta nghe với."
           ]
         },
@@ -817,9 +804,9 @@
           "key": "combatAttackLines",
           "values": [
             "Đừng ép ta liều mạng!",
-            "HÃ´m nay ta liá»u sá»‘ng liá»u cháº¿t vá»›i ngÆ°Æ¡i!",
-            "Muá»‘n sá»‘ng thÃ¬ trÃ¡nh Ä‘Æ°á»ng!",
-            "ÄÃ£ ra tay thÃ¬ Ä‘á»«ng trÃ¡ch ta náº·ng tay."
+            "Hôm nay ta liều sống liều chết với ngươi!",
+            "Muốn sống thì tránh đường!",
+            "Đã ra tay thì đừng trách ta nặng tay."
           ]
         },
         {
@@ -827,23 +814,23 @@
           "values": [
             "Dám ra tay với ta?",
             "Ta không nhịn nữa đâu!",
-            "Äá»«ng tÆ°á»Ÿng ta dá»… bá»‹ báº¯t náº¡t!",
+            "Đừng tưởng ta dễ bị bắt nạt!",
             "Muốn đánh thì ta theo đến cùng."
           ]
         },
         {
           "key": "bulliedLowRealmLines",
           "values": [
-            "Ba mÆ°Æ¡i nÄƒm HÃ  ÄÃ´ng, ba mÆ°Æ¡i nÄƒm HÃ  TÃ¢y, {1} Ä‘á»«ng khinh thiáº¿u niÃªn nghÃ¨o!",
+            "Ba mươi năm Hà Đông, ba mươi năm Hà Tây, {1} đừng khinh thiếu niên nghèo!",
             "{1}, hôm nay ngươi ỷ cảnh giới cao ép ta. Ngày sau ta đột phá, ta sẽ đứng trước cửa nhà ngươi ho khan ba tiếng cho ngươi tự hiểu.",
-            "Cáº£nh giá»›i tháº¥p thÃ¬ sao? Linh Tháº¡ch Ã­t thÃ¬ sao? Äáº¡o tÃ¢m cá»§a ta nghÃ¨o nhÆ°ng ráº¥t cá»©ng!",
+            "Cảnh giới thấp thì sao? Linh Thạch ít thì sao? Đạo tâm của ta nghèo nhưng rất cứng!",
             "{1}, ngươi đánh ta hôm nay, sau này hồi ký của ta chắc chắn có tên ngươi ở chương phản diện.",
-            "Äá»«ng tÆ°á»Ÿng ta Luyá»‡n KhÃ­ lÃ  dá»… báº¯t náº¡t. Ta chá»‰ Ä‘ang tÃ­ch lÅ©y nhá»¥c nhÃ£ Ä‘á»ƒ sau nÃ y Ä‘á»™t phÃ¡ cho cÃ³ khÃ­ tháº¿!",
-            "QuÃ¢n tá»­ bÃ¡o thÃ¹ mÆ°á»i nÄƒm chÆ°a muá»™n. Tu sÄ© nghÃ¨o bÃ¡o thÃ¹ thÃ¬ cÃ³ thá»ƒ lÃ¢u hÆ¡n má»™t chÃºt, nhÆ°ng ta cÃ³ ghi sá»•!",
-            "{1}, ngÆ°Æ¡i chá» Ä‘Ã³. HÃ´m nay ta lui ná»­a bÆ°á»›c khÃ´ng pháº£i sá»£, lÃ  Ä‘á»ƒ Ä‘áº¡i Ä‘áº¡o cÃ³ thÃªm khÃ´ng gian phÃ¡t triá»ƒn.",
-            "Ta thá» vá»›i trá»i, náº¿u láº§n nÃ y sá»‘ng sÃ³t, viá»‡c Ä‘áº§u tiÃªn ta lÃ m lÃ  tu luyá»‡n. Viá»‡c thá»© hai lÃ  trÃ¡nh máº·t ngÆ°Æ¡i thÃªm vÃ i ngÃ y.",
-            "Cao hÆ¡n ta máº¥y táº§ng mÃ  cÃ²n ra tay, ngÆ°Æ¡i khÃ´ng tháº¥y xáº¥u há»• sao? Ã€ quÃªn, cÆ°á»ng giáº£ thÆ°á»ng tu máº¥t máº·t trÆ°á»›c.",
-            "Äá»«ng khinh ta chÆ°a cÃ³ cÆ¡ duyÃªn. Biáº¿t Ä‘Ã¢u ngÃ y mai ta nháº·t Ä‘Æ°á»£c cÃ´ng phÃ¡p, ngÃ y kia nháº·t Ä‘Æ°á»£c sÆ° phá»¥, ngÃ y kÃ¬a quay láº¡i tÃ­nh sá»•!"
+            "Đừng tưởng ta Luyện Khí là dễ bắt nạt. Ta chỉ đang tích lũy nhục nhã để sau này đột phá cho có khí thế!",
+            "Quân tử báo thù mười năm chưa muộn. Tu sĩ nghèo báo thù thì có thể lâu hơn một chút, nhưng ta có ghi sổ!",
+            "{1}, ngươi chờ đó. Hôm nay ta lui nửa bước không phải sợ, là để đại đạo có thêm không gian phát triển.",
+            "Ta thề với trời, nếu lần này sống sót, việc đầu tiên ta làm là tu luyện. Việc thứ hai là tránh mặt ngươi thêm vài ngày.",
+            "Cao hơn ta mấy tầng mà còn ra tay, ngươi không thấy xấu hổ sao? À quên, cường giả thường tu mất mặt trước.",
+            "Đừng khinh ta chưa có cơ duyên. Biết đâu ngày mai ta nhặt được công pháp, ngày kia nhặt được sư phụ, ngày kìa quay lại tính sổ!"
           ]
         },
         {
@@ -852,7 +839,7 @@
             "Không ổn, phải giữ mạng trước!",
             "Máu cạn rồi, rút trước đã!",
             "Còn sống mới còn cơ hội!",
-            "Tráº­n nÃ y quÃ¡ hiá»ƒm, khÃ´ng thá»ƒ liá»u ná»¯a."
+            "Trận này quá hiểm, không thể liều nữa."
           ]
         },
         {
@@ -860,14 +847,14 @@
           "values": [
             "Trời hôm nay mát quá.",
             "Gió nhẹ thế này đi lại dễ chịu thật.",
-            "Thá»i tiáº¿t yÃªn á»•n, lÃ m viá»‡c cÅ©ng thuáº­n hÆ¡n."
+            "Thời tiết yên ổn, làm việc cũng thuận hơn."
           ]
         },
         {
           "key": "weatherClearReplies",
           "values": [
             "Ừ, hôm nay hợp ra ngoài làm việc.",
-            "Trá»i quang nhÆ° váº­y hiáº¿m khi lÃ m ngÆ°á»i khÃ³ chá»‹u.",
+            "Trời quang như vậy hiếm khi làm người khó chịu.",
             "Nếu ngày nào cũng dịu thế này thì tốt."
           ]
         },
@@ -875,7 +862,7 @@
           "key": "weatherRainLines",
           "values": [
             "Mưa xuống rồi, ruộng linh cốc chắc tốt hơn.",
-            "ÄÆ°á»ng trÆ¡n, Ä‘i xa nhá»› cáº©n tháº­n.",
+            "Đường trơn, đi xa nhớ cẩn thận.",
             "Trận mưa này làm linh khí dịu lại."
           ]
         },
@@ -884,23 +871,23 @@
           "values": [
             "Ừ, hôm nay nên làm việc gần làng.",
             "Mưa vừa phải thì tốt, đừng thành bão là được.",
-            "Ta cÅ©ng tháº¥y linh Ä‘iá»n cáº§n tráº­n mÆ°a nÃ y."
+            "Ta cũng thấy linh điền cần trận mưa này."
           ]
         },
         {
           "key": "weatherThunderLines",
           "values": [
             "Sấm động dữ quá, đừng ra rìa rừng lúc này.",
-            "Trá»i chuyá»ƒn sáº¥m, yÃªu thÃº thÆ°á»ng hung hÆ¡n.",
+            "Trời chuyển sấm, yêu thú thường hung hơn.",
             "Nghe tiếng sấm mà lòng khó yên."
           ]
         },
         {
           "key": "weatherThunderReplies",
           "values": [
-            "Ta cÅ©ng tÃ­nh trÃ¡nh Ä‘Æ°á»ng nÃºi hÃ´m nay.",
-            "Cáº©n tháº­n váº«n hÆ¡n, Ä‘á»£i trá»i yÃªn rá»“i Ä‘i.",
-            "Náº¿u cÃ³ viá»‡c gáº¥p thÃ¬ gá»i thÃªm ngÆ°á»i Ä‘i cÃ¹ng."
+            "Ta cũng tính tránh đường núi hôm nay.",
+            "Cẩn thận vẫn hơn, đợi trời yên rồi đi.",
+            "Nếu có việc gấp thì gọi thêm người đi cùng."
           ]
         },
         {
@@ -915,7 +902,7 @@
           "key": "weatherSnowReplies",
           "values": [
             "Ừ, tuyết đẹp nhưng đi lại khó hơn.",
-            "Ta sáº½ vá» sá»›m, khá»i nhiá»…m hÃ n khÃ­.",
+            "Ta sẽ về sớm, khỏi nhiễm hàn khí.",
             "Ngày này hợp nghỉ ngơi hơn chạy việc."
           ]
         },
@@ -931,7 +918,7 @@
           "key": "weatherQiReplies",
           "values": [
             "Ta cũng định tìm nơi yên tĩnh tu luyện.",
-            "CÆ¡ há»™i tá»‘t, Ä‘á»«ng bá» phÃ­.",
+            "Cơ hội tốt, đừng bỏ phí.",
             "Linh khí như vậy hiếm khi gặp."
           ]
         },
@@ -946,9 +933,9 @@
         {
           "key": "hungryReplies",
           "values": [
-            "Äi Äƒn trÆ°á»›c Ä‘i, viá»‡c Ä‘á»ƒ sau cÅ©ng Ä‘Æ°á»£c.",
+            "Đi ăn trước đi, việc để sau cũng được.",
             "Ta thấy gần chợ còn đồ ăn đấy.",
-            "Äá»«ng Ä‘á»ƒ Ä‘Ã³i quÃ¡ rá»“i ngáº¥t giá»¯a Ä‘Æ°á»ng."
+            "Đừng để đói quá rồi ngất giữa đường."
           ]
         },
         {
@@ -956,15 +943,15 @@
           "values": [
             "Hôm nay mệt thật, chắc phải nghỉ sớm.",
             "Làm cả ngày rồi, thân thể hơi nặng.",
-            "CÃ³ láº½ ta nÃªn vá» nhÃ  nghá»‰ má»™t lÃ¡t."
+            "Có lẽ ta nên về nhà nghỉ một lát."
           ]
         },
         {
           "key": "tiredReplies",
           "values": [
-            "Nghá»‰ Ä‘i, gáº¯ng quÃ¡ dá»… há»ng viá»‡c.",
+            "Nghỉ đi, gắng quá dễ hỏng việc.",
             "Giữ sức cũng là một cách tu hành.",
-            "Ta á»Ÿ gáº§n Ä‘Ã¢y, cáº§n gÃ¬ cá»© gá»i."
+            "Ta ở gần đây, cần gì cứ gọi."
           ]
         },
         {
@@ -979,7 +966,7 @@
           "key": "resourceNeedReplies",
           "values": [
             "Ta nghe ven suối đôi khi có linh thảo.",
-            "Äi tÃ¬m tÃ i nguyÃªn thÃ¬ nhá»› trÃ¡nh khu yÃªu thÃº.",
+            "Đi tìm tài nguyên thì nhớ tránh khu yêu thú.",
             "Có dư vật liệu ta sẽ để ý cho ngươi."
           ]
         },
@@ -994,8 +981,8 @@
         {
           "key": "cultivationNeedReplies",
           "values": [
-            "Äá»«ng nÃ³ng, cÄƒn cÆ¡ vá»¯ng má»›i Ä‘i xa Ä‘Æ°á»£c.",
-            "CÃ³ thá»i gian thÃ¬ chá»n nÆ¡i linh khÃ­ á»•n Ä‘á»‹nh.",
+            "Đừng nóng, căn cơ vững mới đi xa được.",
+            "Có thời gian thì chọn nơi linh khí ổn định.",
             "Ta nghe đan dược tốt phải dùng đúng lúc."
           ]
         }
@@ -1083,7 +1070,7 @@
         },
         {
           "key": "killGoldenCoreDangerousBeast",
-          "value": "Diá»‡t yÃªu thÃº Kim Äan nguy hiá»ƒm"
+          "value": "Diệt yêu thú Kim Đan nguy hiểm"
         },
         {
           "key": "pursueBeastLv4",
@@ -1103,7 +1090,7 @@
         },
         {
           "key": "patrolMaThuSonRoad",
-          "value": "Tuáº§n tra Ä‘Æ°á»ng vÃ o Ma Thu SÆ¡n"
+          "value": "Tuần tra đường vào Ma Thu Sơn"
         },
         {
           "key": "suppressDemonicAura",
@@ -1197,7 +1184,7 @@
         },
         {
           "key": "goMealPoint",
-          "value": "Äi tá»›i khu Äƒn"
+          "value": "Đi tới khu ăn"
         },
         {
           "key": "serveMeal",
@@ -1205,11 +1192,11 @@
         },
         {
           "key": "receiveTask",
-          "value": "Äang nháº­n nhiá»‡m vá»¥ {0}"
+          "value": "Đang nhận nhiệm vụ {0}"
         },
         {
           "key": "askProviderFindTask",
-          "value": "Há»i quáº£n sá»± tÃ¬m nhiá»‡m vá»¥"
+          "value": "Hỏi quản sự tìm nhiệm vụ"
         },
         {
           "key": "assignedTask",
@@ -1229,19 +1216,19 @@
         },
         {
           "key": "goTavernMealPoint",
-          "value": "Äi tá»›i khu Äƒn trong tá»­u quÃ¡n"
+          "value": "Đi tới khu ăn trong tửu quán"
         },
         {
           "key": "eatingAtTavern",
-          "value": "Äang Äƒn uá»‘ng táº¡i tá»­u quÃ¡n"
+          "value": "Đang ăn uống tại tửu quán"
         },
         {
           "key": "goCounterTrade",
-          "value": "Äáº¿n quáº§y kiá»ƒm tra mua bÃ¡n"
+          "value": "Đến quầy kiểm tra mua bán"
         },
         {
           "key": "checkingCounterTrade",
-          "value": "Äang kiá»ƒm tra mua bÃ¡n táº¡i quáº§y"
+          "value": "Đang kiểm tra mua bán tại quầy"
         },
         {
           "key": "viewTaskBoard",
@@ -1249,7 +1236,7 @@
         },
         {
           "key": "chooseTask",
-          "value": "Chá»n nhiá»‡m vá»¥ {0}"
+          "value": "Chọn nhiệm vụ {0}"
         },
         {
           "key": "returnProviderReceiveTask",
@@ -1257,23 +1244,23 @@
         },
         {
           "key": "goWorkTask",
-          "value": "Äi lÃ m nhiá»‡m vá»¥ {0}"
+          "value": "Đi làm nhiệm vụ {0}"
         },
         {
           "key": "workingTask",
-          "value": "Äang lÃ m nhiá»‡m vá»¥ {0}"
+          "value": "Đang làm nhiệm vụ {0}"
         },
         {
           "key": "waitHuntRespawn",
-          "value": "Táº¡m nghá»‰, chá» yÃªu thÃº há»“i sinh {0}"
+          "value": "Tạm nghỉ, chờ yêu thú hồi sinh {0}"
         },
         {
           "key": "returnTurnInTask",
-          "value": "Mang káº¿t quáº£ vá» tráº£ nhiá»‡m vá»¥ {0}"
+          "value": "Mang kết quả về trả nhiệm vụ {0}"
         },
         {
           "key": "turnInTask",
-          "value": "Äang tráº£ nhiá»‡m vá»¥ {0}"
+          "value": "Đang trả nhiệm vụ {0}"
         },
         {
           "key": "searchGatherItem",
@@ -1297,7 +1284,7 @@
         },
         {
           "key": "huntFight",
-          "value": "Äang chiáº¿n Ä‘áº¥u vá»›i yÃªu thÃº {0}"
+          "value": "Đang chiến đấu với yêu thú {0}"
         },
         {
           "key": "pickItem",
@@ -1313,11 +1300,11 @@
         },
         {
           "key": "fightBlockingMonster",
-          "value": "Chuyá»ƒn sang chiáº¿n Ä‘áº¥u vá»›i yÃªu thÃº cáº£n Ä‘Æ°á»ng"
+          "value": "Chuyển sang chiến đấu với yêu thú cản đường"
         },
         {
           "key": "clearHarvestMonster",
-          "value": "Äang diá»‡t yÃªu thÃº chiáº¿m khu hÃ¡i"
+          "value": "Đang diệt yêu thú chiếm khu hái"
         },
         {
           "key": "tooStrongChangeHarvestArea",
@@ -1341,7 +1328,7 @@
         },
         {
           "key": "followTaskRoute",
-          "value": "Äi theo nhiá»‡m vá»¥"
+          "value": "Đi theo nhiệm vụ"
         }
       ]
     },
@@ -1399,7 +1386,7 @@
         },
         {
           "key": "tribulationReady",
-          "value": "{0} Ä‘Ã£ viÃªn mÃ£n Äá»™ Kiáº¿p."
+          "value": "{0} đã viên mãn Độ Kiếp."
         },
         {
           "key": "breakthrough",
@@ -1448,7 +1435,7 @@
         },
         {
           "key": "farmerWaitMorning",
-          "value": "ChÆ°a thu hoáº¡ch: chÆ°a Ä‘áº¿n giá» thu hoáº¡ch"
+          "value": "Chưa thu hoạch: chưa đến giờ thu hoạch"
         },
         {
           "key": "farmerHarvestedDay",

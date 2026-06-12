@@ -9,6 +9,7 @@ public class NpcResourceGatherer : MonoBehaviour
     public float maxSearchDistance = 12f;
     public float arriveDistance = 0.35f;
     public float retargetDistance = 0.75f;
+    public float reservationDuration = 3f;
 
     [Header("Needs")]
     [Range(0f, 1f)]
@@ -77,13 +78,34 @@ public class NpcResourceGatherer : MonoBehaviour
         FindTarget();
     }
 
+    public bool TryStartGatheringNow()
+    {
+        if (!canGather ||
+            collector == null ||
+            !collector.canPickupItems)
+        {
+            return false;
+        }
+
+        if (harvestingPickup != null ||
+            (targetPickup != null && IsPickupAvailable(targetPickup)))
+        {
+            MoveToTarget();
+            return true;
+        }
+
+        FindTarget();
+        return targetPickup != null;
+    }
+
     void FindTarget()
     {
         WorldStatItemPickup candidate =
             WorldResourceField.GetNearestAvailablePickupInAllFields(
                 GetSearchPosition(),
                 null,
-                GetPreferredZone());
+                GetPreferredZone(),
+                gameObject);
 
         if (candidate == null)
         {
@@ -101,6 +123,11 @@ public class NpcResourceGatherer : MonoBehaviour
             }
         }
 
+        if (!candidate.TryReserve(gameObject, reservationDuration))
+        {
+            return;
+        }
+
         targetPickup = candidate;
         MoveToTarget();
     }
@@ -108,19 +135,7 @@ public class NpcResourceGatherer : MonoBehaviour
 
     Vector3 GetSearchPosition()
     {
-        NpcMapZone? preferredZone = GetPreferredZone();
-        if (!preferredZone.HasValue)
-        {
-            return transform.position;
-        }
-
-        NpcMapArea area = NpcMapArea.FindNearestAreaInZone(
-            preferredZone.Value,
-            transform.position);
-
-        return area != null && area.areaBounds != null
-            ? area.areaBounds.bounds.center
-            : transform.position;
+        return transform.position;
     }
 
     NpcMapZone? GetPreferredZone()
@@ -139,6 +154,8 @@ public class NpcResourceGatherer : MonoBehaviour
             return;
         }
 
+        targetPickup.RefreshReservation(gameObject, reservationDuration);
+
         float distance =
             Vector2.Distance(transform.position, targetPickup.transform.position);
 
@@ -151,7 +168,7 @@ public class NpcResourceGatherer : MonoBehaviour
         if (villager != null &&
             villager.enabled)
         {
-            villager.ForceTreasureHunt(
+            villager.ForceGatherTarget(
                 targetPickup.transform,
                 targetPickup.item);
             return;
@@ -184,6 +201,10 @@ public class NpcResourceGatherer : MonoBehaviour
     {
         if (!IsPickupAvailable(harvestingPickup))
         {
+            if (harvestingPickup != null)
+            {
+                harvestingPickup.ClearReservation(gameObject);
+            }
             harvestingPickup = null;
             targetPickup = null;
             harvestTimer = 0f;
@@ -195,6 +216,7 @@ public class NpcResourceGatherer : MonoBehaviour
 
         if (distance > arriveDistance + retargetDistance)
         {
+            harvestingPickup.RefreshReservation(gameObject, reservationDuration);
             targetPickup = harvestingPickup;
             harvestingPickup = null;
             harvestTimer = 0f;
@@ -223,6 +245,10 @@ public class NpcResourceGatherer : MonoBehaviour
 
         if (!IsPickupAvailable(pickup))
         {
+            if (pickup != null)
+            {
+                pickup.ClearReservation(gameObject);
+            }
             return;
         }
 
@@ -230,8 +256,11 @@ public class NpcResourceGatherer : MonoBehaviour
         if (item == null ||
             !pickup.TryTake(1))
         {
+            pickup.ClearReservation(gameObject);
             return;
         }
+
+        pickup.ClearReservation(gameObject);
 
         collector.ReceiveItem(
             item,
@@ -268,6 +297,7 @@ public class NpcResourceGatherer : MonoBehaviour
             pickup.item == null ||
             pickup.amount <= 0 ||
             !pickup.allowNpcPickup ||
+            pickup.IsReservedByOther(gameObject) ||
             !pickup.gameObject.activeInHierarchy)
         {
             return false;
