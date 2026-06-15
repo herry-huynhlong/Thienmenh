@@ -148,6 +148,8 @@ public class ItemInventory : MonoBehaviour
         return GetComponent<SpawnedWorldActor>() != null ||
             GetComponent<VillagerAI>() != null ||
             GetComponent<SmartNpcAI>() != null ||
+            GetComponent<NpcAlchemyAgent>() != null ||
+            GetComponent<NpcForgeAgent>() != null ||
             GetComponent<NpcData>() != null;
     }
 
@@ -357,6 +359,11 @@ public class ItemInventory : MonoBehaviour
             !stack.item.ConsumesWhenUsed())
         {
             return false;
+        }
+
+        if (applied)
+        {
+            ItemEffectSpawner.PlayUseEffect(stack.item, target.transform);
         }
 
         if (stack.item.ConsumesWhenUsed())

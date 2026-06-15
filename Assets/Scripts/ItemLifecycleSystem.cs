@@ -8,6 +8,7 @@ public enum ItemLifecycleEventType
     Used,
     Broken,
     Refined,
+    Forged,
     Stolen,
     Taught
 }
@@ -27,6 +28,7 @@ public static class ItemLifecycleSystem
 
         if (eventType == ItemLifecycleEventType.Broken ||
             eventType == ItemLifecycleEventType.Refined ||
+            eventType == ItemLifecycleEventType.Forged ||
             item.grade == ItemGrade.Tien)
         {
             Debug.Log(
@@ -41,7 +43,7 @@ public static class ItemLifecycleSystem
         GameObject other)
     {
         string actorName =
-            actor != null ? actor.name : "Vô danh";
+            actor != null ? actor.name : "Vo danh";
 
         string otherName =
             other != null ? other.name : "";
@@ -49,22 +51,25 @@ public static class ItemLifecycleSystem
         switch (eventType)
         {
             case ItemLifecycleEventType.Broken:
-                return item.itemName + " của " + actorName + " đã hỏng.";
+                return ItemText.Name(item) + " cua " + actorName + " da hong.";
 
             case ItemLifecycleEventType.Refined:
-                return actorName + " luyện hóa " + item.itemName +
-                    " thành đan dược.";
+                return actorName + " luyen hoa " + ItemText.Name(item) +
+                    " thanh dan duoc.";
+
+            case ItemLifecycleEventType.Forged:
+                return actorName + " ren " + ItemText.Name(item) + ".";
 
             case ItemLifecycleEventType.Stolen:
-                return actorName + " đoạt " + item.itemName +
-                    " từ " + otherName + ".";
+                return actorName + " doat " + ItemText.Name(item) +
+                    " tu " + otherName + ".";
 
             case ItemLifecycleEventType.Taught:
-                return actorName + " truyền thụ " + item.itemName +
+                return actorName + " truyen thu " + ItemText.Name(item) +
                     " cho " + otherName + ".";
 
             default:
-                return actorName + " " + eventType + " " + item.itemName;
+                return actorName + " " + eventType + " " + ItemText.Name(item);
         }
     }
 }

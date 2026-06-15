@@ -877,9 +877,9 @@ public class NpcMemory : MonoBehaviour
 
     string GetItemDisplayName(StatItemData item)
     {
-        if (item != null && !string.IsNullOrEmpty(item.itemName))
+        if (item != null)
         {
-            return item.itemName;
+            return ItemText.Name(item);
         }
 
         return NpcText.Label("item");
@@ -2488,8 +2488,8 @@ public class NpcNegotiationAgent : MonoBehaviour
 
     public void RecordRejectedOffer(GameObject other, StatItemData item, int offeredPrice)
     {
-        string itemName = item != null && !string.IsNullOrEmpty(item.itemName)
-            ? item.itemName
+        string itemName = item != null
+            ? ItemText.Name(item)
             : NpcText.Label("item");
         memory.Remember(
             NpcMemoryType.TradeRejected,

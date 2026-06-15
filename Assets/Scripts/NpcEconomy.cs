@@ -72,11 +72,11 @@ public static class NpcEconomy
         switch (context)
         {
             case NpcTradeContext.MarketBuy:
-                multiplier = 1.15f;
+                multiplier = 1.2f;
                 break;
 
             case NpcTradeContext.MarketSell:
-                multiplier = 0.7f;
+                multiplier = 1f;
                 break;
 
             case NpcTradeContext.NpcToNpc:

@@ -31,6 +31,13 @@ public class MonsterAttack : MonoBehaviour
             return;
         }
 
+        if (NpcPetCompanion.BlocksMonsterAttacks(damageable.DamageTransform != null
+            ? damageable.DamageTransform.gameObject
+            : other.gameObject))
+        {
+            return;
+        }
+
         if (owner != null &&
             damageable.DamageTransform != null &&
             damageable.DamageTransform.gameObject == owner)

@@ -752,7 +752,7 @@ public class NpcInventoryPanelUI : MonoBehaviour
                 continue;
             }
 
-            builder.Append(stack.item.itemName);
+            builder.Append(ItemText.Name(stack.item));
             builder.Append(" x");
             builder.Append(stack.amount);
 

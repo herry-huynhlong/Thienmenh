@@ -10,7 +10,8 @@ public enum NpcTaskType
     Cultivate,
     Patrol,
     Deliver,
-    HarvestAndDeliver
+    HarvestAndDeliver,
+    Escort
 }
 
 public enum NpcTaskRank
@@ -70,6 +71,7 @@ public class NpcTaskOffer
     [Min(0)] public int requiredBeastLevel;
     public HuntTargetType requiredHuntTargetType = HuntTargetType.Beast;
     [Min(1)] public int requiredMonsterKills = 1;
+
 }
 
 class RunningNpcTask
@@ -95,6 +97,20 @@ class RunningNpcTask
     public bool resumedBaseAiWhileWaiting;
     public Vector3 avoidPosition;
     public float avoidUntilTime;
+    public GameObject escortCompanionNpc;
+    public GameObject escortCompletionNpc;
+    public bool escortDepartedFromCompanion;
+    public bool escortConfirmed;
+    public bool escortGreetingConversationStarted;
+    public bool escortDeliveryConversationStarted;
+    public int escortGreetingConversationStep;
+    public int escortDeliveryConversationStep;
+    public MonsterAI escortThreatMonster;
+    public Vector3 escortAvoidPosition;
+    public float escortAvoidUntilTime;
+    public Behaviour escortPausedCompanionBaseAi;
+    public bool escortPausedCompanionBaseAiWasEnabled;
+    public Vector3 escortCompanionHomePosition;
     public Behaviour pausedBaseAi;
     public bool pausedBaseAiWasEnabled;
 }
@@ -126,6 +142,10 @@ public class NpcTaskProvider : MonoBehaviour
         new Dictionary<GameObject, int>();
     static readonly List<GameObject> staleBusyNpcs =
         new List<GameObject>();
+    static readonly HashSet<NpcTaskOffer> lockedEscortOffers =
+        new HashSet<NpcTaskOffer>();
+    static readonly List<NpcTaskOffer> staleLockedEscortOffers =
+        new List<NpcTaskOffer>();
 
     public static NpcTaskProvider FindNearestProvider(Vector3 position)
     {
@@ -223,6 +243,55 @@ public class NpcTaskProvider : MonoBehaviour
         }
     }
 
+    static bool IsEscortOfferLocked(NpcTaskOffer offer)
+    {
+        if (offer == null)
+        {
+            return false;
+        }
+
+        CleanupEscortLocks();
+        return lockedEscortOffers.Contains(offer);
+    }
+
+    static void LockEscortOffer(NpcTaskOffer offer)
+    {
+        if (offer == null)
+        {
+            return;
+        }
+
+        CleanupEscortLocks();
+        lockedEscortOffers.Add(offer);
+    }
+
+    static void UnlockEscortOffer(NpcTaskOffer offer)
+    {
+        if (offer == null)
+        {
+            return;
+        }
+
+        lockedEscortOffers.Remove(offer);
+    }
+
+    static void CleanupEscortLocks()
+    {
+        staleLockedEscortOffers.Clear();
+        foreach (NpcTaskOffer offer in lockedEscortOffers)
+        {
+            if (offer == null)
+            {
+                staleLockedEscortOffers.Add(offer);
+            }
+        }
+
+        foreach (NpcTaskOffer offer in staleLockedEscortOffers)
+        {
+            lockedEscortOffers.Remove(offer);
+        }
+    }
+
     [Header("Tavern Service")]
     public bool serveMeals = true;
     public int mealCost = 1;
@@ -272,6 +341,22 @@ public class NpcTaskProvider : MonoBehaviour
     public Transform gatherPoint;
     public Transform patrolPoint;
     public Transform deliverPoint;
+
+    [Header("Escort Task")]
+    public Transform escortMeetPoint;
+    public Transform escortCompletionPoint;
+    [Min(0.5f)] public float escortNpcSearchRadius = 1.6f;
+    [Min(0.5f)] public float escortGreetingDuration = 3f;
+    [Min(0.1f)] public float escortFollowDistance = 0.9f;
+    [Min(0.5f)] public float escortThreatDetectRadius = 5f;
+    [Min(0.5f)] public float escortThreatAvoidRadius = 6f;
+    [Min(0.1f)] public float escortThreatAvoidDuration = 8f;
+    [Min(0.1f)] public float escortThreatFightPowerRatio = 1.05f;
+    [Min(0.1f)] public float escortThreatFleePowerRatio = 0.85f;
+    [Min(0.2f)] public float escortAttackInterval = 1.2f;
+    Vector3 escortMeetAnchorPosition;
+    Vector3 escortCompletionAnchorPosition;
+    bool escortAnchorPositionsCaptured;
 
     [Header("Harvest Delivery")]
     public bool includeLinhRiceHarvestTask = true;
@@ -329,6 +414,8 @@ public class NpcTaskProvider : MonoBehaviour
     public NpcMapArea forestSearchArea;
     public Transform forestEntryPoint;
     public Transform forestDeepPoint;
+    [Min(0.1f)]
+    public float forestTeleportExitBuffer = 1.5f;
     [Range(0f, 1f)]
     public float gatherDepthMin = 0.15f;
     [Range(0f, 1f)]
@@ -489,6 +576,8 @@ public class NpcTaskProvider : MonoBehaviour
                 return TaskName("protectCultivation");
             case NpcTaskType.Deliver:
                 return TaskName("transportSpiritMaterial");
+            case NpcTaskType.Escort:
+                return TaskName("escortCaravan");
             case NpcTaskType.HarvestAndDeliver:
                 return TaskName("harvestLinhRice");
             case NpcTaskType.GatherResource:
@@ -511,8 +600,8 @@ public class NpcTaskProvider : MonoBehaviour
     {
         List<NpcTaskOffer> defaultOffers = new List<NpcTaskOffer>
         {
-            CreateGatherOffer(TaskName("gatherHerbsAroundForest"), NpcTaskRank.Ha, CultivationRealm.QiRefining, 1, 6, 900, 15, 10f),
-            CreateGatherOffer(TaskName("gatherLowHerbs"), NpcTaskRank.Ha, CultivationRealm.QiRefining, 3, 8, 1400, 25, 12f),
+            CreateGatherOffer(TaskName("gatherHerbsAroundForest"), NpcTaskRank.Ha, CultivationRealm.Mortal, 1, 6, 900, 15, 10f),
+            CreateGatherOffer(TaskName("gatherLowHerbs"), NpcTaskRank.Ha, CultivationRealm.Mortal, 1, 8, 1400, 25, 12f),
             CreateGatherOffer(TaskName("gatherSpiritMaterialsNearMaThuSon"), NpcTaskRank.Trung, CultivationRealm.Foundation, 1, 10, 6500, 80, 15f),
             CreateGatherOffer(TaskName("gatherMidSpiritMedicine"), NpcTaskRank.Trung, CultivationRealm.Foundation, 4, 12, 9500, 120, 18f),
             CreateGatherOffer(TaskName("findRareHerbDeepMountain"), NpcTaskRank.Thuong, CultivationRealm.GoldenCore, 1, 8, 42000, 420, 24f),
@@ -523,12 +612,12 @@ public class NpcTaskProvider : MonoBehaviour
             CreateHuntOffer(TaskName("huntBeastLv3ForInnerCore"), NpcTaskRank.Thuong, CultivationRealm.GoldenCore, 1, 3, 2, 180000, 1400, 54f),
             CreateHuntOffer(TaskName("killGoldenCoreDangerousBeast"), NpcTaskRank.Thuong, CultivationRealm.GoldenCore, 5, 3, 3, 320000, 2400, 60f),
             CreateHuntOffer(TaskName("pursueBeastLv4"), NpcTaskRank.Thuong, CultivationRealm.NascentSoul, 1, 4, 1, 650000, 5200, 72f),
-            CreateHuntAnimalOffer(TaskName("huntDeerAntler"), NpcTaskRank.Ha, CultivationRealm.QiRefining, 1, 2, 1600, 15, 18f),
-            CreateHuntAnimalOffer(TaskName("trapForestRabbit"), NpcTaskRank.Ha, CultivationRealm.QiRefining, 1, 3, 1200, 12, 16f),
-            CreatePatrolOffer(TaskName("patrolVillageEdge"), NpcTaskRank.Ha, CultivationRealm.QiRefining, 2, 1800, 20, 16f),
+            CreateHuntAnimalOffer(TaskName("huntDeerAntler"), NpcTaskRank.Ha, CultivationRealm.Mortal, 1, 2, 1600, 15, 18f),
+            CreateHuntAnimalOffer(TaskName("trapForestRabbit"), NpcTaskRank.Ha, CultivationRealm.Mortal, 1, 3, 1200, 12, 16f),
+            CreatePatrolOffer(TaskName("patrolVillageEdge"), NpcTaskRank.Ha, CultivationRealm.Mortal, 1, 1800, 20, 16f),
             CreatePatrolOffer(TaskName("patrolMaThuSonRoad"), NpcTaskRank.Trung, CultivationRealm.Foundation, 2, 12000, 130, 22f),
             CreatePatrolOffer(TaskName("suppressDemonicAura"), NpcTaskRank.Thuong, CultivationRealm.GoldenCore, 3, 90000, 800, 32f),
-            CreateSimpleOffer(TaskName("escortCaravan"), NpcTaskType.Deliver, NpcTaskRank.Ha, CultivationRealm.QiRefining, 1, 2200, 20, 14f),
+            CreateSimpleOffer(TaskName("escortCaravan"), NpcTaskType.Escort, NpcTaskRank.Ha, CultivationRealm.QiRefining, 1, 2200, 20, 14f),
             CreateSimpleOffer(TaskName("transportSpiritMaterial"), NpcTaskType.Deliver, NpcTaskRank.Trung, CultivationRealm.Foundation, 2, 15000, 150, 20f),
             CreateSimpleOffer(TaskName("protectCultivation"), NpcTaskType.Cultivate, NpcTaskRank.Trung, CultivationRealm.Foundation, 1, 18000, 260, 26f),
         };
@@ -634,6 +723,8 @@ public class NpcTaskProvider : MonoBehaviour
         }
 
         CaptureStationaryPosition();
+        CaptureEscortAnchorPositions();
+        FreezeEscortAnchors();
         ConfigureStationaryProvider();
         EnsureExpandedDefaultOffers();
         NormalizeConfiguredOfferText();
@@ -655,6 +746,7 @@ public class NpcTaskProvider : MonoBehaviour
 
             runningTasks.RemoveAt(i);
             UnmarkNpcBusyWithProvider(task != null ? task.npc : null);
+            RestoreEscortCompanionHome(task);
             ResumeBaseAi(task);
 
             if (canReward)
@@ -711,6 +803,8 @@ public class NpcTaskProvider : MonoBehaviour
         EnsureProviderInventory();
         lastTaskGoodsTransferDay = GetCurrentWorldDay();
         CaptureStationaryPosition();
+        CaptureEscortAnchorPositions();
+        FreezeEscortAnchors();
         ConfigureStationaryProvider();
         EnsureExpandedDefaultOffers();
         NormalizeConfiguredOfferText();
@@ -827,6 +921,7 @@ public class NpcTaskProvider : MonoBehaviour
         foreach (NpcTaskOffer offer in shuffled)
         {
             if (offer == null ||
+                !IsOfferWorldAvailable(offer) ||
                 !CanNpcAcceptOffer(npc, offer))
             {
                 continue;
@@ -850,7 +945,31 @@ public class NpcTaskProvider : MonoBehaviour
                 shuffled[Random.Range(0, shuffled.Length)];
 
             if (offer == null ||
+                !IsOfferWorldAvailable(offer) ||
                 !CanNpcAcceptOffer(npc, offer))
+            {
+                continue;
+            }
+
+            result.Add(offer);
+        }
+
+        return result;
+    }
+
+    public List<NpcTaskOffer> GetVisibleOffers()
+    {
+        List<NpcTaskOffer> result = new List<NpcTaskOffer>();
+
+        if (offers == null ||
+            offers.Length == 0)
+        {
+            return result;
+        }
+
+        foreach (NpcTaskOffer offer in offers)
+        {
+            if (!IsOfferWorldAvailable(offer))
             {
                 continue;
             }
@@ -1085,7 +1204,7 @@ public class NpcTaskProvider : MonoBehaviour
                     : TavernTaskStage.GoingToBoard)
                 : TavernTaskStage.GoingToWork,
             counterPosition = GetCounterPosition(npc),
-            boardPosition = GetBoardPosition(),
+            boardPosition = GetBoardPosition(npc),
             providerPosition = GetProviderPositionFor(npc),
             workPosition = GetWorkPosition(offer),
             remainingTime = startAtProvider
@@ -1108,6 +1227,11 @@ public class NpcTaskProvider : MonoBehaviour
         PauseBaseAi(task);
         runningTasks.Add(task);
         MarkNpcBusyWithProvider(npc);
+
+        if (offer.taskType == NpcTaskType.Escort)
+        {
+            LockEscortOffer(offer);
+        }
 
         NpcRoleUtility.SetAction(
             npc,
@@ -1275,6 +1399,12 @@ public class NpcTaskProvider : MonoBehaviour
                     break;
 
                 case TavernTaskStage.GoingToWork:
+                    if (IsEscortTask(task))
+                    {
+                        UpdateEscortTravel(task);
+                        break;
+                    }
+
                     if (IsGatherTask(task))
                     {
                         UpdateGatherTravel(task);
@@ -1302,6 +1432,12 @@ public class NpcTaskProvider : MonoBehaviour
                     break;
 
                 case TavernTaskStage.Working:
+                    if (IsEscortTask(task))
+                    {
+                        UpdateEscortMeeting(task);
+                        break;
+                    }
+
                     if (IsGatherTask(task))
                     {
                         UpdateGatherWork(task);
@@ -1326,6 +1462,18 @@ public class NpcTaskProvider : MonoBehaviour
                     break;
                 case TavernTaskStage.WaitingForTargetRespawn:
                     task.remainingTime -= Time.deltaTime;
+                    if (!IsNpcAtHuntWorkPosition(task))
+                    {
+                        MoveNpc(
+                            task.npc,
+                            task.workPosition,
+                            GetWorkZone(task.offer));
+                        NpcRoleUtility.SetAction(
+                            task.npc,
+                            TaskActionFormat("huntSearch", BuildHuntProgressText(task)));
+                        break;
+                    }
+
                     NpcRoleUtility.SetAction(
                         task.npc,
                         TaskActionFormat("waitHuntRespawn", BuildHuntProgressText(task)));
@@ -1577,7 +1725,7 @@ public class NpcTaskProvider : MonoBehaviour
         int requiredLevel = GetRequiredBeastLevel(offer);
         foreach (MonsterAI monster in FindObjectsByType<MonsterAI>(FindObjectsInactive.Exclude))
         {
-            if (!IsHuntTargetUsable(monster))
+            if (!IsWorkThreatMonster(monster))
             {
                 continue;
             }
@@ -1650,6 +1798,12 @@ public class NpcTaskProvider : MonoBehaviour
             return;
         }
 
+        if (IsEscortTask(task))
+        {
+            PrepareEscortTask(task);
+            return;
+        }
+
         if (IsGatherTask(task))
         {
             task.collectedAmount = Mathf.Clamp(
@@ -1660,7 +1814,7 @@ public class NpcTaskProvider : MonoBehaviour
             task.targetPickup = FindGatherPickup(task);
             if (task.targetPickup != null)
             {
-                ReserveGatherPickupForTask(task.targetPickup);
+                ReserveGatherPickupForTask(task.targetPickup, task.npc);
                 task.workPosition = task.targetPickup.transform.position;
             }
             return;
@@ -1694,10 +1848,10 @@ public class NpcTaskProvider : MonoBehaviour
             return;
         }
 
-        if (!IsGatherPickupUsable(task.targetPickup, GetTaskRequiredItem(task)))
+        if (!IsGatherPickupUsable(task.targetPickup, GetTaskRequiredItem(task), task.npc))
         {
             task.targetPickup = FindGatherPickup(task);
-            ReserveGatherPickupForTask(task.targetPickup);
+            ReserveGatherPickupForTask(task.targetPickup, task.npc);
         }
 
         if (task.targetPickup == null)
@@ -1709,7 +1863,7 @@ public class NpcTaskProvider : MonoBehaviour
             return;
         }
 
-        ReserveGatherPickupForTask(task.targetPickup);
+        ReserveGatherPickupForTask(task.targetPickup, task.npc);
         task.workPosition = task.targetPickup.transform.position;
         MoveNpcToWork(task, task.workPosition);
         NpcRoleUtility.SetAction(
@@ -1722,7 +1876,9 @@ public class NpcTaskProvider : MonoBehaviour
             task.remainingTime = GetGatherWorkDuration(task);
         }
     }
-    void ReserveGatherPickupForTask(WorldStatItemPickup pickup)
+    void ReserveGatherPickupForTask(
+        WorldStatItemPickup pickup,
+        GameObject npc = null)
     {
         if (pickup == null)
         {
@@ -1731,6 +1887,11 @@ public class NpcTaskProvider : MonoBehaviour
 
         pickup.allowNpcPickup = true;
         pickup.requireNpcHarvestAction = true;
+
+        if (npc != null)
+        {
+            pickup.TryReserve(npc, 6f);
+        }
     }
     bool IsNpcAtGatherPickup(RunningNpcTask task)
     {
@@ -1769,7 +1930,7 @@ public class NpcTaskProvider : MonoBehaviour
             return;
         }
 
-        if (!IsGatherPickupUsable(task.targetPickup, GetTaskRequiredItem(task)))
+        if (!IsGatherPickupUsable(task.targetPickup, GetTaskRequiredItem(task), task.npc))
         {
             task.targetPickup = null;
             task.stage = TavernTaskStage.GoingToWork;
@@ -1914,6 +2075,335 @@ public class NpcTaskProvider : MonoBehaviour
             NpcRoleUtility.GetAttack(task.npc),
             "lam nhiem vu san yeu thu");
     }
+
+    void UpdateEscortMeeting(RunningNpcTask task)
+    {
+        if (!IsEscortCompanionUsable(task))
+        {
+            FinishTask(runningTasks.IndexOf(task), false);
+            return;
+        }
+
+        if (!task.escortGreetingConversationStarted)
+        {
+            task.escortGreetingConversationStarted = true;
+            task.escortGreetingConversationStep = 0;
+            task.remainingTime = 0f;
+        }
+
+        if (!UpdateEscortGreetingDialogue(task))
+        {
+            return;
+        }
+
+        NpcRoleUtility.StopForConversation(task.npc);
+        NpcRoleUtility.StopForConversation(task.escortCompanionNpc);
+        task.escortDepartedFromCompanion = true;
+        task.workPosition = GetEscortCompletionPosition(task.offer);
+        task.stage = TavernTaskStage.GoingToWork;
+    }
+
+    void UpdateEscortTravel(RunningNpcTask task)
+    {
+        if (!IsEscortCompanionUsable(task))
+        {
+            FinishTask(runningTasks.IndexOf(task), false);
+            return;
+        }
+
+        if (!task.escortDepartedFromCompanion)
+        {
+            Vector3 greetingPosition = GetEscortGreetingPosition(task);
+            MoveNpc(task.npc, greetingPosition);
+            NpcRoleUtility.SetAction(
+                task.npc,
+                TaskActionFormat("goWorkTask", GetTaskDisplayText(task)));
+
+            if (Vector2.Distance(
+                    task.npc.transform.position,
+                    greetingPosition) <= Mathf.Max(
+                        arriveDistance,
+                        escortFollowDistance * 0.75f))
+            {
+                NpcRoleUtility.StopForConversation(task.npc);
+                NpcRoleUtility.StopForConversation(task.escortCompanionNpc);
+                task.remainingTime = Mathf.Max(
+                    1f,
+                escortGreetingDuration);
+                task.stage = TavernTaskStage.Working;
+            }
+
+            return;
+        }
+
+        if (HandleEscortThreat(task))
+        {
+            return;
+        }
+
+        Vector3 deliveryGreetingPosition = GetEscortCompletionGreetingPosition(task);
+        MoveNpc(task.npc, deliveryGreetingPosition);
+        MoveEscortCompanion(task);
+        NpcRoleUtility.SetAction(
+            task.npc,
+            TaskActionFormat("goWorkTask", GetTaskDisplayText(task)));
+
+        if (Vector2.Distance(
+                task.npc.transform.position,
+                deliveryGreetingPosition) <= Mathf.Max(
+                    arriveDistance,
+                    escortFollowDistance * 0.75f) &&
+            Vector2.Distance(
+                task.escortCompanionNpc.transform.position,
+                deliveryGreetingPosition) <= Mathf.Max(
+                    arriveDistance,
+                    escortFollowDistance))
+        {
+            if (!task.escortDeliveryConversationStarted)
+            {
+                task.escortDeliveryConversationStarted = true;
+                task.escortDeliveryConversationStep = 0;
+                task.remainingTime = 0f;
+            }
+
+            if (!UpdateEscortDeliveryDialogue(task))
+            {
+                ConfirmEscortDelivery(task);
+            }
+        }
+    }
+
+    bool HandleEscortThreat(RunningNpcTask task)
+    {
+        if (!IsEscortCompanionUsable(task))
+        {
+            return false;
+        }
+
+        if (Time.time < task.escortAvoidUntilTime)
+        {
+            MoveNpc(task.npc, task.escortAvoidPosition);
+            MoveEscortCompanion(task);
+            NpcRoleUtility.SetAction(
+                task.npc,
+                TaskAction("fleeMonsterArea"));
+            return true;
+        }
+
+        MonsterAI threat = FindEscortThreat(task);
+        if (!IsHuntTargetUsable(threat))
+        {
+            task.escortThreatMonster = null;
+            return false;
+        }
+
+        task.escortThreatMonster = threat;
+
+        if (ShouldFleeEscortThreat(task, threat))
+        {
+            FleeEscortThreat(task, threat);
+            return true;
+        }
+
+        if (ShouldFightEscortThreat(task, threat))
+        {
+            FightEscortThreat(task, threat);
+            return true;
+        }
+
+        MoveNpc(
+            task.npc,
+            GetRetreatPosition(task.npc.transform.position, threat.transform.position));
+        MoveEscortCompanion(task);
+        NpcRoleUtility.SetAction(
+            task.npc,
+            TaskAction("guardSpiritHerbMonster"));
+        return true;
+    }
+
+    MonsterAI FindEscortThreat(RunningNpcTask task)
+    {
+        if (!IsEscortCompanionUsable(task))
+        {
+            return null;
+        }
+
+        Vector3 companionPosition = task.escortCompanionNpc.transform.position;
+        Vector3 leaderPosition = task.npc.transform.position;
+        Vector3 destinationPosition = task.workPosition;
+
+        MonsterAI best = null;
+        float bestDistance = float.PositiveInfinity;
+        float detectRadius = Mathf.Max(0.5f, escortThreatDetectRadius);
+
+        foreach (MonsterAI monster in FindObjectsByType<MonsterAI>(FindObjectsInactive.Exclude))
+        {
+            if (!IsWorkThreatMonster(monster))
+            {
+                continue;
+            }
+
+            float distanceToLeader = Vector2.Distance(leaderPosition, monster.transform.position);
+            float distanceToCompanion = Vector2.Distance(companionPosition, monster.transform.position);
+            float distanceToDestination = Vector2.Distance(destinationPosition, monster.transform.position);
+
+            if (distanceToLeader > detectRadius &&
+                distanceToCompanion > detectRadius &&
+                distanceToDestination > detectRadius)
+            {
+                continue;
+            }
+
+            float score = Mathf.Min(
+                distanceToLeader,
+                Mathf.Min(distanceToCompanion, distanceToDestination));
+
+            if (score < bestDistance)
+            {
+                bestDistance = score;
+                best = monster;
+            }
+        }
+
+        return best;
+    }
+
+    bool ShouldFightEscortThreat(RunningNpcTask task, MonsterAI threat)
+    {
+        return GetNpcCombatPower(task.npc) >=
+            GetMonsterCombatPower(threat) * Mathf.Max(0.1f, escortThreatFightPowerRatio);
+    }
+
+    bool ShouldFleeEscortThreat(RunningNpcTask task, MonsterAI threat)
+    {
+        return GetNpcCombatPower(task.npc) <=
+            GetMonsterCombatPower(threat) * Mathf.Max(0.1f, escortThreatFleePowerRatio);
+    }
+
+    void FightEscortThreat(RunningNpcTask task, MonsterAI threat)
+    {
+        if (task == null ||
+            task.npc == null ||
+            threat == null)
+        {
+            return;
+        }
+
+        float distance = Vector2.Distance(
+            task.npc.transform.position,
+            threat.transform.position);
+
+        if (distance > huntAttackRange)
+        {
+            MoveNpcToWork(task, threat.transform.position);
+            MoveEscortCompanion(task);
+            NpcRoleUtility.SetAction(
+                task.npc,
+                TaskAction("fightBlockingMonster"));
+            return;
+        }
+
+        NpcRoleUtility.StopForConversation(task.npc);
+        NpcRoleUtility.SetAction(
+            task.npc,
+            TaskAction("clearHarvestMonster"));
+
+        task.remainingTime -= Time.deltaTime;
+        if (task.remainingTime > 0f)
+        {
+            MoveEscortCompanion(task);
+            return;
+        }
+
+        task.remainingTime = Mathf.Max(0.2f, escortAttackInterval);
+        NpcRoleUtility.Damage(
+            task.npc,
+            threat.gameObject,
+            NpcRoleUtility.GetAttack(task.npc),
+            "bao ve yeu thu");
+        MoveEscortCompanion(task);
+    }
+
+    void FleeEscortThreat(RunningNpcTask task, MonsterAI threat)
+    {
+        task.escortAvoidPosition =
+            GetRetreatPosition(task.npc.transform.position, threat.transform.position);
+        task.escortAvoidUntilTime =
+            Time.time + Mathf.Max(1f, escortThreatAvoidDuration);
+
+        MoveNpc(task.npc, task.escortAvoidPosition);
+        MoveEscortCompanion(task);
+        NpcRoleUtility.SetAction(
+            task.npc,
+            TaskAction("tooStrongChangeHarvestArea"));
+    }
+
+    void MoveEscortCompanion(RunningNpcTask task)
+    {
+        if (task == null ||
+            task.escortCompanionNpc == null ||
+            NpcRoleUtility.IsDead(task.escortCompanionNpc))
+        {
+            return;
+        }
+
+        Vector3 followTarget = task.escortDepartedFromCompanion
+            ? GetEscortFollowPosition(task)
+            : GetEscortCompanionPosition(task.offer);
+
+        if (Vector2.Distance(
+                task.escortCompanionNpc.transform.position,
+                followTarget) <= Mathf.Max(0.25f, escortFollowDistance * 0.5f))
+        {
+            return;
+        }
+
+        MoveNpc(task.escortCompanionNpc, followTarget);
+        NpcRoleUtility.SetAction(
+            task.escortCompanionNpc,
+            TaskAction("followTaskRoute"));
+    }
+
+    bool IsEscortCompanionUsable(RunningNpcTask task)
+    {
+        return task != null &&
+            task.npc != null &&
+            task.offer != null &&
+            task.offer.taskType == NpcTaskType.Escort &&
+            task.escortCompanionNpc != null &&
+            task.escortCompletionNpc != null &&
+            task.escortCompanionNpc.activeInHierarchy &&
+            task.escortCompletionNpc.activeInHierarchy &&
+            !NpcRoleUtility.IsDead(task.npc) &&
+            !NpcRoleUtility.IsDead(task.escortCompanionNpc) &&
+            !NpcRoleUtility.IsDead(task.escortCompletionNpc);
+    }
+
+    void ConfirmEscortDelivery(RunningNpcTask task)
+    {
+        if (task == null ||
+            task.offer == null)
+        {
+            return;
+        }
+
+        task.escortConfirmed = true;
+        NpcRoleUtility.StopForConversation(task.npc);
+        if (task.escortCompanionNpc != null)
+        {
+            RestoreEscortCompanionHome(task);
+        }
+
+        if (task.escortCompletionNpc != null)
+        {
+            NpcRoleUtility.SetAction(
+                task.escortCompletionNpc,
+                TaskAction("taskCompleted"));
+        }
+
+        task.stage = TavernTaskStage.ReturningToTurnIn;
+    }
+
     void WaitForHuntTargetRespawn(RunningNpcTask task)
     {
         if (task == null)
@@ -1926,18 +2416,28 @@ public class NpcTaskProvider : MonoBehaviour
         task.targetMonster = null;
         task.targetLootPickup = null;
 
-        if (!task.resumedBaseAiWhileWaiting)
+        task.resumedBaseAiWhileWaiting = false;
+
+        if (task.npc == null)
         {
-            ResumeBaseAi(task);
-            task.resumedBaseAiWhileWaiting = true;
+            return;
         }
 
-        if (task.npc != null)
+        if (IsNpcAtHuntWorkPosition(task))
         {
             NpcRoleUtility.SetAction(
                 task.npc,
                 TaskActionFormat("waitHuntRespawn", BuildHuntProgressText(task)));
+            return;
         }
+
+        MoveNpc(
+            task.npc,
+            task.workPosition,
+            GetWorkZone(task.offer));
+        NpcRoleUtility.SetAction(
+            task.npc,
+            TaskActionFormat("huntSearch", BuildHuntProgressText(task)));
     }
 
     void ResumeWaitingHuntTask(RunningNpcTask task)
@@ -1947,14 +2447,23 @@ public class NpcTaskProvider : MonoBehaviour
             return;
         }
 
-        if (task.resumedBaseAiWhileWaiting)
-        {
-            PauseBaseAi(task);
-            task.resumedBaseAiWhileWaiting = false;
-        }
-
+        task.resumedBaseAiWhileWaiting = false;
         PrepareTaskWork(task);
         task.stage = TavernTaskStage.GoingToWork;
+    }
+
+    bool IsNpcAtHuntWorkPosition(RunningNpcTask task)
+    {
+        if (task == null ||
+            task.npc == null)
+        {
+            return false;
+        }
+
+        return Vector2.Distance(
+            task.npc.transform.position,
+            task.workPosition) <=
+            Mathf.Max(arriveDistance, huntAttackRange * 0.5f);
     }
 
     bool NeedsHuntItem(RunningNpcTask task)
@@ -2165,6 +2674,26 @@ public class NpcTaskProvider : MonoBehaviour
             monster.currentHP > 0;
     }
 
+    bool IsWorkThreatMonster(MonsterAI monster)
+    {
+        if (!IsHuntTargetUsable(monster))
+        {
+            return false;
+        }
+
+        float menace =
+            monster.aggression * 0.45f +
+            monster.bloodlust * 0.35f +
+            monster.territorial * 0.2f;
+
+        if (monster.huntTargetType == HuntTargetType.Animal)
+        {
+            menace -= 25f;
+        }
+
+        return menace >= 35f;
+    }
+
     bool HandleGatherThreat(RunningNpcTask task)
     {
         if (!IsGatherTask(task) ||
@@ -2226,7 +2755,7 @@ public class NpcTaskProvider : MonoBehaviour
 
         foreach (MonsterAI monster in FindObjectsByType<MonsterAI>(FindObjectsInactive.Exclude))
         {
-            if (!IsHuntTargetUsable(monster))
+            if (!IsWorkThreatMonster(monster))
             {
                 continue;
             }
@@ -2430,7 +2959,7 @@ public class NpcTaskProvider : MonoBehaviour
         if (task == null ||
             task.npc == null ||
             task.offer == null ||
-            !IsGatherPickupUsable(task.targetPickup, GetTaskRequiredItem(task)))
+            !IsGatherPickupUsable(task.targetPickup, GetTaskRequiredItem(task), task.npc))
         {
             return false;
         }
@@ -2465,7 +2994,8 @@ public class NpcTaskProvider : MonoBehaviour
         return WorldResourceField.GetNearestAvailablePickupInAllFields(
             GetTaskSearchPosition(task),
             GetTaskRequiredItem(task),
-            GetGatherRequiredZone(task.offer));
+            GetGatherRequiredZone(task.offer),
+            task.npc);
     }
 
     Vector3 GetTaskSearchPosition(RunningNpcTask task)
@@ -2483,13 +3013,15 @@ public class NpcTaskProvider : MonoBehaviour
 
     bool IsGatherPickupUsable(
         WorldStatItemPickup pickup,
-        StatItemData requiredItem)
+        StatItemData requiredItem,
+        GameObject requester = null)
     {
         return pickup != null &&
             pickup.gameObject.activeInHierarchy &&
             pickup.item != null &&
             pickup.amount > 0 &&
             pickup.allowNpcPickup &&
+            !pickup.IsReservedByOther(requester) &&
             (requiredItem == null || pickup.item == requiredItem);
     }
 
@@ -2531,6 +3063,11 @@ public class NpcTaskProvider : MonoBehaviour
             return false;
         }
 
+        if (IsEscortTask(task))
+        {
+            return task.escortConfirmed;
+        }
+
         if (IsGatherTask(task))
         {
             return HasGatherObjectiveComplete(task);
@@ -2564,10 +3101,9 @@ public class NpcTaskProvider : MonoBehaviour
     string GetTaskRequiredItemName(RunningNpcTask task)
     {
         StatItemData item = GetTaskRequiredItem(task);
-        if (item != null &&
-            !string.IsNullOrEmpty(item.itemName))
+        if (item != null)
         {
-            return item.itemName;
+            return ItemText.Name(item);
         }
 
         if (task != null &&
@@ -2728,10 +3264,9 @@ public class NpcTaskProvider : MonoBehaviour
     {
         StatItemData requiredItem = GetPlannedRequiredItem(offer);
 
-        if (requiredItem != null &&
-            !string.IsNullOrEmpty(requiredItem.itemName))
+        if (requiredItem != null)
         {
-            return requiredItem.itemName;
+            return ItemText.Name(requiredItem);
         }
 
         if (offer != null &&
@@ -3019,6 +3554,14 @@ public class NpcTaskProvider : MonoBehaviour
 
         runningTasks.RemoveAt(index);
         UnmarkNpcBusyWithProvider(task != null ? task.npc : null);
+        RestoreEscortCompanionHome(task);
+        ResumeEscortCompanion(task);
+        if (task != null &&
+            task.offer != null &&
+            task.offer.taskType == NpcTaskType.Escort)
+        {
+            UnlockEscortOffer(task.offer);
+        }
         ResumeBaseAi(task);
 
         if (!completed ||
@@ -3064,12 +3607,24 @@ public class NpcTaskProvider : MonoBehaviour
 
     NpcTaskOffer PickOfferFor(GameObject npc, bool autoAssigned)
     {
+        if (npc == null ||
+            offers == null ||
+            offers.Length == 0)
+        {
+            return null;
+        }
+
         NpcTaskOffer best = null;
         float minScore = GetMinAcceptanceScore(autoAssigned);
         float bestScore = minScore - 0.01f;
 
         foreach (NpcTaskOffer offer in offers)
         {
+            if (!IsOfferWorldAvailable(offer))
+            {
+                continue;
+            }
+
             float score = GetOfferAcceptanceScore(npc, offer, autoAssigned);
             if (score <= bestScore)
             {
@@ -3163,7 +3718,13 @@ public class NpcTaskProvider : MonoBehaviour
                 return true;
             }
 
-            return offer.taskType == NpcTaskType.HuntMonster &&
+            if (offer.taskType == NpcTaskType.HuntMonster &&
+                villager.bravery < minHuntTaskBravery)
+            {
+                return true;
+            }
+
+            return offer.taskType == NpcTaskType.Escort &&
                 villager.bravery < minHuntTaskBravery;
         }
 
@@ -3182,6 +3743,12 @@ public class NpcTaskProvider : MonoBehaviour
             }
 
             if (offer.taskType == NpcTaskType.HuntMonster &&
+                (!smartNpc.canFight || smartNpc.bravery < minHuntTaskBravery))
+            {
+                return true;
+            }
+
+            if (offer.taskType == NpcTaskType.Escort &&
                 (!smartNpc.canFight || smartNpc.bravery < minHuntTaskBravery))
             {
                 return true;
@@ -3214,7 +3781,8 @@ public class NpcTaskProvider : MonoBehaviour
             bonus += (villager.diligence - 50) * 0.2f;
 
             if (offer.taskType == NpcTaskType.HuntMonster ||
-                offer.taskType == NpcTaskType.Patrol)
+                offer.taskType == NpcTaskType.Patrol ||
+                offer.taskType == NpcTaskType.Escort)
             {
                 bonus += (villager.bravery - 50) * 0.25f;
             }
@@ -3230,7 +3798,9 @@ public class NpcTaskProvider : MonoBehaviour
                 bonus += Mathf.Clamp(100f - smartNpc.hunger, 0f, 100f) * 0.05f;
             }
 
-            if (offer.taskType == NpcTaskType.HuntMonster && smartNpc.canFight)
+            if ((offer.taskType == NpcTaskType.HuntMonster ||
+                offer.taskType == NpcTaskType.Escort) &&
+                smartNpc.canFight)
             {
                 bonus += 20f;
             }
@@ -3240,7 +3810,12 @@ public class NpcTaskProvider : MonoBehaviour
                 bonus += 20f;
             }
 
-            bonus += (smartNpc.bravery - 50) * 0.25f;
+            if (offer.taskType == NpcTaskType.HuntMonster ||
+                offer.taskType == NpcTaskType.Patrol ||
+                offer.taskType == NpcTaskType.Escort)
+            {
+                bonus += (smartNpc.bravery - 50) * 0.25f;
+            }
         }
 
         return bonus;
@@ -3264,6 +3839,13 @@ public class NpcTaskProvider : MonoBehaviour
     bool CurrentActionContains(string action, string key)
     {
         string text = TaskAction(key);
+        if (!string.IsNullOrEmpty(text) &&
+            action.Contains(text))
+        {
+            return true;
+        }
+
+        text = NpcText.Action(key);
         return !string.IsNullOrEmpty(text) &&
             action.Contains(text);
     }
@@ -3326,20 +3908,16 @@ public class NpcTaskProvider : MonoBehaviour
             return 0f;
         }
 
+        if (!IsOfferWorldAvailable(offer))
+        {
+            return 0f;
+        }
+
         float score = 10f;
         int npcPower = NpcRoleUtility.GetRealmPower(npc);
         int requiredPower = CultivationProgression.GetRealmPower(
             offer.minRealm,
             Mathf.Clamp(offer.minRealmStage, 1, CultivationProgression.MaxStage));
-
-        if (RequiresExplicitRequiredItem(offer))
-        {
-            StatItemData requiredItem = ResolveTaskRequiredItem(npc, offer);
-            if (!HasAvailableTaskPickup(offer, requiredItem))
-            {
-                return 0f;
-            }
-        }
 
         score += Mathf.Clamp(npcPower - requiredPower, 0, 80) * 0.25f;
 
@@ -3356,7 +3934,8 @@ public class NpcTaskProvider : MonoBehaviour
                 case VillagerJob.Hunter:
                 case VillagerJob.Guard:
                     if (offer.taskType == NpcTaskType.HuntMonster ||
-                        offer.taskType == NpcTaskType.Patrol)
+                        offer.taskType == NpcTaskType.Patrol ||
+                        offer.taskType == NpcTaskType.Escort)
                     {
                         score += 35f;
                     }
@@ -3384,7 +3963,8 @@ public class NpcTaskProvider : MonoBehaviour
             }
 
             if (villager.bravery < 45 &&
-                offer.taskType == NpcTaskType.HuntMonster)
+                (offer.taskType == NpcTaskType.HuntMonster ||
+                    offer.taskType == NpcTaskType.Escort))
             {
                 score -= 45f;
             }
@@ -3404,6 +3984,12 @@ public class NpcTaskProvider : MonoBehaviour
                 score += 30f;
             }
 
+            if (offer.taskType == NpcTaskType.Escort &&
+                smartNpc.canFight)
+            {
+                score += 25f;
+            }
+
             if (offer.taskType == NpcTaskType.Cultivate &&
                 smartNpc.canCultivate)
             {
@@ -3412,7 +3998,8 @@ public class NpcTaskProvider : MonoBehaviour
         }
 
         if ((offer.taskType == NpcTaskType.HuntMonster ||
-            offer.taskType == NpcTaskType.Patrol) &&
+            offer.taskType == NpcTaskType.Patrol ||
+            offer.taskType == NpcTaskType.Escort) &&
             NpcMapArea.FindNearestAreaInZone(NpcMapZone.MaThuSonMach, transform.position) != null)
         {
             score += 10f;
@@ -3421,8 +4008,58 @@ public class NpcTaskProvider : MonoBehaviour
         return Mathf.Max(0f, score);
     }
 
+    bool IsOfferWorldAvailable(NpcTaskOffer offer)
+    {
+        if (offer == null)
+        {
+            return false;
+        }
+
+        switch (offer.taskType)
+        {
+            case NpcTaskType.GatherResource:
+            {
+                StatItemData requiredItem = ResolveTaskRequiredItem(null, offer);
+                return HasAvailableTaskPickup(offer, requiredItem);
+            }
+
+            case NpcTaskType.HuntMonster:
+                return FindDeathLootForHuntOffer(offer) != null;
+
+            case NpcTaskType.HarvestAndDeliver:
+            {
+                StatItemData linhRice = ResolveLinhRiceItem();
+                return linhRice != null &&
+                    HasAvailableTaskPickup(offer, linhRice);
+            }
+
+            case NpcTaskType.Patrol:
+                return patrolPoint != null;
+
+            case NpcTaskType.Deliver:
+                return deliverPoint != null;
+
+            case NpcTaskType.Escort:
+                return IsEscortConfigured(offer) &&
+                    !IsEscortOfferLocked(offer) &&
+                    HasEscortParticipantsAvailable(offer);
+
+            case NpcTaskType.Cultivate:
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
     NpcTaskOffer[] ShuffleOffers()
     {
+        if (offers == null ||
+            offers.Length == 0)
+        {
+            return new NpcTaskOffer[0];
+        }
+
         NpcTaskOffer[] shuffled =
             new NpcTaskOffer[offers.Length];
 
@@ -3674,7 +4311,7 @@ public class NpcTaskProvider : MonoBehaviour
             npc == null ||
             providerVisitorStandRadius <= 0.01f)
         {
-            return center;
+            return GetClearTaskPositionNear(center, npc);
         }
 
         int hash = Mathf.Abs(npc.GetInstanceID());
@@ -3683,7 +4320,7 @@ public class NpcTaskProvider : MonoBehaviour
             new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) *
             Mathf.Max(0f, providerVisitorStandRadius);
 
-        return center + (Vector3)offset;
+        return GetClearTaskPositionNear(center + (Vector3)offset, npc);
     }
 
     Vector3 GetMealPosition()
@@ -3697,23 +4334,25 @@ public class NpcTaskProvider : MonoBehaviour
     {
         if (counterPoint != null)
         {
-            return counterPoint.position;
+            return GetClearTaskPositionNear(counterPoint.position, npc);
         }
 
         NpcCounterBroker broker = NpcCounterBroker.Active;
         if (broker == null)
         {
-            return transform.position;
+            return GetClearTaskPositionNear(transform.position, npc);
         }
 
-        return broker.GetCustomerPositionFor(npc);
+        return GetClearTaskPositionNear(broker.GetCustomerPositionFor(npc), npc);
     }
 
-    Vector3 GetBoardPosition()
+    Vector3 GetBoardPosition(GameObject npc = null)
     {
-        return taskBoardPoint != null
+        Vector3 position = taskBoardPoint != null
             ? taskBoardPoint.position
             : transform.position;
+
+        return GetClearTaskPositionNear(position, npc);
     }
 
     Vector3 GetProviderPosition()
@@ -3733,6 +4372,59 @@ public class NpcTaskProvider : MonoBehaviour
             : transform.position;
     }
 
+    Vector3 GetClearTaskPositionNear(Vector3 position, GameObject npc)
+    {
+        position.z = transform.position.z;
+        if (!IsTaskPositionBlocked(position, npc))
+        {
+            return position;
+        }
+
+        float baseRadius = Mathf.Max(arriveDistance, providerVisitorStandRadius, 0.45f);
+        for (int radiusStep = 0; radiusStep < 6; radiusStep++)
+        {
+            float radius = baseRadius + radiusStep * 0.25f;
+            for (int angleStep = 0; angleStep < 16; angleStep++)
+            {
+                float angle =
+                    (angleStep / 16f) * Mathf.PI * 2f +
+                    radiusStep * 0.31f;
+                Vector3 candidate =
+                    position +
+                    new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0f) * radius;
+
+                if (!IsTaskPositionBlocked(candidate, npc))
+                {
+                    return candidate;
+                }
+            }
+        }
+
+        return position;
+    }
+
+    bool IsTaskPositionBlocked(Vector3 position, GameObject npc)
+    {
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(
+                position,
+                Mathf.Max(0.25f, arriveDistance));
+
+        foreach (Collider2D hit in hits)
+        {
+            if (hit == null ||
+                hit.isTrigger ||
+                (npc != null && hit.transform.IsChildOf(npc.transform)))
+            {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     Vector3 GetWorkPosition(NpcTaskOffer offer)
     {
         if (offer != null)
@@ -3742,22 +4434,46 @@ public class NpcTaskProvider : MonoBehaviour
                 case NpcTaskType.HuntMonster:
                     if (huntPoint != null)
                     {
-                        return huntPoint.position;
+                        Vector3 huntTarget = huntPoint.position;
+                        if (IsSafeForestWorkTarget(
+                                huntTarget,
+                                GetDepthMinForRank(offer.rank, huntDepthMin),
+                                GetDepthMaxForRank(offer.rank, huntDepthMax)))
+                        {
+                            return huntTarget;
+                        }
+
+                        return GetForestWorkPosition(
+                            null,
+                            GetDepthMinForRank(offer.rank, huntDepthMin),
+                            GetDepthMaxForRank(offer.rank, huntDepthMax));
                     }
 
                     return GetForestWorkPosition(
-                        huntPoint,
+                        null,
                         GetDepthMinForRank(offer.rank, huntDepthMin),
                         GetDepthMaxForRank(offer.rank, huntDepthMax));
 
                 case NpcTaskType.GatherResource:
                     if (gatherPoint != null)
                     {
-                        return gatherPoint.position;
+                        Vector3 gatherTarget = gatherPoint.position;
+                        if (IsSafeForestWorkTarget(
+                                gatherTarget,
+                                GetDepthMinForRank(offer.rank, gatherDepthMin),
+                                GetDepthMaxForRank(offer.rank, gatherDepthMax)))
+                        {
+                            return gatherTarget;
+                        }
+
+                        return GetForestWorkPosition(
+                            null,
+                            GetDepthMinForRank(offer.rank, gatherDepthMin),
+                            GetDepthMaxForRank(offer.rank, gatherDepthMax));
                     }
 
                     return GetForestWorkPosition(
-                        gatherPoint,
+                        null,
                         GetDepthMinForRank(offer.rank, gatherDepthMin),
                         GetDepthMaxForRank(offer.rank, gatherDepthMax));
 
@@ -3775,14 +4491,24 @@ public class NpcTaskProvider : MonoBehaviour
                     return GetFallbackWorkPosition();
 
                 case NpcTaskType.Patrol:
-                    return patrolPoint != null
-                        ? patrolPoint.position
-                        : GetForestWorkPosition(defaultWorkPoint, 0.25f, 0.75f);
+                    if (patrolPoint != null)
+                    {
+                        Vector3 patrolTarget = patrolPoint.position;
+                        if (IsSafeForestWorkTarget(patrolTarget, 0.25f, 0.75f))
+                        {
+                            return patrolTarget;
+                        }
+                    }
+
+                    return GetForestWorkPosition(null, 0.25f, 0.75f);
 
                 case NpcTaskType.Deliver:
                     return deliverPoint != null
                         ? deliverPoint.position
                         : GetFallbackWorkPosition();
+
+                case NpcTaskType.Escort:
+                    return GetEscortCompanionPosition(offer);
             }
         }
 
@@ -3832,10 +4558,27 @@ public class NpcTaskProvider : MonoBehaviour
         minDepth = Mathf.Clamp01(minDepth);
         maxDepth = Mathf.Clamp(maxDepth, minDepth, 1f);
 
+        if (fallbackPoint != null &&
+            IsSafeForestWorkTarget(
+                fallbackPoint.position,
+                area,
+                entry,
+                deep,
+                depthDirection,
+                minDepth,
+                maxDepth))
+        {
+            return fallbackPoint.position;
+        }
+
         Bounds bounds = area.areaBounds.bounds;
-        Vector3 best = fallbackPoint != null
-            ? fallbackPoint.position
-            : bounds.center;
+        Vector3 best = GetForestDepthFallbackCandidate(
+            area,
+            entry,
+            deep,
+            depthDirection,
+            minDepth,
+            maxDepth);
         float bestPenalty = float.PositiveInfinity;
 
         for (int i = 0; i < Mathf.Max(1, forestPointPickAttempts); i++)
@@ -3852,6 +4595,11 @@ public class NpcTaskProvider : MonoBehaviour
             }
 
             float depth = GetDepth01(candidate, entry, deep, depthDirection);
+            if (IsNearForestTeleportExit(candidate))
+            {
+                continue;
+            }
+
             if (depth >= minDepth && depth <= maxDepth)
             {
                 return candidate;
@@ -3868,7 +4616,167 @@ public class NpcTaskProvider : MonoBehaviour
             }
         }
 
+        if (IsSafeForestWorkTarget(
+                best,
+                area,
+                entry,
+                deep,
+                depthDirection,
+                minDepth,
+                maxDepth))
+        {
+            return best;
+        }
+
+        Vector3 safeFallback = GetForestDepthFallbackCandidate(
+            area,
+            entry,
+            deep,
+            depthDirection,
+            minDepth,
+            maxDepth);
+        if (IsSafeForestWorkTarget(
+                safeFallback,
+                area,
+                entry,
+                deep,
+                depthDirection,
+                minDepth,
+                maxDepth))
+        {
+            return safeFallback;
+        }
+
         return best;
+    }
+
+    bool IsSafeForestWorkTarget(
+        Vector3 candidate,
+        float minDepth,
+        float maxDepth)
+    {
+        NpcMapArea area = forestSearchArea != null
+            ? forestSearchArea
+            : NpcMapArea.FindNearestAreaInZone(
+                NpcMapZone.MaThuSonMach,
+                candidate);
+
+        if (area == null || area.areaBounds == null)
+        {
+            return false;
+        }
+
+        Vector3 entry = forestEntryPoint != null
+            ? forestEntryPoint.position
+            : area.areaBounds.bounds.min;
+
+        Vector3 deep = forestDeepPoint != null
+            ? forestDeepPoint.position
+            : area.areaBounds.bounds.max;
+
+        Vector2 depthDirection = (Vector2)(deep - entry);
+        if (depthDirection.sqrMagnitude <= 0.0001f)
+        {
+            depthDirection = Vector2.right;
+        }
+
+        depthDirection.Normalize();
+
+        return IsSafeForestWorkTarget(
+            candidate,
+            area,
+            entry,
+            deep,
+            depthDirection,
+            Mathf.Clamp01(minDepth),
+            Mathf.Clamp(maxDepth, Mathf.Clamp01(minDepth), 1f));
+    }
+
+    bool IsSafeForestWorkTarget(
+        Vector3 candidate,
+        NpcMapArea area,
+        Vector3 entry,
+        Vector3 deep,
+        Vector2 depthDirection,
+        float minDepth,
+        float maxDepth)
+    {
+        if (area == null ||
+            area.areaBounds == null)
+        {
+            return false;
+        }
+
+        Vector2 closest = area.areaBounds.ClosestPoint(candidate);
+        if (Vector2.Distance(closest, candidate) > 0.02f)
+        {
+            return false;
+        }
+
+        float depth = GetDepth01(candidate, entry, deep, depthDirection);
+        if (depth < minDepth ||
+            depth > maxDepth)
+        {
+            return false;
+        }
+
+        return !IsNearForestTeleportExit(candidate);
+    }
+
+    Vector3 GetForestDepthFallbackCandidate(
+        NpcMapArea area,
+        Vector3 entry,
+        Vector3 deep,
+        Vector2 depthDirection,
+        float minDepth,
+        float maxDepth)
+    {
+        if (area == null ||
+            area.areaBounds == null)
+        {
+            return transform.position;
+        }
+
+        float depth = Mathf.Clamp01((minDepth + maxDepth) * 0.5f);
+        Vector3 candidate = Vector3.Lerp(entry, deep, depth);
+        candidate = area.areaBounds.ClosestPoint(candidate);
+
+        if (!IsNearForestTeleportExit(candidate))
+        {
+            return candidate;
+        }
+
+        Vector3 deeperCandidate = Vector3.Lerp(entry, deep, Mathf.Clamp01(maxDepth));
+        deeperCandidate = area.areaBounds.ClosestPoint(deeperCandidate);
+        if (!IsNearForestTeleportExit(deeperCandidate))
+        {
+            return deeperCandidate;
+        }
+
+        Vector3 centerCandidate = area.areaBounds.bounds.center;
+        centerCandidate = area.areaBounds.ClosestPoint(centerCandidate);
+        return centerCandidate;
+    }
+
+    bool IsNearForestTeleportExit(Vector3 candidate)
+    {
+        float buffer = Mathf.Max(0.1f, forestTeleportExitBuffer);
+
+        foreach (NpcTeleportGate gate in NpcTeleportGate.Gates)
+        {
+            if (gate == null ||
+                gate.toZone != NpcMapZone.MaThuSonMach)
+            {
+                continue;
+            }
+
+            if (Vector2.Distance(candidate, gate.ExitPosition) <= buffer)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     float GetDepth01(
@@ -3972,6 +4880,465 @@ public class NpcTaskProvider : MonoBehaviour
         }
     }
 
+    bool IsEscortTask(RunningNpcTask task)
+    {
+        return task != null &&
+            task.offer != null &&
+            task.offer.taskType == NpcTaskType.Escort;
+    }
+
+    bool IsEscortConfigured(NpcTaskOffer offer)
+    {
+        return offer != null &&
+            offer.taskType == NpcTaskType.Escort &&
+            escortMeetPoint != null &&
+            escortCompletionPoint != null;
+    }
+
+    Vector3 GetEscortCompanionPosition(NpcTaskOffer offer)
+    {
+        if (escortAnchorPositionsCaptured)
+        {
+            return escortMeetAnchorPosition;
+        }
+
+        if (escortMeetPoint != null)
+        {
+            return escortMeetPoint.position;
+        }
+
+        return GetFallbackWorkPosition();
+    }
+
+    Vector3 GetEscortGreetingPosition(RunningNpcTask task)
+    {
+        if (task == null)
+        {
+            return Vector3.zero;
+        }
+
+        Vector3 companionPosition = GetEscortCompanionPosition(task.offer);
+        Vector3 leaderPosition = task.npc != null
+            ? task.npc.transform.position
+            : companionPosition + Vector3.left;
+        Vector2 awayFromCompanion = (Vector2)(leaderPosition - companionPosition);
+        if (awayFromCompanion.sqrMagnitude < 0.01f)
+        {
+            awayFromCompanion = Random.insideUnitCircle.normalized;
+        }
+        else
+        {
+            awayFromCompanion.Normalize();
+        }
+
+        float greetingOffset = Mathf.Max(0.65f, escortFollowDistance * 0.75f);
+        return companionPosition + (Vector3)(awayFromCompanion * greetingOffset);
+    }
+
+    Vector3 GetEscortCompletionPosition(NpcTaskOffer offer)
+    {
+        if (escortAnchorPositionsCaptured)
+        {
+            return escortCompletionAnchorPosition;
+        }
+
+        if (escortCompletionPoint != null)
+        {
+            return escortCompletionPoint.position;
+        }
+
+        return GetProviderPosition();
+    }
+
+    Vector3 GetEscortCompletionGreetingPosition(RunningNpcTask task)
+    {
+        if (task == null)
+        {
+            return Vector3.zero;
+        }
+
+        Vector3 completionPosition = GetEscortCompletionPosition(task.offer);
+        Vector3 leaderPosition = task.npc != null
+            ? task.npc.transform.position
+            : completionPosition + Vector3.left;
+        Vector2 awayFromCompletion = (Vector2)(leaderPosition - completionPosition);
+        if (awayFromCompletion.sqrMagnitude < 0.01f)
+        {
+            awayFromCompletion = Random.insideUnitCircle.normalized;
+        }
+        else
+        {
+            awayFromCompletion.Normalize();
+        }
+
+        float greetingOffset = Mathf.Max(0.65f, escortFollowDistance * 0.75f);
+        return completionPosition + (Vector3)(awayFromCompletion * greetingOffset);
+    }
+
+    void ShowEscortDialogueLine(GameObject npc, string line, float duration = 2.4f)
+    {
+        if (npc == null || string.IsNullOrEmpty(line))
+        {
+            return;
+        }
+
+        NpcOverheadDialogueUI overhead = npc.GetComponent<NpcOverheadDialogueUI>();
+        if (overhead == null)
+        {
+            overhead = npc.AddComponent<NpcOverheadDialogueUI>();
+        }
+
+        overhead.ShowLine(line, duration, 2);
+    }
+
+    bool UpdateEscortGreetingDialogue(RunningNpcTask task)
+    {
+        if (task == null ||
+            task.npc == null ||
+            task.escortCompanionNpc == null)
+        {
+            return false;
+        }
+
+        task.remainingTime -= Time.deltaTime;
+
+        if (task.escortGreetingConversationStep == 0)
+        {
+            NpcRoleUtility.StopForConversation(task.npc);
+            NpcRoleUtility.StopForConversation(task.escortCompanionNpc);
+            ShowEscortDialogueLine(
+                task.npc,
+                "Tại hạ phụng mệnh hộ tống đạo hữu trong chuyến này.");
+            NpcRoleUtility.SetAction(task.npc, NpcText.Action("talking"));
+            NpcRoleUtility.SetAction(task.escortCompanionNpc, NpcText.Action("talking"));
+            task.remainingTime = Mathf.Max(1.1f, escortGreetingDuration * 0.45f);
+            task.escortGreetingConversationStep = 1;
+            return true;
+        }
+
+        if (task.escortGreetingConversationStep == 1)
+        {
+            if (task.remainingTime > 0f)
+            {
+                return true;
+            }
+
+            ShowEscortDialogueLine(
+                task.escortCompanionNpc,
+                "Làm phiền đạo hữu, xin hộ tống ta một đoạn.");
+            NpcRoleUtility.SetAction(task.npc, NpcText.Action("talking"));
+            NpcRoleUtility.SetAction(task.escortCompanionNpc, NpcText.Action("talking"));
+            task.remainingTime = Mathf.Max(1.1f, escortGreetingDuration * 0.45f);
+            task.escortGreetingConversationStep = 2;
+            return true;
+        }
+
+        if (task.escortGreetingConversationStep == 2)
+        {
+            if (task.remainingTime > 0f)
+            {
+                return true;
+            }
+
+            task.escortGreetingConversationStep = 3;
+            return false;
+        }
+
+        return task.escortGreetingConversationStep < 3;
+    }
+
+    bool UpdateEscortDeliveryDialogue(RunningNpcTask task)
+    {
+        if (task == null ||
+            task.npc == null ||
+            task.escortCompanionNpc == null ||
+            task.escortCompletionNpc == null)
+        {
+            return false;
+        }
+
+        task.remainingTime -= Time.deltaTime;
+
+        if (task.escortDeliveryConversationStep == 0)
+        {
+            NpcRoleUtility.StopForConversation(task.npc);
+            NpcRoleUtility.StopForConversation(task.escortCompanionNpc);
+            NpcRoleUtility.StopForConversation(task.escortCompletionNpc);
+            ShowEscortDialogueLine(
+                task.escortCompanionNpc,
+                "Đây là linh vật / linh tài mà đạo hữu đã dặn mang tới.");
+            NpcRoleUtility.SetAction(task.npc, NpcText.Action("talking"));
+            NpcRoleUtility.SetAction(task.escortCompanionNpc, NpcText.Action("talking"));
+            NpcRoleUtility.SetAction(task.escortCompletionNpc, NpcText.Action("talking"));
+            task.remainingTime = Mathf.Max(1.1f, escortGreetingDuration * 0.45f);
+            task.escortDeliveryConversationStep = 1;
+            return true;
+        }
+
+        if (task.escortDeliveryConversationStep == 1)
+        {
+            if (task.remainingTime > 0f)
+            {
+                return true;
+            }
+
+            ShowEscortDialogueLine(
+                task.escortCompletionNpc,
+                "Đa tạ, hữu lễ.");
+            NpcRoleUtility.SetAction(task.npc, NpcText.Action("talking"));
+            NpcRoleUtility.SetAction(task.escortCompanionNpc, NpcText.Action("talking"));
+            NpcRoleUtility.SetAction(task.escortCompletionNpc, NpcText.Action("talking"));
+            task.remainingTime = Mathf.Max(1.1f, escortGreetingDuration * 0.45f);
+            task.escortDeliveryConversationStep = 2;
+            return true;
+        }
+
+        if (task.escortDeliveryConversationStep == 2)
+        {
+            if (task.remainingTime > 0f)
+            {
+                return true;
+            }
+
+            task.escortDeliveryConversationStep = 3;
+            return false;
+        }
+
+        return task.escortDeliveryConversationStep < 3;
+    }
+
+    void CaptureEscortAnchorPositions()
+    {
+        if (escortAnchorPositionsCaptured)
+        {
+            return;
+        }
+
+        escortMeetAnchorPosition = escortMeetPoint != null
+            ? escortMeetPoint.position
+            : transform.position;
+        escortCompletionAnchorPosition = escortCompletionPoint != null
+            ? escortCompletionPoint.position
+            : transform.position;
+        escortAnchorPositionsCaptured = true;
+    }
+
+    void FreezeEscortAnchors()
+    {
+        FreezeEscortAnchor(escortMeetPoint != null ? escortMeetPoint.gameObject : null);
+
+        if (escortCompletionPoint != null &&
+            (escortMeetPoint == null ||
+                escortCompletionPoint.gameObject != escortMeetPoint.gameObject))
+        {
+            FreezeEscortAnchor(escortCompletionPoint.gameObject);
+        }
+    }
+
+    void FreezeEscortAnchor(GameObject npc)
+    {
+        if (npc == null)
+        {
+            return;
+        }
+
+        NpcRoleUtility.StopForConversation(npc);
+
+        VillagerAI villager = npc.GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            villager.enabled = false;
+        }
+
+        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            smartNpc.enabled = false;
+        }
+
+        NpcMapMover2D mover = npc.GetComponent<NpcMapMover2D>();
+        if (mover != null)
+        {
+            mover.enabled = false;
+        }
+
+        Rigidbody2D rb = npc.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+            rb.bodyType = RigidbodyType2D.Kinematic;
+        }
+
+        NpcRoleUtility.SetAction(npc, TaskAction("pausedTask"));
+    }
+
+    GameObject FindEscortNpcAtPoint(Transform point, GameObject exclude = null)
+    {
+        if (point == null)
+        {
+            return null;
+        }
+
+        float searchRadius = Mathf.Max(0.5f, escortNpcSearchRadius);
+        Vector3 pointPosition = point.position;
+        GameObject best = null;
+        float bestDistance = float.PositiveInfinity;
+
+        foreach (VillagerAI villager in FindObjectsByType<VillagerAI>(FindObjectsInactive.Exclude))
+        {
+            if (villager == null ||
+                villager.gameObject == exclude ||
+                NpcRoleUtility.IsDead(villager.gameObject))
+            {
+                continue;
+            }
+
+            float distance = Vector2.Distance(pointPosition, villager.transform.position);
+            if (distance <= searchRadius && distance < bestDistance)
+            {
+                bestDistance = distance;
+                best = villager.gameObject;
+            }
+        }
+
+        foreach (SmartNpcAI smartNpc in FindObjectsByType<SmartNpcAI>(FindObjectsInactive.Exclude))
+        {
+            if (smartNpc == null ||
+                smartNpc.gameObject == exclude ||
+                NpcRoleUtility.IsDead(smartNpc.gameObject))
+            {
+                continue;
+            }
+
+            float distance = Vector2.Distance(pointPosition, smartNpc.transform.position);
+            if (distance <= searchRadius && distance < bestDistance)
+            {
+                bestDistance = distance;
+                best = smartNpc.gameObject;
+            }
+        }
+
+        return best;
+    }
+
+    GameObject FindEscortNpcAtPoint(Vector3 pointPosition, GameObject exclude = null)
+    {
+        float searchRadius = Mathf.Max(0.5f, escortNpcSearchRadius);
+        GameObject best = null;
+        float bestDistance = float.PositiveInfinity;
+
+        foreach (VillagerAI villager in FindObjectsByType<VillagerAI>(FindObjectsInactive.Exclude))
+        {
+            if (villager == null ||
+                villager.gameObject == exclude ||
+                NpcRoleUtility.IsDead(villager.gameObject))
+            {
+                continue;
+            }
+
+            float distance = Vector2.Distance(pointPosition, villager.transform.position);
+            if (distance <= searchRadius && distance < bestDistance)
+            {
+                bestDistance = distance;
+                best = villager.gameObject;
+            }
+        }
+
+        foreach (SmartNpcAI smartNpc in FindObjectsByType<SmartNpcAI>(FindObjectsInactive.Exclude))
+        {
+            if (smartNpc == null ||
+                smartNpc.gameObject == exclude ||
+                NpcRoleUtility.IsDead(smartNpc.gameObject))
+            {
+                continue;
+            }
+
+            float distance = Vector2.Distance(pointPosition, smartNpc.transform.position);
+            if (distance <= searchRadius && distance < bestDistance)
+            {
+                bestDistance = distance;
+                best = smartNpc.gameObject;
+            }
+        }
+
+        return best;
+    }
+
+    bool HasEscortParticipantsAvailable(NpcTaskOffer offer)
+    {
+        return FindEscortNpcAtPoint(GetEscortCompanionPosition(offer)) != null &&
+            FindEscortNpcAtPoint(GetEscortCompletionPosition(offer)) != null;
+    }
+
+    Vector3 GetEscortFollowPosition(RunningNpcTask task)
+    {
+        if (task == null ||
+            task.npc == null)
+        {
+            return Vector3.zero;
+        }
+
+        Vector3 leader = task.npc.transform.position;
+        Vector3 destination = GetEscortCompletionPosition(task.offer);
+        Vector2 awayFromDestination = (Vector2)(leader - destination);
+        if (awayFromDestination.sqrMagnitude < 0.01f)
+        {
+            awayFromDestination = Random.insideUnitCircle.normalized;
+        }
+        else
+        {
+            awayFromDestination.Normalize();
+        }
+
+        return leader +
+            (Vector3)(awayFromDestination *
+                Mathf.Max(0.5f, escortFollowDistance));
+    }
+
+    void PrepareEscortTask(RunningNpcTask task)
+    {
+        if (task == null ||
+            task.offer == null)
+        {
+            return;
+        }
+
+        task.escortConfirmed = false;
+        task.escortGreetingConversationStarted = false;
+        task.escortDeliveryConversationStarted = false;
+        task.escortGreetingConversationStep = 0;
+        task.escortDeliveryConversationStep = 0;
+        task.escortDepartedFromCompanion = false;
+        task.escortCompanionNpc = FindEscortNpcAtPoint(escortMeetPoint, task.npc);
+        task.escortCompletionNpc = FindEscortNpcAtPoint(escortCompletionPoint, task.npc);
+        task.escortCompanionHomePosition = GetEscortCompanionPosition(task.offer);
+        task.workPosition = GetEscortCompanionPosition(task.offer);
+        task.escortAvoidUntilTime = 0f;
+        task.escortThreatMonster = null;
+
+        if (task.escortCompanionNpc == null ||
+            task.escortCompletionNpc == null)
+        {
+            task.stage = TavernTaskStage.ReturningToTurnIn;
+            task.remainingTime = 0f;
+            return;
+        }
+
+        PauseBaseAi(
+            task.escortCompanionNpc,
+            out task.escortPausedCompanionBaseAi,
+            out task.escortPausedCompanionBaseAiWasEnabled);
+
+        if (task.escortCompanionNpc != null)
+        {
+            NpcRoleUtility.StopForConversation(task.escortCompanionNpc);
+            NpcRoleUtility.SetAction(
+                task.escortCompanionNpc,
+                TaskAction("followTaskRoute"));
+        }
+    }
+
     void MoveNpc(GameObject npc, Vector3 target)
     {
         MoveNpc(npc, target, null);
@@ -4012,10 +5379,99 @@ public class NpcTaskProvider : MonoBehaviour
         }
 
         float speed = NpcRoleUtility.GetMoveSpeed(npc, fallbackMoveSpeed);
-        npc.transform.position = Vector3.MoveTowards(
-            npc.transform.position,
+        MoveNpcTransformSafely(
+            npc,
             moveTarget,
             speed * Time.deltaTime);
+    }
+
+    void MoveNpcTransformSafely(
+        GameObject npc,
+        Vector3 moveTarget,
+        float maxDistanceDelta)
+    {
+        Vector3 current = npc.transform.position;
+        if (IsTaskPositionBlocked(current, npc))
+        {
+            npc.transform.position = GetClearTaskPositionNear(current, npc);
+            return;
+        }
+
+        Vector3 next =
+            Vector3.MoveTowards(
+                current,
+                moveTarget,
+                maxDistanceDelta);
+
+        if (!IsTaskPositionBlocked(next, npc))
+        {
+            npc.transform.position = next;
+            return;
+        }
+
+        Vector2 direction = (Vector2)(moveTarget - current);
+        if (direction.sqrMagnitude <= 0.0001f)
+        {
+            return;
+        }
+
+        direction.Normalize();
+        float step = Mathf.Max(maxDistanceDelta, arriveDistance * 0.5f);
+        float[] angles = { 35f, -35f, 70f, -70f, 110f, -110f, 180f };
+        for (int i = 0; i < angles.Length; i++)
+        {
+            Vector2 detour = RotateDirection(direction, angles[i]);
+            Vector3 candidate =
+                current +
+                new Vector3(detour.x, detour.y, 0f) * step;
+
+            if (!IsTaskPositionBlocked(candidate, npc))
+            {
+                npc.transform.position = candidate;
+                return;
+            }
+        }
+    }
+
+    Vector2 RotateDirection(Vector2 direction, float degrees)
+    {
+        float radians = degrees * Mathf.Deg2Rad;
+        float sin = Mathf.Sin(radians);
+        float cos = Mathf.Cos(radians);
+
+        return new Vector2(
+            direction.x * cos - direction.y * sin,
+            direction.x * sin + direction.y * cos);
+    }
+
+    void OnNpcMapTeleported(GameObject gateObject)
+    {
+        NpcTeleportGate gate = gateObject != null
+            ? gateObject.GetComponent<NpcTeleportGate>()
+            : null;
+
+        Vector3 referencePosition = gate != null
+            ? gate.ExitPosition
+            : transform.position;
+
+        NpcMapArea area = NpcMapArea.FindArea(transform.position);
+        if (area == null)
+        {
+            area = NpcMapArea.FindArea(referencePosition);
+        }
+
+        if (gate != null)
+        {
+            NpcMapNavigator.ReportNpcZone(gameObject, gate.toZone);
+            area = NpcMapNavigator.ResolveMapAreaAfterTeleport(
+                gameObject,
+                gate.toZone,
+                referencePosition);
+        }
+        else if (area != null)
+        {
+            NpcMapNavigator.ReportNpcZone(gameObject, area.zone);
+        }
     }
 
     string GetRankText(NpcTaskRank rank)
@@ -4101,6 +5557,48 @@ public class NpcTaskProvider : MonoBehaviour
         }
 
         pausedBaseAi.enabled = wasEnabled;
+    }
+
+    void ResumeEscortCompanion(RunningNpcTask task)
+    {
+        if (task == null)
+        {
+            return;
+        }
+
+        ResumeBaseAi(task.escortPausedCompanionBaseAi, task.escortPausedCompanionBaseAiWasEnabled);
+        task.escortPausedCompanionBaseAi = null;
+    }
+
+    void RestoreEscortCompanionHome(RunningNpcTask task)
+    {
+        if (task == null ||
+            task.escortCompanionNpc == null)
+        {
+            return;
+        }
+
+        Vector3 homePosition = task.escortCompanionHomePosition;
+        if (homePosition == Vector3.zero &&
+            escortAnchorPositionsCaptured)
+        {
+            homePosition = escortMeetAnchorPosition;
+        }
+
+        task.escortCompanionNpc.transform.position = homePosition;
+
+        Rigidbody2D rb = task.escortCompanionNpc.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.position = homePosition;
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
+
+        NpcRoleUtility.StopForConversation(task.escortCompanionNpc);
+        NpcRoleUtility.SetAction(
+            task.escortCompanionNpc,
+            TaskAction("pausedTask"));
     }
 
     void OnDrawGizmosSelected()

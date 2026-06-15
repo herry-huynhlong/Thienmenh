@@ -17,7 +17,7 @@ MonoBehaviour:
   description: "C\xF4ng ph\xE1p thi\xEAn v\u1EC1 s\xE1t ph\u1EA1t, \u0111\xF2n \u0111\xE1nh
     m\u1EA1nh m\u1EBD, c\xE0ng chi\u1EBFn c\xE0ng hung."
   itemType: 3
-  grade: 1
+  grade: 2
   validTargets: -1
   price: 88188
   icon: {fileID: 8986590683539815286, guid: 3a6116a9ba2601c439a48f93b976e055, type: 3}
@@ -58,7 +58,7 @@ MonoBehaviour:
   trungThanhPower: 0.6
   daiThanhPower: 1
   playBuyEffect: 0
-  buyEffectPrefab: {fileID: 0}
+  buyEffectPrefab: {fileID: 1408030505561246581, guid: 25f3f74cff840f345bd0828bf42426f0, type: 3}
   buyEffectOffset: {x: 0, y: 0.15, z: 0}
   buyEffectScale: 1
   isTemporary: 0

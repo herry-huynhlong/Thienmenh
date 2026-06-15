@@ -1,32 +1,61 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class NPCVisualAnimation : MonoBehaviour
 {
-    [Header("Kéo thả đủ 6 file Hoạt ảnh (Tam giác xanh) vào đây")]
-    public AnimationClip downWalkClip; 
-    public AnimationClip upWalkClip;   
-    public AnimationClip sideWalkClip; 
+    [Header("Movement Clips")]
+    public AnimationClip downWalkClip;
+    public AnimationClip upWalkClip;
+    public AnimationClip sideWalkClip;
     [HideInInspector] public AnimationClip rightWalkClip;
     [HideInInspector] public AnimationClip leftWalkClip;
-    public AnimationClip downIdleClip; 
-    public AnimationClip upIdleClip;   
-    public AnimationClip sideIdleClip; 
+    public AnimationClip downIdleClip;
+    public AnimationClip upIdleClip;
+    public AnimationClip sideIdleClip;
     [HideInInspector] public AnimationClip rightIdleClip;
     [HideInInspector] public AnimationClip leftIdleClip;
+
+    [Header("Action Clips")]
+    public AnimationClip attackDownClip;
+    public AnimationClip attackUpClip;
+    public AnimationClip attackSideClip;
+    [HideInInspector] public AnimationClip rightAttackClip;
+    [HideInInspector] public AnimationClip leftAttackClip;
+
+    public AnimationClip cultivateDownClip;
+    public AnimationClip cultivateUpClip;
+    public AnimationClip cultivateSideClip;
+    [HideInInspector] public AnimationClip rightCultivateClip;
+    [HideInInspector] public AnimationClip leftCultivateClip;
+
+    public AnimationClip dieDownClip;
+    public AnimationClip dieUpClip;
+    public AnimationClip dieSideClip;
+    [HideInInspector] public AnimationClip rightDieClip;
+    [HideInInspector] public AnimationClip leftDieClip;
 
     [Header("Side Facing")]
     public bool sideSpriteFacesRight = false;
     public bool invertSideFlip;
+
     [Header("Vertical Facing")]
     public bool invertVerticalFacing = false;
     public float directionDeadZone = 0.08f;
 
-    private Animator animator;
-    private SpriteRenderer spriteRenderer;
-    private AnimatorOverrideController overrideController;
-    private string overrideClipName = "OverrideTargetState";
-    private Vector2 lastDirection = Vector2.down;
-    private AnimationClip currentClip;
+    Animator animator;
+    SpriteRenderer spriteRenderer;
+    AnimatorOverrideController overrideController;
+    string overrideClipName = "OverrideTargetState";
+    Vector2 lastDirection = Vector2.down;
+    AnimationClip currentClip;
+
+    enum ActionCategory
+    {
+        None,
+        Attack,
+        Cultivate,
+        Die
+    }
 
     public static NPCVisualAnimation EnsureOn(GameObject owner)
     {
@@ -39,11 +68,6 @@ public class NPCVisualAnimation : MonoBehaviour
         if (visual == null)
         {
             visual = owner.AddComponent<NPCVisualAnimation>();
-        }
-
-        if (HasCompleteClips(visual))
-        {
-            return visual;
         }
 
         TryAssignClipsFromAnimator(visual);
@@ -67,65 +91,91 @@ public class NPCVisualAnimation : MonoBehaviour
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
 
-        if (!HasCompleteClips(this))
-        {
-            TryAssignClipsFromAnimator(this);
-        }
+        TryAssignClipsFromAnimator(this);
 
-        if (animator != null && animator.runtimeAnimatorController != null)
+        if (animator != null &&
+            animator.runtimeAnimatorController != null)
         {
-            AnimationClip[] originalClips = animator.runtimeAnimatorController.animationClips;
+            AnimationClip[] originalClips =
+                animator.runtimeAnimatorController.animationClips;
+
             if (originalClips.Length > 0)
             {
-                overrideController = new AnimatorOverrideController(animator.runtimeAnimatorController);
-                overrideClipName = originalClips[0].name; 
+                overrideController =
+                    new AnimatorOverrideController(
+                        animator.runtimeAnimatorController);
+                overrideClipName = originalClips[0].name;
                 animator.runtimeAnimatorController = overrideController;
             }
         }
     }
 
-    // HÀM ĐỂ SCRIPT DI CHUYỂN KHÁC GỌI VÀO (BẮT BUỘC PHẢI CÓ)
-    public void UpdateNPCAnimation(Vector2 moveDirection, bool isIdling)
+    public void UpdateNPCAnimation(
+        Vector2 moveDirection,
+        bool isIdling,
+        string currentAction = "")
     {
-        if (animator == null || overrideController == null) return;
+        if (animator == null || overrideController == null)
+        {
+            return;
+        }
 
-        AnimationClip clipToPlay = null;
-
-        if (!isIdling)
+        if (moveDirection.sqrMagnitude >
+            directionDeadZone * directionDeadZone)
         {
             lastDirection = GetFacingDirection(moveDirection);
         }
 
-        if (isIdling)
+        AnimationClip clipToPlay = null;
+        ActionCategory actionCategory = ResolveActionCategory(currentAction);
+
+        if (actionCategory != ActionCategory.None)
         {
-            if (lastDirection == Vector2.up) clipToPlay = upIdleClip;
-            else if (lastDirection == Vector2.down) clipToPlay = downIdleClip;
-            else
+            clipToPlay = GetActionClip(actionCategory, lastDirection);
+
+            if (clipToPlay != null)
             {
-                clipToPlay = GetSideIdleClip(lastDirection);
+                PlayClip(clipToPlay);
+                return;
             }
-        }
-        else
-        {
-            if (lastDirection == Vector2.up) clipToPlay = upWalkClip;
-            else if (lastDirection == Vector2.down) clipToPlay = downWalkClip;
-            else
+
+            if (actionCategory == ActionCategory.Die)
             {
-                clipToPlay = GetSideWalkClip(lastDirection);
+                return;
             }
         }
 
-        if (clipToPlay != null && currentClip != clipToPlay)
+        if (clipToPlay == null)
         {
-            overrideController[overrideClipName] = clipToPlay;
-            animator.Play(overrideClipName, 0, 0f);
-            currentClip = clipToPlay;
+            clipToPlay = isIdling
+                ? GetIdleClip(lastDirection)
+                : GetWalkClip(lastDirection);
         }
+
+        PlayClip(clipToPlay);
     }
 
-    private Vector2 GetCardinalDirection(Vector2 direction)
+    public void SetFacingDirection(Vector2 direction)
     {
-        if (direction.sqrMagnitude < directionDeadZone * directionDeadZone)
+        if (direction.sqrMagnitude <
+            directionDeadZone * directionDeadZone)
+        {
+            return;
+        }
+
+        lastDirection = GetFacingDirection(direction);
+        currentClip = null;
+    }
+
+    public void SetFacingTarget(Vector3 targetPosition)
+    {
+        SetFacingDirection(targetPosition - transform.position);
+    }
+
+    Vector2 GetCardinalDirection(Vector2 direction)
+    {
+        if (direction.sqrMagnitude <
+            directionDeadZone * directionDeadZone)
         {
             return lastDirection;
         }
@@ -138,7 +188,7 @@ public class NPCVisualAnimation : MonoBehaviour
         return direction.y < 0 ? Vector2.down : Vector2.up;
     }
 
-    private Vector2 GetFacingDirection(Vector2 direction)
+    Vector2 GetFacingDirection(Vector2 direction)
     {
         Vector2 facing = GetCardinalDirection(direction);
 
@@ -160,7 +210,210 @@ public class NPCVisualAnimation : MonoBehaviour
         return facing;
     }
 
-    private void ApplySideFlip(Vector2 direction)
+    ActionCategory ResolveActionCategory(string currentAction)
+    {
+        if (string.IsNullOrEmpty(currentAction))
+        {
+            return ActionCategory.None;
+        }
+
+        if (MatchesAction(currentAction, "dead") ||
+            MatchesAction(currentAction, "oldAgeDeath"))
+        {
+            return ActionCategory.Die;
+        }
+
+        if (MatchesAction(currentAction, "attackMonsterNamed", true) ||
+            MatchesAction(currentAction, "attackMonster", true) ||
+            MatchesAction(currentAction, "fight") ||
+            MatchesAction(currentAction, "rob") ||
+            MatchesAction(currentAction, "revenge"))
+        {
+            return ActionCategory.Attack;
+        }
+
+        if (MatchesAction(currentAction, "cultivateAbsorbQi") ||
+            MatchesAction(currentAction, "cultivate") ||
+            MatchesAction(currentAction, "breakthrough") ||
+            MatchesAction(currentAction, "breakthroughTo", true) ||
+            MatchesAction(currentAction, "waitTribulation") ||
+            MatchesAction(currentAction, "waitLightning") ||
+            MatchesAction(currentAction, "waitLightningNamed", true))
+        {
+            return ActionCategory.Cultivate;
+        }
+
+        return ActionCategory.None;
+    }
+
+    bool MatchesAction(string action, string key, bool allowPrefix = false)
+    {
+        if (string.IsNullOrEmpty(action) || string.IsNullOrEmpty(key))
+        {
+            return false;
+        }
+
+        string pattern = NpcText.Action(key);
+        if (string.IsNullOrEmpty(pattern))
+        {
+            return false;
+        }
+
+        if (string.Equals(
+                action,
+                pattern,
+                System.StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        if (!allowPrefix)
+        {
+            return false;
+        }
+
+        int placeholderIndex = pattern.IndexOf('{');
+        if (placeholderIndex < 0)
+        {
+            return false;
+        }
+
+        string prefix = pattern.Substring(0, placeholderIndex).TrimEnd();
+        return !string.IsNullOrEmpty(prefix) &&
+            action.StartsWith(
+                prefix,
+                System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    void PlayClip(AnimationClip clipToPlay)
+    {
+        if (clipToPlay == null || currentClip == clipToPlay)
+        {
+            return;
+        }
+
+        overrideController[overrideClipName] = clipToPlay;
+        animator.Play(overrideClipName, 0, 0f);
+        currentClip = clipToPlay;
+    }
+
+    AnimationClip GetActionClip(ActionCategory actionCategory, Vector2 direction)
+    {
+        switch (actionCategory)
+        {
+            case ActionCategory.Attack:
+                return GetDirectionalClip(
+                    attackUpClip,
+                    attackDownClip,
+                    attackSideClip,
+                    rightAttackClip,
+                    leftAttackClip,
+                    direction);
+
+            case ActionCategory.Cultivate:
+                return GetDirectionalClip(
+                    cultivateUpClip,
+                    cultivateDownClip,
+                    cultivateSideClip,
+                    rightCultivateClip,
+                    leftCultivateClip,
+                    direction);
+
+            case ActionCategory.Die:
+                return GetDirectionalClip(
+                    dieUpClip,
+                    dieDownClip,
+                    dieSideClip,
+                    rightDieClip,
+                    leftDieClip,
+                    direction);
+        }
+
+        return null;
+    }
+
+    AnimationClip GetWalkClip(Vector2 direction)
+    {
+        return GetDirectionalClip(
+            upWalkClip,
+            downWalkClip,
+            sideWalkClip,
+            rightWalkClip,
+            leftWalkClip,
+            direction);
+    }
+
+    AnimationClip GetIdleClip(Vector2 direction)
+    {
+        return GetDirectionalClip(
+            upIdleClip,
+            downIdleClip,
+            sideIdleClip,
+            rightIdleClip,
+            leftIdleClip,
+            direction);
+    }
+
+    AnimationClip GetDirectionalClip(
+        AnimationClip upClip,
+        AnimationClip downClip,
+        AnimationClip sideClip,
+        AnimationClip rightClip,
+        AnimationClip leftClip,
+        Vector2 direction)
+    {
+        if (direction.x > directionDeadZone && rightClip != null)
+        {
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.flipX = false;
+            }
+
+            return rightClip;
+        }
+
+        if (direction.x < -directionDeadZone && leftClip != null)
+        {
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.flipX = false;
+            }
+
+            return leftClip;
+        }
+
+        if (direction == Vector2.up && upClip != null)
+        {
+            ApplySideFlip(direction);
+            return upClip;
+        }
+
+        if (direction == Vector2.down && downClip != null)
+        {
+            ApplySideFlip(direction);
+            return downClip;
+        }
+
+        if (Mathf.Abs(direction.y) > Mathf.Abs(direction.x))
+        {
+            if (direction.y > 0f && upClip != null)
+            {
+                ApplySideFlip(direction);
+                return upClip;
+            }
+
+            if (direction.y < 0f && downClip != null)
+            {
+                ApplySideFlip(direction);
+                return downClip;
+            }
+        }
+
+        ApplySideFlip(direction);
+        return sideClip;
+    }
+
+    void ApplySideFlip(Vector2 direction)
     {
         if (spriteRenderer == null ||
             Mathf.Abs(direction.x) < directionDeadZone)
@@ -180,54 +433,6 @@ public class NPCVisualAnimation : MonoBehaviour
             : shouldFlip;
     }
 
-    AnimationClip GetSideWalkClip(Vector2 direction)
-    {
-        if (direction.x > directionDeadZone && rightWalkClip != null)
-        {
-            if (spriteRenderer != null)
-            {
-                spriteRenderer.flipX = false;
-            }
-            return rightWalkClip;
-        }
-
-        if (direction.x < -directionDeadZone && leftWalkClip != null)
-        {
-            if (spriteRenderer != null)
-            {
-                spriteRenderer.flipX = false;
-            }
-            return leftWalkClip;
-        }
-
-        ApplySideFlip(direction);
-        return sideWalkClip;
-    }
-
-    AnimationClip GetSideIdleClip(Vector2 direction)
-    {
-        if (direction.x > directionDeadZone && rightIdleClip != null)
-        {
-            if (spriteRenderer != null)
-            {
-                spriteRenderer.flipX = false;
-            }
-            return rightIdleClip;
-        }
-
-        if (direction.x < -directionDeadZone && leftIdleClip != null)
-        {
-            if (spriteRenderer != null)
-            {
-                spriteRenderer.flipX = false;
-            }
-            return leftIdleClip;
-        }
-
-        ApplySideFlip(direction);
-        return sideIdleClip;
-    }
-
     static bool HasCompleteClips(NPCVisualAnimation visual)
     {
         return visual != null &&
@@ -242,7 +447,8 @@ public class NPCVisualAnimation : MonoBehaviour
     static NPCVisualAnimation FindTemplate(NPCVisualAnimation target)
     {
         NPCVisualAnimation[] visuals =
-            Object.FindObjectsByType<NPCVisualAnimation>(FindObjectsInactive.Exclude);
+            Object.FindObjectsByType<NPCVisualAnimation>(
+                FindObjectsInactive.Exclude);
 
         for (int i = 0; i < visuals.Length; i++)
         {
@@ -277,6 +483,25 @@ public class NPCVisualAnimation : MonoBehaviour
         target.sideIdleClip = source.sideIdleClip;
         target.rightIdleClip = source.rightIdleClip;
         target.leftIdleClip = source.leftIdleClip;
+
+        target.attackDownClip = source.attackDownClip;
+        target.attackUpClip = source.attackUpClip;
+        target.attackSideClip = source.attackSideClip;
+        target.rightAttackClip = source.rightAttackClip;
+        target.leftAttackClip = source.leftAttackClip;
+
+        target.cultivateDownClip = source.cultivateDownClip;
+        target.cultivateUpClip = source.cultivateUpClip;
+        target.cultivateSideClip = source.cultivateSideClip;
+        target.rightCultivateClip = source.rightCultivateClip;
+        target.leftCultivateClip = source.leftCultivateClip;
+
+        target.dieDownClip = source.dieDownClip;
+        target.dieUpClip = source.dieUpClip;
+        target.dieSideClip = source.dieSideClip;
+        target.rightDieClip = source.rightDieClip;
+        target.leftDieClip = source.leftDieClip;
+
         target.sideSpriteFacesRight = source.sideSpriteFacesRight;
         target.invertSideFlip = source.invertSideFlip;
         target.invertVerticalFacing = source.invertVerticalFacing;
@@ -292,7 +517,9 @@ public class NPCVisualAnimation : MonoBehaviour
 
         Animator visualAnimator = visual.GetComponent<Animator>();
         RuntimeAnimatorController controller =
-            visualAnimator != null ? visualAnimator.runtimeAnimatorController : null;
+            visualAnimator != null
+                ? visualAnimator.runtimeAnimatorController
+                : null;
 
         if (controller == null)
         {
@@ -379,6 +606,8 @@ public class NPCVisualAnimation : MonoBehaviour
             }
         }
 
+        TryAssignActionClipsFromAnimator(visual, clips);
+
         if (assignedFromAnimator)
         {
             visual.invertVerticalFacing = false;
@@ -386,18 +615,175 @@ public class NPCVisualAnimation : MonoBehaviour
         }
     }
 
+    static void TryAssignActionClipsFromAnimator(
+        NPCVisualAnimation visual,
+        AnimationClip[] clips)
+    {
+        if (visual == null || clips == null || clips.Length == 0)
+        {
+            return;
+        }
+
+        if (visual.attackDownClip == null)
+        {
+            visual.attackDownClip =
+                FindBestClip(clips, "attack", "down") ??
+                FindBestClip(clips, "fight", "down") ??
+                FindBestClip(clips, "hit", "down");
+        }
+
+        if (visual.attackUpClip == null)
+        {
+            visual.attackUpClip =
+                FindBestClip(clips, "attack", "up") ??
+                FindBestClip(clips, "fight", "up") ??
+                FindBestClip(clips, "hit", "up");
+        }
+
+        if (visual.attackSideClip == null)
+        {
+            visual.rightAttackClip =
+                FindBestClip(clips, "attack", "right") ??
+                FindBestClip(clips, "fight", "right") ??
+                FindBestClip(clips, "hit", "right");
+            visual.leftAttackClip =
+                FindBestClip(clips, "attack", "left") ??
+                FindBestClip(clips, "fight", "left") ??
+                FindBestClip(clips, "hit", "left");
+            visual.attackSideClip =
+                visual.rightAttackClip ??
+                visual.leftAttackClip ??
+                FindBestClip(clips, "attack", "side") ??
+                FindBestClip(clips, "fight", "side");
+
+            if (visual.rightAttackClip != null &&
+                visual.attackSideClip == visual.rightAttackClip)
+            {
+                visual.sideSpriteFacesRight = true;
+            }
+            else if (visual.leftAttackClip != null &&
+                visual.attackSideClip == visual.leftAttackClip)
+            {
+                visual.sideSpriteFacesRight = false;
+            }
+        }
+
+        if (visual.cultivateDownClip == null)
+        {
+            visual.cultivateDownClip =
+                FindBestClip(clips, "cultivate", "down") ??
+                FindBestClip(clips, "lie", "down") ??
+                FindBestClip(clips, "sit", "down") ??
+                FindBestClip(clips, "meditate", "down");
+        }
+
+        if (visual.cultivateUpClip == null)
+        {
+            visual.cultivateUpClip =
+                FindBestClip(clips, "cultivate", "up") ??
+                FindBestClip(clips, "lie", "up") ??
+                FindBestClip(clips, "sit", "up") ??
+                FindBestClip(clips, "meditate", "up");
+        }
+
+        if (visual.cultivateSideClip == null)
+        {
+            visual.rightCultivateClip =
+                FindBestClip(clips, "cultivate", "right") ??
+                FindBestClip(clips, "lie", "right") ??
+                FindBestClip(clips, "sit", "right") ??
+                FindBestClip(clips, "meditate", "right");
+            visual.leftCultivateClip =
+                FindBestClip(clips, "cultivate", "left") ??
+                FindBestClip(clips, "lie", "left") ??
+                FindBestClip(clips, "sit", "left") ??
+                FindBestClip(clips, "meditate", "left");
+            visual.cultivateSideClip =
+                visual.rightCultivateClip ??
+                visual.leftCultivateClip ??
+                FindBestClip(clips, "cultivate", "side") ??
+                FindBestClip(clips, "lie", "side") ??
+                FindBestClip(clips, "sit", "side") ??
+                FindBestClip(clips, "meditate", "side") ??
+                FindBestClip(clips, "cultivate") ??
+                FindBestClip(clips, "lie") ??
+                FindBestClip(clips, "sit") ??
+                FindBestClip(clips, "meditate");
+
+            if (visual.rightCultivateClip != null &&
+                visual.cultivateSideClip == visual.rightCultivateClip)
+            {
+                visual.sideSpriteFacesRight = true;
+            }
+            else if (visual.leftCultivateClip != null &&
+                visual.cultivateSideClip == visual.leftCultivateClip)
+            {
+                visual.sideSpriteFacesRight = false;
+            }
+        }
+
+        if (visual.dieDownClip == null)
+        {
+            visual.dieDownClip =
+                FindBestClip(clips, "die", "down") ??
+                FindBestClip(clips, "death", "down") ??
+                FindBestClip(clips, "dead", "down");
+        }
+
+        if (visual.dieUpClip == null)
+        {
+            visual.dieUpClip =
+                FindBestClip(clips, "die", "up") ??
+                FindBestClip(clips, "death", "up") ??
+                FindBestClip(clips, "dead", "up");
+        }
+
+        if (visual.dieSideClip == null)
+        {
+            visual.rightDieClip =
+                FindBestClip(clips, "die", "right") ??
+                FindBestClip(clips, "death", "right") ??
+                FindBestClip(clips, "dead", "right");
+            visual.leftDieClip =
+                FindBestClip(clips, "die", "left") ??
+                FindBestClip(clips, "death", "left") ??
+                FindBestClip(clips, "dead", "left");
+            visual.dieSideClip =
+                visual.rightDieClip ??
+                visual.leftDieClip ??
+                FindBestClip(clips, "die", "side") ??
+                FindBestClip(clips, "death", "side") ??
+                FindBestClip(clips, "dead", "side");
+
+            if (visual.rightDieClip != null &&
+                visual.dieSideClip == visual.rightDieClip)
+            {
+                visual.sideSpriteFacesRight = true;
+            }
+            else if (visual.leftDieClip != null &&
+                visual.dieSideClip == visual.leftDieClip)
+            {
+                visual.sideSpriteFacesRight = false;
+            }
+        }
+    }
+
     static AnimationClip FindBestClip(
         AnimationClip[] clips,
-        string primaryKeyword,
-        string directionKeyword)
+        params string[] keywords)
     {
-        if (clips == null)
+        if (clips == null ||
+            keywords == null ||
+            keywords.Length == 0)
         {
             return null;
         }
 
-        string primary = NormalizeClipName(primaryKeyword);
-        string direction = NormalizeClipName(directionKeyword);
+        string[] normalizedKeywords = new string[keywords.Length];
+        for (int i = 0; i < keywords.Length; i++)
+        {
+            normalizedKeywords[i] = NormalizeClipName(keywords[i]);
+        }
 
         for (int i = 0; i < clips.Length; i++)
         {
@@ -408,8 +794,20 @@ public class NPCVisualAnimation : MonoBehaviour
             }
 
             string clipName = NormalizeClipName(clip.name);
-            if (clipName.Contains(primary) &&
-                clipName.Contains(direction))
+            bool matches = true;
+
+            for (int j = 0; j < normalizedKeywords.Length; j++)
+            {
+                string keyword = normalizedKeywords[j];
+                if (string.IsNullOrEmpty(keyword) ||
+                    !clipName.Contains(keyword))
+                {
+                    matches = false;
+                    break;
+                }
+            }
+
+            if (matches)
             {
                 return clip;
             }

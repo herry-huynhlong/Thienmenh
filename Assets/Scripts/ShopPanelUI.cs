@@ -50,7 +50,7 @@ public class ShopPanelUI : MonoBehaviour
     public Vector2 buyPanelSize =
         new Vector2(150f, 130f);
     public bool moveDetailBesideSelectedItem = true;
-    public bool moveBuyPanelBelowSelectedItem = true;
+    public bool moveBuyPanelBelowSelectedItem = false;
 
     ItemType currentType = ItemType.DanDuoc;
     int selectedItemIndex = -1;
@@ -134,6 +134,13 @@ public class ShopPanelUI : MonoBehaviour
         if (ShouldCloseFromOutsidePointer(screenPosition, eventCamera))
         {
             Close();
+            return;
+        }
+
+        // Khi đang bấm lên DetailPanel / BuyPanel thì không tự chọn item phía sau.
+        // Nút BuyButton vẫn nhận OnClick bình thường thông qua Button component.
+        if (IsPointerInsideDetailOrBuyPanel(screenPosition, eventCamera))
+        {
             return;
         }
 
@@ -276,33 +283,48 @@ public class ShopPanelUI : MonoBehaviour
 
         if (detailNameText != null)
         {
-            detailNameText.text = slot.item.itemName;
+            detailNameText.text = ItemText.Name(slot.item);
         }
 
         if (detailTypeText != null)
         {
-            detailTypeText.text = GetTypeText(slot.item.itemType);
+            detailTypeText.text =
+                ItemText.Format(
+                    "detail",
+                    "typeFormat",
+                    ItemText.Type(slot.item.itemType));
         }
 
         if (detailGradeText != null)
         {
-            detailGradeText.text = "Phẩm chất: " + GetGradeText(slot.item.grade);
+            detailGradeText.text =
+                ItemText.Format(
+                    "detail",
+                    "gradeFormat",
+                    ItemText.Grade(slot.item.grade));
         }
 
         if (detailTargetsText != null)
         {
-            detailTargetsText.text = "Dùng cho: " + GetTargetText(slot.item.validTargets);
+            detailTargetsText.text =
+                ItemText.Format(
+                    "detail",
+                    "targetsFormat",
+                    ItemText.Target(slot.item.validTargets));
         }
 
         if (detailPriceText != null)
         {
             detailPriceText.text =
-                "Giá: " + FormatDisplayPrice(slot.item);
+                ItemText.Format(
+                    "detail",
+                    "priceFormat",
+                    FormatDisplayPrice(slot.item));
         }
 
         if (detailDescriptionText != null)
         {
-            detailDescriptionText.text = slot.item.description;
+            detailDescriptionText.text = ItemText.Description(slot.item);
         }
 
         if (detailStatsText != null)
@@ -722,6 +744,12 @@ public class ShopPanelUI : MonoBehaviour
         Vector2 screenPosition,
         Camera eventCamera)
     {
+        // Chặn click xuyên qua bảng chi tiết hoặc nút mua.
+        if (IsPointerInsideDetailOrBuyPanel(screenPosition, eventCamera))
+        {
+            return;
+        }
+
         foreach (ShopItemButtonUI button in spawnedButtons)
         {
             if (button == null ||
@@ -931,6 +959,13 @@ public class ShopPanelUI : MonoBehaviour
                 buyPanel,
                 screenPosition,
                 eventCamera);
+    }
+
+    bool IsBuyPanelInsideDetailPanel()
+    {
+        return buyPanel != null &&
+            detailPanel != null &&
+            buyPanel.transform.IsChildOf(detailPanel.transform);
     }
 
     bool IsPointerInsidePanel(
@@ -1144,7 +1179,8 @@ public class ShopPanelUI : MonoBehaviour
         }
 
         if (moveBuyPanelBelowSelectedItem &&
-            buyPanel != null)
+            buyPanel != null &&
+            !IsBuyPanelInsideDetailPanel())
         {
             RectTransform buyRect =
                 buyPanel.GetComponent<RectTransform>();
@@ -1572,38 +1608,50 @@ public class ShopPanelUI : MonoBehaviour
 
         if (item.hpBonus != 0)
         {
-            builder.AppendLine("Máu +" + item.hpBonus);
+            builder.AppendLine(
+                ItemText.Format("stats", "hpBonus", item.hpBonus));
         }
 
         if (item.cultivationBonus != 0)
         {
-            builder.AppendLine("Tu vi +" + item.cultivationBonus);
+            builder.AppendLine(
+                ItemText.Format(
+                    "stats",
+                    "cultivationBonus",
+                    item.cultivationBonus));
         }
 
         if (item.breakthroughRealm)
         {
-            builder.AppendLine("Đột phá cảnh giới");
+            builder.AppendLine(
+                ItemText.Get("stats", "breakthroughRealm"));
         }
 
         if (item.damageBonus != 0)
         {
-            builder.AppendLine("Dame +" + item.damageBonus);
+            builder.AppendLine(
+                ItemText.Format("stats", "damageBonus", item.damageBonus));
         }
 
         if (item.armorBonus != 0)
         {
-            builder.AppendLine("Công dụng:");
-            builder.AppendLine("- Tăng phòng ngự +" + item.armorBonus);
+            builder.AppendLine(
+                ItemText.Format("stats", "armorBonus", item.armorBonus));
         }
 
         if (item.effectResistanceBonus != 0)
         {
-            builder.AppendLine("Kháng hiệu ứng +" + item.effectResistanceBonus);
+            builder.AppendLine(
+                ItemText.Format(
+                    "stats",
+                    "effectResistanceBonus",
+                    item.effectResistanceBonus));
         }
 
         if (item.isTemporary)
         {
-            builder.AppendLine("Thời gian: " + item.duration + "s");
+            builder.AppendLine(
+                ItemText.Format("stats", "duration", item.duration));
         }
 
         AppendUseConversionText(builder, item);
@@ -1616,142 +1664,59 @@ public class ShopPanelUI : MonoBehaviour
         StatItemData item)
     {
         builder.AppendLine(
-            "Cách dùng: " +
-            GetUseStyleText(item.GetResolvedUseStyle()));
+            ItemText.Format(
+                "stats",
+                "useStyle",
+                ItemText.UseStyle(item.GetResolvedUseStyle())));
         builder.AppendLine(
-            "Dùng trực tiếp: " +
-            GetRawUsePolicyText(item.rawUsePolicy));
+            ItemText.Format(
+                "stats",
+                "rawUse",
+                ItemText.RawUsePolicy(item.rawUsePolicy)));
 
         if (item.itemType == ItemType.VatLieu)
         {
             builder.AppendLine(
-                "Hiệu quả ăn sống: " +
-                Mathf.RoundToInt(item.rawUseEfficiency * 100f) +
-                "%");
+                ItemText.Format(
+                    "stats",
+                    "rawEfficiency",
+                    Mathf.RoundToInt(item.rawUseEfficiency * 100f)));
         }
 
         if (item.rawToxicityDamage > 0)
         {
             builder.AppendLine(
-                "Độc tính: -" +
-                item.rawToxicityDamage +
-                " máu");
+                ItemText.Format(
+                    "stats",
+                    "toxicity",
+                    item.rawToxicityDamage));
         }
 
         if (item.canBeRefinedIntoPill)
         {
-            builder.AppendLine("Có thể luyện đan");
+            builder.AppendLine(ItemText.Get("stats", "canRefinePill"));
         }
 
         if (item.canBeForgedIntoArtifact)
         {
-            builder.AppendLine("Có thể luyện khí");
+            builder.AppendLine(ItemText.Get("stats", "canForgeArtifact"));
         }
 
         if (item.itemType == ItemType.CongPhap &&
             item.canBeStudied)
         {
-            builder.AppendLine("Có thể nghiên cứu");
+            builder.AppendLine(ItemText.Get("stats", "canStudy"));
         }
 
         if (!item.canBeSold)
         {
-            builder.AppendLine("Không thể bán");
+            builder.AppendLine(ItemText.Get("stats", "cannotSell"));
         }
 
         builder.AppendLine(
-            "Tu sĩ ưu tiên: " +
-            GetNpcIntentText(item.npcIntent));
-    }
-
-    string GetUseStyleText(ItemUseStyle style)
-    {
-        switch (style)
-        {
-            case ItemUseStyle.Consumable:
-                return "Tiêu hao";
-            case ItemUseStyle.RawMaterial:
-                return "Vật liệu sống";
-            case ItemUseStyle.DurableEquipment:
-                return "Trang bị bền";
-            case ItemUseStyle.StudyManual:
-                return "Nghiên cứu";
-            default:
-                return "Tự động";
-        }
-    }
-
-    string GetRawUsePolicyText(RawUsePolicy policy)
-    {
-        switch (policy)
-        {
-            case RawUsePolicy.Risky:
-                return "Rủi ro";
-            case RawUsePolicy.Forbidden:
-                return "Cấm";
-            default:
-                return "Được";
-        }
-    }
-
-    string GetNpcIntentText(NpcItemIntent intent)
-    {
-        switch (intent)
-        {
-            case NpcItemIntent.PreferUseRaw:
-                return "Ăn sống";
-            case NpcItemIntent.PreferRefine:
-                return "Luyện đan";
-            case NpcItemIntent.PreferSell:
-                return "Bán";
-            case NpcItemIntent.Keep:
-                return "Giữ";
-            default:
-                return "Tự động";
-        }
-    }
-
-    string GetTypeText(ItemType itemType)
-    {
-        switch (itemType)
-        {
-            case ItemType.DanDuoc:
-                return "Đan Dược";
-            case ItemType.PhapBao:
-                return "Pháp Bảo";
-            case ItemType.CongPhap:
-                return "Công Pháp";
-            case ItemType.VatLieu:
-                return "Vật Liệu";
-            default:
-                return itemType.ToString();
-        }
-    }
-
-    string GetGradeText(ItemGrade grade)
-    {
-        switch (grade)
-        {
-            case ItemGrade.Ha:
-                return "Hạ";
-            case ItemGrade.Trung:
-                return "Trung";
-            case ItemGrade.Thuong:
-                return "Thường";
-            case ItemGrade.Tien:
-                return "Tiên";
-            default:
-                return grade.ToString();
-        }
-    }
-
-    string GetTargetText(ItemTargetType targetType)
-    {
-        if (targetType == ItemTargetType.All)
-        {
-            return "Tất Cả";
-        }
-
-        return targetType.ToString();
+            ItemText.Format(
+                "stats",
+                "npcIntent",
+                ItemText.NpcIntent(item.npcIntent)));
     }
 }

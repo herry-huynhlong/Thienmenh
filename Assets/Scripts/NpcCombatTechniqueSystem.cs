@@ -504,7 +504,7 @@ public sealed class NpcCombatTechniqueRuntime : MonoBehaviour
 
     void PlayTechniqueEffect(StatItemData item)
     {
-        ItemEffectSpawner.PlayBuyEffect(item, transform);
+        ItemEffectSpawner.PlayUseEffect(item, transform);
     }
 }
 

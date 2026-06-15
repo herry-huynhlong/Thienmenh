@@ -242,6 +242,19 @@ public class MonsterAI : MonoBehaviour, IDamageable
             entityProfile.lockGeneratedValues = true;
         }
 
+        float realmPower =
+            CultivationProgression.GetStatPower(
+                entityProfile.stats.realm,
+                entityProfile.stats.realmStage,
+                EntityKind.Beast);
+        baseMaxHP =
+            Mathf.Max(1, Mathf.RoundToInt(entityProfile.stats.maxHP / realmPower));
+        baseDamage =
+            Mathf.Max(1, Mathf.RoundToInt(entityProfile.stats.attack / realmPower));
+        baseDefense =
+            Mathf.Max(0, Mathf.RoundToInt(entityProfile.stats.defense / realmPower));
+        baseEffectResistance = Mathf.Max(0, entityProfile.stats.effectResistance);
+        baseMoveSpeed = Mathf.Max(0.1f, entityProfile.stats.moveSpeed);
         maxHP = Mathf.Max(1, entityProfile.stats.maxHP);
         currentHP =
             Mathf.Clamp(
@@ -254,13 +267,6 @@ public class MonsterAI : MonoBehaviour, IDamageable
             realm = entityProfile.stats.realm;
             realmStage = entityProfile.stats.realmStage;
             cultivationExp = Mathf.Max(0, entityProfile.stats.cultivationExp);
-
-            int realmMultiplier = GetRealmMultiplier();
-            baseMaxHP = Mathf.Max(1, entityProfile.stats.maxHP / realmMultiplier);
-            baseDamage = Mathf.Max(1, entityProfile.stats.attack / realmMultiplier);
-            baseDefense = Mathf.Max(0, entityProfile.stats.defense / realmMultiplier);
-            baseEffectResistance = Mathf.Max(0, entityProfile.stats.effectResistance);
-            baseMoveSpeed = Mathf.Max(0.1f, entityProfile.stats.moveSpeed);
         }
         beastInstinct = Mathf.Clamp(45f + entityProfile.talent.combatMultiplier * 15f, 0f, 100f);
         aggression = Mathf.Clamp(entityProfile.personality.bravery + entityProfile.personality.hotTemper * 0.5f, 0f, 100f);
@@ -545,6 +551,11 @@ public class MonsterAI : MonoBehaviour, IDamageable
             return false;
         }
 
+        if (NpcPetCompanion.BlocksMonsterAttacks(candidate))
+        {
+            return false;
+        }
+
         if (candidate.GetComponentInParent<PlayerHealth>() != null || candidate.CompareTag("Player"))
         {
             return attackPlayer;
@@ -607,6 +618,12 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     bool ShouldAttackTarget(Transform target)
     {
+        if (target != null &&
+            NpcPetCompanion.BlocksMonsterAttacks(target.gameObject))
+        {
+            return false;
+        }
+
         float reason = hunger * 0.45f +
             aggression * 0.3f +
             bloodlust * 0.2f +
@@ -636,7 +653,14 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
         IDamageable damageable = target.GetComponentInParent<IDamageable>();
         int targetPower = EstimatePower(target.gameObject, damageable);
-        int selfPower = Mathf.Max(1, GetRealmPower());
+        int selfPower =
+            Mathf.Max(
+                1,
+                Mathf.RoundToInt(
+                    CultivationProgression.GetStatPower(
+                        realm,
+                        realmStage,
+                        EntityKind.Beast)));
         bool clearlyWeaker = targetPower > selfPower * 2;
         bool almostDead = currentHP < maxHP * 0.25f;
 
@@ -667,7 +691,13 @@ public class MonsterAI : MonoBehaviour, IDamageable
         MonsterAI monster = target.GetComponentInParent<MonsterAI>();
         if (monster != null)
         {
-            return monster.GetRealmPower();
+            return Mathf.Max(
+                1,
+                Mathf.RoundToInt(
+                    CultivationProgression.GetStatPower(
+                        monster.realm,
+                        monster.realmStage,
+                        EntityKind.Beast)));
         }
 
         return damageable != null ? 50 : 1;
@@ -787,7 +817,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
             {
                 desiredVelocity = waitDirection.normalized * moveSpeed;
                 currentAction = "Cho thien loi tan " +
-                    (treasureHuntItem != null ? treasureHuntItem.itemName : "bao vat");
+                    (treasureHuntItem != null ? ItemText.Name(treasureHuntItem) : "bao vat");
                 SetMovingAnimation(true);
                 return;
             }
@@ -812,7 +842,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
         {
             desiredVelocity = direction.normalized * moveSpeed;
             currentAction = "Phat cuong tranh doat " +
-                (treasureHuntItem != null ? treasureHuntItem.itemName : "bao vat");
+                (treasureHuntItem != null ? ItemText.Name(treasureHuntItem) : "bao vat");
             SetMovingAnimation(true);
             return;
         }
@@ -849,9 +879,10 @@ public class MonsterAI : MonoBehaviour, IDamageable
             origin +
             (Vector3)away.normalized * Mathf.Max(0.5f, safeRadius);
         hasTreasureWaitPosition = true;
+        string itemName = ItemText.Name(item);
         currentAction = lowPowerSkirmish
-            ? "Hon chien vong ngoai " + item.itemName
-            : "Doi thien loi tan " + item.itemName;
+            ? "Hon chien vong ngoai " + itemName
+            : "Doi thien loi tan " + itemName;
     }
     public void ForceTreasureHunt(
         Transform target,
@@ -867,7 +898,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
         treasureHuntTarget = target;
         treasureHuntItem = item;
         ClearCurrentTarget();
-        currentAction = "Phat cuong tranh doat " + item.itemName;
+        currentAction = "Phat cuong tranh doat " + ItemText.Name(item);
     }
 
     public void ClearTreasureHunt()
@@ -1046,24 +1077,6 @@ public class MonsterAI : MonoBehaviour, IDamageable
         }
     }
 
-    public int GetRealmMultiplier()
-    {
-        int multiplier = 1;
-        int realmIndex = Mathf.Max(0, (int)realm);
-        int stage =
-            Mathf.Clamp(
-                realmStage,
-                1,
-                CultivationProgression.MaxStage);
-
-        for (int i = 0; i < realmIndex; i++)
-        {
-            multiplier *= 10;
-        }
-
-        return Mathf.Max(1, multiplier * stage);
-    }
-
     public long ExpToNextRealm()
     {
         return CultivationProgression.GetExpToNextLong(
@@ -1163,11 +1176,15 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
         int oldMaxHP = Mathf.Max(1, maxHP);
         float hpPercent = Mathf.Clamp01((float)currentHP / oldMaxHP);
-        int multiplier = GetRealmMultiplier();
+        float power =
+            CultivationProgression.GetStatPower(
+                realm,
+                realmStage,
+                EntityKind.Beast);
 
-        maxHP = Mathf.Max(1, baseMaxHP) * multiplier;
-        damage = Mathf.Max(1, baseDamage) * multiplier;
-        defense = Mathf.Max(0, baseDefense) * multiplier;
+        maxHP = Mathf.Max(1, Mathf.RoundToInt(Mathf.Max(1, baseMaxHP) * power));
+        damage = Mathf.Max(1, Mathf.RoundToInt(Mathf.Max(1, baseDamage) * power));
+        defense = Mathf.Max(0, Mathf.RoundToInt(Mathf.Max(0, baseDefense) * power));
         effectResistance =
             Mathf.Max(
                 0,
@@ -1344,9 +1361,16 @@ public class MonsterAI : MonoBehaviour, IDamageable
     void Die()
     {
         isDead = true;
+        isAttacking = false;
+        hasTarget = false;
         desiredVelocity = Vector2.zero;
+        waitTimer = waitTime;
+        nextThinkTime = Time.time + Random.Range(0f, GetThinkDelay());
+        nextDetectTime = Time.time + Random.Range(0f, GetDetectDelay());
+        nextReducedFixedUpdateTime = Time.time;
         ClearCurrentTarget();
         NpcSocialEventBus.PublishMonsterDefeated(this);
+        bool preserveInDungeon = BicanhSessionManager.ShouldPreserveDungeonDeath(gameObject);
 
         CancelInvoke(nameof(ApplyAttackDamage));
         CancelInvoke(nameof(EndAttack));
@@ -1369,6 +1393,13 @@ public class MonsterAI : MonoBehaviour, IDamageable
         }
 
         DropDeathLoot();
+
+        if (preserveInDungeon)
+        {
+            return;
+        }
+
+        NpcInventoryDropper.DropAll(gameObject);
 
         if (respawnAfterDeath)
         {
@@ -1533,16 +1564,6 @@ public class MonsterAI : MonoBehaviour, IDamageable
         int index = Mathf.Clamp(beastLevel - 1, 0, lootByBeastLevel.Length - 1);
         return lootByBeastLevel[index];
     }
-    public int GetRealmPower()
-    {
-        return Mathf.Max(
-            1,
-            CultivationProgression.GetRealmPower(realm, realmStage) * 100 +
-            damage +
-            defense +
-            maxHP / 10);
-    }
-
     public void ApplyItem(StatItemData item)
     {
         ApplyItem(item, 1);

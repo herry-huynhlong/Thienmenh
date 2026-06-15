@@ -86,6 +86,13 @@ public class Fireball : MonoBehaviour
                 continue;
             }
 
+            if (NpcPetCompanion.BlocksMonsterAttacks(damageable.DamageTransform != null
+                ? damageable.DamageTransform.gameObject
+                : hit.gameObject))
+            {
+                continue;
+            }
+
             if (owner != null &&
                 damageable.DamageTransform != null &&
                 damageable.DamageTransform.gameObject == owner)

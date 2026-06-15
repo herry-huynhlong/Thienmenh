@@ -16,6 +16,88 @@ public static class NpcMapNavigator
         knownNpcZones[npc] = zone;
     }
 
+    public static bool TryGetKnownNpcZone(
+        GameObject npc,
+        out NpcMapZone zone)
+    {
+        zone = default;
+
+        if (npc == null)
+        {
+            return false;
+        }
+
+        return knownNpcZones.TryGetValue(npc, out zone);
+    }
+
+    public static NpcMapZone? ResolveActorZone(GameObject npc)
+    {
+        if (npc == null)
+        {
+            return null;
+        }
+
+        NpcMapArea areaAtPosition =
+            NpcMapArea.FindArea(npc.transform.position);
+
+        if (areaAtPosition != null &&
+            TryGetKnownNpcZone(npc, out NpcMapZone knownZone) &&
+            knownZone != areaAtPosition.zone &&
+            IsNearTeleportBoundary(npc.transform.position, knownZone))
+        {
+            return knownZone;
+        }
+
+        if (areaAtPosition != null)
+        {
+            ReportNpcZone(npc, areaAtPosition.zone);
+            return areaAtPosition.zone;
+        }
+
+        if (TryGetKnownNpcZone(npc, out NpcMapZone known))
+        {
+            return known;
+        }
+
+        NpcMapArea nearestArea =
+            NpcMapArea.FindNearestArea(npc.transform.position);
+
+        if (nearestArea != null)
+        {
+            ReportNpcZone(npc, nearestArea.zone);
+            return nearestArea.zone;
+        }
+
+        return null;
+    }
+
+    public static NpcMapArea ResolveMapAreaAfterTeleport(
+        GameObject npc,
+        NpcMapZone destinationZone,
+        Vector3 referencePosition)
+    {
+        if (npc == null)
+        {
+            return null;
+        }
+
+        NpcMapArea area = NpcMapArea.FindArea(npc.transform.position);
+        if (area != null && area.zone == destinationZone)
+        {
+            return area;
+        }
+
+        area = NpcMapArea.FindArea(referencePosition);
+        if (area != null && area.zone == destinationZone)
+        {
+            return area;
+        }
+
+        return NpcMapArea.FindNearestAreaInZone(
+            destinationZone,
+            referencePosition);
+    }
+
     public static Vector3 GetNextMoveTarget(
         GameObject npc,
         Vector3 finalTarget,
@@ -45,29 +127,7 @@ public static class NpcMapNavigator
             return finalTarget;
         }
 
-        NpcMapArea currentArea =
-            NpcMapArea.FindArea(npc.transform.position);
-
-        NpcMapZone? currentZone = null;
-        if (currentArea != null)
-        {
-            currentZone = currentArea.zone;
-            ReportNpcZone(npc, currentArea.zone);
-        }
-        else if (knownNpcZones.TryGetValue(npc, out NpcMapZone knownZone))
-        {
-            currentZone = knownZone;
-        }
-        else
-        {
-            NpcMapArea nearestArea =
-                NpcMapArea.FindNearestArea(npc.transform.position);
-            if (nearestArea != null)
-            {
-                currentZone = nearestArea.zone;
-                ReportNpcZone(npc, nearestArea.zone);
-            }
-        }
+        NpcMapZone? currentZone = ResolveActorZone(npc);
 
         NpcMapZone? targetZone = forcedTargetZone;
         if (!targetZone.HasValue)
@@ -192,6 +252,36 @@ public static class NpcMapNavigator
         }
 
         return null;
+    }
+
+    static bool IsNearTeleportBoundary(
+        Vector3 position,
+        NpcMapZone zone)
+    {
+        const float exitBuffer = 2.5f;
+        const float entryBuffer = 1.25f;
+
+        foreach (NpcTeleportGate gate in NpcTeleportGate.Gates)
+        {
+            if (gate == null)
+            {
+                continue;
+            }
+
+            if (gate.toZone == zone &&
+                Vector2.Distance(position, gate.ExitPosition) <= exitBuffer)
+            {
+                return true;
+            }
+
+            if (gate.fromZone == zone &&
+                Vector2.Distance(position, gate.EntryPosition) <= entryBuffer)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     static string GetZoneName(NpcMapZone zone)

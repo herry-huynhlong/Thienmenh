@@ -54,7 +54,7 @@ public class TouchSelectTarget : MonoBehaviour
     public Vector2 worldItemIconOffset =
         new Vector2(16f, -16f);
 
-    public float worldItemTextLeftPadding = 88f;
+    public float worldItemTextLeftPadding = 24f;
 
     [Header("Character Portrait")]
     public Vector2 characterPortraitSize =
@@ -63,7 +63,7 @@ public class TouchSelectTarget : MonoBehaviour
     public Vector2 characterPortraitOffset =
         new Vector2(16f, -42f);
 
-    public float characterTextLeftPadding = 112f;
+    public float characterTextLeftPadding = 0f;
 
     public bool autoUseCharacterSprite;
 
@@ -473,6 +473,11 @@ public class TouchSelectTarget : MonoBehaviour
             }
         }
 
+        if (infoText != null)
+        {
+            infoText.raycastTarget = false;
+        }
+
         if (infoButton == null)
         {
             infoButton =
@@ -481,36 +486,6 @@ public class TouchSelectTarget : MonoBehaviour
                     "InfoButton",
                     "Thong Tin",
                     "Th\u00F4ng Tin");
-        }
-
-        if (infoText == null &&
-            infoButton != null)
-        {
-            Transform buttonText =
-                FindChildByName(infoButton.transform, "Th\u00F4ng Tin");
-
-            if (buttonText == null)
-            {
-                buttonText =
-                    FindChildByName(infoButton.transform, "Th\u00F4ng Tin");
-            }
-
-            if (buttonText == null)
-            {
-                buttonText =
-                    FindChildByName(infoButton.transform, "Th\u00F4ng Tin");
-            }
-
-            if (buttonText != null)
-            {
-                infoText = buttonText.GetComponent<TMP_Text>();
-            }
-
-            if (infoText == null)
-            {
-                infoText =
-                    infoButton.GetComponentInChildren<TMP_Text>(true);
-            }
         }
 
         if (nameText == null)
@@ -526,6 +501,11 @@ public class TouchSelectTarget : MonoBehaviour
             }
         }
 
+        if (nameText != null)
+        {
+            nameText.raycastTarget = false;
+        }
+
         if (realmText == null)
         {
             Transform realmTransform =
@@ -539,6 +519,11 @@ public class TouchSelectTarget : MonoBehaviour
             }
         }
 
+        if (realmText != null)
+        {
+            realmText.raycastTarget = false;
+        }
+
         if (hpText == null)
         {
             Transform hpTransform =
@@ -548,6 +533,11 @@ public class TouchSelectTarget : MonoBehaviour
             {
                 hpText = hpTransform.GetComponent<TMP_Text>();
             }
+        }
+
+        if (hpText != null)
+        {
+            hpText.raycastTarget = false;
         }
 
         if (inventoryButton == null)
@@ -693,6 +683,16 @@ public class TouchSelectTarget : MonoBehaviour
         if (infoContentRoot != null)
         {
             SetCanvasGroupVisible(infoContentRoot, visible);
+        }
+
+        if (infoPanel != null)
+        {
+            Image panelImage = infoPanel.GetComponent<Image>();
+
+            if (panelImage != null)
+            {
+                panelImage.raycastTarget = false;
+            }
         }
 
         if (infoText != null)
@@ -892,7 +892,7 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (worldItemNameText != null)
         {
-            worldItemNameText.text = pickup.item.itemName;
+            worldItemNameText.text = ItemText.Name(pickup.item);
         }
 
         if (worldItemInfoText != null)
@@ -1795,10 +1795,10 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (amount <= 1)
         {
-            return loot.itemName;
+            return ItemText.Name(loot);
         }
 
-        return loot.itemName + " x" + amount;
+        return ItemText.Name(loot) + " x" + amount;
     }
 
     string BuildWorldItemInfo(WorldStatItemPickup pickup)
@@ -1812,7 +1812,7 @@ public class TouchSelectTarget : MonoBehaviour
         StringBuilder builder =
             new StringBuilder();
 
-        builder.AppendLine(NpcText.Label("name") + ": " + pickup.item.itemName);
+        builder.AppendLine(NpcText.Label("name") + ": " + ItemText.Name(pickup.item));
         builder.Append(BuildWorldItemBodyInfo(pickup));
 
         return builder.ToString().TrimEnd();
@@ -1826,14 +1826,27 @@ public class TouchSelectTarget : MonoBehaviour
         StringBuilder builder =
             new StringBuilder();
 
-        builder.AppendLine(NpcText.Label("type") + ": " + GetItemTypeText(item.itemType));
-        builder.AppendLine(NpcText.Label("grade") + ": " + GetItemGradeText(item.grade));
-        builder.AppendLine(NpcText.Label("amount") + ": " + Mathf.Max(0, pickup.amount));
+        builder.AppendLine(
+            ItemText.Format(
+                "detail",
+                "typeFormat",
+                GetItemTypeText(item.itemType)));
+        builder.AppendLine(
+            ItemText.Format(
+                "detail",
+                "gradeFormat",
+                GetItemGradeText(item.grade)));
+        builder.AppendLine(
+            ItemText.Format(
+                "detail",
+                "amountFormat",
+                Mathf.Max(0, pickup.amount)));
 
-        if (!string.IsNullOrWhiteSpace(item.description))
+        string description = ItemText.Description(item);
+        if (!string.IsNullOrWhiteSpace(description))
         {
             builder.AppendLine();
-            builder.AppendLine(item.description);
+            builder.AppendLine(description);
         }
 
         return builder.ToString().TrimEnd();
@@ -1841,12 +1854,12 @@ public class TouchSelectTarget : MonoBehaviour
 
     string GetItemTypeText(ItemType itemType)
     {
-        return NpcText.ItemType(itemType);
+        return ItemText.Type(itemType);
     }
 
     string GetItemGradeText(ItemGrade grade)
     {
-        return NpcText.ItemGrade(grade);
+        return ItemText.Grade(grade);
     }
 
     string GetTargetAge(Transform target)
@@ -1963,6 +1976,15 @@ public class TouchSelectTarget : MonoBehaviour
             return "";
         }
 
+        NpcHideCultivationInfo hideInfo =
+            target.GetComponentInParent<NpcHideCultivationInfo>();
+
+        if (hideInfo != null &&
+            hideInfo.hideCultivationSkills)
+        {
+            return "";
+        }
+
         StringBuilder builder =
             new StringBuilder();
 
@@ -1977,7 +1999,7 @@ public class TouchSelectTarget : MonoBehaviour
             }
 
             builder.Append(" - ");
-            builder.Append(stack.item.itemName);
+            builder.Append(ItemText.Name(stack.item));
             builder.Append(": ");
             builder.Append(GetManualMasteryText(stack.mastery));
             builder.AppendLine();
@@ -1988,17 +2010,7 @@ public class TouchSelectTarget : MonoBehaviour
 
     string GetManualMasteryText(CultivationManualMastery mastery)
     {
-        switch (mastery)
-        {
-            case CultivationManualMastery.TieuThanh:
-                return "Ti\u1EC3u Th\u00E0nh";
-            case CultivationManualMastery.TrungThanh:
-                return "Trung Th\u00E0nh";
-            case CultivationManualMastery.DaiThanh:
-                return "\u0110\u1EA1i Th\u00E0nh";
-            default:
-                return "Ch\u01B0a h\u1ECDc";
-        }
+        return ItemText.Mastery(mastery);
     }
 
     int GetTargetMoney(Transform target)

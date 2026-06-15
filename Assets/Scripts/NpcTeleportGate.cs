@@ -145,13 +145,20 @@ public class NpcTeleportGate : MonoBehaviour
                 continue;
             }
 
-            NpcMapArea area =
-                NpcMapArea.FindArea(actor.transform.position);
+            NpcMapZone? actorZone =
+                NpcMapNavigator.ResolveActorZone(actor);
 
-            if (area != null &&
-                area.zone != fromZone)
+            if (actorZone.HasValue &&
+                actorZone.Value != fromZone)
             {
-                continue;
+                float nearEntryDistance =
+                    Vector2.Distance(actor.transform.position, EntryPosition);
+
+                if (nearEntryDistance >
+                    Mathf.Max(0.1f, npcAutoUseRadius))
+                {
+                    continue;
+                }
             }
 
             SyncSameSceneTeleportTarget();

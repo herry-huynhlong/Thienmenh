@@ -147,5 +147,24 @@ public static class CultivationProgression
             MaxStage +
             Mathf.Clamp(stage, 1, MaxStage);
     }
+
+    public static float GetStatPower(
+        CultivationRealm realm,
+        int stage,
+        EntityKind kind)
+    {
+        int realmIndex = Mathf.Max(0, (int)realm);
+        int clampedStage = Mathf.Clamp(stage, 1, MaxStage);
+        float power =
+            1f +
+            (realmIndex * 0.75f) +
+            ((clampedStage - 1) * 0.1f);
+        if (kind == EntityKind.Beast)
+        {
+            power *= 1.05f;
+        }
+
+        return Mathf.Max(1f, power);
+    }
 }
 

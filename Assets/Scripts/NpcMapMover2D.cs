@@ -179,6 +179,10 @@ public class NpcMapMover2D : MonoBehaviour
         if (gate != null)
         {
             NpcMapNavigator.ReportNpcZone(gameObject, gate.toZone);
+            area = NpcMapNavigator.ResolveMapAreaAfterTeleport(
+                gameObject,
+                gate.toZone,
+                referencePosition);
         }
         else if (area != null)
         {

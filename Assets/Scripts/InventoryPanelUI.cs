@@ -337,38 +337,54 @@ public class InventoryPanelUI : MonoBehaviour
 
         if (detailNameText != null)
         {
-            detailNameText.text = stack.item.itemName;
+            detailNameText.text = ItemText.Name(stack.item);
         }
 
         if (detailAmountText != null)
         {
-            detailAmountText.text = "Số lượng: x" + stack.amount;
+            detailAmountText.text =
+                ItemText.Format("detail", "amountFormat", stack.amount);
         }
 
         if (detailTypeText != null)
         {
-            detailTypeText.text = "Loại: " + GetTypeText(stack.item.itemType);
+            detailTypeText.text =
+                ItemText.Format(
+                    "detail",
+                    "typeFormat",
+                    ItemText.Type(stack.item.itemType));
         }
 
         if (detailGradeText != null)
         {
-            detailGradeText.text = "Phẩm chất: " + GetGradeText(stack.item.grade);
+            detailGradeText.text =
+                ItemText.Format(
+                    "detail",
+                    "gradeFormat",
+                    ItemText.Grade(stack.item.grade));
         }
 
         if (detailTargetsText != null)
         {
-            detailTargetsText.text = "Dùng cho: " + GetTargetText(stack.item.validTargets);
+            detailTargetsText.text =
+                ItemText.Format(
+                    "detail",
+                    "targetsFormat",
+                    ItemText.Target(stack.item.validTargets));
         }
 
         if (detailPriceText != null)
         {
             detailPriceText.text =
-                "Giá: " + NpcEconomy.FormatPrice(stack.item);
+                ItemText.Format(
+                    "detail",
+                    "priceFormat",
+                    NpcEconomy.FormatPrice(stack.item));
         }
 
         if (detailDescriptionText != null)
         {
-            detailDescriptionText.text = stack.item.description;
+            detailDescriptionText.text = ItemText.Description(stack.item);
         }
 
         if (detailStatsText != null)
@@ -750,7 +766,7 @@ public class InventoryPanelUI : MonoBehaviour
 
         if (target == null)
         {
-            Debug.Log("Chưa chọn mục tiêu phù hợp để dùng vật phẩm.");
+            Debug.Log(ItemText.Get("messages", "noValidTarget"));
             return;
         }
 
@@ -763,7 +779,7 @@ public class InventoryPanelUI : MonoBehaviour
     {
         if (!HasHeavenDaoPower(HeavenDaoPower.DirectGiftItem))
         {
-            Debug.Log("Thiên Đạo chưa đủ Chưởng Khống. Cần 10% để ban phát vật phẩm trực tiếp.");
+            Debug.Log(ItemText.Get("messages", "needHeavenControlGift"));
             return;
         }
 
@@ -790,7 +806,7 @@ public class InventoryPanelUI : MonoBehaviour
         if (selectedTarget == null ||
             !CanReceiveItem(selectedTarget))
         {
-            Debug.Log("Chưa chọn Tu sĩ để phát vật phẩm.");
+            Debug.Log(ItemText.Get("messages", "noSelectedCultivator"));
             return;
         }
 
@@ -829,7 +845,7 @@ public class InventoryPanelUI : MonoBehaviour
     {
         if (!HasHeavenDaoPower(HeavenDaoPower.DropOpportunityArea))
         {
-            Debug.Log("Thiên Đạo chưa đủ Chưởng Khống. Cần 20% để thả cơ duyên xuống khu vực.");
+            Debug.Log(ItemText.Get("messages", "needHeavenControlDrop"));
             return;
         }
 
@@ -1446,62 +1462,79 @@ public class InventoryPanelUI : MonoBehaviour
 
         if (item.hpBonus != 0)
         {
-            builder.AppendLine("Máu +" + item.hpBonus);
+            builder.AppendLine(
+                ItemText.Format("stats", "hpBonus", item.hpBonus));
         }
 
         if (item.cultivationBonus != 0)
         {
-            builder.AppendLine("Tu vi +" + item.cultivationBonus);
+            builder.AppendLine(
+                ItemText.Format(
+                    "stats",
+                    "cultivationBonus",
+                    item.cultivationBonus));
         }
 
         if (item.breakthroughRealm)
         {
-            builder.AppendLine("Đột phá cảnh giới");
+            builder.AppendLine(
+                ItemText.Get("stats", "breakthroughRealm"));
         }
 
         if (item.damageBonus != 0)
         {
-            builder.AppendLine("Dame +" + item.damageBonus);
+            builder.AppendLine(
+                ItemText.Format("stats", "damageBonus", item.damageBonus));
         }
 
         if (item.armorBonus != 0)
         {
-            builder.AppendLine("Giáp +" + item.armorBonus);
+            builder.AppendLine(
+                ItemText.Format("stats", "armorBonus", item.armorBonus));
         }
 
         if (item.effectResistanceBonus != 0)
         {
-            builder.AppendLine("Kháng hiệu ứng +" + item.effectResistanceBonus);
+            builder.AppendLine(
+                ItemText.Format(
+                    "stats",
+                    "effectResistanceBonus",
+                    item.effectResistanceBonus));
         }
 
         if (item.isTemporary)
         {
-            builder.AppendLine("Thời gian: " + item.duration + "s");
+            builder.AppendLine(
+                ItemText.Format("stats", "duration", item.duration));
         }
 
         if (item.ConsumesWhenUsed() &&
             item.useSuccessChance < 0.999f)
         {
             builder.AppendLine(
-                "Xác suất: " +
-                Mathf.RoundToInt(item.useSuccessChance * 100f) +
-                "%");
+                ItemText.Format(
+                    "stats",
+                    "successChance",
+                    Mathf.RoundToInt(item.useSuccessChance * 100f)));
         }
 
         if (item.UsesDurability())
         {
             builder.AppendLine(
-                "Độ bền: " +
-                stack.durability +
-                "/" +
-                stack.maxDurability);
+                ItemText.Format(
+                    "stats",
+                    "durability",
+                    stack.durability,
+                    stack.maxDurability));
         }
 
         if (item.itemType == ItemType.CongPhap)
         {
             builder.AppendLine(
-                "Linh ngộ: " +
-                GetMasteryText(stack.mastery));
+                ItemText.Format(
+                    "stats",
+                    "mastery",
+                    ItemText.Mastery(stack.mastery)));
         }
 
         AppendUseConversionText(builder, item);
@@ -1514,158 +1547,60 @@ public class InventoryPanelUI : MonoBehaviour
         StatItemData item)
     {
         builder.AppendLine(
-            "Cách dùng: " +
-            GetUseStyleText(item.GetResolvedUseStyle()));
+            ItemText.Format(
+                "stats",
+                "useStyle",
+                ItemText.UseStyle(item.GetResolvedUseStyle())));
         builder.AppendLine(
-            "Dùng trực tiếp: " +
-            GetRawUsePolicyText(item.rawUsePolicy));
+            ItemText.Format(
+                "stats",
+                "rawUse",
+                ItemText.RawUsePolicy(item.rawUsePolicy)));
 
         if (item.itemType == ItemType.VatLieu)
         {
             builder.AppendLine(
-                "Hiệu quả ăn sống: " +
-                Mathf.RoundToInt(item.rawUseEfficiency * 100f) +
-                "%");
+                ItemText.Format(
+                    "stats",
+                    "rawEfficiency",
+                    Mathf.RoundToInt(item.rawUseEfficiency * 100f)));
         }
 
         if (item.rawToxicityDamage > 0)
         {
             builder.AppendLine(
-                "Độc tính: -" +
-                item.rawToxicityDamage +
-                " máu");
+                ItemText.Format(
+                    "stats",
+                    "toxicity",
+                    item.rawToxicityDamage));
         }
 
         if (item.canBeRefinedIntoPill)
         {
-            builder.AppendLine("Có thể luyện đan");
+            builder.AppendLine(ItemText.Get("stats", "canRefinePill"));
         }
 
         if (item.canBeForgedIntoArtifact)
         {
-            builder.AppendLine("Có thể luyện khí");
+            builder.AppendLine(ItemText.Get("stats", "canForgeArtifact"));
         }
 
         if (item.itemType == ItemType.CongPhap &&
             item.canBeStudied)
         {
-            builder.AppendLine("Có thể nghiên cứu");
+            builder.AppendLine(ItemText.Get("stats", "canStudy"));
         }
 
         if (!item.canBeSold)
         {
-            builder.AppendLine("Không thể bán");
+            builder.AppendLine(ItemText.Get("stats", "cannotSell"));
         }
 
         builder.AppendLine(
-            "Tu sĩ ưu tiên: " +
-            GetNpcIntentText(item.npcIntent));
-    }
-
-    string GetUseStyleText(ItemUseStyle style)
-    {
-        switch (style)
-        {
-            case ItemUseStyle.Consumable:
-                return "Tiêu hao";
-            case ItemUseStyle.RawMaterial:
-                return "Vật liệu sống";
-            case ItemUseStyle.DurableEquipment:
-                return "Trang bị bền";
-            case ItemUseStyle.StudyManual:
-                return "Nghiên cứu";
-            default:
-                return "Tự động";
-        }
-    }
-
-    string GetRawUsePolicyText(RawUsePolicy policy)
-    {
-        switch (policy)
-        {
-            case RawUsePolicy.Risky:
-                return "Rủi ro";
-            case RawUsePolicy.Forbidden:
-                return "Cấm";
-            default:
-                return "Được";
-        }
-    }
-
-    string GetNpcIntentText(NpcItemIntent intent)
-    {
-        switch (intent)
-        {
-            case NpcItemIntent.PreferUseRaw:
-                return "Ăn sống";
-            case NpcItemIntent.PreferRefine:
-                return "Luyện đan";
-            case NpcItemIntent.PreferSell:
-                return "Bán";
-            case NpcItemIntent.Keep:
-                return "Giữ";
-            default:
-                return "Tự động";
-        }
-    }
-
-    string GetMasteryText(CultivationManualMastery mastery)
-    {
-        switch (mastery)
-        {
-            case CultivationManualMastery.TieuThanh:
-                return "Tiểu Thành";
-            case CultivationManualMastery.TrungThanh:
-                return "Trung Thành";
-            case CultivationManualMastery.DaiThanh:
-                return "Đại Thành";
-            default:
-                return "Chưa tu luyện";
-        }
-    }
-
-    string GetTypeText(ItemType itemType)
-    {
-        switch (itemType)
-        {
-            case ItemType.DanDuoc:
-                return "Đan Dược";
-            case ItemType.PhapBao:
-                return "Pháp Bảo";
-            case ItemType.CongPhap:
-                return "Công Pháp";
-            case ItemType.VatLieu:
-                return "Vật Liệu";
-            default:
-                return itemType.ToString();
-        }
-    }
-
-    string GetGradeText(ItemGrade grade)
-    {
-        switch (grade)
-        {
-            case ItemGrade.Ha:
-                return "Hạ";
-            case ItemGrade.Trung:
-                return "Trung";
-            case ItemGrade.Thuong:
-                return "Thường";
-            case ItemGrade.Tien:
-                return "Tiên";
-            default:
-                return grade.ToString();
-        }
-    }
-
-    string GetTargetText(ItemTargetType targetType)
-    {
-        if (targetType == ItemTargetType.All)
-        {
-            return "Tất Cả";
-        }
-
-        return targetType.ToString();
+            ItemText.Format(
+                "stats",
+                "npcIntent",
+                ItemText.NpcIntent(item.npcIntent)));
     }
 
 #if UNITY_EDITOR

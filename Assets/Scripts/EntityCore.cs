@@ -328,9 +328,9 @@ public static class EntityGenerator
             100);
         talent.cultivationSpeed = gradePower;
         talent.combatMultiplier = kind == EntityKind.Beast
-            ? UnityEngine.Random.Range(0.8f, 1.6f)
-            : UnityEngine.Random.Range(0.8f, 1.2f) * gradePower;
-        talent.luck = UnityEngine.Random.Range(0.7f, 1.3f) * gradePower;
+            ? UnityEngine.Random.Range(0.95f, 1.2f)
+            : UnityEngine.Random.Range(0.9f, 1.15f);
+        talent.luck = UnityEngine.Random.Range(0.9f, 1.1f) * gradePower;
     }
 
     static TalentGrade WeightedTalent()
@@ -349,15 +349,15 @@ public static class EntityGenerator
         switch (grade)
         {
             case TalentGrade.SpiritRoot:
-                return 1.35f;
+                return 1.05f;
             case TalentGrade.FireSpiritRoot:
-                return 1.8f;
+                return 1.1f;
             case TalentGrade.SwordHeart:
-                return 2.2f;
+                return 1.15f;
             case TalentGrade.SaintBody:
-                return 3f;
+                return 1.2f;
             case TalentGrade.ChildOfHeaven:
-                return 5f;
+                return 1.3f;
             default:
                 return 1f;
         }
@@ -368,48 +368,49 @@ public static class EntityGenerator
         stats.realm = WeightedRealm(kind);
         stats.realmStage = UnityEngine.Random.Range(1, 10);
 
-        int realmPower = 1;
-        for (int i = 0; i < (int)stats.realm; i++)
-        {
-            realmPower *= 10;
-        }
+        float realmPower =
+            CultivationProgression.GetStatPower(stats.realm, stats.realmStage, kind);
 
         float talentPower = TalentPower(talent.grade);
         int baseHp;
         int baseAttack;
+        int baseDefense;
         float baseMoveSpeed;
         int baseMoney;
         int baseSpiritStone;
 
         if (kind == EntityKind.Beast)
         {
-            baseHp = UnityEngine.Random.Range(70, 180);
-            baseAttack = UnityEngine.Random.Range(8, 22);
+            baseHp = UnityEngine.Random.Range(90, 180);
+            baseAttack = UnityEngine.Random.Range(10, 24);
+            baseDefense = UnityEngine.Random.Range(5, 16);
             baseMoveSpeed = UnityEngine.Random.Range(1.6f, 3.2f);
             baseMoney = 0;
             baseSpiritStone = 0;
         }
         else if (kind == EntityKind.Cultivator)
         {
-            baseHp = UnityEngine.Random.Range(70, 130);
-            baseAttack = UnityEngine.Random.Range(4, 16);
+            baseHp = 100;
+            baseAttack = 10;
+            baseDefense = 5;
             baseMoveSpeed = UnityEngine.Random.Range(1.2f, 2.1f);
             baseMoney = UnityEngine.Random.Range(5, 220);
             baseSpiritStone = UnityEngine.Random.Range(0, 12);
         }
         else
         {
-            baseHp = UnityEngine.Random.Range(55, 110);
-            baseAttack = UnityEngine.Random.Range(2, 10);
+            baseHp = 100;
+            baseAttack = 10;
+            baseDefense = 5;
             baseMoveSpeed = UnityEngine.Random.Range(1.0f, 1.8f);
             baseMoney = UnityEngine.Random.Range(2, 140);
             baseSpiritStone = UnityEngine.Random.Range(0, 5);
         }
 
-        stats.maxHP = Mathf.Max(1, Mathf.RoundToInt(baseHp * realmPower * talentPower));
+        stats.maxHP = Mathf.Max(1, Mathf.RoundToInt(baseHp * realmPower));
         stats.currentHP = stats.maxHP;
         stats.attack = Mathf.Max(1, Mathf.RoundToInt(baseAttack * realmPower * talent.combatMultiplier));
-        stats.defense = Mathf.Max(0, Mathf.RoundToInt(UnityEngine.Random.Range(1, 8) * realmPower * 0.7f));
+        stats.defense = Mathf.Max(0, Mathf.RoundToInt(baseDefense * realmPower * talent.combatMultiplier));
         stats.effectResistance = Mathf.RoundToInt(UnityEngine.Random.Range(0, 8) * talentPower);
         stats.moveSpeed = baseMoveSpeed;
         stats.cultivationExp = UnityEngine.Random.Range(0, 80) * Mathf.Max(1, (int)stats.realm + 1);
@@ -440,13 +441,10 @@ public static class EntityGenerator
             return CultivationRealm.SoulFormation;
         }
 
-        if (roll < 0.50f) return CultivationRealm.Mortal;
-        if (roll < 0.80f) return CultivationRealm.QiRefining;
-        if (roll < 0.92f) return CultivationRealm.Foundation;
-        if (roll < 0.97f) return CultivationRealm.GoldenCore;
-        if (roll < 0.99f) return CultivationRealm.NascentSoul;
-        if (roll < 0.998f) return CultivationRealm.SoulFormation;
-        return CultivationRealm.Tribulation;
+        if (roll < 0.70f) return CultivationRealm.QiRefining;
+        if (roll < 0.90f) return CultivationRealm.Foundation;
+        if (roll < 0.99f) return CultivationRealm.GoldenCore;
+        return CultivationRealm.NascentSoul;
     }
 
     static void FillPersonality(EntityPersonality personality, EntityKind kind)

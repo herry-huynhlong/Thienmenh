@@ -121,14 +121,20 @@ public class NpcMapBoundaryClamp : MonoBehaviour
         if (gate != null)
         {
             NpcMapNavigator.ReportNpcZone(gameObject, gate.toZone);
+            NpcMapArea resolvedArea =
+                NpcMapNavigator.ResolveMapAreaAfterTeleport(
+                    gameObject,
+                    gate.toZone,
+                    referencePosition);
+
+            if (resolvedArea != null)
+            {
+                lastArea = resolvedArea;
+            }
         }
         else if (area != null)
         {
             NpcMapNavigator.ReportNpcZone(gameObject, area.zone);
-        }
-
-        if (area != null)
-        {
             lastArea = area;
         }
     }

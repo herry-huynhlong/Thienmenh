@@ -141,6 +141,11 @@ public class WorldStatItemPickup : MonoBehaviour
             return false;
         }
 
+        if (IsReservedByOther(target.gameObject))
+        {
+            return false;
+        }
+
         StatItemData pickedItem = item;
 
         if (!TryTake(1))
@@ -156,7 +161,7 @@ public class WorldStatItemPickup : MonoBehaviour
             collector.ReceiveItem(
                 pickedItem,
                 ItemLifecycleEventType.Picked,
-                ShouldAutoUseOnPickup(pickedItem));
+                false);
             return true;
         }
 
@@ -208,16 +213,6 @@ public class WorldStatItemPickup : MonoBehaviour
 
         inventory.AddItem(pickedItem, 1);
         return true;
-    }
-
-    bool ShouldAutoUseOnPickup(StatItemData pickedItem)
-    {
-        if (pickedItem == null)
-        {
-            return false;
-        }
-
-        return pickedItem.ShouldNpcUseDirectly();
     }
 
     Transform GetWorldActorTarget(Collider2D other)

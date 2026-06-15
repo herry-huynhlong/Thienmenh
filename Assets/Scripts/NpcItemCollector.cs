@@ -105,7 +105,8 @@ public class NpcItemCollector : MonoBehaviour
             !pickup.allowNpcPickup ||
             pickup.requireNpcHarvestAction ||
             pickup.item == null ||
-            inventory == null)
+            inventory == null ||
+            pickup.IsReservedByOther(gameObject))
         {
             return false;
         }
@@ -120,19 +121,9 @@ public class NpcItemCollector : MonoBehaviour
         ReceiveItem(
             pickedItem,
             ItemLifecycleEventType.Picked,
-            ShouldAutoUsePickedItem(pickedItem));
+            false);
 
         return true;
-    }
-
-    bool ShouldAutoUsePickedItem(StatItemData item)
-    {
-        if (!autoUsePickedItems || item == null)
-        {
-            return false;
-        }
-
-        return item.ShouldNpcUseDirectly();
     }
 
     public void ReceiveItem(
@@ -151,10 +142,94 @@ public class NpcItemCollector : MonoBehaviour
         ItemLifecycleSystem.Notify(source, item, gameObject);
         TreasureHeatSystem.NotifyNpcReceivedItem(gameObject, item);
 
-        if (considerUse)
+        if (considerUse ||
+            ShouldNpcDecideItemUse(item))
         {
             TryUseOwnedItem(item);
         }
+    }
+
+    bool ShouldNpcDecideItemUse(StatItemData item)
+    {
+        if (item == null ||
+            inventory == null)
+        {
+            return false;
+        }
+
+        if (!item.CanUseOn(gameObject) ||
+            !item.ShouldNpcUseDirectly())
+        {
+            return false;
+        }
+
+        NpcDecisionBrain brain =
+            GetComponent<NpcDecisionBrain>();
+
+        if (brain != null &&
+            brain.enabledDecisionBrain)
+        {
+            if (brain.currentDecision == NpcDecisionKind.Rest ||
+                brain.currentDecision == NpcDecisionKind.Work ||
+                brain.currentDecision == NpcDecisionKind.GatherResource)
+            {
+                return false;
+            }
+        }
+
+        if (item.itemType == ItemType.CongPhap)
+        {
+            return CanStudyManualNow(item);
+        }
+
+        if (item.itemType == ItemType.PhapBao)
+        {
+            return IsItemBetterThanCurrentEquipment(item);
+        }
+
+        return item.CanUseOn(gameObject);
+    }
+
+    bool CanStudyManualNow(StatItemData item)
+    {
+        if (item == null)
+        {
+            return false;
+        }
+
+        ItemStack stack = FindItemStack(item);
+        if (stack == null ||
+            stack.broken ||
+            stack.mastery == CultivationManualMastery.DaiThanh)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool IsItemBetterThanCurrentEquipment(StatItemData item)
+    {
+        if (item == null)
+        {
+            return false;
+        }
+
+        EquipmentSlot slot = item.GetResolvedEquipmentSlot();
+        if (slot != EquipmentSlot.Weapon &&
+            slot != EquipmentSlot.Armor)
+        {
+            return false;
+        }
+
+        ItemStack current = FindAppliedEquipment(slot);
+        if (current == null ||
+            current.item == null)
+        {
+            return true;
+        }
+
+        return GetEquipmentScore(item) > GetEquipmentScore(current.item);
     }
 
     void RestoreAppliedItems()
@@ -383,6 +458,25 @@ public class NpcItemCollector : MonoBehaviour
         return true;
     }
 
+    ItemStack FindItemStack(StatItemData item)
+    {
+        if (inventory == null || item == null)
+        {
+            return null;
+        }
+
+        foreach (ItemStack stack in inventory.items)
+        {
+            if (stack != null &&
+                stack.item == item)
+            {
+                return stack;
+            }
+        }
+
+        return null;
+    }
+
     bool TryStudyManual(ItemStack stack)
     {
         StatItemData item = stack.item;
@@ -402,7 +496,7 @@ public class NpcItemCollector : MonoBehaviour
                 equippedItems.Add(item);
             }
 
-            ItemEffectSpawner.PlayBuyEffect(item, transform);
+            ItemEffectSpawner.PlayUseEffect(item, transform);
 
             stack.applied = true;
             inventory.MarkDirty();
@@ -438,6 +532,8 @@ public class NpcItemCollector : MonoBehaviour
         {
             return false;
         }
+
+        ItemEffectSpawner.PlayUseEffect(item, transform);
 
         if (!equippedItems.Contains(item))
         {

@@ -171,12 +171,12 @@ public static class NpcText
 
     public static string ItemType(ItemType itemType)
     {
-        return Get("itemTypes", itemType.ToString(), itemType.ToString());
+        return ItemText.Type(itemType);
     }
 
     public static string ItemGrade(ItemGrade grade)
     {
-        return Get("itemGrades", grade.ToString(), grade.ToString());
+        return ItemText.Grade(grade);
     }
 
     public static string HealthStatus(int currentHP, int maxHP)

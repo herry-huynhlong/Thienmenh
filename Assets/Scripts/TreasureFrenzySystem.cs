@@ -14,13 +14,14 @@ public class TreasureFrenzySystem : MonoBehaviour
     public float frenzyTickInterval = 1f;
     public float attackRange = 1.4f;
     public float cowardFearThreshold = 1.15f;
-    public float holderPeaceGameHours = 1f;
+    public float holderPeaceGameHours = 5f / 60f;
     public int upperGradeDamage = 20;
     public int immortalGradeDamage = 80;
     public float immortalLightningDuration = 8f;
     public float immortalLightningDangerRadius = 5f;
     public float immortalLightningSafePadding = 2f;
     public float immortalLightningStrikeInterval = 1.1f;
+    public float immortalLightningSettleDuration = 3.5f;
     public int immortalLightningDamage = 35;
     public int outerSkirmishDamage = 8;
     public float lowPowerOuterSkirmishThreshold = 35f;
@@ -127,6 +128,9 @@ public class TreasureFrenzySystem : MonoBehaviour
                 : 0f,
             lightningEndTime = item.grade == ItemGrade.Tien
                 ? Time.time + GetImmortalLightningStartDelay() + GetImmortalLightningDuration()
+                : 0f,
+            lightningSettleEndTime = item.grade == ItemGrade.Tien
+                ? Time.time + GetImmortalLightningStartDelay() + GetImmortalLightningDuration() + Mathf.Max(0.5f, immortalLightningSettleDuration)
                 : 0f,
             nextLightningStrikeTime = 0f
         };
@@ -503,11 +507,16 @@ public class TreasureFrenzySystem : MonoBehaviour
             return;
         }
 
+        if (Time.time < frenzyEvent.lightningSettleEndTime)
+        {
+            return;
+        }
+
         frenzyEvent.waitingForLightning = false;
         if (WorldEventManager.Instance != null && frenzyEvent.item != null)
         {
             WorldEventManager.Instance.AddLog(
-                "Thien loi tan, " + frenzyEvent.item.itemName + " co the tranh doat.",
+                "Thien loi tan, " + ItemText.Name(frenzyEvent.item) + " co the tranh doat.",
                 2);
         }
 
@@ -734,7 +743,7 @@ public class TreasureFrenzySystem : MonoBehaviour
         if (WorldEventManager.Instance != null && frenzyEvent.item != null)
         {
             WorldEventManager.Instance.AddLog(
-                frenzyEvent.item.itemName + " tranh doat da lang xuong.",
+                ItemText.Name(frenzyEvent.item) + " tranh doat da lang xuong.",
                 frenzyEvent.item.grade == ItemGrade.Tien ? 2 : 1);
         }
     }
@@ -806,7 +815,7 @@ public class TreasureFrenzySystem : MonoBehaviour
             return;
         }
 
-        NpcRoleUtility.SetAction(participant.actor, "Hoang so tranh xa " + frenzyEvent.item.itemName);
+        NpcRoleUtility.SetAction(participant.actor, "Hoang so tranh xa " + ItemText.Name(frenzyEvent.item));
     }
 
     void AnnounceWorld(TreasureFrenzyEvent frenzyEvent, bool holderChanged)
@@ -819,14 +828,14 @@ public class TreasureFrenzySystem : MonoBehaviour
         if (holderChanged && frenzyEvent.holder != null)
         {
             WorldEventManager.Instance.AddLog(
-                GetActorName(frenzyEvent.holder) + " cuop duoc " + frenzyEvent.item.itemName +
+                GetActorName(frenzyEvent.holder) + " cuop duoc " + ItemText.Name(frenzyEvent.item) +
                 ", neu giu duoc 1 gio se thoat khoi tranh doat.",
                 frenzyEvent.item.grade == ItemGrade.Tien ? 2 : 1);
             return;
         }
 
         WorldEventManager.Instance.AddLog(
-            frenzyEvent.item.itemName + " xuat the, tin tuc truyen khap cac map. " +
+            ItemText.Name(frenzyEvent.item) + " xuat the, tin tuc truyen khap cac map. " +
             frenzyEvent.participants.Count + " ke bi hap dan lao vao tranh doat.",
             frenzyEvent.item.grade == ItemGrade.Tien ? 2 : 1);
     }
@@ -869,13 +878,23 @@ public class TreasureFrenzySystem : MonoBehaviour
         if (kind == ActorKind.Monster)
         {
             MonsterAI monster = actor.GetComponent<MonsterAI>();
-            return monster != null ? monster.GetRealmPower() : 1f;
+            return monster != null
+                ? CultivationProgression.GetStatPower(
+                    monster.realm,
+                    monster.realmStage,
+                    EntityKind.Beast)
+                : 1f;
         }
 
         if (kind == ActorKind.SmartNpc)
         {
             SmartNpcAI npc = actor.GetComponent<SmartNpcAI>();
-            return npc != null ? npc.GetRealmPower() : 1f;
+            return npc != null
+                ? CultivationProgression.GetStatPower(
+                    npc.realm,
+                    npc.realmStage,
+                    EntityKind.Cultivator)
+                : 1f;
         }
 
         VillagerAI villager = actor.GetComponent<VillagerAI>();
@@ -984,6 +1003,7 @@ public class TreasureFrenzySystem : MonoBehaviour
         public bool waitingForLightning;
         public float lightningStartTime;
         public float lightningEndTime;
+        public float lightningSettleEndTime;
         public float nextLightningStrikeTime;
         public readonly List<TreasureParticipant> participants =
             new List<TreasureParticipant>();

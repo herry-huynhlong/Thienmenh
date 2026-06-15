@@ -10,6 +10,7 @@ public class NpcCounterBroker : MonoBehaviour
     public bool buyGoodsFromNpcs = true;
     public bool sellUsefulItemsToNpcs = true;
     public bool acceptAllMaterials = true;
+    public bool acceptAllSellableItems = true;
     public StatItemData[] acceptedItems;
     public int maxUnitsPerRequest = 4;
     public int maxTransactionsPerVisit = 3;
@@ -83,6 +84,17 @@ public class NpcCounterBroker : MonoBehaviour
     void LateUpdate()
     {
         KeepBrokerAtStation();
+    }
+
+    void OnNpcMapTeleported(GameObject gateObject)
+    {
+        if (!keepBrokerStationary)
+        {
+            return;
+        }
+
+        keepBrokerStationary = false;
+        ReleaseStationaryBrokerLock();
     }
 
     void OnDisable()
@@ -572,6 +584,12 @@ public class NpcCounterBroker : MonoBehaviour
             return false;
         }
 
+        if (acceptAllSellableItems &&
+            item.canBeSold)
+        {
+            return true;
+        }
+
         if (acceptAllMaterials &&
             (item.itemType == ItemType.VatLieu ||
             item.itemType == ItemType.ThucPham))
@@ -927,6 +945,54 @@ public class NpcCounterBroker : MonoBehaviour
         if (useKinematicBodyWhileStationary)
         {
             rb.bodyType = RigidbodyType2D.Kinematic;
+        }
+    }
+
+    void ReleaseStationaryBrokerLock()
+    {
+        if (rb == null)
+        {
+            rb = GetComponent<Rigidbody2D>();
+        }
+
+        if (rb != null && capturedRigidbodySettings)
+        {
+            rb.constraints = originalConstraints;
+            rb.bodyType = originalBodyType;
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
+
+        NpcMapMover2D mover = GetComponent<NpcMapMover2D>();
+        if (mover != null)
+        {
+            mover.enabled = true;
+        }
+
+        NpcMapBoundaryClamp boundaryClamp =
+            GetComponent<NpcMapBoundaryClamp>();
+        if (boundaryClamp != null)
+        {
+            boundaryClamp.enabled = true;
+        }
+
+        CharacterMovementAnimator movementAnimator =
+            GetComponent<CharacterMovementAnimator>();
+        if (movementAnimator != null)
+        {
+            movementAnimator.enabled = true;
+        }
+
+        SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            smartNpc.enabled = true;
+        }
+
+        VillagerAI villager = GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            villager.enabled = true;
         }
     }
 

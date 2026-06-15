@@ -62,7 +62,18 @@ public static class NpcRoleUtility
             return smartNpc.npcName;
         }
 
+        string petName = NpcPetCompanion.GetDisplayName(npc);
+        if (!string.IsNullOrEmpty(petName))
+        {
+            return petName;
+        }
+
         return npc.name;
+    }
+
+    public static bool IsPetCompanion(GameObject npc)
+    {
+        return NpcPetCompanion.HasPetCompanion(npc);
     }
 
     public static int GetRealmPower(GameObject npc)
@@ -75,23 +86,40 @@ public static class NpcRoleUtility
         CharacterStats stats = npc.GetComponent<CharacterStats>();
         if (stats != null)
         {
-            return CultivationProgression.GetRealmPower(
+            return Mathf.RoundToInt(CultivationProgression.GetStatPower(
                 stats.realm,
-                stats.realmStage);
+                stats.realmStage,
+                stats.entityProfile != null &&
+                stats.entityProfile.kind == EntityKind.Beast
+                    ? EntityKind.Beast
+                    : EntityKind.Cultivator));
         }
 
         VillagerAI villager = npc.GetComponent<VillagerAI>();
         if (villager != null)
         {
-            return CultivationProgression.GetRealmPower(
+            return Mathf.RoundToInt(CultivationProgression.GetStatPower(
                 villager.realm,
-                villager.realmStage);
+                villager.realmStage,
+                EntityKind.Cultivator));
         }
 
         SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
         if (smartNpc != null)
         {
-            return smartNpc.GetRealmPower();
+            return Mathf.RoundToInt(CultivationProgression.GetStatPower(
+                smartNpc.realm,
+                smartNpc.realmStage,
+                EntityKind.Cultivator));
+        }
+
+        MonsterAI monster = npc.GetComponent<MonsterAI>();
+        if (monster != null)
+        {
+            return Mathf.RoundToInt(CultivationProgression.GetStatPower(
+                monster.realm,
+                monster.realmStage,
+                EntityKind.Beast));
         }
 
         return 0;
@@ -438,6 +466,11 @@ public static class NpcRoleUtility
     {
         if (target == null ||
             amount <= 0)
+        {
+            return;
+        }
+
+        if (NpcPetCompanion.BlocksSocialDamage(target))
         {
             return;
         }

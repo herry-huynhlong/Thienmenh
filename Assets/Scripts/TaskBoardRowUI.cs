@@ -12,32 +12,51 @@ public class TaskBoardRowUI : MonoBehaviour
     public void SetData(NpcTaskOffer offer)
     {
         if (offer == null)
+        {
             return;
+        }
 
         if (rankText != null)
-            rankText.text = "[" + offer.rank.ToString() + "]";
+        {
+            rankText.text = Format(
+                "rankFormat",
+                Get("taskRanks", offer.rank.ToString(), offer.rank.ToString()));
+        }
 
         if (nameText != null)
-            nameText.text = offer.taskName;
+        {
+            nameText.text = NpcText.CleanDisplayText(offer.taskName);
+        }
 
         if (typeText != null)
-            typeText.text = "Loại: " + offer.taskType.ToString();
+        {
+            typeText.text = Format(
+                "typeFormat",
+                Get("taskTypes", offer.taskType.ToString(), offer.taskType.ToString()));
+        }
 
         if (requireText != null)
+        {
             requireText.text = BuildRequireText(offer);
+        }
 
         if (rewardText != null)
+        {
             rewardText.text = BuildRewardText(offer);
+        }
     }
 
-    private string BuildRequireText(NpcTaskOffer offer)
+    string BuildRequireText(NpcTaskOffer offer)
     {
-        string result = "Yeu cau: ";
+        string result = Text("requirePrefix");
         bool hasRequire = false;
 
         if (offer.requiredItem != null && offer.requiredAmount > 0)
         {
-            result += GetItemName(offer.requiredItem) + " x" + offer.requiredAmount;
+            result += Format(
+                "itemAmountFormat",
+                GetItemName(offer.requiredItem),
+                offer.requiredAmount);
             hasRequire = true;
         }
 
@@ -45,24 +64,32 @@ public class TaskBoardRowUI : MonoBehaviour
         {
             if (hasRequire)
             {
-                result += ", ";
+                result += Text("separator");
             }
 
             if (offer.requiredItem == null && offer.requiredBeastLevel > 0)
             {
-                result += "Yeu thu cap " + offer.requiredBeastLevel + " x" + offer.requiredMonsterKills;
+                result += Format(
+                    "beastLevelObjective",
+                    offer.requiredBeastLevel,
+                    offer.requiredMonsterKills);
             }
             else
             {
-                result += "Diet yeu thu x" + offer.requiredMonsterKills;
+                result += Format("huntObjective", offer.requiredMonsterKills);
             }
 
+            hasRequire = true;
+        }
+        else if (offer.taskType == NpcTaskType.Escort)
+        {
+            result += Text("escortObjective");
             hasRequire = true;
         }
 
         if (!hasRequire)
         {
-            result += "Khong co";
+            result += Text("none");
         }
 
         return result;
@@ -75,46 +102,65 @@ public class TaskBoardRowUI : MonoBehaviour
             return string.Empty;
         }
 
-        return !string.IsNullOrEmpty(item.itemName)
-            ? item.itemName
-            : item.name;
+        return ItemText.Name(item);
     }
 
-    private string BuildRewardText(NpcTaskOffer offer)
+    string BuildRewardText(NpcTaskOffer offer)
     {
-        string result = "Thưởng: ";
-
+        string result = Text("rewardPrefix");
         bool hasReward = false;
 
         if (offer.rewardSpiritStone > 0)
         {
-            result += offer.rewardSpiritStone + " Linh Thạch";
+            result += Format("spiritStoneReward", offer.rewardSpiritStone);
             hasReward = true;
         }
 
         if (offer.rewardCultivationExp > 0)
         {
             if (hasReward)
-                result += ", ";
+            {
+                result += Text("separator");
+            }
 
-            result += offer.rewardCultivationExp + " EXP";
+            result += Format("expReward", offer.rewardCultivationExp);
             hasReward = true;
         }
 
         if (offer.rewardItem != null && offer.rewardItemAmount > 0)
         {
             if (hasReward)
-                result += ", ";
+            {
+                result += Text("separator");
+            }
 
-            result += GetItemName(offer.rewardItem) + " x" + offer.rewardItemAmount;
+            result += Format(
+                "itemAmountFormat",
+                GetItemName(offer.rewardItem),
+                offer.rewardItemAmount);
             hasReward = true;
         }
 
         if (!hasReward)
         {
-            result += "Không có";
+            result += Text("none");
         }
 
         return result;
+    }
+
+    static string Text(string key)
+    {
+        return NpcText.Get("taskBoard", key, key);
+    }
+
+    static string Format(string key, params object[] args)
+    {
+        return NpcText.Format(Text(key), args);
+    }
+
+    static string Get(string category, string key, string fallback)
+    {
+        return NpcText.Get(category, key, fallback);
     }
 }

@@ -59,7 +59,7 @@ MonoBehaviour:
   trungThanhPower: 0.6
   daiThanhPower: 1
   playBuyEffect: 0
-  buyEffectPrefab: {fileID: 0}
+  buyEffectPrefab: {fileID: 668918614272016530, guid: 2d0d508a31e99154183add764c1cbde0, type: 3}
   buyEffectOffset: {x: 0, y: 0.15, z: 0}
   buyEffectScale: 1
   isTemporary: 0

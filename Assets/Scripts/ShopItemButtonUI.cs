@@ -101,7 +101,7 @@ public class ShopItemButtonUI : MonoBehaviour, IPointerClickHandler, IPointerDow
 
         if (nameText != null)
         {
-            nameText.text = slot.item.itemName;
+            nameText.text = ItemText.Name(slot.item);
         }
 
         if (priceText != null)

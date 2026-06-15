@@ -70,10 +70,17 @@ public class CharacterStats : MonoBehaviour, IDamageable
         realm = entityProfile.stats.realm;
         realmStage = entityProfile.stats.realmStage;
         cultivationExp = entityProfile.stats.cultivationExp;
-        int realmMultiplier = GetRealmMultiplier();
-        baseMaxHP = Mathf.Max(1, entityProfile.stats.maxHP / realmMultiplier);
-        baseAttack = Mathf.Max(1, entityProfile.stats.attack / realmMultiplier);
-        baseDefense = Mathf.Max(0, entityProfile.stats.defense / realmMultiplier);
+        float realmMultiplier =
+            CultivationProgression.GetStatPower(
+                realm,
+                realmStage,
+                entityProfile != null &&
+                entityProfile.kind == EntityKind.Beast
+                ? EntityKind.Beast
+                : EntityKind.Cultivator);
+        baseMaxHP = Mathf.Max(1, Mathf.RoundToInt(entityProfile.stats.maxHP / realmMultiplier));
+        baseAttack = Mathf.Max(1, Mathf.RoundToInt(entityProfile.stats.attack / realmMultiplier));
+        baseDefense = Mathf.Max(0, Mathf.RoundToInt(entityProfile.stats.defense / realmMultiplier));
         baseMoveSpeed = Mathf.Max(0.1f, entityProfile.stats.moveSpeed);
         finalHP = Mathf.Max(1, entityProfile.stats.maxHP);
         currentHP =
@@ -97,24 +104,6 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
             ui.targetStats = this;
         }
-    }
-
-    public int GetRealmMultiplier()
-    {
-        int multiplier = 1;
-        int realmIndex = Mathf.Max(0, (int)realm);
-        int stage =
-            Mathf.Clamp(
-                realmStage,
-                1,
-                CultivationProgression.MaxStage);
-
-        for (int i = 0; i < realmIndex; i++)
-        {
-            multiplier *= 10;
-        }
-
-        return multiplier * stage;
     }
 
     public long ExpToNextRealm()
@@ -217,22 +206,31 @@ public class CharacterStats : MonoBehaviour, IDamageable
         float hpPercent =
             Mathf.Clamp01((float)currentHP / oldFinalHP);
 
-        int multiplier =
-            GetRealmMultiplier();
+        float multiplier =
+            CultivationProgression.GetStatPower(
+                realm,
+                realmStage,
+                entityProfile != null &&
+                entityProfile.kind == EntityKind.Beast
+                ? EntityKind.Beast
+                : EntityKind.Cultivator);
 
         finalHP =
-            Mathf.Max(1, baseMaxHP) *
-            multiplier +
+            Mathf.RoundToInt(
+                Mathf.Max(1, baseMaxHP) *
+                multiplier) +
             bonusMaxHP;
 
         attack =
-            Mathf.Max(1, baseAttack) *
-            multiplier +
+            Mathf.RoundToInt(
+                Mathf.Max(1, baseAttack) *
+                multiplier) +
             bonusAttack;
 
         defense =
-            Mathf.Max(0, baseDefense) *
-            multiplier +
+            Mathf.RoundToInt(
+                Mathf.Max(0, baseDefense) *
+                multiplier) +
             bonusDefense;
 
         effectResistance =

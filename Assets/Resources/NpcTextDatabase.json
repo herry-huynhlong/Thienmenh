@@ -122,6 +122,10 @@
           "value": "Về nhà tu luyện"
         },
         {
+          "key": "goCultivatePoint",
+          "value": "Đến điểm tu luyện"
+        },
+        {
           "key": "breakthrough",
           "value": "Đột phá"
         },
@@ -292,6 +296,10 @@
         {
           "key": "gatherVillageResource",
           "value": "Thu hoạch tài nguyên quanh làng"
+        },
+        {
+          "key": "goGatherNamed",
+          "value": "Đi hái {0}"
         },
         {
           "key": "harvestResource",
@@ -529,6 +537,70 @@
         {
           "key": "tradeRejectFallback",
           "value": "Giá {1} LT cho {0} thì thấp quá."
+        },
+        {
+          "key": "forgeOrderDisabledBuyer",
+          "value": "Tạm thời không nhận đơn"
+        },
+        {
+          "key": "forgeOrderDisabledSmith",
+          "value": "Ta chỉ nhận rèn thường."
+        },
+        {
+          "key": "forgeOrderRejectInvalidBuyer",
+          "value": "Đơn hàng không hợp lệ"
+        },
+        {
+          "key": "forgeOrderRejectInvalidSmith",
+          "value": "Không nhận đơn này."
+        },
+        {
+          "key": "forgeOrderRejectTypeBuyer",
+          "value": "Chỉ nhận đơn đồ pháp bảo"
+        },
+        {
+          "key": "forgeOrderRejectTypeSmith",
+          "value": "Chỉ nhận đồ pháp bảo."
+        },
+        {
+          "key": "forgeOrderDuplicateBuyer",
+          "value": "Đã có đơn này rồi"
+        },
+        {
+          "key": "forgeOrderDuplicateSmith",
+          "value": "Đơn này đang làm."
+        },
+        {
+          "key": "forgeOrderRejectRecipeBuyer",
+          "value": "Chưa có công thức phù hợp"
+        },
+        {
+          "key": "forgeOrderRejectRecipeSmith",
+          "value": "Món này chưa làm được."
+        },
+        {
+          "key": "forgeOrderRejectDepositBuyer",
+          "value": "Không đủ tiền cọc"
+        },
+        {
+          "key": "forgeOrderRejectDepositSmith",
+          "value": "Không đủ tiền cọc."
+        },
+        {
+          "key": "forgeOrderAcceptBuyer",
+          "value": "Muốn đặt {0}, cọc {1}"
+        },
+        {
+          "key": "forgeOrderAcceptSmith",
+          "value": "Kho chưa có sẵn. Nhận cọc, {0} ngày sau có hàng."
+        },
+        {
+          "key": "forgeOrderReadyBuyer",
+          "value": "Hàng của bạn đến rồi."
+        },
+        {
+          "key": "forgeOrderReadySmith",
+          "value": "Nhận hàng đi."
         },
         {
           "key": "hostilityReasonFallback",
@@ -1124,6 +1196,92 @@
         {
           "key": "Thuong",
           "value": "Thượng"
+        }
+      ]
+    },
+    {
+      "name": "taskTypes",
+      "entries": [
+        {
+          "key": "GatherResource",
+          "value": "Thu thập tài nguyên"
+        },
+        {
+          "key": "HuntMonster",
+          "value": "Săn yêu thú"
+        },
+        {
+          "key": "Cultivate",
+          "value": "Tu luyện"
+        },
+        {
+          "key": "Patrol",
+          "value": "Tuần tra"
+        },
+        {
+          "key": "Deliver",
+          "value": "Vận chuyển"
+        },
+        {
+          "key": "HarvestAndDeliver",
+          "value": "Thu hoạch rồi giao"
+        },
+        {
+          "key": "Escort",
+          "value": "Hộ tống"
+        }
+      ]
+    },
+    {
+      "name": "taskBoard",
+      "entries": [
+        {
+          "key": "rankFormat",
+          "value": "[{0}]"
+        },
+        {
+          "key": "typeFormat",
+          "value": "Loại: {0}"
+        },
+        {
+          "key": "requirePrefix",
+          "value": "Yêu cầu: "
+        },
+        {
+          "key": "rewardPrefix",
+          "value": "Thưởng: "
+        },
+        {
+          "key": "separator",
+          "value": ", "
+        },
+        {
+          "key": "none",
+          "value": "Không có"
+        },
+        {
+          "key": "itemAmountFormat",
+          "value": "{0} x{1}"
+        },
+        {
+          "key": "beastLevelObjective",
+          "value": "Yêu thú cấp {0} x{1}"
+        },
+        {
+          "key": "huntObjective",
+          "value": "Diệt yêu thú x{0}"
+        },
+        {
+          "key": "escortObjective",
+          "value": "Hộ tống thương đội"
+        },
+        {
+          "key": "spiritStoneReward",
+          "value": "{0} Linh Thạch"
+        },
+        {
+          "key": "expReward",
+          "value": "{0} EXP"
         }
       ]
     },

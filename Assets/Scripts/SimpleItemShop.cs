@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -110,6 +110,22 @@ public class SimpleItemShop : MonoBehaviour
         return Mathf.Max(
             basePrice > 0 ? 1 : 0,
             Mathf.RoundToInt(basePrice * Mathf.Max(0f, priceMultiplier)));
+    }
+
+    public int GetSellPrice(StatItemData item)
+    {
+        if (item == null)
+        {
+            return 0;
+        }
+
+        int buyPrice = GetBuyPrice(item);
+        if (buyPrice <= 0)
+        {
+            return 0;
+        }
+
+        return Mathf.Max(1, Mathf.RoundToInt(buyPrice / 1.2f));
     }
 
     public ShopItemSlot GetSlot(int itemIndex)

@@ -60,7 +60,14 @@ public class NpcResourceGatherer : MonoBehaviour
             return;
         }
 
-        targetPickup = null;
+        StatItemData desiredItem = GetPickupItem(targetPickup);
+        ClearTargetReservation();
+
+        if (FindTarget(desiredItem, true))
+        {
+            return;
+        }
+
         scanTimer += Time.deltaTime;
 
         if (scanTimer < scanInterval)
@@ -75,7 +82,7 @@ public class NpcResourceGatherer : MonoBehaviour
             return;
         }
 
-        FindTarget();
+        FindTarget(null, false);
     }
 
     public bool TryStartGatheringNow()
@@ -94,42 +101,46 @@ public class NpcResourceGatherer : MonoBehaviour
             return true;
         }
 
-        FindTarget();
+        FindTarget(null, true);
         return targetPickup != null;
     }
 
-    void FindTarget()
+    bool FindTarget(
+        StatItemData requiredItem,
+        bool force)
     {
         WorldStatItemPickup candidate =
             WorldResourceField.GetNearestAvailablePickupInAllFields(
                 GetSearchPosition(),
-                null,
+                requiredItem,
                 GetPreferredZone(),
                 gameObject);
 
         if (candidate == null)
         {
-            return;
+            return false;
         }
 
-        if (!GetPreferredZone().HasValue)
+        if (!force &&
+            !GetPreferredZone().HasValue)
         {
             float distance =
                 Vector2.Distance(transform.position, candidate.transform.position);
 
             if (distance > maxSearchDistance)
             {
-                return;
+                return false;
             }
         }
 
         if (!candidate.TryReserve(gameObject, reservationDuration))
         {
-            return;
+            return false;
         }
 
         targetPickup = candidate;
         MoveToTarget();
+        return true;
     }
 
 
@@ -187,7 +198,10 @@ public class NpcResourceGatherer : MonoBehaviour
     {
         if (!IsPickupAvailable(targetPickup))
         {
-            targetPickup = null;
+            StatItemData desiredItem = GetPickupItem(targetPickup);
+            ClearTargetReservation();
+
+            FindTarget(desiredItem, true);
             return;
         }
 
@@ -201,13 +215,12 @@ public class NpcResourceGatherer : MonoBehaviour
     {
         if (!IsPickupAvailable(harvestingPickup))
         {
-            if (harvestingPickup != null)
-            {
-                harvestingPickup.ClearReservation(gameObject);
-            }
+            StatItemData desiredItem = GetPickupItem(harvestingPickup);
+            ClearPickupReservation(harvestingPickup);
             harvestingPickup = null;
             targetPickup = null;
             harvestTimer = 0f;
+            FindTarget(desiredItem, true);
             return;
         }
 
@@ -257,6 +270,7 @@ public class NpcResourceGatherer : MonoBehaviour
             !pickup.TryTake(1))
         {
             pickup.ClearReservation(gameObject);
+            FindTarget(item, true);
             return;
         }
 
@@ -282,7 +296,7 @@ public class NpcResourceGatherer : MonoBehaviour
     void SetGatherAction()
     {
         string itemName = harvestingPickup != null && harvestingPickup.item != null
-            ? harvestingPickup.item.itemName
+            ? ItemText.Name(harvestingPickup.item)
             : "linh d\u01b0\u1ee3c";
 
         NpcRoleUtility.SetAction(
@@ -319,5 +333,24 @@ public class NpcResourceGatherer : MonoBehaviour
         }
 
         return true;
+    }
+
+    StatItemData GetPickupItem(WorldStatItemPickup pickup)
+    {
+        return pickup != null ? pickup.item : null;
+    }
+
+    void ClearTargetReservation()
+    {
+        ClearPickupReservation(targetPickup);
+        targetPickup = null;
+    }
+
+    void ClearPickupReservation(WorldStatItemPickup pickup)
+    {
+        if (pickup != null)
+        {
+            pickup.ClearReservation(gameObject);
+        }
     }
 }

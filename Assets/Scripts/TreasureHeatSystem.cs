@@ -247,7 +247,7 @@ public class TreasureHeatSystem : MonoBehaviour
                 "Tiên phẩm hiện thế, máu tanh mưa máu nổi lên. " +
                 GetNpcName(owner) +
                 " đang mang " +
-                threat.item.itemName +
+                ItemText.Name(threat.item) +
                 ".",
                 2);
             return;
@@ -259,7 +259,7 @@ public class TreasureHeatSystem : MonoBehaviour
             WorldEventManager.Instance.AddLog(
                 GetNpcName(owner) +
                 " mang " +
-                threat.item.itemName +
+                ItemText.Name(threat.item) +
                 " đi giao dịch, bị kẻ có tâm để mắt.",
                 threat.item.grade == ItemGrade.Thuong ? 2 : 1);
             return;
@@ -271,7 +271,7 @@ public class TreasureHeatSystem : MonoBehaviour
                 "Bảo vật làm người vô tội thành có tội. " +
                 GetNpcName(owner) +
                 " đang bị để mắt vì " +
-                threat.item.itemName +
+                ItemText.Name(threat.item) +
                 ".",
                 threat.item.grade == ItemGrade.Thuong ? 2 : 1);
         }
@@ -366,7 +366,7 @@ public class TreasureHeatSystem : MonoBehaviour
             WorldEventManager.Instance.AddLog(
                 GetNpcName(robber) +
                 " đã cướp " +
-                threat.item.itemName +
+                ItemText.Name(threat.item) +
                 " từ " +
                 GetNpcName(owner) +
                 ".",
@@ -636,7 +636,13 @@ public class TreasureHeatSystem : MonoBehaviour
 
         if (smartNpc != null)
         {
-            return Mathf.Max(1, smartNpc.GetRealmPower());
+            return Mathf.Max(
+                1,
+                Mathf.RoundToInt(
+                    CultivationProgression.GetStatPower(
+                        smartNpc.realm,
+                        smartNpc.realmStage,
+                        EntityKind.Cultivator)));
         }
 
         VillagerAI villager =

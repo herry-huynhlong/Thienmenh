@@ -52,7 +52,7 @@ public class TaskBoardPanelUI : MonoBehaviour
         HideRowTemplate();
         ClearOldRows();
 
-        foreach (NpcTaskOffer offer in provider.offers)
+        foreach (NpcTaskOffer offer in provider.GetVisibleOffers())
         {
             TaskBoardRowUI row = Instantiate(rowTemplate, content);
             row.gameObject.SetActive(true);

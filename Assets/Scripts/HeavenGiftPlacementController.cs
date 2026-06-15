@@ -1139,39 +1139,7 @@ public class HeavenGiftPlacementController : MonoBehaviour
 
     string GetHeavenGiftName(StatItemData item)
     {
-        string gradeText =
-            GetGradeText(item.grade);
-
-        switch (item.itemType)
-        {
-            case ItemType.DanDuoc:
-                return gradeText + " Bảo Đan";
-            case ItemType.PhapBao:
-                return gradeText + " Pháp Bảo";
-            case ItemType.CongPhap:
-                return gradeText + " Công Pháp";
-            case ItemType.VatLieu:
-                return gradeText + " Linh Tài";
-            case ItemType.ThucPham:
-                return "Linh Thực";
-            default:
-                return gradeText + " Bảo Vật";
-        }
-    }
-
-    string GetGradeText(ItemGrade grade)
-    {
-        switch (grade)
-        {
-            case ItemGrade.Trung:
-                return "Trung phẩm";
-            case ItemGrade.Thuong:
-                return "Thượng phẩm";
-            case ItemGrade.Tien:
-                return "Tiên phẩm";
-            default:
-                return "Hạ phẩm";
-        }
+        return ItemText.HeavenGiftName(item);
     }
 
     bool IsPointerOverUI()

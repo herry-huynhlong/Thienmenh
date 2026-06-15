@@ -12,6 +12,7 @@ public class NpcTradeAgent : MonoBehaviour
     public float counterTradeCooldown = 45f;
     [Range(0f, 1f)] public float maxMoneySpendRatio = 0.65f;
     public int maxOwnedConsumableBeforeBuying = 3;
+    public int riskyItemValueMultiplier = 120;
 
     [Header("Market Trader")]
     public bool isMarketTrader;
@@ -351,7 +352,7 @@ public class NpcTradeAgent : MonoBehaviour
         bool considerUse)
     {
         EnsureInventory();
-        ItemEffectSpawner.PlayBuyEffect(item, transform);
+        ItemEffectSpawner.PlayUseEffect(item, transform);
 
         NpcItemCollector collector =
             GetCollectorForBoughtItem(item, considerUse);
@@ -487,13 +488,92 @@ public class NpcTradeAgent : MonoBehaviour
             return false;
         }
 
+        if (!item.canBeSold)
+        {
+            return false;
+        }
+
         if (item.itemType == ItemType.VatLieu ||
             item.itemType == ItemType.ThucPham)
         {
             return true;
         }
 
+        if (!item.CanUseOn(gameObject))
+        {
+            return true;
+        }
+
+        if (IsTooRiskyToKeep(item))
+        {
+            return true;
+        }
+
+        if (IsOutclassedEquipment(item))
+        {
+            return true;
+        }
+
         return item.ShouldNpcPreferSell();
+    }
+
+    bool IsTooRiskyToKeep(StatItemData item)
+    {
+        if (item == null ||
+            IsCombatRole())
+        {
+            return false;
+        }
+
+        int itemValue =
+            NpcEconomy.GetItemValue(item);
+
+        int realmPower =
+            Mathf.Max(1, NpcRoleUtility.GetRealmPower(gameObject));
+
+        return itemValue >=
+            realmPower * Mathf.Max(1, riskyItemValueMultiplier);
+    }
+
+    bool IsOutclassedEquipment(StatItemData item)
+    {
+        if (item == null ||
+            item.itemType != ItemType.PhapBao ||
+            inventory == null)
+        {
+            return false;
+        }
+
+        EquipmentSlot slot =
+            item.GetResolvedEquipmentSlot();
+
+        if (slot == EquipmentSlot.None)
+        {
+            return false;
+        }
+
+        float itemScore =
+            item.GetEquipmentUseScore();
+
+        foreach (ItemStack stack in inventory.items)
+        {
+            if (stack == null ||
+                stack.item == null ||
+                stack.item == item ||
+                stack.amount <= 0 ||
+                stack.item.itemType != ItemType.PhapBao ||
+                stack.item.GetResolvedEquipmentSlot() != slot)
+            {
+                continue;
+            }
+
+            if (stack.item.GetEquipmentUseScore() > itemScore)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     bool IsCombatRole()

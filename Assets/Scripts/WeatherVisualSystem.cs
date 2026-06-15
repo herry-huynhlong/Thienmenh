@@ -32,9 +32,6 @@ public class WeatherVisualSystem : MonoBehaviour
     ParticleSystem rainParticles;
     ParticleSystem snowParticles;
     ParticleSystem qiParticles;
-    ParticleSystem.ShapeModule rainShape;
-    ParticleSystem.ShapeModule snowShape;
-    ParticleSystem.ShapeModule qiShape;
     Image flashImage;
     WeatherSystem subscribedWeather;
     WorldWeather activeWeather = (WorldWeather)(-1);
@@ -185,9 +182,9 @@ public class WeatherVisualSystem : MonoBehaviour
         ParticleSystem.EmissionModule emission = particles.emission;
         emission.rateOverTime = 0f;
 
-        rainShape = particles.shape;
-        rainShape.enabled = true;
-        rainShape.shapeType = ParticleSystemShapeType.Box;
+        ParticleSystem.ShapeModule shape = particles.shape;
+        shape.enabled = true;
+        shape.shapeType = ParticleSystemShapeType.Box;
 
         ParticleSystem.VelocityOverLifetimeModule velocity = particles.velocityOverLifetime;
         velocity.enabled = true;
@@ -220,9 +217,9 @@ public class WeatherVisualSystem : MonoBehaviour
         ParticleSystem.EmissionModule emission = particles.emission;
         emission.rateOverTime = 0f;
 
-        snowShape = particles.shape;
-        snowShape.enabled = true;
-        snowShape.shapeType = ParticleSystemShapeType.Box;
+        ParticleSystem.ShapeModule shape = particles.shape;
+        shape.enabled = true;
+        shape.shapeType = ParticleSystemShapeType.Box;
 
         ParticleSystem.VelocityOverLifetimeModule velocity = particles.velocityOverLifetime;
         velocity.enabled = true;
@@ -258,9 +255,9 @@ public class WeatherVisualSystem : MonoBehaviour
         ParticleSystem.EmissionModule emission = particles.emission;
         emission.rateOverTime = 0f;
 
-        qiShape = particles.shape;
-        qiShape.enabled = true;
-        qiShape.shapeType = ParticleSystemShapeType.Box;
+        ParticleSystem.ShapeModule shape = particles.shape;
+        shape.enabled = true;
+        shape.shapeType = ParticleSystemShapeType.Box;
 
         ParticleSystem.VelocityOverLifetimeModule velocity = particles.velocityOverLifetime;
         velocity.enabled = true;
@@ -337,14 +334,13 @@ public class WeatherVisualSystem : MonoBehaviour
         float emitterWidth = width + screenMargin * 2f;
         float topY = height * 0.5f + screenMargin;
 
-        SetTopEmitter(rainParticles, rainShape, emitterWidth, topY);
-        SetTopEmitter(snowParticles, snowShape, emitterWidth, topY);
-        SetFullScreenEmitter(qiParticles, qiShape, emitterWidth, height + screenMargin * 2f);
+        SetTopEmitter(rainParticles, emitterWidth, topY);
+        SetTopEmitter(snowParticles, emitterWidth, topY);
+        SetFullScreenEmitter(qiParticles, emitterWidth, height + screenMargin * 2f);
     }
 
     void SetTopEmitter(
         ParticleSystem particles,
-        ParticleSystem.ShapeModule shape,
         float width,
         float topY)
     {
@@ -354,12 +350,12 @@ public class WeatherVisualSystem : MonoBehaviour
         }
 
         particles.transform.localPosition = new Vector3(0f, topY, 0f);
+        ParticleSystem.ShapeModule shape = particles.shape;
         shape.scale = new Vector3(width, 0.1f, 0.1f);
     }
 
     void SetFullScreenEmitter(
         ParticleSystem particles,
-        ParticleSystem.ShapeModule shape,
         float width,
         float height)
     {
@@ -369,6 +365,7 @@ public class WeatherVisualSystem : MonoBehaviour
         }
 
         particles.transform.localPosition = Vector3.zero;
+        ParticleSystem.ShapeModule shape = particles.shape;
         shape.scale = new Vector3(width, height, 0.1f);
     }
 
