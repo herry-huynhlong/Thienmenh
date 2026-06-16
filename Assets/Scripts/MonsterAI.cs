@@ -1544,12 +1544,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
         collider.isTrigger = true;
         collider.radius = 0.25f;
 
-        if (loot.icon != null)
-        {
-            SpriteRenderer renderer = lootObject.AddComponent<SpriteRenderer>();
-            renderer.sprite = loot.icon;
-            renderer.sortingOrder = 20;
-        }
+        PickupVisualUtility.ApplySprite(lootObject, loot.icon, 20);
 
         GameSaveSystem.RegisterItem(loot);
     }

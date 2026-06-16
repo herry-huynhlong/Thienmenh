@@ -14164,7 +14164,7 @@ MonoBehaviour:
   m_text: 99.999
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
+  m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -29309,6 +29309,7 @@ MonoBehaviour:
   interiorOrthographicSize: 2.5
   outsideOrthographicSize: 4.5
   changeZoom: 1
+  isInteriorFocused: 0
   tapThreshold: 12
   ignoreWhenPointerOverUi: 1
   clickableLayers:
@@ -32755,6 +32756,7 @@ MonoBehaviour:
   interiorOrthographicSize: 2.5
   outsideOrthographicSize: 4.5
   changeZoom: 1
+  isInteriorFocused: 0
   tapThreshold: 12
   ignoreWhenPointerOverUi: 1
   clickableLayers:
@@ -40314,7 +40316,7 @@ GameObject:
   - component: {fileID: 739624167}
   - component: {fileID: 739624170}
   - component: {fileID: 739624169}
-  - component: {fileID: 739624168}
+  - component: {fileID: 739624171}
   m_Layer: 0
   m_Name: MapBounds
   m_TagString: Untagged
@@ -40337,21 +40339,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1054948020}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &739624168
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 739624166}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 34e55edb1675460ca9d596dff184d660, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcMapArea
-  zone: 0
-  displayName: "L\xE0ng"
-  areaBounds: {fileID: 739624170}
 --- !u!50 &739624169
 Rigidbody2D:
   serializedVersion: 5
@@ -40425,6 +40412,31 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 96.04836, y: 71.826126}
   m_EdgeRadius: 0
+--- !u!114 &739624171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 739624166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b3bcf39bb97462ca27fda23e5ef8c4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteriorCameraFocus
+  interiorFocusPoint: {fileID: 941186181}
+  outsideFocusPoint: {fileID: 438945325}
+  interiorOrthographicSize: 10
+  outsideOrthographicSize: 4.5
+  changeZoom: 1
+  isInteriorFocused: 0
+  tapThreshold: 12
+  ignoreWhenPointerOverUi: 1
+  clickableLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  hitRadius: 0.05
+  logFocusEvents: 0
 --- !u!1 &745795169
 GameObject:
   m_ObjectHideFlags: 0
@@ -42319,6 +42331,7 @@ MonoBehaviour:
   interiorOrthographicSize: 2.5
   outsideOrthographicSize: 4.5
   changeZoom: 1
+  isInteriorFocused: 0
   tapThreshold: 12
   ignoreWhenPointerOverUi: 1
   clickableLayers:
@@ -43002,6 +43015,7 @@ MonoBehaviour:
   interiorOrthographicSize: 2.5
   outsideOrthographicSize: 4.5
   changeZoom: 1
+  isInteriorFocused: 0
   tapThreshold: 12
   ignoreWhenPointerOverUi: 1
   clickableLayers:
@@ -43453,6 +43467,7 @@ RectTransform:
   - {fileID: 1864078106}
   - {fileID: 1882863263}
   - {fileID: 1888627284}
+  - {fileID: 1056942074}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -43460,6 +43475,37 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &941186180
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 941186181}
+  m_Layer: 0
+  m_Name: Bicanh_CameraPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &941186181
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 941186180}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1054948020}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &942149468
 GameObject:
   m_ObjectHideFlags: 0
@@ -43570,6 +43616,7 @@ MonoBehaviour:
   interiorOrthographicSize: 2.5
   outsideOrthographicSize: 4.5
   changeZoom: 1
+  isInteriorFocused: 0
   tapThreshold: 12
   ignoreWhenPointerOverUi: 1
   clickableLayers:
@@ -45024,7 +45071,7 @@ MonoBehaviour:
   m_text: Xem Video
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
+  m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -50667,6 +50714,7 @@ GameObject:
   - component: {fileID: 1009669784}
   - component: {fileID: 1009669783}
   - component: {fileID: 1009669782}
+  - component: {fileID: 1009669785}
   m_Layer: 5
   m_Name: Button_WatchVideo
   m_TagString: Untagged
@@ -50738,7 +50786,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1009669783}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1009669783
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -50777,6 +50837,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1009669780}
   m_CullTransparentMesh: 1
+--- !u!114 &1009669785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1009669780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e73ce66492488541ac9c5e178f3c97c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RewardedLTAdsButton
+  watchAdButton: {fileID: 1009669782}
+  statusText: {fileID: 965639967}
+  playerWallet: {fileID: 0}
+  rewardLinhThach: 2147483647
+  androidAdUnitId: Rewarded_Android
+  iosAdUnitId: Rewarded_iOS
 --- !u!1 &1015572276
 GameObject:
   m_ObjectHideFlags: 0
@@ -51873,7 +51951,7 @@ MonoBehaviour:
   m_text: 99.999
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
+  m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -52019,6 +52097,8 @@ Transform:
   - {fileID: 560928461}
   - {fileID: 739624167}
   - {fileID: 669279486}
+  - {fileID: 941186181}
+  - {fileID: 1523086846}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &1054948021
@@ -52240,11 +52320,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2086364383}
+  m_Father: {fileID: 940930052}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 201.90002, y: 571.90015}
+  m_AnchoredPosition: {x: -443, y: 591.99976}
   m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1056942075
@@ -52291,9 +52371,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 669279487}
-        m_TargetAssemblyTypeName: BicanhSessionManager, Assembly-CSharp
-        m_MethodName: BeginSession
+      - m_Target: {fileID: 739624171}
+        m_TargetAssemblyTypeName: InteriorCameraFocus, Assembly-CSharp
+        m_MethodName: ToggleFocus
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -52323,8 +52403,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 5004470464653380413, guid: 1e6e9c4fec9471843ade6cb5d16c608c, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -125541,6 +125621,7 @@ MonoBehaviour:
   interiorOrthographicSize: 2.5
   outsideOrthographicSize: 4.5
   changeZoom: 1
+  isInteriorFocused: 0
   tapThreshold: 12
   ignoreWhenPointerOverUi: 1
   clickableLayers:
@@ -129660,7 +129741,7 @@ MonoBehaviour:
   m_text: "G\xF3i C\u01A1 B\u1EA3n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
+  m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -131185,7 +131266,7 @@ MonoBehaviour:
   m_text: "G\xF3i Cao C\u1EA5p\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
+  m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -131420,6 +131501,7 @@ MonoBehaviour:
   interiorOrthographicSize: 2.5
   outsideOrthographicSize: 4.5
   changeZoom: 1
+  isInteriorFocused: 0
   tapThreshold: 12
   ignoreWhenPointerOverUi: 1
   clickableLayers:
@@ -131998,6 +132080,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1513312630}
   m_CullTransparentMesh: 1
+--- !u!1 &1523086845
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1523086846}
+  m_Layer: 0
+  m_Name: BicanhFocusManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1523086846
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1523086845}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1054948020}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1528624949
 GameObject:
   m_ObjectHideFlags: 0
@@ -142907,7 +143020,7 @@ MonoBehaviour:
   m_text: 99.999
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
+  m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -161545,6 +161658,7 @@ MonoBehaviour:
   interiorOrthographicSize: 2.5
   outsideOrthographicSize: 4.5
   changeZoom: 1
+  isInteriorFocused: 0
   tapThreshold: 12
   ignoreWhenPointerOverUi: 1
   clickableLayers:
@@ -161622,7 +161736,6 @@ RectTransform:
   m_Children:
   - {fileID: 1847247871}
   - {fileID: 353791471}
-  - {fileID: 1056942074}
   - {fileID: 251486187}
   - {fileID: 1149430761}
   - {fileID: 1158204881}
@@ -168867,7 +168980,7 @@ MonoBehaviour:
   m_text: "G\xF3i N\xE2ng Cao\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
+  m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

@@ -83,13 +83,6 @@ public static class NpcInventoryDropper
         collider.isTrigger = true;
         collider.radius = 0.25f;
 
-        if (item.icon != null)
-        {
-            SpriteRenderer renderer =
-                itemObject.AddComponent<SpriteRenderer>();
-
-            renderer.sprite = item.icon;
-            renderer.sortingOrder = 20;
-        }
+        PickupVisualUtility.ApplySprite(itemObject, item.icon, 20);
     }
 }

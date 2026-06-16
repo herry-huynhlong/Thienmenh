@@ -12,6 +12,9 @@ public class InteriorCameraFocus : MonoBehaviour
     public float outsideOrthographicSize = 4.5f;
     public bool changeZoom = true;
 
+    [Header("Toggle")]
+    public bool isInteriorFocused = false;
+
     [Header("Tap")]
     public float tapThreshold = 12f;
     public bool ignoreWhenPointerOverUi = true;
@@ -60,12 +63,26 @@ public class InteriorCameraFocus : MonoBehaviour
 
     public void FocusInterior()
     {
+        isInteriorFocused = true;
         QueueFocus(interiorFocusPoint, interiorOrthographicSize);
     }
 
     public void FocusOutside()
     {
+        isInteriorFocused = false;
         QueueFocus(outsideFocusPoint != null ? outsideFocusPoint : transform, outsideOrthographicSize);
+    }
+
+    public void ToggleFocus()
+    {
+        if (isInteriorFocused)
+        {
+            FocusOutside();
+        }
+        else
+        {
+            FocusInterior();
+        }
     }
 
     void HandlePointerUp(Vector3 pointerPosition)
@@ -111,7 +128,7 @@ public class InteriorCameraFocus : MonoBehaviour
         {
             if (logFocusEvents)
             {
-                Debug.LogWarning($"{name}: Interior focus point is not assigned.", this);
+                Debug.LogWarning($"{name}: Focus point is not assigned.", this);
             }
 
             return;
@@ -223,5 +240,3 @@ public class InteriorCameraFocus : MonoBehaviour
         return EventSystem.current.IsPointerOverGameObject();
     }
 }
-
-
