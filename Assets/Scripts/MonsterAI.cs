@@ -54,6 +54,9 @@ public class MonsterAI : MonoBehaviour, IDamageable
     [Range(0, 100)] public float aggression = 50f;
     [Range(0, 100)] public float fear = 20f;
     [Range(0, 100)] public float hunger = 40f;
+    [Range(0f, 1f)] public float retreatChanceWhenSuppressed = 0.2f;
+    [Min(0.1f)] public float retreatDuration = 1.25f;
+    [Min(0.1f)] public float retreatRetryDelay = 0.75f;
     [Range(0, 100)] public float territorial = 50f;
     [Range(0, 100)] public float bloodlust = 20f;
     [Range(0, 100)] public float survivalInstinct = 50f;
@@ -138,6 +141,9 @@ public class MonsterAI : MonoBehaviour, IDamageable
     Renderer[] cachedRenderers;
     Collider2D[] cachedColliders;
     Vector2 desiredVelocity;
+    bool isRetreating;
+    float retreatUntilTime;
+    float nextRetreatRollTime;
     float nextThinkTime;
     float nextDetectTime;
     float nextReducedFixedUpdateTime;
@@ -306,7 +312,19 @@ public class MonsterAI : MonoBehaviour, IDamageable
                 return;
             }
 
-            if (ShouldFleeFrom(currentTarget))
+            if (isRetreating)
+            {
+                if (!ShouldContinueRetreating(currentTarget))
+                {
+                    StopRetreating();
+                }
+                else
+                {
+                    FleeFrom(currentTarget);
+                    return;
+                }
+            }
+            else if (TryBeginRetreat(currentTarget))
             {
                 FleeFrom(currentTarget);
                 return;
@@ -614,6 +632,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
     {
         currentTarget = null;
         currentTargetDamageable = null;
+        StopRetreating();
     }
 
     bool ShouldAttackTarget(Transform target)
@@ -646,46 +665,119 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     bool ShouldFleeFrom(Transform target)
     {
-        if (target == null)
+        return TryBeginRetreat(target);
+    }
+
+    bool TryBeginRetreat(Transform target)
+    {
+        if (target == null ||
+            Time.time < nextRetreatRollTime)
         {
             return false;
         }
 
-        IDamageable damageable = target.GetComponentInParent<IDamageable>();
-        int targetPower = EstimatePower(target.gameObject, damageable);
-        int selfPower =
-            Mathf.Max(
-                1,
-                Mathf.RoundToInt(
-                    CultivationProgression.GetStatPower(
-                        realm,
-                        realmStage,
-                        EntityKind.Beast)));
-        bool clearlyWeaker = targetPower > selfPower * 2;
-        bool almostDead = currentHP < maxHP * 0.25f;
+        if (!HasSevereRealmSuppression(target))
+        {
+            return false;
+        }
 
-        return (clearlyWeaker && fear + survivalInstinct > 80f) ||
-            (almostDead && survivalInstinct > 45f);
+        if (!IsInsideOwnTerritory(target))
+        {
+            return false;
+        }
+
+        nextRetreatRollTime = Time.time + retreatRetryDelay;
+
+        if (Random.value > retreatChanceWhenSuppressed)
+        {
+            return false;
+        }
+
+        isRetreating = true;
+        retreatUntilTime = Time.time + retreatDuration;
+        currentAction = "Luc lui";
+        return true;
     }
 
-    int EstimatePower(GameObject target, IDamageable damageable)
+    bool ShouldContinueRetreating(Transform target)
     {
+        return isRetreating &&
+            target != null &&
+            Time.time < retreatUntilTime &&
+            HasSevereRealmSuppression(target) &&
+            IsInsideOwnTerritory(target);
+    }
+
+    void StopRetreating()
+    {
+        isRetreating = false;
+        retreatUntilTime = 0f;
+    }
+
+    bool HasSevereRealmSuppression(Transform target)
+    {
+        int targetPower = GetTargetRealmPower(target);
+        if (targetPower <= 0)
+        {
+            return false;
+        }
+
+        int selfPower = GetSelfRealmPower();
+        return targetPower >= selfPower + 2;
+    }
+
+    bool IsInsideOwnTerritory(Transform target)
+    {
+        if (!guardTerritory || target == null)
+        {
+            return false;
+        }
+
+        return Vector2.Distance(startPosition, target.position) <= territoryRadius;
+    }
+
+    int GetSelfRealmPower()
+    {
+        return Mathf.Max(
+            1,
+            CultivationProgression.GetRealmPower(realm, realmStage));
+    }
+
+    int GetTargetRealmPower(Transform target)
+    {
+        if (target == null)
+        {
+            return 0;
+        }
+
         CharacterStats stats = target.GetComponentInParent<CharacterStats>();
         if (stats != null)
         {
-            return stats.attack + stats.defense + stats.finalHP / 10;
+            return Mathf.Max(
+                1,
+                CultivationProgression.GetRealmPower(
+                    stats.realm,
+                    stats.realmStage));
         }
 
         VillagerAI villager = target.GetComponentInParent<VillagerAI>();
         if (villager != null)
         {
-            return villager.attack + villager.defense + villager.maxHP / 10;
+            return Mathf.Max(
+                1,
+                CultivationProgression.GetRealmPower(
+                    villager.realm,
+                    villager.realmStage));
         }
 
         SmartNpcAI smartNpc = target.GetComponentInParent<SmartNpcAI>();
         if (smartNpc != null)
         {
-            return smartNpc.attack + smartNpc.defense + smartNpc.maxHP / 10;
+            return Mathf.Max(
+                1,
+                CultivationProgression.GetRealmPower(
+                    smartNpc.realm,
+                    smartNpc.realmStage));
         }
 
         MonsterAI monster = target.GetComponentInParent<MonsterAI>();
@@ -693,14 +785,12 @@ public class MonsterAI : MonoBehaviour, IDamageable
         {
             return Mathf.Max(
                 1,
-                Mathf.RoundToInt(
-                    CultivationProgression.GetStatPower(
-                        monster.realm,
-                        monster.realmStage,
-                        EntityKind.Beast)));
+                CultivationProgression.GetRealmPower(
+                    monster.realm,
+                    monster.realmStage));
         }
 
-        return damageable != null ? 50 : 1;
+        return 0;
     }
 
     void FleeFrom(Transform threat)

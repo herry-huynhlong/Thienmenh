@@ -1108,7 +1108,7 @@ public class HeavenGiftPlacementController : MonoBehaviour
                 ? 1
                 : 0;
 
-        WorldEventManager.Instance.AddLog(message, colorType);
+        WorldEventManager.Instance.AddLog(message, colorType, true);
     }
 
     string GetCurrentLocationName()

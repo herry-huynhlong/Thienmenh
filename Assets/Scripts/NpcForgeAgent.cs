@@ -1907,7 +1907,7 @@ public class NpcForgeAgent : MonoBehaviour
         return item.canBeForgedIntoArtifact;
     }
 
-    bool NeedsMoreMaterials()
+    public bool NeedsMoreMaterials()
     {
         if (inventory == null)
         {

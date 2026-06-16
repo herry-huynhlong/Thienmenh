@@ -8,12 +8,14 @@ public class LogEntry
     public string timestamp; 
     public string content;   
     public int logColorType; // 0: Thường, 1: Đặc biệt, 2: Nguy hiểm
+    public bool isStoryLog;
 
-    public LogEntry(string timestamp, string content, int logColorType)
+    public LogEntry(string timestamp, string content, int logColorType, bool isStoryLog)
     {
         this.timestamp = timestamp;
         this.content = content;
         this.logColorType = logColorType;
+        this.isStoryLog = isStoryLog;
     }
 }
 
@@ -38,23 +40,23 @@ public class WorldEventManager : MonoBehaviour
         }
 
         // Tạo sẵn dữ liệu mẫu bằng số int để test UI cuốn sổ
-        AddLog("Chào mừng đến với Hoang Cổ Đại Lục! Linh khí an lành, trời quang mây tạnh.", 0);
-        AddLog("Dị động tại phương Đông! Kết giới Thượng Cổ Bí Cảnh có dấu hiệu suy yếu.", 1);
-        AddLog("Yêu khí ngập trời! Thú Triều đang rục rịch chuẩn bị tấn công thôn làng!", 2);
+        AddLog("Chào mừng đến với Hoang Cổ Đại Lục! Linh khí an lành, trời quang mây tạnh.", 0, true);
+        AddLog("Dị động tại phương Đông! Kết giới Thượng Cổ Bí Cảnh có dấu hiệu suy yếu.", 1, true);
+        AddLog("Yêu khí ngập trời! Thú Triều đang rục rịch chuẩn bị tấn công thôn làng!", 2, true);
     }
 
     // HÀM 1: Nhận số int (Dùng để bạn tự gõ test UI cho nhanh)
-    public void AddLog(string content, int colorType)
+    public void AddLog(string content, int colorType, bool isStoryLog = false)
     {
         string timeStr = GetWorldTimeFormatted();
-        LogEntry newLog = new LogEntry(timeStr, content, colorType);
-        worldLogs.Insert(0, newLog); 
+        LogEntry newLog = new LogEntry(timeStr, content, colorType, isStoryLog);
+        worldLogs.Insert(0, newLog);
         LogAdded?.Invoke(newLog);
-        OnLogUpdated?.Invoke();     
+        OnLogUpdated?.Invoke();
     }
 
     // HÀM 2: Nhận Enum WorldEventType (Cứu cánh dòng 99 đang bị lỗi convert int của bạn)
-    public void AddLog(string content, WorldEventType eventType)
+    public void AddLog(string content, WorldEventType eventType, bool isStoryLog = true)
     {
         int convertedColor = 0; // Mặc định là màu thường
 
@@ -71,11 +73,18 @@ public class WorldEventManager : MonoBehaviour
         }
 
         string timeStr = GetWorldTimeFormatted();
-        LogEntry newLog = new LogEntry(timeStr, content, convertedColor);
-        worldLogs.Insert(0, newLog); 
+        LogEntry newLog = new LogEntry(timeStr, content, convertedColor, isStoryLog);
+        worldLogs.Insert(0, newLog);
         LogAdded?.Invoke(newLog);
-        OnLogUpdated?.Invoke(); 
+        OnLogUpdated?.Invoke();
     }
+
+    // HÀM 2: Nhận Enum WorldEventType (Cứu cánh dòng 99 đang bị lỗi convert int của bạn)
+    public void AddLog(string content, WorldEventType eventType)
+    {
+        AddLog(content, eventType, false);
+    }
+
 
     // Hàm phụ trợ bốc thời gian từ hệ thống để tránh trùng lặp code
     private string GetWorldTimeFormatted()
@@ -88,6 +97,21 @@ public class WorldEventManager : MonoBehaviour
             return $"[Năm {year}-T{month}-N{day}] ";
         }
         return "[Thời Không] ";
+    }
+
+    public List<LogEntry> GetStoryLogs()
+    {
+        List<LogEntry> storyLogs = new List<LogEntry>();
+
+        foreach (LogEntry entry in worldLogs)
+        {
+            if (entry != null && entry.isStoryLog)
+            {
+                storyLogs.Add(entry);
+            }
+        }
+
+        return storyLogs;
     }
 
     public List<LogEntry> GetLogs()

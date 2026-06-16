@@ -94,7 +94,7 @@ public class WorldEventSystem : MonoBehaviour
             }
 
             // Gọi hàm lưu log, mốc thời gian sẽ tự động được hệ thống bốc vào đầu câu
-            WorldEventManager.Instance.AddLog(logMessage, eventType);
+            WorldEventManager.Instance.AddLog(logMessage, eventType, true);
         }
         // =========================================================================
 

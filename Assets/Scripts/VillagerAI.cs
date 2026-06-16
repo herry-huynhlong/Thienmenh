@@ -1253,6 +1253,67 @@ public class VillagerAI : MonoBehaviour, IDamageable
             : 0.35f;
     }
 
+    bool IsForgeWorker()
+    {
+        return job == VillagerJob.Worker &&
+            GetComponent<NpcForgeAgent>() != null;
+    }
+
+    void GoForgeWorkOrTrade()
+    {
+        if (!autonomousWorkEnabled)
+        {
+            Wander(NpcText.Action("wanderVillage"));
+            return;
+        }
+
+        NpcForgeAgent forgeAgent = GetComponent<NpcForgeAgent>();
+        if (forgeAgent == null)
+        {
+            GoWork();
+            return;
+        }
+
+        if (forgeAgent.autoBuyMaterialsFromMarketTraders &&
+            forgeAgent.NeedsMoreMaterials())
+        {
+            if (NpcEconomy.GetNpcMoney(gameObject) <= 0)
+            {
+                if (ShouldDoDailyVanBaoLauCheck())
+                {
+                    GoDailyVanBaoLauCheck();
+                    return;
+                }
+
+                if (autonomousResourceWorkEnabled)
+                {
+                    GoResourceWork();
+                    return;
+                }
+
+                Wander(NpcText.Action("wanderVillage"));
+                return;
+            }
+
+            if (marketPoint != null)
+            {
+                GoTrade();
+                return;
+            }
+
+            if (autonomousResourceWorkEnabled)
+            {
+                GoResourceWork();
+                return;
+            }
+
+            GoDailyVanBaoLauCheck();
+            return;
+        }
+
+        GoWork();
+    }
+
     bool ShouldDoMortalWork()
     {
         if (!strongNpcAvoidMortalWork)
@@ -1265,6 +1326,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     void GoWorkOrCultivatorActivity()
     {
+        if (IsForgeWorker())
+        {
+            GoForgeWorkOrTrade();
+            return;
+        }
+
         if (!autonomousWorkEnabled)
         {
             Wander(NpcText.Action("wanderVillage"));

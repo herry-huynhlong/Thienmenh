@@ -3,6 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum TribulationTargetMotionMode
+{
+    MoveTargetToOpenArea,
+    KeepTargetStill
+}
+
 public class HeavenlyTribulationSystem : MonoBehaviour
 {
     public static HeavenlyTribulationSystem Instance { get; private set; }
@@ -17,6 +23,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         new Dictionary<int, PillProtectionState>();
 
     [Header("Tribulation")]
+    public TribulationTargetMotionMode targetMotionMode = TribulationTargetMotionMode.KeepTargetStill;
     public int baseLightningCount = 2;
     public int lightningCountPerMajorRealm = 1;
     public float lightningInterval = 0.45f;
@@ -156,9 +163,16 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 
         TribulationRuntime runtime = BuildRuntime(target, targetRealm);
 
-        Vector3 center = FindOpenArea(target.transform.position, target);
+        Vector3 originalPosition = target.transform.position;
+        Vector3 center = targetMotionMode == TribulationTargetMotionMode.MoveTargetToOpenArea
+            ? FindOpenArea(originalPosition, target)
+            : originalPosition;
 
-        MoveTargetToCenter(target, center);
+        if (targetMotionMode == TribulationTargetMotionMode.MoveTargetToOpenArea)
+        {
+            MoveTargetToCenter(target, center);
+        }
+
         Vector3 strikeCenter = GetTribulationStrikeCenter(target, center);
         Vector3 visualCenter = GetTribulationVisualCenter(target, strikeCenter);
 
@@ -845,7 +859,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
     {
         if (WorldEventManager.Instance != null)
         {
-            WorldEventManager.Instance.AddLog(content, colorType);
+            WorldEventManager.Instance.AddLog(content, colorType, true);
         }
     }
 }

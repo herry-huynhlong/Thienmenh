@@ -14,7 +14,11 @@ public class NpcForgeRole : MonoBehaviour
     public bool preferCultivateWhenIdle = true;
     public bool sellToNearbyNpcBuyers = true;
     public bool sellToVanBaoLau = true;
+    [Header("Daily Routine")]
+    [Min(0f)] public float forgeDailyHours = 6f;
+    [Min(0f)] public float cultivateDailyHours = 10f;
     public Transform forgeStandPoint;
+    public Transform marketPoint;
     public Transform forgeFacingPoint;
     public Vector2 defaultFacingDirection = Vector2.down;
     public bool snapToForgeStandPoint = false;
@@ -112,14 +116,41 @@ public class NpcForgeRole : MonoBehaviour
             forgeAgent.snapToForgeStandPoint = snapToForgeStandPoint;
             forgeAgent.keepAtForgeStandPoint = keepAtForgeStandPoint;
             forgeAgent.lockFacingToForgePoint = lockFacingToForgePoint;
+            forgeAgent.forgeDurationMinGameHours =
+                Mathf.Max(0f, forgeDailyHours);
+            forgeAgent.forgeDurationMaxGameHours =
+                Mathf.Max(
+                    forgeAgent.forgeDurationMinGameHours,
+                    forgeDailyHours);
             forgeAgent.autoBuyMaterialsFromMarketTraders =
                 autoBuyMaterialsFromMarketTraders;
         }
 
         VillagerAI villager = GetComponent<VillagerAI>();
-        if (villager != null && forceVillagerJobWorker)
+        if (villager != null)
         {
-            villager.job = VillagerJob.Worker;
+            if (forceVillagerJobWorker)
+            {
+                villager.job = VillagerJob.Worker;
+            }
+
+            if (forgeStandPoint != null)
+            {
+                villager.workPoint = forgeStandPoint;
+            }
+            if (marketPoint != null)
+            {
+                villager.marketPoint = marketPoint;
+            }
+
+            villager.autonomousWorkEnabled = true;
+            villager.dailyRoutineEnabled = true;
+            villager.dailyCultivationMinHours =
+                Mathf.Max(0f, cultivateDailyHours);
+            villager.dailyCultivationMaxHours =
+                Mathf.Max(
+                    villager.dailyCultivationMinHours,
+                    cultivateDailyHours);
         }
 
         NpcSpecialProfession profession = GetComponent<NpcSpecialProfession>();

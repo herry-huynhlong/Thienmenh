@@ -4114,7 +4114,7 @@ public class NpcTaskProvider : MonoBehaviour
                     NpcRoleUtility.GetDisplayName(npc),
                     GetOfferTaskName(offer),
                     rewardSpiritStone),
-                0);
+                0, true);
         }
     }
     void PayRewardMoney(GameObject npc, int amount)

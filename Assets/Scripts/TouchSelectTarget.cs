@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using TMPro;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -72,6 +72,12 @@ public class TouchSelectTarget : MonoBehaviour
         new Vector3(0, 2f, 0);
 
     public float panelScreenPadding = 12f;
+
+    [Tooltip("If enabled, the target panel stays centered on screen instead of following the NPC position.")]
+    public bool forcePanelToScreenCenter;
+
+    [Tooltip("Extra manual offset applied when centering the panel.")]
+    public Vector2 centeredPanelOffset;
 
     [Header("Tap")]
     public float tapThreshold = 10f;
@@ -2337,12 +2343,26 @@ public class TouchSelectTarget : MonoBehaviour
         }
 
         Vector3 screenPos =
-            cam.WorldToScreenPoint(
+            forcePanelToScreenCenter
+            ? new Vector3(
+                Screen.width * 0.5f + centeredPanelOffset.x,
+                Screen.height * 0.5f + centeredPanelOffset.y,
+                0f)
+            : cam.WorldToScreenPoint(
                 currentTarget.position +
                 panelOffset);
 
         if (isWorldItem)
         {
+            if (!forcePanelToScreenCenter)
+            {
+                screenPos =
+                    new Vector3(
+                        Screen.width * 0.5f,
+                        Screen.height * 0.5f,
+                        0f);
+            }
+
             worldItemPanelRect.position =
                 ClampPanelToScreen(worldItemPanelRect, screenPos);
         }

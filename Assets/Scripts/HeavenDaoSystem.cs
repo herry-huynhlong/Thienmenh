@@ -341,10 +341,13 @@ public class HeavenDaoSystem : MonoBehaviour
 
     void HandleStoryLogAdded(LogEntry entry)
     {
-        if (entry == null || string.IsNullOrEmpty(entry.content))
+        if (entry == null ||
+            string.IsNullOrEmpty(entry.content) ||
+            !entry.isStoryLog)
         {
             return;
         }
+
 
         string uniqueKey = entry.timestamp + entry.content;
         if (!processedStoryLogs.Add(uniqueKey))
@@ -371,7 +374,7 @@ public class HeavenDaoSystem : MonoBehaviour
             return;
         }
 
-        List<LogEntry> logs = WorldEventManager.Instance.GetLogs();
+        List<LogEntry> logs = WorldEventManager.Instance.GetStoryLogs();
         if (logs == null)
         {
             return;

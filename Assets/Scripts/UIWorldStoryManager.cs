@@ -59,7 +59,7 @@ public class UIWorldStoryManager : MonoBehaviour
         }
 
         // Đọc data từ Manager
-        List<LogEntry> logs = WorldEventManager.Instance.GetLogs();
+        List<LogEntry> logs = WorldEventManager.Instance.GetStoryLogs();
 
         foreach (LogEntry log in logs)
         {
