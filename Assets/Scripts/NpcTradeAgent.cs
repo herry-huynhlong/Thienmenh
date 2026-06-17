@@ -352,7 +352,7 @@ public class NpcTradeAgent : MonoBehaviour
         bool considerUse)
     {
         EnsureInventory();
-        ItemEffectSpawner.PlayUseEffect(item, transform);
+        ItemEffectSpawner.PlayPickupEffect(item, transform);
 
         NpcItemCollector collector =
             GetCollectorForBoughtItem(item, considerUse);

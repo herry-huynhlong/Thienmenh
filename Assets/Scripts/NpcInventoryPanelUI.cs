@@ -25,7 +25,7 @@ public class NpcInventoryPanelUI : MonoBehaviour
     public float autoInfoHeight = 64f;
 
     [Header("NPC Shop Inventory")]
-    public bool showNearbyShopInventory = true;
+    public bool showNearbyShopInventory = false;
     public bool preferActiveCounterBroker = true;
     public float shopInventorySearchRadius = 4f;
 
@@ -45,6 +45,8 @@ public class NpcInventoryPanelUI : MonoBehaviour
         AutoFindItemGridPanel();
         SanitizeCopiedInventoryGrid();
         ConfigureRaycasts();
+        showNearbyShopInventory = false;
+        preferActiveCounterBroker = false;
         Hide();
     }
 
@@ -56,7 +58,8 @@ public class NpcInventoryPanelUI : MonoBehaviour
             return;
         }
 
-        if (IsNpcTarget(npc) &&
+        if (false &&
+            IsNpcTarget(npc) &&
             !HasHeavenDaoPower(HeavenDaoPower.ViewBasicNpcInfo))
         {
             HideContentOnly();
@@ -73,23 +76,6 @@ public class NpcInventoryPanelUI : MonoBehaviour
 
         inventory.UsePrivateNpcRuntimeItems(false);
 
-        NpcShopStockRefill stockRefill =
-            ResolveShopStockRefill(npc);
-
-        if (stockRefill != null)
-        {
-            if (stockRefill.transform == npc)
-            {
-                stockRefill.sellerInventory = inventory;
-            }
-
-            stockRefill.EnsureStock();
-
-            if (stockRefill.sellerInventory != null)
-            {
-                inventory = stockRefill.sellerInventory;
-            }
-        }
         if (currentNpc != npc ||
             currentInventory != inventory)
         {
@@ -520,7 +506,7 @@ public class NpcInventoryPanelUI : MonoBehaviour
             return;
         }
 
-        itemGridPanel.inventory = currentInventory;
+        itemGridPanel.SetInventory(currentInventory, false);
         itemGridPanel.closeOnStart = false;
         itemGridPanel.readOnly = readOnly;
         itemGridPanel.bringToFrontOnOpen = false;

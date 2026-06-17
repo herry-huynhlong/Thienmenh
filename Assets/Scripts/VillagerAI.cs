@@ -140,6 +140,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
     public LayerMask obstacleLayers = ~0;
     public float obstacleCheckDistance = 0.35f;
     public float targetClearRadius = 0.25f;
+    public float navigationClearancePadding = 0.16f;
     public float obstacleScanDistance = 8f;
     public float obstacleScanStep = 0.35f;
     public int maxPickTargetAttempts = 16;
@@ -171,6 +172,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
     public bool autonomousResourceWorkEnabled = false;
     public bool autonomousDangerousWorkEnabled = false;
     public bool dailyVanBaoLauVisitEnabled = true;
+    public bool staggerDailyVanBaoLauVisits = true;
+    [Range(0f, 4f)] public float dailyVanBaoLauVisitStaggerHours = 2f;
     public bool dailyTaskPlanEnabled = true;
     public float dailyTaskPlanStartupDelay = 2f;
     public int dailyTaskPlanMinTasks = 3;
@@ -296,6 +299,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
     int dailyTaskPlanIndex;
     int lastFarmerHarvestDay = -1;
     int lastVanBaoLauVisitDay = -1;
+    float vanBaoLauVisitAnchorHour = -1f;
+    float vanBaoLauVisitDelayHours;
     int vanBaoLauVisitStep;
 
     Vector3 currentWorkTarget;
@@ -339,6 +344,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     void Awake()
     {
+        ignoreNpcBodyCollisions = true;
         currentAction = NpcText.Action("idle");
         rb = GetComponent<Rigidbody2D>();
         ownColliders = GetComponentsInChildren<Collider2D>();
@@ -362,6 +368,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         ApplyRuntimePathPerformanceLimits();
 
         spawnPosition = transform.position;
+        InitializeVanBaoLauVisitStagger();
         RefreshCurrentMapArea(false);
         ClampInsideCurrentMapArea();
 
@@ -657,6 +664,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
         SyncFromCharacterStats();
 
         if (IsDead)
+        {
+            StopMoving();
+            return;
+        }
+
+        if (NpcTaskProvider.IsNpcBusyWithAnyProvider(gameObject))
         {
             StopMoving();
             return;
@@ -1086,6 +1099,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
         if (fatigue >= 85f)
         {
             GoHomeToRest();
+            return;
+        }
+
+        if (IsRoutineTravelOrCultivationAction(currentAction))
+        {
             return;
         }
 
@@ -1616,6 +1634,60 @@ public class VillagerAI : MonoBehaviour, IDamageable
         return GameHoursToSeconds(Mathf.Max(0.1f, remainingHours));
     }
 
+    void InitializeVanBaoLauVisitStagger()
+    {
+        vanBaoLauVisitAnchorHour = GetCurrentWorldHour();
+
+        if (!dailyVanBaoLauVisitEnabled ||
+            !staggerDailyVanBaoLauVisits ||
+            dailyVanBaoLauVisitStaggerHours <= 0f)
+        {
+            vanBaoLauVisitDelayHours = 0f;
+            return;
+        }
+
+        vanBaoLauVisitDelayHours =
+            Random.Range(
+                0f,
+                Mathf.Max(0.1f, dailyVanBaoLauVisitStaggerHours));
+    }
+
+    bool IsVanBaoLauVisitStaggerReady()
+    {
+        if (!dailyVanBaoLauVisitEnabled ||
+            !staggerDailyVanBaoLauVisits ||
+            vanBaoLauVisitDelayHours <= 0f)
+        {
+            return true;
+        }
+
+        if (vanBaoLauVisitAnchorHour < 0f)
+        {
+            InitializeVanBaoLauVisitStagger();
+        }
+
+        float elapsedHours = GetCurrentWorldHour() - vanBaoLauVisitAnchorHour;
+        if (elapsedHours < 0f)
+        {
+            elapsedHours += 24f;
+        }
+
+        return elapsedHours >= vanBaoLauVisitDelayHours;
+    }
+
+    bool IsRoutineTravelOrCultivationAction(string action)
+    {
+        return action == NpcText.Action("goTaskProviderDaily") ||
+            action == NpcText.Action("visitedTaskProvider") ||
+            action == NpcText.Action("goVanBaoLauBroker") ||
+            action == NpcText.Action("goVanBaoLauTask") ||
+            action == NpcText.Action("checkedVanBaoLau") ||
+            action == NpcText.Action("goHomeCultivate") ||
+            action == NpcText.Action("goCultivatePoint") ||
+            action == NpcText.Action("cultivate") ||
+            action == NpcText.Action("cultivateAbsorbQi");
+    }
+
     bool TryGoHomeForCultivation()
     {
         if (IsInDungeonCombatSession())
@@ -2002,6 +2074,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
         WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
         if (timeSystem == null ||
             lastVanBaoLauVisitDay == timeSystem.CurrentDay)
+        {
+            return false;
+        }
+
+        if (!IsVanBaoLauVisitStaggerReady())
         {
             return false;
         }
@@ -3008,23 +3085,65 @@ void GoWork()
         }
 
         Vector3 targetPosition = target.position;
-        if (!ShouldUseSharedTargetSpacing(target) ||
-            !IsSharedTargetOccupied(targetPosition))
+        if (!ShouldUseSharedTargetSpacing(target))
         {
             return targetPosition;
         }
 
-        int slotCount = 6;
+        int slotCount = 8;
         int slotIndex = Mathf.Abs(
             gameObject.GetInstanceID() ^
             target.gameObject.GetInstanceID()) % slotCount;
-        float angle = (Mathf.PI * 2f * slotIndex) / slotCount;
-        Vector3 offset = new Vector3(
-            Mathf.Cos(angle),
-            Mathf.Sin(angle),
-            0f) * Mathf.Max(arriveDistance, sharedTargetSpacingRadius);
+        float spacingRadius = Mathf.Max(
+            arriveDistance * 3f,
+            sharedTargetSpacingRadius,
+            0.85f);
 
-        return ClampToCurrentMapArea(targetPosition + offset);
+        Vector3 spacedPosition =
+            FindOpenSharedTargetSlot(targetPosition, slotCount, slotIndex, spacingRadius);
+
+        if (target.GetComponent<NpcTaskProvider>() != null ||
+            target.GetComponent<NpcCounterBroker>() != null)
+        {
+            return spacedPosition;
+        }
+
+        if (!IsSharedTargetOccupied(targetPosition))
+        {
+            return targetPosition;
+        }
+
+        return spacedPosition;
+    }
+
+    Vector3 FindOpenSharedTargetSlot(
+        Vector3 targetPosition,
+        int slotCount,
+        int startSlotIndex,
+        float spacingRadius)
+    {
+        Vector3 fallback = targetPosition;
+
+        for (int i = 0; i < slotCount; i++)
+        {
+            int slotIndex = (startSlotIndex + i) % slotCount;
+            float angle = (Mathf.PI * 2f * slotIndex) / slotCount;
+            Vector3 candidate = ClampToCurrentMapArea(
+                targetPosition +
+                new Vector3(
+                    Mathf.Cos(angle),
+                    Mathf.Sin(angle),
+                    0f) * spacingRadius);
+
+            if (!IsSharedTargetOccupied(candidate))
+            {
+                return candidate;
+            }
+
+            fallback = candidate;
+        }
+
+        return fallback;
     }
 
     bool ShouldUseSharedTargetSpacing(Transform target)
@@ -3039,7 +3158,7 @@ void GoWork()
 
     bool IsSharedTargetOccupied(Vector3 targetPosition)
     {
-        float radius = Mathf.Max(0.05f, sharedTargetOccupancyRadius);
+        float radius = Mathf.Max(0.18f, sharedTargetOccupancyRadius);
         Collider2D[] hits =
             Physics2D.OverlapCircleAll(
                 targetPosition,
@@ -3785,6 +3904,7 @@ void GoWork()
             {
                 roadPreferenceTarget = target;
                 prefersRoadForCurrentRoute =
+                    ShouldForceRoadForCurrentAction() ||
                     Random.value < roadPreferenceChance;
                 hasRoadPreference = true;
                 movingToRoad = false;
@@ -4002,6 +4122,20 @@ void GoWork()
     {
         return IsMoveTargetFeasible(road) &&
             HasClearLineTo(road);
+    }
+
+    bool ShouldForceRoadForCurrentAction()
+    {
+        return currentAction == NpcText.Action("goTaskProviderDaily") ||
+            currentAction == NpcText.Action("goHomeCultivate") ||
+            currentAction == NpcText.Action("goCultivatePoint") ||
+            currentAction == NpcText.Action("goHunt") ||
+            currentAction == NpcText.Action("goTavern") ||
+            currentAction == NpcText.Action("buyPill") ||
+            currentAction == NpcText.Action("gatherResource") ||
+            currentAction == NpcText.Action("tradeSeek") ||
+            currentAction == NpcText.Action("moveToTask") ||
+            currentAction == NpcText.Action("receiveTask");
     }
 
     bool ShouldBypassRoad()
@@ -4656,7 +4790,8 @@ void GoWork()
 
         Vector3 escapeTarget;
         if (!TryPickObstacleEscapeTarget(escapeDirection, out escapeTarget) &&
-            !TryPickCrowdEscapeTarget(out escapeTarget))
+            (!ignoreNpcBodyCollisions &&
+            !TryPickCrowdEscapeTarget(out escapeTarget)))
         {
             Vector2 offset =
                 Random.insideUnitCircle.normalized *
@@ -4676,7 +4811,9 @@ void GoWork()
 
     void ApplyNpcOverlapSeparation()
     {
-        if (rb == null || separationRadius <= 0f)
+        if (ignoreNpcBodyCollisions ||
+            rb == null ||
+            separationRadius <= 0f)
         {
             return;
         }
@@ -4802,6 +4939,15 @@ void GoWork()
     void TryEscapeObstacleCollision(Collision2D collision)
     {
         if (collision == null || collision.contactCount <= 0)
+        {
+            return;
+        }
+
+        if (ignoreNpcBodyCollisions &&
+            collision.collider != null &&
+            (collision.collider.GetComponentInParent<VillagerAI>() != null ||
+             collision.collider.GetComponentInParent<SmartNpcAI>() != null ||
+             collision.collider.GetComponentInParent<NpcMapMover2D>() != null))
         {
             return;
         }
@@ -5334,6 +5480,11 @@ void GoWork()
       {
           resolvedDirection = desiredDirection;
 
+          if (ignoreNpcBodyCollisions)
+          {
+              return true;
+          }
+
           if (Time.time < crowdDirectionCommitUntil &&
               crowdCommittedDirection.sqrMagnitude > 0.0001f)
           {
@@ -5509,6 +5660,12 @@ void GoWork()
 
     bool TryPickCrowdEscapeTarget(out Vector3 target)
     {
+        if (ignoreNpcBodyCollisions)
+        {
+            target = transform.position;
+            return false;
+        }
+
         target = transform.position;
 
         Vector2 baseDirection = desiredVelocity.sqrMagnitude > 0.0001f
@@ -5571,6 +5728,12 @@ void GoWork()
         Collider2D other,
         out Vector2 detourDirection)
     {
+        if (ignoreNpcBodyCollisions)
+        {
+            detourDirection = desiredDirection;
+            return false;
+        }
+
         detourDirection = desiredDirection;
 
         if (desiredDirection.sqrMagnitude <= 0.0001f)
@@ -5940,7 +6103,7 @@ void GoWork()
 
     float GetBodyClearRadius()
     {
-        float radius = Mathf.Max(0.01f, targetClearRadius);
+        float radius = Mathf.Max(0.01f, targetClearRadius + navigationClearancePadding);
 
         if (ownColliders == null || ownColliders.Length == 0)
         {
@@ -6850,7 +7013,7 @@ void GoWork()
 
     Vector2 GetSeparationDirection()
     {
-        if (separationRadius <= 0f)
+        if (ignoreNpcBodyCollisions || separationRadius <= 0f)
         {
             return Vector2.zero;
         }

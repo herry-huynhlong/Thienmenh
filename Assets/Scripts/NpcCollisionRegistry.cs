@@ -10,6 +10,7 @@ public static class NpcCollisionRegistry
     }
 
     static readonly List<Entry> entries = new List<Entry>();
+    static bool npcLayerCollisionDisabled;
 
     public static void Register(Object owner, Collider2D[] colliders)
     {
@@ -18,6 +19,7 @@ public static class NpcCollisionRegistry
             return;
         }
 
+        EnsureNpcLayerSelfCollisionIgnored();
         Unregister(owner);
         CleanupDestroyedEntries();
 
@@ -52,6 +54,24 @@ public static class NpcCollisionRegistry
         }
 
         entries.Add(entry);
+    }
+
+    static void EnsureNpcLayerSelfCollisionIgnored()
+    {
+        if (npcLayerCollisionDisabled)
+        {
+            return;
+        }
+
+        int npcLayer = LayerMask.NameToLayer("NPC");
+        if (npcLayer < 0)
+        {
+            npcLayerCollisionDisabled = true;
+            return;
+        }
+
+        Physics2D.IgnoreLayerCollision(npcLayer, npcLayer, true);
+        npcLayerCollisionDisabled = true;
     }
 
     public static void Unregister(Object owner)

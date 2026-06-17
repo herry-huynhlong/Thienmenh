@@ -1,0 +1,883 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8596889031696047861
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5919177293927157788}
+  - component: {fileID: 4185366332498665280}
+  - component: {fileID: 7244997612633463948}
+  - component: {fileID: 8814142739700771914}
+  - component: {fileID: 7525713692923372357}
+  - component: {fileID: 8702128748568086803}
+  - component: {fileID: 6747842253424447933}
+  - component: {fileID: 8826507661961283257}
+  - component: {fileID: 5913454657302191592}
+  - component: {fileID: 1836311742786125013}
+  - component: {fileID: 5880837379325097654}
+  - component: {fileID: 477681590454896501}
+  m_Layer: 0
+  m_Name: thoren_1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5919177293927157788
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8596889031696047861}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 3.59, y: 5.39, z: 0}
+  m_LocalScale: {x: 1.2, y: 1.2, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &4185366332498665280
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8596889031696047861}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 2
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: -6338540022363666054, guid: dc69b816076f12d42844493ef8d9c824, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 0.39, y: 0.8}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
+--- !u!95 &7244997612633463948
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8596889031696047861}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: fbbc77d3c70c25d40a29fa8f9ef656b6, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!50 &8814142739700771914
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8596889031696047861}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
+--- !u!114 &7525713692923372357
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8596889031696047861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03a13211cc18b6a4cad47575141029dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcForgeAgent
+  inventory: {fileID: 0}
+  tradeAgent: {fileID: 0}
+  autoForge: 1
+  preferCultivateWhenIdle: 1
+  checkInterval: 1
+  forgeDurationMinGameHours: 2
+  forgeDurationMaxGameHours: 3
+  genericMaterialUnits: 3
+  genericOutputSlot: 1
+  allowGenericArmorFallback: 1
+  forgeStandPoint: {fileID: 0}
+  forgeFacingPoint: {fileID: 0}
+  defaultFacingDirection: {x: 0, y: -1}
+  snapToForgeStandPoint: 1
+  keepAtForgeStandPoint: 1
+  lockFacingToForgePoint: 1
+  autoBuyMaterialsFromMarketTraders: 1
+  acceptAllForgeMaterials: 1
+  acceptDanDuocAsForgeMaterial: 1
+  acceptVatLieuAsForgeMaterial: 1
+  acceptPhapBaoAsForgeMaterial: 0
+  acceptThucPhamAsForgeMaterial: 0
+  excludeImmortalGrade: 1
+  autoSellFinishedGoods: 1
+  sellToNearbyNpcBuyers: 1
+  sellToVanBaoLau: 1
+  preferDirectSaleWhenPriceHigher: 1
+  sellSearchRadius: 2.25
+  npcLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  autoLoadForgeCatalogFromAssets: 1
+  itemFolders:
+  - Assets/Item/PhapBao
+  forgeCatalogItems:
+  - {fileID: 11400000, guid: 00d6947b52de2a04d888fa221e40ffb8, type: 2}
+  - {fileID: 11400000, guid: b0a6286f1a1e4f947922f28da87e62d7, type: 2}
+  - {fileID: 11400000, guid: c69d9aee44b466748ba9e72f3c7342e4, type: 2}
+  - {fileID: 11400000, guid: 59f8c3041614c2547bdfe8f115c2f857, type: 2}
+  - {fileID: 11400000, guid: 35d7527e314ee8545966518affbe7c1a, type: 2}
+  - {fileID: 11400000, guid: 23b7998e199275b4785bfdfe5f9f6a88, type: 2}
+  - {fileID: 11400000, guid: 4059871339ba3b045a808926ce868f41, type: 2}
+  - {fileID: 11400000, guid: 3188e2d82ac96ea4b941fe6db7686f93, type: 2}
+  - {fileID: 11400000, guid: ef6d3efb4a678b44891fd1203935f2ee, type: 2}
+  - {fileID: 11400000, guid: eb15d49ebe7aaa445b3893a5ee64c8b4, type: 2}
+  - {fileID: 11400000, guid: 10958e7a76a462d41a230e77e4094b0d, type: 2}
+  - {fileID: 11400000, guid: 93176f919896ca44191c88d36732a379, type: 2}
+  - {fileID: 11400000, guid: 2eaf720d430c7544695372c744da8950, type: 2}
+  - {fileID: 11400000, guid: 477e693ecb7af0b48a7f7aa119d4f934, type: 2}
+  - {fileID: 11400000, guid: 6a610b00e42af984aa623d22b8d0d9ba, type: 2}
+  recipes:
+  - recipeName: "H\u1EAFc Thi\u1EBFt \u0110ao Recipe"
+    ingredients:
+    - item: {fileID: 0}
+      materialKind: 2
+      allowAnyMaterialFallback: 1
+      amount: 2
+    - item: {fileID: 0}
+      materialKind: 3
+      allowAnyMaterialFallback: 1
+      amount: 1
+    - item: {fileID: 0}
+      materialKind: 5
+      allowAnyMaterialFallback: 1
+      amount: 1
+    genericMaterialUnits: 3
+    outputSlot: 1
+    preferredResult: {fileID: 11400000, guid: 00d6947b52de2a04d888fa221e40ffb8, type: 2}
+    resultAmount: 1
+    allowCustomOrders: 1
+    defaultLeadTimeGameDays: 2
+    depositFraction: 0.3
+  - recipeName: "M\u1ED9c Linh Cung Recipe"
+    ingredients:
+    - item: {fileID: 0}
+      materialKind: 2
+      allowAnyMaterialFallback: 1
+      amount: 2
+    - item: {fileID: 0}
+      materialKind: 3
+      allowAnyMaterialFallback: 1
+      amount: 1
+    - item: {fileID: 0}
+      materialKind: 5
+      allowAnyMaterialFallback: 1
+      amount: 1
+    genericMaterialUnits: 3
+    outputSlot: 1
+    preferredResult: {fileID: 11400000, guid: b0a6286f1a1e4f947922f28da87e62d7, type: 2}
+    resultAmount: 1
+    allowCustomOrders: 1
+    defaultLeadTimeGameDays: 2
+    depositFraction: 0.3
+  - recipeName: "Thanh Phong Ki\u1EBFm Recipe"
+    ingredients:
+    - item: {fileID: 0}
+      materialKind: 2
+      allowAnyMaterialFallback: 1
+      amount: 2
+    - item: {fileID: 0}
+      materialKind: 3
+      allowAnyMaterialFallback: 1
+      amount: 1
+    - item: {fileID: 0}
+      materialKind: 5
+      allowAnyMaterialFallback: 1
+      amount: 1
+    genericMaterialUnits: 3
+    outputSlot: 1
+    preferredResult: {fileID: 11400000, guid: c69d9aee44b466748ba9e72f3c7342e4, type: 2}
+    resultAmount: 1
+    allowCustomOrders: 1
+    defaultLeadTimeGameDays: 2
+    depositFraction: 0.3
+  - recipeName: "Thi\u1EBFt B\xEC Gi\xE1p Recipe"
+    ingredients:
+    - item: {fileID: 0}
+      materialKind: 4
+      allowAnyMaterialFallback: 1
+      amount: 2
+    - item: {fileID: 0}
+      materialKind: 1
+      allowAnyMaterialFallback: 1
+      amount: 1
+    - item: {fileID: 0}
+      materialKind: 5
+      allowAnyMaterialFallback: 1
+      amount: 1
+    genericMaterialUnits: 3
+    outputSlot: 2
+    preferredResult: {fileID: 11400000, guid: 59f8c3041614c2547bdfe8f115c2f857, type: 2}
+    resultAmount: 1
+    allowCustomOrders: 1
+    defaultLeadTimeGameDays: 2
+    depositFraction: 0.3
+  - recipeName: "V\u1EA3i H\u1ED9 Th\xE2n Recipe"
+    ingredients:
+    - item: {fileID: 0}
+      materialKind: 4
+      allowAnyMaterialFallback: 1
+      amount: 2
+    - item: {fileID: 0}
+      materialKind: 1
+      allowAnyMaterialFallback: 1
+      amount: 1
+    - item: {fileID: 0}
+      materialKind: 5
+      allowAnyMaterialFallback: 1
+      amount: 1
+    genericMaterialUnits: 3
+    outputSlot: 2
+    preferredResult: {fileID: 11400000, guid: 35d7527e314ee8545966518affbe7c1a, type: 2}
+    resultAmount: 1
+    allowCustomOrders: 1
+    defaultLeadTimeGameDays: 2
+    depositFraction: 0.3
+  - recipeName: "M\u1ED9c Linh H\u1ED9 Ph\xF9 Recipe"
+    ingredients:
+    - item: {fileID: 0}
+      materialKind: 6
+      allowAnyMaterialFallback: 1
+      amount: 2
+    - item: {fileID: 0}
+      materialKind: 5
+      allowAnyMaterialFallback: 1
+      amount: 1
+    - item: {fileID: 0}
+      materialKind: 1
+      allowAnyMaterialFallback: 1
+      amount: 1
+    genericMaterialUnits: 3
+    outputSlot: 3
+    preferredResult: {fileID: 11400000, guid: 23b7998e199275b4785bfdfe5f9f6a88, type: 2}
+    resultAmount: 1
+    allowCustomOrders: 1
+    defaultLeadTimeGameDays: 2
+    depositFraction: 0.3
+  - recipeName: "Huy\u1EBFt S\xE1t \u0110ao Recipe"
+    ingredients:
+    - item: {fileID: 0}
+      materialKind: 2
+      allowAnyMaterialFallback: 1
+      amount: 4
+    - item: {fileID: 0}
+      materialKind: 3
+      allowAnyMaterialFallback: 1
+      amount: 1
+    - item: {fileID: 0}
+      materialKind: 5
+      allowAnyMaterialFallback: 1
+      amount: 1
+    genericMaterialUnits: 3
+    outputSlot: 1
+    preferredResult: {fileID: 11400000, guid: 4059871339ba3b045a808926ce868f41, type: 2}
+    resultAmount: 1
+    allowCustomOrders: 1
+    defaultLeadTimeGameDays: 3
+    depositFraction: 0.3
+  - recipeName: "L\u01B0u Quang Ki\u1EBFm Recipe"
+    ingredients:
+    - item: {fileID: 0}
+      materialKind: 2
+      allowAnyMaterialFallback: 1
+      amount: 4
+    - item: {fileID: 0}
+      materialKind: 3
+      allowAnyMaterialFallback: 1
+      amount: 1
+    - item: {fileID: 0}
+      materialKind: 5
+      allowAnyMaterialFallback: 1
+      amount: 1
+    genericMaterialUnits: 3
+    outputSlot: 1
+    preferredResult: {fileID: 11400000, guid: 3188e2d82ac96ea4b941fe6db7686f93, type: 2}
+    resultAmount: 1
+    allowCustomOrders: 1
+    defaultLeadTimeGameDays: 3
+    depositFraction: 0.3
+  - recipeName: "Xuy\xEAn V\xE2n Cung Recipe"
+    ingredients:
+    - item: {fileID: 0}
+      materialKind: 2
+      allowAnyMaterialFallback: 1
+      amount: 4
+    - item: {fileID: 0}
+      materialKind: 3
+      allowAnyMaterialFallback: 1
+      amount: 1
+    - item: {fileID: 0}
+      materialKind: 5
+      allowAnyMaterialFallback: 1
+      amount: 1
+    genericMaterialUnits: 3
+    outputSlot: 1
+    preferredResult: {fileID: 11400000, guid: ef6d3efb4a678b44891fd1203935f2ee, type: 2}
+    resultAmount: 1
+    allowCustomOrders: 1
+    defaultLeadTimeGameDays: 3
+    depositFraction: 0.3
+  - recipeName: "Kim C\u01B0\u01A1ng Gi\xE1p Recipe"
+    ingredients:
+    - item: {fileID: 0}
+      materialKind: 4
+      allowAnyMaterialFallback: 1
+      amount: 4
+    - item: {fileID: 0}
+      materialKind: 1
+      allowAnyMaterialFallback: 1
+      amount: 1
+    - item: {fileID: 0}
+      materialKind: 5
+      allowAnyMaterialFallback: 1
+      amount: 1
+    genericMaterialUnits: 3
+    outputSlot: 2
+    preferredResult: {fileID: 11400000, guid: eb15d49ebe7aaa445b3893a5ee64c8b4, type: 2}
+    resultAmount: 1
+    allowCustomOrders: 1
+    defaultLeadTimeGameDays: 3
+    depositFraction: 0.3
+  - recipeName: "Huy\u1EC1n Th\u1EE7y Thu\u1EABn Recipe"
+    ingredients:
+    - item: {fileID: 0}
+      materialKind: 6
+      allowAnyMaterialFallback: 1
+      amount: 4
+    - item: {fileID: 0}
+      materialKind: 5
+      allowAnyMaterialFallback: 1
+      amount: 1
+    - item: {fileID: 0}
+      materialKind: 1
+      allowAnyMaterialFallback: 1
+      amount: 1
+    genericMaterialUnits: 3
+    outputSlot: 3
+    preferredResult: {fileID: 11400000, guid: 10958e7a76a462d41a230e77e4094b0d, type: 2}
+    resultAmount: 1
+    allowCustomOrders: 1
+    defaultLeadTimeGameDays: 3
+    depositFraction: 0.3
+  - recipeName: "Thi\xEAn C\u01B0\u01A1ng Ki\u1EBFm Recipe"
+    ingredients:
+    - item: {fileID: 0}
+      materialKind: 2
+      allowAnyMaterialFallback: 1
+      amount: 6
+    - item: {fileID: 0}
+      materialKind: 3
+      allowAnyMaterialFallback: 1
+      amount: 2
+    - item: {fileID: 0}
+      materialKind: 5
+      allowAnyMaterialFallback: 1
+      amount: 2
+    genericMaterialUnits: 3
+    outputSlot: 1
+    preferredResult: {fileID: 11400000, guid: 93176f919896ca44191c88d36732a379, type: 2}
+    resultAmount: 1
+    allowCustomOrders: 1
+    defaultLeadTimeGameDays: 4
+    depositFraction: 0.3
+  - recipeName: "Thi\xEAn L\xF4i Ph\xE1p Tr\u01B0\u1EE3ng Recipe"
+    ingredients:
+    - item: {fileID: 0}
+      materialKind: 2
+      allowAnyMaterialFallback: 1
+      amount: 6
+    - item: {fileID: 0}
+      materialKind: 3
+      allowAnyMaterialFallback: 1
+      amount: 2
+    - item: {fileID: 0}
+      materialKind: 5
+      allowAnyMaterialFallback: 1
+      amount: 2
+    genericMaterialUnits: 3
+    outputSlot: 1
+    preferredResult: {fileID: 11400000, guid: 2eaf720d430c7544695372c744da8950, type: 2}
+    resultAmount: 1
+    allowCustomOrders: 1
+    defaultLeadTimeGameDays: 4
+    depositFraction: 0.3
+  - recipeName: "Tr\u1EA3m Y\xEAu \u0110ao Recipe"
+    ingredients:
+    - item: {fileID: 0}
+      materialKind: 2
+      allowAnyMaterialFallback: 1
+      amount: 6
+    - item: {fileID: 0}
+      materialKind: 3
+      allowAnyMaterialFallback: 1
+      amount: 2
+    - item: {fileID: 0}
+      materialKind: 5
+      allowAnyMaterialFallback: 1
+      amount: 2
+    genericMaterialUnits: 3
+    outputSlot: 1
+    preferredResult: {fileID: 11400000, guid: 477e693ecb7af0b48a7f7aa119d4f934, type: 2}
+    resultAmount: 1
+    allowCustomOrders: 1
+    defaultLeadTimeGameDays: 4
+    depositFraction: 0.3
+  - recipeName: "Huy\u1EC1n V\u0169 Linh Gi\xE1p Recipe"
+    ingredients:
+    - item: {fileID: 0}
+      materialKind: 4
+      allowAnyMaterialFallback: 1
+      amount: 6
+    - item: {fileID: 0}
+      materialKind: 1
+      allowAnyMaterialFallback: 1
+      amount: 2
+    - item: {fileID: 0}
+      materialKind: 5
+      allowAnyMaterialFallback: 1
+      amount: 2
+    genericMaterialUnits: 3
+    outputSlot: 2
+    preferredResult: {fileID: 11400000, guid: 6a610b00e42af984aa623d22b8d0d9ba, type: 2}
+    resultAmount: 1
+    allowCustomOrders: 1
+    defaultLeadTimeGameDays: 4
+    depositFraction: 0.3
+  autoAcceptCustomOrders: 0
+  customOrderDepositFraction: 0.3
+  customOrderDefaultLeadTimeGameDays: 3
+  autoBuildDefaultRecipesFromCatalog: 1
+  pendingOrders: []
+--- !u!114 &8702128748568086803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8596889031696047861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b75b03d92ec088d4688820efbcd11d02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemInventory
+  shareRuntimeItems: 1
+  keepInspectorItemsWhenLoadingSave: 1
+  runtimeKey: 
+  items: []
+--- !u!114 &6747842253424447933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8596889031696047861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdcab76f81f40ee41bb9e80c881d1c75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcTradeAgent
+  inventory: {fileID: 0}
+  npcLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  tradeRadius: 1.2
+  tradeInterval: 5
+  tradeChance: 32
+  buyUsefulItemsFromMarketTrader: 1
+  counterTradeCooldown: 45
+  maxMoneySpendRatio: 0.625
+  maxOwnedConsumableBeforeBuying: 3
+  riskyItemValueMultiplier: 120
+  isMarketTrader: 0
+  buyProduceFromVillagers: 1
+  acceptAllMaterials: 1
+  acceptedProduce: []
+  maxProduceUnitsPerTrade: 4
+  buyPricePercent: 70
+--- !u!114 &8826507661961283257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8596889031696047861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 578d9e49b531f2e448f84deeef186c5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcSpecialProfession
+  professionName: "Ng\u01B0\u1EDDi \u0111\u1EB7c bi\u1EC7t"
+  lockVillagerJob: 0
+  villagerJob: 0
+--- !u!114 &5913454657302191592
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8596889031696047861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7eaa75587e35437499d2dba492d9fd69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcForgeRole
+  configureTradeAgent: 1
+  configureForgeAgent: 1
+  autoBuyMaterialsFromMarketTraders: 1
+  autoForge: 1
+  preferCultivateWhenIdle: 1
+  sellToNearbyNpcBuyers: 1
+  sellToVanBaoLau: 1
+  forgeDailyHours: 6
+  cultivateDailyHours: 10
+  forgeStandPoint: {fileID: 0}
+  marketPoint: {fileID: 0}
+  forgeFacingPoint: {fileID: 0}
+  defaultFacingDirection: {x: 0, y: -1}
+  snapToForgeStandPoint: 1
+  keepAtForgeStandPoint: 1
+  lockFacingToForgePoint: 1
+  tradeChance: 51
+  tradeRadius: 1.6
+  tradeInterval: 4
+  maxMoneySpendRatio: 0.8
+  forceVillagerJobWorker: 1
+  professionName: Lo Ren
+--- !u!114 &1836311742786125013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8596889031696047861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d14b4510bc9b8114c9fd7e33da6b676c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCVisualAnimation
+  downWalkClip: {fileID: 0}
+  upWalkClip: {fileID: 0}
+  sideWalkClip: {fileID: 0}
+  rightWalkClip: {fileID: 0}
+  leftWalkClip: {fileID: 0}
+  downIdleClip: {fileID: 0}
+  upIdleClip: {fileID: 0}
+  sideIdleClip: {fileID: 0}
+  rightIdleClip: {fileID: 0}
+  leftIdleClip: {fileID: 0}
+  attackDownClip: {fileID: 0}
+  attackUpClip: {fileID: 0}
+  attackSideClip: {fileID: 0}
+  rightAttackClip: {fileID: 0}
+  leftAttackClip: {fileID: 0}
+  cultivateDownClip: {fileID: 0}
+  cultivateUpClip: {fileID: 0}
+  cultivateSideClip: {fileID: 0}
+  rightCultivateClip: {fileID: 0}
+  leftCultivateClip: {fileID: 0}
+  dieDownClip: {fileID: 0}
+  dieUpClip: {fileID: 0}
+  dieSideClip: {fileID: 0}
+  rightDieClip: {fileID: 0}
+  leftDieClip: {fileID: 0}
+  sideSpriteFacesRight: 0
+  invertSideFlip: 0
+  invertVerticalFacing: 0
+  directionDeadZone: 0.08
+--- !u!70 &5880837379325097654
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8596889031696047861}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Size: {x: 0.39, y: 0.8}
+  m_Direction: 0
+--- !u!114 &477681590454896501
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8596889031696047861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6db0e58d432ffd841b46d22d1b0c7355, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VillagerAI
+  generateFromEntityProfile: 1
+  entityProfile: {fileID: 0}
+  villagerName: "L\xE3o H\u1EA1c"
+  ageGroup: 1
+  job: 1
+  keepInspectorJob: 1
+  maxHP: 100
+  currentHP: 100
+  money: 20
+  spiritStone: 0
+  moveSpeed: 1.6
+  characterStats: {fileID: 0}
+  realm: 2
+  realmStage: 1
+  cultivationExp: 0
+  baseExpToNextRealm: 100
+  baseMaxHP: 100
+  baseAttack: 5
+  baseDefense: 2
+  attack: 5
+  defense: 2
+  lifespan: 80
+  dieWhenLifespanEnds: 1
+  waitingForHeavenlyTribulation: 0
+  sociability: 50
+  greed: 30
+  diligence: 50
+  bravery: 30
+  hunger: 0
+  fatigue: 0
+  fun: 0
+  mood: 0
+  strongNpcAvoidMortalWork: 1
+  cultivatorResourceWorkChance: 0.65
+  homePoint: {fileID: 0}
+  hideAtHome: 1
+  homeRoutineManagedExternally: 0
+  workPoint: {fileID: 0}
+  marketPoint: {fileID: 0}
+  playPoint: {fileID: 0}
+  thinkInterval: 2
+  arriveDistance: 0.25
+  wanderRadius: 3
+  talkRadius: 1.2
+  sharedTargetSpacingRadius: 0.45
+  sharedTargetOccupancyRadius: 0.3
+  sharedAnchorSpacingRadius: 0.7
+  villagerLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  acquaintanceTalkChanceBonus: 30
+  requireKnownVillagerToTalk: 1
+  minFriendshipToTalk: 3
+  socialScanInterval: 6
+  conversationCooldown: 25
+  conversationPauseDuration: 2
+  destroyOnDeath: 0
+  scatterWhenMissingPoints: 1
+  missingPointScatterRadius: 3
+  workDurationMin: 25
+  workDurationMax: 60
+  restDuration: 8
+  eatDuration: 5
+  playDuration: 8
+  tradeDuration: 15
+  roadPreferenceChance: 0.8
+  lowHpRoadBypassPercent: 0.3
+  separationRadius: 0.65
+  separationStrength: 2
+  crowdLookAheadDistance: 0.75
+  crowdDetourDistance: 0.65
+  crowdYieldDuration: 0.25
+  useKinematicNpcMovement: 1
+  ignoreNpcBodyCollisions: 1
+  unstuckCheckDelay: 1.2
+  unstuckMinMoveDistance: 0.03
+  unstuckOffsetRadius: 0.7
+  minWanderTargetDistance: 0.8
+  movementAcceleration: 8
+  movementDeceleration: 12
+  animationIdleSpeed: 0.03
+  idleAtHomeDuration: 6
+  obstacleLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  obstacleCheckDistance: 0.35
+  targetClearRadius: 0.25
+  obstacleScanDistance: 8
+  obstacleScanStep: 0.35
+  maxPickTargetAttempts: 16
+  blockedTargetRetryDelay: 0.8
+  useCameraDistanceThrottle: 1
+  fullUpdateDistanceFromCamera: 14
+  reducedUpdateInterval: 0.25
+  useSmartPathfinding: 1
+  pathCellSize: 0.7
+  pathWaypointReachDistance: 0.18
+  pathReplanTargetDistance: 0.6
+  obstacleDetourLookAhead: 0.65
+  useLocalDetour: 1
+  requireClearLineForDirectMove: 1
+  directMovePathDistance: 1.2
+  useSharedPathMemory: 1
+  sharedPathMemoryCellSize: 2
+  compareRememberedPathWithNewPath: 0
+  pathTurnPenalty: 0.25
+  pathReplanCooldown: 2
+  maxPathNodes: 500
+  maxPathSteps: 160
+  maxPathSearchDistance: 0
+  autonomousWorkEnabled: 1
+  autonomousResourceWorkEnabled: 0
+  autonomousDangerousWorkEnabled: 0
+  dailyVanBaoLauVisitEnabled: 1
+  dailyTaskPlanEnabled: 1
+  dailyTaskPlanStartupDelay: 2
+  dailyTaskPlanMinTasks: 3
+  dailyTaskPlanMaxTasks: 5
+  dailyRoutineEnabled: 1
+  dailyCultivationMinHours: 4
+  dailyCultivationMaxHours: 8
+  earliestCultivationHour: 5
+  latestCultivationStartHour: 20
+  cultivationSessionMinGameHours: 1
+  cultivationSessionMaxGameHours: 2
+  workSessionMinGameHours: 1
+  workSessionMaxGameHours: 3
+  resourceSessionMinGameHours: 0.5
+  resourceSessionMaxGameHours: 1.5
+  tradeSessionMinGameHours: 0.5
+  tradeSessionMaxGameHours: 1.5
+  keepInsideNpcMapArea: 1
+  allowCrossNpcMapAreas: 1
+  keepInsideCombinedNpcMapAreas: 0
+  mapAreaEdgePadding: 0.15
+  inventory: {fileID: 8702128748568086803}
+  farmProduct: {fileID: 0}
+  fishingProduct: {fileID: 0}
+  huntingProduct: {fileID: 0}
+  workerProduct: {fileID: 0}
+  workProductMin: 1
+  workProductMax: 3
+  farmerHarvestOnlyInMorning: 1
+  farmerHarvestAmountPerDay: 1
+  farmerPreferWorkPoint: 1
+  sellGoodsThreshold: 1
+  sellGoodsDuration: 8
+  sellGoodsSearchRadius: 2.2
+  traderLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  sellOnlyToTrader: 1
+  professionLevel: 1
+  professionExp: 0
+  baseProfessionExpToNextLevel: 10
+  professionExpGrowthPerLevel: 5
+  maxProfessionLevel: 20
+  professionExpPerWork: 1
+  productBonusEveryProfessionLevels: 3
+  currentAction: idle
+  currentTarget: {fileID: 0}
+  lastWorkProductStatus: 
+  cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}

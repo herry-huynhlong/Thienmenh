@@ -138,6 +138,7 @@ public class NpcItemCollector : MonoBehaviour
             return;
         }
 
+        ItemEffectSpawner.PlayPickupEffect(item, transform);
         inventory.AddItem(item, 1);
         ItemLifecycleSystem.Notify(source, item, gameObject);
         TreasureHeatSystem.NotifyNpcReceivedItem(gameObject, item);

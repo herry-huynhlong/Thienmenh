@@ -322,6 +322,12 @@ public class HeavenDaoSystem : MonoBehaviour
 
         origin = Mathf.Max(0, origin + amount);
         AddRecentLog("+" + amount + " " + reason);
+        if (WorldScreenNotificationHub.Instance != null)
+        {
+            WorldScreenNotificationHub.ShowOrigin(
+                string.IsNullOrWhiteSpace(reason) ? "Thiên Đạo" : reason,
+                amount);
+        }
         SaveState();
         OnChanged?.Invoke();
     }
@@ -335,8 +341,23 @@ public class HeavenDaoSystem : MonoBehaviour
 
         karma = Mathf.Max(0, karma + amount);
         AddRecentLog("Nhân Quả +" + amount + " " + reason);
+        if (WorldScreenNotificationHub.Instance != null)
+        {
+            WorldScreenNotificationHub.ShowNormal(
+                string.IsNullOrWhiteSpace(reason)
+                    ? "Nhân Quả +" + amount
+                    : "Nhân Quả +" + amount + " " + reason);
+        }
         SaveState();
         OnChanged?.Invoke();
+    }
+
+    public bool TryGetStoryReward(
+        string content,
+        out HeavenDaoStoryReward reward)
+    {
+        reward = FindStoryReward(content);
+        return reward != null;
     }
 
     void HandleStoryLogAdded(LogEntry entry)

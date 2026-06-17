@@ -47,6 +47,11 @@ public class NpcCounterBroker : MonoBehaviour
 
     public int CurrentMoney => GetBrokerMoney();
 
+    NpcInteractionPoint GetInteractionPoint(Transform point)
+    {
+        return point != null ? point.GetComponent<NpcInteractionPoint>() : null;
+    }
+
     [Header("Pricing")]
     public NpcTradeContext sellToNpcContext =
         NpcTradeContext.CounterBrokerBuy;
@@ -110,6 +115,14 @@ public class NpcCounterBroker : MonoBehaviour
     {
         get
         {
+            NpcInteractionPoint interactionPoint =
+                GetInteractionPoint(customerPoint);
+
+            if (interactionPoint != null)
+            {
+                return interactionPoint.transform.position;
+            }
+
             return customerPoint != null
                 ? customerPoint.position
                 : transform.position;
@@ -120,14 +133,28 @@ public class NpcCounterBroker : MonoBehaviour
     {
         get
         {
-            return allowMultipleCustomers
-                ? Mathf.Max(customerArriveDistance, multiCustomerServiceRadius)
+            NpcInteractionPoint interactionPoint =
+                GetInteractionPoint(customerPoint);
+            float pointRadius =
+                interactionPoint != null
+                ? interactionPoint.interactionRadius
                 : customerArriveDistance;
+
+            return allowMultipleCustomers
+                ? Mathf.Max(pointRadius, multiCustomerServiceRadius)
+                : pointRadius;
         }
     }
 
     public Vector3 GetCustomerPositionFor(GameObject npc)
     {
+        NpcInteractionPoint interactionPoint =
+            GetInteractionPoint(customerPoint);
+        if (interactionPoint != null)
+        {
+            return interactionPoint.GetStandPositionFor(npc);
+        }
+
         Vector3 center = CustomerPosition;
         if (!allowMultipleCustomers ||
             npc == null ||
@@ -153,7 +180,7 @@ public class NpcCounterBroker : MonoBehaviour
 
         return Vector2.Distance(
             npc.transform.position,
-            transform.position) <= Mathf.Max(0.05f, CustomerServiceRadius);
+            CustomerPosition) <= Mathf.Max(0.05f, CustomerServiceRadius);
     }
     public static bool TryTradeWithActiveBroker(NpcTradeAgent npc)
     {
@@ -564,6 +591,7 @@ public class NpcCounterBroker : MonoBehaviour
 
             AddBrokerMoney(-price);
             seller.AddMoney(price);
+            ItemEffectSpawner.PlayPickupEffect(stack.item, gameObject.transform);
             inventory.AddItem(stack.item, 1);
             NpcSocialEventBus.PublishTradeCompleted(
                 gameObject,

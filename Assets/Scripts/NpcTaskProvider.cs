@@ -83,6 +83,7 @@ class RunningNpcTask
     public Vector3 boardPosition;
     public Vector3 providerPosition;
     public Vector3 workPosition;
+    public Vector3 patrolEndPosition;
     public float remainingTime;
     public WorldStatItemPickup targetPickup;
     public StatItemData requiredItem;
@@ -94,6 +95,7 @@ class RunningNpcTask
     public MonsterAI targetMonster;
     public WorldStatItemPickup targetLootPickup;
     public MonsterAI threatMonster;
+    public bool patrolReachedEnd;
     public bool resumedBaseAiWhileWaiting;
     public Vector3 avoidPosition;
     public float avoidUntilTime;
@@ -340,6 +342,7 @@ public class NpcTaskProvider : MonoBehaviour
     public Transform huntPoint;
     public Transform gatherPoint;
     public Transform patrolPoint;
+    public Transform patrolPointB;
     public Transform deliverPoint;
 
     [Header("Escort Task")]
@@ -619,7 +622,6 @@ public class NpcTaskProvider : MonoBehaviour
             CreatePatrolOffer(TaskName("suppressDemonicAura"), NpcTaskRank.Thuong, CultivationRealm.GoldenCore, 3, 90000, 800, 32f),
             CreateSimpleOffer(TaskName("escortCaravan"), NpcTaskType.Escort, NpcTaskRank.Ha, CultivationRealm.QiRefining, 1, 2200, 20, 14f),
             CreateSimpleOffer(TaskName("transportSpiritMaterial"), NpcTaskType.Deliver, NpcTaskRank.Trung, CultivationRealm.Foundation, 2, 15000, 150, 20f),
-            CreateSimpleOffer(TaskName("protectCultivation"), NpcTaskType.Cultivate, NpcTaskRank.Trung, CultivationRealm.Foundation, 1, 18000, 260, 26f),
         };
 
         if (includeLinhRiceHarvestTask)
@@ -634,7 +636,7 @@ public class NpcTaskProvider : MonoBehaviour
     {
         NpcTaskOffer offer = CreateSimpleOffer(
             TaskName("harvestLinhRice"),
-            NpcTaskType.HarvestAndDeliver,
+            NpcTaskType.GatherResource,
             NpcTaskRank.Ha,
             CultivationRealm.Mortal,
             1,
@@ -648,7 +650,6 @@ public class NpcTaskProvider : MonoBehaviour
         offer.requiredItemAmountMin = Mathf.Max(1, linhRiceAmountMin);
         offer.requiredItemAmountMax = Mathf.Max(offer.requiredItemAmountMin, linhRiceAmountMax);
         offer.autoPriceRequiredItemReward = true;
-        offer.consumeRequiredItemsOnTurnIn = true;
         return offer;
     }
 
@@ -1450,6 +1451,12 @@ public class NpcTaskProvider : MonoBehaviour
                         break;
                     }
 
+                    if (IsPatrolTask(task))
+                    {
+                        UpdatePatrolWork(task);
+                        break;
+                    }
+
                     task.remainingTime -= Time.deltaTime;
                     NpcRoleUtility.SetAction(
                         task.npc,
@@ -1820,6 +1827,14 @@ public class NpcTaskProvider : MonoBehaviour
             return;
         }
 
+        if (IsPatrolTask(task))
+        {
+            task.patrolReachedEnd = false;
+            task.workPosition = GetPatrolStartPosition(task.offer);
+            task.patrolEndPosition = GetPatrolEndPosition(task.offer);
+            return;
+        }
+
         if (IsHuntTask(task))
         {
             task.defeatedMonsterCount = Mathf.Clamp(
@@ -2074,6 +2089,41 @@ public class NpcTaskProvider : MonoBehaviour
             task.targetMonster.gameObject,
             NpcRoleUtility.GetAttack(task.npc),
             "lam nhiem vu san yeu thu");
+    }
+
+    void UpdatePatrolWork(RunningNpcTask task)
+    {
+        if (task == null ||
+            task.npc == null ||
+            task.offer == null)
+        {
+            return;
+        }
+
+        if (task.patrolReachedEnd)
+        {
+            task.stage = TavernTaskStage.ReturningToTurnIn;
+            return;
+        }
+
+        Vector3 patrolTarget =
+            task.patrolEndPosition != Vector3.zero
+            ? task.patrolEndPosition
+            : GetPatrolEndPosition(task.offer);
+
+        task.patrolEndPosition = patrolTarget;
+        MoveNpcToWork(task, patrolTarget);
+        NpcRoleUtility.SetAction(
+            task.npc,
+            TaskActionFormat("workingTask", GetTaskDisplayText(task)));
+
+        if (Vector2.Distance(
+                task.npc.transform.position,
+                patrolTarget) <= arriveDistance)
+        {
+            task.patrolReachedEnd = true;
+            task.stage = TavernTaskStage.ReturningToTurnIn;
+        }
     }
 
     void UpdateEscortMeeting(RunningNpcTask task)
@@ -2507,6 +2557,7 @@ public class NpcTaskProvider : MonoBehaviour
         }
 
         ItemInventory inventory = GetOrCreateInventory(task.npc);
+        ItemEffectSpawner.PlayPickupEffect(item, task.npc.transform);
         inventory.AddItem(item, 1);
         task.collectedAmount++;
         task.targetLootPickup = null;
@@ -2971,6 +3022,7 @@ public class NpcTaskProvider : MonoBehaviour
         }
 
         ItemInventory inventory = GetOrCreateInventory(task.npc);
+        ItemEffectSpawner.PlayPickupEffect(item, task.npc.transform);
         inventory.AddItem(item, 1);
         task.collectedAmount++;
 
@@ -3032,6 +3084,13 @@ public class NpcTaskProvider : MonoBehaviour
             IsGatherTaskType(task.offer.taskType);
     }
 
+    bool IsPatrolTask(RunningNpcTask task)
+    {
+        return task != null &&
+            task.offer != null &&
+            task.offer.taskType == NpcTaskType.Patrol;
+    }
+
     bool IsGatherTaskType(NpcTaskType taskType)
     {
         return taskType == NpcTaskType.GatherResource ||
@@ -3045,9 +3104,17 @@ public class NpcTaskProvider : MonoBehaviour
             return null;
         }
 
-        return offer.taskType == NpcTaskType.GatherResource
-            ? NpcMapZone.MaThuSonMach
-            : (NpcMapZone?)null;
+        if (offer.taskType != NpcTaskType.GatherResource)
+        {
+            return null;
+        }
+
+        if (IsLinhRiceItem(offer.requiredItem))
+        {
+            return NpcMapZone.Lang;
+        }
+
+        return NpcMapZone.MaThuSonMach;
     }
 
     bool HasGatherObjectiveComplete(RunningNpcTask task)
@@ -3076,6 +3143,11 @@ public class NpcTaskProvider : MonoBehaviour
         if (IsHuntTask(task))
         {
             return HasHuntObjectiveComplete(task);
+        }
+
+        if (IsPatrolTask(task))
+        {
+            return task.patrolReachedEnd;
         }
 
         return true;
@@ -4034,7 +4106,7 @@ public class NpcTaskProvider : MonoBehaviour
             }
 
             case NpcTaskType.Patrol:
-                return patrolPoint != null;
+                return patrolPoint != null || patrolPointB != null;
 
             case NpcTaskType.Deliver:
                 return deliverPoint != null;
@@ -4045,7 +4117,7 @@ public class NpcTaskProvider : MonoBehaviour
                     HasEscortParticipantsAvailable(offer);
 
             case NpcTaskType.Cultivate:
-                return true;
+                return false;
 
             default:
                 return false;
@@ -4307,6 +4379,7 @@ public class NpcTaskProvider : MonoBehaviour
     public Vector3 GetProviderPositionFor(GameObject npc)
     {
         Vector3 center = GetProviderPosition();
+
         if (!spreadVisitorsAroundProvider ||
             npc == null ||
             providerVisitorStandRadius <= 0.01f)
@@ -4316,9 +4389,13 @@ public class NpcTaskProvider : MonoBehaviour
 
         int hash = Mathf.Abs(npc.GetInstanceID());
         float angle = (hash % 360) * Mathf.Deg2Rad;
+        float standRadius = Mathf.Max(
+            providerVisitorStandRadius,
+            arriveDistance * 2.5f,
+            1.1f);
         Vector2 offset =
             new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) *
-            Mathf.Max(0f, providerVisitorStandRadius);
+            standRadius;
 
         return GetClearTaskPositionNear(center + (Vector3)offset, npc);
     }
@@ -4334,6 +4411,14 @@ public class NpcTaskProvider : MonoBehaviour
     {
         if (counterPoint != null)
         {
+            NpcInteractionPoint interactionPoint =
+                counterPoint.GetComponent<NpcInteractionPoint>();
+
+            if (interactionPoint != null)
+            {
+                return interactionPoint.GetStandPositionFor(npc);
+            }
+
             return GetClearTaskPositionNear(counterPoint.position, npc);
         }
 
@@ -4351,6 +4436,17 @@ public class NpcTaskProvider : MonoBehaviour
         Vector3 position = taskBoardPoint != null
             ? taskBoardPoint.position
             : transform.position;
+
+        if (taskBoardPoint != null)
+        {
+            NpcInteractionPoint interactionPoint =
+                taskBoardPoint.GetComponent<NpcInteractionPoint>();
+
+            if (interactionPoint != null)
+            {
+                return interactionPoint.GetStandPositionFor(npc);
+            }
+        }
 
         return GetClearTaskPositionNear(position, npc);
     }
@@ -4425,6 +4521,31 @@ public class NpcTaskProvider : MonoBehaviour
         return false;
     }
 
+    Vector3 GetPatrolStartPosition(NpcTaskOffer offer)
+    {
+        if (patrolPoint != null)
+        {
+            return patrolPoint.position;
+        }
+
+        return GetFallbackWorkPosition();
+    }
+
+    Vector3 GetPatrolEndPosition(NpcTaskOffer offer)
+    {
+        if (patrolPointB != null)
+        {
+            return patrolPointB.position;
+        }
+
+        if (patrolPoint != null)
+        {
+            return patrolPoint.position;
+        }
+
+        return GetFallbackWorkPosition();
+    }
+
     Vector3 GetWorkPosition(NpcTaskOffer offer)
     {
         if (offer != null)
@@ -4455,6 +4576,12 @@ public class NpcTaskProvider : MonoBehaviour
                         GetDepthMaxForRank(offer.rank, huntDepthMax));
 
                 case NpcTaskType.GatherResource:
+                    if (IsLinhRiceItem(offer.requiredItem) &&
+                        linhRiceFieldPoint != null)
+                    {
+                        return linhRiceFieldPoint.position;
+                    }
+
                     if (gatherPoint != null)
                     {
                         Vector3 gatherTarget = gatherPoint.position;
@@ -4491,16 +4618,7 @@ public class NpcTaskProvider : MonoBehaviour
                     return GetFallbackWorkPosition();
 
                 case NpcTaskType.Patrol:
-                    if (patrolPoint != null)
-                    {
-                        Vector3 patrolTarget = patrolPoint.position;
-                        if (IsSafeForestWorkTarget(patrolTarget, 0.25f, 0.75f))
-                        {
-                            return patrolTarget;
-                        }
-                    }
-
-                    return GetForestWorkPosition(null, 0.25f, 0.75f);
+                    return GetPatrolStartPosition(offer);
 
                 case NpcTaskType.Deliver:
                     return deliverPoint != null
@@ -4873,8 +4991,9 @@ public class NpcTaskProvider : MonoBehaviour
         {
             case NpcTaskType.GatherResource:
             case NpcTaskType.HuntMonster:
-            case NpcTaskType.Patrol:
                 return NpcMapZone.MaThuSonMach;
+            case NpcTaskType.Patrol:
+                return null;
             default:
                 return null;
         }
@@ -5506,8 +5625,7 @@ public class NpcTaskProvider : MonoBehaviour
         pausedBaseAi = null;
         pausedBaseAiWasEnabled = false;
 
-        if (!pauseBaseAiWhileWorking ||
-            npc == null)
+        if (npc == null)
         {
             return;
         }
@@ -5619,6 +5737,24 @@ public class NpcTaskProvider : MonoBehaviour
         {
             Gizmos.color = Color.magenta;
             Gizmos.DrawWireSphere(taskBoardPoint.position, 0.25f);
+        }
+
+        if (patrolPoint != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(patrolPoint.position, 0.3f);
+        }
+
+        if (patrolPointB != null)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(patrolPointB.position, 0.3f);
+        }
+
+        if (patrolPoint != null && patrolPointB != null)
+        {
+            Gizmos.color = Color.white;
+            Gizmos.DrawLine(patrolPoint.position, patrolPointB.position);
         }
     }
 }

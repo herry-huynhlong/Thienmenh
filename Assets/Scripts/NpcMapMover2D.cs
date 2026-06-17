@@ -43,6 +43,7 @@ public class NpcMapMover2D : MonoBehaviour
     public bool useObstacleAvoidance = true;
 
     [Header("Crowd Avoidance")]
+    public bool ignoreNpcBodyCollisions = true;
     public LayerMask crowdLayers = ~0;
     public float separationRadius = 0.45f;
     public float separationStrength = 1.4f;
@@ -973,7 +974,7 @@ public class NpcMapMover2D : MonoBehaviour
 
     Vector2 ApplyCrowdAvoidance(Vector2 direction)
     {
-        if (separationRadius <= 0f)
+        if (ignoreNpcBodyCollisions || separationRadius <= 0f)
         {
             return direction;
         }
@@ -1024,6 +1025,11 @@ public class NpcMapMover2D : MonoBehaviour
           out Vector2 resolvedDirection)
       {
           resolvedDirection = desiredDirection;
+
+          if (ignoreNpcBodyCollisions)
+          {
+              return true;
+          }
 
           if (Time.time < crowdDirectionCommitUntil &&
               crowdCommittedDirection.sqrMagnitude > 0.0001f)

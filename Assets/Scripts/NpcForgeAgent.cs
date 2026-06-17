@@ -1305,6 +1305,9 @@ public class NpcForgeAgent : MonoBehaviour
                         order.customer.GetComponent<ItemInventory>();
                     if (customerInventory != null)
                     {
+                        ItemEffectSpawner.PlayPickupEffect(
+                            order.requestedItem,
+                            order.customer.transform);
                         customerInventory.AddItem(order.requestedItem, 1);
                     }
                 }

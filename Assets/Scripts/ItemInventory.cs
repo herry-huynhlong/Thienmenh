@@ -139,6 +139,18 @@ public class ItemInventory : MonoBehaviour
             return;
         }
 
+        if (GetComponent<SpawnedWorldActor>() == null &&
+            GetComponent<NpcData>() == null)
+        {
+            NpcData npcData =
+                gameObject.AddComponent<NpcData>();
+
+            if (npcData != null)
+            {
+                npcData.EnsurePersistentId();
+            }
+        }
+
         runtimeKey = BuildNpcRuntimeKey();
         shareRuntimeItems = false;
     }
@@ -158,10 +170,27 @@ public class ItemInventory : MonoBehaviour
         SpawnedWorldActor actor =
             GetComponent<SpawnedWorldActor>();
 
-        if (actor != null &&
-            !string.IsNullOrEmpty(actor.persistentId))
+        if (actor != null)
         {
-            return "WorldActor_" + actor.persistentId;
+            actor.EnsurePersistentId();
+
+            if (!string.IsNullOrEmpty(actor.persistentId))
+            {
+                return "WorldActor_" + actor.persistentId;
+            }
+        }
+
+        NpcData npcData =
+            GetComponent<NpcData>();
+
+        if (npcData != null)
+        {
+            npcData.EnsurePersistentId();
+
+            if (!string.IsNullOrEmpty(npcData.persistentId))
+            {
+                return "NpcData_" + npcData.persistentId;
+            }
         }
 
         Vector3 position = transform.position;

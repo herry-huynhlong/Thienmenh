@@ -244,6 +244,12 @@ public class StatItemData : ScriptableObject
     public Vector3 buyEffectOffset = new Vector3(0f, 0.15f, 0f);
     public float buyEffectScale = 1f;
 
+    [Header("Hiệu ứng Khi Nhặt")]
+    public bool playPickupEffect = true;
+    public GameObject pickupEffectPrefab;
+    public Vector3 pickupEffectOffset = new Vector3(0f, 0.15f, 0f);
+    public float pickupEffectScale = 1f;
+
     [Header("Buff Tạm Thời")]
     public bool isTemporary;
     public float duration = 10f;

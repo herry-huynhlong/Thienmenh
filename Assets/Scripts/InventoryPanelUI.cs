@@ -56,6 +56,7 @@ public class InventoryPanelUI : MonoBehaviour
         new List<InventoryItemButtonUI>();
 
     int selectedItemIndex = -1;
+    ItemInventory subscribedInventory;
     RectTransform templateRect;
     Vector2 templateAnchorMin;
     Vector2 templateAnchorMax;
@@ -110,10 +111,7 @@ public class InventoryPanelUI : MonoBehaviour
             return;
         }
 
-        if (inventory != null)
-        {
-            inventory.OnChanged += Refresh;
-        }
+        BindInventoryEvents();
 
         if (!hasStarted && closeOnStart && !alwaysVisible)
         {
@@ -125,10 +123,7 @@ public class InventoryPanelUI : MonoBehaviour
 
     void OnDisable()
     {
-        if (inventory != null)
-        {
-            inventory.OnChanged -= Refresh;
-        }
+        UnbindInventoryEvents();
     }
 
     void Start()
@@ -270,6 +265,36 @@ public class InventoryPanelUI : MonoBehaviour
         selectedItemIndex = -1;
         selectedItem = null;
         ClearDetail();
+    }
+
+    public void SetInventory(
+        ItemInventory newInventory,
+        bool refreshNow = true)
+    {
+        if (inventory == newInventory &&
+            subscribedInventory == newInventory)
+        {
+            if (refreshNow)
+            {
+                Refresh();
+            }
+
+            return;
+        }
+
+        UnbindInventoryEvents();
+        inventory = newInventory;
+        subscribedInventory = null;
+
+        if (isActiveAndEnabled)
+        {
+            BindInventoryEvents();
+        }
+
+        if (refreshNow)
+        {
+            Refresh();
+        }
     }
 
     int FindRestorableItemIndex(int previousIndex, StatItemData previousItem)
@@ -831,6 +856,7 @@ public class InventoryPanelUI : MonoBehaviour
             return;
         }
 
+        ItemEffectSpawner.PlayPickupEffect(item, selectedTarget);
         targetInventory.AddItem(item, 1);
         selectedItem = null;
         Refresh();
@@ -1601,6 +1627,31 @@ public class InventoryPanelUI : MonoBehaviour
                 "stats",
                 "npcIntent",
                 ItemText.NpcIntent(item.npcIntent)));
+    }
+
+    void BindInventoryEvents()
+    {
+        if (inventory == null)
+        {
+            return;
+        }
+
+        if (subscribedInventory == inventory)
+        {
+            return;
+        }
+
+        inventory.OnChanged += Refresh;
+        subscribedInventory = inventory;
+    }
+
+    void UnbindInventoryEvents()
+    {
+        if (subscribedInventory != null)
+        {
+            subscribedInventory.OnChanged -= Refresh;
+            subscribedInventory = null;
+        }
     }
 
 #if UNITY_EDITOR

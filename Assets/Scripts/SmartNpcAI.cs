@@ -120,6 +120,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     public float obstacleCheckDistance = 0.35f;
     public float obstacleDetourLookAhead = 0.65f;
     public float targetClearRadius = 0.25f;
+    public float navigationClearancePadding = 0.16f;
     public float blockedTargetRetryDelay = 0.8f;
     public bool useObstacleAvoidance = true;
     public bool ignoreNpcBodyCollisions = true;
@@ -187,6 +188,8 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     public float socialSessionMaxGameHours = 1.5f;
     public bool dailyTaskVisitEnabled = true;
     [Range(0f, 1f)] public float dailyTaskVisitChance = 1f;
+    public bool staggerDailyTaskVisits = true;
+    [Range(0f, 4f)] public float dailyTaskVisitStaggerHours = 2f;
 
     private Vector3 spawnPosition;
     private Vector3 wanderTarget;
@@ -220,7 +223,11 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     int routinePlanDay = int.MinValue;
     float routineCultivationStartHour;
     float routineCultivationEndHour;
+    float taskVisitAnchorHour = -1f;
+    float taskVisitDelayHours;
     int lastTaskProviderVisitDay = int.MinValue;
+    Vector3 homeReturnTarget;
+    bool hasHomeReturnTarget;
 
     public bool IsDead =>
         isDead ||
@@ -232,6 +239,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     void Start()
     {
+        ignoreNpcBodyCollisions = true;
         currentAction = NpcText.Action("idle");
         visualAnimation = NPCVisualAnimation.EnsureOn(gameObject);
         ItemInventory inventory = GetComponent<ItemInventory>();
@@ -257,6 +265,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
         spawnPosition = transform.position;
         lastUnstuckPosition = transform.position;
+        InitializeTaskVisitStagger();
 
         characterStats = GetComponent<CharacterStats>();
 
@@ -410,6 +419,16 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (NpcTaskProvider.IsNpcBusyWithAnyProvider(gameObject))
+        {
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+
+            return;
+        }
+
         thinkTimer += Time.deltaTime;
         actionTimer -= Time.deltaTime;
 
@@ -542,10 +561,14 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         bool movingToTreasureWait =
             waitingOutsideTreasureLightning &&
             hasTreasureWaitPosition;
+        bool movingHomeToCultivate =
+            hasHomeReturnTarget &&
+            canCultivate;
 
         bool holdPositionWithoutTarget =
             currentTarget == null &&
             !movingToTreasureWait &&
+            !movingHomeToCultivate &&
             Time.time >= postTeleportRecoveryUntil &&
             IsStationaryAction(currentAction);
 
@@ -575,6 +598,11 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         {
             desiredTarget = treasureWaitPosition;
         }
+        else if (movingHomeToCultivate)
+        {
+            desiredTarget = homeReturnTarget;
+            hasWanderTarget = false;
+        }
         else if (currentTarget != null)
         {
             desiredTarget = currentTarget.position;
@@ -582,6 +610,31 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         }
         else
         {
+            if (currentAction == NpcText.Action("goTaskProviderDaily"))
+            {
+                currentAction = NpcText.Action("visitedTaskProvider");
+                actionTimer = Mathf.Max(
+                    actionTimer,
+                    GameHoursToSeconds(0.2f));
+
+                if (rb != null)
+                {
+                    rb.linearVelocity = Vector2.zero;
+                }
+
+                return;
+            }
+
+            if (IsPreservedTravelAction(currentAction))
+            {
+                if (rb != null)
+                {
+                    rb.linearVelocity = Vector2.zero;
+                }
+
+                return;
+            }
+
             if (rb != null)
             {
                 rb.linearVelocity = Vector2.zero;
@@ -598,6 +651,31 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             }
 
             return;
+        }
+
+        if (movingHomeToCultivate)
+        {
+            float homeDistance =
+                Vector2.Distance(
+                    transform.position,
+                    homeReturnTarget);
+
+            if (homeDistance <=
+                Mathf.Max(escapeTargetReachDistance, targetClearRadius * 2f))
+            {
+                hasHomeReturnTarget = false;
+                currentTarget = null;
+                hasEscapeTarget = false;
+                hasObstacleAvoidTarget = false;
+
+                if (rb != null)
+                {
+                    rb.linearVelocity = Vector2.zero;
+                }
+
+                CultivateNaturally();
+                return;
+            }
         }
 
         if (hasObstacleAvoidTarget)
@@ -648,7 +726,8 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
         bool isCultivationTravelRoute =
             currentTarget == cultivationPoint ||
-            currentAction == NpcText.Action("goCultivatePoint");
+            currentAction == NpcText.Action("goCultivatePoint") ||
+            currentAction == NpcText.Action("goHomeCultivate");
 
         bool isAutonomousWorkRoute =
             currentAction == NpcText.Action("tradeSeek") ||
@@ -934,6 +1013,15 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (ignoreNpcBodyCollisions &&
+            collision.collider != null &&
+            (collision.collider.GetComponentInParent<VillagerAI>() != null ||
+             collision.collider.GetComponentInParent<SmartNpcAI>() != null ||
+             collision.collider.GetComponentInParent<NpcMapMover2D>() != null))
+        {
+            return;
+        }
+
         Vector2 normal = collision.GetContact(0).normal;
         if (normal.sqrMagnitude <= 0.0001f)
         {
@@ -1136,6 +1224,9 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     void ReturnToSpawn()
     {
+        homeReturnTarget = spawnPosition;
+        hasHomeReturnTarget = true;
+
         Vector2 direction =
             (spawnPosition -
             transform.position).normalized;
@@ -1184,6 +1275,12 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             rb.linearVelocity = Vector2.zero;
 
             currentTarget = null;
+            hasHomeReturnTarget = false;
+
+            if (canCultivate)
+            {
+                CultivateNaturally();
+            }
         }
     }
 
@@ -1267,13 +1364,16 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     bool HasLockedDirectedTarget()
     {
-        if (currentTarget == null)
+        if (currentTarget == null &&
+            !(hasHomeReturnTarget &&
+                currentAction == NpcText.Action("goHomeCultivate")))
         {
             return false;
         }
 
         return currentAction == NpcText.Action("goTaskProviderDaily") ||
             currentAction == NpcText.Action("visitedTaskProvider") ||
+            currentAction == NpcText.Action("goHomeCultivate") ||
             currentAction == NpcText.Action("tradeSeek") ||
             currentAction == NpcText.Action("goTavern") ||
             currentAction == NpcText.Action("buyPill") ||
@@ -1467,7 +1567,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     float GetBodyClearRadius()
     {
-        float radius = Mathf.Max(0.01f, targetClearRadius);
+        float radius = Mathf.Max(0.01f, targetClearRadius + navigationClearancePadding);
 
         if (selfColliders == null || selfColliders.Length == 0)
         {
@@ -1891,6 +1991,11 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     {
         resolvedDirection = desiredDirection;
 
+        if (ignoreNpcBodyCollisions)
+        {
+            return true;
+        }
+
         if (desiredDirection.sqrMagnitude <= 0.0001f ||
             crowdLookAheadDistance <= 0f ||
             rb == null)
@@ -1969,7 +2074,8 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     Vector2 ApplyCrowdAvoidance(Vector2 direction)
     {
-        if (separationRadius <= 0f ||
+        if (ignoreNpcBodyCollisions ||
+            separationRadius <= 0f ||
             rb == null)
         {
             return direction;
@@ -2012,7 +2118,8 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     bool TryApplyNpcOverlapSeparation()
     {
-        if (rb == null ||
+        if (ignoreNpcBodyCollisions ||
+            rb == null ||
             separationRadius <= 0f)
         {
             return false;
@@ -2032,6 +2139,11 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     Vector2 GetNpcSeparationDirection()
     {
+        if (ignoreNpcBodyCollisions)
+        {
+            return Vector2.zero;
+        }
+
         Collider2D[] hits =
             Physics2D.OverlapCircleAll(
                 rb.position,
@@ -2250,6 +2362,11 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         {
             currentAction = NpcText.Action("oldAgeDeath");
             Die();
+            return;
+        }
+
+        if (IsLockedRoutineAction(currentAction))
+        {
             return;
         }
 
@@ -2643,6 +2760,11 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     bool TryVisitTaskProvider()
     {
+        if (!IsTaskVisitStaggerReady())
+        {
+            return false;
+        }
+
         int day = GetCurrentWorldDay();
         if (lastTaskProviderVisitDay == day)
         {
@@ -2975,6 +3097,110 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         hasObstacleAvoidTarget = false;
         currentAction = NpcText.Action("goCultivatePoint");
         return true;
+    }
+
+    void InitializeTaskVisitStagger()
+    {
+        taskVisitAnchorHour = GetCurrentWorldHour();
+
+        if (!staggerDailyTaskVisits ||
+            dailyTaskVisitStaggerHours <= 0f)
+        {
+            taskVisitDelayHours = 0f;
+            return;
+        }
+
+        taskVisitDelayHours =
+            Random.Range(0f, Mathf.Max(0.1f, dailyTaskVisitStaggerHours));
+    }
+
+    bool IsTaskVisitStaggerReady()
+    {
+        if (!staggerDailyTaskVisits ||
+            taskVisitDelayHours <= 0f)
+        {
+            return true;
+        }
+
+        if (taskVisitAnchorHour < 0f)
+        {
+            InitializeTaskVisitStagger();
+        }
+
+        float elapsedHours = GetCurrentWorldHour() - taskVisitAnchorHour;
+        if (elapsedHours < 0f)
+        {
+            elapsedHours += 24f;
+        }
+
+        return elapsedHours >= taskVisitDelayHours;
+    }
+
+    bool IsLockedRoutineAction(string action)
+    {
+        return action == NpcText.Action("goTaskProviderDaily") ||
+            action == NpcText.Action("goHomeCultivate") ||
+            action == NpcText.Action("goCultivatePoint") ||
+            action == NpcText.Action("cultivate") ||
+            action == NpcText.Action("cultivateAbsorbQi") ||
+            action == NpcText.Action("goVanBaoLauBroker") ||
+            action == NpcText.Action("goVanBaoLauTask") ||
+            action == NpcText.Action("checkedVanBaoLau") ||
+            action == NpcText.Action("tradeSeek") ||
+            action == NpcText.Action("goTavern") ||
+            action == NpcText.Action("buyPill") ||
+            action == NpcText.Action("goHunt") ||
+            action == NpcText.Action("huntMonsterNamed") ||
+            action == NpcText.Action("attackMonsterNamed") ||
+            action == NpcText.Action("makeFriend") ||
+            action == NpcText.Action("createSect") ||
+            action == NpcText.Action("goMarketTrade") ||
+            action == NpcText.Action("goWorkTask") ||
+            action == NpcText.Action("gatherResource") ||
+            action == NpcText.Action("pickItem") ||
+            action == NpcText.Action("pickHuntEvidence") ||
+            action == NpcText.Action("fleeMonsterArea") ||
+            action == NpcText.Action("guardSpiritHerbMonster") ||
+            action == NpcText.Action("fightBlockingMonster") ||
+            action == NpcText.Action("clearHarvestMonster") ||
+            action == NpcText.Action("avoidObstacle") ||
+            action == NpcText.Action("treasureHuntNamed") ||
+            action == NpcText.Action("outerSkirmishNamed") ||
+            action == NpcText.Action("rest") ||
+            action == NpcText.Action("eating") ||
+            action == NpcText.Action("injured") ||
+            action == NpcText.Action("waitTribulation") ||
+            action == NpcText.Action("breakthrough") ||
+            action == NpcText.Action("oldAgeDeath");
+    }
+
+    bool IsPreservedTravelAction(string action)
+    {
+        return action == NpcText.Action("visitedTaskProvider") ||
+            action == NpcText.Action("goHomeCultivate") ||
+            action == NpcText.Action("goVanBaoLauBroker") ||
+            action == NpcText.Action("goVanBaoLauTask") ||
+            action == NpcText.Action("checkedVanBaoLau") ||
+            action == NpcText.Action("tradeSeek") ||
+            action == NpcText.Action("goTavern") ||
+            action == NpcText.Action("buyPill") ||
+            action == NpcText.Action("goHunt") ||
+            action == NpcText.Action("huntMonsterNamed") ||
+            action == NpcText.Action("attackMonsterNamed") ||
+            action == NpcText.Action("makeFriend") ||
+            action == NpcText.Action("createSect") ||
+            action == NpcText.Action("goMarketTrade") ||
+            action == NpcText.Action("goWorkTask") ||
+            action == NpcText.Action("gatherResource") ||
+            action == NpcText.Action("pickItem") ||
+            action == NpcText.Action("pickHuntEvidence") ||
+            action == NpcText.Action("fleeMonsterArea") ||
+            action == NpcText.Action("guardSpiritHerbMonster") ||
+            action == NpcText.Action("fightBlockingMonster") ||
+            action == NpcText.Action("clearHarvestMonster") ||
+            action == NpcText.Action("avoidObstacle") ||
+            action == NpcText.Action("treasureHuntNamed") ||
+            action == NpcText.Action("outerSkirmishNamed");
     }
 
     bool IsInDungeonCombatSession()

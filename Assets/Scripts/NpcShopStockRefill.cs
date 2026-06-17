@@ -96,6 +96,8 @@ public class NpcShopStockRefill : MonoBehaviour
         AddRandomKinds(middleGrade, middleGradeKinds);
         AddRandomKinds(upperGrade, upperGradeKinds);
 
+        sellerInventory.MarkDirty();
+
         ConfigureNpcShop();
         stockReady = true;
         lastCatalogSignature = catalogSignature;

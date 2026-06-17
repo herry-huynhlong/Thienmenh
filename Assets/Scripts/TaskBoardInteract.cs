@@ -40,6 +40,11 @@ public class TaskBoardInteract : MonoBehaviour
 
     void TryOpenBoard(Vector2 screenPosition, int fingerId)
     {
+        if (panel != null && panel.gameObject.activeInHierarchy)
+        {
+            return;
+        }
+
         if (IsPointerOverUI(fingerId))
         {
             return;

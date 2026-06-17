@@ -176,6 +176,7 @@ public class WorldStatItemPickup : MonoBehaviour
             inventory.shareRuntimeItems = false;
         }
 
+        ItemEffectSpawner.PlayPickupEffect(pickedItem, target);
         inventory.AddItem(pickedItem, 1);
         ItemLifecycleSystem.Notify(
             ItemLifecycleEventType.Picked,
@@ -211,6 +212,7 @@ public class WorldStatItemPickup : MonoBehaviour
                 target.gameObject.AddComponent<ItemInventory>();
         }
 
+        ItemEffectSpawner.PlayPickupEffect(pickedItem, target);
         inventory.AddItem(pickedItem, 1);
         return true;
     }

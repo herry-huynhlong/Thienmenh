@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.Collections.Generic;
 using System.Text;
 using System;
 
@@ -34,9 +35,34 @@ public class TouchSelectTarget : MonoBehaviour
 
     public TMP_Text realmText;
 
+    public Image realmIcon;
+
+    public Image npcIcon;
+
     public TMP_Text hpText;
 
     public Image hpFillImage;
+
+    public TMP_Text expText;
+
+    [Header("Target Detail Rows")]
+    public TMP_Text damageValueText;
+
+    public TMP_Text defenseValueText;
+
+    public TMP_Text lifespanValueText;
+
+    public TMP_Text jobValueText;
+
+    public TMP_Text statusText;
+
+    public Transform equipmentListRoot;
+
+    public GameObject equipmentRowTemplate;
+
+    public Transform skillListRoot;
+
+    public GameObject skillRowTemplate;
 
     [Header("World Item Panel")]
     public GameObject worldItemInfoPanel;
@@ -103,6 +129,28 @@ public class TouchSelectTarget : MonoBehaviour
     bool hasOriginalInfoTextMargin;
 
     bool splitTargetHeaderLayout;
+
+    Vector3 originalInfoIconScale = Vector3.one;
+
+    bool hasOriginalInfoIconScale;
+
+    static Sprite phamNhanRealmIcon;
+    static Sprite luyenKhiRealmIcon;
+    static Sprite trucCoRealmIcon;
+    static Sprite kimDanRealmIcon;
+    static Sprite hoaThanRealmIcon;
+    static Sprite doKiepRealmIcon;
+    static Sprite npcPortraitDefaultIcon;
+    static Sprite monsterPortraitDefaultIcon;
+
+    static bool realmIconsLoaded;
+    static bool portraitIconsLoaded;
+
+    readonly List<GameObject> spawnedEquipmentRows =
+        new List<GameObject>();
+
+    readonly List<GameObject> spawnedSkillRows =
+        new List<GameObject>();
 
     void Start()
     {
@@ -319,7 +367,8 @@ public class TouchSelectTarget : MonoBehaviour
 
     public void ShowInventoryTab()
     {
-        if (IsNpcTarget(currentTarget) &&
+        if (false &&
+            IsNpcTarget(currentTarget) &&
             !HasHeavenDaoPower(HeavenDaoPower.ViewBasicNpcInfo))
         {
             showingInventory = false;
@@ -328,9 +377,24 @@ public class TouchSelectTarget : MonoBehaviour
             SetInfoIconVisible(false);
             SetInfoContentVisible(true);
 
-            if (infoText != null)
+            string lockedMessage =
+                NpcText.Get(
+                    "dialogue",
+                    "heavenDaoBasicLocked",
+                    "Thiên Đạo chưa đủ Chưởng Khống.\nCần 5% để xem thông tin Tu sĩ.");
+
+            SetValueText(damageValueText, "-");
+            SetValueText(defenseValueText, "-");
+            SetValueText(lifespanValueText, "-");
+            SetValueText(jobValueText, "-");
+            SetValueText(statusText, lockedMessage);
+            ClearSpawnedRows(spawnedEquipmentRows, equipmentListRoot);
+            ClearSpawnedRows(spawnedSkillRows, skillListRoot);
+
+            if (infoText != null &&
+                !HasTargetDetailPanelLayout())
             {
-                infoText.text = NpcText.Get("dialogue", "heavenDaoBasicLocked", "Thiên Đạo chưa đủ Chưởng Khống.\nCần 5% để xem thông tin Tu sĩ.");
+                infoText.text = lockedMessage;
             }
 
             if (npcInventoryPanel != null)
@@ -428,10 +492,18 @@ public class TouchSelectTarget : MonoBehaviour
 
         UpdateTargetHeader(target);
         UpdateInfoIcon(target);
+        UpdateNpcIcon(target);
+
+        bool hasDetailPanel =
+            UpdateTargetDetailPanel(target);
 
         if (infoText != null)
         {
-            infoText.text = BuildTargetInfo(target);
+            infoText.gameObject.SetActive(!hasDetailPanel);
+            infoText.text =
+                hasDetailPanel
+                ? ""
+                : BuildTargetInfo(target);
         }
     }
 
@@ -530,6 +602,55 @@ public class TouchSelectTarget : MonoBehaviour
             realmText.raycastTarget = false;
         }
 
+        Transform detailRoot =
+            infoContentRoot != null
+            ? infoContentRoot.transform
+            : infoPanel.transform;
+
+        if (realmIcon == null)
+        {
+            Transform realmIconTransform =
+                FindChildByName(detailRoot, "canhgioi");
+
+            if (realmIconTransform == null)
+            {
+                realmIconTransform =
+                    FindChildByName(detailRoot, "RealmIcon");
+            }
+
+            if (realmIconTransform == null)
+            {
+                realmIconTransform =
+                    FindChildByName(detailRoot, "RealmIconImage");
+            }
+
+            if (realmIconTransform != null)
+            {
+                realmIcon = realmIconTransform.GetComponent<Image>();
+            }
+        }
+
+        if (realmIcon != null)
+        {
+            realmIcon.raycastTarget = false;
+        }
+
+        if (npcIcon == null)
+        {
+            Transform npcIconTransform =
+                FindChildByName(detailRoot, "npcicon");
+
+            if (npcIconTransform != null)
+            {
+                npcIcon = npcIconTransform.GetComponent<Image>();
+            }
+        }
+
+        if (npcIcon != null)
+        {
+            npcIcon.raycastTarget = false;
+        }
+
         if (hpText == null)
         {
             Transform hpTransform =
@@ -544,6 +665,40 @@ public class TouchSelectTarget : MonoBehaviour
         if (hpText != null)
         {
             hpText.raycastTarget = false;
+        }
+
+        if (expText == null)
+        {
+            Transform expTransform =
+                FindChildByName(detailRoot, "ExpText");
+
+            if (expTransform == null)
+            {
+                expTransform =
+                    FindChildByName(detailRoot, "ExperienceText");
+            }
+
+            if (expTransform == null)
+            {
+                expTransform =
+                    FindChildByName(detailRoot, "ExpValueText");
+            }
+
+            if (expTransform == null)
+            {
+                expTransform =
+                    FindChildByName(detailRoot, "CultivationExpText");
+            }
+
+            if (expTransform != null)
+            {
+                expText = expTransform.GetComponent<TMP_Text>();
+            }
+        }
+
+        if (expText != null)
+        {
+            expText.raycastTarget = false;
         }
 
         if (inventoryButton == null)
@@ -606,8 +761,797 @@ public class TouchSelectTarget : MonoBehaviour
             }
         }
 
+        if (damageValueText == null)
+        {
+            damageValueText =
+                FindRowValueText(detailRoot, "DamageRow");
+        }
+
+        if (defenseValueText == null)
+        {
+            defenseValueText =
+                FindRowValueText(detailRoot, "Phòng Thủ");
+        }
+
+        if (lifespanValueText == null)
+        {
+            lifespanValueText =
+                FindRowValueText(detailRoot, "Thọ Nguyên");
+        }
+
+        if (jobValueText == null)
+        {
+            jobValueText =
+                FindRowValueText(detailRoot, "Chức Vụ");
+        }
+
+        if (statusText == null)
+        {
+            Transform statusTransform =
+                FindChildByName(detailRoot, "Trạng Thái : ");
+
+            if (statusTransform == null)
+            {
+                statusTransform =
+                    FindChildByName(detailRoot, "Trạng Thái:");
+            }
+
+            if (statusTransform != null)
+            {
+                statusText = statusTransform.GetComponent<TMP_Text>();
+            }
+        }
+
+        if (equipmentListRoot == null)
+        {
+            Transform equipmentTransform =
+                FindChildByName(detailRoot, "EquipmentList");
+
+            if (equipmentTransform != null)
+            {
+                equipmentListRoot = equipmentTransform;
+            }
+        }
+
+        if (equipmentRowTemplate == null &&
+            equipmentListRoot != null &&
+            equipmentListRoot.childCount > 0)
+        {
+            equipmentRowTemplate =
+                equipmentListRoot.GetChild(0).gameObject;
+        }
+
+        if (skillListRoot == null)
+        {
+            Transform skillTransform =
+                FindChildByName(detailRoot, "SkillList");
+
+            if (skillTransform != null)
+            {
+                skillListRoot = skillTransform;
+            }
+        }
+
+        if (skillRowTemplate == null &&
+            skillListRoot != null &&
+            skillListRoot.childCount > 0)
+        {
+            skillRowTemplate =
+                skillListRoot.GetChild(0).gameObject;
+        }
+
         EnsureInfoIcon();
+        UpdateRealmIcon(currentTarget);
         splitTargetHeaderLayout = HasSplitTargetHeaderLayout();
+    }
+
+    bool UpdateTargetDetailPanel(Transform target)
+    {
+        if (target == null ||
+            (!IsNpcTarget(target) && !IsMonsterTarget(target)) ||
+            infoPanel == null)
+        {
+            ClearTargetDetailPanel();
+            return false;
+        }
+
+        AutoFindTabReferences();
+
+        string lockedMessage =
+            NpcText.Get(
+                "dialogue",
+                "heavenDaoBasicLocked",
+                "Thiên Đạo chưa đủ Chưởng Khống.\nCần 5% để xem thông tin Tu sĩ.");
+
+        if (false && !HasHeavenDaoPower(HeavenDaoPower.ViewBasicNpcInfo))
+        {
+            SetValueText(damageValueText, "-");
+            SetValueText(defenseValueText, "-");
+            SetValueText(lifespanValueText, "-");
+            SetValueText(jobValueText, "-");
+            SetValueText(statusText, lockedMessage);
+            ClearSpawnedRows(spawnedEquipmentRows, equipmentListRoot);
+            ClearSpawnedRows(spawnedSkillRows, skillListRoot);
+            return true;
+        }
+
+        bool hasAnyDetail = false;
+
+        hasAnyDetail |=
+            SetValueText(
+                damageValueText,
+                FormatMaybeInt(GetTargetAttack(target)));
+
+        hasAnyDetail |=
+            SetValueText(
+                defenseValueText,
+                FormatMaybeInt(GetTargetDefense(target)));
+
+        hasAnyDetail |=
+            SetValueText(
+                lifespanValueText,
+                GetTargetLifespan(target));
+
+        hasAnyDetail |=
+            SetValueText(
+                jobValueText,
+                GetTargetJob(target));
+
+        hasAnyDetail |=
+            SetValueText(
+                statusText,
+                FormatTargetActionText(target));
+
+        hasAnyDetail |=
+            RefreshEquipmentRows(target);
+
+        hasAnyDetail |=
+            RefreshSkillRows(target);
+
+        return hasAnyDetail;
+    }
+
+    void ClearTargetDetailPanel()
+    {
+        SetValueText(damageValueText, "-");
+        SetValueText(defenseValueText, "-");
+        SetValueText(lifespanValueText, "-");
+        SetValueText(jobValueText, "-");
+        SetValueText(statusText, "-");
+        ClearSpawnedRows(spawnedEquipmentRows, equipmentListRoot);
+        ClearSpawnedRows(spawnedSkillRows, skillListRoot);
+    }
+
+    bool RefreshEquipmentRows(Transform target)
+    {
+        ItemInventory inventory =
+            target != null
+            ? target.GetComponent<ItemInventory>()
+            : null;
+
+        if (inventory == null ||
+            equipmentListRoot == null)
+        {
+            ClearSpawnedRows(spawnedEquipmentRows, equipmentListRoot);
+            return false;
+        }
+
+        List<ItemStack> equipmentStacks =
+            CollectEquipmentStacks(inventory);
+
+        ClearSpawnedRows(spawnedEquipmentRows, equipmentListRoot);
+
+        if (equipmentStacks.Count <= 0)
+        {
+            return false;
+        }
+
+        GameObject template =
+            GetRowTemplate(equipmentListRoot, equipmentRowTemplate);
+
+        if (template == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < equipmentStacks.Count; i++)
+        {
+            GameObject row =
+                GetOrCreateRow(
+                    equipmentListRoot,
+                    template,
+                    i,
+                    spawnedEquipmentRows);
+
+            if (row == null)
+            {
+                continue;
+            }
+
+            row.SetActive(true);
+            BindEquipmentRow(row, equipmentStacks[i]);
+        }
+
+        return true;
+    }
+
+    bool RefreshSkillRows(Transform target)
+    {
+        ItemInventory inventory =
+            target != null
+            ? target.GetComponent<ItemInventory>()
+            : null;
+
+        if (inventory == null ||
+            skillListRoot == null)
+        {
+            ClearSpawnedRows(spawnedSkillRows, skillListRoot);
+            return false;
+        }
+
+        NpcHideCultivationInfo hideInfo =
+            target.GetComponentInParent<NpcHideCultivationInfo>();
+
+        if (hideInfo != null &&
+            hideInfo.hideCultivationSkills)
+        {
+            ClearSpawnedRows(spawnedSkillRows, skillListRoot);
+            return false;
+        }
+
+        List<ItemStack> skillStacks =
+            CollectSkillStacks(inventory);
+
+        ClearSpawnedRows(spawnedSkillRows, skillListRoot);
+
+        if (skillStacks.Count <= 0)
+        {
+            return false;
+        }
+
+        GameObject template =
+            GetRowTemplate(skillListRoot, skillRowTemplate);
+
+        if (template == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < skillStacks.Count; i++)
+        {
+            GameObject row =
+                GetOrCreateRow(
+                    skillListRoot,
+                    template,
+                    i,
+                    spawnedSkillRows);
+
+            if (row == null)
+            {
+                continue;
+            }
+
+            row.SetActive(true);
+            BindSkillRow(row, skillStacks[i]);
+        }
+
+        return true;
+    }
+
+    void ClearSpawnedRows(
+        List<GameObject> spawnedRows,
+        Transform root)
+    {
+        if (spawnedRows != null)
+        {
+            spawnedRows.RemoveAll(item => item == null);
+        }
+
+        if (root == null)
+        {
+            return;
+        }
+
+        int childCount = root.childCount;
+        for (int i = 0; i < childCount; i++)
+        {
+            Transform child = root.GetChild(i);
+            if (child == null)
+            {
+                continue;
+            }
+
+            child.gameObject.SetActive(false);
+        }
+    }
+
+    GameObject GetRowTemplate(
+        Transform root,
+        GameObject fallbackTemplate)
+    {
+        if (fallbackTemplate != null)
+        {
+            return fallbackTemplate;
+        }
+
+        if (root != null &&
+            root.childCount > 0)
+        {
+            return root.GetChild(0).gameObject;
+        }
+
+        return null;
+    }
+
+    GameObject GetOrCreateRow(
+        Transform root,
+        GameObject template,
+        int index,
+        List<GameObject> spawnedRows)
+    {
+        if (root == null ||
+            template == null ||
+            index < 0)
+        {
+            return null;
+        }
+
+        if (index < root.childCount)
+        {
+            return root.GetChild(index).gameObject;
+        }
+
+        GameObject row =
+            Instantiate(
+                template,
+                root,
+                false);
+
+        row.name = template.name;
+
+        if (spawnedRows != null)
+        {
+            spawnedRows.Add(row);
+        }
+
+        return row;
+    }
+
+    List<ItemStack> CollectEquipmentStacks(ItemInventory inventory)
+    {
+        List<ItemStack> stacks =
+            new List<ItemStack>();
+
+        if (inventory == null)
+        {
+            return stacks;
+        }
+
+        foreach (ItemStack stack in inventory.items)
+        {
+            if (stack == null ||
+                stack.item == null ||
+                stack.amount <= 0 ||
+                stack.item.itemType != ItemType.PhapBao)
+            {
+                continue;
+            }
+
+            EquipmentSlot slot =
+                stack.item.GetResolvedEquipmentSlot();
+
+            if (slot == EquipmentSlot.None)
+            {
+                continue;
+            }
+
+            stacks.Add(stack);
+        }
+
+        stacks.Sort(
+            (left, right) =>
+            {
+                int leftApplied =
+                    left != null && left.applied ? 0 : 1;
+                int rightApplied =
+                    right != null && right.applied ? 0 : 1;
+
+                int compare =
+                    leftApplied.CompareTo(rightApplied);
+                if (compare != 0)
+                {
+                    return compare;
+                }
+
+                EquipmentSlot leftSlot =
+                    left != null && left.item != null
+                    ? left.item.GetResolvedEquipmentSlot()
+                    : EquipmentSlot.None;
+
+                EquipmentSlot rightSlot =
+                    right != null && right.item != null
+                    ? right.item.GetResolvedEquipmentSlot()
+                    : EquipmentSlot.None;
+
+                return leftSlot.CompareTo(rightSlot);
+            });
+
+        return stacks;
+    }
+
+    List<ItemStack> CollectSkillStacks(ItemInventory inventory)
+    {
+        List<ItemStack> stacks =
+            new List<ItemStack>();
+
+        if (inventory == null)
+        {
+            return stacks;
+        }
+
+        foreach (ItemStack stack in inventory.items)
+        {
+            if (stack == null ||
+                stack.item == null ||
+                stack.amount <= 0 ||
+                stack.item.itemType != ItemType.CongPhap ||
+                stack.broken ||
+                stack.item.IsManualBroken(stack))
+            {
+                continue;
+            }
+
+            if (!stack.applied &&
+                stack.mastery == CultivationManualMastery.None)
+            {
+                continue;
+            }
+
+            stacks.Add(stack);
+        }
+
+        stacks.Sort(
+            (left, right) =>
+            {
+                float leftPower =
+                    GetManualPower(left);
+                float rightPower =
+                    GetManualPower(right);
+
+                int compare =
+                    rightPower.CompareTo(leftPower);
+                if (compare != 0)
+                {
+                    return compare;
+                }
+
+                string leftName =
+                    left != null && left.item != null
+                    ? ItemText.Name(left.item)
+                    : "";
+                string rightName =
+                    right != null && right.item != null
+                    ? ItemText.Name(right.item)
+                    : "";
+                return string.Compare(
+                    leftName,
+                    rightName,
+                    StringComparison.Ordinal);
+            });
+
+        return stacks;
+    }
+
+    void BindEquipmentRow(
+        GameObject row,
+        ItemStack stack)
+    {
+        if (row == null ||
+            stack == null ||
+            stack.item == null)
+        {
+            return;
+        }
+
+        Image icon =
+            FindRowImage(row, "Icon");
+        if (icon == null)
+        {
+            icon =
+                row.GetComponentInChildren<Image>(true);
+        }
+
+        if (icon != null)
+        {
+            Sprite itemIcon = stack.item.icon;
+            icon.sprite = itemIcon;
+            icon.enabled = itemIcon != null;
+            icon.preserveAspect = true;
+            icon.raycastTarget = false;
+        }
+
+        TMP_Text nameText =
+            FindRowText(row, "ItemNameText");
+        if (nameText == null)
+        {
+            nameText = FindRowText(row, "NameText");
+        }
+
+        if (nameText != null)
+        {
+            nameText.text = ItemText.Name(stack.item);
+            nameText.raycastTarget = false;
+        }
+
+        TMP_Text slotText =
+            FindRowText(row, "SlotText");
+
+        if (slotText != null)
+        {
+            slotText.text = GetEquipmentSlotLabel(stack.item);
+            slotText.raycastTarget = false;
+        }
+    }
+
+    void BindSkillRow(
+        GameObject row,
+        ItemStack stack)
+    {
+        if (row == null ||
+            stack == null ||
+            stack.item == null)
+        {
+            return;
+        }
+
+        Image icon =
+            FindRowImage(row, "Icon");
+        if (icon == null)
+        {
+            icon =
+                row.GetComponentInChildren<Image>(true);
+        }
+
+        if (icon != null)
+        {
+            Sprite itemIcon = stack.item.icon;
+            icon.sprite = itemIcon;
+            icon.enabled = itemIcon != null;
+            icon.preserveAspect = true;
+            icon.raycastTarget = false;
+        }
+
+        TMP_Text nameText =
+            FindRowText(row, "SkillNameText");
+        if (nameText == null)
+        {
+            nameText = FindRowText(row, "NameText");
+        }
+
+        if (nameText != null)
+        {
+            nameText.text = ItemText.Name(stack.item);
+            nameText.raycastTarget = false;
+        }
+
+        TMP_Text percentText =
+            FindRowText(row, "PercentText");
+
+        if (percentText != null)
+        {
+            percentText.text =
+                FormatPercentText(
+                    GetManualPower(stack));
+            percentText.raycastTarget = false;
+        }
+
+        Image fillImage =
+            FindRowImage(row, "ProficiencyFill");
+        if (fillImage == null)
+        {
+            Transform fillTransform =
+                FindChildByName(row.transform, "ProficiencyFill");
+
+            if (fillTransform != null)
+            {
+                fillImage = fillTransform.GetComponent<Image>();
+            }
+        }
+
+        if (fillImage != null)
+        {
+            fillImage.type = Image.Type.Filled;
+            fillImage.fillAmount =
+                Mathf.Clamp01(GetManualPower(stack));
+            fillImage.raycastTarget = false;
+        }
+    }
+
+    TMP_Text FindRowText(
+        GameObject row,
+        string childName)
+    {
+        if (row == null ||
+            string.IsNullOrEmpty(childName))
+        {
+            return null;
+        }
+
+        Transform child =
+            FindChildByName(row.transform, childName);
+
+        if (child == null)
+        {
+            return null;
+        }
+
+        return child.GetComponent<TMP_Text>();
+    }
+
+    Image FindRowImage(
+        GameObject row,
+        string childName)
+    {
+        if (row == null ||
+            string.IsNullOrEmpty(childName))
+        {
+            return null;
+        }
+
+        Transform child =
+            FindChildByName(row.transform, childName);
+
+        if (child == null)
+        {
+            return null;
+        }
+
+        return child.GetComponent<Image>();
+    }
+
+    TMP_Text FindRowValueText(
+        Transform root,
+        string rowName)
+    {
+        if (root == null ||
+            string.IsNullOrEmpty(rowName))
+        {
+            return null;
+        }
+
+        Transform row =
+            FindChildByName(root, rowName);
+
+        if (row == null)
+        {
+            return null;
+        }
+
+        Transform value =
+            FindChildByName(row, "ValueText");
+
+        if (value == null)
+        {
+            value = FindChildByName(row, "PercentText");
+        }
+
+        if (value == null)
+        {
+            value = FindChildByName(row, "SlotText");
+        }
+
+        if (value == null)
+        {
+            value = FindChildByName(row, "LabelText");
+        }
+
+        if (value == null)
+        {
+            return row.GetComponent<TMP_Text>();
+        }
+
+        return value.GetComponent<TMP_Text>();
+    }
+
+    string GetEquipmentSlotLabel(StatItemData item)
+    {
+        if (item == null)
+        {
+            return "-";
+        }
+
+        EquipmentSlot slot =
+            item.GetResolvedEquipmentSlot();
+
+        switch (slot)
+        {
+            case EquipmentSlot.Weapon:
+                return "Vũ Khí";
+            case EquipmentSlot.Armor:
+                return "Giáp";
+            case EquipmentSlot.Accessory:
+                return "Pháp Bảo";
+        }
+
+        return item.itemType == ItemType.PhapBao
+            ? "Pháp Bảo"
+            : "-";
+    }
+
+    float GetManualPower(ItemStack stack)
+    {
+        if (stack == null ||
+            stack.item == null ||
+            stack.item.itemType != ItemType.CongPhap)
+        {
+            return 0f;
+        }
+
+        switch (stack.mastery)
+        {
+            case CultivationManualMastery.TieuThanh:
+                return stack.item.tieuThanhPower;
+            case CultivationManualMastery.TrungThanh:
+                return stack.item.trungThanhPower;
+            case CultivationManualMastery.DaiThanh:
+                return stack.item.daiThanhPower;
+        }
+
+        return 0f;
+    }
+
+    string FormatPercentText(float percentValue)
+    {
+        return Mathf.Clamp(Mathf.RoundToInt(percentValue * 100f), 0, 100) + "%";
+    }
+
+    string FormatTargetActionText(Transform target)
+    {
+        string action = GetTargetAction(target);
+
+        if (string.IsNullOrWhiteSpace(action))
+        {
+            return "-";
+        }
+
+        if (action.StartsWith("đang", StringComparison.OrdinalIgnoreCase) ||
+            action.StartsWith("Đang", StringComparison.OrdinalIgnoreCase))
+        {
+            return action;
+        }
+
+        return "Đang " + action;
+    }
+
+    bool SetValueText(
+        TMP_Text text,
+        int value)
+    {
+        if (text == null)
+        {
+            return false;
+        }
+
+        SetValueText(text, value.ToString());
+        return true;
+    }
+
+    bool SetValueText(
+        TMP_Text text,
+        string value)
+    {
+        if (text == null)
+        {
+            return false;
+        }
+
+        text.text =
+            string.IsNullOrEmpty(value)
+            ? "-"
+            : value;
+        text.raycastTarget = false;
+        text.gameObject.SetActive(true);
+        return true;
     }
 
     bool HasSplitTargetHeaderLayout()
@@ -616,6 +1560,17 @@ public class TouchSelectTarget : MonoBehaviour
             realmText != null ||
             hpText != null ||
             hpFillImage != null;
+    }
+
+    bool HasTargetDetailPanelLayout()
+    {
+        return damageValueText != null ||
+            defenseValueText != null ||
+            lifespanValueText != null ||
+            jobValueText != null ||
+            statusText != null ||
+            equipmentListRoot != null ||
+            skillListRoot != null;
     }
 
     Button FindButtonByName(
@@ -703,7 +1658,9 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (infoText != null)
         {
-            infoText.gameObject.SetActive(visible);
+            infoText.gameObject.SetActive(
+                visible &&
+                !HasTargetDetailPanelLayout());
         }
 
         if (!visible)
@@ -862,20 +1819,7 @@ public class TouchSelectTarget : MonoBehaviour
 
     bool CanShowInventoryForTarget(Transform target)
     {
-        if (target == null ||
-            target.GetComponent<MonsterAI>() != null)
-        {
-            return false;
-        }
-
-        if (!HasHeavenDaoPower(HeavenDaoPower.ViewBasicNpcInfo))
-        {
-            return false;
-        }
-
-        return target.GetComponent<SmartNpcAI>() != null ||
-            target.GetComponent<VillagerAI>() != null ||
-            target.GetComponent<ItemInventory>() != null;
+        return target != null;
     }
 
     void ShowWorldItemInfo(Transform target)
@@ -927,10 +1871,12 @@ public class TouchSelectTarget : MonoBehaviour
         bool isWorldItem =
             pickup != null;
 
+        bool mirrored = false;
+
         Sprite icon =
             isWorldItem
             ? GetPickupIcon(pickup)
-            : GetCharacterIcon(target);
+            : GetCharacterIcon(target, out mirrored);
 
         if (infoIcon == null ||
             icon == null)
@@ -942,6 +1888,7 @@ public class TouchSelectTarget : MonoBehaviour
         infoIcon.sprite = icon;
         infoIcon.color = GetFactionTint(target);
         ConfigureInfoIconLayout(isWorldItem);
+        ApplyFactionIconMirror(isWorldItem, mirrored);
         SetInfoIconVisible(true);
 
         if (!HasSplitTargetHeaderLayout())
@@ -974,11 +1921,37 @@ public class TouchSelectTarget : MonoBehaviour
             : null;
     }
 
-    Sprite GetCharacterIcon(Transform target)
+    Sprite GetCharacterIcon(Transform target, out bool mirrored)
     {
+        mirrored = false;
+
         if (target == null)
         {
             return null;
+        }
+
+        if (IsMonsterPortraitTarget(target))
+        {
+            SpriteRenderer monsterRenderer =
+                FindBestCharacterRenderer(target, out mirrored);
+
+            if (monsterRenderer != null &&
+                monsterRenderer.sprite != null)
+            {
+                return monsterRenderer.sprite;
+            }
+
+            LoadPortraitIcons();
+            return monsterPortraitDefaultIcon;
+        }
+
+        SpriteRenderer liveRenderer =
+            FindBestCharacterRenderer(target, out mirrored);
+
+        if (liveRenderer != null &&
+            liveRenderer.sprite != null)
+        {
+            return liveRenderer.sprite;
         }
 
         NpcPortraitIcon portraitIcon =
@@ -996,6 +1969,14 @@ public class TouchSelectTarget : MonoBehaviour
             return portraitIcon.icon;
         }
 
+        Sprite defaultPortraitIcon =
+            GetDefaultPortraitIcon(target);
+
+        if (defaultPortraitIcon != null)
+        {
+            return defaultPortraitIcon;
+        }
+
         bool forceSprite =
             target.GetComponent<MonsterAI>() != null ||
             target.GetComponent<BicanhBoneMonsterAI>() != null ||
@@ -1010,11 +1991,27 @@ public class TouchSelectTarget : MonoBehaviour
             return null;
         }
 
-        SpriteRenderer bestRenderer =
-            null;
+        SpriteRenderer fallbackRenderer =
+            FindBestCharacterRenderer(target, out mirrored);
 
-        float bestArea =
-            -1f;
+        return fallbackRenderer != null
+            ? fallbackRenderer.sprite
+            : null;
+    }
+
+    SpriteRenderer FindBestCharacterRenderer(
+        Transform target,
+        out bool mirrored)
+    {
+        mirrored = false;
+
+        if (target == null)
+        {
+            return null;
+        }
+
+        SpriteRenderer bestRenderer = null;
+        float bestArea = -1f;
 
         SpriteRenderer[] renderers =
             target.GetComponentsInChildren<SpriteRenderer>(true);
@@ -1039,9 +2036,100 @@ public class TouchSelectTarget : MonoBehaviour
             }
         }
 
-        return bestRenderer != null
-            ? bestRenderer.sprite
-            : null;
+        if (bestRenderer != null)
+        {
+            mirrored =
+                bestRenderer.flipX ^
+                (bestRenderer.transform.lossyScale.x < 0f);
+        }
+
+        return bestRenderer;
+    }
+
+    void ApplyFactionIconMirror(bool isWorldItem, bool mirrored)
+    {
+        if (infoIcon == null)
+        {
+            return;
+        }
+
+        RectTransform rect = infoIcon.rectTransform;
+        if (rect == null)
+        {
+            return;
+        }
+
+        if (!hasOriginalInfoIconScale)
+        {
+            originalInfoIconScale = rect.localScale;
+            hasOriginalInfoIconScale = true;
+        }
+
+        if (isWorldItem)
+        {
+            rect.localScale = originalInfoIconScale;
+            return;
+        }
+
+        Vector3 scale = originalInfoIconScale;
+        scale.x = Mathf.Abs(scale.x) * (mirrored ? -1f : 1f);
+        rect.localScale = scale;
+    }
+
+    Sprite GetDefaultPortraitIcon(Transform target)
+    {
+        if (target == null)
+        {
+            return null;
+        }
+
+        LoadPortraitIcons();
+
+        if (IsMonsterPortraitTarget(target))
+        {
+            return monsterPortraitDefaultIcon;
+        }
+
+        if (IsNpcPortraitTarget(target))
+        {
+            return npcPortraitDefaultIcon;
+        }
+
+        return null;
+    }
+
+    bool IsMonsterPortraitTarget(Transform target)
+    {
+        return target.GetComponent<MonsterAI>() != null ||
+            target.GetComponent<BicanhBoneMonsterAI>() != null ||
+            target.CompareTag("Monster") ||
+            target.name.IndexOf("monster", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            target.name.IndexOf("monter", StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    bool IsNpcPortraitTarget(Transform target)
+    {
+        return target.GetComponent<SmartNpcAI>() != null ||
+            target.GetComponent<VillagerAI>() != null ||
+            target.GetComponent<CharacterStats>() != null ||
+            target.CompareTag("NPC") ||
+            target.CompareTag("Npc") ||
+            target.name.IndexOf("npc", StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    static void LoadPortraitIcons()
+    {
+        if (portraitIconsLoaded)
+        {
+            return;
+        }
+
+        npcPortraitDefaultIcon =
+            Resources.Load<Sprite>("photo/icon/npc_monter/npcicon");
+        monsterPortraitDefaultIcon =
+            Resources.Load<Sprite>("photo/icon/npc_monter/monter");
+
+        portraitIconsLoaded = true;
     }
 
     void ConfigureInfoIconLayout(bool isWorldItem)
@@ -1080,6 +2168,42 @@ public class TouchSelectTarget : MonoBehaviour
 
         infoIcon.preserveAspect = true;
         infoIcon.raycastTarget = false;
+    }
+
+    void EnsureNpcIcon()
+    {
+        if (npcIcon != null)
+        {
+            return;
+        }
+
+        if (infoContentRoot != null)
+        {
+            Transform npcIconTransform =
+                FindChildByName(infoContentRoot.transform, "npcicon");
+
+            if (npcIconTransform != null)
+            {
+                npcIcon = npcIconTransform.GetComponent<Image>();
+            }
+        }
+
+        if (npcIcon == null &&
+            infoPanel != null)
+        {
+            Transform npcIconTransform =
+                FindChildByName(infoPanel.transform, "npcicon");
+
+            if (npcIconTransform != null)
+            {
+                npcIcon = npcIconTransform.GetComponent<Image>();
+            }
+        }
+
+        if (npcIcon != null)
+        {
+            npcIcon.raycastTarget = false;
+        }
     }
 
     void SetInfoIconVisible(bool visible)
@@ -1395,6 +2519,236 @@ public class TouchSelectTarget : MonoBehaviour
         return "Y\u00EAu Th\u00FA";
     }
 
+    void UpdateRealmIcon(Transform target)
+    {
+        if (realmIcon == null)
+        {
+            return;
+        }
+
+        Sprite sprite =
+            GetRealmIconSprite(target);
+
+        if (sprite == null)
+        {
+            realmIcon.enabled = false;
+            realmIcon.gameObject.SetActive(false);
+            return;
+        }
+
+        realmIcon.sprite = sprite;
+        realmIcon.enabled = true;
+        realmIcon.preserveAspect = true;
+        realmIcon.raycastTarget = false;
+        realmIcon.gameObject.SetActive(true);
+    }
+
+    Sprite GetRealmIconSprite(Transform target)
+    {
+        if (target == null)
+        {
+            return GetRealmIconSprite(CultivationRealm.Mortal);
+        }
+
+        if (TryGetTargetCultivationRealm(target, out CultivationRealm realm))
+        {
+            return GetRealmIconSprite(realm);
+        }
+
+        return GetRealmIconSprite(CultivationRealm.Mortal);
+    }
+
+    Sprite GetRealmIconSprite(CultivationRealm realm)
+    {
+        LoadRealmIcons();
+
+        switch (realm)
+        {
+            case CultivationRealm.QiRefining:
+                return luyenKhiRealmIcon ?? phamNhanRealmIcon;
+            case CultivationRealm.Foundation:
+                return trucCoRealmIcon ?? luyenKhiRealmIcon ?? phamNhanRealmIcon;
+            case CultivationRealm.GoldenCore:
+                return kimDanRealmIcon ?? trucCoRealmIcon ?? phamNhanRealmIcon;
+            case CultivationRealm.NascentSoul:
+                return hoaThanRealmIcon ?? kimDanRealmIcon ?? phamNhanRealmIcon;
+            case CultivationRealm.SoulFormation:
+            case CultivationRealm.Tribulation:
+                return doKiepRealmIcon ?? hoaThanRealmIcon ?? phamNhanRealmIcon;
+            case CultivationRealm.Mortal:
+            default:
+                return phamNhanRealmIcon ?? luyenKhiRealmIcon;
+        }
+    }
+
+    void UpdateNpcIcon(Transform target)
+    {
+        EnsureNpcIcon();
+
+        if (npcIcon == null || target == null)
+        {
+            return;
+        }
+
+        LoadPortraitIcons();
+
+        Sprite icon =
+            IsMonsterPortraitTarget(target)
+            ? monsterPortraitDefaultIcon
+            : npcPortraitDefaultIcon;
+
+        npcIcon.sprite = icon;
+        npcIcon.enabled = icon != null;
+        npcIcon.preserveAspect = true;
+        npcIcon.raycastTarget = false;
+        npcIcon.gameObject.SetActive(icon != null);
+    }
+
+    void LoadRealmIcons()
+    {
+        if (realmIconsLoaded)
+        {
+            return;
+        }
+
+        realmIconsLoaded = true;
+        phamNhanRealmIcon =
+            Resources.Load<Sprite>("photo/icon/rank/phamnhan");
+        luyenKhiRealmIcon =
+            Resources.Load<Sprite>("photo/icon/rank/luyenkhi");
+        trucCoRealmIcon =
+            Resources.Load<Sprite>("photo/icon/rank/trucco");
+        kimDanRealmIcon =
+            Resources.Load<Sprite>("photo/icon/rank/kimdan");
+        hoaThanRealmIcon =
+            Resources.Load<Sprite>("photo/icon/rank/hoathan");
+        doKiepRealmIcon =
+            Resources.Load<Sprite>("photo/icon/rank/dokiep");
+    }
+
+    bool TryGetTargetCultivationRealm(
+        Transform target,
+        out CultivationRealm realm)
+    {
+        realm = CultivationRealm.Mortal;
+
+        if (target == null)
+        {
+            return false;
+        }
+
+        CharacterStats characterStats =
+            target.GetComponent<CharacterStats>();
+
+        if (characterStats != null)
+        {
+            realm = characterStats.realm;
+            return true;
+        }
+
+        SmartNpcAI smartNpc =
+            target.GetComponent<SmartNpcAI>();
+
+        if (smartNpc != null)
+        {
+            realm = smartNpc.realm;
+            return true;
+        }
+
+        VillagerAI villager =
+            target.GetComponent<VillagerAI>();
+
+        if (villager != null)
+        {
+            realm = villager.realm;
+            return true;
+        }
+
+        MonsterAI monster =
+            target.GetComponent<MonsterAI>();
+
+        if (monster != null &&
+            monster.entityProfile != null)
+        {
+            realm = monster.entityProfile.stats.realm;
+            return true;
+        }
+
+        NpcData npcData =
+            target.GetComponent<NpcData>();
+
+        if (npcData != null)
+        {
+            return TryParseNpcDataRealm(npcData.realm, out realm);
+        }
+
+        return false;
+    }
+
+    bool TryParseNpcDataRealm(
+        string realmText,
+        out CultivationRealm realm)
+    {
+        realm = CultivationRealm.Mortal;
+
+        if (string.IsNullOrWhiteSpace(realmText))
+        {
+            return false;
+        }
+
+        string normalized =
+            realmText.Trim().ToLowerInvariant();
+
+        if (normalized.Contains("mort"))
+        {
+            realm = CultivationRealm.Mortal;
+            return true;
+        }
+
+        if (normalized.Contains("luyen") ||
+            normalized.Contains("qi"))
+        {
+            realm = CultivationRealm.QiRefining;
+            return true;
+        }
+
+        if (normalized.Contains("truc") ||
+            normalized.Contains("found"))
+        {
+            realm = CultivationRealm.Foundation;
+            return true;
+        }
+
+        if (normalized.Contains("kim"))
+        {
+            realm = CultivationRealm.GoldenCore;
+            return true;
+        }
+
+        if (normalized.Contains("hoa"))
+        {
+            realm = CultivationRealm.NascentSoul;
+            return true;
+        }
+
+        if (normalized.Contains("than") ||
+            normalized.Contains("so")
+        )
+        {
+            realm = CultivationRealm.SoulFormation;
+            return true;
+        }
+
+        if (normalized.Contains("do") ||
+            normalized.Contains("trib"))
+        {
+            realm = CultivationRealm.Tribulation;
+            return true;
+        }
+
+        return false;
+    }
+
     int GetTargetCurrentHP(Transform target)
     {
         CharacterStats characterStats =
@@ -1515,7 +2869,10 @@ public class TouchSelectTarget : MonoBehaviour
             realmText.text = GetTargetRealm(target);
         }
 
+        UpdateRealmIcon(target);
+
         UpdateHealthDisplay(target);
+        UpdateExpDisplay(target);
     }
 
     void UpdateHealthDisplay(Transform target)
@@ -1538,6 +2895,39 @@ public class TouchSelectTarget : MonoBehaviour
         {
             hpText.text = currentHP + " / " + maxHP;
         }
+    }
+
+    void UpdateExpDisplay(Transform target)
+    {
+        if (expText == null)
+        {
+            return;
+        }
+
+        if (!TryGetTargetCultivationExp(target, out long currentExp) ||
+            !TryGetTargetCultivationNeed(target, out long needExp))
+        {
+            expText.text = "-";
+            return;
+        }
+
+        currentExp = Math.Max(0L, currentExp);
+        needExp = Math.Max(1L, needExp);
+
+        if (TryGetTargetCultivationRatePer10Seconds(target, out long ratePer10Seconds) &&
+            ratePer10Seconds > 0)
+        {
+            expText.text =
+                currentExp +
+                " / " +
+                needExp +
+                "  (+" +
+                ratePer10Seconds +
+                "/10s)";
+            return;
+        }
+
+        expText.text = currentExp + " / " + needExp;
     }
 
     Color GetFactionTint(Transform target)
@@ -1618,6 +3008,217 @@ public class TouchSelectTarget : MonoBehaviour
         }
 
         return -1;
+    }
+
+    bool TryGetTargetCultivationExp(
+        Transform target,
+        out long cultivationExp)
+    {
+        cultivationExp = 0L;
+
+        if (target == null)
+        {
+            return false;
+        }
+
+        CharacterStats characterStats =
+            target.GetComponent<CharacterStats>();
+
+        if (characterStats != null)
+        {
+            cultivationExp = characterStats.cultivationExp;
+            return true;
+        }
+
+        SmartNpcAI smartNpc =
+            target.GetComponent<SmartNpcAI>();
+
+        if (smartNpc != null)
+        {
+            cultivationExp = smartNpc.cultivation;
+            return true;
+        }
+
+        VillagerAI villager =
+            target.GetComponent<VillagerAI>();
+
+        if (villager != null)
+        {
+            cultivationExp = villager.cultivationExp;
+            return true;
+        }
+
+        MonsterAI monster =
+            target.GetComponent<MonsterAI>();
+
+        if (monster != null)
+        {
+            cultivationExp = monster.cultivationExp;
+            return true;
+        }
+
+        return false;
+    }
+
+    bool TryGetTargetCultivationNeed(
+        Transform target,
+        out long cultivationNeed)
+    {
+        cultivationNeed = 0L;
+
+        if (target == null)
+        {
+            return false;
+        }
+
+        CharacterStats characterStats =
+            target.GetComponent<CharacterStats>();
+
+        if (characterStats != null)
+        {
+            cultivationNeed = characterStats.ExpToNextRealm();
+            return true;
+        }
+
+        SmartNpcAI smartNpc =
+            target.GetComponent<SmartNpcAI>();
+
+        if (smartNpc != null)
+        {
+            cultivationNeed = smartNpc.breakthroughNeed;
+            return true;
+        }
+
+        VillagerAI villager =
+            target.GetComponent<VillagerAI>();
+
+        if (villager != null)
+        {
+            cultivationNeed = villager.ExpToNextRealm();
+            return true;
+        }
+
+        MonsterAI monster =
+            target.GetComponent<MonsterAI>();
+
+        if (monster != null)
+        {
+            cultivationNeed = monster.ExpToNextRealm();
+            return true;
+        }
+
+        return false;
+    }
+
+    bool TryGetTargetCultivationRatePer10Seconds(
+        Transform target,
+        out long ratePer10Seconds)
+    {
+        ratePer10Seconds = 0L;
+
+        if (target == null)
+        {
+            return false;
+        }
+
+        SmartNpcAI smartNpc =
+            target.GetComponent<SmartNpcAI>();
+
+        if (smartNpc != null)
+        {
+            float multiplier = 1f;
+
+            if (smartNpc.physique == PhysiqueType.FiveElementBody)
+            {
+                multiplier = 10f;
+            }
+            else if (smartNpc.physique == PhysiqueType.ChaosBody)
+            {
+                multiplier = 100f;
+            }
+
+            multiplier += smartNpc.comprehension * 0.05f;
+
+            WeatherSystem weather = WeatherSystem.Instance;
+            if (weather != null)
+            {
+                multiplier *= weather.CultivationMultiplier();
+            }
+
+            if (smartNpc.pill > 0)
+            {
+                ratePer10Seconds =
+                    Mathf.RoundToInt(30f * multiplier);
+                return true;
+            }
+
+            if (smartNpc.spiritStone > 0)
+            {
+                ratePer10Seconds =
+                    Mathf.RoundToInt(
+                        CultivationProgression.GetSpiritStoneExp(
+                            smartNpc.realm,
+                            smartNpc.realmStage) *
+                        multiplier);
+                return true;
+            }
+
+            ratePer10Seconds =
+                Mathf.Max(
+                    1,
+                    Mathf.RoundToInt(
+                        (1f +
+                            (int)smartNpc.realm +
+                            smartNpc.realmStage * 0.2f) *
+                        Mathf.Max(0.5f, smartNpc.comprehension / 50f) *
+                        multiplier *
+                        0.1f));
+            return true;
+        }
+
+        VillagerAI villager =
+            target.GetComponent<VillagerAI>();
+
+        if (villager != null)
+        {
+            ratePer10Seconds =
+                Mathf.Max(
+                    1,
+                    Mathf.RoundToInt(
+                        (1f +
+                            (int)villager.realm +
+                            villager.realmStage * 0.2f) *
+                        Mathf.Max(0.5f, villager.diligence / 50f)));
+            return true;
+        }
+
+        MonsterAI monster =
+            target.GetComponent<MonsterAI>();
+
+        if (monster != null)
+        {
+            ratePer10Seconds =
+                Mathf.Max(
+                    1,
+                    Mathf.RoundToInt(
+                        monster.naturalCultivationExpPerSecond * 10f));
+            return true;
+        }
+
+        CharacterStats characterStats =
+            target.GetComponent<CharacterStats>();
+
+        if (characterStats != null)
+        {
+            long need = characterStats.ExpToNextRealm();
+            ratePer10Seconds =
+                Mathf.Max(
+                    1,
+                    Mathf.RoundToInt(Mathf.Max(1f, need / 30f)));
+            return true;
+        }
+
+        return false;
     }
 
     int GetTargetDefense(Transform target)
@@ -1713,7 +3314,8 @@ public class TouchSelectTarget : MonoBehaviour
             return BuildMonsterInfo(monster);
         }
 
-        if (IsNpcTarget(target) &&
+        if (false &&
+            IsNpcTarget(target) &&
             !HasHeavenDaoPower(HeavenDaoPower.ViewBasicNpcInfo))
         {
             return NpcText.Get("dialogue", "heavenDaoBasicLocked", "Thiên Đạo chưa đủ Chưởng Khống.\nCần 5% để xem thông tin Tu sĩ.");
@@ -1771,6 +3373,17 @@ public class TouchSelectTarget : MonoBehaviour
             (target.GetComponent<VillagerAI>() != null ||
             target.GetComponent<SmartNpcAI>() != null ||
             target.GetComponent<NpcData>() != null);
+    }
+
+    bool IsMonsterTarget(Transform target)
+    {
+        return target != null &&
+            (target.GetComponent<MonsterAI>() != null ||
+            target.GetComponent<BicanhBoneMonsterAI>() != null ||
+            string.Equals(
+                target.gameObject.tag,
+                "Monster",
+                StringComparison.OrdinalIgnoreCase));
     }
 
     bool HasHeavenDaoPower(HeavenDaoPower power)
@@ -1893,6 +3506,14 @@ public class TouchSelectTarget : MonoBehaviour
 
     string GetTargetLifespan(Transform target)
     {
+        MonsterAI monster =
+            target.GetComponent<MonsterAI>();
+
+        if (monster != null)
+        {
+            return Mathf.Max(1, monster.beastLevel).ToString();
+        }
+
         VillagerAI villager =
             target.GetComponent<VillagerAI>();
 
@@ -1914,6 +3535,14 @@ public class TouchSelectTarget : MonoBehaviour
 
     string GetTargetJob(Transform target)
     {
+        MonsterAI monster =
+            target.GetComponent<MonsterAI>();
+
+        if (monster != null)
+        {
+            return NpcText.Get("entityTypes", "monster", "Yêu Thú");
+        }
+
         NpcSpecialProfession profession =
             target.GetComponent<NpcSpecialProfession>();
 
