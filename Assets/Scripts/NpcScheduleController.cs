@@ -1,0 +1,409 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+public enum NpcLifePath
+{
+    Commoner,
+    SemiCultivator,
+    Cultivator,
+    Beast
+}
+
+public enum NpcScheduleActivity
+{
+    Idle,
+    Sleep,
+    Eat,
+    Work,
+    SellGoods,
+    BuyGoods,
+    Gather,
+    Hunt,
+    Cultivate,
+    Alchemy,
+    Forge,
+    TakeTask,
+    ReturnHome
+}
+
+[System.Serializable]
+public class NpcScheduleSlot
+{
+    public NpcScheduleActivity activity = NpcScheduleActivity.Idle;
+    [Range(0f, 24f)] public float startHour;
+    [Range(0f, 24f)] public float endHour = 1f;
+    public bool allowDangerInterrupt = true;
+    public bool allowHungerInterrupt = true;
+    public bool allowFatigueInterrupt = true;
+}
+
+public class NpcScheduleController : MonoBehaviour
+{
+    [Header("Schedule")]
+    public bool enforceSchedule = true;
+    public bool autoBuildDefaultSchedule = true;
+    public NpcLifePath lifePath = NpcLifePath.Commoner;
+    public List<NpcScheduleSlot> slots = new List<NpcScheduleSlot>();
+
+    [Header("Commoner Awakening")]
+    public bool canCultivate;
+    public bool awakenedCultivation;
+    public bool awakenedByMarrowCleansingPill;
+
+    readonly HashSet<string> completedSlotActivities =
+        new HashSet<string>();
+    readonly HashSet<string> startedSlotActivities =
+        new HashSet<string>();
+
+    public NpcScheduleActivity CurrentActivity => GetCurrentActivity();
+    public NpcScheduleSlot CurrentSlot => GetCurrentSlot();
+
+    void Reset()
+    {
+        DetectLifePath();
+        RebuildDefaultSchedule();
+    }
+
+    void Awake()
+    {
+        DetectLifePath();
+
+        if (autoBuildDefaultSchedule && slots.Count == 0)
+        {
+            RebuildDefaultSchedule();
+        }
+    }
+
+    void OnValidate()
+    {
+        if (autoBuildDefaultSchedule && slots.Count == 0)
+        {
+            DetectLifePath();
+            RebuildDefaultSchedule();
+        }
+    }
+
+    public static bool AllowsTrade(GameObject npc)
+    {
+        NpcScheduleController schedule = GetSchedule(npc);
+        if (schedule == null || !schedule.enforceSchedule)
+        {
+            return true;
+        }
+
+        NpcScheduleActivity activity = schedule.CurrentActivity;
+        return activity == NpcScheduleActivity.BuyGoods ||
+            activity == NpcScheduleActivity.SellGoods ||
+            activity == NpcScheduleActivity.TakeTask;
+    }
+
+    public static bool AllowsGather(GameObject npc)
+    {
+        NpcScheduleController schedule = GetSchedule(npc);
+        if (schedule == null || !schedule.enforceSchedule)
+        {
+            return true;
+        }
+
+        NpcScheduleActivity activity = schedule.CurrentActivity;
+        return activity == NpcScheduleActivity.Gather ||
+            activity == NpcScheduleActivity.Work ||
+            activity == NpcScheduleActivity.Hunt;
+    }
+
+    public static bool AllowsAlchemy(GameObject npc)
+    {
+        return AllowsActivity(npc, NpcScheduleActivity.Alchemy);
+    }
+
+    public static bool AllowsForge(GameObject npc)
+    {
+        return AllowsActivity(npc, NpcScheduleActivity.Forge);
+    }
+
+    public static bool AllowsTask(GameObject npc)
+    {
+        return AllowsActivity(npc, NpcScheduleActivity.TakeTask);
+    }
+
+    public static bool AllowsActivity(
+        GameObject npc,
+        NpcScheduleActivity activity)
+    {
+        NpcScheduleController schedule = GetSchedule(npc);
+        return schedule == null ||
+            !schedule.enforceSchedule ||
+            schedule.CurrentActivity == activity;
+    }
+
+    public static NpcScheduleController GetSchedule(GameObject npc)
+    {
+        return npc != null
+            ? npc.GetComponent<NpcScheduleController>()
+            : null;
+    }
+
+    public NpcScheduleSlot GetCurrentSlot()
+    {
+        if (slots == null || slots.Count == 0)
+        {
+            return null;
+        }
+
+        float hour = GetCurrentWorldHour();
+        foreach (NpcScheduleSlot slot in slots)
+        {
+            if (slot != null && ContainsHour(slot, hour))
+            {
+                return slot;
+            }
+        }
+
+        return null;
+    }
+
+    public NpcScheduleActivity GetCurrentActivity()
+    {
+        NpcScheduleSlot slot = GetCurrentSlot();
+        return slot != null
+            ? slot.activity
+            : NpcScheduleActivity.Idle;
+    }
+
+    public bool HasCompletedCurrentSlotActivity(
+        NpcScheduleActivity activity)
+    {
+        string key = GetCurrentSlotActivityKey(activity);
+        return !string.IsNullOrEmpty(key) &&
+            completedSlotActivities.Contains(key);
+    }
+
+    public bool HasStartedCurrentSlotActivity(
+        NpcScheduleActivity activity)
+    {
+        string key = GetCurrentSlotActivityKey(activity);
+        return !string.IsNullOrEmpty(key) &&
+            startedSlotActivities.Contains(key);
+    }
+
+    public void MarkCurrentSlotActivityStarted(
+        NpcScheduleActivity activity)
+    {
+        string key = GetCurrentSlotActivityKey(activity);
+        if (!string.IsNullOrEmpty(key))
+        {
+            startedSlotActivities.Add(key);
+        }
+    }
+
+    public void MarkCurrentSlotActivityCompleted(
+        NpcScheduleActivity activity)
+    {
+        string key = GetCurrentSlotActivityKey(activity);
+        if (!string.IsNullOrEmpty(key))
+        {
+            completedSlotActivities.Add(key);
+        }
+    }
+
+    public void AwakenCultivationPath(bool byMarrowCleansingPill)
+    {
+        canCultivate = true;
+        awakenedCultivation = true;
+        awakenedByMarrowCleansingPill |= byMarrowCleansingPill;
+
+        if (lifePath == NpcLifePath.Commoner)
+        {
+            lifePath = NpcLifePath.SemiCultivator;
+        }
+
+        if (autoBuildDefaultSchedule)
+        {
+            RebuildDefaultSchedule();
+        }
+    }
+
+    public void RebuildDefaultSchedule()
+    {
+        slots.Clear();
+
+        switch (lifePath)
+        {
+            case NpcLifePath.Cultivator:
+                BuildCultivatorSchedule();
+                break;
+            case NpcLifePath.SemiCultivator:
+                BuildSemiCultivatorSchedule();
+                break;
+            default:
+                BuildCommonerSchedule();
+                break;
+        }
+    }
+
+    void DetectLifePath()
+    {
+        if (GetComponent<MonsterAI>() != null)
+        {
+            lifePath = NpcLifePath.Beast;
+            return;
+        }
+
+        if (GetComponent<SmartNpcAI>() != null)
+        {
+            lifePath = NpcLifePath.Cultivator;
+            canCultivate = true;
+            return;
+        }
+
+        VillagerAI villager = GetComponent<VillagerAI>();
+        if (villager != null && villager.realm > CultivationRealm.Mortal)
+        {
+            lifePath = NpcLifePath.SemiCultivator;
+            canCultivate = true;
+        }
+    }
+
+    void BuildCommonerSchedule()
+    {
+        VillagerAI villager = GetComponent<VillagerAI>();
+        VillagerJob job = villager != null ? villager.job : VillagerJob.None;
+
+        if (job == VillagerJob.Trader)
+        {
+            Add(NpcScheduleActivity.Eat, 5f, 6f);
+            Add(NpcScheduleActivity.BuyGoods, 6f, 18f);
+            Add(NpcScheduleActivity.SellGoods, 18f, 20f);
+            Add(NpcScheduleActivity.ReturnHome, 20f, 21f);
+            Add(NpcScheduleActivity.Sleep, 21f, 5f);
+            return;
+        }
+
+        Add(NpcScheduleActivity.Eat, 5f, 6f);
+        Add(NpcScheduleActivity.Work, 6f, 11f);
+        Add(NpcScheduleActivity.Eat, 11f, 13f);
+        Add(NpcScheduleActivity.Work, 13f, 16f);
+        Add(NpcScheduleActivity.SellGoods, 16f, 18f);
+        Add(NpcScheduleActivity.ReturnHome, 18f, 21f);
+        Add(NpcScheduleActivity.Sleep, 21f, 5f);
+    }
+
+    void BuildSemiCultivatorSchedule()
+    {
+        Add(NpcScheduleActivity.Eat, 5f, 6f);
+        Add(NpcScheduleActivity.Work, 6f, 10f);
+        Add(NpcScheduleActivity.Cultivate, 10f, 12f);
+        Add(NpcScheduleActivity.Eat, 12f, 13f);
+        Add(NpcScheduleActivity.Work, 13f, 16f);
+        Add(NpcScheduleActivity.SellGoods, 16f, 17f);
+        Add(NpcScheduleActivity.TakeTask, 17f, 19f);
+        Add(NpcScheduleActivity.Cultivate, 19f, 23f);
+        Add(NpcScheduleActivity.Sleep, 23f, 5f);
+    }
+
+    void BuildCultivatorSchedule()
+    {
+        if (GetComponent<NpcAlchemyAgent>() != null)
+        {
+            Add(NpcScheduleActivity.BuyGoods, 6f, 8f);
+            Add(NpcScheduleActivity.Alchemy, 8f, 14f);
+            Add(NpcScheduleActivity.SellGoods, 14f, 16f);
+            Add(NpcScheduleActivity.TakeTask, 16f, 18f);
+            Add(NpcScheduleActivity.Cultivate, 18f, 6f);
+            return;
+        }
+
+        if (GetComponent<NpcForgeAgent>() != null)
+        {
+            Add(NpcScheduleActivity.BuyGoods, 6f, 8f);
+            Add(NpcScheduleActivity.Forge, 8f, 15f);
+            Add(NpcScheduleActivity.SellGoods, 15f, 17f);
+            Add(NpcScheduleActivity.TakeTask, 17f, 19f);
+            Add(NpcScheduleActivity.Cultivate, 19f, 6f);
+            return;
+        }
+
+        Add(NpcScheduleActivity.Cultivate, 0f, 6f);
+        Add(NpcScheduleActivity.BuyGoods, 6f, 8f);
+        Add(NpcScheduleActivity.TakeTask, 8f, 10f);
+        Add(NpcScheduleActivity.Gather, 10f, 14f);
+        Add(NpcScheduleActivity.Hunt, 14f, 18f);
+        Add(NpcScheduleActivity.Cultivate, 18f, 24f);
+    }
+
+    void Add(
+        NpcScheduleActivity activity,
+        float startHour,
+        float endHour)
+    {
+        slots.Add(
+            new NpcScheduleSlot
+            {
+                activity = activity,
+                startHour = Mathf.Repeat(startHour, 24f),
+                endHour = Mathf.Repeat(endHour, 24f)
+            });
+    }
+
+    bool ContainsHour(NpcScheduleSlot slot, float hour)
+    {
+        float start = Mathf.Repeat(slot.startHour, 24f);
+        float end = Mathf.Repeat(slot.endHour, 24f);
+
+        if (Mathf.Approximately(start, end))
+        {
+            return true;
+        }
+
+        if (start < end)
+        {
+            return hour >= start && hour < end;
+        }
+
+        return hour >= start || hour < end;
+    }
+
+    float GetCurrentWorldHour()
+    {
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        if (timeSystem != null)
+        {
+            return timeSystem.CurrentHour;
+        }
+
+        return Mathf.Repeat(Time.time * 24f / 900f, 24f);
+    }
+
+    int GetCurrentWorldDay()
+    {
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        return timeSystem != null
+            ? timeSystem.CurrentDay
+            : Mathf.FloorToInt(Time.time / 900f);
+    }
+
+    string GetCurrentSlotActivityKey(NpcScheduleActivity activity)
+    {
+        NpcScheduleSlot slot = GetCurrentSlot();
+        if (slot == null ||
+            slot.activity != activity)
+        {
+            return "";
+        }
+
+        float hour = GetCurrentWorldHour();
+        int day = GetCurrentWorldDay();
+        float start = Mathf.Repeat(slot.startHour, 24f);
+        float end = Mathf.Repeat(slot.endHour, 24f);
+
+        if (start > end && hour < end)
+        {
+            day--;
+        }
+
+        return day + ":" +
+            activity + ":" +
+            Mathf.RoundToInt(start * 100f) + ":" +
+            Mathf.RoundToInt(end * 100f);
+    }
+}

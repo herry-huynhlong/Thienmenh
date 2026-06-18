@@ -15,8 +15,9 @@ public class NpcTeleportGate : MonoBehaviour
     public Transform exitPoint;
     public DoorTeleportSameScene sameSceneTeleport;
     public float npcAutoUseRadius = 0.45f;
-    public float npcGlobalTeleportCooldown = 1.25f;
+    public float npcGlobalTeleportCooldown = 5f;
     public bool preferOwnTransformWhenEntryIsParent = true;
+    public bool useEntryPointForNpcRoute;
 
     public static IReadOnlyList<NpcTeleportGate> Gates => gates;
 
@@ -51,6 +52,11 @@ public class NpcTeleportGate : MonoBehaviour
 
     Transform GetResolvedEntryTransform()
     {
+        if (!useEntryPointForNpcRoute)
+        {
+            return transform;
+        }
+
         if (entryPoint == null)
         {
             return transform;
@@ -83,6 +89,12 @@ public class NpcTeleportGate : MonoBehaviour
             sameSceneTeleport = GetComponent<DoorTeleportSameScene>();
         }
 
+        Collider2D trigger = GetComponent<Collider2D>();
+        if (trigger != null)
+        {
+            trigger.isTrigger = true;
+        }
+
         SyncSameSceneTeleportTarget();
     }
 
@@ -111,8 +123,7 @@ public class NpcTeleportGate : MonoBehaviour
 
     void Update()
     {
-        if (sameSceneTeleport == null ||
-            npcAutoUseRadius <= 0f)
+        if (npcAutoUseRadius <= 0f)
         {
             return;
         }
@@ -128,45 +139,46 @@ public class NpcTeleportGate : MonoBehaviour
                 continue;
             }
 
-            GameObject actor = hit.attachedRigidbody != null
-                ? hit.attachedRigidbody.gameObject
-                : hit.gameObject;
+            GameObject actor = ResolveActorRoot(hit);
 
             if (!IsNpcActor(actor))
             {
                 continue;
             }
 
-            if (npcTeleportCooldowns.TryGetValue(
-                    actor,
-                    out float nextAllowedTeleport) &&
-                Time.time < nextAllowedTeleport)
-            {
-                continue;
-            }
+            ProcessNpcAtGate(actor);
+        }
+    }
 
-            NpcMapZone? actorZone =
-                NpcMapNavigator.ResolveActorZone(actor);
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        ProcessNpcAtGate(ResolveActorRoot(other));
+    }
 
-            if (actorZone.HasValue &&
-                actorZone.Value != fromZone)
-            {
-                float nearEntryDistance =
-                    Vector2.Distance(actor.transform.position, EntryPosition);
+    void OnTriggerStay2D(Collider2D other)
+    {
+        ProcessNpcAtGate(ResolveActorRoot(other));
+    }
 
-                if (nearEntryDistance >
-                    Mathf.Max(0.1f, npcAutoUseRadius))
-                {
-                    continue;
-                }
-            }
+    void ProcessNpcAtGate(GameObject actor)
+    {
+        if (!IsNpcActor(actor))
+        {
+            return;
+        }
 
-            SyncSameSceneTeleportTarget();
-            if (sameSceneTeleport.TryTeleport(actor))
-            {
-                npcTeleportCooldowns[actor] =
-                    Time.time + Mathf.Max(0.1f, npcGlobalTeleportCooldown);
-            }
+        if (npcTeleportCooldowns.TryGetValue(
+                actor,
+                out float nextAllowedTeleport) &&
+            Time.time < nextAllowedTeleport)
+        {
+            return;
+        }
+
+        if (TryTeleportNpc(actor))
+        {
+            npcTeleportCooldowns[actor] =
+                Time.time + Mathf.Max(0.1f, npcGlobalTeleportCooldown);
         }
     }
 
@@ -177,7 +189,7 @@ public class NpcTeleportGate : MonoBehaviour
             return false;
         }
 
-        if (actor.CompareTag("NPC"))
+        if (actor.tag == "NPC")
         {
             return true;
         }
@@ -187,6 +199,71 @@ public class NpcTeleportGate : MonoBehaviour
             actor.GetComponent<NpcTradeAgent>() != null ||
             actor.GetComponent<NpcTaskProvider>() != null;
     }
+
+    GameObject ResolveActorRoot(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return null;
+        }
+
+        if (hit.attachedRigidbody != null)
+        {
+            return hit.attachedRigidbody.gameObject;
+        }
+
+        VillagerAI villager = hit.GetComponentInParent<VillagerAI>();
+        if (villager != null)
+        {
+            return villager.gameObject;
+        }
+
+        SmartNpcAI smartNpc = hit.GetComponentInParent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            return smartNpc.gameObject;
+        }
+
+        NpcMapMover2D mover = hit.GetComponentInParent<NpcMapMover2D>();
+        if (mover != null)
+        {
+            return mover.gameObject;
+        }
+
+        return hit.gameObject;
+    }
+
+    bool TryTeleportNpc(GameObject actor)
+    {
+        if (actor == null)
+        {
+            return false;
+        }
+
+        SyncSameSceneTeleportTarget();
+        if (sameSceneTeleport != null &&
+            sameSceneTeleport.TryTeleport(actor, true))
+        {
+            return true;
+        }
+
+        Vector3 targetPosition = ExitPosition;
+        Rigidbody2D rb = actor.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.position = targetPosition;
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        actor.transform.position = targetPosition;
+        actor.SendMessage(
+            "OnNpcMapTeleported",
+            gameObject,
+            SendMessageOptions.DontRequireReceiver);
+
+        return true;
+    }
+
     void OnEnable()
     {
         if (!gates.Contains(this))

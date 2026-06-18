@@ -37,6 +37,8 @@ public class UIBorderSparkEffect : MonoBehaviour
     Image leftBorder;
     Image rightBorder;
 
+    static Sprite whiteSprite;
+
     Sprite uiSprite;
     Sprite sparkSprite;
     float travelDistance;
@@ -202,7 +204,7 @@ public class UIBorderSparkEffect : MonoBehaviour
             return;
         }
 
-        uiSprite = Resources.GetBuiltinResource<Sprite>("UI/Skin/UISprite.psd");
+        uiSprite = GetWhiteSprite();
         sparkSprite = CreateSparkSprite();
 
         GameObject rootObject = new GameObject("UIBorderSparkOverlay", typeof(RectTransform));
@@ -434,6 +436,31 @@ public class UIBorderSparkEffect : MonoBehaviour
         texture.Apply();
         Rect rect = new Rect(0f, 0f, size, size);
         return Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f), size, 0, SpriteMeshType.FullRect);
+    }
+
+    static Sprite GetWhiteSprite()
+    {
+        if (whiteSprite != null)
+        {
+            return whiteSprite;
+        }
+
+        Texture2D texture = new Texture2D(1, 1, TextureFormat.RGBA32, false);
+        texture.name = "UIBorderSparkEffectWhiteTexture";
+        texture.wrapMode = TextureWrapMode.Clamp;
+        texture.filterMode = FilterMode.Point;
+        texture.SetPixel(0, 0, Color.white);
+        texture.Apply();
+
+        whiteSprite = Sprite.Create(
+            texture,
+            new Rect(0f, 0f, 1f, 1f),
+            new Vector2(0.5f, 0.5f),
+            1f,
+            0,
+            SpriteMeshType.FullRect);
+        whiteSprite.name = "UIBorderSparkEffectWhiteSprite";
+        return whiteSprite;
     }
 
     void SetBorderSize(Image image, Vector2 sizeDelta, Vector2 anchoredPosition)

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class NpcTradeAgent : MonoBehaviour
 {
@@ -52,6 +52,11 @@ public class NpcTradeAgent : MonoBehaviour
     {
         if (NpcRoleUtility.IsDead(gameObject) ||
             NpcRoleUtility.IsInCombat(gameObject))
+        {
+            return;
+        }
+
+        if (!NpcScheduleController.AllowsTrade(gameObject))
         {
             return;
         }

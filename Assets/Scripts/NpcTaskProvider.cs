@@ -857,6 +857,7 @@ public class NpcTaskProvider : MonoBehaviour
         }
 
         if (serveMeals &&
+            NpcScheduleController.AllowsActivity(npc, NpcScheduleActivity.Eat) &&
             NeedsMeal(npc) &&
             NpcEconomy.GetNpcMoney(npc) >= mealCost)
         {
@@ -865,6 +866,7 @@ public class NpcTaskProvider : MonoBehaviour
         }
 
         if (provideTasks &&
+            NpcScheduleController.AllowsTask(npc) &&
             offers != null &&
             offers.Length > 0)
         {
@@ -888,6 +890,7 @@ public class NpcTaskProvider : MonoBehaviour
             npc == gameObject ||
             HasBusyNpc(npc) ||
             NpcRoleUtility.IsDead(npc) ||
+            !NpcScheduleController.AllowsTask(npc) ||
             !CanNpcAcceptOffer(npc, offer))
         {
             return false;
@@ -1038,6 +1041,7 @@ public class NpcTaskProvider : MonoBehaviour
             if (npc == null ||
                 npc == gameObject ||
                 HasBusyNpc(npc) ||
+                !NpcScheduleController.AllowsActivity(npc, NpcScheduleActivity.Eat) ||
                 !NeedsMeal(npc) ||
                 NpcEconomy.GetNpcMoney(npc) < mealCost)
             {
@@ -1070,7 +1074,8 @@ public class NpcTaskProvider : MonoBehaviour
 
             if (npc == null ||
                 npc == gameObject ||
-                HasBusyNpc(npc))
+                HasBusyNpc(npc) ||
+                !NpcScheduleController.AllowsTask(npc))
             {
                 continue;
             }
@@ -1174,6 +1179,7 @@ public class NpcTaskProvider : MonoBehaviour
             npc == gameObject ||
             HasBusyNpc(npc) ||
             NpcRoleUtility.IsDead(npc) ||
+            !NpcScheduleController.AllowsTask(npc) ||
             !CanNpcAcceptOffer(npc, offer))
         {
             return false;
@@ -5561,6 +5567,11 @@ public class NpcTaskProvider : MonoBehaviour
         return new Vector2(
             direction.x * cos - direction.y * sin,
             direction.x * sin + direction.y * cos);
+    }
+
+    void OnNpcMapTeleported()
+    {
+        OnNpcMapTeleported(null);
     }
 
     void OnNpcMapTeleported(GameObject gateObject)

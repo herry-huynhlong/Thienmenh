@@ -87,9 +87,29 @@ public class NpcAlchemyAgent : MonoBehaviour
     void Awake()
     {
         EnsureReferences();
+        EnsureScheduleController();
         EnsureVisualAnimation();
         SnapToWorkSpotIfNeeded();
         ApplyAlchemyFacing();
+    }
+
+    void EnsureScheduleController()
+    {
+        NpcScheduleController schedule =
+            GetComponent<NpcScheduleController>();
+
+        if (schedule == null)
+        {
+            schedule = gameObject.AddComponent<NpcScheduleController>();
+        }
+
+        schedule.lifePath = NpcLifePath.Cultivator;
+        schedule.canCultivate = true;
+
+        if (schedule.autoBuildDefaultSchedule)
+        {
+            schedule.RebuildDefaultSchedule();
+        }
     }
 
     void Start()
@@ -140,17 +160,27 @@ public class NpcAlchemyAgent : MonoBehaviour
 
         checkTimer = 0f;
 
-        if (autoSellFinishedGoods && TrySellFinishedGoods())
+        bool canTradeNow =
+            NpcScheduleController.AllowsTrade(gameObject);
+        bool canAlchemyNow =
+            NpcScheduleController.AllowsAlchemy(gameObject);
+
+        if (autoSellFinishedGoods &&
+            canTradeNow &&
+            TrySellFinishedGoods())
         {
             return;
         }
 
-        if (autoAlchemy && TryStartAnyAlchemy())
+        if (autoAlchemy &&
+            canAlchemyNow &&
+            TryStartAnyAlchemy())
         {
             return;
         }
 
         if (autoBuyMaterialsFromMarketTraders &&
+            canTradeNow &&
             NeedsMoreMaterials())
         {
             currentAction = NpcText.Action("goMarketTrade");
@@ -158,6 +188,11 @@ public class NpcAlchemyAgent : MonoBehaviour
             NpcRoleUtility.SetAction(
                 gameObject,
                 currentAction);
+            return;
+        }
+
+        if (!canTradeNow && !canAlchemyNow)
+        {
             return;
         }
 

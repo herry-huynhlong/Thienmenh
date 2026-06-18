@@ -112,9 +112,29 @@ public class NpcForgeAgent : MonoBehaviour
     void Awake()
     {
         EnsureReferences();
+        EnsureScheduleController();
         EnsureVisualAnimation();
         SnapToWorkSpotIfNeeded();
         ApplyForgeFacing();
+    }
+
+    void EnsureScheduleController()
+    {
+        NpcScheduleController schedule =
+            GetComponent<NpcScheduleController>();
+
+        if (schedule == null)
+        {
+            schedule = gameObject.AddComponent<NpcScheduleController>();
+        }
+
+        schedule.lifePath = NpcLifePath.Cultivator;
+        schedule.canCultivate = true;
+
+        if (schedule.autoBuildDefaultSchedule)
+        {
+            schedule.RebuildDefaultSchedule();
+        }
     }
 
     void Start()
@@ -164,17 +184,27 @@ public class NpcForgeAgent : MonoBehaviour
 
         checkTimer = 0f;
 
-        if (autoSellFinishedGoods && TrySellFinishedGoods())
+        bool canTradeNow =
+            NpcScheduleController.AllowsTrade(gameObject);
+        bool canForgeNow =
+            NpcScheduleController.AllowsForge(gameObject);
+
+        if (autoSellFinishedGoods &&
+            canTradeNow &&
+            TrySellFinishedGoods())
         {
             return;
         }
 
-        if (autoForge && TryStartAnyForge())
+        if (autoForge &&
+            canForgeNow &&
+            TryStartAnyForge())
         {
             return;
         }
 
         if (autoBuyMaterialsFromMarketTraders &&
+            canTradeNow &&
             NeedsMoreMaterials())
         {
             currentAction = NpcText.Action("goMarketTrade");
@@ -182,6 +212,11 @@ public class NpcForgeAgent : MonoBehaviour
             NpcRoleUtility.SetAction(
                 gameObject,
                 currentAction);
+            return;
+        }
+
+        if (!canTradeNow && !canForgeNow)
+        {
             return;
         }
 

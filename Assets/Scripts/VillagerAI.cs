@@ -271,7 +271,6 @@ public class VillagerAI : MonoBehaviour, IDamageable
     NpcMapZone? movementTargetZone;
     bool hasWanderTarget;
     bool hasDirectMoveTarget;
-    bool movingToRoad;
     bool hasRoadPreference;
     bool prefersRoadForCurrentRoute;
     Vector3 roadPreferenceTarget;
@@ -312,6 +311,8 @@ public class VillagerAI : MonoBehaviour, IDamageable
     Vector3 currentEatTarget;
     Vector3 currentSellTarget;
     NpcMapZone? currentSellTargetZone;
+    NpcMapZone? resolvedTraderLocationZone;
+    NpcMapZone? resolvedSellLocationZone;
 
     bool hasWorkTarget;
     bool hasTradeTarget;
@@ -396,7 +397,35 @@ public class VillagerAI : MonoBehaviour, IDamageable
             currentHP = Mathf.Clamp(currentHP, 0, maxHP);
         }
 
+        EnsureScheduleController();
         ResolveInitialObstacleOverlap();
+    }
+
+    void EnsureScheduleController()
+    {
+        NpcScheduleController schedule =
+            GetComponent<NpcScheduleController>();
+
+        if (schedule == null)
+        {
+            schedule = gameObject.AddComponent<NpcScheduleController>();
+        }
+
+        if (realm > CultivationRealm.Mortal ||
+            IsCultivationCapableVillager())
+        {
+            schedule.lifePath = NpcLifePath.SemiCultivator;
+            schedule.canCultivate = true;
+        }
+        else
+        {
+            schedule.lifePath = NpcLifePath.Commoner;
+        }
+
+        if (schedule.autoBuildDefaultSchedule)
+        {
+            schedule.RebuildDefaultSchedule();
+        }
     }
 
     public void ForceHiddenAtHome(bool hidden)
@@ -959,6 +988,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (TryRunScheduledActivity())
+        {
+            return;
+        }
+
         if (ageGroup == VillagerAgeGroup.Adult &&
             job == VillagerJob.Trader)
         {
@@ -992,6 +1026,232 @@ public class VillagerAI : MonoBehaviour, IDamageable
         }
 
         ThinkAdult();
+    }
+
+    bool TryRunScheduledActivity()
+    {
+        NpcScheduleController schedule =
+            GetComponent<NpcScheduleController>();
+
+        if (schedule == null ||
+            !schedule.enforceSchedule)
+        {
+            return false;
+        }
+
+        NpcScheduleSlot slot = schedule.CurrentSlot;
+        NpcScheduleActivity activity = schedule.CurrentActivity;
+
+        if (slot == null)
+        {
+            return false;
+        }
+
+        if (slot.allowFatigueInterrupt && fatigue >= 85f)
+        {
+            GoHomeToRest();
+            return true;
+        }
+
+        if (slot.allowHungerInterrupt &&
+            NeedsFood() &&
+            hunger >= 80f)
+        {
+            GoEat();
+            return true;
+        }
+
+        switch (activity)
+        {
+            case NpcScheduleActivity.Sleep:
+                GoHomeToRest();
+                return true;
+
+            case NpcScheduleActivity.Eat:
+                if (NeedsFood())
+                {
+                    GoEat();
+                }
+                else
+                {
+                    GoHomeIdle(NpcText.Action("idle"));
+                }
+                return true;
+
+            case NpcScheduleActivity.Work:
+                GoWorkOrCultivatorActivity();
+                return true;
+
+            case NpcScheduleActivity.SellGoods:
+                if (HasSellableGoods())
+                {
+                    GoSellGoods();
+                }
+                else
+                {
+                    GoTrade();
+                }
+                return true;
+
+            case NpcScheduleActivity.BuyGoods:
+                GoTrade();
+                return true;
+
+            case NpcScheduleActivity.Gather:
+                if (!TryScheduledGather())
+                {
+                    GoWorkOrCultivatorActivity();
+                }
+                return true;
+
+            case NpcScheduleActivity.Hunt:
+                GoWorkOrCultivatorActivity();
+                return true;
+
+            case NpcScheduleActivity.Cultivate:
+                if (schedule.canCultivate ||
+                    IsCultivationCapableVillager())
+                {
+                    if (schedule.HasCompletedCurrentSlotActivity(
+                            NpcScheduleActivity.Cultivate))
+                    {
+                        ClearCompletedCultivationAction();
+                        return true;
+                    }
+
+                    if (schedule.HasStartedCurrentSlotActivity(
+                            NpcScheduleActivity.Cultivate))
+                    {
+                        if (currentAction == NpcText.Action("goHomeCultivate") ||
+                            currentAction == NpcText.Action("goCultivatePoint"))
+                        {
+                            if (currentTarget != null ||
+                                hasDirectMoveTarget ||
+                                hasWanderTarget)
+                            {
+                                return true;
+                            }
+
+                            CultivateNaturally();
+                            return true;
+                        }
+
+                        if (actionTimer > 0f)
+                        {
+                            return true;
+                        }
+
+                        schedule.MarkCurrentSlotActivityCompleted(
+                            NpcScheduleActivity.Cultivate);
+                        ClearCompletedCultivationAction();
+                        return true;
+                    }
+
+                    CultivateNaturally();
+                    if (currentAction == NpcText.Action("goHomeCultivate") ||
+                        currentAction == NpcText.Action("goCultivatePoint") ||
+                        currentAction == NpcText.Action("cultivate") ||
+                        currentAction == NpcText.Action("cultivateAbsorbQi"))
+                    {
+                        schedule.MarkCurrentSlotActivityStarted(
+                            NpcScheduleActivity.Cultivate);
+                    }
+                }
+                else
+                {
+                    GoHomeIdle(NpcText.Action("idle"));
+                }
+                return true;
+
+            case NpcScheduleActivity.TakeTask:
+                TryScheduledTaskOrWait();
+                return true;
+
+            case NpcScheduleActivity.ReturnHome:
+                GoHomeIdle(NpcText.Action("stayNearHome"));
+                return true;
+
+            default:
+                GoHomeIdle(NpcText.Action("idle"));
+                return true;
+        }
+    }
+
+    bool TryScheduledGather()
+    {
+        NpcScheduleController schedule =
+            NpcScheduleController.GetSchedule(gameObject);
+        if (schedule != null &&
+            schedule.enforceSchedule &&
+            (schedule.HasStartedCurrentSlotActivity(NpcScheduleActivity.Gather) ||
+            schedule.HasCompletedCurrentSlotActivity(NpcScheduleActivity.Gather)))
+        {
+            return true;
+        }
+
+        NpcResourceGatherer gatherer = GetComponent<NpcResourceGatherer>();
+        if (gatherer != null &&
+            gatherer.enabled &&
+            gatherer.canGather &&
+            gatherer.TryStartGatheringNow())
+        {
+            return true;
+        }
+
+        if (NpcLocationArea.TryGetPosition(
+                gameObject,
+                NpcScheduleActivity.Gather,
+                job,
+                NpcLocationPurpose.Resource,
+                transform.position,
+                out Vector3 resourcePosition,
+                out NpcMapZone? resourceZone))
+        {
+            currentAction = NpcText.Action("gatherResource");
+            MoveUsingRoad(resourcePosition, resourceZone);
+            if (schedule != null)
+            {
+                schedule.MarkCurrentSlotActivityStarted(
+                    NpcScheduleActivity.Gather);
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    void TryScheduledTaskOrWait()
+    {
+        NpcTaskProvider provider =
+            NpcTaskProvider.FindNearestProvider(transform.position);
+
+        if (provider == null)
+        {
+            GoHomeIdle(NpcText.Action("noTrade"));
+            return;
+        }
+
+        Vector3 providerPosition =
+            provider.GetProviderPositionFor(gameObject);
+
+        currentAction = NpcText.Action("goTaskProviderDaily");
+
+        if (Vector2.Distance(transform.position, providerPosition) > arriveDistance)
+        {
+            MoveUsingRoad(
+                providerPosition,
+                NpcMapNavigator.GetDestinationZone(provider.transform));
+            return;
+        }
+
+        ClearMovementTargets();
+        StopMoving();
+
+        if (!provider.TryHandleVisitor(gameObject))
+        {
+            actionTimer = Mathf.Max(thinkInterval, 2f);
+            currentAction = NpcText.Action("visitedTaskProvider");
+        }
     }
 
     void ThinkTrader()
@@ -1500,6 +1760,13 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (actionTimer > 0f &&
+            (currentAction == NpcText.Action("cultivate") ||
+            currentAction == NpcText.Action("cultivateAbsorbQi")))
+        {
+            return;
+        }
+
         if (TryGoHomeForCultivation())
         {
             return;
@@ -1530,6 +1797,24 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         actionTimer = Mathf.Max(thinkInterval, cultivateSeconds);
         currentAction = NpcText.Action("cultivateAbsorbQi");
+
+    }
+
+    void ClearCompletedCultivationAction()
+    {
+        if (actionTimer > 0f)
+        {
+            return;
+        }
+
+        if (currentAction == NpcText.Action("cultivate") ||
+            currentAction == NpcText.Action("cultivateAbsorbQi"))
+        {
+            currentAction = "";
+            UpdateCultivationEffect(false);
+        }
+
+        StopMoving();
     }
 
     bool IsCultivationCapableVillager()
@@ -1683,9 +1968,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
             action == NpcText.Action("goVanBaoLauTask") ||
             action == NpcText.Action("checkedVanBaoLau") ||
             action == NpcText.Action("goHomeCultivate") ||
-            action == NpcText.Action("goCultivatePoint") ||
-            action == NpcText.Action("cultivate") ||
-            action == NpcText.Action("cultivateAbsorbQi");
+            action == NpcText.Action("goCultivatePoint");
     }
 
     bool TryGoHomeForCultivation()
@@ -1724,7 +2007,6 @@ public class VillagerAI : MonoBehaviour, IDamageable
         hasEatTarget = false;
         hasSellTarget = false;
         currentSellTargetZone = null;
-        movingToRoad = false;
         hasRoadPreference = false;
     }
 
@@ -2419,7 +2701,8 @@ void GoWork()
     }
 
     NpcResourceGatherer gatherer = GetComponent<NpcResourceGatherer>();
-    if (gatherer != null &&
+    if (job != VillagerJob.Farmer &&
+        gatherer != null &&
         gatherer.enabled &&
         gatherer.canGather &&
         gatherer.TryStartGatheringNow())
@@ -2903,16 +3186,33 @@ void GoWork()
             return broker.GetCustomerPositionFor(gameObject);
         }
 
+        if (NpcLocationArea.TryGetPosition(
+                gameObject,
+                NpcScheduleActivity.BuyGoods,
+                job,
+                NpcLocationPurpose.Market,
+                transform.position,
+                out Vector3 registryMarket,
+                out resolvedTraderLocationZone))
+        {
+            return registryMarket;
+        }
+
         if (marketPoint != null)
         {
+            resolvedTraderLocationZone =
+                NpcMapNavigator.GetDestinationZone(marketPoint);
             return marketPoint.position;
         }
 
         if (workPoint != null)
         {
+            resolvedTraderLocationZone =
+                NpcMapNavigator.GetDestinationZone(workPoint);
             return workPoint.position;
         }
 
+        resolvedTraderLocationZone = null;
         return GetMarketPosition(GetFallbackActivityPosition());
     }
 
@@ -2923,6 +3223,11 @@ void GoWork()
         {
             NpcMapZone? brokerZone = NpcMapNavigator.GetDestinationZone(broker.transform);
             return brokerZone.HasValue ? brokerZone : NpcMapZone.VanBaoLau;
+        }
+
+        if (resolvedTraderLocationZone.HasValue)
+        {
+            return resolvedTraderLocationZone;
         }
 
         NpcMapZone? marketZone = NpcMapNavigator.GetDestinationZone(marketPoint);
@@ -2944,6 +3249,19 @@ void GoWork()
             return broker.GetCustomerPositionFor(gameObject);
         }
 
+        if (NpcLocationArea.TryGetPosition(
+                gameObject,
+                NpcScheduleActivity.SellGoods,
+                job,
+                NpcLocationPurpose.SellGoods,
+                transform.position,
+                out Vector3 registrySell,
+                out resolvedSellLocationZone))
+        {
+            return registrySell;
+        }
+
+        resolvedSellLocationZone = null;
         return GetMarketPosition(
             marketPoint != null
             ? marketPoint.position
@@ -2963,6 +3281,11 @@ void GoWork()
             return brokerZone.HasValue
                 ? brokerZone
                 : NpcMapZone.VanBaoLau;
+        }
+
+        if (resolvedSellLocationZone.HasValue)
+        {
+            return resolvedSellLocationZone;
         }
 
         return NpcMapNavigator.GetDestinationZone(marketPoint);
@@ -3697,6 +4020,12 @@ void GoWork()
             ? NpcText.ActionFormat("goGatherNamed", ItemText.Name(item))
             : NpcText.Action("gatherVillageResource");
 
+        if (currentTarget == target &&
+            currentAction == action)
+        {
+            return;
+        }
+
         SetTarget(target, action);
     }
 
@@ -3827,6 +4156,19 @@ void GoWork()
 
     Vector3 GetWorkPointPosition(VillagerJob targetJob)
     {
+        if (NpcLocationArea.TryGetPosition(
+                gameObject,
+                NpcScheduleActivity.Work,
+                targetJob,
+                GetWorkLocationPurpose(targetJob),
+                transform.position,
+                out Vector3 registryWorkPoint,
+                out NpcMapZone? registryWorkZone))
+        {
+            currentWorkTargetZone = registryWorkZone;
+            return registryWorkPoint;
+        }
+
         if (workPoint == null)
         {
             return Vector3.zero;
@@ -3839,6 +4181,21 @@ void GoWork()
         }
 
         return GetDistributedPointAround(workPoint.position, workPoint);
+    }
+
+    NpcLocationPurpose GetWorkLocationPurpose(VillagerJob targetJob)
+    {
+        switch (targetJob)
+        {
+            case VillagerJob.Farmer:
+                return NpcLocationPurpose.Farming;
+            case VillagerJob.Fisher:
+                return NpcLocationPurpose.Fishing;
+            case VillagerJob.Hunter:
+                return NpcLocationPurpose.Hunt;
+            default:
+                return NpcLocationPurpose.Work;
+        }
     }
 
     Vector3 GetDistributedPointAround(
@@ -3880,7 +4237,8 @@ void GoWork()
                 out routeAction);
 
             if (usingTeleportRoute &&
-                !string.IsNullOrEmpty(routeAction))
+                !string.IsNullOrEmpty(routeAction) &&
+                CanRouteActionReplaceCurrentAction())
             {
                 currentAction = routeAction;
             }
@@ -3893,7 +4251,6 @@ void GoWork()
 
             if (ShouldBypassRoad())
             {
-                movingToRoad = false;
                 hasRoadPreference = false;
                 MoveToPosition(target, targetZone);
                 return;
@@ -3907,7 +4264,6 @@ void GoWork()
                     ShouldForceRoadForCurrentAction() ||
                     Random.value < roadPreferenceChance;
                 hasRoadPreference = true;
-                movingToRoad = false;
             }
 
             if (!prefersRoadForCurrentRoute)
@@ -3940,7 +4296,10 @@ void GoWork()
             {
                 MoveToPosition(roadWaypoint, targetZone);
 
-                currentAction = NpcText.Action("walkingRoad");
+                if (CanRouteActionReplaceCurrentAction())
+                {
+                    currentAction = NpcText.Action("walkingRoad");
+                }
 
                 return;
             }
@@ -3949,7 +4308,6 @@ void GoWork()
 
             if (Vector2.Distance(transform.position, target) < 0.4f)
             {
-                movingToRoad = false;
                 hasRoadPreference = false;
             }
         }
@@ -3957,6 +4315,14 @@ void GoWork()
         {
             movementTargetZone = previousMovementTargetZone;
         }
+    }
+
+    bool CanRouteActionReplaceCurrentAction()
+    {
+        return string.IsNullOrEmpty(currentAction) ||
+            currentAction == NpcText.Action("idle") ||
+            currentAction == NpcText.Action("walkingRoad") ||
+            currentAction.StartsWith("Đi cổng dịch chuyển");
     }
 
     bool TryForgePurchaseAtMarket()
@@ -4669,6 +5035,11 @@ void GoWork()
         return false;
     }
 
+    void OnNpcMapTeleported()
+    {
+        OnNpcMapTeleported(null);
+    }
+
     void OnNpcMapTeleported(GameObject gateObject)
     {
         NpcTeleportGate gate = gateObject != null
@@ -4713,7 +5084,6 @@ void GoWork()
         treasureWaitLowPowerSkirmish = false;
         hasRoadPreference = false;
         prefersRoadForCurrentRoute = false;
-        movingToRoad = false;
         hasObstacleAvoidTarget = false;
         movementTargetZone = null;
         movementPausedUntil = 0f;
@@ -4803,7 +5173,6 @@ void GoWork()
         ClearActivePath();
         hasObstacleAvoidTarget = false;
         hasRoadPreference = false;
-        movingToRoad = false;
         SetDirectMoveTarget(escapeTarget);
         stuckMoveTimer = 0f;
         lastUnstuckPosition = transform.position;
@@ -5317,7 +5686,6 @@ void GoWork()
                 desiredVelocity =
                     toCandidate.normalized *
                     moveSpeed;
-                currentAction = NpcText.Action("avoidObstacle");
                 return true;
             }
         }
@@ -5360,7 +5728,6 @@ void GoWork()
         hasObstacleAvoidTarget = true;
         blockedMoveTimer = 0f;
         desiredVelocity = desired * moveSpeed;
-        currentAction = NpcText.Action("avoidObstacle");
         return true;
     }
 
@@ -5465,7 +5832,6 @@ void GoWork()
                 hasObstacleAvoidTarget = true;
                 blockedMoveTimer = 0f;
                 desiredVelocity = toCandidate.normalized * moveSpeed;
-                currentAction = NpcText.Action("avoidObstacle");
                 return true;
             }
         }

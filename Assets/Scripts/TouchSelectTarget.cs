@@ -898,7 +898,7 @@ public class TouchSelectTarget : MonoBehaviour
                 GetTargetJob(target));
 
         hasAnyDetail |=
-            SetValueText(
+            SetOptionalValueText(
                 statusText,
                 FormatTargetActionText(target));
 
@@ -1511,7 +1511,7 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (string.IsNullOrWhiteSpace(action))
         {
-            return "-";
+            return "";
         }
 
         if (action.StartsWith("đang", StringComparison.OrdinalIgnoreCase) ||
@@ -1551,6 +1551,26 @@ public class TouchSelectTarget : MonoBehaviour
             : value;
         text.raycastTarget = false;
         text.gameObject.SetActive(true);
+        return true;
+    }
+
+    bool SetOptionalValueText(
+        TMP_Text text,
+        string value)
+    {
+        if (text == null)
+        {
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            text.text = "";
+            text.gameObject.SetActive(false);
+            return false;
+        }
+
+        SetValueText(text, value);
         return true;
     }
 
@@ -2102,7 +2122,7 @@ public class TouchSelectTarget : MonoBehaviour
     {
         return target.GetComponent<MonsterAI>() != null ||
             target.GetComponent<BicanhBoneMonsterAI>() != null ||
-            target.CompareTag("Monster") ||
+            HasTag(target, "Monster") ||
             target.name.IndexOf("monster", StringComparison.OrdinalIgnoreCase) >= 0 ||
             target.name.IndexOf("monter", StringComparison.OrdinalIgnoreCase) >= 0;
     }
@@ -2112,9 +2132,20 @@ public class TouchSelectTarget : MonoBehaviour
         return target.GetComponent<SmartNpcAI>() != null ||
             target.GetComponent<VillagerAI>() != null ||
             target.GetComponent<CharacterStats>() != null ||
-            target.CompareTag("NPC") ||
-            target.CompareTag("Npc") ||
+            HasTag(target, "NPC") ||
+            HasTag(target, "Npc") ||
             target.name.IndexOf("npc", StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    static bool HasTag(Transform target, string tagName)
+    {
+        if (target == null ||
+            string.IsNullOrEmpty(tagName))
+        {
+            return false;
+        }
+
+        return target.gameObject.tag == tagName;
     }
 
     static void LoadPortraitIcons()
@@ -2830,7 +2861,7 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (villager != null)
         {
-            return villager.currentAction;
+            return GetDisplayAction(villager.currentAction);
         }
 
         SmartNpcAI smartNpc =
@@ -2838,7 +2869,7 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (smartNpc != null)
         {
-            return smartNpc.currentAction;
+            return GetDisplayAction(smartNpc.currentAction);
         }
 
         MonsterAI monster =
@@ -2846,10 +2877,22 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (monster != null)
         {
-            return monster.currentAction;
+            return GetDisplayAction(monster.currentAction);
         }
 
         return "";
+    }
+
+    string GetDisplayAction(string action)
+    {
+        if (string.IsNullOrEmpty(action) ||
+            action == NpcText.Action("idle") ||
+            action == NpcText.Action("avoidObstacle"))
+        {
+            return "";
+        }
+
+        return action;
     }
 
     void UpdateTargetHeader(Transform target)
@@ -3340,7 +3383,11 @@ public class TouchSelectTarget : MonoBehaviour
             builder.Append(manuals);
         }
 
-        builder.AppendLine(NpcText.Label("action") + ": " + GetTargetAction(target));
+        string action = GetTargetAction(target);
+        if (!string.IsNullOrEmpty(action))
+        {
+            builder.AppendLine(NpcText.Label("action") + ": " + action);
+        }
 
         return builder.ToString().TrimEnd();
     }

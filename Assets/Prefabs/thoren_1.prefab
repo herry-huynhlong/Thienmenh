@@ -805,6 +805,7 @@ MonoBehaviour:
     m_Bits: 4294967295
   obstacleCheckDistance: 0.35
   targetClearRadius: 0.25
+  navigationClearancePadding: 0.16
   obstacleScanDistance: 8
   obstacleScanStep: 0.35
   maxPickTargetAttempts: 16
@@ -832,6 +833,8 @@ MonoBehaviour:
   autonomousResourceWorkEnabled: 0
   autonomousDangerousWorkEnabled: 0
   dailyVanBaoLauVisitEnabled: 1
+  staggerDailyVanBaoLauVisits: 1
+  dailyVanBaoLauVisitStaggerHours: 2
   dailyTaskPlanEnabled: 1
   dailyTaskPlanStartupDelay: 2
   dailyTaskPlanMinTasks: 3

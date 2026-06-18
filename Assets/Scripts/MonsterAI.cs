@@ -151,7 +151,6 @@ public class MonsterAI : MonoBehaviour, IDamageable
     StatItemData treasureHuntItem;
     bool waitingOutsideTreasureLightning;
     Vector3 treasureWaitPosition;
-    bool hasTreasureWaitPosition;
 
     float naturalCultivationRemainder;
 
@@ -968,7 +967,6 @@ public class MonsterAI : MonoBehaviour, IDamageable
         treasureWaitPosition =
             origin +
             (Vector3)away.normalized * Mathf.Max(0.5f, safeRadius);
-        hasTreasureWaitPosition = true;
         string itemName = ItemText.Name(item);
         currentAction = lowPowerSkirmish
             ? "Hon chien vong ngoai " + itemName
@@ -984,7 +982,6 @@ public class MonsterAI : MonoBehaviour, IDamageable
         }
 
         waitingOutsideTreasureLightning = false;
-        hasTreasureWaitPosition = false;
         treasureHuntTarget = target;
         treasureHuntItem = item;
         ClearCurrentTarget();
@@ -999,7 +996,6 @@ public class MonsterAI : MonoBehaviour, IDamageable
         }
 
         waitingOutsideTreasureLightning = false;
-        hasTreasureWaitPosition = false;
         treasureHuntTarget = null;
         treasureHuntItem = null;
         desiredVelocity = Vector2.zero;

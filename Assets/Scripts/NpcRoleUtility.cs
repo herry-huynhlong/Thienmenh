@@ -348,7 +348,8 @@ public static class NpcRoleUtility
                 out usingTeleportRoute,
                 out routeAction);
 
-        if (usingTeleportRoute)
+        if (usingTeleportRoute &&
+            CanRouteActionReplaceCurrentAction(npc))
         {
             SetAction(npc, routeAction);
         }
@@ -358,7 +359,16 @@ public static class NpcRoleUtility
             Vector3.MoveTowards(
                 npc.transform.position,
                 moveTarget,
-                speed * Time.deltaTime);
+            speed * Time.deltaTime);
+    }
+
+    static bool CanRouteActionReplaceCurrentAction(GameObject npc)
+    {
+        string action = GetCurrentAction(npc);
+        return string.IsNullOrEmpty(action) ||
+            action == NpcText.Action("idle") ||
+            action == NpcText.Action("walkingRoad") ||
+            action.StartsWith("Đi cổng dịch chuyển");
     }
 
     public static void StopForConversation(GameObject npc)

@@ -211,7 +211,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     public Transform farmPoint;
 
     [Header("Trang thai hien tai")]
-    public string currentAction = "idle";
+    public string currentAction = "";
 
     [Header("Hieu ung tu luyen")]
     public GameObject cultivationEffectPrefab;
@@ -240,7 +240,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     void Start()
     {
         ignoreNpcBodyCollisions = true;
-        currentAction = NpcText.Action("idle");
+        currentAction = "";
         visualAnimation = NPCVisualAnimation.EnsureOn(gameObject);
         ItemInventory inventory = GetComponent<ItemInventory>();
         if (inventory == null)
@@ -296,8 +296,28 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             ApplyRealmPower(!appliedProfile);
         }
 
+        EnsureScheduleController();
         SyncCultivationEffect();
         ResolveInitialObstacleOverlap();
+    }
+
+    void EnsureScheduleController()
+    {
+        NpcScheduleController schedule =
+            GetComponent<NpcScheduleController>();
+
+        if (schedule == null)
+        {
+            schedule = gameObject.AddComponent<NpcScheduleController>();
+        }
+
+        schedule.lifePath = NpcLifePath.Cultivator;
+        schedule.canCultivate = canCultivate;
+
+        if (schedule.autoBuildDefaultSchedule)
+        {
+            schedule.RebuildDefaultSchedule();
+        }
     }
 
 #if UNITY_EDITOR
@@ -608,6 +628,10 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             desiredTarget = currentTarget.position;
             hasWanderTarget = false;
         }
+        else if (hasWanderTarget)
+        {
+            desiredTarget = wanderTarget;
+        }
         else
         {
             if (currentAction == NpcText.Action("goTaskProviderDaily"))
@@ -647,7 +671,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
             if (!IsStationaryAction(currentAction))
             {
-                currentAction = NpcText.Action("idle");
+                currentAction = "";
             }
 
             return;
@@ -757,6 +781,22 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (currentTarget == null &&
+            hasWanderTarget &&
+            Vector2.Distance(transform.position, desiredTarget) <= escapeTargetReachDistance)
+        {
+            hasWanderTarget = false;
+            hasEscapeTarget = false;
+            hasObstacleAvoidTarget = false;
+
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+
+            return;
+        }
+
         Vector2 direction =
             (moveTarget -
             transform.position).normalized;
@@ -819,6 +859,11 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         NpcCollisionRegistry.Unregister(this);
     }
 
+    void OnNpcMapTeleported()
+    {
+        OnNpcMapTeleported(null);
+    }
+
     void OnNpcMapTeleported(GameObject gateObject)
     {
         spawnPosition = transform.position;       // Đặt lại điểm gốc di chuyển tại map mới
@@ -835,12 +880,12 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         hasObstacleAvoidTarget = false;
         movementPausedUntil = 0f;
         crowdYieldUntil = 0f;
-        postTeleportRecoveryUntil = Time.time + 2.5f;
+        postTeleportRecoveryUntil = Time.time + 5f;
         stuckMoveTimer = 0f;
         blockedMoveTimer = 0f;
         actionTimer = 0f;
         thinkTimer = 0f;
-        currentAction = NpcText.Action("idle");
+        currentAction = "";
 
         NpcTeleportGate gate = gateObject != null
             ? gateObject.GetComponent<NpcTeleportGate>()
@@ -1389,7 +1434,6 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             currentAction == NpcText.Action("guardSpiritHerbMonster") ||
             currentAction == NpcText.Action("fightBlockingMonster") ||
             currentAction == NpcText.Action("clearHarvestMonster") ||
-            currentAction == NpcText.Action("avoidObstacle") ||
             currentAction == NpcText.Action("treasureHuntNamed") ||
             currentAction == NpcText.Action("outerSkirmishNamed");
     }
@@ -1757,7 +1801,6 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         obstacleAvoidUntil = Time.time + 1.1f;
         hasObstacleAvoidTarget = true;
         blockedMoveTimer = 0f;
-        currentAction = NpcText.Action("avoidObstacle");
         return true;
     }
 
@@ -1910,7 +1953,6 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             obstacleAvoidUntil = Time.time + 1f;
             hasObstacleAvoidTarget = true;
             hasEscapeTarget = false;
-            currentAction = NpcText.Action("avoidObstacle");
         }
     }
 
@@ -2370,6 +2412,11 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (TryRunScheduledActivity())
+        {
+            return;
+        }
+
         WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
         if (timeSystem != null)
         {
@@ -2499,7 +2546,166 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             rb.linearVelocity = Vector2.zero;
         }
 
-        currentAction = NpcText.Action("idle");
+        currentAction = "";
+    }
+
+    bool TryRunScheduledActivity()
+    {
+        NpcScheduleController schedule =
+            GetComponent<NpcScheduleController>();
+
+        if (schedule == null ||
+            !schedule.enforceSchedule)
+        {
+            return false;
+        }
+
+        NpcScheduleSlot slot = schedule.CurrentSlot;
+        NpcScheduleActivity activity = schedule.CurrentActivity;
+
+        if (slot == null)
+        {
+            return false;
+        }
+
+        if (canLive &&
+            slot.allowHungerInterrupt &&
+            NeedsFood() &&
+            hunger >= 90f)
+        {
+            Eat();
+            return true;
+        }
+
+        if (canLive &&
+            !IgnoresMortalNeeds() &&
+            slot.allowFatigueInterrupt &&
+            fatigue >= 90f)
+        {
+            Sleep();
+            return true;
+        }
+
+        switch (activity)
+        {
+            case NpcScheduleActivity.Cultivate:
+                if (canCultivate)
+                {
+                    if (schedule.HasCompletedCurrentSlotActivity(
+                            NpcScheduleActivity.Cultivate))
+                    {
+                        ClearCompletedCultivationAction();
+                        return true;
+                    }
+
+                    if (schedule.HasStartedCurrentSlotActivity(
+                            NpcScheduleActivity.Cultivate))
+                    {
+                        if (currentAction == NpcText.Action("goCultivatePoint"))
+                        {
+                            if (currentTarget != null ||
+                                hasWanderTarget ||
+                                hasHomeReturnTarget)
+                            {
+                                return true;
+                            }
+
+                            CultivateNaturally();
+                            return true;
+                        }
+
+                        if (actionTimer > 0f)
+                        {
+                            return true;
+                        }
+
+                        schedule.MarkCurrentSlotActivityCompleted(
+                            NpcScheduleActivity.Cultivate);
+                        ClearCompletedCultivationAction();
+                        return true;
+                    }
+
+                    CultivateNaturally();
+                    if (currentAction == NpcText.Action("goCultivatePoint") ||
+                        currentAction == NpcText.Action("cultivate") ||
+                        currentAction == NpcText.Action("cultivateAbsorbQi"))
+                    {
+                        schedule.MarkCurrentSlotActivityStarted(
+                            NpcScheduleActivity.Cultivate);
+                    }
+                }
+                else
+                {
+                    StartIdleWander();
+                }
+                return true;
+
+            case NpcScheduleActivity.BuyGoods:
+                if (canTrade && money >= 50)
+                {
+                    GoToTavernAndBuyPill();
+                }
+                else if (canCultivate)
+                {
+                    CultivateNaturally();
+                }
+                else
+                {
+                    StartIdleWander();
+                }
+                return true;
+
+            case NpcScheduleActivity.SellGoods:
+                if (!TryStartSellGoodsRoutine())
+                {
+                    CultivateNaturally();
+                }
+                return true;
+
+            case NpcScheduleActivity.TakeTask:
+                if (!TryVisitTaskProvider())
+                {
+                    CultivateNaturally();
+                }
+                return true;
+
+            case NpcScheduleActivity.Gather:
+                if (!TryStartResourceGatheringRoutine())
+                {
+                    CultivateNaturally();
+                }
+                return true;
+
+            case NpcScheduleActivity.Hunt:
+                if (canFight)
+                {
+                    SearchMonster();
+                }
+                else
+                {
+                    CultivateNaturally();
+                }
+                return true;
+
+            case NpcScheduleActivity.Eat:
+                Eat();
+                return true;
+
+            case NpcScheduleActivity.Sleep:
+                if (IgnoresMortalNeeds())
+                {
+                    CultivateNaturally();
+                }
+                else
+                {
+                    Sleep();
+                }
+                return true;
+
+            default:
+                StartIdleWander();
+                return true;
+        }
     }
 
     void StartIdleWander()
@@ -2514,7 +2720,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             Mathf.Max(
                 actionTimer,
                 GameHoursToSeconds(Random.Range(0.4f, 1.2f)));
-        currentAction = NpcText.Action("idle");
+        currentAction = "";
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
@@ -2589,7 +2795,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
                 else if (rb != null)
                 {
                     rb.linearVelocity = Vector2.zero;
-                    currentAction = NpcText.Action("idle");
+                    currentAction = "";
                 }
 
                 return true;
@@ -2617,7 +2823,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
                 else if (rb != null)
                 {
                     rb.linearVelocity = Vector2.zero;
-                    currentAction = NpcText.Action("idle");
+                    currentAction = "";
                 }
 
                 return true;
@@ -2659,7 +2865,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             rb.linearVelocity = Vector2.zero;
         }
 
-        currentAction = NpcText.Action("idle");
+        currentAction = "";
         return true;
     }
 
@@ -3036,6 +3242,13 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (actionTimer > 0f &&
+            (currentAction == NpcText.Action("cultivate") ||
+            currentAction == NpcText.Action("cultivateAbsorbQi")))
+        {
+            return;
+        }
+
         if (TryGoToCultivationPoint())
         {
             return;
@@ -3075,24 +3288,63 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
         actionTimer = Mathf.Max(actionTimer, cultivateSeconds);
         currentAction = NpcText.Action("cultivateAbsorbQi");
+
+    }
+
+    void ClearCompletedCultivationAction()
+    {
+        if (actionTimer > 0f)
+        {
+            return;
+        }
+
+        if (currentAction == NpcText.Action("cultivate") ||
+            currentAction == NpcText.Action("cultivateAbsorbQi"))
+        {
+            currentAction = "";
+            SyncCultivationEffect();
+        }
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
     }
 
     bool TryGoToCultivationPoint()
     {
-        if (IsInDungeonCombatSession() ||
-            cultivationPoint == null)
+        if (IsInDungeonCombatSession())
         {
             return false;
         }
 
-        Vector3 cultivationPosition = cultivationPoint.position;
+        Transform targetPoint = cultivationPoint;
+        Vector3 cultivationPosition =
+            targetPoint != null
+                ? targetPoint.position
+                : Vector3.zero;
+
+        if (targetPoint == null &&
+            !NpcLocationArea.TryGetPosition(
+                gameObject,
+                NpcScheduleActivity.Cultivate,
+                VillagerJob.None,
+                NpcLocationPurpose.Cultivation,
+                transform.position,
+                out cultivationPosition,
+                out _))
+        {
+            return false;
+        }
+
         if (Vector2.Distance(transform.position, cultivationPosition) <= escapeTargetReachDistance)
         {
             return false;
         }
 
-        currentTarget = cultivationPoint;
-        hasWanderTarget = false;
+        currentTarget = targetPoint;
+        wanderTarget = cultivationPosition;
+        hasWanderTarget = targetPoint == null;
         hasEscapeTarget = false;
         hasObstacleAvoidTarget = false;
         currentAction = NpcText.Action("goCultivatePoint");
@@ -3141,8 +3393,6 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         return action == NpcText.Action("goTaskProviderDaily") ||
             action == NpcText.Action("goHomeCultivate") ||
             action == NpcText.Action("goCultivatePoint") ||
-            action == NpcText.Action("cultivate") ||
-            action == NpcText.Action("cultivateAbsorbQi") ||
             action == NpcText.Action("goVanBaoLauBroker") ||
             action == NpcText.Action("goVanBaoLauTask") ||
             action == NpcText.Action("checkedVanBaoLau") ||
@@ -3163,7 +3413,6 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             action == NpcText.Action("guardSpiritHerbMonster") ||
             action == NpcText.Action("fightBlockingMonster") ||
             action == NpcText.Action("clearHarvestMonster") ||
-            action == NpcText.Action("avoidObstacle") ||
             action == NpcText.Action("treasureHuntNamed") ||
             action == NpcText.Action("outerSkirmishNamed") ||
             action == NpcText.Action("rest") ||
@@ -3198,7 +3447,6 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             action == NpcText.Action("guardSpiritHerbMonster") ||
             action == NpcText.Action("fightBlockingMonster") ||
             action == NpcText.Action("clearHarvestMonster") ||
-            action == NpcText.Action("avoidObstacle") ||
             action == NpcText.Action("treasureHuntNamed") ||
             action == NpcText.Action("outerSkirmishNamed");
     }
@@ -3362,7 +3610,21 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     void GoToTavernAndBuyPill()
     {
-        if (tavernPoint == null)
+        Transform buyTarget = tavernPoint;
+        Vector3 buyPosition =
+            buyTarget != null
+                ? buyTarget.position
+                : Vector3.zero;
+
+        if (buyTarget == null &&
+            !NpcLocationArea.TryGetPosition(
+                gameObject,
+                NpcScheduleActivity.BuyGoods,
+                VillagerJob.None,
+                NpcLocationPurpose.Market,
+                transform.position,
+                out buyPosition,
+                out _))
         {
             currentTarget = null;
             currentAction = NpcText.Action("calm");
@@ -3370,14 +3632,14 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         }
 
         currentAction = NpcText.Action("goTavern");
-
-        currentTarget =
-            tavernPoint;
+        currentTarget = buyTarget;
+        wanderTarget = buyPosition;
+        hasWanderTarget = buyTarget == null;
 
         float distance =
             Vector2.Distance(
                 transform.position,
-                tavernPoint.position);
+                buyPosition);
 
         if (distance < 1.5f)
         {
@@ -3436,6 +3698,21 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     float closestDistance =
         Mathf.Infinity;
 
+    bool hasHuntArea =
+        NpcLocationArea.TryGetPosition(
+            gameObject,
+            NpcScheduleActivity.Hunt,
+            VillagerJob.None,
+            NpcLocationPurpose.Hunt,
+            transform.position,
+            out Vector3 huntAreaPosition,
+            out _);
+
+    Vector3 huntOrigin =
+        hasHuntArea
+            ? huntAreaPosition
+            : spawnPosition;
+
     foreach (MonsterAI monster in monsters)
     {
         // Bo qua quai da chet.
@@ -3453,7 +3730,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         // Chi danh quai trong lanh dia cua NPC.
         float distanceFromSpawn =
             Vector2.Distance(
-                spawnPosition,
+                huntOrigin,
                 monster.transform.position);
 
         if (distanceFromSpawn >
@@ -3489,6 +3766,19 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             bestTarget.transform;
 
         currentAction = NpcText.ActionFormat("huntMonsterNamed", bestTarget.monsterName);
+        hasWanderTarget = false;
+        return;
+    }
+
+    if (hasHuntArea &&
+        Vector2.Distance(transform.position, huntAreaPosition) > escapeTargetReachDistance)
+    {
+        currentTarget = null;
+        wanderTarget = huntAreaPosition;
+        hasWanderTarget = true;
+        hasEscapeTarget = false;
+        hasObstacleAvoidTarget = false;
+        currentAction = NpcText.Action("goHunt");
     }
 }
 
@@ -3664,6 +3954,16 @@ bool ShouldFightMonster(
             return false;
         }
 
+        NpcScheduleController schedule =
+            NpcScheduleController.GetSchedule(gameObject);
+        if (schedule != null &&
+            schedule.enforceSchedule &&
+            (schedule.HasStartedCurrentSlotActivity(NpcScheduleActivity.Gather) ||
+            schedule.HasCompletedCurrentSlotActivity(NpcScheduleActivity.Gather)))
+        {
+            return true;
+        }
+
         if (resourceGatherer == null)
         {
             resourceGatherer = GetComponent<NpcResourceGatherer>();
@@ -3675,7 +3975,35 @@ bool ShouldFightMonster(
         }
 
         resourceGatherer.canGather = true;
-        return resourceGatherer.TryStartGatheringNow();
+        if (resourceGatherer.TryStartGatheringNow())
+        {
+            return true;
+        }
+
+        if (NpcLocationArea.TryGetPosition(
+                gameObject,
+                NpcScheduleActivity.Gather,
+                VillagerJob.None,
+                NpcLocationPurpose.Resource,
+                transform.position,
+                out Vector3 resourcePosition,
+                out _))
+        {
+            currentTarget = null;
+            wanderTarget = resourcePosition;
+            hasWanderTarget = true;
+            hasEscapeTarget = false;
+            hasObstacleAvoidTarget = false;
+            currentAction = NpcText.Action("gatherResource");
+            if (schedule != null)
+            {
+                schedule.MarkCurrentSlotActivityStarted(
+                    NpcScheduleActivity.Gather);
+            }
+            return true;
+        }
+
+        return false;
     }
 
     bool TryStartSellGoodsRoutine()

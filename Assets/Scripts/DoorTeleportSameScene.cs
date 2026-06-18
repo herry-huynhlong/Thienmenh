@@ -37,6 +37,13 @@ public class DoorTeleportSameScene : MonoBehaviour
 
     public bool TryTeleport(GameObject actor)
     {
+        return TryTeleport(actor, false);
+    }
+
+    public bool TryTeleport(GameObject actor, bool allowNpcFromGate)
+    {
+        actor = ResolveActorRoot(actor);
+
         if (targetPoint == null ||
             actor == null)
         {
@@ -44,6 +51,13 @@ public class DoorTeleportSameScene : MonoBehaviour
         }
 
         if (!IsTeleportActor(actor))
+        {
+            return false;
+        }
+
+        if (!allowNpcFromGate &&
+            GetComponent<NpcTeleportGate>() != null &&
+            IsNpcActor(actor))
         {
             return false;
         }
@@ -56,9 +70,10 @@ public class DoorTeleportSameScene : MonoBehaviour
             return false;
         }
 
-        if (teleportCooldowns.TryGetValue(
-                actor,
-                out float nextTeleportTime) &&
+        if (!allowNpcFromGate &&
+            teleportCooldowns.TryGetValue(
+                    actor,
+                    out float nextTeleportTime) &&
             Time.time < nextTeleportTime)
         {
             return false;
@@ -97,15 +112,59 @@ public class DoorTeleportSameScene : MonoBehaviour
         }
 
         if (actor.CompareTag("Player") ||
-            actor.CompareTag("NPC"))
+            actor.tag == "NPC")
         {
             return true;
         }
 
-        return actor.GetComponent<VillagerAI>() != null ||
-            actor.GetComponent<SmartNpcAI>() != null ||
-            actor.GetComponent<NpcTradeAgent>() != null ||
-            actor.GetComponent<NpcTaskProvider>() != null;
+        return IsNpcActor(actor);
+    }
+
+    bool IsNpcActor(GameObject actor)
+    {
+        if (actor == null)
+        {
+            return false;
+        }
+
+        return actor.GetComponentInParent<VillagerAI>() != null ||
+            actor.GetComponentInParent<SmartNpcAI>() != null ||
+            actor.GetComponentInParent<NpcTradeAgent>() != null ||
+            actor.GetComponentInParent<NpcTaskProvider>() != null;
+    }
+
+    GameObject ResolveActorRoot(GameObject actor)
+    {
+        if (actor == null)
+        {
+            return null;
+        }
+
+        Rigidbody2D rb = actor.GetComponentInParent<Rigidbody2D>();
+        if (rb != null)
+        {
+            return rb.gameObject;
+        }
+
+        VillagerAI villager = actor.GetComponentInParent<VillagerAI>();
+        if (villager != null)
+        {
+            return villager.gameObject;
+        }
+
+        SmartNpcAI smartNpc = actor.GetComponentInParent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            return smartNpc.gameObject;
+        }
+
+        NpcMapMover2D mover = actor.GetComponentInParent<NpcMapMover2D>();
+        if (mover != null)
+        {
+            return mover.gameObject;
+        }
+
+        return actor;
     }
     void RefreshCameraBounds()
     {

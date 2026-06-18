@@ -10,6 +10,11 @@ public class NpcResourceGatherer : MonoBehaviour
     public float arriveDistance = 0.35f;
     public float retargetDistance = 0.75f;
     public float reservationDuration = 3f;
+    public float harvestBreakDistance = 2f;
+    public float harvestCooldownAfterSuccess = 45f;
+    public float harvestCooldownWhenNoTarget = 8f;
+    public bool limitHarvestsPerScheduleSlot = true;
+    public int maxHarvestsPerScheduleSlot = 1;
 
     [Header("Needs")]
     [Range(0f, 1f)]
@@ -24,6 +29,9 @@ public class NpcResourceGatherer : MonoBehaviour
     VillagerAI villager;
     NpcItemCollector collector;
     float scanTimer;
+    float nextGatherAllowedTime;
+    string scheduleSessionKey;
+    int harvestsThisScheduleSession;
 
     void Awake()
     {
@@ -47,6 +55,29 @@ public class NpcResourceGatherer : MonoBehaviour
             return;
         }
 
+        RefreshScheduleSession();
+
+        if (ShouldBlockFarmerWorkGathering())
+        {
+            ClearActiveGathering();
+            nextGatherAllowedTime =
+                Time.time + Mathf.Max(0f, harvestCooldownWhenNoTarget);
+            return;
+        }
+
+        if (IsScheduleHarvestLimitReached())
+        {
+            ClearActiveGathering();
+            return;
+        }
+
+        if (harvestingPickup == null &&
+            targetPickup == null &&
+            !NpcScheduleController.AllowsGather(gameObject))
+        {
+            return;
+        }
+
         if (harvestingPickup != null)
         {
             ContinueHarvest();
@@ -57,6 +88,11 @@ public class NpcResourceGatherer : MonoBehaviour
             IsPickupAvailable(targetPickup))
         {
             MoveToTarget();
+            return;
+        }
+
+        if (Time.time < nextGatherAllowedTime)
+        {
             return;
         }
 
@@ -89,20 +125,55 @@ public class NpcResourceGatherer : MonoBehaviour
     {
         if (!canGather ||
             collector == null ||
-            !collector.canPickupItems)
+            !collector.canPickupItems ||
+            !NpcScheduleController.AllowsGather(gameObject))
         {
             return false;
         }
 
-        if (harvestingPickup != null ||
-            (targetPickup != null && IsPickupAvailable(targetPickup)))
+        RefreshScheduleSession();
+
+        if (ShouldBlockFarmerWorkGathering())
+        {
+            ClearActiveGathering();
+            nextGatherAllowedTime =
+                Time.time + Mathf.Max(0f, harvestCooldownWhenNoTarget);
+            return false;
+        }
+
+        if (IsScheduleHarvestLimitReached())
+        {
+            ClearActiveGathering();
+            return false;
+        }
+
+        if (Time.time < nextGatherAllowedTime &&
+            harvestingPickup == null &&
+            targetPickup == null)
+        {
+            return false;
+        }
+
+        if (harvestingPickup != null)
+        {
+            return true;
+        }
+
+        if (targetPickup != null && IsPickupAvailable(targetPickup))
         {
             MoveToTarget();
             return true;
         }
 
         FindTarget(null, true);
-        return targetPickup != null;
+        if (targetPickup != null)
+        {
+            return true;
+        }
+
+        nextGatherAllowedTime =
+            Time.time + Mathf.Max(0f, harvestCooldownWhenNoTarget);
+        return false;
     }
 
     bool FindTarget(
@@ -118,6 +189,11 @@ public class NpcResourceGatherer : MonoBehaviour
 
         if (candidate == null)
         {
+            if (force)
+            {
+                nextGatherAllowedTime =
+                    Time.time + Mathf.Max(0f, harvestCooldownWhenNoTarget);
+            }
             return false;
         }
 
@@ -139,6 +215,7 @@ public class NpcResourceGatherer : MonoBehaviour
         }
 
         targetPickup = candidate;
+        MarkCurrentGatherSlotStarted();
         MoveToTarget();
         return true;
     }
@@ -206,7 +283,11 @@ public class NpcResourceGatherer : MonoBehaviour
         }
 
         harvestingPickup = targetPickup;
+        targetPickup = null;
         harvestTimer = Mathf.Max(0.1f, harvestingPickup.harvestDuration);
+        harvestingPickup.RefreshReservation(
+            gameObject,
+            Mathf.Max(reservationDuration, harvestTimer + 1f));
         StopNpcMovement();
         SetGatherAction();
     }
@@ -224,10 +305,14 @@ public class NpcResourceGatherer : MonoBehaviour
             return;
         }
 
+        harvestingPickup.RefreshReservation(
+            gameObject,
+            Mathf.Max(reservationDuration, harvestTimer + 1f));
+
         float distance =
             Vector2.Distance(transform.position, harvestingPickup.transform.position);
 
-        if (distance > arriveDistance + retargetDistance)
+        if (distance > Mathf.Max(arriveDistance + retargetDistance, harvestBreakDistance))
         {
             harvestingPickup.RefreshReservation(gameObject, reservationDuration);
             targetPickup = harvestingPickup;
@@ -239,7 +324,6 @@ public class NpcResourceGatherer : MonoBehaviour
 
         StopNpcMovement();
         harvestTimer -= Time.deltaTime;
-        SetGatherAction();
 
         if (harvestTimer > 0f)
         {
@@ -280,6 +364,11 @@ public class NpcResourceGatherer : MonoBehaviour
             item,
             ItemLifecycleEventType.Picked,
             item.ShouldNpcUseDirectly());
+
+        harvestsThisScheduleSession++;
+        MarkCurrentGatherSlotCompleted();
+        nextGatherAllowedTime =
+            Time.time + Mathf.Max(0f, harvestCooldownAfterSuccess);
     }
 
     void StopNpcMovement()
@@ -346,11 +435,146 @@ public class NpcResourceGatherer : MonoBehaviour
         targetPickup = null;
     }
 
+    void ClearActiveGathering()
+    {
+        ClearPickupReservation(targetPickup);
+        ClearPickupReservation(harvestingPickup);
+        targetPickup = null;
+        harvestingPickup = null;
+        harvestTimer = 0f;
+    }
+
     void ClearPickupReservation(WorldStatItemPickup pickup)
     {
         if (pickup != null)
         {
             pickup.ClearReservation(gameObject);
+        }
+    }
+
+    bool ShouldBlockFarmerWorkGathering()
+    {
+        if (villager == null ||
+            villager.job != VillagerJob.Farmer)
+        {
+            return false;
+        }
+
+        NpcScheduleController schedule =
+            NpcScheduleController.GetSchedule(gameObject);
+
+        if (schedule != null &&
+            schedule.enforceSchedule &&
+            schedule.CurrentActivity == NpcScheduleActivity.Work)
+        {
+            return true;
+        }
+
+        return villager.currentAction == NpcText.Action("goFarmWork") ||
+            villager.currentAction == NpcText.Action("workingFarm") ||
+            villager.currentAction == NpcText.Action("farmerWaitHarvest") ||
+            villager.currentAction == NpcText.Action("farmerHarvestedToday");
+    }
+
+    void RefreshScheduleSession()
+    {
+        string key = BuildScheduleSessionKey();
+        if (scheduleSessionKey == key)
+        {
+            return;
+        }
+
+        scheduleSessionKey = key;
+        harvestsThisScheduleSession = 0;
+    }
+
+    string BuildScheduleSessionKey()
+    {
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        int day = timeSystem != null
+            ? timeSystem.CurrentDay
+            : Mathf.FloorToInt(Time.time / 900f);
+
+        NpcScheduleController schedule =
+            NpcScheduleController.GetSchedule(gameObject);
+
+        if (schedule == null ||
+            !schedule.enforceSchedule ||
+            schedule.CurrentSlot == null)
+        {
+            return day + ":free";
+        }
+
+        NpcScheduleSlot slot = schedule.CurrentSlot;
+        return day + ":" +
+            slot.activity + ":" +
+            Mathf.RoundToInt(slot.startHour * 100f) + ":" +
+            Mathf.RoundToInt(slot.endHour * 100f);
+    }
+
+    bool IsScheduleHarvestLimitReached()
+    {
+        if (!limitHarvestsPerScheduleSlot)
+        {
+            return false;
+        }
+
+        NpcScheduleController schedule =
+            NpcScheduleController.GetSchedule(gameObject);
+
+        if (schedule == null ||
+            !schedule.enforceSchedule)
+        {
+            return false;
+        }
+
+        NpcScheduleActivity activity = schedule.CurrentActivity;
+        if (activity != NpcScheduleActivity.Gather &&
+            activity != NpcScheduleActivity.Work &&
+            activity != NpcScheduleActivity.Hunt)
+        {
+            return false;
+        }
+
+        return harvestsThisScheduleSession >=
+            Mathf.Max(1, maxHarvestsPerScheduleSlot);
+    }
+
+    void MarkCurrentGatherSlotStarted()
+    {
+        NpcScheduleController schedule =
+            NpcScheduleController.GetSchedule(gameObject);
+        if (schedule == null ||
+            !schedule.enforceSchedule)
+        {
+            return;
+        }
+
+        NpcScheduleActivity activity = schedule.CurrentActivity;
+        if (activity == NpcScheduleActivity.Gather ||
+            activity == NpcScheduleActivity.Work ||
+            activity == NpcScheduleActivity.Hunt)
+        {
+            schedule.MarkCurrentSlotActivityStarted(activity);
+        }
+    }
+
+    void MarkCurrentGatherSlotCompleted()
+    {
+        NpcScheduleController schedule =
+            NpcScheduleController.GetSchedule(gameObject);
+        if (schedule == null ||
+            !schedule.enforceSchedule)
+        {
+            return;
+        }
+
+        NpcScheduleActivity activity = schedule.CurrentActivity;
+        if (activity == NpcScheduleActivity.Gather ||
+            activity == NpcScheduleActivity.Work ||
+            activity == NpcScheduleActivity.Hunt)
+        {
+            schedule.MarkCurrentSlotActivityCompleted(activity);
         }
     }
 }

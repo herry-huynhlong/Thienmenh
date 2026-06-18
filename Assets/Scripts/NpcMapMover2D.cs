@@ -64,7 +64,6 @@ public class NpcMapMover2D : MonoBehaviour
     Vector2 lastPosition;
     float waitTimer;
     float stuckTimer;
-    float blockedTimer;
     float blockedMoveTimer;
     float crowdBlockedTimer;
       float movementPausedUntil;
@@ -161,6 +160,11 @@ public class NpcMapMover2D : MonoBehaviour
         }
     }
 
+    void OnNpcMapTeleported()
+    {
+        OnNpcMapTeleported(null);
+    }
+
     void OnNpcMapTeleported(GameObject gateObject)
     {
         NpcTeleportGate gate = gateObject != null
@@ -197,7 +201,6 @@ public class NpcMapMover2D : MonoBehaviour
         currentTargetIgnoresAllowedArea = false;
         waitTimer = Mathf.Max(waitTimer, 0.15f);
         currentVelocity = Vector2.zero;
-        blockedTimer = 0f;
         blockedMoveTimer = 0f;
         crowdBlockedTimer = 0f;
         ClearObstacleAvoidance();
@@ -315,7 +318,6 @@ public class NpcMapMover2D : MonoBehaviour
         {
             if (TryCommitObstacleScanTarget(direction, currentTarget))
             {
-                blockedTimer = 0f;
                 blockedMoveTimer = 0f;
                 currentAction = "Scan";
                 return;
@@ -325,7 +327,6 @@ public class NpcMapMover2D : MonoBehaviour
                 TryChooseObstacleDetourDirection(direction, currentTarget, out Vector2 detourDirection) &&
                 TryCommitObstacleAvoidTarget(detourDirection))
             {
-                blockedTimer = 0f;
                 blockedMoveTimer = 0f;
                 direction = detourDirection;
             }
@@ -362,7 +363,6 @@ public class NpcMapMover2D : MonoBehaviour
             return;
         }
 
-        blockedTimer = 0f;
         direction = ApplyCrowdAvoidance(direction);
         currentVelocity = direction * moveSpeed;
         currentAction = "Moving";
@@ -403,15 +403,24 @@ public class NpcMapMover2D : MonoBehaviour
         bool ignoreAllowedArea)
     {
         AutoResolveMapBounds();
-        currentTargetIgnoresAllowedArea = ignoreAllowedArea;
-        currentTarget = ignoreAllowedArea
+        Vector2 resolvedTarget = ignoreAllowedArea
             ? target
             : ClampToAllowedArea(target);
+
+        if (hasTarget &&
+            currentTarget == resolvedTarget &&
+            currentTargetIgnoresAllowedArea == ignoreAllowedArea &&
+            currentAction == action)
+        {
+            return;
+        }
+
+        currentTargetIgnoresAllowedArea = ignoreAllowedArea;
+        currentTarget = resolvedTarget;
         hasTarget = true;
         waitingAfterArrive = false;
         waitTimer = 0f;
         stuckTimer = 0f;
-        blockedTimer = 0f;
         blockedMoveTimer = 0f;
         ClearObstacleAvoidance();
         currentAction = action;
@@ -473,7 +482,6 @@ public class NpcMapMover2D : MonoBehaviour
                 currentTarget = candidate;
                 hasTarget = true;
                 stuckTimer = 0f;
-                blockedTimer = 0f;
                 currentAction = "New Target";
                 return;
             }
@@ -505,7 +513,6 @@ public class NpcMapMover2D : MonoBehaviour
         StopRigidbodyMotion();
         waitTimer = Mathf.Max(0f, time);
         waitingAfterArrive = arrived;
-        blockedTimer = 0f;
         blockedMoveTimer = 0f;
         crowdBlockedTimer = 0f;
         ClearObstacleAvoidance();
