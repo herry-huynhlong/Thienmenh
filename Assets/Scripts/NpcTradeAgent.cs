@@ -584,7 +584,7 @@ public class NpcTradeAgent : MonoBehaviour
     bool IsCombatRole()
     {
         SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
-        if (smartNpc != null)
+        if (smartNpc != null && smartNpc.enabled)
         {
             return smartNpc.canFight;
         }

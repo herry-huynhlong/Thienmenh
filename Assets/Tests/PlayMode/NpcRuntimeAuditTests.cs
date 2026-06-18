@@ -14,6 +14,7 @@ public class NpcRuntimeAuditTests
 {
     const string ScenePath = "Assets/Lang.unity";
     const float WarmupSeconds = 5f;
+    const float QuickWarmupSeconds = 1.5f;
     const float AuditSeconds = 45f;
     const float SampleInterval = 0.5f;
     const float StationarySampleDistance = 0.035f;
@@ -139,6 +140,9 @@ public class NpcRuntimeAuditTests
     static readonly Type NpcMapAreaType = GetGameType("NpcMapArea");
     static readonly Type NpcTeleportGateType = GetGameType("NpcTeleportGate");
     static readonly Type NpcTextType = GetGameType("NpcText");
+    static readonly Type WorldTimeSystemType = GetGameType("WorldTimeSystem");
+    static readonly Type NpcTaskProviderType = GetGameType("NpcTaskProvider");
+    static readonly Type NpcTaskOfferType = GetGameType("NpcTaskOffer");
 
     [UnityTest]
     [Timeout(600000)]
@@ -187,6 +191,155 @@ public class NpcRuntimeAuditTests
             Time.timeScale = originalTimeScale;
             Time.fixedDeltaTime = originalFixedDeltaTime;
         }
+    }
+
+    [UnityTest]
+    [Timeout(120000)]
+    public IEnumerator HybridBrainConflictIsResolvedBothWays()
+    {
+        yield return LoadSceneAndWarmup(QuickWarmupSeconds);
+
+        Behaviour villager = FindFirstActiveBehaviour(VillagerType);
+        Behaviour smart = FindFirstActiveBehaviour(SmartNpcType);
+        Assert.NotNull(villager, "No active VillagerAI was found in the loaded scene.");
+        Assert.NotNull(smart, "No active SmartNpcAI was found in the loaded scene.");
+
+        Component addedSmart = null;
+        Component addedVillager = null;
+
+        try
+        {
+            LogAssert.Expect(
+                LogType.Warning,
+                new System.Text.RegularExpressions.Regex(
+                    "^\\[NPC\\] .* has both SmartNpcAI and VillagerAI\\. SmartNpcAI will stay passive to avoid conflicting NPC logic\\.$"));
+
+            addedSmart = villager.gameObject.AddComponent(SmartNpcType);
+            Assert.NotNull(addedSmart, "Failed to add SmartNpcAI to a VillagerAI GameObject.");
+            yield return null;
+
+            Assert.IsTrue(
+                villager.enabled,
+                "VillagerAI should stay enabled when SmartNpcAI is attached to the same GameObject.");
+            Assert.IsFalse(
+                ((Behaviour)addedSmart).enabled,
+                "SmartNpcAI should disable itself when VillagerAI is already active.");
+
+            addedVillager = smart.gameObject.AddComponent(VillagerType);
+            Assert.NotNull(addedVillager, "Failed to add VillagerAI to a SmartNpcAI GameObject.");
+            yield return null;
+
+            Assert.IsTrue(
+                ((Behaviour)addedVillager).enabled,
+                "VillagerAI should stay enabled when it is the primary brain on the GameObject.");
+            Assert.IsFalse(
+                smart.enabled,
+                "SmartNpcAI should be disabled once a VillagerAI is active on the same GameObject.");
+        }
+        finally
+        {
+            if (addedSmart != null)
+            {
+                UnityEngine.Object.Destroy(addedSmart);
+            }
+
+            if (addedVillager != null)
+            {
+                UnityEngine.Object.Destroy(addedVillager);
+            }
+        }
+    }
+
+    [UnityTest]
+    [Timeout(120000)]
+    public IEnumerator BusyTaskProviderFreezesActionTimerForBothNpcBrains()
+    {
+        yield return LoadSceneAndWarmup(QuickWarmupSeconds);
+
+        Behaviour villager = FindFirstActiveBehaviour(VillagerType);
+        Behaviour smart = FindFirstActiveBehaviour(SmartNpcType);
+        Assert.NotNull(villager, "No active VillagerAI was found in the loaded scene.");
+        Assert.NotNull(smart, "No active SmartNpcAI was found in the loaded scene.");
+
+        Dictionary<GameObject, int> busyCounts = GetBusyNpcCounts();
+        float villagerTimer = 7.5f;
+        float smartTimer = 7.5f;
+        SetFieldValue(villager, "actionTimer", villagerTimer);
+        SetFieldValue(smart, "actionTimer", smartTimer);
+
+        try
+        {
+            busyCounts[villager.gameObject] = 1;
+            busyCounts[smart.gameObject] = 1;
+
+            InvokePrivateMethod(villager, "Update");
+            InvokePrivateMethod(smart, "Update");
+
+            Assert.That(
+                GetFloatField(villager, "actionTimer"),
+                Is.EqualTo(villagerTimer).Within(0.0001f),
+                "VillagerAI actionTimer should not tick down while the NPC is busy with a task provider.");
+            Assert.That(
+                GetFloatField(smart, "actionTimer"),
+                Is.EqualTo(smartTimer).Within(0.0001f),
+                "SmartNpcAI actionTimer should not tick down while the NPC is busy with a task provider.");
+        }
+        finally
+        {
+            busyCounts.Remove(villager.gameObject);
+            busyCounts.Remove(smart.gameObject);
+        }
+    }
+
+    [UnityTest]
+    [Timeout(120000)]
+    public IEnumerator HungryNpcDeclinesTasksAndTaskVisitCooldownBlocksRepeat()
+    {
+        yield return LoadSceneAndWarmup(QuickWarmupSeconds);
+
+        Component worldTime = EnsureWorldTimeSystem();
+        SetWorldTime(worldTime, 1, 1, 3, 10f);
+
+        Behaviour villager = FindFirstActiveBehaviour(VillagerType);
+        Behaviour smart = FindFirstActiveBehaviour(SmartNpcType);
+        Behaviour provider = FindFirstActiveBehaviour(NpcTaskProviderType);
+        Assert.NotNull(villager, "No active VillagerAI was found in the loaded scene.");
+        Assert.NotNull(smart, "No active SmartNpcAI was found in the loaded scene.");
+        Assert.NotNull(provider, "No active NpcTaskProvider was found in the loaded scene.");
+
+        SetFieldValue(villager, "hunger", 95f);
+        SetFieldValue(villager, "fatigue", 0f);
+        SetFieldValue(smart, "hunger", 95f);
+        SetFieldValue(smart, "fatigue", 0f);
+
+        object cultivateOffer = CreateTaskOffer("Cultivate");
+        bool villagerDeclines =
+            InvokePrivateMethod<bool>(
+                provider,
+                "ShouldDeclineTaskByState",
+                villager.gameObject,
+                cultivateOffer);
+        bool smartDeclines =
+            InvokePrivateMethod<bool>(
+                provider,
+                "ShouldDeclineTaskByState",
+                smart.gameObject,
+                cultivateOffer);
+
+        Assert.IsTrue(
+            villagerDeclines,
+            "A hungry VillagerAI should decline task offers instead of being pushed into task logic.");
+        Assert.IsTrue(
+            smartDeclines,
+            "A hungry SmartNpcAI should decline task offers instead of being pushed into task logic.");
+
+        SetFieldValue(smart, "staggerDailyTaskVisits", false);
+        SetFieldValue(smart, "lastTaskProviderVisitDay", 3);
+
+        bool visitAllowed = InvokePrivateMethod<bool>(smart, "TryVisitTaskProvider");
+        Assert.IsFalse(
+            visitAllowed,
+            "SmartNpcAI should not revisit a task provider again on the same world day.");
     }
 
     static List<ActorState> CreateActorStates()
@@ -701,6 +854,32 @@ public class NpcRuntimeAuditTests
         }
     }
 
+    static float GetFloatField(Component component, string fieldName)
+    {
+        object value = GetFieldValue(component, fieldName);
+        if (value == null)
+        {
+            return 0f;
+        }
+
+        try
+        {
+            return Convert.ToSingle(value, CultureInfo.InvariantCulture);
+        }
+        catch (InvalidCastException)
+        {
+            return 0f;
+        }
+        catch (FormatException)
+        {
+            return 0f;
+        }
+        catch (OverflowException)
+        {
+            return 0f;
+        }
+    }
+
     static object GetFieldValue(Component component, string fieldName)
     {
         if (component == null || string.IsNullOrEmpty(fieldName))
@@ -713,6 +892,164 @@ public class NpcRuntimeAuditTests
             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
         return field != null ? field.GetValue(component) : null;
+    }
+
+    static void SetFieldValue(Component component, string fieldName, object value)
+    {
+        if (component == null || string.IsNullOrEmpty(fieldName))
+        {
+            return;
+        }
+
+        FieldInfo field = component.GetType().GetField(
+            fieldName,
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+        if (field != null)
+        {
+            field.SetValue(component, value);
+        }
+    }
+
+    static Behaviour FindFirstActiveBehaviour(Type type)
+    {
+        Component component = FindFirstActiveComponent(type);
+        return component as Behaviour;
+    }
+
+    static Component FindFirstActiveComponent(Type type)
+    {
+        if (type == null)
+        {
+            return null;
+        }
+
+        UnityEngine.Object[] found =
+            UnityEngine.Object.FindObjectsByType(type, FindObjectsSortMode.None);
+        for (int i = 0; i < found.Length; i++)
+        {
+            Component component = found[i] as Component;
+            if (component != null &&
+                component.gameObject.activeInHierarchy &&
+                (!(component is Behaviour) || ((Behaviour)component).enabled))
+            {
+                return component;
+            }
+        }
+
+        return null;
+    }
+
+    static Dictionary<GameObject, int> GetBusyNpcCounts()
+    {
+        if (NpcTaskProviderType == null)
+        {
+            Assert.Fail("NpcTaskProvider type was not found.");
+        }
+
+        FieldInfo field = NpcTaskProviderType.GetField(
+            "busyNpcCounts",
+            BindingFlags.Static | BindingFlags.NonPublic);
+        Assert.NotNull(field, "NpcTaskProvider.busyNpcCounts was not found.");
+
+        object value = field.GetValue(null);
+        Assert.IsInstanceOf<Dictionary<GameObject, int>>(
+            value,
+            "NpcTaskProvider.busyNpcCounts has an unexpected type.");
+        return (Dictionary<GameObject, int>)value;
+    }
+
+    static object CreateTaskOffer(string taskTypeName)
+    {
+        if (NpcTaskOfferType == null)
+        {
+            Assert.Fail("NpcTaskOffer type was not found.");
+        }
+
+        object offer = Activator.CreateInstance(NpcTaskOfferType);
+        Assert.NotNull(offer, "Failed to create NpcTaskOffer instance.");
+
+        FieldInfo taskTypeField = NpcTaskOfferType.GetField(
+            "taskType",
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        Assert.NotNull(taskTypeField, "NpcTaskOffer.taskType field was not found.");
+
+        object enumValue = Enum.Parse(taskTypeField.FieldType, taskTypeName);
+        taskTypeField.SetValue(offer, enumValue);
+        return offer;
+    }
+
+    static Component EnsureWorldTimeSystem()
+    {
+        if (WorldTimeSystemType == null)
+        {
+            Assert.Fail("WorldTimeSystem type was not found.");
+        }
+
+        Component existing = FindFirstActiveComponent(WorldTimeSystemType);
+        if (existing != null)
+        {
+            return existing;
+        }
+
+        GameObject worldTimeObject = new GameObject("NpcRuntimeAuditWorldTime");
+        return worldTimeObject.AddComponent(WorldTimeSystemType);
+    }
+
+    static void SetWorldTime(
+        Component worldTime,
+        int year,
+        int month,
+        int day,
+        float hour)
+    {
+        Assert.NotNull(worldTime, "WorldTimeSystem component is required for this test.");
+
+        MethodInfo setTime = worldTime.GetType().GetMethod(
+            "SetTime",
+            BindingFlags.Instance | BindingFlags.Public,
+            null,
+            new[] { typeof(int), typeof(int), typeof(int), typeof(float), typeof(bool) },
+            null);
+
+        Assert.NotNull(setTime, "WorldTimeSystem.SetTime was not found.");
+        setTime.Invoke(worldTime, new object[] { year, month, day, hour, false });
+    }
+
+    static IEnumerator LoadSceneAndWarmup(float warmupSeconds)
+    {
+        yield return SceneManager.LoadSceneAsync(ScenePath, LoadSceneMode.Single);
+        EnsureAudioListener();
+        yield return new WaitForSeconds(warmupSeconds);
+    }
+
+    static T InvokePrivateMethod<T>(
+        object target,
+        string methodName,
+        params object[] args)
+    {
+        object result = InvokePrivateMethod(target, methodName, args);
+        if (result == null)
+        {
+            return default;
+        }
+
+        return (T)result;
+    }
+
+    static object InvokePrivateMethod(
+        object target,
+        string methodName,
+        params object[] args)
+    {
+        Assert.NotNull(target, "Target object is required.");
+
+        MethodInfo method = target.GetType().GetMethod(
+            methodName,
+            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+        Assert.NotNull(method, target.GetType().Name + "." + methodName + " was not found.");
+
+        return method.Invoke(target, args);
     }
 
     static string GetNpcActionText(string key)

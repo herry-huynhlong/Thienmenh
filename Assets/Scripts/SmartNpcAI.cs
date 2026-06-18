@@ -228,6 +228,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     int lastTaskProviderVisitDay = int.MinValue;
     Vector3 homeReturnTarget;
     bool hasHomeReturnTarget;
+    bool reportedVillagerBrainConflict;
 
     public bool IsDead =>
         isDead ||
@@ -236,6 +237,37 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         currentHP <= 0);
 
     public Transform DamageTransform => transform;
+
+    void Awake()
+    {
+        EnforceVillagerPrimaryBrain();
+    }
+
+    void OnEnable()
+    {
+        EnforceVillagerPrimaryBrain();
+    }
+
+    void EnforceVillagerPrimaryBrain()
+    {
+        VillagerAI villager = GetComponent<VillagerAI>();
+        if (villager == null || !villager.enabled || !enabled)
+        {
+            return;
+        }
+
+        if (reportedVillagerBrainConflict)
+        {
+            enabled = false;
+            return;
+        }
+
+        reportedVillagerBrainConflict = true;
+        Debug.LogWarning(
+            "[NPC] " + gameObject.name +
+            " has both SmartNpcAI and VillagerAI. SmartNpcAI will stay passive to avoid conflicting NPC logic.");
+        enabled = false;
+    }
 
     void Start()
     {
@@ -426,6 +458,11 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     void Update()
     {
+        if (HasActiveVillagerBrain())
+        {
+            return;
+        }
+
         if (isDead)
         {
             return;
@@ -524,6 +561,16 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     void FixedUpdate()
     {
+        if (HasActiveVillagerBrain())
+        {
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+
+            return;
+        }
+
         if (IsDead)
         {
             if (rb != null)
@@ -541,7 +588,18 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     void LateUpdate()
     {
+        if (HasActiveVillagerBrain())
+        {
+            return;
+        }
+
         SyncCultivationEffect();
+    }
+
+    bool HasActiveVillagerBrain()
+    {
+        VillagerAI villager = GetComponent<VillagerAI>();
+        return villager != null && villager.enabled;
     }
 
     void UpdateVisualAnimation()

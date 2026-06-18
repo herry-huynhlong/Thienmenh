@@ -3807,7 +3807,7 @@ public class NpcTaskProvider : MonoBehaviour
         }
 
         SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
-        if (smartNpc != null)
+        if (smartNpc != null && smartNpc.enabled)
         {
             if (smartNpc.fatigue >= maxTaskAcceptFatigue)
             {
@@ -3867,7 +3867,7 @@ public class NpcTaskProvider : MonoBehaviour
         }
 
         SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
-        if (smartNpc != null)
+        if (smartNpc != null && smartNpc.enabled)
         {
             bonus += Mathf.Clamp(100f - smartNpc.fatigue, 0f, 100f) * 0.08f;
 
@@ -4054,7 +4054,7 @@ public class NpcTaskProvider : MonoBehaviour
         }
 
         SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
-        if (smartNpc != null)
+        if (smartNpc != null && smartNpc.enabled)
         {
             if (offer.taskType == NpcTaskType.HuntMonster &&
                 smartNpc.canFight)

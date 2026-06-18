@@ -2861,7 +2861,8 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (villager != null)
         {
-            return GetDisplayAction(villager.currentAction);
+            return GetDisplayAction(
+                GetCurrentNpcActionForDisplay(target, villager.currentAction));
         }
 
         SmartNpcAI smartNpc =
@@ -2869,7 +2870,8 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (smartNpc != null)
         {
-            return GetDisplayAction(smartNpc.currentAction);
+            return GetDisplayAction(
+                GetCurrentNpcActionForDisplay(target, smartNpc.currentAction));
         }
 
         MonsterAI monster =
@@ -2893,6 +2895,69 @@ public class TouchSelectTarget : MonoBehaviour
         }
 
         return action;
+    }
+
+    string GetCurrentNpcActionForDisplay(
+        Transform target,
+        string action)
+    {
+        if (string.IsNullOrWhiteSpace(action))
+        {
+            return "";
+        }
+
+        if (!IsTravelIntentAction(action))
+        {
+            return action;
+        }
+
+        if (!IsNpcMoving(target))
+        {
+            return NpcText.Action("waiting");
+        }
+
+        return action;
+    }
+
+    bool IsNpcMoving(Transform target)
+    {
+        if (target == null)
+        {
+            return false;
+        }
+
+        Rigidbody2D body = target.GetComponent<Rigidbody2D>();
+        if (body == null)
+        {
+            return false;
+        }
+
+        return body.linearVelocity.sqrMagnitude > 0.0025f;
+    }
+
+    bool IsTravelIntentAction(string action)
+    {
+        return action == NpcText.Action("goMarketTrade") ||
+            action == NpcText.Action("goTaskProviderDaily") ||
+            action == NpcText.Action("goVanBaoLauBroker") ||
+            action == NpcText.Action("goVanBaoLauTask") ||
+            action == NpcText.Action("tradeSeek") ||
+            action == NpcText.Action("gatherResource") ||
+            action == NpcText.Action("goWork") ||
+            action == NpcText.Action("goFarmWork") ||
+            action == NpcText.Action("goPatrol") ||
+            action == NpcText.Action("goHeal") ||
+            action == NpcText.Action("goFish") ||
+            action == NpcText.Action("goHunt") ||
+            action == NpcText.Action("goTavern") ||
+            action == NpcText.Action("buyPill") ||
+            action == NpcText.Action("goHomeRest") ||
+            action == NpcText.Action("goHomeCultivate") ||
+            action == NpcText.Action("goCultivatePoint") ||
+            action == NpcText.Action("moveToTask") ||
+            action == NpcText.Action("receiveTask") ||
+            action == NpcText.Action("goPlay") ||
+            action == NpcText.Action("walkingRoad");
     }
 
     void UpdateTargetHeader(Transform target)

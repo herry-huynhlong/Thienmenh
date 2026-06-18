@@ -106,9 +106,7 @@ public class NpcScheduleController : MonoBehaviour
         }
 
         NpcScheduleActivity activity = schedule.CurrentActivity;
-        return activity == NpcScheduleActivity.Gather ||
-            activity == NpcScheduleActivity.Work ||
-            activity == NpcScheduleActivity.Hunt;
+        return activity == NpcScheduleActivity.Gather;
     }
 
     public static bool AllowsAlchemy(GameObject npc)
@@ -249,17 +247,22 @@ public class NpcScheduleController : MonoBehaviour
             return;
         }
 
-        if (GetComponent<SmartNpcAI>() != null)
+        VillagerAI villager = GetComponent<VillagerAI>();
+        if (villager != null && villager.enabled)
         {
-            lifePath = NpcLifePath.Cultivator;
-            canCultivate = true;
+            if (villager.realm > CultivationRealm.Mortal)
+            {
+                lifePath = NpcLifePath.SemiCultivator;
+                canCultivate = true;
+            }
+
             return;
         }
 
-        VillagerAI villager = GetComponent<VillagerAI>();
-        if (villager != null && villager.realm > CultivationRealm.Mortal)
+        SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
+        if (smartNpc != null && smartNpc.enabled)
         {
-            lifePath = NpcLifePath.SemiCultivator;
+            lifePath = NpcLifePath.Cultivator;
             canCultivate = true;
         }
     }

@@ -135,34 +135,12 @@ public class DailyConversation : MonoBehaviour
 
     string GetDisplayName()
     {
-        SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
-        if (smartNpc != null)
-        {
-            return smartNpc.npcName;
-        }
-
-        VillagerAI villager = GetComponent<VillagerAI>();
-        if (villager != null)
-        {
-            return villager.villagerName;
-        }
-
-        return name;
+        return NpcRoleUtility.GetDisplayName(gameObject);
     }
 
     void SetAction(string action)
     {
-        SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
-        if (smartNpc != null)
-        {
-            smartNpc.currentAction = action;
-        }
-
-        VillagerAI villager = GetComponent<VillagerAI>();
-        if (villager != null && !villager.IsActionLocked)
-        {
-            villager.currentAction = action;
-        }
+        NpcRoleUtility.SetAction(gameObject, action);
     }
 
     void OnDrawGizmosSelected()

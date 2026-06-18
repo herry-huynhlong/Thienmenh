@@ -2,16 +2,36 @@ using UnityEngine;
 
 public static class NpcRoleUtility
 {
+    static VillagerAI GetActiveVillagerAI(GameObject npc)
+    {
+        VillagerAI villager = npc != null
+            ? npc.GetComponent<VillagerAI>()
+            : null;
+        return villager != null && villager.enabled
+            ? villager
+            : null;
+    }
+
+    static SmartNpcAI GetActiveSmartNpcAI(GameObject npc)
+    {
+        SmartNpcAI smartNpc = npc != null
+            ? npc.GetComponent<SmartNpcAI>()
+            : null;
+        return smartNpc != null && smartNpc.enabled
+            ? smartNpc
+            : null;
+    }
+
     public static bool IsCommoner(GameObject npc)
     {
         return npc != null &&
-            npc.GetComponent<VillagerAI>() != null;
+            GetActiveVillagerAI(npc) != null;
     }
 
     public static bool IsCultivator(GameObject npc)
     {
         return npc != null &&
-            npc.GetComponent<SmartNpcAI>() != null;
+            GetActiveSmartNpcAI(npc) != null;
     }
 
     public static string GetRoleLabel(GameObject npc)
@@ -50,13 +70,13 @@ public static class NpcRoleUtility
             return profile.identity.entityName;
         }
 
-        VillagerAI villager = npc.GetComponent<VillagerAI>();
+        VillagerAI villager = GetActiveVillagerAI(npc);
         if (villager != null)
         {
             return villager.villagerName;
         }
 
-        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
+        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc);
         if (smartNpc != null)
         {
             return smartNpc.npcName;
@@ -95,7 +115,7 @@ public static class NpcRoleUtility
                     : EntityKind.Cultivator));
         }
 
-        VillagerAI villager = npc.GetComponent<VillagerAI>();
+        VillagerAI villager = GetActiveVillagerAI(npc);
         if (villager != null)
         {
             return Mathf.RoundToInt(CultivationProgression.GetStatPower(
@@ -104,7 +124,7 @@ public static class NpcRoleUtility
                 EntityKind.Cultivator));
         }
 
-        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
+        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc);
         if (smartNpc != null)
         {
             return Mathf.RoundToInt(CultivationProgression.GetStatPower(
@@ -148,13 +168,13 @@ public static class NpcRoleUtility
             return true;
         }
 
-        VillagerAI villager = npc.GetComponent<VillagerAI>();
+        VillagerAI villager = GetActiveVillagerAI(npc);
         if (villager != null)
         {
             return villager.IsDead;
         }
 
-        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
+        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc);
         if (smartNpc != null)
         {
             return smartNpc.IsDead;
@@ -204,13 +224,13 @@ public static class NpcRoleUtility
 
     static string GetCurrentAction(GameObject npc)
     {
-        VillagerAI villager = npc.GetComponent<VillagerAI>();
+        VillagerAI villager = GetActiveVillagerAI(npc);
         if (villager != null)
         {
             return villager.currentAction;
         }
 
-        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
+        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc);
         if (smartNpc != null)
         {
             return smartNpc.currentAction;
@@ -262,13 +282,13 @@ public static class NpcRoleUtility
             return Mathf.Max(1, stats.attack);
         }
 
-        VillagerAI villager = npc.GetComponent<VillagerAI>();
+        VillagerAI villager = GetActiveVillagerAI(npc);
         if (villager != null)
         {
             return Mathf.Max(1, villager.attack);
         }
 
-        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
+        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc);
         if (smartNpc != null)
         {
             return Mathf.Max(1, smartNpc.attack);
@@ -290,13 +310,13 @@ public static class NpcRoleUtility
             return Mathf.Max(0.1f, stats.moveSpeed);
         }
 
-        VillagerAI villager = npc.GetComponent<VillagerAI>();
+        VillagerAI villager = GetActiveVillagerAI(npc);
         if (villager != null)
         {
             return Mathf.Max(0.1f, villager.moveSpeed);
         }
 
-        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
+        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc);
         if (smartNpc != null)
         {
             return Mathf.Max(0.1f, smartNpc.moveSpeed);
@@ -313,7 +333,7 @@ public static class NpcRoleUtility
             return;
         }
 
-        VillagerAI villager = npc.GetComponent<VillagerAI>();
+        VillagerAI villager = GetActiveVillagerAI(npc);
         if (villager != null)
         {
             if (!villager.IsActionLocked)
@@ -322,7 +342,7 @@ public static class NpcRoleUtility
             }
         }
 
-        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
+        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc);
         if (smartNpc != null)
         {
             smartNpc.currentAction = action;
@@ -378,18 +398,16 @@ public static class NpcRoleUtility
             return;
         }
 
-        VillagerAI villager = npc.GetComponent<VillagerAI>();
+        VillagerAI villager = GetActiveVillagerAI(npc);
         if (villager != null)
         {
             villager.StopForConversation();
-            return;
         }
 
-        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
+        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc);
         if (smartNpc != null)
         {
             smartNpc.StopForConversation();
-            return;
         }
 
         NpcMapMover2D mover = npc.GetComponent<NpcMapMover2D>();
@@ -413,18 +431,16 @@ public static class NpcRoleUtility
             return;
         }
 
-        VillagerAI villager = npc.GetComponent<VillagerAI>();
+        VillagerAI villager = GetActiveVillagerAI(npc);
         if (villager != null)
         {
             villager.StopForConversation(duration);
-            return;
         }
 
-        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
+        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc);
         if (smartNpc != null)
         {
             smartNpc.StopForConversation(duration);
-            return;
         }
 
         NpcMapMover2D mover = npc.GetComponent<NpcMapMover2D>();
@@ -456,7 +472,7 @@ public static class NpcRoleUtility
             return;
         }
 
-        VillagerAI villager = npc.GetComponent<VillagerAI>();
+        VillagerAI villager = GetActiveVillagerAI(npc);
         if (villager != null)
         {
             villager.AddCultivationExp(amount);
@@ -501,14 +517,14 @@ public static class NpcRoleUtility
                 reason);
         }
 
-        VillagerAI villager = target.GetComponent<VillagerAI>();
+        VillagerAI villager = GetActiveVillagerAI(target);
         if (villager != null)
         {
             villager.TakeDamage(amount);
             return;
         }
 
-        SmartNpcAI smartNpc = target.GetComponent<SmartNpcAI>();
+        SmartNpcAI smartNpc = GetActiveSmartNpcAI(target);
         if (smartNpc != null)
         {
             smartNpc.TakeDamage(amount);
