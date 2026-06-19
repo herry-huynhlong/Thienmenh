@@ -103,9 +103,6 @@ public class WorldEventSystem : MonoBehaviour
             case WorldEventType.BeastWave:
                 MakeBeastsAggressive(35f);
                 break;
-            case WorldEventType.Festival:
-                ImproveVillagerMood(20f);
-                break;
             case WorldEventType.HeavenlyTribulation:
                 StrikeStrongestVisibleCultivator();
                 break;
@@ -139,21 +136,6 @@ public class WorldEventSystem : MonoBehaviour
 
             monster.aggression = Mathf.Clamp(monster.aggression + amount, 0f, 100f);
             monster.bloodlust = Mathf.Clamp(monster.bloodlust + amount * 0.5f, 0f, 100f);
-        }
-    }
-
-    void ImproveVillagerMood(float amount)
-    {
-        VillagerAI[] villagers = Object.FindObjectsByType<VillagerAI>(FindObjectsSortMode.None);
-        foreach (VillagerAI villager in villagers)
-        {
-            if (villager == null || villager.IsDead || villager.entityProfile == null)
-            {
-                continue;
-            }
-
-            villager.entityProfile.emotion.happiness =
-                Mathf.Clamp(villager.entityProfile.emotion.happiness + amount, 0f, 100f);
         }
     }
 

@@ -156,6 +156,15 @@ public class WorldResourceField : MonoBehaviour
             pickup.OnDepleted -= SaveResourceState;
             pickup.OnDepleted += SaveResourceState;
 
+            ResourceNode resourceNode = pickup.GetComponent<ResourceNode>();
+            if (resourceNode == null)
+            {
+                resourceNode = pickup.gameObject.AddComponent<ResourceNode>();
+            }
+
+            resourceNode.pickup = pickup;
+            resourceNode.RefreshResourceKind();
+
             SetupRareItemEffect(pickup.gameObject, pickup.item);
         }
     }
@@ -233,6 +242,15 @@ public class WorldResourceField : MonoBehaviour
         node.respawnDelay = respawnDelay;
         node.respawnMode = respawnMode;
         node.respawnRegion = region;
+
+        ResourceNode resourceNode = resourceObject.GetComponent<ResourceNode>();
+        if (resourceNode == null)
+        {
+            resourceNode = resourceObject.AddComponent<ResourceNode>();
+        }
+
+        resourceNode.pickup = pickup;
+        resourceNode.RefreshResourceKind();
 
         CircleCollider2D collider = resourceObject.GetComponent<CircleCollider2D>();
 
@@ -635,9 +653,22 @@ public class WorldResourceField : MonoBehaviour
             return false;
         }
 
-        return pickup.item == requiredItem ||
-            (!string.IsNullOrEmpty(pickup.item.ItemId) &&
-            pickup.item.ItemId == requiredItem.ItemId);
+        // Có requiredItem nghĩa là NPC đang đi lấy đúng item được chỉ định.
+        // Không suy luận theo ResourceKind để tránh lấy nhầm item cùng nhóm
+        // hoặc item bị nhận diện sai tên.
+        if (pickup.item == requiredItem)
+        {
+            return true;
+        }
+
+        if (!string.IsNullOrEmpty(pickup.item.ItemId) &&
+            !string.IsNullOrEmpty(requiredItem.ItemId) &&
+            pickup.item.ItemId == requiredItem.ItemId)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     bool IsAvailable(WorldStatItemPickup pickup)

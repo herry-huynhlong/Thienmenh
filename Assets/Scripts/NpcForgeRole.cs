@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(ItemInventory))]
 [RequireComponent(typeof(NpcTradeAgent))]
@@ -34,7 +35,8 @@ public class NpcForgeRole : MonoBehaviour
     public float maxMoneySpendRatio = 0.8f;
 
     [Header("Profession")]
-    public bool forceVillagerJobWorker = true;
+    [FormerlySerializedAs("forceVillagerJobWorker")]
+    public bool forceVillagerJobProfession = true;
     public string professionName = "Lo Ren";
 
     NpcTradeAgent tradeAgent;
@@ -138,9 +140,9 @@ public class NpcForgeRole : MonoBehaviour
         VillagerAI villager = GetComponent<VillagerAI>();
         if (villager != null)
         {
-            if (forceVillagerJobWorker)
+            if (forceVillagerJobProfession)
             {
-                villager.job = VillagerJob.Worker;
+                villager.job = VillagerJob.Blacksmith;
             }
 
             if (forgeStandPoint != null)
@@ -166,8 +168,8 @@ public class NpcForgeRole : MonoBehaviour
         if (profession != null)
         {
             profession.professionName = professionName;
-            profession.lockVillagerJob = forceVillagerJobWorker;
-            profession.villagerJob = VillagerJob.Worker;
+            profession.lockVillagerJob = forceVillagerJobProfession;
+            profession.villagerJob = VillagerJob.Blacksmith;
         }
     }
 }

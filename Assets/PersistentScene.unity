@@ -4447,7 +4447,7 @@ MonoBehaviour:
   keepInspectorItemsWhenLoadingSave: 1
   runtimeKey: 
   items:
-  - item: {fileID: 11400000, guid: 05f6fe49d7a1a4949a086dfe102e7dba, type: 2}
+  - item: {fileID: 0}
     amount: 5
     durability: 0
     maxDurability: 0
@@ -4455,7 +4455,7 @@ MonoBehaviour:
     manualUseYears: 0
     broken: 0
     applied: 0
-  - item: {fileID: 11400000, guid: 1c336eec841d16648861371b6edbc0b0, type: 2}
+  - item: {fileID: 0}
     amount: 2
     durability: 0
     maxDurability: 0
@@ -15858,11 +15858,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1966122063}
   m_Direction: 2
   m_Value: 1.0000037
-<<<<<<< HEAD
-  m_Size: 0.77666676
-=======
   m_Size: 0.77666664
->>>>>>> 92a0a40475748ac6155777e62e5c03a555d49c45
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -16437,13 +16433,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1239443719}
   m_HandleRect: {fileID: 1239443718}
   m_Direction: 0
-<<<<<<< HEAD
-  m_Value: 0
-  m_Size: 0.99999994
-=======
   m_Value: 1
   m_Size: 1
->>>>>>> 92a0a40475748ac6155777e62e5c03a555d49c45
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -26824,7 +26815,7 @@ MonoBehaviour:
   keepInspectorItemsWhenLoadingSave: 0
   runtimeKey: 
   items:
-  - item: {fileID: 11400000, guid: b231dc34d033eea419e29c76e99abbf8, type: 2}
+  - item: {fileID: 0}
     amount: 2
     durability: 0
     maxDurability: 0

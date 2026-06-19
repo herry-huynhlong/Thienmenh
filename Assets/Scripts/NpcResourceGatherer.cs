@@ -33,6 +33,7 @@ public class NpcResourceGatherer : MonoBehaviour
     float nextGatherAllowedTime;
     string scheduleSessionKey;
     int harvestsThisScheduleSession;
+    StatItemData scheduledRequiredItem;
 
     void Awake()
     {
@@ -98,6 +99,11 @@ public class NpcResourceGatherer : MonoBehaviour
         }
 
         StatItemData desiredItem = GetPickupItem(targetPickup);
+        if (desiredItem == null && IsScheduledHarvestJobActive())
+        {
+            desiredItem = scheduledRequiredItem;
+        }
+
         ClearTargetReservation();
 
         if (FindTarget(desiredItem, true))
@@ -119,27 +125,57 @@ public class NpcResourceGatherer : MonoBehaviour
             return;
         }
 
+        if (IsScheduledHarvestJobActive())
+        {
+            if (scheduledRequiredItem != null)
+            {
+                FindTarget(scheduledRequiredItem, true);
+            }
+            return;
+        }
+
         FindTarget(null, false);
     }
 
     public bool TryStartGatheringItemNow(StatItemData requiredItem)
     {
+        return TryStartGatheringItemNowInternal(requiredItem, false);
+    }
+
+    public bool TryStartScheduledHarvestItemNow(StatItemData requiredItem)
+    {
+        return TryStartGatheringItemNowInternal(requiredItem, true);
+    }
+
+    bool TryStartGatheringItemNowInternal(
+        StatItemData requiredItem,
+        bool allowScheduledWorkHarvest)
+    {
+        if (allowScheduledWorkHarvest)
+        {
+            scheduledRequiredItem = requiredItem;
+        }
+
         if (requiredItem == null)
         {
-            return TryStartGatheringNow();
+            return allowScheduledWorkHarvest
+                ? TryStartGatheringNowInternal(true)
+                : TryStartGatheringNow();
         }
 
         if (!canGather ||
             collector == null ||
             !collector.canPickupItems ||
-            !NpcScheduleController.AllowsGather(gameObject))
+            (!allowScheduledWorkHarvest &&
+            !NpcScheduleController.AllowsGather(gameObject)))
         {
             return false;
         }
 
         RefreshScheduleSession();
 
-        if (ShouldBlockScheduledWorkGathering())
+        if (!allowScheduledWorkHarvest &&
+            ShouldBlockScheduledWorkGathering())
         {
             CancelScheduledWorkGathering();
             nextGatherAllowedTime =
@@ -155,7 +191,12 @@ public class NpcResourceGatherer : MonoBehaviour
 
         if (harvestingPickup != null)
         {
-            return MatchesRequiredItem(harvestingPickup, requiredItem);
+            if (MatchesRequiredItem(harvestingPickup, requiredItem))
+            {
+                return true;
+            }
+
+            ClearActiveGathering();
         }
 
         if (targetPickup != null)
@@ -183,17 +224,24 @@ public class NpcResourceGatherer : MonoBehaviour
 
     public bool TryStartGatheringNow()
     {
+        return TryStartGatheringNowInternal(false);
+    }
+
+    bool TryStartGatheringNowInternal(bool allowScheduledWorkHarvest)
+    {
         if (!canGather ||
             collector == null ||
             !collector.canPickupItems ||
-            !NpcScheduleController.AllowsGather(gameObject))
+            (!allowScheduledWorkHarvest &&
+            !NpcScheduleController.AllowsGather(gameObject)))
         {
             return false;
         }
 
         RefreshScheduleSession();
 
-        if (ShouldBlockScheduledWorkGathering())
+        if (!allowScheduledWorkHarvest &&
+            ShouldBlockScheduledWorkGathering())
         {
             CancelScheduledWorkGathering();
             nextGatherAllowedTime =
@@ -240,16 +288,19 @@ public class NpcResourceGatherer : MonoBehaviour
         StatItemData requiredItem,
         bool force)
     {
+        NpcMapZone? preferredZone = GetPreferredZone();
         WorldStatItemPickup candidate =
             WorldResourceField.GetNearestAvailablePickupInAllFields(
                 GetSearchPosition(),
                 requiredItem,
-                GetPreferredZone(),
+                preferredZone,
                 gameObject);
 
         if (candidate == null && requiredItem != null)
         {
-            candidate = FindNearestAvailablePickupInScene(requiredItem);
+            candidate = FindNearestAvailablePickupInScene(
+                requiredItem,
+                !preferredZone.HasValue);
         }
 
         if (candidate == null)
@@ -263,7 +314,7 @@ public class NpcResourceGatherer : MonoBehaviour
         }
 
         if (!force &&
-            !GetPreferredZone().HasValue)
+            !preferredZone.HasValue)
         {
             float distance =
                 Vector2.Distance(transform.position, candidate.transform.position);
@@ -286,7 +337,9 @@ public class NpcResourceGatherer : MonoBehaviour
     }
 
 
-    WorldStatItemPickup FindNearestAvailablePickupInScene(StatItemData requiredItem)
+    WorldStatItemPickup FindNearestAvailablePickupInScene(
+        StatItemData requiredItem,
+        bool ignorePreferredZone)
     {
         WorldStatItemPickup[] pickups =
             FindObjectsByType<WorldStatItemPickup>(
@@ -295,17 +348,19 @@ public class NpcResourceGatherer : MonoBehaviour
 
         WorldStatItemPickup best = null;
         float bestDistance = float.MaxValue;
+        Vector3 searchPosition = GetSearchPosition();
 
         foreach (WorldStatItemPickup pickup in pickups)
         {
-            if (!IsPickupAvailable(pickup) ||
-                !MatchesRequiredItem(pickup, requiredItem))
+            if (!IsPickupAvailable(pickup, ignorePreferredZone) ||
+                !MatchesRequiredItem(pickup, requiredItem) ||
+                (!ignorePreferredZone && !MatchesPreferredZone(pickup)))
             {
                 continue;
             }
 
             float distance =
-                Vector2.Distance(transform.position, pickup.transform.position);
+                Vector2.Distance(searchPosition, pickup.transform.position);
             if (distance < bestDistance)
             {
                 bestDistance = distance;
@@ -328,13 +383,36 @@ public class NpcResourceGatherer : MonoBehaviour
             return false;
         }
 
-        return pickup.item == requiredItem ||
-            (!string.IsNullOrEmpty(pickup.item.ItemId) &&
-            pickup.item.ItemId == requiredItem.ItemId);
+        // Khi job đã truyền item cụ thể từ Inspector
+        // ví dụ Fisher.fishingProduct = ca,
+        // thì chỉ được nhận đúng asset đó hoặc đúng ItemId.
+        // Không fallback sang ResourceKind ở đây, vì các item khác
+        // có thể bị nhận nhầm theo tên / loại, ví dụ Kim Cang Diệp.
+        if (pickup.item == requiredItem)
+        {
+            return true;
+        }
+
+        if (!string.IsNullOrEmpty(pickup.item.ItemId) &&
+            !string.IsNullOrEmpty(requiredItem.ItemId) &&
+            pickup.item.ItemId == requiredItem.ItemId)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     Vector3 GetSearchPosition()
     {
+        if (villager != null &&
+            (villager.job == VillagerJob.Fisher ||
+            villager.job == VillagerJob.Hunter) &&
+            villager.workPoint != null)
+        {
+            return villager.workPoint.position;
+        }
+
         return transform.position;
     }
 
@@ -509,13 +587,32 @@ public class NpcResourceGatherer : MonoBehaviour
         lastHarvestActionSeconds =
             Mathf.CeilToInt(Mathf.Max(0f, harvestTimer));
 
-        string itemName = harvestingPickup != null && harvestingPickup.item != null
+        string itemName = harvestingPickup != null &&
+            harvestingPickup.item != null
             ? ItemText.Name(harvestingPickup.item)
-            : "linh d\u01b0\u1ee3c";
+            : "tài nguyên";
+
+        string verb = "Đang hái ";
+
+        if (villager != null)
+        {
+            switch (villager.job)
+            {
+                case VillagerJob.Farmer:
+                    verb = "Đang thu hoạch ";
+                    break;
+                case VillagerJob.Fisher:
+                    verb = "Đang câu ";
+                    break;
+                case VillagerJob.Hunter:
+                    verb = "Đang thu thịt ";
+                    break;
+            }
+        }
 
         NpcRoleUtility.SetAction(
             gameObject,
-            "\u0110ang h\u00e1i " + itemName +
+            verb + itemName +
             " (" + Mathf.CeilToInt(Mathf.Max(0f, harvestTimer)) + "s)");
     }
 
@@ -532,6 +629,13 @@ public class NpcResourceGatherer : MonoBehaviour
 
     bool IsPickupAvailable(WorldStatItemPickup pickup)
     {
+        return IsPickupAvailable(pickup, false);
+    }
+
+    bool IsPickupAvailable(
+        WorldStatItemPickup pickup,
+        bool ignorePreferredZone)
+    {
         if (pickup == null ||
             pickup.item == null ||
             pickup.amount <= 0 ||
@@ -542,22 +646,65 @@ public class NpcResourceGatherer : MonoBehaviour
             return false;
         }
 
-        NpcMapZone? preferredZone = GetPreferredZone();
-        if (preferredZone.HasValue)
+        if (!ignorePreferredZone)
         {
-            NpcMapArea pickupArea = NpcMapArea.FindArea(pickup.transform.position);
-            return pickupArea != null && pickupArea.zone == preferredZone.Value;
+            NpcMapZone? preferredZone = GetPreferredZone();
+            if (preferredZone.HasValue)
+            {
+                NpcMapArea pickupArea = NpcMapArea.FindArea(pickup.transform.position);
+                return pickupArea != null && pickupArea.zone == preferredZone.Value;
+            }
         }
 
-        float distance =
-            Vector2.Distance(transform.position, pickup.transform.position);
+        if (ShouldApplyPickupDistanceLimit(ignorePreferredZone))
+        {
+            float distance =
+                Vector2.Distance(GetSearchPosition(), pickup.transform.position);
 
-        if (distance > maxSearchDistance + retargetDistance)
+            if (distance > maxSearchDistance + retargetDistance)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool ShouldApplyPickupDistanceLimit(bool ignorePreferredZone)
+    {
+        if (IsScheduledHarvestJobActive())
+        {
+            return false;
+        }
+
+        if (!ignorePreferredZone && GetPreferredZone().HasValue)
         {
             return false;
         }
 
         return true;
+    }
+
+    bool IsScheduledHarvestJobActive()
+    {
+        return villager != null && IsScheduledHarvestJob(villager.job);
+    }
+
+    bool MatchesPreferredZone(WorldStatItemPickup pickup)
+    {
+        NpcMapZone? preferredZone = GetPreferredZone();
+        if (!preferredZone.HasValue)
+        {
+            return true;
+        }
+
+        if (pickup == null)
+        {
+            return false;
+        }
+
+        NpcMapArea pickupArea = NpcMapArea.FindArea(pickup.transform.position);
+        return pickupArea != null && pickupArea.zone == preferredZone.Value;
     }
 
     StatItemData GetPickupItem(WorldStatItemPickup pickup)
@@ -603,6 +750,19 @@ public class NpcResourceGatherer : MonoBehaviour
     {
         if (villager == null ||
             !IsScheduledHarvestJob(villager.job))
+        {
+            return false;
+        }
+
+        HarvestJob harvestJob = GetComponent<HarvestJob>();
+        if (harvestJob != null &&
+            harvestJob.IsWaitingForRetry)
+        {
+            return true;
+        }
+
+        if (harvestingPickup != null ||
+            targetPickup != null)
         {
             return false;
         }

@@ -301,20 +301,10 @@ public class NpcScheduleController : MonoBehaviour
 
     public void RebuildDefaultSchedule()
     {
-        slots.Clear();
-
-        switch (lifePath)
-        {
-            case NpcLifePath.Cultivator:
-                BuildCultivatorSchedule();
-                break;
-            case NpcLifePath.SemiCultivator:
-                BuildSemiCultivatorSchedule();
-                break;
-            default:
-                BuildCommonerSchedule();
-                break;
-        }
+        NpcDailyRoutineLibrary.BuildDefaultSchedule(
+            gameObject,
+            lifePath,
+            slots);
     }
 
     void DetectLifePath()
@@ -343,87 +333,6 @@ public class NpcScheduleController : MonoBehaviour
             lifePath = NpcLifePath.Cultivator;
             canCultivate = true;
         }
-    }
-
-    void BuildCommonerSchedule()
-    {
-        VillagerAI villager = GetComponent<VillagerAI>();
-        VillagerJob job = villager != null ? villager.job : VillagerJob.None;
-
-        if (job == VillagerJob.Trader)
-        {
-            Add(NpcScheduleActivity.Eat, 5f, 6f);
-            Add(NpcScheduleActivity.BuyGoods, 6f, 18f);
-            Add(NpcScheduleActivity.SellGoods, 18f, 20f);
-            Add(NpcScheduleActivity.ReturnHome, 20f, 21f);
-            Add(NpcScheduleActivity.Sleep, 21f, 5f);
-            return;
-        }
-
-        Add(NpcScheduleActivity.Eat, 5f, 6f);
-        Add(NpcScheduleActivity.Work, 6f, 10f);
-        Add(NpcScheduleActivity.Eat, 10f, 11f);
-        Add(NpcScheduleActivity.Work, 11f, 16f);
-        Add(NpcScheduleActivity.SellGoods, 16f, 18f);
-        Add(NpcScheduleActivity.ReturnHome, 18f, 21f);
-        Add(NpcScheduleActivity.Sleep, 21f, 5f);
-    }
-
-    void BuildSemiCultivatorSchedule()
-    {
-        Add(NpcScheduleActivity.Eat, 5f, 6f);
-        Add(NpcScheduleActivity.Work, 6f, 10f);
-        Add(NpcScheduleActivity.Cultivate, 10f, 12f);
-        Add(NpcScheduleActivity.Eat, 12f, 13f);
-        Add(NpcScheduleActivity.Work, 13f, 16f);
-        Add(NpcScheduleActivity.SellGoods, 16f, 17f);
-        Add(NpcScheduleActivity.TakeTask, 17f, 19f);
-        Add(NpcScheduleActivity.Cultivate, 19f, 23f);
-        Add(NpcScheduleActivity.Sleep, 23f, 5f);
-    }
-
-    void BuildCultivatorSchedule()
-    {
-        if (GetComponent<NpcAlchemyAgent>() != null)
-        {
-            Add(NpcScheduleActivity.BuyGoods, 6f, 8f);
-            Add(NpcScheduleActivity.Alchemy, 8f, 14f);
-            Add(NpcScheduleActivity.SellGoods, 14f, 16f);
-            Add(NpcScheduleActivity.TakeTask, 16f, 18f);
-            Add(NpcScheduleActivity.Cultivate, 18f, 6f);
-            return;
-        }
-
-        if (GetComponent<NpcForgeAgent>() != null)
-        {
-            Add(NpcScheduleActivity.BuyGoods, 6f, 8f);
-            Add(NpcScheduleActivity.Forge, 8f, 15f);
-            Add(NpcScheduleActivity.SellGoods, 15f, 17f);
-            Add(NpcScheduleActivity.TakeTask, 17f, 19f);
-            Add(NpcScheduleActivity.Cultivate, 19f, 6f);
-            return;
-        }
-
-        Add(NpcScheduleActivity.Cultivate, 0f, 6f);
-        Add(NpcScheduleActivity.BuyGoods, 6f, 8f);
-        Add(NpcScheduleActivity.TakeTask, 8f, 10f);
-        Add(NpcScheduleActivity.Gather, 10f, 14f);
-        Add(NpcScheduleActivity.Hunt, 14f, 18f);
-        Add(NpcScheduleActivity.Cultivate, 18f, 24f);
-    }
-
-    void Add(
-        NpcScheduleActivity activity,
-        float startHour,
-        float endHour)
-    {
-        slots.Add(
-            new NpcScheduleSlot
-            {
-                activity = activity,
-                startHour = Mathf.Repeat(startHour, 24f),
-                endHour = Mathf.Repeat(endHour, 24f)
-            });
     }
 
     bool ContainsHour(NpcScheduleSlot slot, float hour)

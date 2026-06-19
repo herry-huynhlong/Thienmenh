@@ -28092,6 +28092,7 @@ GameObject:
   - component: {fileID: 294699686}
   - component: {fileID: 294699688}
   - component: {fileID: 294699687}
+  - component: {fileID: 294699689}
   m_Layer: 0
   m_Name: fish
   m_TagString: Untagged
@@ -28190,6 +28191,21 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 2.6625137, y: 4.2746468}
   m_EdgeRadius: 0
+--- !u!114 &294699689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 294699685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34e55edb1675460ca9d596dff184d660, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMapArea
+  zone: 2
+  displayName: MaThuSonMach
+  areaBounds: {fileID: 294699688}
 --- !u!1001 &309522933
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -29357,7 +29373,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!95 &337541973
 Animator:
   serializedVersion: 7
@@ -29470,7 +29486,7 @@ MonoBehaviour:
   entityProfile: {fileID: 0}
   villagerName: "Ng\u01B0\u1EDDi d\xE2n"
   ageGroup: 1
-  job: 1
+  job: 2
   keepInspectorJob: 0
   maxHP: 100
   currentHP: 100
@@ -29497,7 +29513,6 @@ MonoBehaviour:
   hunger: 0
   fatigue: 0
   fun: 0
-  mood: 0
   strongNpcAvoidMortalWork: 1
   cultivatorResourceWorkChance: 0.65
   homePoint: {fileID: 0}
@@ -29509,19 +29524,12 @@ MonoBehaviour:
   thinkInterval: 2
   arriveDistance: 0.25
   wanderRadius: 3
-  talkRadius: 1.2
   sharedTargetSpacingRadius: 0.45
   sharedTargetOccupancyRadius: 0.3
   sharedAnchorSpacingRadius: 0.7
   villagerLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  acquaintanceTalkChanceBonus: 30
-  requireKnownVillagerToTalk: 1
-  minFriendshipToTalk: 3
-  socialScanInterval: 6
-  conversationCooldown: 25
-  conversationPauseDuration: 2
   destroyOnDeath: 0
   scatterWhenMissingPoints: 1
   missingPointScatterRadius: 3
@@ -29596,7 +29604,6 @@ MonoBehaviour:
   cultivationSessionMaxGameHours: 2
   workSessionMinGameHours: 1
   workSessionMaxGameHours: 3
-  scheduledWorkHarvestSeconds: 8
   resourceSessionMinGameHours: 0.5
   resourceSessionMaxGameHours: 1.5
   tradeSessionMinGameHours: 0.5
@@ -29606,16 +29613,10 @@ MonoBehaviour:
   keepInsideCombinedNpcMapAreas: 0
   mapAreaEdgePadding: 0.15
   inventory: {fileID: 337541977}
-  farmProduct: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
   fishingProduct: {fileID: 0}
   huntingProduct: {fileID: 0}
-  workerProduct: {fileID: 0}
   workProductMin: 1
   workProductMax: 3
-  farmerHarvestOnlyInMorning: 1
-  limitScheduledHarvestOncePerDay: 0
-  farmerHarvestAmountPerDay: 1
-  farmerPreferWorkPoint: 1
   sellGoodsThreshold: 1
   sellGoodsDuration: 8
   sellGoodsSearchRadius: 2.2
@@ -29647,7 +29648,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b75b03d92ec088d4688820efbcd11d02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemInventory
-  shareRuntimeItems: 1
+  shareRuntimeItems: 0
   keepInspectorItemsWhenLoadingSave: 1
   runtimeKey: 
   items:
@@ -33346,11 +33347,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8373426706007874102, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 9.41
+      value: 5.35
       objectReference: {fileID: 0}
     - target: {fileID: 8373426706007874102, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.8651485
+      value: 4.02
       objectReference: {fileID: 0}
     - target: {fileID: 8373426706007874102, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_LocalPosition.z
@@ -33394,22 +33395,22 @@ PrefabInstance:
       addedObject: {fileID: 1408745010}
     - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1408745019}
+      addedObject: {fileID: 1408745015}
     - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1408745022}
+      addedObject: {fileID: 1408745014}
     - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1408745021}
+      addedObject: {fileID: 1408745013}
     - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1408745020}
+      addedObject: {fileID: 1408745012}
     - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1408745026}
+      addedObject: {fileID: 1408745011}
     - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1408745030}
+      addedObject: {fileID: 1408745016}
   m_SourcePrefab: {fileID: 100100000, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
 --- !u!1 &582097833
 GameObject:
@@ -34234,7 +34235,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!95 &610803222
 Animator:
   serializedVersion: 7
@@ -34540,7 +34541,6 @@ MonoBehaviour:
   hunger: 0
   fatigue: 0
   fun: 0
-  mood: 0
   strongNpcAvoidMortalWork: 1
   cultivatorResourceWorkChance: 0.65
   homePoint: {fileID: 0}
@@ -34552,19 +34552,12 @@ MonoBehaviour:
   thinkInterval: 2
   arriveDistance: 0.25
   wanderRadius: 3
-  talkRadius: 1.2
   sharedTargetSpacingRadius: 0.45
   sharedTargetOccupancyRadius: 0.3
   sharedAnchorSpacingRadius: 0.7
   villagerLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  acquaintanceTalkChanceBonus: 30
-  requireKnownVillagerToTalk: 1
-  minFriendshipToTalk: 3
-  socialScanInterval: 6
-  conversationCooldown: 25
-  conversationPauseDuration: 2
   destroyOnDeath: 0
   scatterWhenMissingPoints: 1
   missingPointScatterRadius: 3
@@ -34639,7 +34632,6 @@ MonoBehaviour:
   cultivationSessionMaxGameHours: 2
   workSessionMinGameHours: 1
   workSessionMaxGameHours: 3
-  scheduledWorkHarvestSeconds: 8
   resourceSessionMinGameHours: 0.5
   resourceSessionMaxGameHours: 1.5
   tradeSessionMinGameHours: 0.5
@@ -34649,16 +34641,10 @@ MonoBehaviour:
   keepInsideCombinedNpcMapAreas: 0
   mapAreaEdgePadding: 0.15
   inventory: {fileID: 610803230}
-  farmProduct: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
   fishingProduct: {fileID: 0}
   huntingProduct: {fileID: 0}
-  workerProduct: {fileID: 0}
   workProductMin: 1
   workProductMax: 3
-  farmerHarvestOnlyInMorning: 1
-  limitScheduledHarvestOncePerDay: 0
-  farmerHarvestAmountPerDay: 1
-  farmerPreferWorkPoint: 1
   sellGoodsThreshold: 1
   sellGoodsDuration: 8
   sellGoodsSearchRadius: 2.2
@@ -41088,6 +41074,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: tusinu
       objectReference: {fileID: 0}
+    - target: {fileID: 5511893061176817771, guid: 52234395ac81e954b8415221c10525ea, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8002957989317268842, guid: 52234395ac81e954b8415221c10525ea, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.3
@@ -41633,7 +41623,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4661552873986713119, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
       propertyPath: mapBounds
@@ -42962,6 +42952,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: thusinh_33
       objectReference: {fileID: 0}
+    - target: {fileID: 4784376538236298774, guid: e93c886c75775ac40b19070a1f0016fa, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6084189388553048862, guid: e93c886c75775ac40b19070a1f0016fa, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.5
@@ -43329,7 +43323,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
       propertyPath: m_LocalPosition.x
@@ -45049,11 +45043,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8373426706007874102, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.75
+      value: 1.06
       objectReference: {fileID: 0}
     - target: {fileID: 8373426706007874102, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 6.9
+      value: 4.4
       objectReference: {fileID: 0}
     - target: {fileID: 8373426706007874102, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_LocalPosition.z
@@ -45096,22 +45090,25 @@ PrefabInstance:
       addedObject: {fileID: 954560963}
     - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 954560962}
-    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 954560961}
-    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 954560960}
-    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 954560959}
-    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 954560958}
-    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 954560967}
+    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 954560966}
+    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 954560965}
+    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 954560964}
+    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 954560970}
+    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 954560969}
+    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 954560968}
     - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 954560971}
@@ -45126,68 +45123,44 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
   m_PrefabInstance: {fileID: 954560955}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &954560958
-MonoBehaviour:
+--- !u!70 &954560963
+CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 954560957}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f04ee078acf6f5348a56c0dd4f443cd0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcSocialSystem
---- !u!114 &954560959
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 954560957}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfbab0629b004768a5f0d842ff9aafc4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcResourceGatherer
-  canGather: 1
-  scanInterval: 2
-  maxSearchDistance: 12
-  arriveDistance: 0.35
-  retargetDistance: 0.75
-  reservationDuration: 3
-  harvestBreakDistance: 2
-  harvestCooldownAfterSuccess: 45
-  harvestCooldownWhenNoTarget: 8
-  limitHarvestsPerScheduleSlot: 1
-  maxHarvestsPerScheduleSlot: 1
-  gatherChancePerScan: 0.35
-  gatherOnlyWhenInventoryExists: 0
-  useVillagerPreferredZone: 1
---- !u!114 &954560960
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 954560957}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc4bf883290daa74499e6dfdae005003, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcItemCollector
-  inventory: {fileID: 0}
-  characterStats: {fileID: 0}
-  canPickupItems: 1
-  autoUsePickedItems: 1
-  pickupLayers:
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  pickupRadius: 0.45
-  scanInterval: 0.5
-  autoStudyManuals: 1
-  manualStudyInterval: 120
---- !u!114 &954560961
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: -0.034668446, y: -1.0140908}
+  m_Size: {x: 1.4033176, y: 1.4405687}
+  m_Direction: 0
+--- !u!114 &954560964
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -45203,7 +45176,37 @@ MonoBehaviour:
   keepInspectorItemsWhenLoadingSave: 1
   runtimeKey: 
   items: []
---- !u!114 &954560962
+--- !u!114 &954560965
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 954560957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdcab76f81f40ee41bb9e80c881d1c75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcTradeAgent
+  inventory: {fileID: 0}
+  npcLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  tradeRadius: 1.2
+  tradeInterval: 5
+  tradeChance: 25
+  buyUsefulItemsFromMarketTrader: 1
+  counterTradeCooldown: 45
+  maxMoneySpendRatio: 0.65
+  maxOwnedConsumableBeforeBuying: 3
+  riskyItemValueMultiplier: 120
+  isMarketTrader: 0
+  buyProduceFromVillagers: 1
+  acceptAllMaterials: 1
+  acceptedProduce: []
+  maxProduceUnitsPerTrade: 4
+  buyPricePercent: 70
+--- !u!114 &954560966
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -45220,12 +45223,12 @@ MonoBehaviour:
   villagerName: "Ng\u01B0\u1EDDi d\xE2n"
   ageGroup: 1
   job: 1
-  keepInspectorJob: 0
+  keepInspectorJob: 1
   maxHP: 100
   currentHP: 100
   money: 20
   spiritStone: 0
-  moveSpeed: 3
+  moveSpeed: 1.6
   characterStats: {fileID: 0}
   realm: 0
   realmStage: 1
@@ -45246,31 +45249,23 @@ MonoBehaviour:
   hunger: 0
   fatigue: 0
   fun: 0
-  mood: 0
   strongNpcAvoidMortalWork: 1
   cultivatorResourceWorkChance: 0.65
   homePoint: {fileID: 1642251566}
   hideAtHome: 1
   homeRoutineManagedExternally: 0
-  workPoint: {fileID: 258502344}
-  marketPoint: {fileID: 418409111}
-  playPoint: {fileID: 1548278690}
+  workPoint: {fileID: 1779901994}
+  marketPoint: {fileID: 0}
+  playPoint: {fileID: 0}
   thinkInterval: 2
   arriveDistance: 0.25
   wanderRadius: 3
-  talkRadius: 1.2
   sharedTargetSpacingRadius: 0.45
   sharedTargetOccupancyRadius: 0.3
   sharedAnchorSpacingRadius: 0.7
   villagerLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  acquaintanceTalkChanceBonus: 30
-  requireKnownVillagerToTalk: 1
-  minFriendshipToTalk: 3
-  socialScanInterval: 6
-  conversationCooldown: 25
-  conversationPauseDuration: 2
   destroyOnDeath: 0
   scatterWhenMissingPoints: 1
   missingPointScatterRadius: 3
@@ -45311,21 +45306,21 @@ MonoBehaviour:
   fullUpdateDistanceFromCamera: 14
   reducedUpdateInterval: 0.25
   useSmartPathfinding: 1
-  pathCellSize: 0.45
+  pathCellSize: 0.7
   pathWaypointReachDistance: 0.18
   pathReplanTargetDistance: 0.6
   obstacleDetourLookAhead: 0.65
-  useLocalDetour: 0
+  useLocalDetour: 1
   requireClearLineForDirectMove: 1
   directMovePathDistance: 1.2
   useSharedPathMemory: 1
   sharedPathMemoryCellSize: 2
   compareRememberedPathWithNewPath: 0
   pathTurnPenalty: 0.25
-  pathReplanCooldown: 0.75
-  maxPathNodes: 1200
-  maxPathSteps: 256
-  maxPathSearchDistance: 18
+  pathReplanCooldown: 2
+  maxPathNodes: 500
+  maxPathSteps: 160
+  maxPathSearchDistance: 0
   autonomousWorkEnabled: 1
   autonomousResourceWorkEnabled: 0
   autonomousDangerousWorkEnabled: 0
@@ -45333,7 +45328,7 @@ MonoBehaviour:
   staggerDailyVanBaoLauVisits: 1
   dailyVanBaoLauVisitStaggerHours: 2
   dailyTaskPlanEnabled: 1
-  dailyTaskPlanStartupDelay: 8
+  dailyTaskPlanStartupDelay: 2
   dailyTaskPlanMinTasks: 3
   dailyTaskPlanMaxTasks: 5
   dailyRoutineEnabled: 1
@@ -45345,7 +45340,6 @@ MonoBehaviour:
   cultivationSessionMaxGameHours: 2
   workSessionMinGameHours: 1
   workSessionMaxGameHours: 3
-  scheduledWorkHarvestSeconds: 8
   resourceSessionMinGameHours: 0.5
   resourceSessionMaxGameHours: 1.5
   tradeSessionMinGameHours: 0.5
@@ -45354,17 +45348,11 @@ MonoBehaviour:
   allowCrossNpcMapAreas: 1
   keepInsideCombinedNpcMapAreas: 0
   mapAreaEdgePadding: 0.15
-  inventory: {fileID: 954560961}
-  farmProduct: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
+  inventory: {fileID: 954560964}
   fishingProduct: {fileID: 0}
   huntingProduct: {fileID: 0}
-  workerProduct: {fileID: 0}
   workProductMin: 1
   workProductMax: 3
-  farmerHarvestOnlyInMorning: 1
-  limitScheduledHarvestOncePerDay: 0
-  farmerHarvestAmountPerDay: 1
-  farmerPreferWorkPoint: 1
   sellGoodsThreshold: 1
   sellGoodsDuration: 8
   sellGoodsSearchRadius: 2.2
@@ -45379,90 +45367,12 @@ MonoBehaviour:
   maxProfessionLevel: 20
   professionExpPerWork: 1
   productBonusEveryProfessionLevels: 3
-  currentAction: "\u0110\u1EE9ng y\xEAn"
+  currentAction: idle
   currentTarget: {fileID: 0}
   lastWorkProductStatus: 
   debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
---- !u!70 &954560963
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 954560957}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: -0.034668446, y: -1.0140908}
-  m_Size: {x: 1.4033176, y: 1.4405687}
-  m_Direction: 0
 --- !u!114 &954560967
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 954560957}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d14b4510bc9b8114c9fd7e33da6b676c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NPCVisualAnimation
-  downWalkClip: {fileID: 0}
-  upWalkClip: {fileID: 0}
-  sideWalkClip: {fileID: 0}
-  rightWalkClip: {fileID: 0}
-  leftWalkClip: {fileID: 0}
-  downIdleClip: {fileID: 0}
-  upIdleClip: {fileID: 0}
-  sideIdleClip: {fileID: 0}
-  rightIdleClip: {fileID: 0}
-  leftIdleClip: {fileID: 0}
-  attackDownClip: {fileID: 0}
-  attackUpClip: {fileID: 0}
-  attackSideClip: {fileID: 0}
-  rightAttackClip: {fileID: 0}
-  leftAttackClip: {fileID: 0}
-  cultivateDownClip: {fileID: 0}
-  cultivateUpClip: {fileID: 0}
-  cultivateSideClip: {fileID: 0}
-  rightCultivateClip: {fileID: 0}
-  leftCultivateClip: {fileID: 0}
-  dieDownClip: {fileID: 0}
-  dieUpClip: {fileID: 0}
-  dieSideClip: {fileID: 0}
-  rightDieClip: {fileID: 0}
-  leftDieClip: {fileID: 0}
-  sideSpriteFacesRight: 0
-  invertSideFlip: 0
-  invertVerticalFacing: 1
-  directionDeadZone: 0.08
---- !u!114 &954560971
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -45506,15 +45416,8 @@ MonoBehaviour:
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  - activity: 4
-    startHour: 16
-    endHour: 18
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
   - activity: 12
-    startHour: 18
+    startHour: 16
     endHour: 21
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -45533,6 +45436,89 @@ MonoBehaviour:
   debugCurrentHour: 0
   debugCurrentActivity: 0
   debugCurrentSlot: 
+--- !u!114 &954560968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 954560957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23a46c5a0cd526745bb022b47a728fe7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VillagerJobDispatcher
+--- !u!114 &954560969
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 954560957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7955636872e10db49b0f4d58c870224d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HarvestJob
+  enabledHarvestJob: 1
+  farmProduct: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
+  fishingProduct: {fileID: 0}
+  huntingProduct: {fileID: 0}
+  preferredResourceKind: 0
+  storageSearchRadius: 3
+  storageDropDistance: 1.2
+  currentState: 0
+  limitScheduledHarvestOncePerDay: 0
+  retryHarvestDelaySeconds: 2
+--- !u!114 &954560970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 954560957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc4bf883290daa74499e6dfdae005003, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcItemCollector
+  inventory: {fileID: 0}
+  characterStats: {fileID: 0}
+  canPickupItems: 1
+  autoUsePickedItems: 1
+  pickupLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  pickupRadius: 0.45
+  scanInterval: 0.5
+  autoStudyManuals: 1
+  manualStudyInterval: 120
+--- !u!114 &954560971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 954560957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfbab0629b004768a5f0d842ff9aafc4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcResourceGatherer
+  canGather: 1
+  scanInterval: 2
+  maxSearchDistance: 12
+  arriveDistance: 0.35
+  retargetDistance: 0.75
+  reservationDuration: 3
+  harvestBreakDistance: 2
+  harvestCooldownAfterSuccess: 45
+  harvestCooldownWhenNoTarget: 8
+  limitHarvestsPerScheduleSlot: 0
+  maxHarvestsPerScheduleSlot: 0
+  gatherChancePerScan: 0.35
+  gatherOnlyWhenInventoryExists: 0
+  useVillagerPreferredZone: 1
 --- !u!114 &959612417
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -52087,7 +52073,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6246953884098109330, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
       propertyPath: m_Enabled
@@ -52222,7 +52208,6 @@ MonoBehaviour:
   hunger: 0
   fatigue: 0
   fun: 0
-  mood: 0
   strongNpcAvoidMortalWork: 1
   cultivatorResourceWorkChance: 0.65
   homePoint: {fileID: 1212993392}
@@ -52234,19 +52219,12 @@ MonoBehaviour:
   thinkInterval: 2
   arriveDistance: 0.25
   wanderRadius: 3
-  talkRadius: 1.2
   sharedTargetSpacingRadius: 0.45
   sharedTargetOccupancyRadius: 0.3
   sharedAnchorSpacingRadius: 0.7
   villagerLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  acquaintanceTalkChanceBonus: 30
-  requireKnownVillagerToTalk: 1
-  minFriendshipToTalk: 3
-  socialScanInterval: 6
-  conversationCooldown: 25
-  conversationPauseDuration: 2
   destroyOnDeath: 0
   scatterWhenMissingPoints: 1
   missingPointScatterRadius: 3
@@ -52321,7 +52299,6 @@ MonoBehaviour:
   cultivationSessionMaxGameHours: 2
   workSessionMinGameHours: 1
   workSessionMaxGameHours: 3
-  scheduledWorkHarvestSeconds: 8
   resourceSessionMinGameHours: 0.5
   resourceSessionMaxGameHours: 1.5
   tradeSessionMinGameHours: 0.5
@@ -52331,16 +52308,10 @@ MonoBehaviour:
   keepInsideCombinedNpcMapAreas: 0
   mapAreaEdgePadding: 0.15
   inventory: {fileID: 1034849199}
-  farmProduct: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
   fishingProduct: {fileID: 0}
   huntingProduct: {fileID: 0}
-  workerProduct: {fileID: 0}
   workProductMin: 1
   workProductMax: 3
-  farmerHarvestOnlyInMorning: 1
-  limitScheduledHarvestOncePerDay: 0
-  farmerHarvestAmountPerDay: 1
-  farmerPreferWorkPoint: 1
   sellGoodsThreshold: 1
   sellGoodsDuration: 8
   sellGoodsSearchRadius: 2.2
@@ -53591,7 +53562,7 @@ MonoBehaviour:
   canCompeteResource: 1
   canCreateSect: 1
   autonomousActivitiesEnabled: 0
-  realm: 2
+  realm: 1
   realmStage: 1
   comprehension: 10
   physique: 0
@@ -126084,203 +126055,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8373426706007874102, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
   m_PrefabInstance: {fileID: 1533920057}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1275826743
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1275826737}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b75b03d92ec088d4688820efbcd11d02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ItemInventory
-  shareRuntimeItems: 0
-  keepInspectorItemsWhenLoadingSave: 1
-  runtimeKey: 
-  items: []
---- !u!114 &1275826745
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1275826737}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6db0e58d432ffd841b46d22d1b0c7355, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VillagerAI
-  generateFromEntityProfile: 1
-  entityProfile: {fileID: 0}
-  villagerName: "Ng\u01B0\u1EDDi d\xE2n"
-  ageGroup: 1
-  job: 1
-  keepInspectorJob: 0
-  maxHP: 100
-  currentHP: 100
-  money: 20
-  spiritStone: 0
-  moveSpeed: 3
-  characterStats: {fileID: 0}
-  realm: 0
-  realmStage: 1
-  cultivationExp: 0
-  baseExpToNextRealm: 100
-  baseMaxHP: 100
-  baseAttack: 5
-  baseDefense: 2
-  attack: 5
-  defense: 2
-  lifespan: 80
-  dieWhenLifespanEnds: 1
-  waitingForHeavenlyTribulation: 0
-  sociability: 50
-  greed: 30
-  diligence: 50
-  bravery: 30
-  hunger: 0
-  fatigue: 0
-  fun: 0
-  mood: 0
-  strongNpcAvoidMortalWork: 1
-  cultivatorResourceWorkChance: 0.65
-  homePoint: {fileID: 1642251566}
-  hideAtHome: 1
-  homeRoutineManagedExternally: 0
-  workPoint: {fileID: 258502344}
-  marketPoint: {fileID: 418409111}
-  playPoint: {fileID: 1548278690}
-  thinkInterval: 2
-  arriveDistance: 0.25
-  wanderRadius: 3
-  talkRadius: 1.2
-  sharedTargetSpacingRadius: 0.45
-  sharedTargetOccupancyRadius: 0.3
-  sharedAnchorSpacingRadius: 0.7
-  villagerLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  acquaintanceTalkChanceBonus: 30
-  requireKnownVillagerToTalk: 1
-  minFriendshipToTalk: 3
-  socialScanInterval: 6
-  conversationCooldown: 25
-  conversationPauseDuration: 2
-  destroyOnDeath: 0
-  scatterWhenMissingPoints: 1
-  missingPointScatterRadius: 3
-  workDurationMin: 25
-  workDurationMax: 60
-  restDuration: 8
-  eatDuration: 5
-  playDuration: 8
-  tradeDuration: 15
-  roadPreferenceChance: 0.8
-  lowHpRoadBypassPercent: 0.3
-  separationRadius: 0.65
-  separationStrength: 2
-  crowdLookAheadDistance: 0.75
-  crowdDetourDistance: 0.65
-  crowdYieldDuration: 0.25
-  useKinematicNpcMovement: 1
-  ignoreNpcBodyCollisions: 1
-  unstuckCheckDelay: 1.2
-  unstuckMinMoveDistance: 0.03
-  unstuckOffsetRadius: 0.7
-  minWanderTargetDistance: 0.8
-  movementAcceleration: 8
-  movementDeceleration: 12
-  animationIdleSpeed: 0.03
-  idleAtHomeDuration: 6
-  obstacleLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  obstacleCheckDistance: 0.35
-  targetClearRadius: 0.25
-  navigationClearancePadding: 0.16
-  obstacleScanDistance: 8
-  obstacleScanStep: 0.35
-  maxPickTargetAttempts: 16
-  blockedTargetRetryDelay: 0.8
-  useCameraDistanceThrottle: 1
-  fullUpdateDistanceFromCamera: 14
-  reducedUpdateInterval: 0.25
-  useSmartPathfinding: 1
-  pathCellSize: 0.45
-  pathWaypointReachDistance: 0.18
-  pathReplanTargetDistance: 0.6
-  obstacleDetourLookAhead: 0.65
-  useLocalDetour: 0
-  requireClearLineForDirectMove: 1
-  directMovePathDistance: 1.2
-  useSharedPathMemory: 1
-  sharedPathMemoryCellSize: 2
-  compareRememberedPathWithNewPath: 0
-  pathTurnPenalty: 0.25
-  pathReplanCooldown: 0.75
-  maxPathNodes: 1200
-  maxPathSteps: 256
-  maxPathSearchDistance: 18
-  autonomousWorkEnabled: 1
-  autonomousResourceWorkEnabled: 0
-  autonomousDangerousWorkEnabled: 0
-  dailyVanBaoLauVisitEnabled: 1
-  staggerDailyVanBaoLauVisits: 1
-  dailyVanBaoLauVisitStaggerHours: 2
-  dailyTaskPlanEnabled: 1
-  dailyTaskPlanStartupDelay: 8
-  dailyTaskPlanMinTasks: 3
-  dailyTaskPlanMaxTasks: 5
-  dailyRoutineEnabled: 1
-  dailyCultivationMinHours: 4
-  dailyCultivationMaxHours: 8
-  earliestCultivationHour: 5
-  latestCultivationStartHour: 20
-  cultivationSessionMinGameHours: 1
-  cultivationSessionMaxGameHours: 2
-  workSessionMinGameHours: 1
-  workSessionMaxGameHours: 3
-  scheduledWorkHarvestSeconds: 8
-  resourceSessionMinGameHours: 0.5
-  resourceSessionMaxGameHours: 1.5
-  tradeSessionMinGameHours: 0.5
-  tradeSessionMaxGameHours: 1.5
-  keepInsideNpcMapArea: 1
-  allowCrossNpcMapAreas: 1
-  keepInsideCombinedNpcMapAreas: 0
-  mapAreaEdgePadding: 0.15
-  inventory: {fileID: 1275826743}
-  farmProduct: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
-  fishingProduct: {fileID: 0}
-  huntingProduct: {fileID: 0}
-  workerProduct: {fileID: 0}
-  workProductMin: 1
-  workProductMax: 3
-  farmerHarvestOnlyInMorning: 1
-  limitScheduledHarvestOncePerDay: 0
-  farmerHarvestAmountPerDay: 1
-  farmerPreferWorkPoint: 1
-  sellGoodsThreshold: 1
-  sellGoodsDuration: 8
-  sellGoodsSearchRadius: 2.2
-  traderLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  sellOnlyToTrader: 1
-  professionLevel: 1
-  professionExp: 0
-  baseProfessionExpToNextLevel: 10
-  professionExpGrowthPerLevel: 5
-  maxProfessionLevel: 20
-  professionExpPerWork: 1
-  productBonusEveryProfessionLevels: 3
-  currentAction: "\u0110\u1EE9ng y\xEAn"
-  currentTarget: {fileID: 0}
-  lastWorkProductStatus: 
-  debugWorkTarget: 
-  cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!70 &1275826748
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -126327,9 +126101,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 1275826737}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f04ee078acf6f5348a56c0dd4f443cd0, type: 3}
+  m_Script: {fileID: 11500000, guid: 7955636872e10db49b0f4d58c870224d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcSocialSystem
+  m_EditorClassIdentifier: Assembly-CSharp::HarvestJob
+  enabledHarvestJob: 1
+  farmProduct: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
+  fishingProduct: {fileID: 0}
+  huntingProduct: {fileID: 11400000, guid: a7941e514b6711949a512e57c8551efb, type: 2}
+  preferredResourceKind: 0
+  storageSearchRadius: 3
+  storageDropDistance: 1.2
+  currentState: 0
+  limitScheduledHarvestOncePerDay: 0
+  retryHarvestDelaySeconds: 2
 --- !u!114 &1275826750
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -126351,8 +126135,8 @@ MonoBehaviour:
   harvestBreakDistance: 2
   harvestCooldownAfterSuccess: 45
   harvestCooldownWhenNoTarget: 8
-  limitHarvestsPerScheduleSlot: 1
-  maxHarvestsPerScheduleSlot: 1
+  limitHarvestsPerScheduleSlot: 0
+  maxHarvestsPerScheduleSlot: 0
   gatherChancePerScan: 0.35
   gatherOnlyWhenInventoryExists: 0
   useVillagerPreferredZone: 1
@@ -126379,7 +126163,7 @@ MonoBehaviour:
   scanInterval: 0.5
   autoStudyManuals: 1
   manualStudyInterval: 120
---- !u!114 &1275826755
+--- !u!114 &1275826752
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -126388,39 +126172,180 @@ MonoBehaviour:
   m_GameObject: {fileID: 1275826737}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d14b4510bc9b8114c9fd7e33da6b676c, type: 3}
+  m_Script: {fileID: 11500000, guid: b75b03d92ec088d4688820efbcd11d02, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NPCVisualAnimation
-  downWalkClip: {fileID: 0}
-  upWalkClip: {fileID: 0}
-  sideWalkClip: {fileID: 0}
-  rightWalkClip: {fileID: 0}
-  leftWalkClip: {fileID: 0}
-  downIdleClip: {fileID: 0}
-  upIdleClip: {fileID: 0}
-  sideIdleClip: {fileID: 0}
-  rightIdleClip: {fileID: 0}
-  leftIdleClip: {fileID: 0}
-  attackDownClip: {fileID: 0}
-  attackUpClip: {fileID: 0}
-  attackSideClip: {fileID: 0}
-  rightAttackClip: {fileID: 0}
-  leftAttackClip: {fileID: 0}
-  cultivateDownClip: {fileID: 0}
-  cultivateUpClip: {fileID: 0}
-  cultivateSideClip: {fileID: 0}
-  rightCultivateClip: {fileID: 0}
-  leftCultivateClip: {fileID: 0}
-  dieDownClip: {fileID: 0}
-  dieUpClip: {fileID: 0}
-  dieSideClip: {fileID: 0}
-  rightDieClip: {fileID: 0}
-  leftDieClip: {fileID: 0}
-  sideSpriteFacesRight: 0
-  invertSideFlip: 0
-  invertVerticalFacing: 1
-  directionDeadZone: 0.08
---- !u!114 &1275826759
+  m_EditorClassIdentifier: Assembly-CSharp::ItemInventory
+  shareRuntimeItems: 0
+  keepInspectorItemsWhenLoadingSave: 1
+  runtimeKey: 
+  items: []
+--- !u!114 &1275826753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1275826737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6db0e58d432ffd841b46d22d1b0c7355, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VillagerAI
+  generateFromEntityProfile: 1
+  entityProfile: {fileID: 0}
+  villagerName: "Ng\u01B0\u1EDDi d\xE2n"
+  ageGroup: 1
+  job: 7
+  keepInspectorJob: 1
+  maxHP: 100
+  currentHP: 100
+  money: 20
+  spiritStone: 0
+  moveSpeed: 1.6
+  characterStats: {fileID: 0}
+  realm: 0
+  realmStage: 1
+  cultivationExp: 0
+  baseExpToNextRealm: 100
+  baseMaxHP: 100
+  baseAttack: 5
+  baseDefense: 2
+  attack: 5
+  defense: 2
+  lifespan: 80
+  dieWhenLifespanEnds: 1
+  waitingForHeavenlyTribulation: 0
+  sociability: 50
+  greed: 30
+  diligence: 50
+  bravery: 30
+  hunger: 0
+  fatigue: 0
+  fun: 0
+  strongNpcAvoidMortalWork: 1
+  cultivatorResourceWorkChance: 0.65
+  homePoint: {fileID: 0}
+  hideAtHome: 1
+  homeRoutineManagedExternally: 0
+  workPoint: {fileID: 1932609891}
+  marketPoint: {fileID: 0}
+  playPoint: {fileID: 0}
+  thinkInterval: 2
+  arriveDistance: 0.25
+  wanderRadius: 3
+  sharedTargetSpacingRadius: 0.45
+  sharedTargetOccupancyRadius: 0.3
+  sharedAnchorSpacingRadius: 0.7
+  villagerLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  destroyOnDeath: 0
+  scatterWhenMissingPoints: 1
+  missingPointScatterRadius: 3
+  workDurationMin: 25
+  workDurationMax: 60
+  restDuration: 8
+  eatDuration: 5
+  playDuration: 8
+  tradeDuration: 15
+  roadPreferenceChance: 0.8
+  lowHpRoadBypassPercent: 0.3
+  separationRadius: 0.65
+  separationStrength: 2
+  crowdLookAheadDistance: 0.75
+  crowdDetourDistance: 0.65
+  crowdYieldDuration: 0.25
+  useKinematicNpcMovement: 1
+  ignoreNpcBodyCollisions: 1
+  unstuckCheckDelay: 1.2
+  unstuckMinMoveDistance: 0.03
+  unstuckOffsetRadius: 0.7
+  minWanderTargetDistance: 0.8
+  movementAcceleration: 8
+  movementDeceleration: 12
+  animationIdleSpeed: 0.03
+  idleAtHomeDuration: 6
+  obstacleLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  obstacleCheckDistance: 0.35
+  targetClearRadius: 0.25
+  navigationClearancePadding: 0.16
+  obstacleScanDistance: 8
+  obstacleScanStep: 0.35
+  maxPickTargetAttempts: 16
+  blockedTargetRetryDelay: 0.8
+  useCameraDistanceThrottle: 1
+  fullUpdateDistanceFromCamera: 14
+  reducedUpdateInterval: 0.25
+  useSmartPathfinding: 1
+  pathCellSize: 0.7
+  pathWaypointReachDistance: 0.18
+  pathReplanTargetDistance: 0.6
+  obstacleDetourLookAhead: 0.65
+  useLocalDetour: 1
+  requireClearLineForDirectMove: 1
+  directMovePathDistance: 1.2
+  useSharedPathMemory: 1
+  sharedPathMemoryCellSize: 2
+  compareRememberedPathWithNewPath: 0
+  pathTurnPenalty: 0.25
+  pathReplanCooldown: 2
+  maxPathNodes: 500
+  maxPathSteps: 160
+  maxPathSearchDistance: 0
+  autonomousWorkEnabled: 1
+  autonomousResourceWorkEnabled: 0
+  autonomousDangerousWorkEnabled: 0
+  dailyVanBaoLauVisitEnabled: 1
+  staggerDailyVanBaoLauVisits: 1
+  dailyVanBaoLauVisitStaggerHours: 2
+  dailyTaskPlanEnabled: 1
+  dailyTaskPlanStartupDelay: 2
+  dailyTaskPlanMinTasks: 3
+  dailyTaskPlanMaxTasks: 5
+  dailyRoutineEnabled: 1
+  dailyCultivationMinHours: 4
+  dailyCultivationMaxHours: 8
+  earliestCultivationHour: 5
+  latestCultivationStartHour: 20
+  cultivationSessionMinGameHours: 1
+  cultivationSessionMaxGameHours: 2
+  workSessionMinGameHours: 1
+  workSessionMaxGameHours: 3
+  resourceSessionMinGameHours: 0.5
+  resourceSessionMaxGameHours: 1.5
+  tradeSessionMinGameHours: 0.5
+  tradeSessionMaxGameHours: 1.5
+  keepInsideNpcMapArea: 1
+  allowCrossNpcMapAreas: 1
+  keepInsideCombinedNpcMapAreas: 0
+  mapAreaEdgePadding: 0.15
+  inventory: {fileID: 1275826752}
+  fishingProduct: {fileID: 0}
+  huntingProduct: {fileID: 11400000, guid: a7941e514b6711949a512e57c8551efb, type: 2}
+  workProductMin: 1
+  workProductMax: 3
+  sellGoodsThreshold: 1
+  sellGoodsDuration: 8
+  sellGoodsSearchRadius: 2.2
+  traderLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  sellOnlyToTrader: 1
+  professionLevel: 1
+  professionExp: 0
+  baseProfessionExpToNextLevel: 10
+  professionExpGrowthPerLevel: 5
+  maxProfessionLevel: 20
+  professionExpPerWork: 1
+  productBonusEveryProfessionLevels: 3
+  currentAction: idle
+  currentTarget: {fileID: 0}
+  lastWorkProductStatus: 
+  debugWorkTarget: 
+  cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
+--- !u!114 &1275826754
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -126436,51 +126361,9 @@ MonoBehaviour:
   autoBuildDefaultSchedule: 1
   lifePath: 0
   slots:
-  - activity: 2
-    startHour: 5
-    endHour: 6
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
   - activity: 3
-    startHour: 6
-    endHour: 10
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 2
-    startHour: 10
-    endHour: 11
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 3
-    startHour: 11
-    endHour: 16
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 4
-    startHour: 16
-    endHour: 18
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 12
-    startHour: 18
-    endHour: 21
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 1
-    startHour: 21
-    endHour: 5
+    startHour: 0
+    endHour: 0
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -126491,6 +126374,41 @@ MonoBehaviour:
   debugCurrentHour: 0
   debugCurrentActivity: 0
   debugCurrentSlot: 
+--- !u!114 &1275826755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1275826737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d7b4d5c3a1a4b0f9e3c2a1d5f6b7c8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HunterJob
+  enabledHunterJob: 1
+  huntZone: 2
+  huntPoint: {fileID: 1932609891}
+  meatProduct: {fileID: 11400000, guid: a7941e514b6711949a512e57c8551efb, type: 2}
+  requireMonsterDropsMeat: 0
+  guaranteeMeatDrop: 1
+  guaranteedMeatAmount: 1
+  monsterSearchRadius: 14
+  retargetDistance: 18
+  arriveDistance: 0.55
+  monsterLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  attackRange: 0.85
+  attackInterval: 1.15
+  attackDamage: 8
+  useVillagerAttackStat: 1
+  useCombatTechniqueModifier: 1
+  lootSearchRadius: 1.2
+  lootCollectDistance: 0.45
+  currentState: 0
+  currentMonsterTarget: {fileID: 0}
+  currentLootTarget: {fileID: 0}
 --- !u!1 &1279484976
 GameObject:
   m_ObjectHideFlags: 0
@@ -128878,7 +128796,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5511893061176817771, guid: 52234395ac81e954b8415221c10525ea, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8002957989317268842, guid: 52234395ac81e954b8415221c10525ea, type: 3}
       propertyPath: m_LocalScale.x
@@ -130314,7 +130232,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!95 &1398839544
 Animator:
   serializedVersion: 7
@@ -130405,7 +130323,7 @@ Transform:
   m_GameObject: {fileID: 1398839543}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 124.9, y: 2.8, z: 0}
+  m_LocalPosition: {x: 6.5, y: -3.2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -130454,7 +130372,6 @@ MonoBehaviour:
   hunger: 0
   fatigue: 0
   fun: 0
-  mood: 0
   strongNpcAvoidMortalWork: 1
   cultivatorResourceWorkChance: 0.65
   homePoint: {fileID: 0}
@@ -130466,19 +130383,12 @@ MonoBehaviour:
   thinkInterval: 2
   arriveDistance: 0.25
   wanderRadius: 3
-  talkRadius: 1.2
   sharedTargetSpacingRadius: 0.45
   sharedTargetOccupancyRadius: 0.3
   sharedAnchorSpacingRadius: 0.7
   villagerLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  acquaintanceTalkChanceBonus: 30
-  requireKnownVillagerToTalk: 1
-  minFriendshipToTalk: 3
-  socialScanInterval: 6
-  conversationCooldown: 25
-  conversationPauseDuration: 2
   destroyOnDeath: 0
   scatterWhenMissingPoints: 1
   missingPointScatterRadius: 3
@@ -130553,7 +130463,6 @@ MonoBehaviour:
   cultivationSessionMaxGameHours: 2
   workSessionMinGameHours: 1
   workSessionMaxGameHours: 3
-  scheduledWorkHarvestSeconds: 8
   resourceSessionMinGameHours: 0.5
   resourceSessionMaxGameHours: 1.5
   tradeSessionMinGameHours: 0.5
@@ -130563,16 +130472,10 @@ MonoBehaviour:
   keepInsideCombinedNpcMapAreas: 0
   mapAreaEdgePadding: 0.15
   inventory: {fileID: 1398839548}
-  farmProduct: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
   fishingProduct: {fileID: 0}
   huntingProduct: {fileID: 0}
-  workerProduct: {fileID: 0}
   workProductMin: 1
   workProductMax: 3
-  farmerHarvestOnlyInMorning: 1
-  limitScheduledHarvestOncePerDay: 0
-  farmerHarvestAmountPerDay: 1
-  farmerPreferWorkPoint: 1
   sellGoodsThreshold: 1
   sellGoodsDuration: 8
   sellGoodsSearchRadius: 2.2
@@ -130812,7 +130715,72 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0.000015258789}
   m_Size: {x: 1.7499999, y: 3.4687498}
   m_Direction: 0
---- !u!114 &1408745019
+--- !u!114 &1408745011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1408745008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfbab0629b004768a5f0d842ff9aafc4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcResourceGatherer
+  canGather: 1
+  scanInterval: 2
+  maxSearchDistance: 12
+  arriveDistance: 0.35
+  retargetDistance: 0.75
+  reservationDuration: 3
+  harvestBreakDistance: 2
+  harvestCooldownAfterSuccess: 45
+  harvestCooldownWhenNoTarget: 8
+  limitHarvestsPerScheduleSlot: 0
+  maxHarvestsPerScheduleSlot: 0
+  gatherChancePerScan: 0.35
+  gatherOnlyWhenInventoryExists: 0
+  useVillagerPreferredZone: 1
+--- !u!114 &1408745012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1408745008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc4bf883290daa74499e6dfdae005003, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcItemCollector
+  inventory: {fileID: 0}
+  characterStats: {fileID: 0}
+  canPickupItems: 0
+  autoUsePickedItems: 1
+  pickupLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  pickupRadius: 0.45
+  scanInterval: 0.5
+  autoStudyManuals: 1
+  manualStudyInterval: 120
+--- !u!114 &1408745013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1408745008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b75b03d92ec088d4688820efbcd11d02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemInventory
+  shareRuntimeItems: 0
+  keepInspectorItemsWhenLoadingSave: 1
+  runtimeKey: 
+  items: []
+--- !u!114 &1408745014
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -130828,15 +130796,15 @@ MonoBehaviour:
   entityProfile: {fileID: 0}
   villagerName: "Ng\u01B0\u1EDDi d\xE2n"
   ageGroup: 1
-  job: 1
-  keepInspectorJob: 0
+  job: 6
+  keepInspectorJob: 1
   maxHP: 100
   currentHP: 100
   money: 20
   spiritStone: 0
   moveSpeed: 1.6
   characterStats: {fileID: 0}
-  realm: 2
+  realm: 0
   realmStage: 1
   cultivationExp: 0
   baseExpToNextRealm: 100
@@ -130855,31 +130823,23 @@ MonoBehaviour:
   hunger: 0
   fatigue: 0
   fun: 0
-  mood: 0
   strongNpcAvoidMortalWork: 1
   cultivatorResourceWorkChance: 0.65
   homePoint: {fileID: 1642251566}
   hideAtHome: 1
   homeRoutineManagedExternally: 0
-  workPoint: {fileID: 258502344}
-  marketPoint: {fileID: 418409111}
-  playPoint: {fileID: 1548278690}
+  workPoint: {fileID: 294699686}
+  marketPoint: {fileID: 0}
+  playPoint: {fileID: 0}
   thinkInterval: 2
   arriveDistance: 0.25
   wanderRadius: 3
-  talkRadius: 1.2
   sharedTargetSpacingRadius: 0.45
   sharedTargetOccupancyRadius: 0.3
   sharedAnchorSpacingRadius: 0.7
   villagerLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  acquaintanceTalkChanceBonus: 30
-  requireKnownVillagerToTalk: 1
-  minFriendshipToTalk: 3
-  socialScanInterval: 6
-  conversationCooldown: 25
-  conversationPauseDuration: 2
   destroyOnDeath: 0
   scatterWhenMissingPoints: 1
   missingPointScatterRadius: 3
@@ -130920,21 +130880,21 @@ MonoBehaviour:
   fullUpdateDistanceFromCamera: 14
   reducedUpdateInterval: 0.25
   useSmartPathfinding: 1
-  pathCellSize: 0.45
+  pathCellSize: 0.7
   pathWaypointReachDistance: 0.18
   pathReplanTargetDistance: 0.6
   obstacleDetourLookAhead: 0.65
-  useLocalDetour: 0
+  useLocalDetour: 1
   requireClearLineForDirectMove: 1
   directMovePathDistance: 1.2
   useSharedPathMemory: 1
   sharedPathMemoryCellSize: 2
   compareRememberedPathWithNewPath: 0
   pathTurnPenalty: 0.25
-  pathReplanCooldown: 0.75
-  maxPathNodes: 1200
-  maxPathSteps: 256
-  maxPathSearchDistance: 18
+  pathReplanCooldown: 2
+  maxPathNodes: 500
+  maxPathSteps: 160
+  maxPathSearchDistance: 0
   autonomousWorkEnabled: 1
   autonomousResourceWorkEnabled: 0
   autonomousDangerousWorkEnabled: 0
@@ -130942,7 +130902,7 @@ MonoBehaviour:
   staggerDailyVanBaoLauVisits: 1
   dailyVanBaoLauVisitStaggerHours: 2
   dailyTaskPlanEnabled: 1
-  dailyTaskPlanStartupDelay: 8
+  dailyTaskPlanStartupDelay: 2
   dailyTaskPlanMinTasks: 3
   dailyTaskPlanMaxTasks: 5
   dailyRoutineEnabled: 1
@@ -130954,7 +130914,6 @@ MonoBehaviour:
   cultivationSessionMaxGameHours: 2
   workSessionMinGameHours: 1
   workSessionMaxGameHours: 3
-  scheduledWorkHarvestSeconds: 8
   resourceSessionMinGameHours: 0.5
   resourceSessionMaxGameHours: 1.5
   tradeSessionMinGameHours: 0.5
@@ -130963,17 +130922,11 @@ MonoBehaviour:
   allowCrossNpcMapAreas: 1
   keepInsideCombinedNpcMapAreas: 0
   mapAreaEdgePadding: 0.15
-  inventory: {fileID: 1408745022}
-  farmProduct: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
-  fishingProduct: {fileID: 0}
+  inventory: {fileID: 1408745013}
+  fishingProduct: {fileID: 11400000, guid: 550730f23498be4459f8358921e55b8e, type: 2}
   huntingProduct: {fileID: 0}
-  workerProduct: {fileID: 0}
   workProductMin: 1
   workProductMax: 3
-  farmerHarvestOnlyInMorning: 1
-  limitScheduledHarvestOncePerDay: 0
-  farmerHarvestAmountPerDay: 1
-  farmerPreferWorkPoint: 1
   sellGoodsThreshold: 1
   sellGoodsDuration: 8
   sellGoodsSearchRadius: 2.2
@@ -130988,104 +130941,12 @@ MonoBehaviour:
   maxProfessionLevel: 20
   professionExpPerWork: 1
   productBonusEveryProfessionLevels: 3
-  currentAction: "\u0110\u1EE9ng y\xEAn"
+  currentAction: idle
   currentTarget: {fileID: 0}
   lastWorkProductStatus: 
   debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
---- !u!114 &1408745020
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1408745008}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc4bf883290daa74499e6dfdae005003, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcItemCollector
-  inventory: {fileID: 0}
-  characterStats: {fileID: 0}
-  canPickupItems: 1
-  autoUsePickedItems: 1
-  pickupLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  pickupRadius: 0.45
-  scanInterval: 0.5
-  autoStudyManuals: 1
-  manualStudyInterval: 120
---- !u!114 &1408745021
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1408745008}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f04ee078acf6f5348a56c0dd4f443cd0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcSocialSystem
---- !u!114 &1408745022
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1408745008}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b75b03d92ec088d4688820efbcd11d02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ItemInventory
-  shareRuntimeItems: 1
-  keepInspectorItemsWhenLoadingSave: 1
-  runtimeKey: 
-  items: []
---- !u!114 &1408745026
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1408745008}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d14b4510bc9b8114c9fd7e33da6b676c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NPCVisualAnimation
-  downWalkClip: {fileID: 0}
-  upWalkClip: {fileID: 0}
-  sideWalkClip: {fileID: 0}
-  rightWalkClip: {fileID: 0}
-  leftWalkClip: {fileID: 0}
-  downIdleClip: {fileID: 0}
-  upIdleClip: {fileID: 0}
-  sideIdleClip: {fileID: 0}
-  rightIdleClip: {fileID: 0}
-  leftIdleClip: {fileID: 0}
-  attackDownClip: {fileID: 0}
-  attackUpClip: {fileID: 0}
-  attackSideClip: {fileID: 0}
-  rightAttackClip: {fileID: 0}
-  leftAttackClip: {fileID: 0}
-  cultivateDownClip: {fileID: 0}
-  cultivateUpClip: {fileID: 0}
-  cultivateSideClip: {fileID: 0}
-  rightCultivateClip: {fileID: 0}
-  leftCultivateClip: {fileID: 0}
-  dieDownClip: {fileID: 0}
-  dieUpClip: {fileID: 0}
-  dieSideClip: {fileID: 0}
-  rightDieClip: {fileID: 0}
-  leftDieClip: {fileID: 0}
-  sideSpriteFacesRight: 0
-  invertSideFlip: 0
-  invertVerticalFacing: 1
-  directionDeadZone: 0.08
---- !u!114 &1408745030
+--- !u!114 &1408745015
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -131099,7 +130960,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
   enforceSchedule: 1
   autoBuildDefaultSchedule: 1
-  lifePath: 1
+  lifePath: 0
   slots:
   - activity: 2
     startHour: 5
@@ -131115,61 +130976,62 @@ MonoBehaviour:
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 10
-    endHour: 12
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
   - activity: 2
-    startHour: 12
-    endHour: 13
+    startHour: 10
+    endHour: 11
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 3
-    startHour: 13
+    startHour: 11
     endHour: 16
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  - activity: 4
+  - activity: 12
     startHour: 16
-    endHour: 17
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 11
-    startHour: 17
-    endHour: 19
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 19
-    endHour: 23
+    endHour: 21
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 1
-    startHour: 23
+    startHour: 21
     endHour: 5
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  canCultivate: 1
+  canCultivate: 0
   awakenedCultivation: 0
   awakenedByMarrowCleansingPill: 0
   debugCurrentHour: 0
   debugCurrentActivity: 0
   debugCurrentSlot: 
+--- !u!114 &1408745016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1408745008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7955636872e10db49b0f4d58c870224d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HarvestJob
+  enabledHarvestJob: 1
+  farmProduct: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
+  fishingProduct: {fileID: 11400000, guid: 550730f23498be4459f8358921e55b8e, type: 2}
+  huntingProduct: {fileID: 0}
+  preferredResourceKind: 0
+  storageSearchRadius: 3
+  storageDropDistance: 1.2
+  currentState: 0
+  limitScheduledHarvestOncePerDay: 0
+  retryHarvestDelaySeconds: 2
 --- !u!1 &1411044228
 GameObject:
   m_ObjectHideFlags: 0
@@ -133227,6 +133089,37 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1509621238
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1509621239}
+  m_Layer: 0
+  m_Name: patrob
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1509621239
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1509621238}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1722716694}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!213 &1511320016
 Sprite:
   m_ObjectHideFlags: 0
@@ -133630,6 +133523,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: satthu
       objectReference: {fileID: 0}
+    - target: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 70.53341
@@ -133797,6 +133694,10 @@ PrefabInstance:
       value: laoba (1)
       objectReference: {fileID: 0}
     - target: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_TagString
       value: NPC
       objectReference: {fileID: 0}
@@ -133814,11 +133715,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8373426706007874102, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.24
+      value: 1.37
       objectReference: {fileID: 0}
     - target: {fileID: 8373426706007874102, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.07
+      value: -3.06
       objectReference: {fileID: 0}
     - target: {fileID: 8373426706007874102, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_LocalPosition.z
@@ -133861,10 +133762,13 @@ PrefabInstance:
       addedObject: {fileID: 1275826748}
     - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1275826745}
+      addedObject: {fileID: 1275826754}
     - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1275826743}
+      addedObject: {fileID: 1275826753}
+    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1275826752}
     - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1275826751}
@@ -133877,9 +133781,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1275826755}
-    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1275826759}
   m_SourcePrefab: {fileID: 100100000, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
 --- !u!1 &1534050251
 GameObject:
@@ -141761,6 +141662,7 @@ Transform:
   - {fileID: 1015572277}
   - {fileID: 1099299552}
   - {fileID: 1642532623}
+  - {fileID: 1509621239}
   m_Father: {fileID: 745795171}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1741088992
@@ -146184,6 +146086,7 @@ GameObject:
   - component: {fileID: 1932609891}
   - component: {fileID: 1932609893}
   - component: {fileID: 1932609892}
+  - component: {fileID: 1932609894}
   m_Layer: 0
   m_Name: noisanban
   m_TagString: Untagged
@@ -146282,6 +146185,19 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 12.922165, y: 14.068533}
   m_EdgeRadius: 0
+--- !u!114 &1932609894
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1932609890}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b477d32f06b497fa7c717b65bb3a9e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMapDestination
+  zone: 2
 --- !u!1 &1937574705
 GameObject:
   m_ObjectHideFlags: 0
@@ -164128,15 +164044,12 @@ Tilemap:
   - serializedVersion: 2
     m_RefCount: 15
     m_Data: {fileID: 546696956, guid: e3046f4802b255e43bc09df30edadcc1, type: 3}
-<<<<<<< HEAD
-=======
   - serializedVersion: 2
     m_RefCount: 104
     m_Data: {fileID: 1282734966}
   - serializedVersion: 2
     m_RefCount: 1
     m_Data: {fileID: 965015501}
->>>>>>> 92a0a40475748ac6155777e62e5c03a555d49c45
   m_TileMatrixArray:
   - serializedVersion: 2
     m_RefCount: 608
@@ -169544,7 +169457,7 @@ MonoBehaviour:
   snapToAlchemyStandPoint: 1
   keepAtAlchemyStandPoint: 1
   lockFacingToAlchemyPoint: 1
-  forceVillagerJobWorker: 1
+  forceVillagerJobProfession: 1
   professionName: Luyen Dan Su
 --- !u!114 &2092184313
 MonoBehaviour:
@@ -170010,7 +169923,6 @@ MonoBehaviour:
   hunger: 0
   fatigue: 0
   fun: 0
-  mood: 0
   strongNpcAvoidMortalWork: 1
   cultivatorResourceWorkChance: 0.65
   homePoint: {fileID: 0}
@@ -170022,19 +169934,12 @@ MonoBehaviour:
   thinkInterval: 2
   arriveDistance: 0.25
   wanderRadius: 3
-  talkRadius: 1.2
   sharedTargetSpacingRadius: 0.45
   sharedTargetOccupancyRadius: 0.3
   sharedAnchorSpacingRadius: 0.7
   villagerLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  acquaintanceTalkChanceBonus: 30
-  requireKnownVillagerToTalk: 1
-  minFriendshipToTalk: 3
-  socialScanInterval: 6
-  conversationCooldown: 25
-  conversationPauseDuration: 2
   destroyOnDeath: 0
   scatterWhenMissingPoints: 1
   missingPointScatterRadius: 3
@@ -170109,7 +170014,6 @@ MonoBehaviour:
   cultivationSessionMaxGameHours: 2
   workSessionMinGameHours: 1
   workSessionMaxGameHours: 3
-  scheduledWorkHarvestSeconds: 8
   resourceSessionMinGameHours: 0.5
   resourceSessionMaxGameHours: 1.5
   tradeSessionMinGameHours: 0.5
@@ -170119,16 +170023,10 @@ MonoBehaviour:
   keepInsideCombinedNpcMapAreas: 0
   mapAreaEdgePadding: 0.15
   inventory: {fileID: 2092184315}
-  farmProduct: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
   fishingProduct: {fileID: 0}
   huntingProduct: {fileID: 0}
-  workerProduct: {fileID: 0}
   workProductMin: 1
   workProductMax: 3
-  farmerHarvestOnlyInMorning: 1
-  limitScheduledHarvestOncePerDay: 0
-  farmerHarvestAmountPerDay: 1
-  farmerPreferWorkPoint: 1
   sellGoodsThreshold: 1
   sellGoodsDuration: 8
   sellGoodsSearchRadius: 2.2
@@ -170471,7 +170369,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_TagString
@@ -170491,11 +170389,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8373426706007874102, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.28
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 8373426706007874102, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.7689028
+      value: -1.39
       objectReference: {fileID: 0}
     - target: {fileID: 8373426706007874102, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_LocalPosition.z
@@ -170538,25 +170436,13 @@ PrefabInstance:
       addedObject: {fileID: 2104565424}
     - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2104565423}
+      addedObject: {fileID: 2104565427}
     - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2104565422}
+      addedObject: {fileID: 2104565426}
     - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2104565421}
-    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2104565420}
-    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2104565419}
-    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2104565428}
-    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2104565432}
+      addedObject: {fileID: 2104565425}
   m_SourcePrefab: {fileID: 100100000, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
 --- !u!4 &2104565417 stripped
 Transform:
@@ -170568,68 +170454,44 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
   m_PrefabInstance: {fileID: 2104565416}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2104565419
-MonoBehaviour:
+--- !u!70 &2104565424
+CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2104565418}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f04ee078acf6f5348a56c0dd4f443cd0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcSocialSystem
---- !u!114 &2104565420
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2104565418}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfbab0629b004768a5f0d842ff9aafc4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcResourceGatherer
-  canGather: 1
-  scanInterval: 2
-  maxSearchDistance: 12
-  arriveDistance: 0.35
-  retargetDistance: 0.75
-  reservationDuration: 3
-  harvestBreakDistance: 2
-  harvestCooldownAfterSuccess: 45
-  harvestCooldownWhenNoTarget: 8
-  limitHarvestsPerScheduleSlot: 1
-  maxHarvestsPerScheduleSlot: 1
-  gatherChancePerScan: 0.35
-  gatherOnlyWhenInventoryExists: 0
-  useVillagerPreferredZone: 1
---- !u!114 &2104565421
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2104565418}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc4bf883290daa74499e6dfdae005003, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcItemCollector
-  inventory: {fileID: 0}
-  characterStats: {fileID: 0}
-  canPickupItems: 1
-  autoUsePickedItems: 1
-  pickupLayers:
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  pickupRadius: 0.45
-  scanInterval: 0.5
-  autoStudyManuals: 1
-  manualStudyInterval: 120
---- !u!114 &2104565422
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: -0.034668446, y: -1.0140908}
+  m_Size: {x: 1.4033176, y: 1.4405687}
+  m_Direction: 0
+--- !u!114 &2104565425
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -170638,14 +170500,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 2104565418}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b75b03d92ec088d4688820efbcd11d02, type: 3}
+  m_Script: {fileID: 11500000, guid: 7f73d509ce208444496b78b3930d5296, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ItemInventory
-  shareRuntimeItems: 0
-  keepInspectorItemsWhenLoadingSave: 1
-  runtimeKey: 
-  items: []
---- !u!114 &2104565423
+  m_EditorClassIdentifier: Assembly-CSharp::GuardJob
+  enabledGuardJob: 1
+  patrolPointA: {fileID: 1642532623}
+  patrolPointB: {fileID: 1509621239}
+  arriveDistance: 0.35
+  patrolSpeedMultiplier: 0.9
+  patrolWanderRadius: 3
+  currentState: 0
+--- !u!114 &2104565426
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -170661,13 +170526,13 @@ MonoBehaviour:
   entityProfile: {fileID: 0}
   villagerName: "Ng\u01B0\u1EDDi d\xE2n"
   ageGroup: 1
-  job: 1
-  keepInspectorJob: 0
+  job: 4
+  keepInspectorJob: 1
   maxHP: 100
   currentHP: 100
   money: 20
   spiritStone: 0
-  moveSpeed: 3
+  moveSpeed: 1.6
   characterStats: {fileID: 0}
   realm: 0
   realmStage: 1
@@ -170688,31 +170553,23 @@ MonoBehaviour:
   hunger: 0
   fatigue: 0
   fun: 0
-  mood: 0
   strongNpcAvoidMortalWork: 1
   cultivatorResourceWorkChance: 0.65
-  homePoint: {fileID: 1642251566}
+  homePoint: {fileID: 1927523158}
   hideAtHome: 1
   homeRoutineManagedExternally: 0
-  workPoint: {fileID: 258502344}
-  marketPoint: {fileID: 418409111}
-  playPoint: {fileID: 1548278690}
+  workPoint: {fileID: 0}
+  marketPoint: {fileID: 0}
+  playPoint: {fileID: 0}
   thinkInterval: 2
   arriveDistance: 0.25
   wanderRadius: 3
-  talkRadius: 1.2
   sharedTargetSpacingRadius: 0.45
   sharedTargetOccupancyRadius: 0.3
   sharedAnchorSpacingRadius: 0.7
   villagerLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  acquaintanceTalkChanceBonus: 30
-  requireKnownVillagerToTalk: 1
-  minFriendshipToTalk: 3
-  socialScanInterval: 6
-  conversationCooldown: 25
-  conversationPauseDuration: 2
   destroyOnDeath: 0
   scatterWhenMissingPoints: 1
   missingPointScatterRadius: 3
@@ -170753,21 +170610,21 @@ MonoBehaviour:
   fullUpdateDistanceFromCamera: 14
   reducedUpdateInterval: 0.25
   useSmartPathfinding: 1
-  pathCellSize: 0.45
+  pathCellSize: 0.7
   pathWaypointReachDistance: 0.18
   pathReplanTargetDistance: 0.6
   obstacleDetourLookAhead: 0.65
-  useLocalDetour: 0
+  useLocalDetour: 1
   requireClearLineForDirectMove: 1
   directMovePathDistance: 1.2
   useSharedPathMemory: 1
   sharedPathMemoryCellSize: 2
   compareRememberedPathWithNewPath: 0
   pathTurnPenalty: 0.25
-  pathReplanCooldown: 0.75
-  maxPathNodes: 1200
-  maxPathSteps: 256
-  maxPathSearchDistance: 18
+  pathReplanCooldown: 2
+  maxPathNodes: 500
+  maxPathSteps: 160
+  maxPathSearchDistance: 0
   autonomousWorkEnabled: 1
   autonomousResourceWorkEnabled: 0
   autonomousDangerousWorkEnabled: 0
@@ -170775,7 +170632,7 @@ MonoBehaviour:
   staggerDailyVanBaoLauVisits: 1
   dailyVanBaoLauVisitStaggerHours: 2
   dailyTaskPlanEnabled: 1
-  dailyTaskPlanStartupDelay: 8
+  dailyTaskPlanStartupDelay: 2
   dailyTaskPlanMinTasks: 3
   dailyTaskPlanMaxTasks: 5
   dailyRoutineEnabled: 1
@@ -170787,7 +170644,6 @@ MonoBehaviour:
   cultivationSessionMaxGameHours: 2
   workSessionMinGameHours: 1
   workSessionMaxGameHours: 3
-  scheduledWorkHarvestSeconds: 8
   resourceSessionMinGameHours: 0.5
   resourceSessionMaxGameHours: 1.5
   tradeSessionMinGameHours: 0.5
@@ -170796,17 +170652,11 @@ MonoBehaviour:
   allowCrossNpcMapAreas: 1
   keepInsideCombinedNpcMapAreas: 0
   mapAreaEdgePadding: 0.15
-  inventory: {fileID: 2104565422}
-  farmProduct: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
+  inventory: {fileID: 0}
   fishingProduct: {fileID: 0}
   huntingProduct: {fileID: 0}
-  workerProduct: {fileID: 0}
   workProductMin: 1
   workProductMax: 3
-  farmerHarvestOnlyInMorning: 1
-  limitScheduledHarvestOncePerDay: 0
-  farmerHarvestAmountPerDay: 1
-  farmerPreferWorkPoint: 1
   sellGoodsThreshold: 1
   sellGoodsDuration: 8
   sellGoodsSearchRadius: 2.2
@@ -170821,90 +170671,12 @@ MonoBehaviour:
   maxProfessionLevel: 20
   professionExpPerWork: 1
   productBonusEveryProfessionLevels: 3
-  currentAction: "\u0110\u1EE9ng y\xEAn"
+  currentAction: idle
   currentTarget: {fileID: 0}
   lastWorkProductStatus: 
   debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
---- !u!70 &2104565424
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2104565418}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: -0.034668446, y: -1.0140908}
-  m_Size: {x: 1.4033176, y: 1.4405687}
-  m_Direction: 0
---- !u!114 &2104565428
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2104565418}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d14b4510bc9b8114c9fd7e33da6b676c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NPCVisualAnimation
-  downWalkClip: {fileID: 0}
-  upWalkClip: {fileID: 0}
-  sideWalkClip: {fileID: 0}
-  rightWalkClip: {fileID: 0}
-  leftWalkClip: {fileID: 0}
-  downIdleClip: {fileID: 0}
-  upIdleClip: {fileID: 0}
-  sideIdleClip: {fileID: 0}
-  rightIdleClip: {fileID: 0}
-  leftIdleClip: {fileID: 0}
-  attackDownClip: {fileID: 0}
-  attackUpClip: {fileID: 0}
-  attackSideClip: {fileID: 0}
-  rightAttackClip: {fileID: 0}
-  leftAttackClip: {fileID: 0}
-  cultivateDownClip: {fileID: 0}
-  cultivateUpClip: {fileID: 0}
-  cultivateSideClip: {fileID: 0}
-  rightCultivateClip: {fileID: 0}
-  leftCultivateClip: {fileID: 0}
-  dieDownClip: {fileID: 0}
-  dieUpClip: {fileID: 0}
-  dieSideClip: {fileID: 0}
-  rightDieClip: {fileID: 0}
-  leftDieClip: {fileID: 0}
-  sideSpriteFacesRight: 0
-  invertSideFlip: 0
-  invertVerticalFacing: 1
-  directionDeadZone: 0.08
---- !u!114 &2104565432
+--- !u!114 &2104565427
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -170948,15 +170720,8 @@ MonoBehaviour:
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  - activity: 4
-    startHour: 16
-    endHour: 18
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
   - activity: 12
-    startHour: 18
+    startHour: 16
     endHour: 21
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -170973,7 +170738,7 @@ MonoBehaviour:
   awakenedCultivation: 0
   awakenedByMarrowCleansingPill: 0
   debugCurrentHour: 0
-  debugCurrentActivity: 3
+  debugCurrentActivity: 0
   debugCurrentSlot: 
 --- !u!1001 &2108683287
 PrefabInstance:
@@ -170986,6 +170751,10 @@ PrefabInstance:
     - target: {fileID: 4784376538236298774, guid: e93c886c75775ac40b19070a1f0016fa, type: 3}
       propertyPath: m_Name
       value: thusinh_33
+      objectReference: {fileID: 0}
+    - target: {fileID: 4784376538236298774, guid: e93c886c75775ac40b19070a1f0016fa, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6084189388553048862, guid: e93c886c75775ac40b19070a1f0016fa, type: 3}
       propertyPath: m_LocalScale.x
@@ -171231,7 +171000,6 @@ MonoBehaviour:
   hunger: 0
   fatigue: 0
   fun: 0
-  mood: 0
   strongNpcAvoidMortalWork: 1
   cultivatorResourceWorkChance: 0.65
   homePoint: {fileID: 0}
@@ -171243,19 +171011,12 @@ MonoBehaviour:
   thinkInterval: 2
   arriveDistance: 0.25
   wanderRadius: 3
-  talkRadius: 1.2
   sharedTargetSpacingRadius: 0.45
   sharedTargetOccupancyRadius: 0.3
   sharedAnchorSpacingRadius: 0.7
   villagerLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  acquaintanceTalkChanceBonus: 30
-  requireKnownVillagerToTalk: 1
-  minFriendshipToTalk: 3
-  socialScanInterval: 6
-  conversationCooldown: 25
-  conversationPauseDuration: 2
   destroyOnDeath: 0
   scatterWhenMissingPoints: 1
   missingPointScatterRadius: 3
@@ -171330,7 +171091,6 @@ MonoBehaviour:
   cultivationSessionMaxGameHours: 2
   workSessionMinGameHours: 1
   workSessionMaxGameHours: 3
-  scheduledWorkHarvestSeconds: 8
   resourceSessionMinGameHours: 0.5
   resourceSessionMaxGameHours: 1.5
   tradeSessionMinGameHours: 0.5
@@ -171340,16 +171100,10 @@ MonoBehaviour:
   keepInsideCombinedNpcMapAreas: 0
   mapAreaEdgePadding: 0.15
   inventory: {fileID: 2108683290}
-  farmProduct: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
   fishingProduct: {fileID: 0}
   huntingProduct: {fileID: 0}
-  workerProduct: {fileID: 0}
   workProductMin: 1
   workProductMax: 3
-  farmerHarvestOnlyInMorning: 1
-  limitScheduledHarvestOncePerDay: 0
-  farmerHarvestAmountPerDay: 1
-  farmerPreferWorkPoint: 1
   sellGoodsThreshold: 1
   sellGoodsDuration: 8
   sellGoodsSearchRadius: 2.2
@@ -172691,6 +172445,10 @@ PrefabInstance:
     - target: {fileID: 8596889031696047861, guid: afa77975feceb5d4da429fc22403760e, type: 3}
       propertyPath: m_Name
       value: thoren_1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8596889031696047861, guid: afa77975feceb5d4da429fc22403760e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

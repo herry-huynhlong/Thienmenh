@@ -627,7 +627,7 @@ MonoBehaviour:
   tradeRadius: 1.6
   tradeInterval: 4
   maxMoneySpendRatio: 0.8
-  forceVillagerJobWorker: 1
+  forceVillagerJobProfession: 1
   professionName: Lo Ren
 --- !u!114 &1836311742786125013
 MonoBehaviour:
@@ -750,7 +750,6 @@ MonoBehaviour:
   hunger: 0
   fatigue: 0
   fun: 0
-  mood: 0
   strongNpcAvoidMortalWork: 1
   cultivatorResourceWorkChance: 0.65
   homePoint: {fileID: 0}
@@ -762,19 +761,12 @@ MonoBehaviour:
   thinkInterval: 2
   arriveDistance: 0.25
   wanderRadius: 3
-  talkRadius: 1.2
   sharedTargetSpacingRadius: 0.45
   sharedTargetOccupancyRadius: 0.3
   sharedAnchorSpacingRadius: 0.7
   villagerLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  acquaintanceTalkChanceBonus: 30
-  requireKnownVillagerToTalk: 1
-  minFriendshipToTalk: 3
-  socialScanInterval: 6
-  conversationCooldown: 25
-  conversationPauseDuration: 2
   destroyOnDeath: 0
   scatterWhenMissingPoints: 1
   missingPointScatterRadius: 3
@@ -858,15 +850,10 @@ MonoBehaviour:
   keepInsideCombinedNpcMapAreas: 0
   mapAreaEdgePadding: 0.15
   inventory: {fileID: 8702128748568086803}
-  farmProduct: {fileID: 0}
   fishingProduct: {fileID: 0}
   huntingProduct: {fileID: 0}
-  workerProduct: {fileID: 0}
   workProductMin: 1
   workProductMax: 3
-  farmerHarvestOnlyInMorning: 1
-  farmerHarvestAmountPerDay: 1
-  farmerPreferWorkPoint: 1
   sellGoodsThreshold: 1
   sellGoodsDuration: 8
   sellGoodsSearchRadius: 2.2
@@ -884,6 +871,7 @@ MonoBehaviour:
   currentAction: idle
   currentTarget: {fileID: 0}
   lastWorkProductStatus: 
+  debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &7818768257515629136
 MonoBehaviour:

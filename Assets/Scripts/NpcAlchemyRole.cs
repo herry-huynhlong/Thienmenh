@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(ItemInventory))]
 [RequireComponent(typeof(NpcTradeAgent))]
@@ -22,7 +23,8 @@ public class NpcAlchemyRole : MonoBehaviour
     public bool lockFacingToAlchemyPoint = true;
 
     [Header("Profession")]
-    public bool forceVillagerJobWorker = true;
+    [FormerlySerializedAs("forceVillagerJobWorker")]
+    public bool forceVillagerJobProfession = true;
     public string professionName = "Luyen Dan Su";
 
     NpcTradeAgent tradeAgent;
@@ -105,17 +107,17 @@ public class NpcAlchemyRole : MonoBehaviour
         }
 
         VillagerAI villager = GetComponent<VillagerAI>();
-        if (villager != null && forceVillagerJobWorker)
+        if (villager != null && forceVillagerJobProfession)
         {
-            villager.job = VillagerJob.Worker;
+            villager.job = VillagerJob.Alchemist;
         }
 
         NpcSpecialProfession profession = GetComponent<NpcSpecialProfession>();
         if (profession != null)
         {
             profession.professionName = professionName;
-            profession.lockVillagerJob = forceVillagerJobWorker;
-            profession.villagerJob = VillagerJob.Worker;
+            profession.lockVillagerJob = forceVillagerJobProfession;
+            profession.villagerJob = VillagerJob.Alchemist;
         }
     }
 }

@@ -18,7 +18,8 @@ public class WorldStatItemPickup : MonoBehaviour
     public bool RequiresNpcHarvestAction()
     {
         return requireNpcHarvestAction ||
-            GetComponent<WorldResourceNode>() != null;
+            GetComponent<WorldResourceNode>() != null ||
+            GetComponent<ResourceNode>() != null;
     }
 
     public bool TryTake(int takeAmount)

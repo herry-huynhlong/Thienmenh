@@ -1642,9 +1642,15 @@ public class NpcTaskProvider : MonoBehaviour
     {
         foreach (VillagerAI villager in FindObjectsByType<VillagerAI>(FindObjectsInactive.Include))
         {
-            if (villager != null && IsLinhRiceItem(villager.farmProduct))
+            if (villager == null)
             {
-                return villager.farmProduct;
+                continue;
+            }
+
+            HarvestJob harvestJob = villager.GetComponent<HarvestJob>();
+            if (harvestJob != null && IsLinhRiceItem(harvestJob.farmProduct))
+            {
+                return harvestJob.farmProduct;
             }
         }
 
@@ -4021,12 +4027,20 @@ public class NpcTaskProvider : MonoBehaviour
 
                 case VillagerJob.Farmer:
                 case VillagerJob.Fisher:
-                case VillagerJob.Worker:
                     if (offer.taskType == NpcTaskType.GatherResource ||
                         offer.taskType == NpcTaskType.Deliver ||
                         offer.taskType == NpcTaskType.HarvestAndDeliver)
                     {
                         score += 30f;
+                    }
+                    break;
+
+                case VillagerJob.Alchemist:
+                case VillagerJob.Blacksmith:
+                    if (offer.taskType == NpcTaskType.Deliver ||
+                        offer.taskType == NpcTaskType.GatherResource)
+                    {
+                        score += 20f;
                     }
                     break;
 

@@ -1171,7 +1171,7 @@ public class NpcAlchemyAgent : MonoBehaviour
         return false;
     }
 
-    bool NeedsMoreMaterials()
+    public bool NeedsMoreMaterials()
     {
         if (inventory == null)
         {

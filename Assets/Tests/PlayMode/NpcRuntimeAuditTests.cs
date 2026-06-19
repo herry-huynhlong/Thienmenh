@@ -144,14 +144,10 @@ public class NpcRuntimeAuditTests
     static readonly Type NpcMapAreaType = GetGameType("NpcMapArea");
     static readonly Type NpcTeleportGateType = GetGameType("NpcTeleportGate");
     static readonly Type NpcTextType = GetGameType("NpcText");
-<<<<<<< HEAD
     static readonly Type NpcScheduleControllerType = GetGameType("NpcScheduleController");
-    static readonly Type WorldTimeSystemType = GetGameType("WorldTimeSystem");
-=======
     static readonly Type WorldTimeSystemType = GetGameType("WorldTimeSystem");
     static readonly Type NpcTaskProviderType = GetGameType("NpcTaskProvider");
     static readonly Type NpcTaskOfferType = GetGameType("NpcTaskOffer");
->>>>>>> 92a0a40475748ac6155777e62e5c03a555d49c45
 
     [UnityTest]
     [Timeout(600000)]
@@ -201,8 +197,6 @@ public class NpcRuntimeAuditTests
             Time.fixedDeltaTime = originalFixedDeltaTime;
         }
     }
-
-<<<<<<< HEAD
 
     [UnityTest]
     [Timeout(600000)]
@@ -284,7 +278,6 @@ public class NpcRuntimeAuditTests
         }
     }
 
-=======
     [UnityTest]
     [Timeout(120000)]
     public IEnumerator HybridBrainConflictIsResolvedBothWays()
@@ -434,7 +427,6 @@ public class NpcRuntimeAuditTests
             "SmartNpcAI should not revisit a task provider again on the same world day.");
     }
 
->>>>>>> 92a0a40475748ac6155777e62e5c03a555d49c45
     static List<ActorState> CreateActorStates()
     {
         List<ActorState> actors = new List<ActorState>();
@@ -724,17 +716,21 @@ public class NpcRuntimeAuditTests
         return value != null ? value.ToString() : "None";
     }
 
-    static object EnsureWorldTimeSystem()
+    static Component EnsureWorldTimeSystem()
     {
         if (WorldTimeSystemType == null)
         {
-            return null;
+            Assert.Fail("WorldTimeSystem type was not found.");
         }
 
-        MethodInfo ensure = WorldTimeSystemType.GetMethod(
-            "EnsureInstance",
-            BindingFlags.Static | BindingFlags.Public);
-        return ensure != null ? ensure.Invoke(null, null) : null;
+        Component existing = FindFirstActiveComponent(WorldTimeSystemType);
+        if (existing != null)
+        {
+            return existing;
+        }
+
+        GameObject worldTimeObject = new GameObject("NpcRuntimeAuditWorldTime");
+        return worldTimeObject.AddComponent(WorldTimeSystemType);
     }
 
     static object GetPropertyValue(object instance, string propertyName)
@@ -1485,23 +1481,6 @@ public class NpcRuntimeAuditTests
         object enumValue = Enum.Parse(taskTypeField.FieldType, taskTypeName);
         taskTypeField.SetValue(offer, enumValue);
         return offer;
-    }
-
-    static Component EnsureWorldTimeSystem()
-    {
-        if (WorldTimeSystemType == null)
-        {
-            Assert.Fail("WorldTimeSystem type was not found.");
-        }
-
-        Component existing = FindFirstActiveComponent(WorldTimeSystemType);
-        if (existing != null)
-        {
-            return existing;
-        }
-
-        GameObject worldTimeObject = new GameObject("NpcRuntimeAuditWorldTime");
-        return worldTimeObject.AddComponent(WorldTimeSystemType);
     }
 
     static void SetWorldTime(
