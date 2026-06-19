@@ -287,16 +287,20 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
     string currentScheduleSlotKey;
     Vector3 currentTradeTarget;
     NpcMapZone? currentTradeTargetZone;
+    Vector3 currentBuyTarget;
+    NpcMapZone? currentBuyTargetZone;
     NpcForgeAgent currentForgeTradeTarget;
     StatItemData currentForgeTradeItem;
     Vector3 currentEatTarget;
     Vector3 currentSellTarget;
     NpcMapZone? currentSellTargetZone;
     NpcMapZone? resolvedTraderLocationZone;
+    NpcMapZone? resolvedBuyLocationZone;
     NpcMapZone? resolvedSellLocationZone;
 
     bool hasWorkTarget;
     bool hasTradeTarget;
+    bool hasBuyTarget;
     bool hasEatTarget;
     bool hasSellTarget;
     readonly List<NpcTaskOffer> dailyTaskPlan =
@@ -321,6 +325,15 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
     public bool IsHiddenAtHome => hiddenAtHome;
 
     public Transform DamageTransform => transform;
+
+    public void AddMoney(int amount)
+    {
+        spiritStone = Mathf.Max(0, spiritStone + amount);
+        if (entityProfile != null)
+        {
+            entityProfile.stats.spiritStone = spiritStone;
+        }
+    }
 
     void Awake()
     {
@@ -514,20 +527,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         if (inventory == null)
         {
             inventory = GetComponent<ItemInventory>();
-        }
-
-        if (fishingProduct == null)
-        {
-            fishingProduct =
-                UnityEditor.AssetDatabase.LoadAssetAtPath<StatItemData>(
-                    "Assets/Item/NPCitem/Ca.asset");
-        }
-
-        if (huntingProduct == null)
-        {
-            huntingProduct =
-                UnityEditor.AssetDatabase.LoadAssetAtPath<StatItemData>(
-                    "Assets/Item/NPCitem/Thit.asset");
         }
 
         if (cultivationEffectPrefab == null)
@@ -945,12 +944,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (ShouldSellGoodsNow())
-        {
-            GoSellGoods();
-            return;
-        }
-
         if (ageGroup == VillagerAgeGroup.Child)
         {
             ThinkChild();
@@ -1033,18 +1026,18 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                 return true;
 
             case NpcScheduleActivity.SellGoods:
-                if (HasSellableGoods())
-                {
-                    GoSellGoods();
-                }
-                else
-                {
-                    GoTrade();
-                }
+                GoSellGoods();
                 return true;
 
             case NpcScheduleActivity.BuyGoods:
-                GoTrade();
+                if (job == VillagerJob.Trader)
+                {
+                    GoTrade();
+                }
+                else
+                {
+                    GoBuyGoods();
+                }
                 return true;
 
             case NpcScheduleActivity.Gather:
@@ -1188,9 +1181,15 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         currentTradeTargetZone = null;
         hasEatTarget = false;
         currentEatTarget = Vector3.zero;
+        hasBuyTarget = false;
+        currentBuyTarget = Vector3.zero;
+        currentBuyTargetZone = null;
         hasSellTarget = false;
         currentSellTarget = Vector3.zero;
         currentSellTargetZone = null;
+        resolvedTraderLocationZone = null;
+        resolvedBuyLocationZone = null;
+        resolvedSellLocationZone = null;
 
         NpcResourceGatherer gatherer = GetComponent<NpcResourceGatherer>();
         if (gatherer != null)
@@ -1373,7 +1372,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (ShouldVisitCounterBroker())
+        if (job == VillagerJob.Trader && ShouldVisitCounterBroker())
         {
             GoTrade();
             return;
@@ -1577,19 +1576,19 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         if (alchemyAgent.autoBuyMaterialsFromMarketTraders &&
             alchemyAgent.NeedsMoreMaterials())
         {
-            if (NpcEconomy.GetNpcMoney(gameObject) > 0 && marketPoint != null)
-            {
-                GoTrade();
-                return;
-            }
-
             if (autonomousResourceWorkEnabled)
             {
                 GoResourceWork();
                 return;
             }
 
-            GoDailyVanBaoLauCheck();
+            if (ShouldDoDailyVanBaoLauCheck())
+            {
+                GoDailyVanBaoLauCheck();
+                return;
+            }
+
+            Wander(NpcText.Action("wanderVillage"));
             return;
         }
 
@@ -1624,37 +1623,19 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         if (forgeAgent.autoBuyMaterialsFromMarketTraders &&
             forgeAgent.NeedsMoreMaterials())
         {
-            if (NpcEconomy.GetNpcMoney(gameObject) <= 0)
-            {
-                if (ShouldDoDailyVanBaoLauCheck())
-                {
-                    GoDailyVanBaoLauCheck();
-                    return;
-                }
-
-                if (autonomousResourceWorkEnabled)
-                {
-                    GoResourceWork();
-                    return;
-                }
-
-                Wander(NpcText.Action("wanderVillage"));
-                return;
-            }
-
-            if (marketPoint != null)
-            {
-                GoTrade();
-                return;
-            }
-
             if (autonomousResourceWorkEnabled)
             {
                 GoResourceWork();
                 return;
             }
 
-            GoDailyVanBaoLauCheck();
+            if (ShouldDoDailyVanBaoLauCheck())
+            {
+                GoDailyVanBaoLauCheck();
+                return;
+            }
+
+            Wander(NpcText.Action("wanderVillage"));
             return;
         }
 
@@ -2169,10 +2150,18 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
         hasWorkTarget = false;
         hasTradeTarget = false;
+        currentTradeTarget = Vector3.zero;
         currentTradeTargetZone = null;
+        hasBuyTarget = false;
+        currentBuyTarget = Vector3.zero;
+        currentBuyTargetZone = null;
         hasEatTarget = false;
         hasSellTarget = false;
+        currentSellTarget = Vector3.zero;
         currentSellTargetZone = null;
+        resolvedTraderLocationZone = null;
+        resolvedBuyLocationZone = null;
+        resolvedSellLocationZone = null;
         hasRoadPreference = false;
     }
 
@@ -2559,7 +2548,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             return false;
         }
 
-        if (ShouldVisitCounterBroker())
+        if (job == VillagerJob.Trader && ShouldVisitCounterBroker())
         {
             return true;
         }
@@ -2572,7 +2561,9 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         if (vanBaoLauVisitStep <= 0)
         {
             NpcCounterBroker broker = NpcCounterBroker.Active;
-            if (broker != null && ShouldVisitCounterBroker())
+            if (job == VillagerJob.Trader &&
+                broker != null &&
+                ShouldVisitCounterBroker())
             {
                 Vector3 brokerPosition = broker.GetCustomerPositionFor(gameObject);
                 NpcMapZone? brokerZone = GetTargetZone(broker.transform);
@@ -2645,35 +2636,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             ? timeSystem.CurrentDay
             : lastVanBaoLauVisitDay;
         vanBaoLauVisitStep = 0;
-    }
-
-    bool ShouldSellGoodsNow()
-    {
-        if (HasEnforcedSchedule())
-        {
-            return false;
-        }
-
-        if (job == VillagerJob.Trader ||
-            !HasSellableGoods())
-        {
-            return false;
-        }
-
-        if (!NpcScheduleController.AllowsTrade(gameObject))
-        {
-            return false;
-        }
-
-        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
-        if (timeSystem == null)
-        {
-            return true;
-        }
-
-        return timeSystem.CurrentPhase == WorldTimePhase.Noon ||
-            timeSystem.CurrentPhase == WorldTimePhase.Afternoon ||
-            timeSystem.CurrentPhase == WorldTimePhase.Evening;
     }
 
     public void GoHomeToRest()
@@ -2898,6 +2860,11 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
     void GoTrade()
     {
+        if (job != VillagerJob.Trader)
+        {
+            return;
+        }
+
         if (IsInDungeonCombatSession())
         {
             StopMoving();
@@ -2968,6 +2935,11 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
     bool TryTradeAtCounterOrTakeTask()
     {
+        if (job != VillagerJob.Trader)
+        {
+            return false;
+        }
+
         bool canTradeNow = NpcScheduleController.AllowsTrade(gameObject);
         bool canTakeTaskNow = NpcScheduleController.AllowsTask(gameObject);
         bool traded = false;
@@ -3035,6 +3007,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
         if (!hasSellTarget)
         {
+            resolvedSellLocationZone = null;
             currentSellTarget = GetSellGoodsTarget();
             currentSellTargetZone = GetSellGoodsTargetZone();
             hasSellTarget = true;
@@ -3057,16 +3030,73 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         StopMoving();
 
         if (TrySellGoodsToTrader() ||
-            (!sellOnlyToTrader && SellGoodsToMarket()))
+            (!sellOnlyToTrader && TrySellGoodsToMarketTrader()))
         {
             hasSellTarget = false;
+            currentSellTarget = Vector3.zero;
             currentSellTargetZone = null;
+            resolvedSellLocationZone = null;
             actionTimer = sellGoodsDuration;
             currentAction = NpcText.Action("soldGoods");
             return;
         }
 
         actionTimer = sellGoodsDuration;
+        currentAction = NpcText.Action("waitTraderBuyGoods");
+    }
+
+    void GoBuyGoods()
+    {
+        if (IsInDungeonCombatSession())
+        {
+            StopMoving();
+            ClearMovementTargets();
+            currentAction = NpcText.Action("idle");
+            return;
+        }
+
+        if (!NpcScheduleController.AllowsTrade(gameObject))
+        {
+            GoHomeIdle(NpcText.Action("idle"));
+            return;
+        }
+
+        if (!hasBuyTarget)
+        {
+            resolvedBuyLocationZone = null;
+            currentBuyTarget = GetBuyGoodsTarget();
+            currentBuyTargetZone = GetBuyGoodsTargetZone();
+            hasBuyTarget = true;
+        }
+
+        MoveUsingRoad(currentBuyTarget, currentBuyTargetZone);
+        currentAction = NpcText.Action("goBuyGoods");
+
+        NpcCounterBroker activeBroker = NpcCounterBroker.Active;
+        bool arrivedToBuy = activeBroker != null && activeBroker.receiveAllNpcRequests
+            ? IsInsideBrokerServiceArea(activeBroker)
+            : IsAtPosition(currentBuyTarget);
+
+        if (!arrivedToBuy)
+        {
+            return;
+        }
+
+        ClearMovementTargets();
+        StopMoving();
+
+        if (TryBuyGoodsFromTrader())
+        {
+            hasBuyTarget = false;
+            currentBuyTarget = Vector3.zero;
+            currentBuyTargetZone = null;
+            resolvedBuyLocationZone = null;
+            actionTimer = tradeDuration;
+            currentAction = NpcText.Action("boughtGoods");
+            return;
+        }
+
+        actionTimer = tradeDuration;
         currentAction = NpcText.Action("waitTraderBuyGoods");
     }
 
@@ -3100,6 +3130,11 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             ClearMovementTargets();
             StopMoving();
             actionTimer = idleAtHomeDuration;
+            if (hideAtHome &&
+                IsCurrentScheduleActivity(NpcScheduleActivity.ReturnHome))
+            {
+                ForceHiddenAtHome(true);
+            }
         }
     }
 
@@ -3145,6 +3180,19 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
     Vector3 GetTraderWorkPosition()
     {
+        if (job != VillagerJob.Trader)
+        {
+            return GetFallbackActivityPosition();
+        }
+
+        Transform nearbyMarketTrader = FindNearbyMarketTrader();
+        if (nearbyMarketTrader != null)
+        {
+            resolvedTraderLocationZone =
+                NpcMapNavigator.GetDestinationZone(nearbyMarketTrader);
+            return nearbyMarketTrader.position;
+        }
+
         NpcCounterBroker broker = NpcCounterBroker.Active;
         if (broker != null && broker.receiveAllNpcRequests && ShouldVisitCounterBroker())
         {
@@ -3183,6 +3231,22 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
     NpcMapZone? GetTraderWorkTargetZone()
     {
+        if (job != VillagerJob.Trader)
+        {
+            return null;
+        }
+
+        Transform nearbyMarketTrader = FindNearbyMarketTrader();
+        if (nearbyMarketTrader != null)
+        {
+            NpcMapZone? traderZone =
+                NpcMapNavigator.GetDestinationZone(nearbyMarketTrader);
+            if (traderZone.HasValue)
+            {
+                return traderZone;
+            }
+        }
+
         NpcCounterBroker broker = NpcCounterBroker.Active;
         if (broker != null && broker.receiveAllNpcRequests && ShouldVisitCounterBroker())
         {
@@ -3211,7 +3275,17 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             broker.receiveAllNpcRequests &&
             BrokerCanBuyMyGoods(broker))
         {
+            resolvedSellLocationZone =
+                GetTargetZone(broker.transform);
             return broker.GetCustomerPositionFor(gameObject);
+        }
+
+        Transform nearbyMarketTrader = FindNearbyMarketTrader();
+        if (nearbyMarketTrader != null)
+        {
+            resolvedSellLocationZone =
+                NpcMapNavigator.GetDestinationZone(nearbyMarketTrader);
+            return nearbyMarketTrader.position;
         }
 
         if (NpcLocationArea.TryGetPosition(
@@ -3233,6 +3307,37 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             : GetFallbackActivityPosition());
     }
 
+    Vector3 GetBuyGoodsTarget()
+    {
+        NpcCounterBroker broker = NpcCounterBroker.Active;
+        if (broker != null &&
+            broker.receiveAllNpcRequests &&
+            BrokerCanBuyUsefulGoods(broker))
+        {
+            resolvedBuyLocationZone =
+                GetTargetZone(broker.transform);
+            return broker.GetCustomerPositionFor(gameObject);
+        }
+
+        if (NpcLocationArea.TryGetPosition(
+                gameObject,
+                NpcScheduleActivity.BuyGoods,
+                job,
+                NpcLocationPurpose.BuyGoods,
+                transform.position,
+                out Vector3 registryBuy,
+                out resolvedBuyLocationZone))
+        {
+            return registryBuy;
+        }
+
+        resolvedBuyLocationZone = null;
+        return GetMarketPosition(
+            marketPoint != null
+            ? marketPoint.position
+            : GetFallbackActivityPosition());
+    }
+
     NpcMapZone? GetSellGoodsTargetZone()
     {
         NpcCounterBroker broker = NpcCounterBroker.Active;
@@ -3247,9 +3352,41 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                 : NpcMapZone.VanBaoLau;
         }
 
+        Transform nearbyMarketTrader = FindNearbyMarketTrader();
+        if (nearbyMarketTrader != null)
+        {
+            NpcMapZone? traderZone =
+                NpcMapNavigator.GetDestinationZone(nearbyMarketTrader);
+            if (traderZone.HasValue)
+            {
+                return traderZone;
+            }
+        }
+
         if (resolvedSellLocationZone.HasValue)
         {
             return resolvedSellLocationZone;
+        }
+
+        return NpcMapNavigator.GetDestinationZone(marketPoint);
+    }
+
+    NpcMapZone? GetBuyGoodsTargetZone()
+    {
+        NpcCounterBroker broker = NpcCounterBroker.Active;
+        if (broker != null &&
+            broker.receiveAllNpcRequests &&
+            BrokerCanBuyUsefulGoods(broker))
+        {
+            NpcMapZone? brokerZone = GetTargetZone(broker.transform);
+            return brokerZone.HasValue
+                ? brokerZone
+                : NpcMapZone.VanBaoLau;
+        }
+
+        if (resolvedBuyLocationZone.HasValue)
+        {
+            return resolvedBuyLocationZone;
         }
 
         return NpcMapNavigator.GetDestinationZone(marketPoint);
@@ -3261,9 +3398,73 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             broker.CanBuyProduceFrom(this, inventory);
     }
 
+    bool BrokerCanSellUsefulGoods(NpcCounterBroker broker)
+    {
+        return broker != null &&
+            inventory != null &&
+            broker.CanSellUsefulItemTo(this);
+    }
+
+    bool BrokerCanBuyUsefulGoods(NpcCounterBroker broker)
+    {
+        return BrokerCanSellUsefulGoods(broker);
+    }
+
+    Transform FindNearbyMarketTrader()
+    {
+        if (job != VillagerJob.Trader)
+        {
+            return null;
+        }
+
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(
+                transform.position,
+                sellGoodsSearchRadius,
+                traderLayers);
+
+        Transform best = null;
+        float bestDistance = float.MaxValue;
+
+        foreach (Collider2D hit in hits)
+        {
+            if (hit == null ||
+                hit.transform == transform ||
+                hit.transform.IsChildOf(transform))
+            {
+                continue;
+            }
+
+            NpcTradeAgent trader =
+                hit.GetComponentInParent<NpcTradeAgent>();
+
+            if (trader == null ||
+                !trader.IsMarketTrader)
+            {
+                continue;
+            }
+
+            float distance = Vector2.Distance(
+                transform.position,
+                trader.transform.position);
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                best = trader.transform;
+            }
+        }
+
+        return best;
+    }
+
 
     bool ShouldVisitCounterBroker()
     {
+        if (job != VillagerJob.Trader)
+        {
+            return false;
+        }
+
         NpcCounterBroker broker = NpcCounterBroker.Active;
         if (broker == null || !broker.receiveAllNpcRequests)
         {
@@ -3285,6 +3486,11 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
     bool CanAffordUsefulCounterPurchase(NpcCounterBroker broker)
     {
+        if (job != VillagerJob.Trader)
+        {
+            return false;
+        }
+
         if (broker == null || broker.inventory == null)
         {
             return false;
@@ -3322,6 +3528,11 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
     }
     bool HasCounterTradeOpportunity()
     {
+        if (job != VillagerJob.Trader)
+        {
+            return false;
+        }
+
         NpcCounterBroker broker = NpcCounterBroker.Active;
         if (broker == null || !broker.receiveAllNpcRequests)
         {
@@ -3489,8 +3700,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
     bool AddWorkProduct()
     {
-        StatItemData product =
-            GetProductForJob();
+        StatItemData product = null;
 
         if (inventory == null)
         {
@@ -3590,15 +3800,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             Mathf.Max(0, professionExpGrowthPerLevel));
     }
 
-    StatItemData GetProductForJob()
-    {
-        switch (job)
-        {
-            default:
-                return null;
-        }
-    }
-
     bool HasSellableGoods()
     {
         if (inventory == null)
@@ -3629,9 +3830,21 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             return false;
         }
 
-        return stack.item == fishingProduct ||
-            stack.item == huntingProduct ||
-            stack.item.itemType == ItemType.VatLieu ||
+        HarvestJob harvestJob = GetComponent<HarvestJob>();
+        if (harvestJob != null &&
+            harvestJob.IsProducedItem(stack.item))
+        {
+            return true;
+        }
+
+        HunterJob hunterJob = GetComponent<HunterJob>();
+        if (hunterJob != null &&
+            hunterJob.IsProducedItem(stack.item))
+        {
+            return true;
+        }
+
+        return stack.item.itemType == ItemType.VatLieu ||
             stack.item.itemType == ItemType.ThucPham;
     }
 
@@ -3642,6 +3855,11 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             return false;
         }
 
+        if (TrySellGoodsToNearbyMarketTrader())
+        {
+            return true;
+        }
+
         if (NpcCounterBroker.Active != null &&
             NpcCounterBroker.Active.receiveAllNpcRequests &&
             NpcCounterBroker.Active.CanBuyProduceFrom(this, inventory) &&
@@ -3650,6 +3868,12 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             return true;
         }
 
+        return job == VillagerJob.Trader &&
+            TrySellGoodsToMarketTrader();
+    }
+
+    bool TrySellGoodsToNearbyMarketTrader()
+    {
         Collider2D[] hits =
             Physics2D.OverlapCircleAll(
                 transform.position,
@@ -3683,8 +3907,26 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         return false;
     }
 
-    bool SellGoodsToMarket()
+    bool TryBuyGoodsFromTrader()
     {
+        NpcCounterBroker broker = NpcCounterBroker.Active;
+        if (broker != null &&
+            broker.receiveAllNpcRequests &&
+            IsInsideBrokerServiceArea(broker))
+        {
+            return broker.TrySellUsefulItemTo(this);
+        }
+
+        return false;
+    }
+
+    bool TrySellGoodsToMarketTrader()
+    {
+        if (job != VillagerJob.Trader)
+        {
+            return false;
+        }
+
         if (inventory == null)
         {
             return false;
@@ -3710,7 +3952,11 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                 continue;
             }
 
-            money += price * amount;
+            spiritStone += price * amount;
+            if (entityProfile != null)
+            {
+                entityProfile.stats.spiritStone = spiritStone;
+            }
             return true;
         }
 

@@ -49,20 +49,40 @@ public static class NpcDailyRoutineLibrary
             case VillagerJob.Farmer:
             case VillagerJob.Fisher:
             case VillagerJob.Hunter:
-                Add(slots, NpcScheduleActivity.Work, 0f, 24f);
+            case VillagerJob.Worker:
+            case VillagerJob.Guard:
+                Add(slots, NpcScheduleActivity.ReturnHome, 0f, 5f);
+                Add(slots, NpcScheduleActivity.Work, 5f, 11f);
+                Add(slots, NpcScheduleActivity.ReturnHome, 11f, 13f);
+                Add(slots, NpcScheduleActivity.Work, 13f, 17f);
+                Add(slots, NpcScheduleActivity.ReturnHome, 17f, 18f);
+                Add(slots, NpcScheduleActivity.SellGoods, 18f, 19f);
+                Add(slots, NpcScheduleActivity.BuyGoods, 19f, 20f);
+                Add(slots, NpcScheduleActivity.Sleep, 20f, 24f);
                 return;
             case VillagerJob.Alchemist:
             case VillagerJob.Blacksmith:
-                Add(slots, NpcScheduleActivity.Work, 0f, 24f);
-                return;
-            case VillagerJob.Guard:
-                Add(slots, NpcScheduleActivity.Work, 0f, 24f);
+                Add(slots, NpcScheduleActivity.ReturnHome, 0f, 5f);
+                Add(slots, NpcScheduleActivity.Work, 5f, 11f);
+                Add(slots, NpcScheduleActivity.ReturnHome, 11f, 13f);
+                Add(slots, NpcScheduleActivity.Work, 13f, 17f);
+                Add(slots, NpcScheduleActivity.ReturnHome, 17f, 18f);
+                Add(slots, NpcScheduleActivity.SellGoods, 18f, 19f);
+                Add(slots, NpcScheduleActivity.BuyGoods, 19f, 20f);
+                Add(slots, NpcScheduleActivity.Sleep, 20f, 24f);
                 return;
             case VillagerJob.Healer:
                 Add(slots, NpcScheduleActivity.TakeTask, 0f, 24f);
                 return;
             default:
-                Add(slots, NpcScheduleActivity.Work, 0f, 24f);
+                Add(slots, NpcScheduleActivity.ReturnHome, 0f, 5f);
+                Add(slots, NpcScheduleActivity.Work, 5f, 11f);
+                Add(slots, NpcScheduleActivity.ReturnHome, 11f, 13f);
+                Add(slots, NpcScheduleActivity.Work, 13f, 17f);
+                Add(slots, NpcScheduleActivity.ReturnHome, 17f, 18f);
+                Add(slots, NpcScheduleActivity.SellGoods, 18f, 19f);
+                Add(slots, NpcScheduleActivity.BuyGoods, 19f, 20f);
+                Add(slots, NpcScheduleActivity.Sleep, 20f, 24f);
                 return;
         }
     }

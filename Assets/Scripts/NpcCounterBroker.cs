@@ -15,6 +15,7 @@ public class NpcCounterBroker : MonoBehaviour
     public int maxUnitsPerRequest = 4;
     public int maxTransactionsPerVisit = 3;
     public float noDealCooldownMultiplier = 0.4f;
+    public bool useSpiritStoneCurrency = true;
 
     [Header("Counter Placement")]
     public bool keepBrokerStationary = true;
@@ -38,6 +39,7 @@ public class NpcCounterBroker : MonoBehaviour
     public int minimumMoneyReserve = 50000;
     public bool refillMoneyWhenLow = true;
     [SerializeField, InspectorName("Linh Thạch dịch vụ")] int serviceMoney;
+    [SerializeField, InspectorName("Linh Thạch dịch vụ")] int serviceSpiritStone;
 
     Rigidbody2D rb;
     Vector3 stationaryPosition;
@@ -416,6 +418,129 @@ public class NpcCounterBroker : MonoBehaviour
         return true;
     }
 
+    public bool CanSellUsefulItemTo(VillagerAI buyer)
+    {
+        EnsureInventory();
+
+        if (!sellUsefulItemsToNpcs ||
+            buyer == null ||
+            buyer.inventory == null ||
+            inventory == null ||
+            IsBusyForTrade(gameObject) ||
+            IsBusyForTrade(buyer.gameObject))
+        {
+            return false;
+        }
+
+        foreach (ItemStack stack in inventory.items)
+        {
+            if (stack == null ||
+                stack.item == null ||
+                stack.amount <= 0 ||
+                !NpcEconomy.CanTradeNormally(stack.item) ||
+                !stack.item.CanUseOn(buyer.gameObject))
+            {
+                continue;
+            }
+
+            int price = NpcEconomy.GetNpcBuyPrice(
+                stack.item,
+                buyer.gameObject,
+                sellToNpcContext);
+
+            if (GetBuyScoreForNpc(
+                    stack.item,
+                    buyer.gameObject,
+                    price,
+                    buyer.spiritStone) > 0f)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public bool TrySellUsefulItemTo(VillagerAI buyer)
+    {
+        EnsureInventory();
+
+        if (!sellUsefulItemsToNpcs ||
+            buyer == null ||
+            buyer.inventory == null ||
+            inventory == null ||
+            IsBusyForTrade(gameObject) ||
+            IsBusyForTrade(buyer.gameObject))
+        {
+            return false;
+        }
+
+        ItemStack bestStack = null;
+        int bestPrice = 0;
+        float bestScore = 0f;
+
+        foreach (ItemStack stack in inventory.items)
+        {
+            if (stack == null ||
+                stack.item == null ||
+                stack.amount <= 0 ||
+                !NpcEconomy.CanTradeNormally(stack.item) ||
+                !stack.item.CanUseOn(buyer.gameObject))
+            {
+                continue;
+            }
+
+            int price = NpcEconomy.GetNpcBuyPrice(
+                stack.item,
+                buyer.gameObject,
+                sellToNpcContext);
+
+            float score =
+                GetBuyScoreForNpc(
+                    stack.item,
+                    buyer.gameObject,
+                    price,
+                    buyer.spiritStone);
+
+            if (score <= bestScore)
+            {
+                continue;
+            }
+
+            bestStack = stack;
+            bestPrice = price;
+            bestScore = score;
+        }
+
+        if (bestStack == null ||
+            buyer.spiritStone < bestPrice ||
+            !RemoveBrokerItem(bestStack.item, 1))
+        {
+            return false;
+        }
+
+        buyer.spiritStone = Mathf.Max(0, buyer.spiritStone - bestPrice);
+        if (buyer.entityProfile != null)
+        {
+            buyer.entityProfile.stats.spiritStone = buyer.spiritStone;
+        }
+        AddBrokerMoney(bestPrice);
+        buyer.inventory.AddItem(bestStack.item, 1);
+        NpcSocialEventBus.PublishTradeCompleted(
+            buyer.gameObject,
+            gameObject,
+            bestStack.item,
+            bestPrice);
+
+        ItemLifecycleSystem.Notify(
+            ItemLifecycleEventType.Sold,
+            bestStack.item,
+            gameObject,
+            buyer.gameObject);
+
+        return true;
+    }
+
     public bool CanBuyProduceFrom(
         VillagerAI seller,
         ItemInventory sellerInventory)
@@ -531,7 +656,11 @@ public class NpcCounterBroker : MonoBehaviour
             }
 
             AddBrokerMoney(-totalPrice);
-            seller.money += totalPrice;
+            seller.spiritStone += totalPrice;
+            if (seller.entityProfile != null)
+            {
+                seller.entityProfile.stats.spiritStone = seller.spiritStone;
+            }
             inventory.AddItem(stack.item, amount);
             NpcSocialEventBus.PublishTradeCompleted(
                 gameObject,
@@ -754,6 +883,11 @@ public class NpcCounterBroker : MonoBehaviour
 
     int GetBrokerMoney()
     {
+        if (useSpiritStoneCurrency)
+        {
+            return serviceSpiritStone;
+        }
+
         VillagerAI villager = GetComponent<VillagerAI>();
         if (villager != null)
         {
@@ -772,6 +906,13 @@ public class NpcCounterBroker : MonoBehaviour
 
     void AddBrokerMoney(int amount)
     {
+        if (useSpiritStoneCurrency)
+        {
+            serviceSpiritStone = Mathf.Max(0, serviceSpiritStone + amount);
+            EnsureMoney(0);
+            return;
+        }
+
         VillagerAI villager = GetComponent<VillagerAI>();
         if (villager != null)
         {
@@ -795,6 +936,11 @@ public class NpcCounterBroker : MonoBehaviour
     void EnsureMoney(int requiredAmount)
     {
         int target = Mathf.Max(startingMoney, minimumMoneyReserve, requiredAmount);
+
+        if (useSpiritStoneCurrency)
+        {
+            return;
+        }
 
         VillagerAI villager = GetComponent<VillagerAI>();
         if (villager != null)

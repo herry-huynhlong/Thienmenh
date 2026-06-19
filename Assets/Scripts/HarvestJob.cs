@@ -7,6 +7,8 @@ public class HarvestJob : MonoBehaviour
     public bool enabledHarvestJob = true;
     public StatItemData farmProduct;
     public StatItemData fishingProduct;
+    // Legacy migration slot for older scenes; HunterJob owns runtime hunting now.
+    [HideInInspector]
     public StatItemData huntingProduct;
     public HarvestResourceKind preferredResourceKind = HarvestResourceKind.Unknown;
     public float storageSearchRadius = 3f;
@@ -79,14 +81,14 @@ public class HarvestJob : MonoBehaviour
         {
             fishingProduct =
                 UnityEditor.AssetDatabase.LoadAssetAtPath<StatItemData>(
-                    "Assets/Item/NPCitem/Ca.asset");
+                    "Assets/Item/ThucPham/ca.asset");
         }
 
         if (huntingProduct == null)
         {
             huntingProduct =
                 UnityEditor.AssetDatabase.LoadAssetAtPath<StatItemData>(
-                    "Assets/Item/NPCitem/Thit.asset");
+                    "Assets/Item/ThucPham/thit.asset");
         }
     }
 #endif
@@ -169,7 +171,7 @@ public class HarvestJob : MonoBehaviour
                 return ResolveProductForKind(
                     HarvestResourceKind.Ca,
                     fishingProduct,
-                    villager.fishingProduct);
+                    null);
 
             case VillagerJob.Hunter:
                 return null;
@@ -179,6 +181,12 @@ public class HarvestJob : MonoBehaviour
                     ? farmProduct
                     : FindItemByPreferredKind();
         }
+    }
+
+    public bool IsProducedItem(StatItemData item)
+    {
+        return ItemsMatch(item, farmProduct) ||
+            ItemsMatch(item, fishingProduct);
     }
 
     StatItemData ResolveProductForKind(
@@ -207,6 +215,23 @@ public class HarvestJob : MonoBehaviour
     {
         return item != null &&
             ResourceNode.InferKindFromItem(item) == kind;
+    }
+
+    bool ItemsMatch(StatItemData a, StatItemData b)
+    {
+        if (a == null || b == null)
+        {
+            return false;
+        }
+
+        if (a == b)
+        {
+            return true;
+        }
+
+        return !string.IsNullOrEmpty(a.ItemId) &&
+            !string.IsNullOrEmpty(b.ItemId) &&
+            a.ItemId == b.ItemId;
     }
 
     bool IsAllowedJob()

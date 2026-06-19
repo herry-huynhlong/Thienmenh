@@ -850,8 +850,6 @@ MonoBehaviour:
   keepInsideCombinedNpcMapAreas: 0
   mapAreaEdgePadding: 0.15
   inventory: {fileID: 8702128748568086803}
-  fishingProduct: {fileID: 0}
-  huntingProduct: {fileID: 0}
   workProductMin: 1
   workProductMax: 3
   sellGoodsThreshold: 1

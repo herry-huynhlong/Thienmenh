@@ -167,6 +167,11 @@ public class NpcTeleportGate : MonoBehaviour
             return;
         }
 
+        if (!CanNpcUseGate(actor))
+        {
+            return;
+        }
+
         if (npcTeleportCooldowns.TryGetValue(
                 actor,
                 out float nextAllowedTeleport) &&
@@ -198,6 +203,22 @@ public class NpcTeleportGate : MonoBehaviour
             actor.GetComponent<SmartNpcAI>() != null ||
             actor.GetComponent<NpcTradeAgent>() != null ||
             actor.GetComponent<NpcTaskProvider>() != null;
+    }
+
+    bool CanNpcUseGate(GameObject actor)
+    {
+        if (actor == null)
+        {
+            return false;
+        }
+
+        NpcMapZone? actorZone = NpcMapNavigator.ResolveActorZone(actor);
+        if (!actorZone.HasValue)
+        {
+            return false;
+        }
+
+        return actorZone.Value == fromZone;
     }
 
     GameObject ResolveActorRoot(Collider2D hit)

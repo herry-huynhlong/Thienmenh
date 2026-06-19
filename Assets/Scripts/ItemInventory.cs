@@ -51,11 +51,14 @@ public class ItemInventory : MonoBehaviour
                 key,
                 out List<ItemStack> sharedItems))
         {
-            CopyItems(sharedItems, items);
+            if (!ReferenceEquals(items, sharedItems))
+            {
+                CopyItems(sharedItems, items);
+                items = sharedItems;
+            }
             if (keepInspectorItemsWhenLoadingSave)
             {
                 MergeItems(inspectorItems, items);
-                CopyItems(items, sharedItems);
             }
             return;
         }
@@ -65,6 +68,7 @@ public class ItemInventory : MonoBehaviour
 
         CopyItems(items, sharedItems);
         sharedItemsByKey[key] = sharedItems;
+        items = sharedItems;
     }
 
     void Start()
@@ -91,6 +95,7 @@ public class ItemInventory : MonoBehaviour
                 out List<ItemStack> sharedItems))
         {
             MergeItems(sharedItems, items);
+            items = sharedItems;
         }
 
         SaveRuntimeItems();
@@ -128,6 +133,43 @@ public class ItemInventory : MonoBehaviour
         UsePrivateRuntimeItems(
             BuildNpcRuntimeKey(),
             clearCurrentItems);
+    }
+
+    public void UseSharedRuntimeItems(
+        string key,
+        bool clearCurrentItems = false)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return;
+        }
+
+        runtimeKey = key;
+        shareRuntimeItems = true;
+
+        if (!sharedItemsByKey.TryGetValue(
+                key,
+                out List<ItemStack> sharedItems))
+        {
+            sharedItems = new List<ItemStack>();
+            sharedItemsByKey[key] = sharedItems;
+        }
+
+        if (items == null)
+        {
+            items = new List<ItemStack>();
+        }
+
+        if (clearCurrentItems)
+        {
+            sharedItems.Clear();
+        }
+        else if (!ReferenceEquals(items, sharedItems))
+        {
+            MergeItems(items, sharedItems);
+        }
+
+        items = sharedItems;
     }
 
     void ConfigurePrivateNpcInventoryIfNeeded()
@@ -542,7 +584,11 @@ public class ItemInventory : MonoBehaviour
                 sharedItemsByKey[key] = sharedItems;
             }
 
-            CopyItems(items, sharedItems);
+            if (!ReferenceEquals(items, sharedItems))
+            {
+                CopyItems(items, sharedItems);
+                items = sharedItems;
+            }
         }
 
         GameSaveSystem.SaveInventory(key, items);

@@ -45,6 +45,30 @@ public class HunterJob : MonoBehaviour
         RefreshReferences();
     }
 
+#if UNITY_EDITOR
+    void OnValidate()
+    {
+        AssignDefaultProducts();
+    }
+
+    void AssignDefaultProducts()
+    {
+        if (meatProduct == null)
+        {
+            HarvestJob harvestJob = GetComponent<HarvestJob>();
+            if (harvestJob != null && harvestJob.huntingProduct != null)
+            {
+                meatProduct = harvestJob.huntingProduct;
+                return;
+            }
+
+            meatProduct =
+                UnityEditor.AssetDatabase.LoadAssetAtPath<StatItemData>(
+                    "Assets/Item/ThucPham/thit.asset");
+        }
+    }
+#endif
+
     void Update()
     {
         if (!running || !IsAllowedJob())
@@ -158,11 +182,59 @@ public class HunterJob : MonoBehaviour
 
     void MoveToHuntArea()
     {
-        Vector3 target = GetHuntCenter();
+        Vector3 target = GetNextHuntPatrolPoint();
         MoveTo(
             target,
             huntZone,
             "Đi tới bãi săn");
+    }
+
+    Vector3 GetNextHuntPatrolPoint()
+    {
+        WorldTilemapManager tilemap = WorldTilemapManager.Instance;
+        if (tilemap != null)
+        {
+            Vector3 huntingTile = tilemap.GetHuntingTile();
+            if (huntingTile != Vector3.zero &&
+                Vector2.Distance(transform.position, huntingTile) >
+                Mathf.Max(arriveDistance, 0.65f))
+            {
+                return huntingTile;
+            }
+        }
+
+        if (huntPoint != null)
+        {
+            Vector3 huntPosition = huntPoint.position;
+            if (Vector2.Distance(transform.position, huntPosition) >
+                Mathf.Max(arriveDistance, 0.65f))
+            {
+                return huntPosition;
+            }
+        }
+
+        NpcMapArea area = NpcMapArea.FindAreaByZone(huntZone);
+        if (area != null && area.areaBounds != null)
+        {
+            Bounds bounds = area.areaBounds.bounds;
+            Vector3 seed = transform.position + new Vector3(
+                Random.Range(-4f, 4f),
+                Random.Range(-4f, 4f),
+                0f);
+
+            Vector3 patrolPoint = new Vector3(
+                Mathf.Clamp(seed.x, bounds.min.x, bounds.max.x),
+                Mathf.Clamp(seed.y, bounds.min.y, bounds.max.y),
+                transform.position.z);
+
+            if (Vector2.Distance(transform.position, patrolPoint) >
+                Mathf.Max(arriveDistance, 0.65f))
+            {
+                return patrolPoint;
+            }
+        }
+
+        return GetHuntCenter();
     }
 
     void MoveToMonster(MonsterAI monster)
@@ -405,10 +477,16 @@ public class HunterJob : MonoBehaviour
         HarvestJob harvestJob = GetComponent<HarvestJob>();
         if (harvestJob != null && harvestJob.huntingProduct != null)
         {
+            // Keeps older scenes alive until their hunter data is migrated over.
             return harvestJob.huntingProduct;
         }
 
-        return villager != null ? villager.huntingProduct : null;
+        return null;
+    }
+
+    public bool IsProducedItem(StatItemData item)
+    {
+        return ItemsMatch(item, ResolveMeatProduct());
     }
 
     Vector3 GetHuntCenter()

@@ -73,17 +73,18 @@ public partial class VillagerAI
                     currentWorkTarget = GetWorkPointPosition(VillagerJob.Fisher);
                     if (currentWorkTarget == Vector3.zero)
                     {
-                        currentWorkTarget = worldTilemap != null
-                            ? worldTilemap.GetFishingTile(this)
-                            : Vector3.zero;
-                        currentWorkTargetZone = NpcMapNavigator.GetDestinationZone(workPoint);
+                        currentWorkTarget = GetNextFishingPatrolPoint();
+                        currentWorkTargetZone =
+                            GetZoneForPosition(currentWorkTarget) ??
+                            NpcMapNavigator.GetDestinationZone(workPoint);
                     }
                     if (currentWorkTarget == Vector3.zero)
                     {
-                        currentWorkTarget = worldTilemap != null
-                            ? worldTilemap.GetFarmTile()
-                            : Vector3.zero;
-                        currentWorkTargetZone = NpcMapZone.Lang;
+                        currentWorkTarget = GetFallbackPositionInZone(
+                            NpcMapZone.MaThuSonMach);
+                        currentWorkTargetZone =
+                            GetZoneForPosition(currentWorkTarget) ??
+                            NpcMapZone.MaThuSonMach;
                         currentAction = NpcText.Action("noFishingSpotFarmFallback");
                     }
                     break;
@@ -96,9 +97,11 @@ public partial class VillagerAI
                             ? worldTilemap.GetHuntingTile()
                             : Vector3.zero;
                     }
-                    currentWorkTargetZone = currentWorkTargetZone.HasValue
+                    currentWorkTargetZone =
+                        currentWorkTargetZone.HasValue
                         ? currentWorkTargetZone
-                        : NpcMapZone.MaThuSonMach;
+                        : (GetZoneForPosition(currentWorkTarget) ??
+                            NpcMapZone.MaThuSonMach);
                     break;
 
                 default:
@@ -118,8 +121,15 @@ public partial class VillagerAI
                         ? workPoint.position
                         : GetFallbackActivityPosition();
                 currentWorkTargetZone = job == VillagerJob.Hunter
-                    ? NpcMapZone.MaThuSonMach
+                    ? GetZoneForPosition(currentWorkTarget) ??
+                        NpcMapZone.MaThuSonMach
                     : NpcMapNavigator.GetDestinationZone(workPoint);
+            }
+
+            if (!currentWorkTargetZone.HasValue &&
+                currentWorkTarget != Vector3.zero)
+            {
+                currentWorkTargetZone = GetZoneForPosition(currentWorkTarget);
             }
 
             hasWorkTarget = true;
@@ -164,5 +174,53 @@ public partial class VillagerAI
         {
             AddProfessionExp(professionExpPerWork);
         }
+    }
+
+    NpcMapZone? GetZoneForPosition(Vector3 position)
+    {
+        NpcMapArea area = NpcMapArea.FindArea(position);
+        if (area != null)
+        {
+            return area.zone;
+        }
+
+        NpcMapArea nearestArea = NpcMapArea.FindNearestArea(position);
+        return nearestArea != null
+            ? nearestArea.zone
+            : (NpcMapZone?)null;
+    }
+
+    Vector3 GetNextFishingPatrolPoint()
+    {
+        WorldTilemapManager worldTilemap =
+            WorldTilemapManager.Instance;
+
+        if (worldTilemap != null)
+        {
+            Vector3 fishingTile =
+                worldTilemap.GetFishingTile(this);
+
+            if (fishingTile != Vector3.zero)
+            {
+                return fishingTile;
+            }
+        }
+
+        NpcMapArea area = NpcMapArea.FindAreaByZone(NpcMapZone.MaThuSonMach);
+        if (area != null && area.areaBounds != null)
+        {
+            Bounds bounds = area.areaBounds.bounds;
+            Vector3 seed = transform.position + new Vector3(
+                Random.Range(-4f, 4f),
+                Random.Range(-4f, 4f),
+                0f);
+
+            return new Vector3(
+                Mathf.Clamp(seed.x, bounds.min.x, bounds.max.x),
+                Mathf.Clamp(seed.y, bounds.min.y, bounds.max.y),
+                transform.position.z);
+        }
+
+        return Vector3.zero;
     }
 }

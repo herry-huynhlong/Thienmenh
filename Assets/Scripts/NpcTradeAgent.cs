@@ -10,6 +10,9 @@ public class NpcTradeAgent : MonoBehaviour
     public int tradeChance = 25;
     public bool buyUsefulItemsFromMarketTrader = true;
     public float counterTradeCooldown = 45f;
+    public bool useSpiritStoneCurrency = true;
+    [InspectorName("Linh Thạch")]
+    public int spiritStone;
     [Range(0f, 1f)] public float maxMoneySpendRatio = 0.65f;
     public int maxOwnedConsumableBeforeBuying = 3;
     public int riskyItemValueMultiplier = 120;
@@ -80,7 +83,53 @@ public class NpcTradeAgent : MonoBehaviour
             return;
         }
 
+        if (isMarketTrader &&
+            buyProduceFromVillagers &&
+            TryBuyProduceFromNearbyVillagers())
+        {
+            return;
+        }
+
         TryTradeWithNearbyNpc();
+    }
+
+    bool TryBuyProduceFromNearbyVillagers()
+    {
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(
+                transform.position,
+                tradeRadius,
+                npcLayers);
+
+        foreach (Collider2D hit in hits)
+        {
+            if (hit == null ||
+                hit.gameObject == gameObject)
+            {
+                continue;
+            }
+
+            VillagerAI seller = hit.GetComponentInParent<VillagerAI>();
+            if (seller == null ||
+                seller.IsDead ||
+                NpcRoleUtility.IsInCombat(seller.gameObject))
+            {
+                continue;
+            }
+
+            ItemInventory sellerInventory = seller.inventory;
+            if (sellerInventory == null)
+            {
+                continue;
+            }
+
+            if (TryBuyProduceFrom(seller, sellerInventory))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     void TryTradeWithNearbyNpc()
@@ -269,7 +318,11 @@ public class NpcTradeAgent : MonoBehaviour
             }
 
             AddMoney(-totalPrice);
-            seller.money += totalPrice;
+            seller.spiritStone += totalPrice;
+            if (seller.entityProfile != null)
+            {
+                seller.entityProfile.stats.spiritStone = seller.spiritStone;
+            }
             inventory.AddItem(stack.item, amount);
             NpcSocialEventBus.PublishTradeCompleted(
                 gameObject,
@@ -632,11 +685,19 @@ public class NpcTradeAgent : MonoBehaviour
     }
     public int GetMoney()
     {
-        return NpcEconomy.GetNpcMoney(gameObject);
+        return useSpiritStoneCurrency
+            ? Mathf.Max(0, spiritStone)
+            : NpcEconomy.GetNpcMoney(gameObject);
     }
 
     public void AddMoney(int amount)
     {
+        if (useSpiritStoneCurrency)
+        {
+            spiritStone = Mathf.Max(0, spiritStone + amount);
+            return;
+        }
+
         NpcEconomy.AddNpcMoney(gameObject, amount);
     }
 

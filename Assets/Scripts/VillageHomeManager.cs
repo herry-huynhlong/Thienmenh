@@ -29,7 +29,9 @@ public class VillageHomeManager : MonoBehaviour
         for (int i = 0; i < villagers.Length; i++)
         {
             VillagerAI villager = villagers[i];
-            if (villager == null || !villager.homeRoutineManagedExternally)
+            if (villager == null ||
+                (!villager.homeRoutineManagedExternally &&
+                !villager.hideAtHome))
             {
                 continue;
             }
@@ -41,7 +43,7 @@ public class VillageHomeManager : MonoBehaviour
 
             if (villager.IsHiddenAtHome)
             {
-                if (ShouldLeaveHome(timeSystem))
+                if (ShouldLeaveHome(villager, timeSystem))
                 {
                     villager.ForceHiddenAtHome(false);
                 }
@@ -74,8 +76,21 @@ public class VillageHomeManager : MonoBehaviour
             timeSystem.CurrentPhase == WorldTimePhase.Night;
     }
 
-    bool ShouldLeaveHome(WorldTimeSystem timeSystem)
+    bool ShouldLeaveHome(VillagerAI villager, WorldTimeSystem timeSystem)
     {
+        if (villager != null)
+        {
+            NpcScheduleController schedule =
+                NpcScheduleController.GetSchedule(villager.gameObject);
+
+            if (schedule != null && schedule.enforceSchedule)
+            {
+                NpcScheduleActivity activity = schedule.CurrentActivity;
+                return activity != NpcScheduleActivity.Sleep &&
+                    activity != NpcScheduleActivity.ReturnHome;
+            }
+        }
+
         return timeSystem != null &&
             timeSystem.CurrentPhase == leaveHomePhase;
     }
