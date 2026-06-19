@@ -48,7 +48,8 @@ public class NpcForgeRole : MonoBehaviour
 
     void OnValidate()
     {
-        if (Application.isPlaying)
+        if (Application.isPlaying &&
+            isActiveAndEnabled)
         {
             QueueEnsureForgeSetup();
         }
@@ -56,6 +57,14 @@ public class NpcForgeRole : MonoBehaviour
 
     void QueueEnsureForgeSetup()
     {
+        if (!Application.isPlaying ||
+            !isActiveAndEnabled ||
+            !gameObject.activeInHierarchy)
+        {
+            setupQueued = false;
+            return;
+        }
+
         if (setupQueued)
         {
             return;

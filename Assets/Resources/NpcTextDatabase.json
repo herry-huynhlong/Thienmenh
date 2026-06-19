@@ -274,6 +274,10 @@
           "value": "Không có giao dịch"
         },
         {
+          "key": "waiting",
+          "value": "chờ"
+        },
+        {
           "key": "stayNearHome",
           "value": "Ở gần nhà"
         },

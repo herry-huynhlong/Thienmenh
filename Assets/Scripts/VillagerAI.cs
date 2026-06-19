@@ -411,6 +411,15 @@ public class VillagerAI : MonoBehaviour, IDamageable
         ResolveInitialObstacleOverlap();
     }
 
+    void OnEnable()
+    {
+        SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
+        if (smartNpc != null && smartNpc.enabled)
+        {
+            smartNpc.enabled = false;
+        }
+    }
+
     void EnsureScheduleController()
     {
         NpcScheduleController schedule =
@@ -1105,7 +1114,20 @@ public class VillagerAI : MonoBehaviour, IDamageable
                 return true;
 
             case NpcScheduleActivity.Work:
-                GoWorkOrCultivatorActivity();
+                if (IsForgeWorker())
+                {
+                    GoForgeWorkOrTrade();
+                }
+                else if (!autonomousWorkEnabled)
+                {
+                    Wander(NpcText.Action("wanderVillage"));
+                }
+                else
+                {
+                    // Work slots should keep the villager on the actual job path,
+                    // even when the villager has become cultivation-capable.
+                    GoWork();
+                }
                 return true;
 
             case NpcScheduleActivity.SellGoods:
@@ -1126,12 +1148,25 @@ public class VillagerAI : MonoBehaviour, IDamageable
             case NpcScheduleActivity.Gather:
                 if (!TryScheduledGather())
                 {
-                    GoWorkOrCultivatorActivity();
+                    GoHomeIdle(NpcText.Action("idle"));
                 }
                 return true;
 
             case NpcScheduleActivity.Hunt:
+<<<<<<< HEAD
                 GoWork();
+=======
+                if (job == VillagerJob.Hunter ||
+                    job == VillagerJob.Guard ||
+                    autonomousDangerousWorkEnabled)
+                {
+                    GoWork();
+                }
+                else
+                {
+                    GoHomeIdle(NpcText.Action("idle"));
+                }
+>>>>>>> 92a0a40475748ac6155777e62e5c03a555d49c45
                 return true;
 
             case NpcScheduleActivity.Cultivate:
@@ -1424,6 +1459,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
             StopMoving();
             ClearMovementTargets();
             currentAction = NpcText.Action("idle");
+            return;
+        }
+
+        if (!NpcScheduleController.AllowsTrade(gameObject))
+        {
+            GoHomeIdle(NpcText.Action("idle"));
             return;
         }
 
@@ -2102,13 +2143,38 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     bool IsRoutineTravelOrCultivationAction(string action)
     {
-        return action == NpcText.Action("goTaskProviderDaily") ||
+        return IsTravelIntentAction(action) ||
             action == NpcText.Action("visitedTaskProvider") ||
+            action == NpcText.Action("checkedVanBaoLau");
+    }
+
+    bool IsTravelIntentAction(string action)
+    {
+        return action == NpcText.Action("goTaskProviderDaily") ||
+            action == NpcText.Action("goMarketTrade") ||
             action == NpcText.Action("goVanBaoLauBroker") ||
             action == NpcText.Action("goVanBaoLauTask") ||
-            action == NpcText.Action("checkedVanBaoLau") ||
+            action == NpcText.Action("goWork") ||
+            action == NpcText.Action("goFarmWork") ||
+            action == NpcText.Action("goPatrol") ||
+            action == NpcText.Action("goHeal") ||
+            action == NpcText.Action("goFish") ||
+            action == NpcText.Action("goHunt") ||
+            action == NpcText.Action("goTavern") ||
+            action == NpcText.Action("buyPill") ||
+            action == NpcText.Action("tradeSeek") ||
+            action == NpcText.Action("gatherResource") ||
             action == NpcText.Action("goHomeCultivate") ||
-            action == NpcText.Action("goCultivatePoint");
+            action == NpcText.Action("goCultivatePoint") ||
+            action == NpcText.Action("moveToTask") ||
+            action == NpcText.Action("receiveTask") ||
+            action == NpcText.Action("goPlay") ||
+            action == NpcText.Action("goHomeRest") ||
+            action == NpcText.Action("stayNearHome") ||
+            action == NpcText.Action("restNearHome") ||
+            action == NpcText.Action("restVillageNoon") ||
+            action == NpcText.Action("eveningWalkVillage") ||
+            action == NpcText.Action("walkingRoad");
     }
 
     bool TryGoHomeForCultivation()
@@ -2153,8 +2219,17 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
     bool TryProcessDailyTaskPlan()
     {
+<<<<<<< HEAD
         if (HasEnforcedSchedule() &&
             !IsCurrentScheduleActivity(NpcScheduleActivity.TakeTask))
+=======
+        NpcScheduleController schedule =
+            GetComponent<NpcScheduleController>();
+
+        if (schedule != null &&
+            schedule.enforceSchedule &&
+            schedule.CurrentSlot != null)
+>>>>>>> 92a0a40475748ac6155777e62e5c03a555d49c45
         {
             return false;
         }
@@ -2634,6 +2709,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         if (job == VillagerJob.Trader ||
             !HasSellableGoods())
+        {
+            return false;
+        }
+
+        if (!NpcScheduleController.AllowsTrade(gameObject))
         {
             return false;
         }
@@ -3181,6 +3261,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (!NpcScheduleController.AllowsTrade(gameObject))
+        {
+            GoHomeIdle(NpcText.Action("idle"));
+            return;
+        }
+
         if (!hasTradeTarget)
         {
             currentTradeTarget = GetTraderWorkPosition();
@@ -3293,6 +3379,12 @@ public class VillagerAI : MonoBehaviour, IDamageable
             StopMoving();
             ClearMovementTargets();
             currentAction = NpcText.Action("idle");
+            return;
+        }
+
+        if (!NpcScheduleController.AllowsTrade(gameObject))
+        {
+            GoHomeIdle(NpcText.Action("idle"));
             return;
         }
 
@@ -3663,6 +3755,11 @@ public class VillagerAI : MonoBehaviour, IDamageable
 
         NpcCounterBroker broker = NpcCounterBroker.Active;
         if (broker == null || !broker.receiveAllNpcRequests)
+        {
+            return false;
+        }
+
+        if (!NpcScheduleController.AllowsTrade(gameObject))
         {
             return false;
         }
@@ -4900,6 +4997,7 @@ public class VillagerAI : MonoBehaviour, IDamageable
         return string.IsNullOrEmpty(currentAction) ||
             currentAction == NpcText.Action("idle") ||
             currentAction == NpcText.Action("walkingRoad") ||
+            IsTravelIntentAction(currentAction) ||
             currentAction.StartsWith("Đi cổng dịch chuyển");
     }
 
@@ -7198,6 +7296,14 @@ public class VillagerAI : MonoBehaviour, IDamageable
             {
                 hasDirectMoveTarget = false;
             }
+        }
+
+        if (!hasWanderTarget &&
+            !hasDirectMoveTarget &&
+            currentTarget == null)
+        {
+            actionTimer = Mathf.Max(actionTimer, thinkInterval);
+            currentAction = NpcText.Action("waiting");
         }
     }
 
