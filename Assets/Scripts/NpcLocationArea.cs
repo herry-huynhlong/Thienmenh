@@ -146,6 +146,40 @@ public class NpcLocationArea : MonoBehaviour
         NpcMapZone? preferredZone,
         Vector3 origin)
     {
+        NpcLocationArea exactPurposeArea =
+            FindBestAreaInternal(
+                npc,
+                activity,
+                job,
+                purpose,
+                preferredZone,
+                origin,
+                true);
+
+        if (exactPurposeArea != null)
+        {
+            return exactPurposeArea;
+        }
+
+        return FindBestAreaInternal(
+            npc,
+            activity,
+            job,
+            purpose,
+            preferredZone,
+            origin,
+            false);
+    }
+
+    static NpcLocationArea FindBestAreaInternal(
+        GameObject npc,
+        NpcScheduleActivity activity,
+        VillagerJob job,
+        NpcLocationPurpose purpose,
+        NpcMapZone? preferredZone,
+        Vector3 origin,
+        bool requireExactPurpose)
+    {
         NpcLocationArea best = null;
         float bestScore = float.NegativeInfinity;
 
@@ -153,13 +187,15 @@ public class NpcLocationArea : MonoBehaviour
         {
             if (area == null ||
                 !area.isActiveAndEnabled ||
+                (requireExactPurpose && area.purpose != purpose) ||
                 !area.Matches(npc, activity, job, purpose, preferredZone))
             {
                 continue;
             }
 
             float score =
-                area.priority * 1000f -
+                area.priority * 1000f +
+                area.GetMatchScore(activity, job, purpose, preferredZone) -
                 Vector2.Distance(origin, area.transform.position);
 
             if (score > bestScore)
@@ -186,7 +222,9 @@ public class NpcLocationArea : MonoBehaviour
             return false;
         }
 
-        if (matchActivity && activity != requestedActivity)
+        if (matchActivity &&
+            activity != NpcScheduleActivity.Idle &&
+            activity != requestedActivity)
         {
             return false;
         }
@@ -213,6 +251,43 @@ public class NpcLocationArea : MonoBehaviour
         }
 
         return true;
+    }
+
+    float GetMatchScore(
+        NpcScheduleActivity requestedActivity,
+        VillagerJob requestedJob,
+        NpcLocationPurpose requestedPurpose,
+        NpcMapZone? preferredZone)
+    {
+        float score = 0f;
+
+        if (requestedPurpose != NpcLocationPurpose.Any &&
+            purpose == requestedPurpose)
+        {
+            score += 10000f;
+        }
+
+        if (matchJob &&
+            job != VillagerJob.None &&
+            job == requestedJob)
+        {
+            score += 250f;
+        }
+
+        if (matchActivity &&
+            activity == requestedActivity)
+        {
+            score += 125f;
+        }
+
+        if (matchZone &&
+            preferredZone.HasValue &&
+            zone == preferredZone.Value)
+        {
+            score += 75f;
+        }
+
+        return score;
     }
 
     public Vector3 GetRandomPoint(GameObject npc = null)

@@ -3211,7 +3211,11 @@ MonoBehaviour:
     amount: 99
   - item: {fileID: 11400000, guid: fbfb4a9ae5617e84cb4e37d07952844e, type: 2}
     amount: 99
+  - item: {fileID: 11400000, guid: 550730f23498be4459f8358921e55b8e, type: 2}
+    amount: 99
   - item: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
+    amount: 99
+  - item: {fileID: 11400000, guid: a7941e514b6711949a512e57c8551efb, type: 2}
     amount: 99
 --- !u!114 &173711606
 MonoBehaviour:
@@ -15853,7 +15857,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1966122064}
   m_HandleRect: {fileID: 1966122063}
   m_Direction: 2
-  m_Value: 1.0000023
+  m_Value: 1.0000037
   m_Size: 0.77666676
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -16430,7 +16434,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1239443718}
   m_Direction: 0
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -28067,7 +28071,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2075695978}
   m_HandleRect: {fileID: 2075695977}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:

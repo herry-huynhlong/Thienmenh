@@ -25184,6 +25184,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1375171536}
+    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1375171540}
   m_SourcePrefab: {fileID: 100100000, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
 --- !u!1 &171031980
 GameObject:
@@ -26077,11 +26080,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8002957989317268842, guid: 52234395ac81e954b8415221c10525ea, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.96
+      value: 6.72
       objectReference: {fileID: 0}
     - target: {fileID: 8002957989317268842, guid: 52234395ac81e954b8415221c10525ea, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -3.18
+      value: -3.99
       objectReference: {fileID: 0}
     - target: {fileID: 8002957989317268842, guid: 52234395ac81e954b8415221c10525ea, type: 3}
       propertyPath: m_LocalPosition.z
@@ -26144,6 +26147,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5511893061176817771, guid: 52234395ac81e954b8415221c10525ea, type: 3}
       insertIndex: -1
       addedObject: {fileID: 283373227}
+    - targetCorrespondingSourceObject: {fileID: 5511893061176817771, guid: 52234395ac81e954b8415221c10525ea, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 283373232}
   m_SourcePrefab: {fileID: 100100000, guid: 52234395ac81e954b8415221c10525ea, type: 3}
 --- !u!1 &250755797
 GameObject:
@@ -26739,6 +26745,7 @@ MonoBehaviour:
   arriveDistance: 0.35
   retargetDistance: 0.75
   reservationDuration: 3
+  harvestBreakDistance: 2
   harvestCooldownAfterSuccess: 45
   harvestCooldownWhenNoTarget: 8
   limitHarvestsPerScheduleSlot: 1
@@ -26950,6 +26957,70 @@ MonoBehaviour:
   invertSideFlip: 0
   invertVerticalFacing: 1
   directionDeadZone: 0.08
+--- !u!114 &263152477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 263152461}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 2
+  slots:
+  - activity: 8
+    startHour: 0
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 5
+    startHour: 6
+    endHour: 8
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 11
+    startHour: 8
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 10
+    endHour: 14
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 7
+    startHour: 14
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 18
+    endHour: 0
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 1
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1 &267913402
 GameObject:
   m_ObjectHideFlags: 0
@@ -27199,6 +27270,7 @@ MonoBehaviour:
   arriveDistance: 0.35
   retargetDistance: 0.75
   reservationDuration: 3
+  harvestBreakDistance: 2
   harvestCooldownAfterSuccess: 45
   harvestCooldownWhenNoTarget: 8
   limitHarvestsPerScheduleSlot: 1
@@ -27575,6 +27647,70 @@ MonoBehaviour:
   currentAction: idle
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
+--- !u!114 &283373232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 283373213}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 2
+  slots:
+  - activity: 8
+    startHour: 0
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 5
+    startHour: 6
+    endHour: 8
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 11
+    startHour: 8
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 10
+    endHour: 14
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 7
+    startHour: 14
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 18
+    endHour: 0
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 1
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1 &284662699
 GameObject:
   m_ObjectHideFlags: 0
@@ -28153,6 +28289,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 309522948}
+    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 309522952}
   m_SourcePrefab: {fileID: 100100000, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
 --- !u!4 &309522934 stripped
 Transform:
@@ -28219,6 +28358,7 @@ MonoBehaviour:
   arriveDistance: 0.35
   retargetDistance: 0.75
   reservationDuration: 3
+  harvestBreakDistance: 2
   harvestCooldownAfterSuccess: 45
   harvestCooldownWhenNoTarget: 8
   limitHarvestsPerScheduleSlot: 1
@@ -28430,6 +28570,70 @@ MonoBehaviour:
   invertSideFlip: 0
   invertVerticalFacing: 1
   directionDeadZone: 0.08
+--- !u!114 &309522952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 309522935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 2
+  slots:
+  - activity: 8
+    startHour: 0
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 5
+    startHour: 6
+    endHour: 8
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 11
+    startHour: 8
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 10
+    endHour: 14
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 7
+    startHour: 14
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 18
+    endHour: 0
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 1
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1 &310305319
 GameObject:
   m_ObjectHideFlags: 0
@@ -29143,6 +29347,7 @@ GameObject:
   - component: {fileID: 337541980}
   - component: {fileID: 337541979}
   - component: {fileID: 337541977}
+  - component: {fileID: 337541981}
   m_Layer: 0
   m_Name: hoathuong_5
   m_TagString: Untagged
@@ -29388,6 +29593,7 @@ MonoBehaviour:
   cultivationSessionMaxGameHours: 2
   workSessionMinGameHours: 1
   workSessionMaxGameHours: 3
+  scheduledWorkHarvestSeconds: 8
   resourceSessionMinGameHours: 0.5
   resourceSessionMaxGameHours: 1.5
   tradeSessionMinGameHours: 0.5
@@ -29397,13 +29603,14 @@ MonoBehaviour:
   keepInsideCombinedNpcMapAreas: 0
   mapAreaEdgePadding: 0.15
   inventory: {fileID: 337541977}
-  farmProduct: {fileID: 0}
+  farmProduct: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
   fishingProduct: {fileID: 0}
   huntingProduct: {fileID: 0}
   workerProduct: {fileID: 0}
   workProductMin: 1
   workProductMax: 3
   farmerHarvestOnlyInMorning: 1
+  limitScheduledHarvestOncePerDay: 0
   farmerHarvestAmountPerDay: 1
   farmerPreferWorkPoint: 1
   sellGoodsThreshold: 1
@@ -29423,6 +29630,7 @@ MonoBehaviour:
   currentAction: idle
   currentTarget: {fileID: 0}
   lastWorkProductStatus: 
+  debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &337541977
 MonoBehaviour:
@@ -29512,6 +29720,91 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!114 &337541981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 337541972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 1
+  slots:
+  - activity: 2
+    startHour: 5
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 6
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 10
+    endHour: 12
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 2
+    startHour: 12
+    endHour: 13
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 13
+    endHour: 16
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 4
+    startHour: 16
+    endHour: 17
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 11
+    startHour: 17
+    endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 19
+    endHour: 23
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 1
+    startHour: 23
+    endHour: 5
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 1
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1 &341646477
 GameObject:
   m_ObjectHideFlags: 0
@@ -31104,6 +31397,68 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1722716694}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &445409630
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2133223461}
+    m_Modifications:
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -15.555817
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.5332241
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 696709227914667505, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_Name
+      value: ca (6)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+--- !u!4 &445409631 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+  m_PrefabInstance: {fileID: 445409630}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &453393250
 GameObject:
   m_ObjectHideFlags: 0
@@ -33049,6 +33404,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1408745026}
+    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1408745030}
   m_SourcePrefab: {fileID: 100100000, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
 --- !u!1 &582097833
 GameObject:
@@ -33867,6 +34225,7 @@ GameObject:
   - component: {fileID: 610803226}
   - component: {fileID: 610803225}
   - component: {fileID: 610803233}
+  - component: {fileID: 610803234}
   m_Layer: 0
   m_Name: lukhach_0
   m_TagString: Untagged
@@ -33988,6 +34347,7 @@ MonoBehaviour:
   arriveDistance: 0.35
   retargetDistance: 0.75
   reservationDuration: 3
+  harvestBreakDistance: 2
   harvestCooldownAfterSuccess: 45
   harvestCooldownWhenNoTarget: 8
   limitHarvestsPerScheduleSlot: 1
@@ -34389,6 +34749,7 @@ MonoBehaviour:
   cultivationSessionMaxGameHours: 2
   workSessionMinGameHours: 1
   workSessionMaxGameHours: 3
+  scheduledWorkHarvestSeconds: 8
   resourceSessionMinGameHours: 0.5
   resourceSessionMaxGameHours: 1.5
   tradeSessionMinGameHours: 0.5
@@ -34398,13 +34759,14 @@ MonoBehaviour:
   keepInsideCombinedNpcMapAreas: 0
   mapAreaEdgePadding: 0.15
   inventory: {fileID: 610803230}
-  farmProduct: {fileID: 0}
+  farmProduct: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
   fishingProduct: {fileID: 0}
   huntingProduct: {fileID: 0}
   workerProduct: {fileID: 0}
   workProductMin: 1
   workProductMax: 3
   farmerHarvestOnlyInMorning: 1
+  limitScheduledHarvestOncePerDay: 0
   farmerHarvestAmountPerDay: 1
   farmerPreferWorkPoint: 1
   sellGoodsThreshold: 1
@@ -34424,7 +34786,72 @@ MonoBehaviour:
   currentAction: idle
   currentTarget: {fileID: 0}
   lastWorkProductStatus: 
+  debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
+--- !u!114 &610803234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 610803221}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 2
+  slots:
+  - activity: 8
+    startHour: 0
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 5
+    startHour: 6
+    endHour: 8
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 11
+    startHour: 8
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 10
+    endHour: 14
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 7
+    startHour: 14
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 18
+    endHour: 0
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 1
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1 &614410418
 GameObject:
   m_ObjectHideFlags: 0
@@ -40832,6 +41259,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5511893061176817771, guid: 52234395ac81e954b8415221c10525ea, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1348486200}
+    - targetCorrespondingSourceObject: {fileID: 5511893061176817771, guid: 52234395ac81e954b8415221c10525ea, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1348486210}
   m_SourcePrefab: {fileID: 100100000, guid: 52234395ac81e954b8415221c10525ea, type: 3}
 --- !u!1 &734932529
 GameObject:
@@ -41396,6 +41826,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 754998919}
+    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 754998923}
   m_SourcePrefab: {fileID: 100100000, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
 --- !u!4 &754998905 stripped
 Transform:
@@ -41501,6 +41934,7 @@ MonoBehaviour:
   arriveDistance: 0.35
   retargetDistance: 0.75
   reservationDuration: 3
+  harvestBreakDistance: 2
   harvestCooldownAfterSuccess: 45
   harvestCooldownWhenNoTarget: 8
   limitHarvestsPerScheduleSlot: 1
@@ -41696,6 +42130,70 @@ MonoBehaviour:
   invertSideFlip: 0
   invertVerticalFacing: 1
   directionDeadZone: 0.08
+--- !u!114 &754998923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754998906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 2
+  slots:
+  - activity: 8
+    startHour: 0
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 5
+    startHour: 6
+    endHour: 8
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 11
+    startHour: 8
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 10
+    endHour: 14
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 7
+    startHour: 14
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 18
+    endHour: 0
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 1
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1 &758398949
 GameObject:
   m_ObjectHideFlags: 0
@@ -42639,7 +43137,72 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4784376538236298774, guid: e93c886c75775ac40b19070a1f0016fa, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1824737297}
+    - targetCorrespondingSourceObject: {fileID: 4784376538236298774, guid: e93c886c75775ac40b19070a1f0016fa, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1824737303}
   m_SourcePrefab: {fileID: 100100000, guid: e93c886c75775ac40b19070a1f0016fa, type: 3}
+--- !u!1001 &837302892
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2133223461}
+    m_Modifications:
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -15.265163
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -16.818441
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 696709227914667505, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_Name
+      value: ca (1)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+--- !u!4 &837302893 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+  m_PrefabInstance: {fileID: 837302892}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &841562788
 GameObject:
   m_ObjectHideFlags: 0
@@ -42947,6 +43510,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1058458081}
+    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1058458085}
   m_SourcePrefab: {fileID: 100100000, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
 --- !u!1 &856479176
 GameObject:
@@ -43331,6 +43897,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2133223461}
     m_Modifications:
+    - target: {fileID: 1235500785559261333, guid: 66f1b50efe9d25a4fa660215353a3fd1, type: 3}
+      propertyPath: 'lootByBeastLevel.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: a7941e514b6711949a512e57c8551efb, type: 2}
     - target: {fileID: 5697868351250767457, guid: 66f1b50efe9d25a4fa660215353a3fd1, type: 3}
       propertyPath: m_Name
       value: nai_0 (1)
@@ -44550,6 +45120,11 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 4.06, y: 3.74}
   m_EdgeRadius: 0
+--- !u!4 &943443544 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+  m_PrefabInstance: {fileID: 7148234491017257641}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &954560955
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -44647,6 +45222,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 954560967}
+    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 954560971}
   m_SourcePrefab: {fileID: 100100000, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
 --- !u!4 &954560956 stripped
 Transform:
@@ -44688,6 +45266,7 @@ MonoBehaviour:
   arriveDistance: 0.35
   retargetDistance: 0.75
   reservationDuration: 3
+  harvestBreakDistance: 2
   harvestCooldownAfterSuccess: 45
   harvestCooldownWhenNoTarget: 8
   limitHarvestsPerScheduleSlot: 1
@@ -44750,7 +45329,7 @@ MonoBehaviour:
   entityProfile: {fileID: 0}
   villagerName: "Ng\u01B0\u1EDDi d\xE2n"
   ageGroup: 1
-  job: 4
+  job: 1
   keepInspectorJob: 0
   maxHP: 100
   currentHP: 100
@@ -44876,6 +45455,7 @@ MonoBehaviour:
   cultivationSessionMaxGameHours: 2
   workSessionMinGameHours: 1
   workSessionMaxGameHours: 3
+  scheduledWorkHarvestSeconds: 8
   resourceSessionMinGameHours: 0.5
   resourceSessionMaxGameHours: 1.5
   tradeSessionMinGameHours: 0.5
@@ -44892,6 +45472,7 @@ MonoBehaviour:
   workProductMin: 1
   workProductMax: 3
   farmerHarvestOnlyInMorning: 1
+  limitScheduledHarvestOncePerDay: 0
   farmerHarvestAmountPerDay: 1
   farmerPreferWorkPoint: 1
   sellGoodsThreshold: 1
@@ -44911,6 +45492,7 @@ MonoBehaviour:
   currentAction: "\u0110\u1EE9ng y\xEAn"
   currentTarget: {fileID: 0}
   lastWorkProductStatus: 
+  debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!70 &954560963
 CapsuleCollider2D:
@@ -44990,6 +45572,77 @@ MonoBehaviour:
   invertSideFlip: 0
   invertVerticalFacing: 1
   directionDeadZone: 0.08
+--- !u!114 &954560971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 954560957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 0
+  slots:
+  - activity: 2
+    startHour: 5
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 6
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 2
+    startHour: 10
+    endHour: 11
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 11
+    endHour: 16
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 4
+    startHour: 16
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 12
+    startHour: 18
+    endHour: 21
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 1
+    startHour: 21
+    endHour: 5
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 0
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!114 &959612417
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -50476,6 +51129,7 @@ MonoBehaviour:
   arriveDistance: 0.35
   retargetDistance: 0.75
   reservationDuration: 3
+  harvestBreakDistance: 2
   harvestCooldownAfterSuccess: 45
   harvestCooldownWhenNoTarget: 8
   limitHarvestsPerScheduleSlot: 1
@@ -50540,6 +51194,7 @@ MonoBehaviour:
   arriveDistance: 0.35
   retargetDistance: 0.75
   reservationDuration: 3
+  harvestBreakDistance: 2
   harvestCooldownAfterSuccess: 45
   harvestCooldownWhenNoTarget: 8
   limitHarvestsPerScheduleSlot: 1
@@ -50735,6 +51390,70 @@ MonoBehaviour:
   invertSideFlip: 0
   invertVerticalFacing: 1
   directionDeadZone: 0.08
+--- !u!114 &995969497
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 995969475}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 2
+  slots:
+  - activity: 8
+    startHour: 0
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 5
+    startHour: 6
+    endHour: 8
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 11
+    startHour: 8
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 10
+    endHour: 14
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 7
+    startHour: 14
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 18
+    endHour: 0
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 1
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1001 &1002137721
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -50743,6 +51462,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2133223461}
     m_Modifications:
+    - target: {fileID: 1235500785559261333, guid: 66f1b50efe9d25a4fa660215353a3fd1, type: 3}
+      propertyPath: 'lootByBeastLevel.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: a7941e514b6711949a512e57c8551efb, type: 2}
     - target: {fileID: 5697868351250767457, guid: 66f1b50efe9d25a4fa660215353a3fd1, type: 3}
       propertyPath: m_Name
       value: nai_0 (7)
@@ -51552,6 +52275,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1034849205}
+    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1034849210}
   m_SourcePrefab: {fileID: 100100000, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
 --- !u!4 &1034849191 stripped
 Transform:
@@ -51579,7 +52305,7 @@ MonoBehaviour:
   entityProfile: {fileID: 0}
   villagerName: "Ng\u01B0\u1EDDi d\xE2n"
   ageGroup: 1
-  job: 3
+  job: 2
   keepInspectorJob: 0
   maxHP: 100
   currentHP: 100
@@ -51705,6 +52431,7 @@ MonoBehaviour:
   cultivationSessionMaxGameHours: 2
   workSessionMinGameHours: 1
   workSessionMaxGameHours: 3
+  scheduledWorkHarvestSeconds: 8
   resourceSessionMinGameHours: 0.5
   resourceSessionMaxGameHours: 1.5
   tradeSessionMinGameHours: 0.5
@@ -51714,13 +52441,14 @@ MonoBehaviour:
   keepInsideCombinedNpcMapAreas: 0
   mapAreaEdgePadding: 0.15
   inventory: {fileID: 1034849199}
-  farmProduct: {fileID: 0}
+  farmProduct: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
   fishingProduct: {fileID: 0}
   huntingProduct: {fileID: 0}
   workerProduct: {fileID: 0}
   workProductMin: 1
   workProductMax: 3
   farmerHarvestOnlyInMorning: 1
+  limitScheduledHarvestOncePerDay: 0
   farmerHarvestAmountPerDay: 1
   farmerPreferWorkPoint: 1
   sellGoodsThreshold: 1
@@ -51740,6 +52468,7 @@ MonoBehaviour:
   currentAction: "\u0110\u1EE9ng y\xEAn"
   currentTarget: {fileID: 0}
   lastWorkProductStatus: 
+  debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!70 &1034849197
 CapsuleCollider2D:
@@ -51912,6 +52641,77 @@ MonoBehaviour:
   acceptedProduce: []
   maxProduceUnitsPerTrade: 4
   buyPricePercent: 70
+--- !u!114 &1034849210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1034849192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 0
+  slots:
+  - activity: 2
+    startHour: 5
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 6
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 2
+    startHour: 10
+    endHour: 11
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 11
+    endHour: 16
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 4
+    startHour: 16
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 12
+    startHour: 18
+    endHour: 21
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 1
+    startHour: 21
+    endHour: 5
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 0
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1 &1038373549
 GameObject:
   m_ObjectHideFlags: 0
@@ -52747,6 +53547,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 263152473}
+    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 263152477}
   m_SourcePrefab: {fileID: 100100000, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
 --- !u!1 &1058458062 stripped
 GameObject:
@@ -52829,6 +53632,7 @@ MonoBehaviour:
   arriveDistance: 0.35
   retargetDistance: 0.75
   reservationDuration: 3
+  harvestBreakDistance: 2
   harvestCooldownAfterSuccess: 45
   harvestCooldownWhenNoTarget: 8
   limitHarvestsPerScheduleSlot: 1
@@ -53042,6 +53846,70 @@ MonoBehaviour:
   autoFindNearestNpc: 1
   temporarilyBoostEligibility: 1
   restoreEligibilityAfterStart: 1
+--- !u!114 &1058458085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1058458062}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 2
+  slots:
+  - activity: 8
+    startHour: 0
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 5
+    startHour: 6
+    endHour: 8
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 11
+    startHour: 8
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 10
+    endHour: 14
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 7
+    startHour: 14
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 18
+    endHour: 0
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 1
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1 &1062151244
 GameObject:
   m_ObjectHideFlags: 0
@@ -53133,6 +54001,68 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1001 &1062832326
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2133223461}
+    m_Modifications:
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -15.680016
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -19.39018
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 696709227914667505, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_Name
+      value: ca (3)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+--- !u!4 &1062832327 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+  m_PrefabInstance: {fileID: 1062832326}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1072802305
 GameObject:
   m_ObjectHideFlags: 0
@@ -118711,6 +119641,68 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1180669494}
   m_CullTransparentMesh: 1
+--- !u!1001 &1181143274
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2133223461}
+    m_Modifications:
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -14.899075
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -18.25839
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 696709227914667505, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_Name
+      value: ca (2)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+--- !u!4 &1181143275 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+  m_PrefabInstance: {fileID: 1181143274}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1182159678
 GameObject:
   m_ObjectHideFlags: 0
@@ -124676,6 +125668,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2133223461}
     m_Modifications:
+    - target: {fileID: 1235500785559261333, guid: 66f1b50efe9d25a4fa660215353a3fd1, type: 3}
+      propertyPath: 'lootByBeastLevel.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: a7941e514b6711949a512e57c8551efb, type: 2}
     - target: {fileID: 5697868351250767457, guid: 66f1b50efe9d25a4fa660215353a3fd1, type: 3}
       propertyPath: m_Name
       value: nai_0 (8)
@@ -125224,7 +126220,7 @@ MonoBehaviour:
   entityProfile: {fileID: 0}
   villagerName: "Ng\u01B0\u1EDDi d\xE2n"
   ageGroup: 1
-  job: 4
+  job: 1
   keepInspectorJob: 0
   maxHP: 100
   currentHP: 100
@@ -125350,6 +126346,7 @@ MonoBehaviour:
   cultivationSessionMaxGameHours: 2
   workSessionMinGameHours: 1
   workSessionMaxGameHours: 3
+  scheduledWorkHarvestSeconds: 8
   resourceSessionMinGameHours: 0.5
   resourceSessionMaxGameHours: 1.5
   tradeSessionMinGameHours: 0.5
@@ -125366,6 +126363,7 @@ MonoBehaviour:
   workProductMin: 1
   workProductMax: 3
   farmerHarvestOnlyInMorning: 1
+  limitScheduledHarvestOncePerDay: 0
   farmerHarvestAmountPerDay: 1
   farmerPreferWorkPoint: 1
   sellGoodsThreshold: 1
@@ -125385,6 +126383,7 @@ MonoBehaviour:
   currentAction: "\u0110\u1EE9ng y\xEAn"
   currentTarget: {fileID: 0}
   lastWorkProductStatus: 
+  debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!70 &1275826748
 CapsuleCollider2D:
@@ -125453,6 +126452,7 @@ MonoBehaviour:
   arriveDistance: 0.35
   retargetDistance: 0.75
   reservationDuration: 3
+  harvestBreakDistance: 2
   harvestCooldownAfterSuccess: 45
   harvestCooldownWhenNoTarget: 8
   limitHarvestsPerScheduleSlot: 1
@@ -125524,6 +126524,77 @@ MonoBehaviour:
   invertSideFlip: 0
   invertVerticalFacing: 1
   directionDeadZone: 0.08
+--- !u!114 &1275826759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1275826737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 0
+  slots:
+  - activity: 2
+    startHour: 5
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 6
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 2
+    startHour: 10
+    endHour: 11
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 11
+    endHour: 16
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 4
+    startHour: 16
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 12
+    startHour: 18
+    endHour: 21
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 1
+    startHour: 21
+    endHour: 5
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 0
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1 &1279484976
 GameObject:
   m_ObjectHideFlags: 0
@@ -125725,6 +126796,7 @@ MonoBehaviour:
   arriveDistance: 0.35
   retargetDistance: 0.75
   reservationDuration: 3
+  harvestBreakDistance: 2
   harvestCooldownAfterSuccess: 45
   harvestCooldownWhenNoTarget: 8
   limitHarvestsPerScheduleSlot: 1
@@ -125920,6 +126992,70 @@ MonoBehaviour:
   invertSideFlip: 0
   invertVerticalFacing: 1
   directionDeadZone: 0.08
+--- !u!114 &1282378971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1282378949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 2
+  slots:
+  - activity: 8
+    startHour: 0
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 5
+    startHour: 6
+    endHour: 8
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 11
+    startHour: 8
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 10
+    endHour: 14
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 7
+    startHour: 14
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 18
+    endHour: 0
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 1
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!213 &1282734966
 Sprite:
   m_ObjectHideFlags: 0
@@ -126490,6 +127626,7 @@ MonoBehaviour:
   arriveDistance: 0.35
   retargetDistance: 0.75
   reservationDuration: 3
+  harvestBreakDistance: 2
   harvestCooldownAfterSuccess: 45
   harvestCooldownWhenNoTarget: 8
   limitHarvestsPerScheduleSlot: 1
@@ -126685,6 +127822,70 @@ MonoBehaviour:
   invertSideFlip: 0
   invertVerticalFacing: 1
   directionDeadZone: 0.08
+--- !u!114 &1294589197
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1294589174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 2
+  slots:
+  - activity: 8
+    startHour: 0
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 5
+    startHour: 6
+    endHour: 8
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 11
+    startHour: 8
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 10
+    endHour: 14
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 7
+    startHour: 14
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 18
+    endHour: 0
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 1
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1 &1294737422
 GameObject:
   m_ObjectHideFlags: 0
@@ -127319,16 +128520,24 @@ PrefabInstance:
     m_TransformParent: {fileID: 1304320904}
     m_Modifications:
     - target: {fileID: 477681590454896501, guid: afa77975feceb5d4da429fc22403760e, type: 3}
+      propertyPath: job
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 477681590454896501, guid: afa77975feceb5d4da429fc22403760e, type: 3}
+      propertyPath: realm
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 477681590454896501, guid: afa77975feceb5d4da429fc22403760e, type: 3}
       propertyPath: homePoint
       value: 
       objectReference: {fileID: 716138765}
     - target: {fileID: 5919177293927157788, guid: afa77975feceb5d4da429fc22403760e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.90244
+      value: 3.24
       objectReference: {fileID: 0}
     - target: {fileID: 5919177293927157788, guid: afa77975feceb5d4da429fc22403760e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.78101
+      value: 3.48
       objectReference: {fileID: 0}
     - target: {fileID: 5919177293927157788, guid: afa77975feceb5d4da429fc22403760e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -127369,40 +128578,8 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8596889031696047861, guid: afa77975feceb5d4da429fc22403760e, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1345101418}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: afa77975feceb5d4da429fc22403760e, type: 3}
---- !u!1 &1345101417 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8596889031696047861, guid: afa77975feceb5d4da429fc22403760e, type: 3}
-  m_PrefabInstance: {fileID: 1345101416}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1345101418
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1345101417}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b75b03d92ec088d4688820efbcd11d02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ItemInventory
-  shareRuntimeItems: 1
-  keepInspectorItemsWhenLoadingSave: 1
-  runtimeKey: 
-  items:
-  - item: {fileID: 11400000, guid: f03df5f20465b174199a20b0f000d314, type: 2}
-    amount: 0
-    durability: 0
-    maxDurability: 0
-    mastery: 0
-    manualUseYears: 0
-    broken: 0
-    applied: 0
 --- !u!4 &1345101430 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5919177293927157788, guid: afa77975feceb5d4da429fc22403760e, type: 3}
@@ -127711,6 +128888,70 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8002957989317268842, guid: 52234395ac81e954b8415221c10525ea, type: 3}
   m_PrefabInstance: {fileID: 731046317}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1348486210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1348486185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 2
+  slots:
+  - activity: 8
+    startHour: 0
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 5
+    startHour: 6
+    endHour: 8
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 11
+    startHour: 8
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 10
+    endHour: 14
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 7
+    startHour: 14
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 18
+    endHour: 0
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 1
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1001 &1356436457
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -127823,6 +129064,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5511893061176817771, guid: 52234395ac81e954b8415221c10525ea, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1356436473}
+    - targetCorrespondingSourceObject: {fileID: 5511893061176817771, guid: 52234395ac81e954b8415221c10525ea, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1356436477}
   m_SourcePrefab: {fileID: 100100000, guid: 52234395ac81e954b8415221c10525ea, type: 3}
 --- !u!4 &1356436458 stripped
 Transform:
@@ -127852,6 +129096,7 @@ MonoBehaviour:
   arriveDistance: 0.35
   retargetDistance: 0.75
   reservationDuration: 3
+  harvestBreakDistance: 2
   harvestCooldownAfterSuccess: 45
   harvestCooldownWhenNoTarget: 8
   limitHarvestsPerScheduleSlot: 1
@@ -127953,6 +129198,7 @@ MonoBehaviour:
   arriveDistance: 0.35
   retargetDistance: 0.75
   reservationDuration: 3
+  harvestBreakDistance: 2
   harvestCooldownAfterSuccess: 45
   harvestCooldownWhenNoTarget: 8
   limitHarvestsPerScheduleSlot: 1
@@ -128148,6 +129394,70 @@ MonoBehaviour:
   invertSideFlip: 0
   invertVerticalFacing: 1
   directionDeadZone: 0.08
+--- !u!114 &1356436477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1356436459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 2
+  slots:
+  - activity: 8
+    startHour: 0
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 5
+    startHour: 6
+    endHour: 8
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 11
+    startHour: 8
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 10
+    endHour: 14
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 7
+    startHour: 14
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 18
+    endHour: 0
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 1
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1001 &1361991803
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -128845,7 +130155,11 @@ MonoBehaviour:
     amount: 99
   - item: {fileID: 11400000, guid: fbfb4a9ae5617e84cb4e37d07952844e, type: 2}
     amount: 99
+  - item: {fileID: 11400000, guid: 550730f23498be4459f8358921e55b8e, type: 2}
+    amount: 99
   - item: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
+    amount: 99
+  - item: {fileID: 11400000, guid: a7941e514b6711949a512e57c8551efb, type: 2}
     amount: 99
 --- !u!114 &1375171535
 MonoBehaviour:
@@ -128889,7 +130203,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 61efc2e6298d3b146a0b4cb64c0706b5, type: 2}
   - {fileID: 11400000, guid: bd5d61463e2fb8d46acb967eaf578d5f, type: 2}
   - {fileID: 11400000, guid: 7e9878b98e6902a468c3e2ecce7da2bb, type: 2}
+  - {fileID: 11400000, guid: 550730f23498be4459f8358921e55b8e, type: 2}
   - {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
+  - {fileID: 11400000, guid: a7941e514b6711949a512e57c8551efb, type: 2}
   - {fileID: 11400000, guid: b893b14dec6e0334ba5fb131d729a7bb, type: 2}
   - {fileID: 11400000, guid: a7422243b6e18bd4bb595566c397a119, type: 2}
   - {fileID: 11400000, guid: 6048e6230cffbe44ab96a6d98bf59d12, type: 2}
@@ -128945,6 +130261,70 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NpcHideCultivationInfo
   hideCultivationSkills: 1
+--- !u!114 &1375171540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1375171526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 2
+  slots:
+  - activity: 8
+    startHour: 0
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 5
+    startHour: 6
+    endHour: 8
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 11
+    startHour: 8
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 10
+    endHour: 14
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 7
+    startHour: 14
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 18
+    endHour: 0
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 1
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1 &1396837241
 GameObject:
   m_ObjectHideFlags: 0
@@ -129027,6 +130407,7 @@ GameObject:
   - component: {fileID: 1398839551}
   - component: {fileID: 1398839550}
   - component: {fileID: 1398839548}
+  - component: {fileID: 1398839552}
   m_Layer: 0
   m_Name: tusigai_4
   m_TagString: Untagged
@@ -129124,7 +130505,7 @@ Transform:
   m_GameObject: {fileID: 1398839543}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.23, y: -2.86, z: 0}
+  m_LocalPosition: {x: 124.9, y: 2.8, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -129146,7 +130527,7 @@ MonoBehaviour:
   entityProfile: {fileID: 0}
   villagerName: "Ng\u01B0\u1EDDi d\xE2n"
   ageGroup: 1
-  job: 1
+  job: 6
   keepInspectorJob: 0
   maxHP: 100
   currentHP: 100
@@ -129272,6 +130653,7 @@ MonoBehaviour:
   cultivationSessionMaxGameHours: 2
   workSessionMinGameHours: 1
   workSessionMaxGameHours: 3
+  scheduledWorkHarvestSeconds: 8
   resourceSessionMinGameHours: 0.5
   resourceSessionMaxGameHours: 1.5
   tradeSessionMinGameHours: 0.5
@@ -129281,13 +130663,14 @@ MonoBehaviour:
   keepInsideCombinedNpcMapAreas: 0
   mapAreaEdgePadding: 0.15
   inventory: {fileID: 1398839548}
-  farmProduct: {fileID: 0}
+  farmProduct: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
   fishingProduct: {fileID: 0}
   huntingProduct: {fileID: 0}
   workerProduct: {fileID: 0}
   workProductMin: 1
   workProductMax: 3
   farmerHarvestOnlyInMorning: 1
+  limitScheduledHarvestOncePerDay: 0
   farmerHarvestAmountPerDay: 1
   farmerPreferWorkPoint: 1
   sellGoodsThreshold: 1
@@ -129307,6 +130690,7 @@ MonoBehaviour:
   currentAction: idle
   currentTarget: {fileID: 0}
   lastWorkProductStatus: 
+  debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &1398839548
 MonoBehaviour:
@@ -129396,6 +130780,91 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!114 &1398839552
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1398839543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 1
+  slots:
+  - activity: 2
+    startHour: 5
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 6
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 10
+    endHour: 12
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 2
+    startHour: 12
+    endHour: 13
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 13
+    endHour: 16
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 4
+    startHour: 16
+    endHour: 17
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 11
+    startHour: 17
+    endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 19
+    endHour: 23
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 1
+    startHour: 23
+    endHour: 5
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 1
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1 &1408745008 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
@@ -129585,6 +131054,7 @@ MonoBehaviour:
   cultivationSessionMaxGameHours: 2
   workSessionMinGameHours: 1
   workSessionMaxGameHours: 3
+  scheduledWorkHarvestSeconds: 8
   resourceSessionMinGameHours: 0.5
   resourceSessionMaxGameHours: 1.5
   tradeSessionMinGameHours: 0.5
@@ -129594,13 +131064,14 @@ MonoBehaviour:
   keepInsideCombinedNpcMapAreas: 0
   mapAreaEdgePadding: 0.15
   inventory: {fileID: 1408745022}
-  farmProduct: {fileID: 0}
+  farmProduct: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
   fishingProduct: {fileID: 0}
   huntingProduct: {fileID: 0}
   workerProduct: {fileID: 0}
   workProductMin: 1
   workProductMax: 3
   farmerHarvestOnlyInMorning: 1
+  limitScheduledHarvestOncePerDay: 0
   farmerHarvestAmountPerDay: 1
   farmerPreferWorkPoint: 1
   sellGoodsThreshold: 1
@@ -129620,6 +131091,7 @@ MonoBehaviour:
   currentAction: "\u0110\u1EE9ng y\xEAn"
   currentTarget: {fileID: 0}
   lastWorkProductStatus: 
+  debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &1408745020
 MonoBehaviour:
@@ -129713,6 +131185,91 @@ MonoBehaviour:
   invertSideFlip: 0
   invertVerticalFacing: 1
   directionDeadZone: 0.08
+--- !u!114 &1408745030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1408745008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 1
+  slots:
+  - activity: 2
+    startHour: 5
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 6
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 10
+    endHour: 12
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 2
+    startHour: 12
+    endHour: 13
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 13
+    endHour: 16
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 4
+    startHour: 16
+    endHour: 17
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 11
+    startHour: 17
+    endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 19
+    endHour: 23
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 1
+    startHour: 23
+    endHour: 5
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 1
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1 &1411044228
 GameObject:
   m_ObjectHideFlags: 0
@@ -130978,6 +132535,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2109649323}
+    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2109649327}
   m_SourcePrefab: {fileID: 100100000, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
 --- !u!4 &1473426759 stripped
 Transform:
@@ -132358,7 +133918,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8373426706007874102, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.7689028
+      value: 4.07
       objectReference: {fileID: 0}
     - target: {fileID: 8373426706007874102, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_LocalPosition.z
@@ -132417,6 +133977,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1275826755}
+    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1275826759}
   m_SourcePrefab: {fileID: 100100000, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
 --- !u!1 &1534050251
 GameObject:
@@ -134571,6 +136134,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1294589193}
+    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1294589197}
   m_SourcePrefab: {fileID: 100100000, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
 --- !u!1 &1642251565
 GameObject:
@@ -140958,6 +142524,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6510684094960389824, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1282378967}
+    - targetCorrespondingSourceObject: {fileID: 6510684094960389824, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1282378971}
   m_SourcePrefab: {fileID: 100100000, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
 --- !u!1 &1771042233
 GameObject:
@@ -141006,6 +142575,7 @@ GameObject:
   - component: {fileID: 1776821968}
   - component: {fileID: 1776821967}
   - component: {fileID: 1776821969}
+  - component: {fileID: 1776821970}
   m_Layer: 0
   m_Name: NPC_B
   m_TagString: Untagged
@@ -141338,6 +142908,70 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f04ee078acf6f5348a56c0dd4f443cd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NpcSocialSystem
+--- !u!114 &1776821970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1776821961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 2
+  slots:
+  - activity: 8
+    startHour: 0
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 5
+    startHour: 6
+    endHour: 8
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 11
+    startHour: 8
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 10
+    endHour: 14
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 7
+    startHour: 14
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 18
+    endHour: 0
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 1
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1 &1779901993
 GameObject:
   m_ObjectHideFlags: 0
@@ -141436,7 +143070,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -2.3650692, y: -0.64843833}
+  m_Offset: {x: -0.64342487, y: -0.5142839}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -141446,7 +143080,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 6.9466434, y: 1.7171347}
+  m_Size: {x: 3.5033557, y: 2.3879051}
   m_EdgeRadius: 0
 --- !u!1 &1780781189
 GameObject:
@@ -141555,6 +143189,7 @@ GameObject:
   - component: {fileID: 1783360641}
   - component: {fileID: 1783360640}
   - component: {fileID: 1783360642}
+  - component: {fileID: 1783360643}
   m_Layer: 0
   m_Name: NPC_C
   m_TagString: Untagged
@@ -141887,6 +143522,70 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f04ee078acf6f5348a56c0dd4f443cd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NpcSocialSystem
+--- !u!114 &1783360643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1783360634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 2
+  slots:
+  - activity: 8
+    startHour: 0
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 5
+    startHour: 6
+    endHour: 8
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 11
+    startHour: 8
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 10
+    endHour: 14
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 7
+    startHour: 14
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 18
+    endHour: 0
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 1
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1001 &1786791929
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -142204,6 +143903,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
       insertIndex: -1
       addedObject: {fileID: 995969493}
+    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 995969497}
   m_SourcePrefab: {fileID: 100100000, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
 --- !u!1 &1815401409
 GameObject:
@@ -142967,6 +144669,70 @@ MonoBehaviour:
   currentAction: idle
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
+--- !u!114 &1824737303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1824737281}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 2
+  slots:
+  - activity: 8
+    startHour: 0
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 5
+    startHour: 6
+    endHour: 8
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 11
+    startHour: 8
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 10
+    endHour: 14
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 7
+    startHour: 14
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 18
+    endHour: 0
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 1
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!213 &1831849371
 Sprite:
   m_ObjectHideFlags: 0
@@ -143770,6 +145536,68 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1869843514}
   m_CullTransparentMesh: 1
+--- !u!1001 &1877148481
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2133223461}
+    m_Modifications:
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 4.9760284
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -28.419283
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 696709227914667505, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_Name
+      value: ca (5)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+--- !u!4 &1877148482 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+  m_PrefabInstance: {fileID: 1877148481}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1882863259
 GameObject:
   m_ObjectHideFlags: 0
@@ -144906,6 +146734,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2133223461}
     m_Modifications:
+    - target: {fileID: 1235500785559261333, guid: 66f1b50efe9d25a4fa660215353a3fd1, type: 3}
+      propertyPath: lootByBeastLevel.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1235500785559261333, guid: 66f1b50efe9d25a4fa660215353a3fd1, type: 3}
+      propertyPath: 'lootByBeastLevel.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: a7941e514b6711949a512e57c8551efb, type: 2}
+    - target: {fileID: 1235500785559261333, guid: 66f1b50efe9d25a4fa660215353a3fd1, type: 3}
+      propertyPath: 'lootByBeastLevel.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 5058a0e837bd2bc44adc270033fb2011, type: 2}
     - target: {fileID: 5697868351250767457, guid: 66f1b50efe9d25a4fa660215353a3fd1, type: 3}
       propertyPath: m_Name
       value: nai_0 (4)
@@ -150042,6 +151882,68 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
+--- !u!1001 &2042828895
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2133223461}
+    m_Modifications:
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 2.2667084
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -28.151472
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 696709227914667505, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_Name
+      value: ca (4)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+--- !u!4 &2042828896 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+  m_PrefabInstance: {fileID: 2042828895}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2046949238
 GameObject:
   m_ObjectHideFlags: 0
@@ -162326,12 +164228,6 @@ Tilemap:
   - serializedVersion: 2
     m_RefCount: 15
     m_Data: {fileID: 546696956, guid: e3046f4802b255e43bc09df30edadcc1, type: 3}
-  - serializedVersion: 2
-    m_RefCount: 0
-    m_Data: {fileID: 1282734966}
-  - serializedVersion: 2
-    m_RefCount: 0
-    m_Data: {fileID: 965015501}
   m_TileMatrixArray:
   - serializedVersion: 2
     m_RefCount: 608
@@ -162386,6 +164282,68 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!1001 &2085045106
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2133223461}
+    m_Modifications:
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -17.87511
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 4.271406
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 696709227914667505, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_Name
+      value: ca (7)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+--- !u!4 &2085045107 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+  m_PrefabInstance: {fileID: 2085045106}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2085516814
 GameObject:
   m_ObjectHideFlags: 0
@@ -167548,6 +169506,7 @@ GameObject:
   - component: {fileID: 2092184319}
   - component: {fileID: 2092184318}
   - component: {fileID: 2092184320}
+  - component: {fileID: 2092184321}
   m_Layer: 0
   m_Name: dansu_0
   m_TagString: Untagged
@@ -168241,6 +170200,7 @@ MonoBehaviour:
   cultivationSessionMaxGameHours: 2
   workSessionMinGameHours: 1
   workSessionMaxGameHours: 3
+  scheduledWorkHarvestSeconds: 8
   resourceSessionMinGameHours: 0.5
   resourceSessionMaxGameHours: 1.5
   tradeSessionMinGameHours: 0.5
@@ -168250,13 +170210,14 @@ MonoBehaviour:
   keepInsideCombinedNpcMapAreas: 0
   mapAreaEdgePadding: 0.15
   inventory: {fileID: 2092184315}
-  farmProduct: {fileID: 0}
+  farmProduct: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
   fishingProduct: {fileID: 0}
   huntingProduct: {fileID: 0}
   workerProduct: {fileID: 0}
   workProductMin: 1
   workProductMax: 3
   farmerHarvestOnlyInMorning: 1
+  limitScheduledHarvestOncePerDay: 0
   farmerHarvestAmountPerDay: 1
   farmerPreferWorkPoint: 1
   sellGoodsThreshold: 1
@@ -168276,7 +170237,79 @@ MonoBehaviour:
   currentAction: idle
   currentTarget: {fileID: 0}
   lastWorkProductStatus: 
+  debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
+--- !u!114 &2092184321
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2092184308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 0
+  slots:
+  - activity: 2
+    startHour: 5
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 6
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 2
+    startHour: 10
+    endHour: 11
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 11
+    endHour: 16
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 4
+    startHour: 16
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 12
+    startHour: 18
+    endHour: 21
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 1
+    startHour: 21
+    endHour: 5
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 0
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1 &2094946127
 GameObject:
   m_ObjectHideFlags: 0
@@ -168612,6 +170645,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2104565428}
+    - targetCorrespondingSourceObject: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2104565432}
   m_SourcePrefab: {fileID: 100100000, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
 --- !u!4 &2104565417 stripped
 Transform:
@@ -168653,6 +170689,7 @@ MonoBehaviour:
   arriveDistance: 0.35
   retargetDistance: 0.75
   reservationDuration: 3
+  harvestBreakDistance: 2
   harvestCooldownAfterSuccess: 45
   harvestCooldownWhenNoTarget: 8
   limitHarvestsPerScheduleSlot: 1
@@ -168715,7 +170752,7 @@ MonoBehaviour:
   entityProfile: {fileID: 0}
   villagerName: "Ng\u01B0\u1EDDi d\xE2n"
   ageGroup: 1
-  job: 4
+  job: 1
   keepInspectorJob: 0
   maxHP: 100
   currentHP: 100
@@ -168841,6 +170878,7 @@ MonoBehaviour:
   cultivationSessionMaxGameHours: 2
   workSessionMinGameHours: 1
   workSessionMaxGameHours: 3
+  scheduledWorkHarvestSeconds: 8
   resourceSessionMinGameHours: 0.5
   resourceSessionMaxGameHours: 1.5
   tradeSessionMinGameHours: 0.5
@@ -168857,6 +170895,7 @@ MonoBehaviour:
   workProductMin: 1
   workProductMax: 3
   farmerHarvestOnlyInMorning: 1
+  limitScheduledHarvestOncePerDay: 0
   farmerHarvestAmountPerDay: 1
   farmerPreferWorkPoint: 1
   sellGoodsThreshold: 1
@@ -168876,6 +170915,7 @@ MonoBehaviour:
   currentAction: "\u0110\u1EE9ng y\xEAn"
   currentTarget: {fileID: 0}
   lastWorkProductStatus: 
+  debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!70 &2104565424
 CapsuleCollider2D:
@@ -168955,6 +170995,77 @@ MonoBehaviour:
   invertSideFlip: 0
   invertVerticalFacing: 1
   directionDeadZone: 0.08
+--- !u!114 &2104565432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2104565418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 0
+  slots:
+  - activity: 2
+    startHour: 5
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 6
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 2
+    startHour: 10
+    endHour: 11
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 11
+    endHour: 16
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 4
+    startHour: 16
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 12
+    startHour: 18
+    endHour: 21
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 1
+    startHour: 21
+    endHour: 5
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 0
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 3
+  debugCurrentSlot: 
 --- !u!1001 &2108683287
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -169040,6 +171151,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4784376538236298774, guid: e93c886c75775ac40b19070a1f0016fa, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2108683301}
+    - targetCorrespondingSourceObject: {fileID: 4784376538236298774, guid: e93c886c75775ac40b19070a1f0016fa, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2108683306}
   m_SourcePrefab: {fileID: 100100000, guid: e93c886c75775ac40b19070a1f0016fa, type: 3}
 --- !u!4 &2108683288 stripped
 Transform:
@@ -169181,7 +171295,7 @@ MonoBehaviour:
   entityProfile: {fileID: 0}
   villagerName: "Ng\u01B0\u1EDDi d\xE2n"
   ageGroup: 1
-  job: 1
+  job: 2
   keepInspectorJob: 0
   maxHP: 100
   currentHP: 100
@@ -169307,6 +171421,7 @@ MonoBehaviour:
   cultivationSessionMaxGameHours: 2
   workSessionMinGameHours: 1
   workSessionMaxGameHours: 3
+  scheduledWorkHarvestSeconds: 8
   resourceSessionMinGameHours: 0.5
   resourceSessionMaxGameHours: 1.5
   tradeSessionMinGameHours: 0.5
@@ -169316,13 +171431,14 @@ MonoBehaviour:
   keepInsideCombinedNpcMapAreas: 0
   mapAreaEdgePadding: 0.15
   inventory: {fileID: 2108683290}
-  farmProduct: {fileID: 0}
+  farmProduct: {fileID: 11400000, guid: 46fa9c5a1da91f041b6da40762359694, type: 2}
   fishingProduct: {fileID: 0}
   huntingProduct: {fileID: 0}
   workerProduct: {fileID: 0}
   workProductMin: 1
   workProductMax: 3
   farmerHarvestOnlyInMorning: 1
+  limitScheduledHarvestOncePerDay: 0
   farmerHarvestAmountPerDay: 1
   farmerPreferWorkPoint: 1
   sellGoodsThreshold: 1
@@ -169342,6 +171458,7 @@ MonoBehaviour:
   currentAction: idle
   currentTarget: {fileID: 0}
   lastWorkProductStatus: 
+  debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &2108683300
 MonoBehaviour:
@@ -169399,6 +171516,77 @@ MonoBehaviour:
   professionName: "Ng\u01B0\u1EDDi \u0111\u1EB7c bi\u1EC7t"
   lockVillagerJob: 0
   villagerJob: 0
+--- !u!114 &2108683306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2108683289}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 0
+  slots:
+  - activity: 2
+    startHour: 5
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 6
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 2
+    startHour: 10
+    endHour: 11
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 11
+    endHour: 16
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 4
+    startHour: 16
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 12
+    startHour: 18
+    endHour: 21
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 1
+    startHour: 21
+    endHour: 5
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 0
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1 &2109649308 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
@@ -169593,6 +171781,7 @@ MonoBehaviour:
   arriveDistance: 0.35
   retargetDistance: 0.75
   reservationDuration: 3
+  harvestBreakDistance: 2
   harvestCooldownAfterSuccess: 45
   harvestCooldownWhenNoTarget: 8
   limitHarvestsPerScheduleSlot: 1
@@ -169676,6 +171865,70 @@ MonoBehaviour:
   invertSideFlip: 0
   invertVerticalFacing: 1
   directionDeadZone: 0.08
+--- !u!114 &2109649327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2109649308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 2
+  slots:
+  - activity: 8
+    startHour: 0
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 5
+    startHour: 6
+    endHour: 8
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 11
+    startHour: 8
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 10
+    endHour: 14
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 7
+    startHour: 14
+    endHour: 18
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 18
+    endHour: 0
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 1
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 
 --- !u!1 &2109812965
 GameObject:
   m_ObjectHideFlags: 0
@@ -169973,6 +172226,14 @@ Transform:
   - {fileID: 1002137722}
   - {fileID: 1247532629}
   - {fileID: 379739447}
+  - {fileID: 943443544}
+  - {fileID: 837302893}
+  - {fileID: 1181143275}
+  - {fileID: 1062832327}
+  - {fileID: 2042828896}
+  - {fileID: 1877148482}
+  - {fileID: 445409631}
+  - {fileID: 2085045107}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2134101564
@@ -170760,6 +173021,63 @@ MonoBehaviour:
   useAnimation: 0
   attackTriggerName: attack
   faceTarget: 1
+--- !u!1001 &7148234491017257641
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2133223461}
+    m_Modifications:
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -15.907951
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -16.099836
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 563384463253365590, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 696709227914667505, guid: 89b145f14370f9449907656ad32093e9, type: 3}
+      propertyPath: m_Name
+      value: ca
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 89b145f14370f9449907656ad32093e9, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

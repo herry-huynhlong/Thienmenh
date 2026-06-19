@@ -123,7 +123,7 @@ public class RangedProjectile2D : MonoBehaviour
                     if (hit.transform.IsChildOf(owner.transform)) continue;
                 }
 
-                ApplyDamage(hit.gameObject);
+                DealDamageToTarget(hit.gameObject);
             }
         }
         else
@@ -149,16 +149,34 @@ public class RangedProjectile2D : MonoBehaviour
                 if (hit.transform.IsChildOf(owner.transform)) continue;
             }
 
-            ApplyDamage(hit.gameObject);
+            DealDamageToTarget(hit.gameObject);
             break;
         }
     }
 
-    private void ApplyDamage(GameObject target)
+    private void DealDamageToTarget(GameObject target)
     {
-        target.SendMessage("TakeDamage", damage, SendMessageOptions.DontRequireReceiver);
-        target.SendMessage("ReceiveDamage", damage, SendMessageOptions.DontRequireReceiver);
-        target.SendMessage("ApplyDamage", damage, SendMessageOptions.DontRequireReceiver);
+        if (target == null)
+        {
+            return;
+        }
+
+        IDamageable damageable =
+            target.GetComponentInParent<IDamageable>();
+
+        if (damageable != null && !damageable.IsDead)
+        {
+            damageable.TakeDamage(damage);
+            return;
+        }
+
+        CharacterStats stats =
+            target.GetComponentInParent<CharacterStats>();
+
+        if (stats != null)
+        {
+            stats.TakeDamage(damage);
+        }
     }
 
     private void OnDrawGizmosSelected()

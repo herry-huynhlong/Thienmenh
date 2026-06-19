@@ -35,6 +35,7 @@ public class NpcScheduleSlot
     public bool allowDangerInterrupt = true;
     public bool allowHungerInterrupt = true;
     public bool allowFatigueInterrupt = true;
+    public bool allowSocialInterrupt;
 }
 
 public class NpcScheduleController : MonoBehaviour
@@ -49,6 +50,11 @@ public class NpcScheduleController : MonoBehaviour
     public bool canCultivate;
     public bool awakenedCultivation;
     public bool awakenedByMarrowCleansingPill;
+
+    [Header("Runtime Debug")]
+    public float debugCurrentHour;
+    public NpcScheduleActivity debugCurrentActivity;
+    public string debugCurrentSlot;
 
     readonly HashSet<string> completedSlotActivities =
         new HashSet<string>();
@@ -72,6 +78,11 @@ public class NpcScheduleController : MonoBehaviour
         {
             RebuildDefaultSchedule();
         }
+    }
+
+    void Update()
+    {
+        RefreshDebugState();
     }
 
     void OnValidate()
@@ -126,6 +137,32 @@ public class NpcScheduleController : MonoBehaviour
         return AllowsActivity(npc, NpcScheduleActivity.TakeTask);
     }
 
+    public static bool AllowsSocial(GameObject npc)
+    {
+        NpcScheduleController schedule = GetSchedule(npc);
+        if (schedule == null || !schedule.enforceSchedule)
+        {
+            return true;
+        }
+
+        NpcScheduleSlot slot = schedule.CurrentSlot;
+        if (slot == null)
+        {
+            return false;
+        }
+
+        if (slot.allowSocialInterrupt)
+        {
+            return true;
+        }
+
+        NpcScheduleActivity activity = slot.activity;
+        return activity == NpcScheduleActivity.Idle ||
+            activity == NpcScheduleActivity.SellGoods ||
+            activity == NpcScheduleActivity.BuyGoods ||
+            activity == NpcScheduleActivity.TakeTask;
+    }
+
     public static bool AllowsActivity(
         GameObject npc,
         NpcScheduleActivity activity)
@@ -138,9 +175,36 @@ public class NpcScheduleController : MonoBehaviour
 
     public static NpcScheduleController GetSchedule(GameObject npc)
     {
-        return npc != null
-            ? npc.GetComponent<NpcScheduleController>()
-            : null;
+        if (npc == null)
+        {
+            return null;
+        }
+
+        NpcScheduleController schedule =
+            npc.GetComponent<NpcScheduleController>();
+
+        if (schedule == null &&
+            Application.isPlaying &&
+            IsScheduleDrivenNpc(npc))
+        {
+            schedule = npc.AddComponent<NpcScheduleController>();
+        }
+
+        if (schedule != null &&
+            schedule.autoBuildDefaultSchedule &&
+            (schedule.slots == null || schedule.slots.Count == 0))
+        {
+            schedule.DetectLifePath();
+            schedule.RebuildDefaultSchedule();
+        }
+
+        return schedule;
+    }
+
+    static bool IsScheduleDrivenNpc(GameObject npc)
+    {
+        return npc.GetComponent<VillagerAI>() != null ||
+            npc.GetComponent<SmartNpcAI>() != null;
     }
 
     public NpcScheduleSlot GetCurrentSlot()
@@ -168,6 +232,20 @@ public class NpcScheduleController : MonoBehaviour
         return slot != null
             ? slot.activity
             : NpcScheduleActivity.Idle;
+    }
+
+    void RefreshDebugState()
+    {
+        debugCurrentHour = GetCurrentWorldHour();
+        NpcScheduleSlot slot = GetCurrentSlot();
+        debugCurrentActivity = slot != null
+            ? slot.activity
+            : NpcScheduleActivity.Idle;
+        debugCurrentSlot = slot != null
+            ? slot.activity + " " +
+            slot.startHour.ToString("0.##") + "-" +
+            slot.endHour.ToString("0.##")
+            : "No slot";
     }
 
     public bool HasCompletedCurrentSlotActivity(
@@ -280,9 +358,9 @@ public class NpcScheduleController : MonoBehaviour
         }
 
         Add(NpcScheduleActivity.Eat, 5f, 6f);
-        Add(NpcScheduleActivity.Work, 6f, 11f);
-        Add(NpcScheduleActivity.Eat, 11f, 13f);
-        Add(NpcScheduleActivity.Work, 13f, 16f);
+        Add(NpcScheduleActivity.Work, 6f, 10f);
+        Add(NpcScheduleActivity.Eat, 10f, 11f);
+        Add(NpcScheduleActivity.Work, 11f, 16f);
         Add(NpcScheduleActivity.SellGoods, 16f, 18f);
         Add(NpcScheduleActivity.ReturnHome, 18f, 21f);
         Add(NpcScheduleActivity.Sleep, 21f, 5f);

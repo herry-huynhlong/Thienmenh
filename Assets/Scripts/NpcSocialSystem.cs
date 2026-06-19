@@ -1328,6 +1328,13 @@ public class NpcConversationAgent : MonoBehaviour
             return false;
         }
 
+        if (!force &&
+            (!NpcScheduleController.AllowsSocial(gameObject) ||
+            !NpcScheduleController.AllowsSocial(other.gameObject)))
+        {
+            return false;
+        }
+
         other.EnsureReferences();
 
         bool firstMeeting = IsFirstMeetingWith(other);
@@ -1598,6 +1605,8 @@ public class NpcConversationAgent : MonoBehaviour
             IsBusyTalking ||
             NpcRoleUtility.IsInCombat(gameObject) ||
             NpcRoleUtility.IsInCombat(other.gameObject) ||
+            !NpcScheduleController.AllowsSocial(gameObject) ||
+            !NpcScheduleController.AllowsSocial(other.gameObject) ||
             !IsSocialContextAllowed() ||
             !CanSocializeWith(other))
         {
@@ -2229,6 +2238,7 @@ public class NpcDecisionBrain : MonoBehaviour
     void Update()
     {
         if (!enabledDecisionBrain ||
+            HasAuthoritativeSchedule() ||
             Time.time < nextThinkTime ||
             NpcRoleUtility.IsDead(gameObject))
         {
@@ -2265,6 +2275,17 @@ public class NpcDecisionBrain : MonoBehaviour
         ApplyActionText(decision);
     }
 
+    bool HasAuthoritativeSchedule()
+    {
+        NpcScheduleController schedule =
+            NpcScheduleController.GetSchedule(gameObject);
+
+        return schedule != null &&
+            schedule.enforceSchedule &&
+            (GetComponent<VillagerAI>() != null ||
+            GetComponent<SmartNpcAI>() != null);
+    }
+
     NpcDecisionKind PickBestDecision()
     {
         float socialScore = needs.social + personality.sociability * 0.4f;
@@ -2277,10 +2298,27 @@ public class NpcDecisionBrain : MonoBehaviour
         NpcDecisionKind best = NpcDecisionKind.Work;
         float bestScore = 35f;
 
-        Consider(NpcDecisionKind.Socialize, socialScore, ref best, ref bestScore);
-        Consider(NpcDecisionKind.Trade, tradeScore, ref best, ref bestScore);
-        Consider(NpcDecisionKind.GatherResource, resourceScore, ref best, ref bestScore);
-        Consider(NpcDecisionKind.Rest, restScore, ref best, ref bestScore);
+        if (NpcScheduleController.AllowsSocial(gameObject))
+        {
+            Consider(NpcDecisionKind.Socialize, socialScore, ref best, ref bestScore);
+        }
+
+        if (NpcScheduleController.AllowsTrade(gameObject))
+        {
+            Consider(NpcDecisionKind.Trade, tradeScore, ref best, ref bestScore);
+        }
+
+        if (NpcScheduleController.AllowsGather(gameObject))
+        {
+            Consider(NpcDecisionKind.GatherResource, resourceScore, ref best, ref bestScore);
+        }
+
+        if (NpcScheduleController.AllowsActivity(gameObject, NpcScheduleActivity.Sleep) ||
+            NpcScheduleController.AllowsActivity(gameObject, NpcScheduleActivity.ReturnHome))
+        {
+            Consider(NpcDecisionKind.Rest, restScore, ref best, ref bestScore);
+        }
+
         Consider(NpcDecisionKind.Revenge, revengeScore, ref best, ref bestScore);
         Consider(NpcDecisionKind.Rob, robberyScore, ref best, ref bestScore);
 
@@ -2825,7 +2863,14 @@ public class NpcSocialWorldInstaller : MonoBehaviour
         Ensure<NpcMemory>(npc);
         Ensure<NpcOverheadDialogueUI>(npc);
         Ensure<NpcConversationAgent>(npc);
-        Ensure<NpcDecisionBrain>(npc);
+
+        NpcDecisionBrain brain = Ensure<NpcDecisionBrain>(npc);
+        if (npc.GetComponent<VillagerAI>() != null ||
+            npc.GetComponent<SmartNpcAI>() != null)
+        {
+            brain.enabledDecisionBrain = false;
+        }
+
         Ensure<NpcNegotiationAgent>(npc);
 
         if (disableLegacyDailyConversation)

@@ -1,0 +1,76 @@
+{
+  "scene": "Assets/Lang.unity",
+  "gameHours": 24,
+  "startWorldHour": 153.606,
+  "issues": [
+  ],
+  "samples": [
+    {
+      "name": "lukhach_0/Bích Hà",
+      "type": "SmartNpcAI",
+      "job": "Farmer",
+      "totalDistance": 0.884,
+      "maxStationarySeconds": 2,
+      "transitions": [
+        "155.16h lukhach_0/Bích Hà job=Farmer activity=Gather action=Đến nhận nhiệm vụ trong kế hoạch ngày pos=(-6.37,5.19,0.00)",
+        "156.76h lukhach_0/Bích Hà job=Farmer activity=Gather action=<empty> pos=(-6.37,5.19,0.00)",
+        "158.36h lukhach_0/Bích Hà job=Farmer activity=Hunt action=Đi hái Linh Mễ pos=(-6.37,5.19,0.00)",
+        "159.96h lukhach_0/Bích Hà job=Farmer activity=Hunt action=<empty> pos=(-6.05,4.91,0.00)",
+        "161.56h lukhach_0/Bích Hà job=Farmer activity=Hunt action=Đi hái Linh Mễ pos=(-6.05,4.91,0.00)",
+        "163.16h lukhach_0/Bích Hà job=Farmer activity=Cultivate action=Đi hái Linh Mễ pos=(-6.21,4.94,0.00)",
+        "164.76h lukhach_0/Bích Hà job=Farmer activity=Cultivate action=<empty> pos=(-5.96,4.78,0.00)",
+        "174.36h lukhach_0/Bích Hà job=Farmer activity=BuyGoods action=<empty> pos=(-5.96,4.78,0.00)",
+        "177.56h lukhach_0/Bích Hà job=Farmer activity=TakeTask action=Ra chợ buôn bán pos=(-5.96,4.78,0.00)",
+        "179.16h lukhach_0/Bích Hà job=Farmer activity=Gather action=<empty> pos=(-5.96,4.78,0.00)"
+      ]
+    },
+    {
+      "name": "<destroyed>",
+      "type": "VillagerAI",
+      "job": "",
+      "totalDistance": 0,
+      "maxStationarySeconds": 0.25,
+      "transitions": [
+        "155.16h laoba (1)/Lan Anh job=Hunter activity=Work action=Đã chết pos=(5.17,2.79,0.00)"
+      ]
+    },
+    {
+      "name": "tusigai_4/Linh Nhi",
+      "type": "VillagerAI",
+      "job": "Fisher",
+      "totalDistance": 6.699,
+      "maxStationarySeconds": 2.25,
+      "transitions": [
+        "155.16h tusigai_4/Linh Nhi job=Fisher activity=Cultivate action=Đi câu cá pos=(0.23,-2.86,0.00)",
+        "156.76h tusigai_4/Linh Nhi job=Fisher activity=Eat action=<empty> pos=(-1.56,-2.06,0.00)",
+        "158.36h tusigai_4/Linh Nhi job=Fisher activity=Work action=Đi ăn pos=(-1.56,-2.06,0.00)",
+        "159.96h tusigai_4/Linh Nhi job=Fisher activity=Work action=<empty> pos=(-1.56,-2.06,0.00)",
+        "161.56h tusigai_4/Linh Nhi job=Fisher activity=TakeTask action=Đi câu cá pos=(-1.56,-2.06,0.00)",
+        "163.16h tusigai_4/Linh Nhi job=Fisher activity=Cultivate action=<empty> pos=(0.81,-3.27,0.00)",
+        "164.76h tusigai_4/Linh Nhi job=Fisher activity=Cultivate action=Về nhà tu luyện pos=(0.82,-3.28,0.00)",
+        "167.96h tusigai_4/Linh Nhi job=Fisher activity=Sleep action=Về nhà tu luyện pos=(0.82,-3.28,0.00)",
+        "169.56h tusigai_4/Linh Nhi job=Fisher activity=Sleep action=<empty> pos=(0.82,-3.28,0.00)",
+        "171.16h tusigai_4/Linh Nhi job=Fisher activity=Sleep action=Về nhà nghỉ ngơi pos=(0.82,-3.28,0.00)",
+        "174.36h tusigai_4/Linh Nhi job=Fisher activity=Work action=Về nhà nghỉ ngơi pos=(0.82,-3.28,0.00)",
+        "175.96h tusigai_4/Linh Nhi job=Fisher activity=Work action=<empty> pos=(0.82,-3.28,0.00)",
+        "177.56h tusigai_4/Linh Nhi job=Fisher activity=Work action=Đi câu cá pos=(0.82,-3.28,0.00)",
+        "179.16h tusigai_4/Linh Nhi job=Fisher activity=Cultivate action=Đi câu cá pos=(-1.11,-4.04,0.00)"
+      ]
+    },
+    {
+      "name": "NPC_B/Tu sĩ",
+      "type": "SmartNpcAI",
+      "job": "SmartNpcAI",
+      "totalDistance": 0,
+      "maxStationarySeconds": 3.75,
+      "transitions": [
+        "155.16h NPC_B/Tu sĩ job=SmartNpcAI activity=Gather action=Tạm dừng nhiệm vụ pos=(59.33,-31.92,0.00)",
+        "158.36h NPC_B/Tu sĩ job=SmartNpcAI activity=Hunt action=Tạm dừng nhiệm vụ pos=(59.33,-31.92,0.00)",
+        "163.16h NPC_B/Tu sĩ job=SmartNpcAI activity=Cultivate action=Tạm dừng nhiệm vụ pos=(59.33,-31.92,0.00)",
+        "174.36h NPC_B/Tu sĩ job=SmartNpcAI activity=BuyGoods action=Tạm dừng nhiệm vụ pos=(59.33,-31.92,0.00)",
+        "177.56h NPC_B/Tu sĩ job=SmartNpcAI activity=TakeTask action=Tạm dừng nhiệm vụ pos=(59.33,-31.92,0.00)",
+        "179.16h NPC_B/Tu sĩ job=SmartNpcAI activity=Gather action=Tạm dừng nhiệm vụ pos=(59.33,-31.92,0.00)"
+      ]
+    }
+  ]
+}

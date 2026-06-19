@@ -150,6 +150,23 @@ public class NpcItemCollector : MonoBehaviour
         }
     }
 
+    public void ReceiveItemWithoutUse(
+        StatItemData item,
+        ItemLifecycleEventType source)
+    {
+        AutoFindReferences();
+
+        if (item == null || inventory == null)
+        {
+            return;
+        }
+
+        ItemEffectSpawner.PlayPickupEffect(item, transform);
+        inventory.AddItem(item, 1);
+        ItemLifecycleSystem.Notify(source, item, gameObject);
+        TreasureHeatSystem.NotifyNpcReceivedItem(gameObject, item);
+    }
+
     bool ShouldNpcDecideItemUse(StatItemData item)
     {
         if (item == null ||

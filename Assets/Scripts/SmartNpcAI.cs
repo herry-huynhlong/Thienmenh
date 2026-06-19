@@ -18,6 +18,7 @@ public enum PhysiqueType
     ChaosBody
 }
 
+[RequireComponent(typeof(NpcScheduleController))]
 public class SmartNpcAI : MonoBehaviour, IDamageable
 {
     [Header("Entity Generation")]
@@ -196,6 +197,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     private bool hasWanderTarget;
     private GameObject cultivationEffectInstance;
     NpcResourceGatherer resourceGatherer;
+    string currentScheduleSlotKey;
     NpcTradeAgent tradeAgent;
     NpcForgeAgent currentForgeTradeTarget;
     StatItemData currentForgeTradeItem;
@@ -438,6 +440,8 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             Die();
             return;
         }
+
+        RefreshScheduledStateForCurrentFrame();
 
         if (NpcTaskProvider.IsNpcBusyWithAnyProvider(gameObject))
         {
@@ -778,6 +782,24 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         {
             ReturnToSpawn();
 
+            return;
+        }
+
+        if (currentAction == NpcText.Action("goCultivatePoint") &&
+            Vector2.Distance(transform.position, desiredTarget) <=
+            Mathf.Max(escapeTargetReachDistance, targetClearRadius * 2f))
+        {
+            currentTarget = null;
+            hasWanderTarget = false;
+            hasEscapeTarget = false;
+            hasObstacleAvoidTarget = false;
+
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+
+            CultivateNaturally();
             return;
         }
 
@@ -2549,6 +2571,61 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         currentAction = "";
     }
 
+    void RefreshScheduledStateForCurrentFrame()
+    {
+        NpcScheduleController schedule = GetComponent<NpcScheduleController>();
+        if (schedule == null || !schedule.enforceSchedule)
+        {
+            return;
+        }
+
+        NpcScheduleSlot slot = schedule.CurrentSlot;
+        if (slot == null)
+        {
+            return;
+        }
+
+        string key = BuildScheduleSlotKey(slot, schedule.CurrentActivity);
+        if (currentScheduleSlotKey == key)
+        {
+            return;
+        }
+
+        currentScheduleSlotKey = key;
+        currentTarget = null;
+        currentMonsterTarget = null;
+        treasureHuntTarget = null;
+        treasureHuntItem = null;
+        waitingOutsideTreasureLightning = false;
+        hasWanderTarget = false;
+        hasEscapeTarget = false;
+        hasHomeReturnTarget = false;
+        hasObstacleAvoidTarget = false;
+        actionTimer = 0f;
+        currentAction = string.Empty;
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        UpdateCultivationEffect(false);
+
+        if (resourceGatherer != null)
+        {
+            resourceGatherer.CancelGatheringNow();
+        }
+    }
+
+    string BuildScheduleSlotKey(NpcScheduleSlot slot, NpcScheduleActivity activity)
+    {
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        int day = timeSystem != null ? timeSystem.CurrentDay : 0;
+        return day + ":" + activity + ":" +
+            Mathf.RoundToInt(slot.startHour * 100f) + ":" +
+            Mathf.RoundToInt(slot.endHour * 100f);
+    }
+
     bool TryRunScheduledActivity()
     {
         NpcScheduleController schedule =
@@ -2645,34 +2722,30 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
                 {
                     GoToTavernAndBuyPill();
                 }
-                else if (canCultivate)
-                {
-                    CultivateNaturally();
-                }
                 else
                 {
-                    StartIdleWander();
+                    WaitForScheduledActivity(NpcScheduleActivity.BuyGoods);
                 }
                 return true;
 
             case NpcScheduleActivity.SellGoods:
                 if (!TryStartSellGoodsRoutine())
                 {
-                    CultivateNaturally();
+                    WaitForScheduledActivity(NpcScheduleActivity.SellGoods);
                 }
                 return true;
 
             case NpcScheduleActivity.TakeTask:
                 if (!TryVisitTaskProvider())
                 {
-                    CultivateNaturally();
+                    WaitForScheduledActivity(NpcScheduleActivity.TakeTask);
                 }
                 return true;
 
             case NpcScheduleActivity.Gather:
                 if (!TryStartResourceGatheringRoutine())
                 {
-                    CultivateNaturally();
+                    WaitForScheduledActivity(NpcScheduleActivity.Gather);
                 }
                 return true;
 
@@ -2680,10 +2753,14 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
                 if (canFight)
                 {
                     SearchMonster();
+                    if (currentMonsterTarget == null)
+                    {
+                        WaitForScheduledActivity(NpcScheduleActivity.Hunt);
+                    }
                 }
                 else
                 {
-                    CultivateNaturally();
+                    WaitForScheduledActivity(NpcScheduleActivity.Hunt);
                 }
                 return true;
 
@@ -2694,7 +2771,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             case NpcScheduleActivity.Sleep:
                 if (IgnoresMortalNeeds())
                 {
-                    CultivateNaturally();
+                    WaitForScheduledActivity(NpcScheduleActivity.Sleep);
                 }
                 else
                 {
@@ -2703,9 +2780,27 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
                 return true;
 
             default:
-                StartIdleWander();
+                WaitForScheduledActivity(activity);
                 return true;
         }
+    }
+
+    void WaitForScheduledActivity(NpcScheduleActivity activity)
+    {
+        currentTarget = null;
+        hasWanderTarget = false;
+        hasEscapeTarget = false;
+        hasHomeReturnTarget = false;
+        hasObstacleAvoidTarget = false;
+        actionTimer = Mathf.Max(actionTimer, GameHoursToSeconds(0.15f));
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        UpdateCultivationEffect(false);
+        currentAction = "waitSchedule" + activity;
     }
 
     void StartIdleWander()

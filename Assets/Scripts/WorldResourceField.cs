@@ -625,7 +625,19 @@ public class WorldResourceField : MonoBehaviour
 
     bool MatchesRequiredItem(WorldStatItemPickup pickup, StatItemData requiredItem)
     {
-        return requiredItem == null || pickup.item == requiredItem;
+        if (requiredItem == null)
+        {
+            return true;
+        }
+
+        if (pickup == null || pickup.item == null)
+        {
+            return false;
+        }
+
+        return pickup.item == requiredItem ||
+            (!string.IsNullOrEmpty(pickup.item.ItemId) &&
+            pickup.item.ItemId == requiredItem.ItemId);
     }
 
     bool IsAvailable(WorldStatItemPickup pickup)

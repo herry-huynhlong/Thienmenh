@@ -15,6 +15,10 @@ public class NpcRuntimeAuditTests
     const string ScenePath = "Assets/Lang.unity";
     const float WarmupSeconds = 5f;
     const float AuditSeconds = 45f;
+    const float ScheduleAuditGameHours = 24f;
+    const float ScheduleAuditRealSecondsPerGameDay = 24f;
+    const float ScheduleAuditTimeScale = 20f;
+    const float ScheduleAuditSampleInterval = 0.25f;
     const float SampleInterval = 0.5f;
     const float StationarySampleDistance = 0.035f;
     const float MovingIntentStuckSeconds = 6f;
@@ -139,6 +143,8 @@ public class NpcRuntimeAuditTests
     static readonly Type NpcMapAreaType = GetGameType("NpcMapArea");
     static readonly Type NpcTeleportGateType = GetGameType("NpcTeleportGate");
     static readonly Type NpcTextType = GetGameType("NpcText");
+    static readonly Type NpcScheduleControllerType = GetGameType("NpcScheduleController");
+    static readonly Type WorldTimeSystemType = GetGameType("WorldTimeSystem");
 
     [UnityTest]
     [Timeout(600000)]
@@ -189,15 +195,511 @@ public class NpcRuntimeAuditTests
         }
     }
 
+
+    [UnityTest]
+    [Timeout(600000)]
+    public IEnumerator AuditOneDayScheduleSamples()
+    {
+        float originalTimeScale = Time.timeScale;
+        float originalFixedDeltaTime = Time.fixedDeltaTime;
+        object timeSystem = null;
+        float originalRealSecondsPerGameDay = 0f;
+        float startWorldHour = 0f;
+
+        LogAssert.ignoreFailingMessages = true;
+        Time.timeScale = ScheduleAuditTimeScale;
+        Time.fixedDeltaTime = originalFixedDeltaTime;
+
+        try
+        {
+            yield return SceneManager.LoadSceneAsync(ScenePath, LoadSceneMode.Single);
+            EnsureAudioListener();
+            yield return new WaitForSeconds(1f);
+
+            timeSystem = EnsureWorldTimeSystem();
+            originalRealSecondsPerGameDay = GetFloatMember(timeSystem, "realSecondsPerGameDay", 900f);
+            SetFloatMember(timeSystem, "realSecondsPerGameDay", ScheduleAuditRealSecondsPerGameDay);
+            startWorldHour = GetFloatMember(timeSystem, "CurrentWorldHour", 0f);
+
+            List<ActorState> actors = CreateActorStates();
+            List<ActorState> samples = PickScheduleSamples(actors);
+            Assert.AreEqual(
+                4,
+                samples.Count,
+                "Need one Farmer, one Hunter, one Fisher, and one SmartNpcAI in " + ScenePath);
+
+            List<string> issues = new List<string>();
+            Dictionary<int, ScheduleSampleState> states = new Dictionary<int, ScheduleSampleState>();
+            for (int i = 0; i < samples.Count; i++)
+            {
+                states[samples[i].InstanceId] = new ScheduleSampleState(samples[i]);
+            }
+
+            while (GetFloatMember(timeSystem, "CurrentWorldHour", startWorldHour) - startWorldHour <
+                ScheduleAuditGameHours)
+            {
+                yield return new WaitForSeconds(ScheduleAuditSampleInterval);
+
+                float currentWorldHour = GetFloatMember(timeSystem, "CurrentWorldHour", startWorldHour);
+                for (int i = 0; i < samples.Count; i++)
+                {
+                    ActorState actor = samples[i];
+                    if (actor.GameObject == null || !actor.GameObject.activeInHierarchy)
+                    {
+                        continue;
+                    }
+
+                    ScheduleSampleState state = states[actor.InstanceId];
+                    SampleScheduleActor(actor, state, issues, currentWorldHour);
+                }
+            }
+
+            string reportPath = WriteScheduleReport(samples, states, issues, startWorldHour);
+            Debug.Log("NPC_SCHEDULE_24H_AUDIT_REPORT: " + reportPath);
+            Debug.Log(BuildScheduleSummary(samples, states, issues));
+
+            Assert.That(
+                issues,
+                Is.Empty,
+                "NPC 24h schedule audit found issues. See " + reportPath + Environment.NewLine +
+                string.Join(Environment.NewLine, issues));
+        }
+        finally
+        {
+            if (timeSystem != null)
+            {
+                SetFloatMember(timeSystem, "realSecondsPerGameDay", originalRealSecondsPerGameDay);
+            }
+
+            Time.timeScale = originalTimeScale;
+            Time.fixedDeltaTime = originalFixedDeltaTime;
+        }
+    }
+
     static List<ActorState> CreateActorStates()
     {
         List<ActorState> actors = new List<ActorState>();
         HashSet<GameObject> seen = new HashSet<GameObject>();
 
-        AddActorsOfType(actors, seen, VillagerType, "VillagerAI");
         AddActorsOfType(actors, seen, SmartNpcType, "SmartNpcAI");
+        AddActorsOfType(actors, seen, VillagerType, "VillagerAI");
 
         return actors;
+    }
+
+
+    static List<ActorState> PickScheduleSamples(List<ActorState> actors)
+    {
+        ActorState farmer = null;
+        ActorState hunter = null;
+        ActorState fisher = null;
+        ActorState smartNpc = null;
+
+        for (int i = 0; i < actors.Count; i++)
+        {
+            ActorState actor = actors[i];
+            if (actor.GameObject == null)
+            {
+                continue;
+            }
+
+            if (smartNpc == null && GetComponent(actor.GameObject, SmartNpcType) != null)
+            {
+                smartNpc = actor;
+                continue;
+            }
+
+            Component villager = GetComponent(actor.GameObject, VillagerType);
+            if (villager == null)
+            {
+                continue;
+            }
+
+            string job = Convert.ToString(GetFieldValue(villager, "job"), CultureInfo.InvariantCulture);
+            if (farmer == null && string.Equals(job, "Farmer", StringComparison.OrdinalIgnoreCase))
+            {
+                farmer = actor;
+            }
+            else if (hunter == null && string.Equals(job, "Hunter", StringComparison.OrdinalIgnoreCase))
+            {
+                hunter = actor;
+            }
+            else if (fisher == null && string.Equals(job, "Fisher", StringComparison.OrdinalIgnoreCase))
+            {
+                fisher = actor;
+            }
+        }
+
+        List<ActorState> samples = new List<ActorState>();
+        if (farmer != null) samples.Add(farmer);
+        if (hunter != null) samples.Add(hunter);
+        if (fisher != null) samples.Add(fisher);
+        if (smartNpc != null) samples.Add(smartNpc);
+        return samples;
+    }
+
+    static void SampleScheduleActor(
+        ActorState actor,
+        ScheduleSampleState state,
+        List<string> issues,
+        float currentWorldHour)
+    {
+        Vector3 position = actor.GameObject.transform.position;
+        float moved = Vector2.Distance(state.LastPosition, position);
+        string action = actor.Action;
+        string activity = GetCurrentScheduleActivity(actor.GameObject);
+        string job = actor.Job;
+
+        state.TotalSamples++;
+        state.TotalDistance += moved;
+        state.MaxStationarySeconds = Mathf.Max(state.MaxStationarySeconds, state.StationarySeconds);
+
+        if (!string.Equals(activity, state.LastActivity, StringComparison.Ordinal) ||
+            !string.Equals(action, state.LastAction, StringComparison.Ordinal))
+        {
+            state.Transitions.Add(
+                currentWorldHour.ToString("0.00", CultureInfo.InvariantCulture) + "h " +
+                actor.DisplayName + " job=" + job + " activity=" + activity +
+                " action=" + Safe(action) + " pos=" + FormatVector(position));
+            state.LastActivity = activity;
+            state.LastAction = action;
+        }
+
+        if (moved <= StationarySampleDistance)
+        {
+            state.StationarySeconds += ScheduleAuditSampleInterval;
+        }
+        else
+        {
+            state.StationarySeconds = 0f;
+        }
+
+        bool badAction = IsActionForbiddenForSchedule(job, activity, action);
+        TrackForbiddenScheduleAction(
+            issues,
+            state,
+            actor,
+            activity,
+            action,
+            badAction,
+            currentWorldHour);
+
+        bool movingIntent = IsMovingIntentAction(action);
+        AddScheduleIssueOnce(
+            issues,
+            state,
+            actor,
+            "moving_stuck_" + activity + "_" + action,
+            movingIntent && state.StationarySeconds >= MovingIntentStuckSeconds,
+            currentWorldHour,
+            "moving action stayed still for " + FormatSeconds(state.StationarySeconds) +
+            " activity=" + activity + " action=" + Safe(action) + " pos=" + FormatVector(position));
+
+        if (string.Equals(job, "Farmer", StringComparison.OrdinalIgnoreCase))
+        {
+            AddScheduleIssueOnce(
+                issues,
+                state,
+                actor,
+                "farmer_generic_working_farm",
+                ContainsActionText(action, "workingFarm") || ContainsIgnoreCase(action, "lam ruong"),
+                currentWorldHour,
+                "farmer used generic farm action instead of item harvest. action=" + Safe(action));
+        }
+
+        if (string.Equals(job, "Hunter", StringComparison.OrdinalIgnoreCase))
+        {
+            AddScheduleIssueOnce(
+                issues,
+                state,
+                actor,
+                "hunter_stationary_hunting",
+                ContainsActionText(action, "hunting") && state.StationarySeconds >= MovingIntentStuckSeconds,
+                currentWorldHour,
+                "hunter is stationary while saying hunting. pos=" + FormatVector(position));
+        }
+
+        if (actor.TypeName == "SmartNpcAI")
+        {
+            AddScheduleIssueOnce(
+                issues,
+                state,
+                actor,
+                "smartnpc_cultivation_search_loop",
+                ContainsActionText(action, "goCultivatePoint") && state.StationarySeconds >= MovingIntentStuckSeconds,
+                currentWorldHour,
+                "SmartNpc kept finding cultivation point while stationary. pos=" + FormatVector(position));
+        }
+
+        state.LastPosition = position;
+    }
+
+    static bool IsActionForbiddenForSchedule(string job, string activity, string action)
+    {
+        if (string.IsNullOrEmpty(activity) || string.Equals(activity, "None", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (ContainsActionText(action, "tradeSeek") ||
+            ContainsActionText(action, "goMarketTrade") ||
+            ContainsActionText(action, "trading"))
+        {
+            return activity != "BuyGoods" && activity != "SellGoods" && activity != "TakeTask";
+        }
+
+        if (ContainsActionText(action, "goTaskProviderDaily") ||
+            ContainsActionText(action, "receiveTask") ||
+            ContainsActionText(action, "visitedTaskProvider") ||
+            ContainsActionText(action, "viewTaskBoard"))
+        {
+            return activity != "TakeTask";
+        }
+
+        if (ContainsActionText(action, "goHunt") ||
+            ContainsActionText(action, "hunting") ||
+            ContainsActionText(action, "huntMonsterNamed") ||
+            ContainsActionText(action, "attackMonsterNamed"))
+        {
+            return activity != "Hunt" &&
+                !(activity == "Work" && string.Equals(job, "Hunter", StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (ContainsActionText(action, "goFish") || ContainsActionText(action, "fishing"))
+        {
+            return activity != "Work" || !string.Equals(job, "Fisher", StringComparison.OrdinalIgnoreCase);
+        }
+
+        if (ContainsActionText(action, "goFarmWork") || ContainsActionText(action, "workingFarm"))
+        {
+            return true;
+        }
+
+        if (ContainsActionText(action, "gatherResource") ||
+            ContainsActionText(action, "goGatherNamed") ||
+            ContainsActionText(action, "gatherVillageResource"))
+        {
+            return activity != "Gather" && activity != "Work" && activity != "Hunt";
+        }
+
+        if (ContainsActionText(action, "goCultivatePoint") ||
+            ContainsActionText(action, "goHomeCultivate") ||
+            ContainsActionText(action, "cultivate") ||
+            ContainsActionText(action, "cultivateAbsorbQi"))
+        {
+            return activity != "Cultivate";
+        }
+
+        return false;
+    }
+
+    static void TrackForbiddenScheduleAction(
+        List<string> issues,
+        ScheduleSampleState state,
+        ActorState actor,
+        string activity,
+        string action,
+        bool badAction,
+        float worldHour)
+    {
+        string key = activity + "|" + action;
+        if (badAction && state.LastForbiddenActionKey == key)
+        {
+            state.ForbiddenActionSamples++;
+        }
+        else if (badAction)
+        {
+            state.LastForbiddenActionKey = key;
+            state.ForbiddenActionSamples = 1;
+        }
+        else
+        {
+            state.LastForbiddenActionKey = string.Empty;
+            state.ForbiddenActionSamples = 0;
+            return;
+        }
+
+        AddScheduleIssueOnce(
+            issues,
+            state,
+            actor,
+            "forbidden_action_" + activity + "_" + action,
+            state.ForbiddenActionSamples >= 2,
+            worldHour,
+            "activity=" + activity + " action=" + Safe(action));
+    }
+    static void AddScheduleIssueOnce(
+        List<string> issues,
+        ScheduleSampleState state,
+        ActorState actor,
+        string issueKey,
+        bool condition,
+        float worldHour,
+        string detail)
+    {
+        if (!condition || state.ReportedIssues.Contains(issueKey))
+        {
+            return;
+        }
+
+        state.ReportedIssues.Add(issueKey);
+        issues.Add(
+            "[" + worldHour.ToString("0.00", CultureInfo.InvariantCulture) + "h] " +
+            issueKey + ": " + actor.DisplayName + " " + detail);
+    }
+
+    static bool ContainsActionText(string action, string key)
+    {
+        return MatchesAnyAction(action, new[] { key }) || ContainsIgnoreCase(action, key);
+    }
+
+    static string GetCurrentScheduleActivity(GameObject gameObject)
+    {
+        Component schedule = GetComponent(gameObject, NpcScheduleControllerType);
+        if (schedule == null)
+        {
+            return "None";
+        }
+
+        object value = GetPropertyValue(schedule, "CurrentActivity");
+        return value != null ? value.ToString() : "None";
+    }
+
+    static object EnsureWorldTimeSystem()
+    {
+        if (WorldTimeSystemType == null)
+        {
+            return null;
+        }
+
+        MethodInfo ensure = WorldTimeSystemType.GetMethod(
+            "EnsureInstance",
+            BindingFlags.Static | BindingFlags.Public);
+        return ensure != null ? ensure.Invoke(null, null) : null;
+    }
+
+    static object GetPropertyValue(object instance, string propertyName)
+    {
+        if (instance == null)
+        {
+            return null;
+        }
+
+        PropertyInfo property = instance.GetType().GetProperty(
+            propertyName,
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        return property != null ? property.GetValue(instance, null) : null;
+    }
+
+    static float GetFloatMember(object instance, string memberName, float fallback)
+    {
+        object value = GetPropertyValue(instance, memberName);
+        if (value == null && instance != null)
+        {
+            FieldInfo field = instance.GetType().GetField(
+                memberName,
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            value = field != null ? field.GetValue(instance) : null;
+        }
+
+        if (value == null)
+        {
+            return fallback;
+        }
+
+        try
+        {
+            return Convert.ToSingle(value, CultureInfo.InvariantCulture);
+        }
+        catch
+        {
+            return fallback;
+        }
+    }
+
+    static void SetFloatMember(object instance, string fieldName, float value)
+    {
+        if (instance == null)
+        {
+            return;
+        }
+
+        FieldInfo field = instance.GetType().GetField(
+            fieldName,
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        if (field != null)
+        {
+            field.SetValue(instance, value);
+        }
+    }
+
+    static string WriteScheduleReport(
+        List<ActorState> actors,
+        Dictionary<int, ScheduleSampleState> states,
+        List<string> issues,
+        float startWorldHour)
+    {
+        string reportPath = Path.Combine(Application.dataPath, "..", "NpcSchedule24hAuditReport.json");
+        Directory.CreateDirectory(Path.GetDirectoryName(reportPath));
+
+        StringBuilder builder = new StringBuilder();
+        builder.AppendLine("{");
+        builder.AppendLine("  \"scene\": " + Json(ScenePath) + ",");
+        builder.AppendLine("  \"gameHours\": " + JsonNumber(ScheduleAuditGameHours) + ",");
+        builder.AppendLine("  \"startWorldHour\": " + JsonNumber(startWorldHour) + ",");
+        builder.AppendLine("  \"issues\": [");
+        for (int i = 0; i < issues.Count; i++)
+        {
+            builder.Append("    ").Append(Json(issues[i]));
+            builder.AppendLine(i + 1 < issues.Count ? "," : "");
+        }
+        builder.AppendLine("  ],");
+        builder.AppendLine("  \"samples\": [");
+        for (int i = 0; i < actors.Count; i++)
+        {
+            ActorState actor = actors[i];
+            ScheduleSampleState state = states[actor.InstanceId];
+            builder.AppendLine("    {");
+            builder.AppendLine("      \"name\": " + Json(actor.DisplayName) + ",");
+            builder.AppendLine("      \"type\": " + Json(actor.TypeName) + ",");
+            builder.AppendLine("      \"job\": " + Json(actor.Job) + ",");
+            builder.AppendLine("      \"totalDistance\": " + JsonNumber(state.TotalDistance) + ",");
+            builder.AppendLine("      \"maxStationarySeconds\": " + JsonNumber(state.MaxStationarySeconds) + ",");
+            builder.AppendLine("      \"transitions\": [");
+            for (int t = 0; t < state.Transitions.Count; t++)
+            {
+                builder.Append("        ").Append(Json(state.Transitions[t]));
+                builder.AppendLine(t + 1 < state.Transitions.Count ? "," : "");
+            }
+            builder.AppendLine("      ]");
+            builder.Append("    }");
+            builder.AppendLine(i + 1 < actors.Count ? "," : "");
+        }
+        builder.AppendLine("  ]");
+        builder.AppendLine("}");
+
+        File.WriteAllText(reportPath, builder.ToString());
+        return reportPath;
+    }
+
+    static string BuildScheduleSummary(
+        List<ActorState> actors,
+        Dictionary<int, ScheduleSampleState> states,
+        List<string> issues)
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.Append("NPC_SCHEDULE_24H_AUDIT_SUMMARY samples=").Append(actors.Count);
+        builder.Append(" issues=").Append(issues.Count);
+        for (int i = 0; i < actors.Count; i++)
+        {
+            ActorState actor = actors[i];
+            ScheduleSampleState state = states[actor.InstanceId];
+            builder.Append(" | ").Append(actor.Job).Append(":")
+                .Append(actor.DisplayName)
+                .Append(" distance=").Append(JsonNumber(state.TotalDistance))
+                .Append(" transitions=").Append(state.Transitions.Count);
+        }
+        return builder.ToString();
     }
 
     static void AddActorsOfType(
@@ -1066,6 +1568,26 @@ public class NpcRuntimeAuditTests
             }
         }
 
+
+        public string Job
+        {
+            get
+            {
+                if (GameObject == null)
+                {
+                    return string.Empty;
+                }
+
+                Component villager = GetComponent(GameObject, VillagerType);
+                if (villager != null)
+                {
+                    object job = GetFieldValue(villager, "job");
+                    return job != null ? job.ToString() : string.Empty;
+                }
+
+                return TypeName;
+            }
+        }
         public string Action
         {
             get
@@ -1108,6 +1630,31 @@ public class NpcRuntimeAuditTests
                     ? GetLongField(smartNpc, "cultivation")
                     : 0L;
             }
+        }
+    }
+
+
+    sealed class ScheduleSampleState
+    {
+        public readonly ActorState Actor;
+        public readonly List<string> Transitions = new List<string>();
+        public readonly HashSet<string> ReportedIssues = new HashSet<string>();
+        public Vector3 LastPosition;
+        public string LastActivity = string.Empty;
+        public string LastAction = string.Empty;
+        public float StationarySeconds;
+        public float MaxStationarySeconds;
+        public float TotalDistance;
+        public int TotalSamples;
+        public string LastForbiddenActionKey = string.Empty;
+        public int ForbiddenActionSamples;
+
+        public ScheduleSampleState(ActorState actor)
+        {
+            Actor = actor;
+            LastPosition = actor.GameObject.transform.position;
+            LastAction = actor.Action;
+            LastActivity = GetCurrentScheduleActivity(actor.GameObject);
         }
     }
 

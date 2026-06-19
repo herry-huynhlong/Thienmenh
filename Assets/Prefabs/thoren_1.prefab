@@ -20,6 +20,7 @@ GameObject:
   - component: {fileID: 1836311742786125013}
   - component: {fileID: 5880837379325097654}
   - component: {fileID: 477681590454896501}
+  - component: {fileID: 7818768257515629136}
   m_Layer: 0
   m_Name: thoren_1
   m_TagString: Untagged
@@ -884,3 +885,88 @@ MonoBehaviour:
   currentTarget: {fileID: 0}
   lastWorkProductStatus: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
+--- !u!114 &7818768257515629136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8596889031696047861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
+  enforceSchedule: 1
+  autoBuildDefaultSchedule: 1
+  lifePath: 1
+  slots:
+  - activity: 2
+    startHour: 5
+    endHour: 6
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 6
+    endHour: 10
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 10
+    endHour: 12
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 2
+    startHour: 12
+    endHour: 13
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 13
+    endHour: 16
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 4
+    startHour: 16
+    endHour: 17
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 11
+    startHour: 17
+    endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 19
+    endHour: 23
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 1
+    startHour: 23
+    endHour: 5
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  canCultivate: 1
+  awakenedCultivation: 0
+  awakenedByMarrowCleansingPill: 0
+  debugCurrentHour: 0
+  debugCurrentActivity: 0
+  debugCurrentSlot: 

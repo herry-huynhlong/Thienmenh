@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
+  m_Name: thit
+  m_EditorClassIdentifier: Assembly-CSharp::StatItemData
+  itemId: e1267ebecd354daaa2a7402259e05f46
+  itemName: "Th\u1ECBt "
+  description: "L\u1EA5y t\u1EEB b\u1ED9 ph\u1EADn ngon c\u1EE7a \u0111\u1ED9ng v\u1EADt"
+  itemType: 4
+  grade: 0
+  validTargets: -1
+  price: 20
+  icon: {fileID: -3689537017070502128, guid: f2a3da020a3a65948b597cffe9aeef5a, type: 3}
+  consumeOnUse: 1
+  equipmentSlot: 0
+  artifactKind: 0
+  pillKind: 0
+  manualKind: 0
+  materialKind: 0
+  foodKind: 1
+  useStyle: 0
+  conversionType: 0
+  canUseDirectly: 1
+  canBeSold: 1
+  canBeRefinedIntoPill: 0
+  canBeForgedIntoArtifact: 0
+  canBeStudied: 1
+  rawUseEfficiency: 0.35
+  useSuccessChance: 1
+  rawUsePolicy: 0
+  rawToxicityDamage: 0
+  npcIntent: 0
+  refineValueMultiplier: 1.5
+  sellValueMultiplier: 1
+  maxDurability: 0
+  durabilityLossPerUse: 1
+  breaksAtZero: 1
+  hpBonus: 0
+  cultivationBonus: 0
+  breakthroughRealm: 0
+  damageBonus: 0
+  armorBonus: 0
+  effectResistanceBonus: 0
+  canBeTaught: 1
+  studyProgressPerUse: 1
+  manualBreakAfterYears: 10
+  tieuThanhPower: 0.3
+  trungThanhPower: 0.6
+  daiThanhPower: 1
+  playBuyEffect: 0
+  buyEffectPrefab: {fileID: 0}
+  buyEffectOffset: {x: 0, y: 0.15, z: 0}
+  buyEffectScale: 1
+  playPickupEffect: 1
+  pickupEffectPrefab: {fileID: 0}
+  pickupEffectOffset: {x: 0, y: 0.15, z: 0}
+  pickupEffectScale: 1
+  isTemporary: 0
+  duration: 10
+  modifiers: []

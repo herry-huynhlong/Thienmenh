@@ -32,7 +32,9 @@ public class DailyConversation : MonoBehaviour
 
     void TryTalk()
     {
-        if (Time.time < nextTalkTime || IsDead())
+        if (Time.time < nextTalkTime ||
+            IsDead() ||
+            !NpcScheduleController.AllowsSocial(gameObject))
         {
             return;
         }
@@ -72,6 +74,12 @@ public class DailyConversation : MonoBehaviour
 
     void StartConversation(DailyConversation other)
     {
+        if (!NpcScheduleController.AllowsSocial(gameObject) ||
+            !NpcScheduleController.AllowsSocial(other.gameObject))
+        {
+            return;
+        }
+
         nextTalkTime = Time.time + conversationCooldown;
         other.nextTalkTime = Time.time + other.conversationCooldown;
 
@@ -95,6 +103,12 @@ public class DailyConversation : MonoBehaviour
     bool CanTalkWith(DailyConversation other)
     {
         if (other == null)
+        {
+            return false;
+        }
+
+        if (!NpcScheduleController.AllowsSocial(gameObject) ||
+            !NpcScheduleController.AllowsSocial(other.gameObject))
         {
             return false;
         }
@@ -152,17 +166,7 @@ public class DailyConversation : MonoBehaviour
 
     void SetAction(string action)
     {
-        SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
-        if (smartNpc != null)
-        {
-            smartNpc.currentAction = action;
-        }
-
-        VillagerAI villager = GetComponent<VillagerAI>();
-        if (villager != null && !villager.IsActionLocked)
-        {
-            villager.currentAction = action;
-        }
+        NpcRoleUtility.SetAction(gameObject, action);
     }
 
     void OnDrawGizmosSelected()
