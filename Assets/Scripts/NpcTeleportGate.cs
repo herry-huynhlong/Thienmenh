@@ -6,8 +6,8 @@ public class NpcTeleportGate : MonoBehaviour
 {
     static readonly List<NpcTeleportGate> gates =
         new List<NpcTeleportGate>();
-    static readonly Dictionary<GameObject, float> npcTeleportCooldowns =
-        new Dictionary<GameObject, float>();
+    static readonly Dictionary<int, float> npcTeleportCooldowns =
+        new Dictionary<int, float>();
 
     public NpcMapZone fromZone = NpcMapZone.Lang;
     public NpcMapZone toZone = NpcMapZone.VanBaoLau;
@@ -15,7 +15,7 @@ public class NpcTeleportGate : MonoBehaviour
     public Transform exitPoint;
     public DoorTeleportSameScene sameSceneTeleport;
     public float npcAutoUseRadius = 0.45f;
-    public float npcGlobalTeleportCooldown = 5f;
+    public float npcGlobalTeleportCooldown = 10f;
     public bool preferOwnTransformWhenEntryIsParent = true;
     public bool useEntryPointForNpcRoute;
 
@@ -172,8 +172,9 @@ public class NpcTeleportGate : MonoBehaviour
             return;
         }
 
+        int cooldownKey = GetNpcCooldownKey(actor);
         if (npcTeleportCooldowns.TryGetValue(
-                actor,
+                cooldownKey,
                 out float nextAllowedTeleport) &&
             Time.time < nextAllowedTeleport)
         {
@@ -182,7 +183,7 @@ public class NpcTeleportGate : MonoBehaviour
 
         if (TryTeleportNpc(actor))
         {
-            npcTeleportCooldowns[actor] =
+            npcTeleportCooldowns[cooldownKey] =
                 Time.time + Mathf.Max(0.1f, npcGlobalTeleportCooldown);
         }
     }
@@ -219,6 +220,11 @@ public class NpcTeleportGate : MonoBehaviour
         }
 
         return actorZone.Value == fromZone;
+    }
+
+    static int GetNpcCooldownKey(GameObject actor)
+    {
+        return actor != null ? actor.GetInstanceID() : 0;
     }
 
     GameObject ResolveActorRoot(Collider2D hit)

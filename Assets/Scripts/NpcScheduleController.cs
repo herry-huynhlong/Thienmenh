@@ -74,7 +74,7 @@ public class NpcScheduleController : MonoBehaviour
     {
         DetectLifePath();
 
-        if (autoBuildDefaultSchedule && slots.Count == 0)
+        if (autoBuildDefaultSchedule)
         {
             RebuildDefaultSchedule();
         }
@@ -87,7 +87,7 @@ public class NpcScheduleController : MonoBehaviour
 
     void OnValidate()
     {
-        if (autoBuildDefaultSchedule && slots.Count == 0)
+        if (autoBuildDefaultSchedule)
         {
             DetectLifePath();
             RebuildDefaultSchedule();

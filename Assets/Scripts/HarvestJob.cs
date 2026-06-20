@@ -28,11 +28,20 @@ public class HarvestJob : MonoBehaviour
     public int RetrySecondsRemaining =>
         Mathf.CeilToInt(Mathf.Max(0f, retryTimer));
 
+    public void CancelHarvestNow()
+    {
+        waitingForRetry = false;
+        retryTimer = 0f;
+        lastRetrySeconds = -1;
+        currentState = NpcJobState.Idle;
+    }
+
     void Awake()
     {
         villager = GetComponent<VillagerAI>();
         gatherer = GetComponent<NpcResourceGatherer>();
         inventory = GetComponent<ItemInventory>();
+        SyncConfiguredProductsFromVillager();
 #if UNITY_EDITOR
         AssignDefaultProducts();
 #endif
@@ -101,6 +110,7 @@ public class HarvestJob : MonoBehaviour
         }
 
         RefreshReferences();
+        SyncConfiguredProductsFromVillager();
         if (gatherer != null)
         {
             gatherer.useVillagerPreferredZone = true;
@@ -291,12 +301,7 @@ public class HarvestJob : MonoBehaviour
             return;
         }
 
-        if (villager.currentAction == action)
-        {
-            return;
-        }
-
-        NpcRoleUtility.SetAction(gameObject, action);
+        villager.SetActionImmediate(action);
     }
 
     bool TryStartHarvestNow(StatItemData targetItem)
@@ -398,6 +403,24 @@ public class HarvestJob : MonoBehaviour
         if (inventory == null)
         {
             inventory = GetComponent<ItemInventory>();
+        }
+    }
+
+    void SyncConfiguredProductsFromVillager()
+    {
+        if (villager == null)
+        {
+            return;
+        }
+
+        if (fishingProduct == null)
+        {
+            fishingProduct = villager.fishingProduct;
+        }
+
+        if (huntingProduct == null)
+        {
+            huntingProduct = villager.huntingProduct;
         }
     }
 

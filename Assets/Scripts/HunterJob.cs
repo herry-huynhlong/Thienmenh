@@ -93,6 +93,27 @@ public class HunterJob : MonoBehaviour
         return true;
     }
 
+    public void CancelHunterNow()
+    {
+        running = false;
+        currentState = NpcJobState.Idle;
+        currentMonsterTarget = null;
+        currentLootTarget = null;
+        nextAttackTime = 0f;
+
+        if (villager != null)
+        {
+            villager.StopMoving();
+        }
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        SetAction("idle");
+    }
+
     bool IsAllowedJob()
     {
         return enabledHunterJob &&
@@ -304,18 +325,7 @@ public class HunterJob : MonoBehaviour
 
         damage = Mathf.Max(1, damage);
 
-        if (useCombatTechniqueModifier)
-        {
-            NpcRoleUtility.Damage(
-                gameObject,
-                monster.gameObject,
-                damage,
-                "Thợ săn tấn công yêu thú");
-        }
-        else
-        {
-            monster.TakeDamage(damage);
-        }
+        monster.TakeDamage(damage);
 
         if (monster == null || monster.IsDead)
         {

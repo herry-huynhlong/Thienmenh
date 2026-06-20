@@ -566,9 +566,18 @@ public class NpcResourceGatherer : MonoBehaviour
         {
             MarkCurrentGatherSlotCompleted();
         }
-        nextGatherAllowedTime = NpcScheduleController.AllowsGather(gameObject)
+        bool shouldContinueScheduledHarvest =
+            IsScheduledHarvestJobActive() ||
+            (villager != null &&
+            (villager.job == VillagerJob.Farmer ||
+            villager.job == VillagerJob.Fisher ||
+            villager.job == VillagerJob.Hunter));
+
+        nextGatherAllowedTime = shouldContinueScheduledHarvest
             ? Time.time
-            : Time.time + Mathf.Max(0f, harvestCooldownAfterSuccess);
+            : (NpcScheduleController.AllowsGather(gameObject)
+                ? Time.time
+                : Time.time + Mathf.Max(0f, harvestCooldownAfterSuccess));
     }
 
     void StopNpcMovement()
@@ -602,7 +611,7 @@ public class NpcResourceGatherer : MonoBehaviour
                     verb = "Đang thu hoạch ";
                     break;
                 case VillagerJob.Fisher:
-                    verb = "Đang câu ";
+                    verb = "Đang thu hoạch ";
                     break;
                 case VillagerJob.Hunter:
                     verb = "Đang thu thịt ";

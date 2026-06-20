@@ -166,7 +166,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -303,7 +303,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -358,7 +358,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf1993a298b97fa4da7139b5193a1840, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NewGameIntroPanel
   introPanel: {fileID: 1762951987}
   titleText: {fileID: 2022566209}
@@ -1608,8 +1608,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -493.82, y: -243.24008}
-  m_SizeDelta: {x: 20.5, y: 10}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 1090, y: 1900}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &360377384
 GameObject:
@@ -1981,7 +1981,7 @@ MonoBehaviour:
   m_text: "THO\xC1T"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
+  m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2605,7 +2605,7 @@ MonoBehaviour:
   m_text: "GI\u1EDAI THI\u1EC6U"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
+  m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2629,7 +2629,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24.7
+  m_fontSize: 23.05
   m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2691,7 +2691,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 745304334}
-  - component: {fileID: 745304335}
   - component: {fileID: 745304337}
   - component: {fileID: 745304336}
   m_Layer: 5
@@ -2725,26 +2724,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 11.0668, y: -44.566772}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1102.1338, y: 2009.1335}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &745304335
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 745304333}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 25b0e8f90a7a4c85807aaaf0aeea3db2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MobileSafeAreaFitter
-  useSafeArea: 1
-  applyLeft: 1
-  applyRight: 1
-  applyTop: 1
-  applyBottom: 1
 --- !u!114 &745304336
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2755,7 +2737,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 01614664b831546d2ae94a42149d80ac, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.UI.InputSystemUIInputModule
   m_SendPointerHoverToParent: 1
   m_MoveRepeatDelay: 0.5
@@ -2786,7 +2768,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.EventSystem
   m_FirstSelected: {fileID: 0}
   m_sendNavigationEvents: 1
@@ -3777,7 +3759,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.StandaloneInputModule
   m_SendPointerHoverToParent: 1
   m_HorizontalAxis: Horizontal
@@ -5382,7 +5364,7 @@ MonoBehaviour:
   m_text: "TI\u1EBEP T\u1EE4C"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
+  m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -6053,7 +6035,7 @@ MonoBehaviour:
   m_text: "B\u1EAET \u0110\u1EA6U"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
+  m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -6781,7 +6763,7 @@ MonoBehaviour:
   m_text: "C\xC0I \u0110\u1EB6T"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
+  m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -7261,7 +7243,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 31}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2140388848

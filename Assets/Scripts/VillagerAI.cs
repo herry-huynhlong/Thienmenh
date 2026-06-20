@@ -76,7 +76,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
     public float fatigue;
     [Range(0, 100)]
     public float fun;
-    public bool strongNpcAvoidMortalWork = true;
     public float cultivatorResourceWorkChance = 0.65f;
 
     [Header("Places")]
@@ -156,9 +155,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
     public bool autonomousWorkEnabled = true;
     public bool autonomousResourceWorkEnabled = false;
     public bool autonomousDangerousWorkEnabled = false;
-    public bool dailyVanBaoLauVisitEnabled = true;
-    public bool staggerDailyVanBaoLauVisits = true;
-    [Range(0f, 4f)] public float dailyVanBaoLauVisitStaggerHours = 2f;
     public bool dailyTaskPlanEnabled = true;
     public float dailyTaskPlanStartupDelay = 2f;
     public int dailyTaskPlanMinTasks = 3;
@@ -276,11 +272,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
     int lastPlanResetDay = -1;
     int lastDailyTaskPlanDay = -1;
     int dailyTaskPlanIndex;
-    int lastVanBaoLauVisitDay = -1;
-    float vanBaoLauVisitAnchorHour = -1f;
-    float vanBaoLauVisitDelayHours;
-    int vanBaoLauVisitStep;
-
     Vector3 currentWorkTarget;
     NpcMapZone? currentWorkTargetZone;
     string currentWorkTargetKey;
@@ -335,6 +326,17 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         }
     }
 
+    public void SetActionImmediate(string action)
+    {
+        if (string.IsNullOrEmpty(action))
+        {
+            return;
+        }
+
+        actionTimer = 0f;
+        currentAction = action;
+    }
+
     void Awake()
     {
         ignoreNpcBodyCollisions = true;
@@ -361,7 +363,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         ApplyRuntimePathPerformanceLimits();
 
         spawnPosition = transform.position;
-        InitializeVanBaoLauVisitStagger();
         RefreshCurrentMapArea(false);
         ClampInsideCurrentMapArea();
 
@@ -402,7 +403,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         }
     }
 
-    void EnsureScheduleController()
+        void EnsureScheduleController()
     {
         NpcScheduleController schedule =
             GetComponent<NpcScheduleController>();
@@ -412,16 +413,8 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             schedule = gameObject.AddComponent<NpcScheduleController>();
         }
 
-        if (realm > CultivationRealm.Mortal ||
-            IsCultivationCapableVillager())
-        {
-            schedule.lifePath = NpcLifePath.SemiCultivator;
-            schedule.canCultivate = true;
-        }
-        else
-        {
-            schedule.lifePath = NpcLifePath.Commoner;
-        }
+        schedule.lifePath = NpcLifePath.Commoner;
+        schedule.canCultivate = false;
 
         if (schedule.autoBuildDefaultSchedule)
         {
@@ -563,18 +556,13 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         {
             job = GetGeneratedJob(entityProfile.personality);
         }
-        realm = entityProfile.stats.realm;
-        lifespan = GetLifespanForRealm(realm);
-        realmStage = entityProfile.stats.realmStage;
-        cultivationExp = entityProfile.stats.cultivationExp;
-        float realmPower =
-            CultivationProgression.GetStatPower(
-                realm,
-                realmStage,
-                EntityKind.Cultivator);
-        baseMaxHP = Mathf.Max(1, Mathf.RoundToInt(entityProfile.stats.maxHP / realmPower));
-        baseAttack = Mathf.Max(1, Mathf.RoundToInt(entityProfile.stats.attack / realmPower));
-        baseDefense = Mathf.Max(0, Mathf.RoundToInt(entityProfile.stats.defense / realmPower));
+        realm = CultivationRealm.Mortal;
+        realmStage = 1;
+        cultivationExp = 0;
+        lifespan = 80;
+        baseMaxHP = Mathf.Max(1, entityProfile.stats.maxHP);
+        baseAttack = Mathf.Max(1, entityProfile.stats.attack);
+        baseDefense = Mathf.Max(0, entityProfile.stats.defense);
         maxHP = entityProfile.stats.maxHP;
         currentHP =
             Mathf.Clamp(entityProfile.stats.currentHP, 0, maxHP);
@@ -686,6 +674,12 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         }
 
         RefreshScheduledStateForCurrentFrame();
+
+        if (ShouldForceReturnHomeForCurrentSchedule())
+        {
+            GoHomeToRest();
+            return;
+        }
 
         if (NpcTaskProvider.IsNpcBusyWithAnyProvider(gameObject))
         {
@@ -836,13 +830,9 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        realm = characterStats.realm;
-        realmStage = characterStats.realmStage;
-        cultivationExp = characterStats.cultivationExp;
-        baseExpToNextRealm = characterStats.baseExpToNextRealm;
-        baseMaxHP = characterStats.baseMaxHP;
-        baseAttack = characterStats.baseAttack;
-        baseDefense = characterStats.baseDefense;
+        realm = CultivationRealm.Mortal;
+        realmStage = 1;
+        cultivationExp = 0;
         maxHP = characterStats.finalHP;
         currentHP = characterStats.currentHP;
         attack = characterStats.attack;
@@ -918,6 +908,12 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         if (actionTimer > 0f &&
             NpcRoleUtility.IsInCombat(gameObject))
         {
+            return;
+        }
+
+        if (ShouldForceReturnHomeFromSchedule())
+        {
+            GoHomeToRest();
             return;
         }
 
@@ -1119,7 +1115,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                 return true;
 
             case NpcScheduleActivity.ReturnHome:
-                GoHomeIdle(NpcText.Action("stayNearHome"));
+                GoHomeToRest();
                 return true;
 
             default:
@@ -1196,6 +1192,66 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         {
             gatherer.CancelGatheringNow();
         }
+
+        HarvestJob harvestJob = GetComponent<HarvestJob>();
+        if (harvestJob != null)
+        {
+            harvestJob.CancelHarvestNow();
+        }
+    }
+
+    bool ShouldForceReturnHomeForCurrentSchedule()
+    {
+        if (hiddenAtHome || IsInDungeonCombatSession())
+        {
+            return false;
+        }
+
+        NpcScheduleController schedule =
+            NpcScheduleController.GetSchedule(gameObject);
+
+        if (schedule == null ||
+            !schedule.enforceSchedule ||
+            schedule.CurrentSlot == null ||
+            schedule.CurrentActivity != NpcScheduleActivity.ReturnHome)
+        {
+            return false;
+        }
+
+        if (IsBusyActionActive())
+        {
+            return true;
+        }
+
+        return currentAction == NpcText.Action("workingFarm") ||
+            currentAction == NpcText.Action("fishing") ||
+            currentAction == NpcText.Action("hunting") ||
+            currentAction == NpcText.Action("paidWork") ||
+            currentAction == NpcText.Action("harvestResource") ||
+            currentAction == NpcText.Action("goFarmWork") ||
+            currentAction == NpcText.Action("goFish") ||
+            currentAction == NpcText.Action("goHunt") ||
+            currentAction == NpcText.Action("goWork");
+    }
+
+    bool ShouldForceReturnHomeFromSchedule()
+    {
+        if (hiddenAtHome || IsInDungeonCombatSession() || homePoint == null)
+        {
+            return false;
+        }
+
+        NpcScheduleController schedule =
+            NpcScheduleController.GetSchedule(gameObject);
+
+        if (schedule == null ||
+            schedule.CurrentSlot == null ||
+            schedule.CurrentActivity != NpcScheduleActivity.ReturnHome)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     string BuildScheduleSlotKey(
@@ -1456,31 +1512,10 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                     return;
 
                 case WorldTimePhase.Noon:
-                    if (NeedsFood())
-                    {
-                        GoEat();
-                    }
-                    else if (ShouldDoDailyVanBaoLauCheck())
-                    {
-                        GoDailyVanBaoLauCheck();
-                    }
-                    else if (fun < 80f && playPoint != null)
-                    {
-                        GatherAndPlay();
-                    }
-                    else
-                    {
-                        IdleOrGoHome(NpcText.Action("restVillageNoon"));
-                    }
+                    GoHomeToRest();
                     return;
 
                 case WorldTimePhase.Afternoon:
-                    if (ShouldDoDailyVanBaoLauCheck())
-                    {
-                        GoDailyVanBaoLauCheck();
-                        return;
-                    }
-
                     GoWorkOrCultivatorActivity();
                     return;
 
@@ -1489,12 +1524,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                         hunger >= 45f)
                     {
                         GoEat();
-                        return;
-                    }
-
-                    if (ShouldDoDailyVanBaoLauCheck())
-                    {
-                        GoDailyVanBaoLauCheck();
                         return;
                     }
 
@@ -1528,16 +1557,14 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         DoCultivatorActivity();
     }
 
-    bool NeedsFood()
+        bool NeedsFood()
     {
-        return realm < CultivationRealm.Foundation;
+        return true;
     }
 
-    float GetHungerRate()
+        float GetHungerRate()
     {
-        return realm == CultivationRealm.QiRefining
-            ? 0.08f
-            : 0.35f;
+        return 0.35f;
     }
 
     bool IsForgeWorker()
@@ -1582,12 +1609,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                 return;
             }
 
-            if (ShouldDoDailyVanBaoLauCheck())
-            {
-                GoDailyVanBaoLauCheck();
-                return;
-            }
-
             Wander(NpcText.Action("wanderVillage"));
             return;
         }
@@ -1629,12 +1650,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                 return;
             }
 
-            if (ShouldDoDailyVanBaoLauCheck())
-            {
-                GoDailyVanBaoLauCheck();
-                return;
-            }
-
             Wander(NpcText.Action("wanderVillage"));
             return;
         }
@@ -1642,14 +1657,9 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         GoWork();
     }
 
-    bool ShouldDoMortalWork()
+        bool ShouldDoMortalWork()
     {
-        if (!strongNpcAvoidMortalWork)
-        {
-            return true;
-        }
-
-        return realm < CultivationRealm.Foundation;
+        return true;
     }
 
     void GoWorkOrCultivatorActivity()
@@ -1696,11 +1706,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (TryHandleCultivatorDailyRoutine())
-        {
-            return;
-        }
-
         DoCultivatorActivity();
     }
 
@@ -1715,12 +1720,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         if (IsScheduledCultivationTime())
         {
             CultivateNaturally();
-            return true;
-        }
-
-        if (ShouldDoDailyVanBaoLauCheck())
-        {
-            GoDailyVanBaoLauCheck();
             return true;
         }
 
@@ -1751,17 +1750,9 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             schedule.CurrentActivity == activity;
     }
 
-    void DoCultivatorActivity()
+        void DoCultivatorActivity()
     {
-        if (autonomousResourceWorkEnabled &&
-            realm >= CultivationRealm.Foundation &&
-            Random.value < cultivatorResourceWorkChance)
-        {
-            GoResourceWork();
-            return;
-        }
-
-        CultivateNaturally();
+        return;
     }
 
     void GoResourceWork()
@@ -1792,7 +1783,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             return true;
         }
 
-        return bravery >= 55 && realm >= CultivationRealm.Foundation;
+        return bravery >= 55;
     }
 
     public NpcMapZone GetPreferredResourceGatherZone()
@@ -1830,10 +1821,8 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         MoveUsingRoad(target, targetZone);
         currentAction = action;
 
-        if (IsAtPosition(target))
+                if (IsAtPosition(target))
         {
-            AddCultivationExp(
-                Mathf.Max(1, 2 + (int)realm + realmStage));
             actionTimer =
                 GameHoursToSeconds(
                     Random.Range(
@@ -1871,54 +1860,9 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         return false;
     }
 
-    void CultivateNaturally()
+        void CultivateNaturally()
     {
-        if (IsInDungeonCombatSession())
-        {
-            StopMoving();
-            ClearMovementTargets();
-            currentAction = NpcText.Action("idle");
-            return;
-        }
-
-        if (actionTimer > 0f &&
-            (currentAction == NpcText.Action("cultivate") ||
-            currentAction == NpcText.Action("cultivateAbsorbQi")))
-        {
-            return;
-        }
-
-        if (TryGoHomeForCultivation())
-        {
-            return;
-        }
-
-        int gain =
-            Mathf.Max(
-                1,
-                Mathf.RoundToInt(
-                    (1 + (int)realm + realmStage * 0.2f) *
-                    Mathf.Max(0.5f, diligence / 50f)));
-
-        AddCultivationExp(gain);
-        ClearMovementTargets();
-        StopMoving();
-        float cultivateSeconds =
-            GameHoursToSeconds(
-                Random.Range(
-                    cultivationSessionMinGameHours,
-                    cultivationSessionMaxGameHours));
-        if (dailyRoutineEnabled)
-        {
-            cultivateSeconds =
-                Mathf.Min(
-                    cultivateSeconds,
-                    GetRemainingScheduledCultivationSeconds());
-        }
-
-        actionTimer = Mathf.Max(thinkInterval, cultivateSeconds);
-        currentAction = NpcText.Action("cultivateAbsorbQi");
-
+        return;
     }
 
     void ClearCompletedCultivationAction()
@@ -1938,10 +1882,9 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         StopMoving();
     }
 
-    bool IsCultivationCapableVillager()
+        bool IsCultivationCapableVillager()
     {
-        return realm >= CultivationRealm.QiRefining ||
-            !ShouldDoMortalWork();
+        return false;
     }
 
     bool IsScheduledCultivationTime()
@@ -2040,60 +1983,16 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         return GameHoursToSeconds(Mathf.Max(0.1f, remainingHours));
     }
 
-    void InitializeVanBaoLauVisitStagger()
-    {
-        vanBaoLauVisitAnchorHour = GetCurrentWorldHour();
-
-        if (!dailyVanBaoLauVisitEnabled ||
-            !staggerDailyVanBaoLauVisits ||
-            dailyVanBaoLauVisitStaggerHours <= 0f)
-        {
-            vanBaoLauVisitDelayHours = 0f;
-            return;
-        }
-
-        vanBaoLauVisitDelayHours =
-            Random.Range(
-                0f,
-                Mathf.Max(0.1f, dailyVanBaoLauVisitStaggerHours));
-    }
-
-    bool IsVanBaoLauVisitStaggerReady()
-    {
-        if (!dailyVanBaoLauVisitEnabled ||
-            !staggerDailyVanBaoLauVisits ||
-            vanBaoLauVisitDelayHours <= 0f)
-        {
-            return true;
-        }
-
-        if (vanBaoLauVisitAnchorHour < 0f)
-        {
-            InitializeVanBaoLauVisitStagger();
-        }
-
-        float elapsedHours = GetCurrentWorldHour() - vanBaoLauVisitAnchorHour;
-        if (elapsedHours < 0f)
-        {
-            elapsedHours += 24f;
-        }
-
-        return elapsedHours >= vanBaoLauVisitDelayHours;
-    }
-
     bool IsRoutineTravelOrCultivationAction(string action)
     {
         return IsTravelIntentAction(action) ||
-            action == NpcText.Action("visitedTaskProvider") ||
-            action == NpcText.Action("checkedVanBaoLau");
+            action == NpcText.Action("visitedTaskProvider");
     }
 
     bool IsTravelIntentAction(string action)
     {
         return action == NpcText.Action("goTaskProviderDaily") ||
             action == NpcText.Action("goMarketTrade") ||
-            action == NpcText.Action("goVanBaoLauBroker") ||
-            action == NpcText.Action("goVanBaoLauTask") ||
             action == NpcText.Action("goWork") ||
             action == NpcText.Action("goFarmWork") ||
             action == NpcText.Action("goPatrol") ||
@@ -2112,7 +2011,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             action == NpcText.Action("goHomeRest") ||
             action == NpcText.Action("stayNearHome") ||
             action == NpcText.Action("restNearHome") ||
-            action == NpcText.Action("restVillageNoon") ||
             action == NpcText.Action("eveningWalkVillage") ||
             action == NpcText.Action("walkingRoad");
     }
@@ -2148,6 +2046,9 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             WorldTilemapManager.Instance.ReleaseFishingTile(this);
         }
 
+        currentWorkTarget = Vector3.zero;
+        currentWorkTargetZone = null;
+        currentWorkTargetKey = string.Empty;
         hasWorkTarget = false;
         hasTradeTarget = false;
         currentTradeTarget = Vector3.zero;
@@ -2342,7 +2243,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             MoveUsingRoad(
                 brokerPosition,
                 GetTargetZone(broker.transform) ??
-                NpcMapZone.VanBaoLau);
+                NpcMapZone.Lang);
             return true;
         }
 
@@ -2485,7 +2386,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         {
             MoveUsingRoad(
                 providerPosition,
-                providerZone.HasValue ? providerZone : NpcMapZone.VanBaoLau);
+                providerZone.HasValue ? providerZone : NpcMapZone.Lang);
             return true;
         }
 
@@ -2515,129 +2416,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
     }
 
 
-    bool ShouldDoDailyVanBaoLauCheck()
-    {
-        if (HasEnforcedSchedule())
-        {
-            return false;
-        }
-
-        if (!dailyVanBaoLauVisitEnabled ||
-            ageGroup != VillagerAgeGroup.Adult ||
-            fatigue >= 85f)
-        {
-            return false;
-        }
-
-        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
-        if (timeSystem == null ||
-            lastVanBaoLauVisitDay == timeSystem.CurrentDay)
-        {
-            return false;
-        }
-
-        if (!IsVanBaoLauVisitStaggerReady())
-        {
-            return false;
-        }
-
-        if (timeSystem.CurrentPhase != WorldTimePhase.Noon &&
-            timeSystem.CurrentPhase != WorldTimePhase.Afternoon &&
-            timeSystem.CurrentPhase != WorldTimePhase.Evening)
-        {
-            return false;
-        }
-
-        if (job == VillagerJob.Trader && ShouldVisitCounterBroker())
-        {
-            return true;
-        }
-
-        return NpcTaskProvider.FindNearestProvider(transform.position) != null;
-    }
-
-    void GoDailyVanBaoLauCheck()
-    {
-        if (vanBaoLauVisitStep <= 0)
-        {
-            NpcCounterBroker broker = NpcCounterBroker.Active;
-            if (job == VillagerJob.Trader &&
-                broker != null &&
-                ShouldVisitCounterBroker())
-            {
-                Vector3 brokerPosition = broker.GetCustomerPositionFor(gameObject);
-                NpcMapZone? brokerZone = GetTargetZone(broker.transform);
-                currentAction = NpcText.Action("goVanBaoLauBroker");
-
-                if (!IsInsideBrokerServiceArea(broker))
-                {
-                    MoveUsingRoad(
-                        brokerPosition,
-                        brokerZone.HasValue ? brokerZone : NpcMapZone.VanBaoLau);
-                    return;
-                }
-
-                ClearMovementTargets();
-                StopMoving();
-
-                if (TryTradeAtCounterOrTakeTask())
-                {
-                    MarkDailyVanBaoLauVisited();
-                    return;
-                }
-
-                vanBaoLauVisitStep = 1;
-                actionTimer = Mathf.Max(1f, thinkInterval);
-                currentAction = GetScheduledTradeIdleAction();
-                return;
-            }
-
-            vanBaoLauVisitStep = 1;
-        }
-
-        NpcTaskProvider provider = NpcTaskProvider.FindNearestProvider(transform.position);
-        if (provider != null)
-        {
-            Vector3 providerPosition = provider.GetProviderPositionFor(gameObject);
-            NpcMapZone? providerZone = GetTargetZone(provider.transform);
-            if (IsNearTaskProvider(provider))
-            {
-                MarkDailyVanBaoLauVisited();
-                if (provider.TryHandleVisitor(gameObject))
-                {
-                    return;
-                }
-
-                ClearMovementTargets();
-                StopMoving();
-                actionTimer = Mathf.Max(1f, thinkInterval);
-                currentAction = NpcText.Action("visitedTaskProvider");
-                return;
-            }
-
-            MoveUsingRoad(
-                providerPosition,
-                providerZone.HasValue ? providerZone : NpcMapZone.VanBaoLau);
-            currentAction = NpcText.Action("goVanBaoLauTask");
-            return;
-        }
-
-        MarkDailyVanBaoLauVisited();
-        ClearMovementTargets();
-        StopMoving();
-        actionTimer = Mathf.Max(1f, thinkInterval);
-        currentAction = NpcText.Action("checkedVanBaoLau");
-    }
-
-    void MarkDailyVanBaoLauVisited()
-    {
-        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
-        lastVanBaoLauVisitDay = timeSystem != null
-            ? timeSystem.CurrentDay
-            : lastVanBaoLauVisitDay;
-        vanBaoLauVisitStep = 0;
-    }
-
     public void GoHomeToRest()
     {
         if (IsInDungeonCombatSession())
@@ -2648,28 +2426,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (homePoint == null)
-        {
-            ClearMovementTargets();
-            StopMoving();
-            fatigue = 0f;
-            if (characterStats != null)
-            {
-                characterStats.currentHP =
-                    Mathf.Min(
-                        characterStats.finalHP,
-                        characterStats.currentHP + 10);
-                SyncFromCharacterStats();
-            }
-            else
-            {
-                currentHP = Mathf.Min(maxHP, currentHP + 10);
-            }
-            actionTimer = restDuration;
-            currentAction = NpcText.Action("rest");
-            ResetDailyTargets();
-            return;
-        }
+        CancelScheduledWorkState();
 
         Vector3 homePosition = GetHomePosition();
         MoveUsingRoad(homePosition);
@@ -2700,6 +2457,30 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             {
                 ForceHiddenAtHome(true);
             }
+        }
+    }
+
+    void CancelScheduledWorkState()
+    {
+        ResetDailyTargets();
+        ClearMovementTargets();
+
+        NpcResourceGatherer gatherer = GetComponent<NpcResourceGatherer>();
+        if (gatherer != null)
+        {
+            gatherer.CancelGatheringNow();
+        }
+
+        HarvestJob harvestJob = GetComponent<HarvestJob>();
+        if (harvestJob != null)
+        {
+            harvestJob.CancelHarvestNow();
+        }
+
+        HunterJob hunterJob = GetComponent<HunterJob>();
+        if (hunterJob != null)
+        {
+            hunterJob.CancelHunterNow();
         }
     }
 
@@ -2813,6 +2594,16 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         if (harvestJob == null)
         {
             harvestJob = gameObject.AddComponent<HarvestJob>();
+        }
+
+        if (harvestJob.fishingProduct == null)
+        {
+            harvestJob.fishingProduct = fishingProduct;
+        }
+
+        if (harvestJob.huntingProduct == null)
+        {
+            harvestJob.huntingProduct = huntingProduct;
         }
 
         return harvestJob;
@@ -3251,7 +3042,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         if (broker != null && broker.receiveAllNpcRequests && ShouldVisitCounterBroker())
         {
             NpcMapZone? brokerZone = GetTargetZone(broker.transform);
-            return brokerZone.HasValue ? brokerZone : NpcMapZone.VanBaoLau;
+            return brokerZone.HasValue ? brokerZone : NpcMapZone.Lang;
         }
 
         if (resolvedTraderLocationZone.HasValue)
@@ -3349,7 +3140,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
             return brokerZone.HasValue
                 ? brokerZone
-                : NpcMapZone.VanBaoLau;
+                : NpcMapZone.Lang;
         }
 
         Transform nearbyMarketTrader = FindNearbyMarketTrader();
@@ -3381,7 +3172,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             NpcMapZone? brokerZone = GetTargetZone(broker.transform);
             return brokerZone.HasValue
                 ? brokerZone
-                : NpcMapZone.VanBaoLau;
+                : NpcMapZone.Lang;
         }
 
         if (resolvedBuyLocationZone.HasValue)
@@ -5015,8 +4806,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             action == NpcText.Action("walkingRoad") ||
             action == NpcText.Action("gatherResource") ||
             action == NpcText.Action("goTaskProviderDaily") ||
-            action == NpcText.Action("goVanBaoLauBroker") ||
-            action == NpcText.Action("goVanBaoLauTask") ||
             action == NpcText.Action("goHomeCultivate") ||
             action == NpcText.Action("goCultivatePoint") ||
             action.StartsWith(NpcText.Action("goGatherNamed")
@@ -7759,192 +7548,13 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         }
     }
 
-    public long ExpToNextRealm()
-    {
-        if (characterStats != null)
-        {
-            return characterStats.ExpToNextRealm();
-        }
-
-        return CultivationProgression.GetExpToNextLong(
-            realm,
-            realmStage,
-            baseExpToNextRealm);
-    }
-
-    public void AddCultivationExp(int amount)
-    {
-        if (characterStats != null)
-        {
-            characterStats.AddCultivationExp(amount);
-            SyncFromCharacterStats();
-            return;
-        }
-
-        if (amount <= 0 ||
-            waitingForHeavenlyTribulation ||
-            realm == CultivationRealm.Tribulation)
-        {
-            return;
-        }
-
-        cultivationExp += amount;
-
-        while (!waitingForHeavenlyTribulation &&
-            cultivationExp >= ExpToNextRealm() &&
-            realm != CultivationRealm.Tribulation)
-        {
-            cultivationExp -= ExpToNextRealm();
-            Breakthrough();
-        }
-    }
-
-    void Breakthrough()
-    {
-        if (waitingForHeavenlyTribulation)
-        {
-            return;
-        }
-
-        if (realm == CultivationRealm.Tribulation)
-        {
-            cultivationExp = 0;
-            return;
-        }
-
-        if (realm == CultivationRealm.Mortal &&
-            realmStage >= CultivationProgression.MaxStage)
-        {
-            realmStage = 1;
-            realm = CultivationRealm.QiRefining;
-            ApplyRealmPower();
-            currentHP = maxHP;
-            lifespan = GetLifespanForRealm(realm);
-            currentAction = NpcText.ActionFormat("breakthroughTo", GetRealmText());
-            return;
-        }
-
-        if (CultivationProgression.RequiresHeavenlyTribulation(
-                realm,
-                realmStage))
-        {
-            CultivationRealm targetRealm =
-                CultivationProgression.GetNextRealm(realm);
-
-            waitingForHeavenlyTribulation = true;
-            currentAction = NpcText.Action("waitTribulation");
-            HeavenlyTribulationSystem.Request(
-                gameObject,
-                villagerName,
-                targetRealm,
-                () => CompleteMajorBreakthrough(targetRealm));
-            return;
-        }
-
-        realmStage += 1;
-
-        ApplyRealmPower();
-        currentHP = maxHP;
-        lifespan = GetLifespanForRealm(realm);
-        currentAction = NpcText.ActionFormat("breakthroughTo", GetRealmText());
-    }
-
-    void CompleteMajorBreakthrough(CultivationRealm targetRealm)
-    {
-        waitingForHeavenlyTribulation = false;
-        if (IsDead)
-        {
-            return;
-        }
-
-        realmStage = 1;
-        realm = targetRealm;
-        ApplyRealmPower();
-        currentHP = maxHP;
-        lifespan = GetLifespanForRealm(realm);
-        currentAction = NpcText.ActionFormat("breakthroughTo", GetRealmText());
-    }
-
-    void ApplyRealmPower()
-    {
-        float power =
-            CultivationProgression.GetStatPower(
-                realm,
-                realmStage,
-                EntityKind.Cultivator);
-
-        maxHP = Mathf.Max(1, Mathf.RoundToInt(baseMaxHP * power));
-        attack = Mathf.Max(1, Mathf.RoundToInt(baseAttack * power));
-        defense = Mathf.Max(0, Mathf.RoundToInt(baseDefense * power));
-        currentHP = Mathf.Clamp(currentHP, 0, maxHP);
-    }
 
     public string GetRealmText()
     {
-        if (characterStats != null)
-        {
-            return NpcText.RealmWithStage(
-                characterStats.realm,
-                characterStats.realmStage);
-        }
-
-        return NpcText.RealmWithStage(realm, realmStage);
+        return NpcText.RealmWithStage(CultivationRealm.Mortal, 1);
     }
 
     public int GetAge()
-    {
-        int baseAge = 0;
-
-        if (entityProfile != null &&
-            entityProfile.identity != null)
-        {
-            baseAge = entityProfile.identity.age;
-        }
-
-        if (WorldTimeSystem.Instance != null)
-        {
-            baseAge += Mathf.Max(0, WorldTimeSystem.Instance.currentYear - 1);
-        }
-
-        return baseAge;
-    }
-
-    public int GetLifespan()
-    {
-        return lifespan > 0
-            ? lifespan
-            : GetLifespanForRealm(realm);
-    }
-
-    bool ShouldDieFromOldAge()
-    {
-        return dieWhenLifespanEnds &&
-            GetAge() > 0 &&
-            GetAge() >= GetLifespan();
-    }
-
-    int GetLifespanForRealm(CultivationRealm targetRealm)
-    {
-        switch (targetRealm)
-        {
-            case CultivationRealm.QiRefining:
-                return 120;
-            case CultivationRealm.Foundation:
-                return 220;
-            case CultivationRealm.GoldenCore:
-                return 500;
-            case CultivationRealm.NascentSoul:
-                return 1200;
-            case CultivationRealm.SoulFormation:
-                return 3000;
-            case CultivationRealm.Tribulation:
-                return 10000;
-            default:
-                return 80;
-        }
-    }
-
-    public void TakeDamage(int damage)
     {
         if (characterStats != null)
         {

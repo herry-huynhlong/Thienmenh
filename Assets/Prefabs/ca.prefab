@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7233090463154634916}
   - component: {fileID: 3394165919096963853}
   - component: {fileID: 8089875948246507996}
+  - component: {fileID: 1822707448536017724}
   m_Layer: 0
   m_Name: ca
   m_TagString: Untagged
@@ -124,88 +125,27 @@ MonoBehaviour:
   m_GameObject: {fileID: 696709227914667505}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11f70ac958cc4a349b1bcd3767aef3fb, type: 3}
+  m_Script: {fileID: 11500000, guid: 02e91f37697b0bd4fb669ce6f0866fa5, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MonsterAI
-  generateFromEntityProfile: 1
-  entityProfile: {fileID: 0}
-  monsterName: "C\xE1 "
-  maxHP: 84
-  currentHP: 1
-  beastLevel: 1
-  huntTargetType: 1
-  autoStatsFromRealm: 1
-  syncBeastLevelFromRealm: 1
-  realm: 0
-  realmStage: 1
-  cultivationExp: 0
-  baseExpToNextRealm: 100
-  waitingForHeavenlyTribulation: 0
-  baseMaxHP: 80
-  baseDamage: 8
-  baseDefense: 3
-  baseEffectResistance: 0
-  baseMoveSpeed: 2
-  naturalCultivationExpPerSecond: 0.35
-  hungryCultivationEfficiency: 0.45
-  npcDevourExpMultiplier: 0.35
-  minNpcDevourExp: 20
-  healAfterDevouringNpc: 1
-  damage: 8
-  defense: 3
-  effectResistance: 0
-  beastInstinct: 60
-  aggression: 50
-  fear: 20
-  hunger: 40
-  retreatChanceWhenSuppressed: 0.2
-  retreatDuration: 1.25
-  retreatRetryDelay: 0.75
-  territorial: 50
-  bloodlust: 20
-  survivalInstinct: 50
-  moveSpeed: 2
-  roamRadius: 3
-  waitTime: 2
-  autoConfigureRigidbody: 1
-  fallbackTransformMove: 1
-  useCameraDistanceThrottle: 1
-  fullUpdateDistanceFromCamera: 14
-  reducedFixedUpdateInterval: 0.25
-  guardTerritory: 1
-  territoryRadius: 5
-  returnHomeDistance: 7
-  intruderLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  attackPlayer: 1
-  attackVillagers: 1
-  attackSmartNpcs: 1
-  attackOtherMonsters: 0
-  currentAction: Idle
-  currentMoveVelocity: {x: 0, y: 0}
-  usePerformanceThrottle: 1
-  thinkInterval: 0.2
-  detectInterval: 0.35
-  performanceJitter: 0.12
-  detectRange: 6
-  attackRange: 1.5
-  forgetTargetRange: 8
-  attackCooldown: 2
-  attackDamageDelay: 0.35
-  attackEndDelay: 1
-  directDamageOnAttack: 1
-  respawnAfterDeath: 1
-  respawnAfterDays: 1
-  corpseVisibleSeconds: 2
-  dropLootOnDeath: 1
-  lootDropChance: 1
-  lootAmount: 1
-  lootByBeastLevel:
-  - {fileID: 11400000, guid: 550730f23498be4459f8358921e55b8e, type: 2}
-  allowPlayerLootPickup: 1
-  allowNpcLootPickup: 1
-  lootDropOffsetRadius: 0.2
-  fireballPrefab: {fileID: 0}
-  firePoint: {fileID: 0}
-  useAnimation: 1
+  m_EditorClassIdentifier: Assembly-CSharp::WorldStatItemPickup
+  item: {fileID: 11400000, guid: 550730f23498be4459f8358921e55b8e, type: 2}
+  amount: 1
+  allowNpcPickup: 1
+  allowPlayerPickup: 0
+  destroyWhenEmpty: 1
+  requireNpcHarvestAction: 1
+  harvestDuration: 10
+--- !u!114 &1822707448536017724
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 696709227914667505}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98d7f0f89a108114ea0a0b074156a811, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ResourceNode
+  pickup: {fileID: 8089875948246507996}
+  resourceKind: 2
