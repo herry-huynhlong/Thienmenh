@@ -1,115 +1,55 @@
 fileFormatVersion: 2
-guid: 990fbcf05a4413f49b7e76df2323293b
+guid: eb52e3c27da85b74792594da54638431
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1222842986456797220
-    second: nong_phu_nam_0
+      213: 5328332788402992666
+    second: baby_0
   - first:
-      213: 7042993281113537264
-    second: nong_phu_nam_1
+      213: 8607472917887628970
+    second: baby_1
   - first:
-      213: 8220688192859411659
-    second: nong_phu_nam_2
+      213: -3268204846407159661
+    second: baby_2
   - first:
-      213: -7197586077267139577
-    second: nong_phu_nam_3
+      213: -8723013705222493608
+    second: baby_3
   - first:
-      213: 6953352676540431142
-    second: nong_phu_nam_4
+      213: 7141165642691641552
+    second: baby_4
   - first:
-      213: -8201756594737137730
-    second: nong_phu_nam_5
+      213: 9106570975438254572
+    second: baby_5
   - first:
-      213: 2155192249570710643
-    second: nong_phu_nam_6
+      213: -5619191218230996321
+    second: baby_6
   - first:
-      213: -4152171998389137778
-    second: nong_phu_nam_7
+      213: -6897465005460466845
+    second: baby_7
   - first:
-      213: -7657421764935680110
-    second: nong_phu_nam_8
+      213: -8348420095878685675
+    second: baby_8
   - first:
-      213: 4191084405782691521
-    second: nong_phu_nam_9
+      213: 8025943037864282716
+    second: baby_9
   - first:
-      213: 6370673184556945487
-    second: nong_phu_nam_10
+      213: -8404258670238307051
+    second: baby_10
   - first:
-      213: -2583382995659569986
-    second: nong_phu_nam_11
+      213: -7926489218155702437
+    second: baby_11
   - first:
-      213: 4900980009242631399
-    second: nong_phu_nam_12
+      213: 5709860319800090880
+    second: baby_12
   - first:
-      213: -779200332056069037
-    second: nong_phu_nam_13
+      213: -2672496845374781716
+    second: baby_13
   - first:
-      213: 6522578408466696082
-    second: nong_phu_nam_14
+      213: 4984778854314120990
+    second: baby_14
   - first:
-      213: -504814959855339059
-    second: nong_phu_nam_15
-  - first:
-      213: 5846616164480987468
-    second: nong_phu_nam_16
-  - first:
-      213: 6666035858631250859
-    second: nong_phu_nam_17
-  - first:
-      213: 1650555964629149160
-    second: nong_phu_nam_18
-  - first:
-      213: -6920178108367369211
-    second: nong_phu_nam_19
-  - first:
-      213: 8831690490384418613
-    second: nong_phu_nam_20
-  - first:
-      213: 2302407886168337616
-    second: nong_phu_nam_21
-  - first:
-      213: 213722808641733604
-    second: nong_phu_nam_22
-  - first:
-      213: -5148935461843839723
-    second: nong_phu_nam_23
-  - first:
-      213: 7098005840897550450
-    second: nong_phu_nam_24
-  - first:
-      213: 7624508417006951008
-    second: nong_phu_nam_25
-  - first:
-      213: -4954495724273888721
-    second: nong_phu_nam_26
-  - first:
-      213: 3136546343221429778
-    second: nong_phu_nam_27
-  - first:
-      213: 2108191872555169404
-    second: nong_phu_nam_28
-  - first:
-      213: 3153954419341031177
-    second: nong_phu_nam_29
-  - first:
-      213: -3259278819135586411
-    second: nong_phu_nam_30
-  - first:
-      213: 1324618588051933467
-    second: nong_phu_nam_31
-  - first:
-      213: -5272235088434601746
-    second: nong_phu_nam_32
-  - first:
-      213: -5027453628711699864
-    second: nong_phu_nam_33
-  - first:
-      213: -3217024287809323698
-    second: nong_phu_nam_34
-  - first:
-      213: 3696394281756125687
-    second: nong_phu_nam_35
+      213: -2840219662903847765
+    second: baby_15
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -156,7 +96,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 150
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -205,12 +145,12 @@ TextureImporter:
     buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: 4
+    textureFormat: -1
     textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
-    overridden: 1
+    overridden: 0
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
@@ -231,353 +171,353 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: nong_phu_nam_1
+      name: baby_0
       rect:
         serializedVersion: 2
-        x: 109
-        y: 381
-        width: 52
-        height: 110
+        x: 52
+        y: 377
+        width: 63
+        height: 89
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0fa3c34e21dbdb160800000000000000
-      internalID: 7042993281113537264
+      spriteID: a16b3d9b07a02f940800000000000000
+      internalID: 5328332788402992666
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_2
+      name: baby_1
       rect:
         serializedVersion: 2
-        x: 207
-        y: 383
-        width: 51
-        height: 108
+        x: 163
+        y: 378
+        width: 64
+        height: 86
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: bc412a83b50c51270800000000000000
-      internalID: 8220688192859411659
+      spriteID: aa6bc74b303e37770800000000000000
+      internalID: 8607472917887628970
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_3
+      name: baby_2
       rect:
         serializedVersion: 2
-        x: 306
+        x: 279
         y: 380
-        width: 53
-        height: 111
+        width: 64
+        height: 84
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 704e130e8990d1c90800000000000000
-      internalID: -7197586077267139577
+      spriteID: 390f0b4020105a2d0800000000000000
+      internalID: -3268204846407159661
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_4
+      name: baby_3
       rect:
         serializedVersion: 2
-        x: 407
-        y: 381
-        width: 52
-        height: 110
+        x: 392
+        y: 378
+        width: 65
+        height: 88
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 62b343b3b654f7060800000000000000
-      internalID: 6953352676540431142
+      spriteID: 85a69596041a1f680800000000000000
+      internalID: -8723013705222493608
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_10
+      name: baby_4
       rect:
         serializedVersion: 2
-        x: 110
-        y: 256
-        width: 50
-        height: 107
+        x: 53
+        y: 249
+        width: 60
+        height: 98
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f409f91128d296850800000000000000
-      internalID: 6370673184556945487
+      spriteID: 0d00cd601548a1360800000000000000
+      internalID: 7141165642691641552
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_11
+      name: baby_5
       rect:
         serializedVersion: 2
-        x: 207
-        y: 255
-        width: 48
-        height: 108
+        x: 160
+        y: 251
+        width: 65
+        height: 96
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: eb44de05adaf52cd0800000000000000
-      internalID: -2583382995659569986
+      spriteID: ce131e0bd0a016e70800000000000000
+      internalID: 9106570975438254572
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_12
+      name: baby_6
       rect:
         serializedVersion: 2
-        x: 308
-        y: 254
-        width: 48
-        height: 109
+        x: 280
+        y: 249
+        width: 61
+        height: 98
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 7ec92361a57c30440800000000000000
-      internalID: 4900980009242631399
+      spriteID: f92d858db5f9402b0800000000000000
+      internalID: -5619191218230996321
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_13
+      name: baby_7
       rect:
         serializedVersion: 2
-        x: 408
-        y: 254
-        width: 49
-        height: 109
+        x: 390
+        y: 252
+        width: 65
+        height: 95
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 35c7ee62d69bf25f0800000000000000
-      internalID: -779200332056069037
+      spriteID: 36357d23f184740a0800000000000000
+      internalID: -6897465005460466845
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_18
+      name: baby_8
       rect:
         serializedVersion: 2
-        x: 108
-        y: 140
-        width: 46
-        height: 101
+        x: 43
+        y: 146
+        width: 76
+        height: 82
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8e56f91a7e3f7e610800000000000000
-      internalID: 1650555964629149160
+      spriteID: 51c1b659724742c80800000000000000
+      internalID: -8348420095878685675
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_19
+      name: baby_9
       rect:
         serializedVersion: 2
-        x: 206
-        y: 140
-        width: 45
-        height: 101
+        x: 158
+        y: 146
+        width: 73
+        height: 82
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 50c0454dca696ff90800000000000000
-      internalID: -6920178108367369211
+      spriteID: c5a8b6f6ba0e16f60800000000000000
+      internalID: 8025943037864282716
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_20
+      name: baby_10
       rect:
         serializedVersion: 2
-        x: 306
-        y: 140
-        width: 46
-        height: 101
+        x: 274
+        y: 146
+        width: 74
+        height: 82
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5370f8d65b7709a70800000000000000
-      internalID: 8831690490384418613
+      spriteID: 51de2ff54431e5b80800000000000000
+      internalID: -8404258670238307051
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_21
+      name: baby_11
       rect:
         serializedVersion: 2
-        x: 407
-        y: 140
-        width: 46
-        height: 101
+        x: 388
+        y: 148
+        width: 74
+        height: 80
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0dc2f1716cbc3ff10800000000000000
-      internalID: 2302407886168337616
+      spriteID: b579ddb6d047ff190800000000000000
+      internalID: -7926489218155702437
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_27
+      name: baby_12
       rect:
         serializedVersion: 2
-        x: 109
-        y: 23
-        width: 45
-        height: 102
+        x: 41
+        y: 42
+        width: 72
+        height: 83
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2168341f740478b20800000000000000
-      internalID: 3136546343221429778
+      spriteID: 00168ce65bf7d3f40800000000000000
+      internalID: 5709860319800090880
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_28
+      name: baby_13
       rect:
         serializedVersion: 2
-        x: 210
-        y: 23
-        width: 45
-        height: 101
+        x: 155
+        y: 43
+        width: 72
+        height: 82
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c763402a65dc14d10800000000000000
-      internalID: 2108191872555169404
+      spriteID: ce68514574269ead0800000000000000
+      internalID: -2672496845374781716
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_29
+      name: baby_14
       rect:
         serializedVersion: 2
-        x: 311
-        y: 23
-        width: 45
-        height: 102
+        x: 272
+        y: 42
+        width: 72
+        height: 83
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 907789285d815cb20800000000000000
-      internalID: 3153954419341031177
+      spriteID: e17954f15fd7d2540800000000000000
+      internalID: 4984778854314120990
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_30
+      name: baby_15
       rect:
         serializedVersion: 2
-        x: 411
-        y: 23
-        width: 45
-        height: 102
+        x: 385
+        y: 42
+        width: 72
+        height: 83
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 59ff771be27b4c2d0800000000000000
-      internalID: -3259278819135586411
+      spriteID: ba45984c3438598d0800000000000000
+      internalID: -2840219662903847765
       vertices: []
       indices: 
       edges: []
@@ -586,7 +526,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: ad0338b4b3601c34a87be03b23ee36a5
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -596,42 +536,22 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      nong_phu_nam_0: 1222842986456797220
-      nong_phu_nam_1: 7042993281113537264
-      nong_phu_nam_10: 6370673184556945487
-      nong_phu_nam_11: -2583382995659569986
-      nong_phu_nam_12: 4900980009242631399
-      nong_phu_nam_13: -779200332056069037
-      nong_phu_nam_14: 6522578408466696082
-      nong_phu_nam_15: -504814959855339059
-      nong_phu_nam_16: 5846616164480987468
-      nong_phu_nam_17: 6666035858631250859
-      nong_phu_nam_18: 1650555964629149160
-      nong_phu_nam_19: -6920178108367369211
-      nong_phu_nam_2: 8220688192859411659
-      nong_phu_nam_20: 8831690490384418613
-      nong_phu_nam_21: 2302407886168337616
-      nong_phu_nam_22: 213722808641733604
-      nong_phu_nam_23: -5148935461843839723
-      nong_phu_nam_24: 7098005840897550450
-      nong_phu_nam_25: 7624508417006951008
-      nong_phu_nam_26: -4954495724273888721
-      nong_phu_nam_27: 3136546343221429778
-      nong_phu_nam_28: 2108191872555169404
-      nong_phu_nam_29: 3153954419341031177
-      nong_phu_nam_3: -7197586077267139577
-      nong_phu_nam_30: -3259278819135586411
-      nong_phu_nam_31: 1324618588051933467
-      nong_phu_nam_32: -5272235088434601746
-      nong_phu_nam_33: -5027453628711699864
-      nong_phu_nam_34: -3217024287809323698
-      nong_phu_nam_35: 3696394281756125687
-      nong_phu_nam_4: 6953352676540431142
-      nong_phu_nam_5: -8201756594737137730
-      nong_phu_nam_6: 2155192249570710643
-      nong_phu_nam_7: -4152171998389137778
-      nong_phu_nam_8: -7657421764935680110
-      nong_phu_nam_9: 4191084405782691521
+      baby_0: 5328332788402992666
+      baby_1: 8607472917887628970
+      baby_10: -8404258670238307051
+      baby_11: -7926489218155702437
+      baby_12: 5709860319800090880
+      baby_13: -2672496845374781716
+      baby_14: 4984778854314120990
+      baby_15: -2840219662903847765
+      baby_2: -3268204846407159661
+      baby_3: -8723013705222493608
+      baby_4: 7141165642691641552
+      baby_5: 9106570975438254572
+      baby_6: -5619191218230996321
+      baby_7: -6897465005460466845
+      baby_8: -8348420095878685675
+      baby_9: 8025943037864282716
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

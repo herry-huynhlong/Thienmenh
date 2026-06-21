@@ -1,0 +1,435 @@
+fileFormatVersion: 2
+guid: 3466852f881e2454a98ed84608917f95
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 5805538365814914069
+    second: nongphu1_0
+  - first:
+      213: 6582118247542121913
+    second: nongphu1_1
+  - first:
+      213: 7778131630791229656
+    second: nongphu1_2
+  - first:
+      213: -6044185375833419213
+    second: nongphu1_3
+  - first:
+      213: -7084971319295497374
+    second: nongphu1_4
+  - first:
+      213: 2100900343220606683
+    second: nongphu1_5
+  - first:
+      213: -6439897148111402693
+    second: nongphu1_6
+  - first:
+      213: -3069474275120338146
+    second: nongphu1_7
+  - first:
+      213: 178992414181913135
+    second: nongphu1_8
+  - first:
+      213: 5369362350691570180
+    second: nongphu1_9
+  - first:
+      213: -517713559598524787
+    second: nongphu1_10
+  - first:
+      213: -6335406653549460786
+    second: nongphu1_11
+  - first:
+      213: -6922076384878238421
+    second: nongphu1_12
+  - first:
+      213: -1581256620074748732
+    second: nongphu1_13
+  - first:
+      213: 4166585239804743071
+    second: nongphu1_14
+  - first:
+      213: 3951938834463285646
+    second: nongphu1_15
+  - first:
+      213: -3714587479076802859
+    second: nongphu1_16
+  - first:
+      213: -4095570760415436176
+    second: nongphu1_17
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: nongphu1_0
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 282
+        width: 54
+        height: 106
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 51cbc48726a619050800000000000000
+      internalID: 5805538365814914069
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: nongphu1_3
+      rect:
+        serializedVersion: 2
+        x: 118
+        y: 282
+        width: 78
+        height: 96
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 33296d49c6dbe1ca0800000000000000
+      internalID: -6044185375833419213
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: nongphu1_6
+      rect:
+        serializedVersion: 2
+        x: 204
+        y: 283
+        width: 84
+        height: 82
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b39c4c0f9a3e0a6a0800000000000000
+      internalID: -6439897148111402693
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: nongphu1_7
+      rect:
+        serializedVersion: 2
+        x: 295
+        y: 280
+        width: 89
+        height: 71
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1ba048d8690765d0800000000000000
+      internalID: -3069474275120338146
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: nongphu1_8
+      rect:
+        serializedVersion: 2
+        x: 399
+        y: 278
+        width: 89
+        height: 63
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f227dc007a8eb7200800000000000000
+      internalID: 178992414181913135
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: nongphu1_11
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 131
+        width: 52
+        height: 108
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec2c98b073d1418a0800000000000000
+      internalID: -6335406653549460786
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: nongphu1_14
+      rect:
+        serializedVersion: 2
+        x: 118
+        y: 131
+        width: 70
+        height: 96
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9d82f8333fa2d930800000000000000
+      internalID: 4166585239804743071
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: nongphu1_15
+      rect:
+        serializedVersion: 2
+        x: 207
+        y: 129
+        width: 72
+        height: 83
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e8161428e6b18d630800000000000000
+      internalID: 3951938834463285646
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: nongphu1_16
+      rect:
+        serializedVersion: 2
+        x: 297
+        y: 127
+        width: 81
+        height: 55
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5de63865e52237cc0800000000000000
+      internalID: -3714587479076802859
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: nongphu1_17
+      rect:
+        serializedVersion: 2
+        x: 400
+        y: 126
+        width: 83
+        height: 44
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 07226f8b71c9927c0800000000000000
+      internalID: -4095570760415436176
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 243cd82a51f7b22459440c2c27ec7989
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      nongphu1_0: 5805538365814914069
+      nongphu1_1: 6582118247542121913
+      nongphu1_10: -517713559598524787
+      nongphu1_11: -6335406653549460786
+      nongphu1_12: -6922076384878238421
+      nongphu1_13: -1581256620074748732
+      nongphu1_14: 4166585239804743071
+      nongphu1_15: 3951938834463285646
+      nongphu1_16: -3714587479076802859
+      nongphu1_17: -4095570760415436176
+      nongphu1_2: 7778131630791229656
+      nongphu1_3: -6044185375833419213
+      nongphu1_4: -7084971319295497374
+      nongphu1_5: 2100900343220606683
+      nongphu1_6: -6439897148111402693
+      nongphu1_7: -3069474275120338146
+      nongphu1_8: 178992414181913135
+      nongphu1_9: 5369362350691570180
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

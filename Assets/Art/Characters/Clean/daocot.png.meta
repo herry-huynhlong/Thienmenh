@@ -1,115 +1,67 @@
 fileFormatVersion: 2
-guid: 990fbcf05a4413f49b7e76df2323293b
+guid: f7dba8af4eee54f4a98be9dbda5ca529
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1222842986456797220
-    second: nong_phu_nam_0
+      213: 6569796496018012153
+    second: daocot_0
   - first:
-      213: 7042993281113537264
-    second: nong_phu_nam_1
+      213: 3052672755141687358
+    second: daocot_1
   - first:
-      213: 8220688192859411659
-    second: nong_phu_nam_2
+      213: 8701272176842838768
+    second: daocot_2
   - first:
-      213: -7197586077267139577
-    second: nong_phu_nam_3
+      213: -1990003143579163369
+    second: daocot_3
   - first:
-      213: 6953352676540431142
-    second: nong_phu_nam_4
+      213: 7113048990329674246
+    second: daocot_4
   - first:
-      213: -8201756594737137730
-    second: nong_phu_nam_5
+      213: -4660320559799908401
+    second: daocot_5
   - first:
-      213: 2155192249570710643
-    second: nong_phu_nam_6
+      213: -4493536849818233946
+    second: daocot_6
   - first:
-      213: -4152171998389137778
-    second: nong_phu_nam_7
+      213: 4634736440158137699
+    second: daocot_7
   - first:
-      213: -7657421764935680110
-    second: nong_phu_nam_8
+      213: 1176413429188492334
+    second: daocot_8
   - first:
-      213: 4191084405782691521
-    second: nong_phu_nam_9
+      213: 373586883088367888
+    second: daocot_9
   - first:
-      213: 6370673184556945487
-    second: nong_phu_nam_10
+      213: -5352494813961774960
+    second: daocot_10
   - first:
-      213: -2583382995659569986
-    second: nong_phu_nam_11
+      213: -5248024227940450198
+    second: daocot_11
   - first:
-      213: 4900980009242631399
-    second: nong_phu_nam_12
+      213: 348770936302330622
+    second: daocot_12
   - first:
-      213: -779200332056069037
-    second: nong_phu_nam_13
+      213: 1420718749327971968
+    second: daocot_13
   - first:
-      213: 6522578408466696082
-    second: nong_phu_nam_14
+      213: -2267514599879008377
+    second: daocot_14
   - first:
-      213: -504814959855339059
-    second: nong_phu_nam_15
+      213: -7025517497726287130
+    second: daocot_15
   - first:
-      213: 5846616164480987468
-    second: nong_phu_nam_16
+      213: -1853223707684182248
+    second: daocot_16
   - first:
-      213: 6666035858631250859
-    second: nong_phu_nam_17
+      213: -9023174712902832747
+    second: daocot_17
   - first:
-      213: 1650555964629149160
-    second: nong_phu_nam_18
+      213: -4499055743048145097
+    second: daocot_18
   - first:
-      213: -6920178108367369211
-    second: nong_phu_nam_19
-  - first:
-      213: 8831690490384418613
-    second: nong_phu_nam_20
-  - first:
-      213: 2302407886168337616
-    second: nong_phu_nam_21
-  - first:
-      213: 213722808641733604
-    second: nong_phu_nam_22
-  - first:
-      213: -5148935461843839723
-    second: nong_phu_nam_23
-  - first:
-      213: 7098005840897550450
-    second: nong_phu_nam_24
-  - first:
-      213: 7624508417006951008
-    second: nong_phu_nam_25
-  - first:
-      213: -4954495724273888721
-    second: nong_phu_nam_26
-  - first:
-      213: 3136546343221429778
-    second: nong_phu_nam_27
-  - first:
-      213: 2108191872555169404
-    second: nong_phu_nam_28
-  - first:
-      213: 3153954419341031177
-    second: nong_phu_nam_29
-  - first:
-      213: -3259278819135586411
-    second: nong_phu_nam_30
-  - first:
-      213: 1324618588051933467
-    second: nong_phu_nam_31
-  - first:
-      213: -5272235088434601746
-    second: nong_phu_nam_32
-  - first:
-      213: -5027453628711699864
-    second: nong_phu_nam_33
-  - first:
-      213: -3217024287809323698
-    second: nong_phu_nam_34
-  - first:
-      213: 3696394281756125687
-    second: nong_phu_nam_35
+      213: -9043759361742504830
+    second: daocot_19
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -156,7 +108,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 32
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -205,12 +157,12 @@ TextureImporter:
     buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: 4
+    textureFormat: -1
     textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
-    overridden: 1
+    overridden: 0
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
@@ -231,353 +183,441 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: nong_phu_nam_1
+      name: daocot_0
       rect:
         serializedVersion: 2
-        x: 109
-        y: 381
-        width: 52
-        height: 110
+        x: 28
+        y: 377
+        width: 62
+        height: 103
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0fa3c34e21dbdb160800000000000000
-      internalID: 7042993281113537264
+      spriteID: 9f772c7da1b9c2b50800000000000000
+      internalID: 6569796496018012153
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_2
+      name: daocot_1
       rect:
         serializedVersion: 2
-        x: 207
-        y: 383
-        width: 51
-        height: 108
+        x: 125
+        y: 377
+        width: 57
+        height: 100
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: bc412a83b50c51270800000000000000
-      internalID: 8220688192859411659
+      spriteID: e38bbb172b54d5a20800000000000000
+      internalID: 3052672755141687358
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_3
+      name: daocot_2
       rect:
         serializedVersion: 2
-        x: 306
-        y: 380
+        x: 218
+        y: 375
         width: 53
-        height: 111
+        height: 99
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 704e130e8990d1c90800000000000000
-      internalID: -7197586077267139577
+      spriteID: 0f215ba81f021c870800000000000000
+      internalID: 8701272176842838768
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_4
+      name: daocot_3
       rect:
         serializedVersion: 2
-        x: 407
-        y: 381
-        width: 52
-        height: 110
+        x: 310
+        y: 375
+        width: 81
+        height: 97
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 62b343b3b654f7060800000000000000
-      internalID: 6953352676540431142
+      spriteID: 715ad053fa61264e0800000000000000
+      internalID: -1990003143579163369
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_10
+      name: daocot_4
       rect:
         serializedVersion: 2
-        x: 110
-        y: 256
-        width: 50
-        height: 107
+        x: 415
+        y: 374
+        width: 57
+        height: 100
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f409f91128d296850800000000000000
-      internalID: 6370673184556945487
+      spriteID: 60a1d82ce50a6b260800000000000000
+      internalID: 7113048990329674246
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_11
+      name: daocot_5
       rect:
         serializedVersion: 2
-        x: 207
-        y: 255
-        width: 48
-        height: 108
+        x: 27
+        y: 249
+        width: 55
+        height: 98
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: eb44de05adaf52cd0800000000000000
-      internalID: -2583382995659569986
+      spriteID: fc74dad6427335fb0800000000000000
+      internalID: -4660320559799908401
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_12
+      name: daocot_6
       rect:
         serializedVersion: 2
-        x: 308
-        y: 254
-        width: 48
-        height: 109
+        x: 118
+        y: 250
+        width: 65
+        height: 97
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 7ec92361a57c30440800000000000000
-      internalID: 4900980009242631399
+      spriteID: 6a3d479fa00c3a1c0800000000000000
+      internalID: -4493536849818233946
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_13
+      name: daocot_7
       rect:
         serializedVersion: 2
-        x: 408
-        y: 254
-        width: 49
-        height: 109
+        x: 217
+        y: 250
+        width: 84
+        height: 97
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 35c7ee62d69bf25f0800000000000000
-      internalID: -779200332056069037
+      spriteID: 36d2f278c34e15040800000000000000
+      internalID: 4634736440158137699
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_18
-      rect:
-        serializedVersion: 2
-        x: 108
-        y: 140
-        width: 46
-        height: 101
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 8e56f91a7e3f7e610800000000000000
-      internalID: 1650555964629149160
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: nong_phu_nam_19
-      rect:
-        serializedVersion: 2
-        x: 206
-        y: 140
-        width: 45
-        height: 101
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 50c0454dca696ff90800000000000000
-      internalID: -6920178108367369211
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: nong_phu_nam_20
+      name: daocot_8
       rect:
         serializedVersion: 2
         x: 306
+        y: 250
+        width: 74
+        height: 113
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e2c77cbe7c5735010800000000000000
+      internalID: 1176413429188492334
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: daocot_9
+      rect:
+        serializedVersion: 2
+        x: 410
+        y: 250
+        width: 84
+        height: 97
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0114a337a4f3f2500800000000000000
+      internalID: 373586883088367888
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: daocot_10
+      rect:
+        serializedVersion: 2
+        x: 28
+        y: 138
+        width: 49
+        height: 94
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 09810bf435e18b5b0800000000000000
+      internalID: -5352494813961774960
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: daocot_11
+      rect:
+        serializedVersion: 2
+        x: 116
+        y: 138
+        width: 54
+        height: 93
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a6047f815c54b27b0800000000000000
+      internalID: -5248024227940450198
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: daocot_12
+      rect:
+        serializedVersion: 2
+        x: 187
+        y: 138
+        width: 81
+        height: 92
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ef2e746915517d400800000000000000
+      internalID: 348770936302330622
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: daocot_13
+      rect:
+        serializedVersion: 2
+        x: 310
         y: 140
-        width: 46
-        height: 101
+        width: 91
+        height: 83
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5370f8d65b7709a70800000000000000
-      internalID: 8831690490384418613
+      spriteID: 0865e6bdc2867b310800000000000000
+      internalID: 1420718749327971968
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_21
+      name: daocot_14
       rect:
         serializedVersion: 2
-        x: 407
-        y: 140
-        width: 46
-        height: 101
+        x: 412
+        y: 138
+        width: 76
+        height: 89
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0dc2f1716cbc3ff10800000000000000
-      internalID: 2302407886168337616
+      spriteID: 78f13373c7b2880e0800000000000000
+      internalID: -2267514599879008377
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_27
+      name: daocot_15
       rect:
         serializedVersion: 2
-        x: 109
-        y: 23
-        width: 45
-        height: 102
+        x: 23
+        y: 27
+        width: 47
+        height: 97
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2168341f740478b20800000000000000
-      internalID: 3136546343221429778
+      spriteID: 6e2cbb00f09508e90800000000000000
+      internalID: -7025517497726287130
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_28
+      name: daocot_16
       rect:
         serializedVersion: 2
-        x: 210
-        y: 23
-        width: 45
-        height: 101
+        x: 118
+        y: 28
+        width: 53
+        height: 93
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c763402a65dc14d10800000000000000
-      internalID: 2108191872555169404
+      spriteID: 817e62e4bd60846e0800000000000000
+      internalID: -1853223707684182248
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_29
+      name: daocot_17
       rect:
         serializedVersion: 2
-        x: 311
-        y: 23
-        width: 45
-        height: 102
+        x: 213
+        y: 28
+        width: 66
+        height: 93
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 907789285d815cb20800000000000000
-      internalID: 3153954419341031177
+      spriteID: 59da32bc76e37c280800000000000000
+      internalID: -9023174712902832747
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_30
+      name: daocot_18
       rect:
         serializedVersion: 2
-        x: 411
-        y: 23
-        width: 45
-        height: 102
+        x: 281
+        y: 30
+        width: 95
+        height: 84
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 59ff771be27b4c2d0800000000000000
-      internalID: -3259278819135586411
+      spriteID: 7372fe283a42091c0800000000000000
+      internalID: -4499055743048145097
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: daocot_19
+      rect:
+        serializedVersion: 2
+        x: 413
+        y: 28
+        width: 81
+        height: 90
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 28c7931c6cc1e7280800000000000000
+      internalID: -9043759361742504830
       vertices: []
       indices: 
       edges: []
@@ -586,7 +626,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: ad0338b4b3601c34a87be03b23ee36a5
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -596,42 +636,26 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      nong_phu_nam_0: 1222842986456797220
-      nong_phu_nam_1: 7042993281113537264
-      nong_phu_nam_10: 6370673184556945487
-      nong_phu_nam_11: -2583382995659569986
-      nong_phu_nam_12: 4900980009242631399
-      nong_phu_nam_13: -779200332056069037
-      nong_phu_nam_14: 6522578408466696082
-      nong_phu_nam_15: -504814959855339059
-      nong_phu_nam_16: 5846616164480987468
-      nong_phu_nam_17: 6666035858631250859
-      nong_phu_nam_18: 1650555964629149160
-      nong_phu_nam_19: -6920178108367369211
-      nong_phu_nam_2: 8220688192859411659
-      nong_phu_nam_20: 8831690490384418613
-      nong_phu_nam_21: 2302407886168337616
-      nong_phu_nam_22: 213722808641733604
-      nong_phu_nam_23: -5148935461843839723
-      nong_phu_nam_24: 7098005840897550450
-      nong_phu_nam_25: 7624508417006951008
-      nong_phu_nam_26: -4954495724273888721
-      nong_phu_nam_27: 3136546343221429778
-      nong_phu_nam_28: 2108191872555169404
-      nong_phu_nam_29: 3153954419341031177
-      nong_phu_nam_3: -7197586077267139577
-      nong_phu_nam_30: -3259278819135586411
-      nong_phu_nam_31: 1324618588051933467
-      nong_phu_nam_32: -5272235088434601746
-      nong_phu_nam_33: -5027453628711699864
-      nong_phu_nam_34: -3217024287809323698
-      nong_phu_nam_35: 3696394281756125687
-      nong_phu_nam_4: 6953352676540431142
-      nong_phu_nam_5: -8201756594737137730
-      nong_phu_nam_6: 2155192249570710643
-      nong_phu_nam_7: -4152171998389137778
-      nong_phu_nam_8: -7657421764935680110
-      nong_phu_nam_9: 4191084405782691521
+      daocot_0: 6569796496018012153
+      daocot_1: 3052672755141687358
+      daocot_10: -5352494813961774960
+      daocot_11: -5248024227940450198
+      daocot_12: 348770936302330622
+      daocot_13: 1420718749327971968
+      daocot_14: -2267514599879008377
+      daocot_15: -7025517497726287130
+      daocot_16: -1853223707684182248
+      daocot_17: -9023174712902832747
+      daocot_18: -4499055743048145097
+      daocot_19: -9043759361742504830
+      daocot_2: 8701272176842838768
+      daocot_3: -1990003143579163369
+      daocot_4: 7113048990329674246
+      daocot_5: -4660320559799908401
+      daocot_6: -4493536849818233946
+      daocot_7: 4634736440158137699
+      daocot_8: 1176413429188492334
+      daocot_9: 373586883088367888
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

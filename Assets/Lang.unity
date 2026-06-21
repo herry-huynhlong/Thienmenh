@@ -29773,7 +29773,6 @@ MonoBehaviour:
   hunger: 0
   fatigue: 0
   fun: 0
-  strongNpcAvoidMortalWork: 1
   cultivatorResourceWorkChance: 0.65
   homePoint: {fileID: 0}
   hideAtHome: 1
@@ -29893,6 +29892,7 @@ MonoBehaviour:
   lastWorkProductStatus: 
   debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
+  strongNpcAvoidMortalWork: 1
 --- !u!114 &337541977
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30740,6 +30740,120 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8348435210360016912, guid: 92958fe186ce34f4a8c491a2608f5ebb, type: 3}
   m_PrefabInstance: {fileID: 1350065748311703387}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &389167853
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 389167856}
+  - component: {fileID: 389167855}
+  - component: {fileID: 389167854}
+  m_Layer: 0
+  m_Name: nong_phu_nam_1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!95 &389167854
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 389167853}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: f488e52f134bd574f9e12aa22eaf53d1, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!212 &389167855
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 389167853}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 1
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 7042993281113537264, guid: 990fbcf05a4413f49b7e76df2323293b, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1.625, y: 3.4375}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
+--- !u!4 &389167856
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 389167853}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 73.32386, y: -51.520164, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &392782402
 GameObject:
   m_ObjectHideFlags: 0
@@ -34629,7 +34743,6 @@ MonoBehaviour:
   hunger: 0
   fatigue: 0
   fun: 0
-  strongNpcAvoidMortalWork: 1
   cultivatorResourceWorkChance: 0.65
   homePoint: {fileID: 0}
   hideAtHome: 1
@@ -34749,6 +34862,7 @@ MonoBehaviour:
   lastWorkProductStatus: 
   debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
+  strongNpcAvoidMortalWork: 1
 --- !u!114 &610803234
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42877,7 +42991,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4784376538236298774, guid: e93c886c75775ac40b19070a1f0016fa, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6084189388553048862, guid: e93c886c75775ac40b19070a1f0016fa, type: 3}
       propertyPath: m_LocalScale.x
@@ -45116,7 +45230,6 @@ MonoBehaviour:
   hunger: 0
   fatigue: 0
   fun: 0
-  strongNpcAvoidMortalWork: 1
   cultivatorResourceWorkChance: 0.65
   homePoint: {fileID: 1642251566}
   hideAtHome: 1
@@ -45236,6 +45349,7 @@ MonoBehaviour:
   lastWorkProductStatus: 
   debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
+  strongNpcAvoidMortalWork: 1
 --- !u!114 &954560967
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -52918,7 +53032,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
       propertyPath: m_LocalPosition.x
@@ -120411,7 +120525,6 @@ MonoBehaviour:
   hunger: 0
   fatigue: 0
   fun: 0
-  strongNpcAvoidMortalWork: 1
   cultivatorResourceWorkChance: 0.65
   homePoint: {fileID: 1927523158}
   hideAtHome: 1
@@ -120531,6 +120644,7 @@ MonoBehaviour:
   lastWorkProductStatus: 
   debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
+  strongNpcAvoidMortalWork: 1
 --- !u!114 &1275826754
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -122900,7 +123014,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5511893061176817771, guid: 52234395ac81e954b8415221c10525ea, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8002957989317268842, guid: 52234395ac81e954b8415221c10525ea, type: 3}
       propertyPath: m_LocalScale.x
@@ -124576,7 +124690,6 @@ MonoBehaviour:
   hunger: 0
   fatigue: 0
   fun: 0
-  strongNpcAvoidMortalWork: 1
   cultivatorResourceWorkChance: 0.65
   homePoint: {fileID: 0}
   hideAtHome: 1
@@ -124696,6 +124809,7 @@ MonoBehaviour:
   lastWorkProductStatus: 
   debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
+  strongNpcAvoidMortalWork: 1
 --- !u!114 &1398839548
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -124968,7 +125082,6 @@ MonoBehaviour:
   hunger: 0
   fatigue: 0
   fun: 0
-  strongNpcAvoidMortalWork: 1
   cultivatorResourceWorkChance: 0.65
   homePoint: {fileID: 1642251566}
   hideAtHome: 1
@@ -125088,6 +125201,7 @@ MonoBehaviour:
   lastWorkProductStatus: 
   debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
+  strongNpcAvoidMortalWork: 1
 --- !u!114 &1408745015
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -125827,6 +125941,120 @@ MonoBehaviour:
   boltWidth: 0.1
   boltCoreColor: {r: 1, g: 1, b: 1, a: 1}
   boltOuterColor: {r: 0.25, g: 0.85, b: 1, a: 1}
+--- !u!1 &1432686601
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1432686604}
+  - component: {fileID: 1432686603}
+  - component: {fileID: 1432686602}
+  m_Layer: 0
+  m_Name: baby_0
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!95 &1432686602
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1432686601}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: ac853b5aaf54bc846994893ebd195682, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!212 &1432686603
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1432686601}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 1
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 5328332788402992666, guid: eb52e3c27da85b74792594da54638431, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 0.63, y: 0.89}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
+--- !u!4 &1432686604
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1432686601}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 74.367096, y: -49.666454, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1434819892
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -126441,7 +126669,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6246953884098109330, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
       propertyPath: mapBounds
@@ -168250,7 +168478,6 @@ MonoBehaviour:
   hunger: 0
   fatigue: 0
   fun: 0
-  strongNpcAvoidMortalWork: 1
   cultivatorResourceWorkChance: 0.65
   homePoint: {fileID: 0}
   hideAtHome: 1
@@ -168370,6 +168597,7 @@ MonoBehaviour:
   lastWorkProductStatus: 
   debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
+  strongNpcAvoidMortalWork: 1
 --- !u!114 &2092184321
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -168877,7 +169105,6 @@ MonoBehaviour:
   hunger: 0
   fatigue: 0
   fun: 0
-  strongNpcAvoidMortalWork: 1
   cultivatorResourceWorkChance: 0.65
   homePoint: {fileID: 1927523158}
   hideAtHome: 1
@@ -168997,6 +169224,7 @@ MonoBehaviour:
   lastWorkProductStatus: 
   debugWorkTarget: 
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
+  strongNpcAvoidMortalWork: 1
 --- !u!114 &2104565427
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -170894,3 +171122,5 @@ SceneRoots:
   - {fileID: 1398839546}
   - {fileID: 337541975}
   - {fileID: 1048320681}
+  - {fileID: 389167856}
+  - {fileID: 1432686604}

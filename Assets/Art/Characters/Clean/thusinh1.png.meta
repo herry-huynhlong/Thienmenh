@@ -1,115 +1,67 @@
 fileFormatVersion: 2
-guid: 990fbcf05a4413f49b7e76df2323293b
+guid: 2a0ec644575ee844ea47b45d82ef58d1
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1222842986456797220
-    second: nong_phu_nam_0
+      213: 1598417489894779018
+    second: thusinh1_0
   - first:
-      213: 7042993281113537264
-    second: nong_phu_nam_1
+      213: -1094041409126425642
+    second: thusinh1_1
   - first:
-      213: 8220688192859411659
-    second: nong_phu_nam_2
+      213: 8545369076759546759
+    second: thusinh1_2
   - first:
-      213: -7197586077267139577
-    second: nong_phu_nam_3
+      213: -4497249429260171936
+    second: thusinh1_3
   - first:
-      213: 6953352676540431142
-    second: nong_phu_nam_4
+      213: 68035165365677135
+    second: thusinh1_4
   - first:
-      213: -8201756594737137730
-    second: nong_phu_nam_5
+      213: 8260422892028227662
+    second: thusinh1_5
   - first:
-      213: 2155192249570710643
-    second: nong_phu_nam_6
+      213: -74845681619562393
+    second: thusinh1_6
   - first:
-      213: -4152171998389137778
-    second: nong_phu_nam_7
+      213: -6677667689514894579
+    second: thusinh1_7
   - first:
-      213: -7657421764935680110
-    second: nong_phu_nam_8
+      213: 3420354589640660432
+    second: thusinh1_8
   - first:
-      213: 4191084405782691521
-    second: nong_phu_nam_9
+      213: 4401280106482641453
+    second: thusinh1_9
   - first:
-      213: 6370673184556945487
-    second: nong_phu_nam_10
+      213: -6219667272407304592
+    second: thusinh1_10
   - first:
-      213: -2583382995659569986
-    second: nong_phu_nam_11
+      213: 5432990614209097273
+    second: thusinh1_11
   - first:
-      213: 4900980009242631399
-    second: nong_phu_nam_12
+      213: 758454601687396725
+    second: thusinh1_12
   - first:
-      213: -779200332056069037
-    second: nong_phu_nam_13
+      213: -6817587413135931042
+    second: thusinh1_13
   - first:
-      213: 6522578408466696082
-    second: nong_phu_nam_14
+      213: 1091285042911792248
+    second: thusinh1_14
   - first:
-      213: -504814959855339059
-    second: nong_phu_nam_15
+      213: -4366368988337566132
+    second: thusinh1_15
   - first:
-      213: 5846616164480987468
-    second: nong_phu_nam_16
+      213: 246671335211539948
+    second: thusinh1_16
   - first:
-      213: 6666035858631250859
-    second: nong_phu_nam_17
+      213: 7442130562018310817
+    second: thusinh1_17
   - first:
-      213: 1650555964629149160
-    second: nong_phu_nam_18
+      213: -3766932721757713138
+    second: thusinh1_18
   - first:
-      213: -6920178108367369211
-    second: nong_phu_nam_19
-  - first:
-      213: 8831690490384418613
-    second: nong_phu_nam_20
-  - first:
-      213: 2302407886168337616
-    second: nong_phu_nam_21
-  - first:
-      213: 213722808641733604
-    second: nong_phu_nam_22
-  - first:
-      213: -5148935461843839723
-    second: nong_phu_nam_23
-  - first:
-      213: 7098005840897550450
-    second: nong_phu_nam_24
-  - first:
-      213: 7624508417006951008
-    second: nong_phu_nam_25
-  - first:
-      213: -4954495724273888721
-    second: nong_phu_nam_26
-  - first:
-      213: 3136546343221429778
-    second: nong_phu_nam_27
-  - first:
-      213: 2108191872555169404
-    second: nong_phu_nam_28
-  - first:
-      213: 3153954419341031177
-    second: nong_phu_nam_29
-  - first:
-      213: -3259278819135586411
-    second: nong_phu_nam_30
-  - first:
-      213: 1324618588051933467
-    second: nong_phu_nam_31
-  - first:
-      213: -5272235088434601746
-    second: nong_phu_nam_32
-  - first:
-      213: -5027453628711699864
-    second: nong_phu_nam_33
-  - first:
-      213: -3217024287809323698
-    second: nong_phu_nam_34
-  - first:
-      213: 3696394281756125687
-    second: nong_phu_nam_35
+      213: 4253734598626427474
+    second: thusinh1_19
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -205,12 +157,12 @@ TextureImporter:
     buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: 4
+    textureFormat: -1
     textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
-    overridden: 1
+    overridden: 0
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
@@ -231,353 +183,441 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: nong_phu_nam_1
+      name: thusinh1_0
       rect:
         serializedVersion: 2
-        x: 109
-        y: 381
-        width: 52
-        height: 110
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 0fa3c34e21dbdb160800000000000000
-      internalID: 7042993281113537264
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: nong_phu_nam_2
-      rect:
-        serializedVersion: 2
-        x: 207
-        y: 383
-        width: 51
-        height: 108
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: bc412a83b50c51270800000000000000
-      internalID: 8220688192859411659
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: nong_phu_nam_3
-      rect:
-        serializedVersion: 2
-        x: 306
-        y: 380
+        x: 32
+        y: 378
         width: 53
-        height: 111
+        height: 94
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 704e130e8990d1c90800000000000000
-      internalID: -7197586077267139577
+      spriteID: a8823fffc38be2610800000000000000
+      internalID: 1598417489894779018
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_4
+      name: thusinh1_1
       rect:
         serializedVersion: 2
-        x: 407
-        y: 381
-        width: 52
-        height: 110
+        x: 118
+        y: 380
+        width: 65
+        height: 90
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 62b343b3b654f7060800000000000000
-      internalID: 6953352676540431142
+      spriteID: 6db9377822f21d0f0800000000000000
+      internalID: -1094041409126425642
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_10
+      name: thusinh1_2
       rect:
         serializedVersion: 2
-        x: 110
-        y: 256
-        width: 50
-        height: 107
+        x: 211
+        y: 380
+        width: 69
+        height: 92
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f409f91128d296850800000000000000
-      internalID: 6370673184556945487
+      spriteID: 78b4cd666ef379670800000000000000
+      internalID: 8545369076759546759
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_11
+      name: thusinh1_3
       rect:
         serializedVersion: 2
-        x: 207
-        y: 255
-        width: 48
-        height: 108
+        x: 295
+        y: 380
+        width: 93
+        height: 86
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: eb44de05adaf52cd0800000000000000
-      internalID: -2583382995659569986
+      spriteID: 0658e96b87f8691c0800000000000000
+      internalID: -4497249429260171936
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_12
+      name: thusinh1_4
       rect:
         serializedVersion: 2
-        x: 308
-        y: 254
-        width: 48
-        height: 109
+        x: 413
+        y: 378
+        width: 63
+        height: 90
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 7ec92361a57c30440800000000000000
-      internalID: 4900980009242631399
+      spriteID: f4c2bd75f95b1f000800000000000000
+      internalID: 68035165365677135
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_13
+      name: thusinh1_5
       rect:
         serializedVersion: 2
-        x: 408
-        y: 254
-        width: 49
-        height: 109
+        x: 25
+        y: 260
+        width: 57
+        height: 92
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 35c7ee62d69bf25f0800000000000000
-      internalID: -779200332056069037
+      spriteID: e40f8ddcadae2a270800000000000000
+      internalID: 8260422892028227662
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_18
-      rect:
-        serializedVersion: 2
-        x: 108
-        y: 140
-        width: 46
-        height: 101
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 8e56f91a7e3f7e610800000000000000
-      internalID: 1650555964629149160
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: nong_phu_nam_19
-      rect:
-        serializedVersion: 2
-        x: 206
-        y: 140
-        width: 45
-        height: 101
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 50c0454dca696ff90800000000000000
-      internalID: -6920178108367369211
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: nong_phu_nam_20
-      rect:
-        serializedVersion: 2
-        x: 306
-        y: 140
-        width: 46
-        height: 101
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 5370f8d65b7709a70800000000000000
-      internalID: 8831690490384418613
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: nong_phu_nam_21
-      rect:
-        serializedVersion: 2
-        x: 407
-        y: 140
-        width: 46
-        height: 101
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 0dc2f1716cbc3ff10800000000000000
-      internalID: 2302407886168337616
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: nong_phu_nam_27
+      name: thusinh1_6
       rect:
         serializedVersion: 2
         x: 109
-        y: 23
-        width: 45
-        height: 102
+        y: 263
+        width: 68
+        height: 89
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2168341f740478b20800000000000000
-      internalID: 3136546343221429778
+      spriteID: 7601816cf3816fef0800000000000000
+      internalID: -74845681619562393
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_28
+      name: thusinh1_7
       rect:
         serializedVersion: 2
-        x: 210
-        y: 23
-        width: 45
-        height: 101
+        x: 215
+        y: 260
+        width: 61
+        height: 94
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c763402a65dc14d10800000000000000
-      internalID: 2108191872555169404
+      spriteID: d0b7c5ebd982453a0800000000000000
+      internalID: -6677667689514894579
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_29
+      name: thusinh1_8
       rect:
         serializedVersion: 2
-        x: 311
-        y: 23
-        width: 45
-        height: 102
+        x: 295
+        y: 263
+        width: 108
+        height: 89
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 907789285d815cb20800000000000000
-      internalID: 3153954419341031177
+      spriteID: 0d59861a06a877f20800000000000000
+      internalID: 3420354589640660432
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: nong_phu_nam_30
+      name: thusinh1_9
+      rect:
+        serializedVersion: 2
+        x: 415
+        y: 260
+        width: 65
+        height: 92
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d2a24e710fc741d30800000000000000
+      internalID: 4401280106482641453
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thusinh1_10
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 151
+        width: 53
+        height: 91
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0763a07a19d4fa9a0800000000000000
+      internalID: -6219667272407304592
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thusinh1_11
+      rect:
+        serializedVersion: 2
+        x: 112
+        y: 151
+        width: 72
+        height: 86
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 93ee6fbad2cd56b40800000000000000
+      internalID: 5432990614209097273
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thusinh1_12
+      rect:
+        serializedVersion: 2
+        x: 200
+        y: 151
+        width: 61
+        height: 89
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 57176d71172968a00800000000000000
+      internalID: 758454601687396725
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thusinh1_13
+      rect:
+        serializedVersion: 2
+        x: 278
+        y: 151
+        width: 117
+        height: 86
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e59cbde6e501361a0800000000000000
+      internalID: -6817587413135931042
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thusinh1_14
       rect:
         serializedVersion: 2
         x: 411
-        y: 23
-        width: 45
-        height: 102
+        y: 151
+        width: 54
+        height: 86
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 59ff771be27b4c2d0800000000000000
-      internalID: -3259278819135586411
+      spriteID: 87c4473f6f5052f00800000000000000
+      internalID: 1091285042911792248
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thusinh1_15
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 45
+        width: 53
+        height: 91
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4e8bd30a8a8763c0800000000000000
+      internalID: -4366368988337566132
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thusinh1_16
+      rect:
+        serializedVersion: 2
+        x: 107
+        y: 45
+        width: 70
+        height: 88
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ced1e8fb54a5c6300800000000000000
+      internalID: 246671335211539948
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thusinh1_17
+      rect:
+        serializedVersion: 2
+        x: 207
+        y: 45
+        width: 64
+        height: 89
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1aafd29e052c74760800000000000000
+      internalID: 7442130562018310817
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thusinh1_18
+      rect:
+        serializedVersion: 2
+        x: 275
+        y: 47
+        width: 108
+        height: 85
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e0d06dac5aa29bbc0800000000000000
+      internalID: -3766932721757713138
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thusinh1_19
+      rect:
+        serializedVersion: 2
+        x: 417
+        y: 45
+        width: 55
+        height: 87
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 252cae7841d480b30800000000000000
+      internalID: 4253734598626427474
       vertices: []
       indices: 
       edges: []
@@ -586,7 +626,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: ad0338b4b3601c34a87be03b23ee36a5
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -596,42 +636,26 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      nong_phu_nam_0: 1222842986456797220
-      nong_phu_nam_1: 7042993281113537264
-      nong_phu_nam_10: 6370673184556945487
-      nong_phu_nam_11: -2583382995659569986
-      nong_phu_nam_12: 4900980009242631399
-      nong_phu_nam_13: -779200332056069037
-      nong_phu_nam_14: 6522578408466696082
-      nong_phu_nam_15: -504814959855339059
-      nong_phu_nam_16: 5846616164480987468
-      nong_phu_nam_17: 6666035858631250859
-      nong_phu_nam_18: 1650555964629149160
-      nong_phu_nam_19: -6920178108367369211
-      nong_phu_nam_2: 8220688192859411659
-      nong_phu_nam_20: 8831690490384418613
-      nong_phu_nam_21: 2302407886168337616
-      nong_phu_nam_22: 213722808641733604
-      nong_phu_nam_23: -5148935461843839723
-      nong_phu_nam_24: 7098005840897550450
-      nong_phu_nam_25: 7624508417006951008
-      nong_phu_nam_26: -4954495724273888721
-      nong_phu_nam_27: 3136546343221429778
-      nong_phu_nam_28: 2108191872555169404
-      nong_phu_nam_29: 3153954419341031177
-      nong_phu_nam_3: -7197586077267139577
-      nong_phu_nam_30: -3259278819135586411
-      nong_phu_nam_31: 1324618588051933467
-      nong_phu_nam_32: -5272235088434601746
-      nong_phu_nam_33: -5027453628711699864
-      nong_phu_nam_34: -3217024287809323698
-      nong_phu_nam_35: 3696394281756125687
-      nong_phu_nam_4: 6953352676540431142
-      nong_phu_nam_5: -8201756594737137730
-      nong_phu_nam_6: 2155192249570710643
-      nong_phu_nam_7: -4152171998389137778
-      nong_phu_nam_8: -7657421764935680110
-      nong_phu_nam_9: 4191084405782691521
+      thusinh1_0: 1598417489894779018
+      thusinh1_1: -1094041409126425642
+      thusinh1_10: -6219667272407304592
+      thusinh1_11: 5432990614209097273
+      thusinh1_12: 758454601687396725
+      thusinh1_13: -6817587413135931042
+      thusinh1_14: 1091285042911792248
+      thusinh1_15: -4366368988337566132
+      thusinh1_16: 246671335211539948
+      thusinh1_17: 7442130562018310817
+      thusinh1_18: -3766932721757713138
+      thusinh1_19: 4253734598626427474
+      thusinh1_2: 8545369076759546759
+      thusinh1_3: -4497249429260171936
+      thusinh1_4: 68035165365677135
+      thusinh1_5: 8260422892028227662
+      thusinh1_6: -74845681619562393
+      thusinh1_7: -6677667689514894579
+      thusinh1_8: 3420354589640660432
+      thusinh1_9: 4401280106482641453
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
