@@ -225,6 +225,10 @@ public class NPCVisualAnimation : MonoBehaviour
 
         if (MatchesAction(currentAction, "attackMonsterNamed", true) ||
             MatchesAction(currentAction, "attackMonster", true) ||
+            MatchesAction(currentAction, "fightBlockingMonster") ||
+            MatchesAction(currentAction, "guardSpiritHerbMonster") ||
+            MatchesAction(currentAction, "clearHarvestMonster") ||
+            MatchesAction(currentAction, "outerSkirmishNamed", true) ||
             MatchesAction(currentAction, "fight") ||
             MatchesAction(currentAction, "rob") ||
             MatchesAction(currentAction, "revenge"))
@@ -302,13 +306,21 @@ public class NPCVisualAnimation : MonoBehaviour
         switch (actionCategory)
         {
             case ActionCategory.Attack:
-                return GetDirectionalClip(
+            {
+                AnimationClip attackClip = GetDirectionalClip(
                     attackUpClip,
                     attackDownClip,
                     attackSideClip,
                     rightAttackClip,
                     leftAttackClip,
                     direction);
+                return attackClip ?? GetAnyCombatClip(
+                    attackUpClip,
+                    attackDownClip,
+                    attackSideClip,
+                    rightAttackClip,
+                    leftAttackClip);
+            }
 
             case ActionCategory.Cultivate:
                 return GetDirectionalClip(
@@ -320,16 +332,38 @@ public class NPCVisualAnimation : MonoBehaviour
                     direction);
 
             case ActionCategory.Die:
-                return GetDirectionalClip(
+            {
+                AnimationClip dieClip = GetDirectionalClip(
                     dieUpClip,
                     dieDownClip,
                     dieSideClip,
                     rightDieClip,
                     leftDieClip,
                     direction);
+                return dieClip ?? GetAnyCombatClip(
+                    dieUpClip,
+                    dieDownClip,
+                    dieSideClip,
+                    rightDieClip,
+                    leftDieClip);
+            }
         }
 
         return null;
+    }
+
+    AnimationClip GetAnyCombatClip(
+        AnimationClip upClip,
+        AnimationClip downClip,
+        AnimationClip sideClip,
+        AnimationClip rightClip,
+        AnimationClip leftClip)
+    {
+        return rightClip ??
+            leftClip ??
+            sideClip ??
+            upClip ??
+            downClip;
     }
 
     AnimationClip GetWalkClip(Vector2 direction)

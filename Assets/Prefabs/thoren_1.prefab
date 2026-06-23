@@ -752,7 +752,6 @@ MonoBehaviour:
   hunger: 0
   fatigue: 0
   fun: 0
-  strongNpcAvoidMortalWork: 1
   cultivatorResourceWorkChance: 0.65
   homePoint: {fileID: 0}
   hideAtHome: 1
@@ -787,6 +786,7 @@ MonoBehaviour:
   crowdYieldDuration: 0.25
   useKinematicNpcMovement: 1
   ignoreNpcBodyCollisions: 1
+  strongNpcAvoidMortalWork: 1
   unstuckCheckDelay: 1.2
   unstuckMinMoveDistance: 0.03
   unstuckOffsetRadius: 0.7
@@ -827,9 +827,6 @@ MonoBehaviour:
   autonomousWorkEnabled: 1
   autonomousResourceWorkEnabled: 0
   autonomousDangerousWorkEnabled: 0
-  dailyVanBaoLauVisitEnabled: 1
-  staggerDailyVanBaoLauVisits: 1
-  dailyVanBaoLauVisitStaggerHours: 2
   dailyTaskPlanEnabled: 1
   dailyTaskPlanStartupDelay: 2
   dailyTaskPlanMinTasks: 3

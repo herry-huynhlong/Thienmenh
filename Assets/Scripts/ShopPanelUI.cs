@@ -831,9 +831,10 @@ public class ShopPanelUI : MonoBehaviour
 
         foreach (Button button in buttons)
         {
+            RectTransform rect = button != null ? button.transform as RectTransform : null;
             if (button == null ||
                 !button.gameObject.activeInHierarchy ||
-                button.transform is not RectTransform rect ||
+                rect == null ||
                 !HasAncestorNamed(button.transform, "menupanel"))
             {
                 continue;

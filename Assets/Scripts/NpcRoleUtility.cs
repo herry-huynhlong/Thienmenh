@@ -509,6 +509,8 @@ public static class NpcRoleUtility
         if (actor != null &&
             actor != target)
         {
+            SetCombatAttackAction(actor, target);
+
             NpcSocialEventBus.PublishHostility(
                 actor,
                 target,
@@ -542,6 +544,39 @@ public static class NpcRoleUtility
         if (stats != null)
         {
             stats.TakeDamage(amount);
+        }
+    }
+
+    public static void SetCombatAttackAction(GameObject actor, GameObject target)
+    {
+        if (actor == null)
+        {
+            return;
+        }
+
+        string targetName = GetDisplayName(target);
+        string attackAction = string.IsNullOrEmpty(targetName)
+            ? NpcText.Action("attackMonsterNamed")
+            : NpcText.ActionFormat("attackMonsterNamed", targetName);
+
+        VillagerAI villager = GetActiveVillagerAI(actor);
+        if (villager != null)
+        {
+            villager.SetActionImmediate(attackAction, 0.45f);
+            return;
+        }
+
+        SmartNpcAI smartNpc = GetActiveSmartNpcAI(actor);
+        if (smartNpc != null)
+        {
+            smartNpc.SetActionImmediate(attackAction, 0.45f);
+            return;
+        }
+
+        MonsterAI monster = actor.GetComponent<MonsterAI>();
+        if (monster != null)
+        {
+            monster.currentAction = attackAction;
         }
     }
 }

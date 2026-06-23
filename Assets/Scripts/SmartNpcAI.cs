@@ -245,6 +245,22 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         EnforceVillagerPrimaryBrain();
     }
 
+    public void SetActionImmediate(string action)
+    {
+        SetActionImmediate(action, 0f);
+    }
+
+    public void SetActionImmediate(string action, float durationSeconds)
+    {
+        if (string.IsNullOrEmpty(action))
+        {
+            return;
+        }
+
+        actionTimer = Mathf.Max(actionTimer, Mathf.Max(0f, durationSeconds));
+        currentAction = action;
+    }
+
     void OnEnable()
     {
         EnforceVillagerPrimaryBrain();
@@ -3986,9 +4002,9 @@ void TryAttackMonster()
         currentMonsterTarget.transform.position,
         NpcText.Dialogue("combatMonsterReason"));
 
-    currentMonsterTarget.TakeDamage(attackDamage);
-
     currentAction = NpcText.ActionFormat("attackMonsterNamed", currentMonsterTarget.monsterName);
+    actionTimer = Mathf.Max(actionTimer, 0.45f);
+    currentMonsterTarget.TakeDamage(attackDamage);
 
     Debug.Log(NpcText.Format(NpcText.Get("logs", "attackMonster"), npcName, currentMonsterTarget.monsterName, attackDamage));
 }

@@ -113,6 +113,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
     public float crowdYieldDuration = 0.25f;
     public bool useKinematicNpcMovement = true;
     public bool ignoreNpcBodyCollisions = true;
+    public bool strongNpcAvoidMortalWork = true;
     public float unstuckCheckDelay = 1.2f;
     public float unstuckMinMoveDistance = 0.03f;
     public float unstuckOffsetRadius = 0.7f;
@@ -328,12 +329,17 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
     public void SetActionImmediate(string action)
     {
+        SetActionImmediate(action, 0f);
+    }
+
+    public void SetActionImmediate(string action, float durationSeconds)
+    {
         if (string.IsNullOrEmpty(action))
         {
             return;
         }
 
-        actionTimer = 0f;
+        actionTimer = Mathf.Max(actionTimer, Mathf.Max(0f, durationSeconds));
         currentAction = action;
     }
 
@@ -7556,6 +7562,52 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
     public int GetAge()
     {
+        int baseAge = 0;
+
+        if (entityProfile != null)
+        {
+            baseAge = entityProfile.identity.age;
+        }
+        else
+        {
+            switch (ageGroup)
+            {
+                case VillagerAgeGroup.Child:
+                    baseAge = 12;
+                    break;
+                case VillagerAgeGroup.Elder:
+                    baseAge = 70;
+                    break;
+                default:
+                    baseAge = 30;
+                    break;
+            }
+        }
+
+        if (WorldTimeSystem.Instance != null)
+        {
+            baseAge += Mathf.Max(0, WorldTimeSystem.Instance.currentYear - 1);
+        }
+
+        return baseAge;
+    }
+
+    public int GetLifespan()
+    {
+        return lifespan > 0
+            ? lifespan
+            : 80;
+    }
+
+    bool ShouldDieFromOldAge()
+    {
+        return dieWhenLifespanEnds &&
+            GetAge() > 0 &&
+            GetAge() >= GetLifespan();
+    }
+
+    public void TakeDamage(int damage)
+    {
         if (characterStats != null)
         {
             characterStats.TakeDamage(damage);
@@ -7649,6 +7701,126 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         }
 
         currentHP = Mathf.Clamp(currentHP, 0, maxHP);
+    }
+
+    public long ExpToNextRealm()
+    {
+        return CultivationProgression.GetExpToNextLong(
+            realm,
+            realmStage,
+            baseExpToNextRealm);
+    }
+
+    public void AddCultivationExp(int amount)
+    {
+        if (amount == 0 ||
+            waitingForHeavenlyTribulation ||
+            realm == CultivationRealm.Tribulation)
+        {
+            return;
+        }
+
+        if (amount < 0)
+        {
+            cultivationExp = System.Math.Max(0L, cultivationExp + amount);
+            return;
+        }
+
+        cultivationExp += amount;
+
+        while (!waitingForHeavenlyTribulation &&
+            cultivationExp >= ExpToNextRealm() &&
+            realm != CultivationRealm.Tribulation)
+        {
+            cultivationExp -= ExpToNextRealm();
+            Breakthrough();
+        }
+    }
+
+    void Breakthrough()
+    {
+        if (waitingForHeavenlyTribulation)
+        {
+            return;
+        }
+
+        if (realm == CultivationRealm.Tribulation)
+        {
+            cultivationExp = 0;
+            return;
+        }
+
+        if (realm == CultivationRealm.Mortal &&
+            realmStage >= CultivationProgression.MaxStage)
+        {
+            realmStage = 1;
+            realm = CultivationRealm.QiRefining;
+            ApplyRealmPower(true);
+            return;
+        }
+
+        if (CultivationProgression.RequiresHeavenlyTribulation(
+                realm,
+                realmStage))
+        {
+            CultivationRealm targetRealm =
+                CultivationProgression.GetNextRealm(realm);
+
+            waitingForHeavenlyTribulation = true;
+            currentAction = NpcText.Action("waitTribulation");
+            HeavenlyTribulationSystem.Request(
+                gameObject,
+                villagerName,
+                targetRealm,
+                () => CompleteMajorBreakthrough(targetRealm));
+            return;
+        }
+
+        realmStage += 1;
+        ApplyRealmPower(true);
+        currentAction = NpcText.Action("breakthrough");
+    }
+
+    void CompleteMajorBreakthrough(CultivationRealm targetRealm)
+    {
+        waitingForHeavenlyTribulation = false;
+        if (IsDead)
+        {
+            return;
+        }
+
+        realmStage = 1;
+        realm = targetRealm;
+        ApplyRealmPower(true);
+        currentAction = NpcText.Action("breakthrough");
+    }
+
+    void ApplyRealmPower(bool fillHP = false)
+    {
+        int oldMaxHP = Mathf.Max(1, maxHP);
+        float hpPercent = Mathf.Clamp01(currentHP / (float)oldMaxHP);
+        float power =
+            CultivationProgression.GetStatPower(
+                realm,
+                realmStage,
+                EntityKind.Commoner);
+
+        maxHP = Mathf.Max(1, Mathf.RoundToInt(baseMaxHP * power));
+        currentHP = fillHP
+            ? maxHP
+            : Mathf.Clamp(Mathf.RoundToInt(maxHP * hpPercent), 0, maxHP);
+        attack = Mathf.Max(1, Mathf.RoundToInt(baseAttack * power));
+        defense = Mathf.Max(0, Mathf.RoundToInt(baseDefense * power));
+
+        if (entityProfile != null)
+        {
+            entityProfile.stats.maxHP = maxHP;
+            entityProfile.stats.currentHP = currentHP;
+            entityProfile.stats.attack = attack;
+            entityProfile.stats.defense = defense;
+        }
+
+        SyncCultivationEffect();
     }
 
     void ApplyModifier(StatModifier modifier, int direction)

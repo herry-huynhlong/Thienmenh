@@ -243,6 +243,10 @@ public class NpcRageNearbyAttack : MonoBehaviour
             return;
         }
 
+        NpcRoleUtility.SetCombatAttackAction(
+            gameObject,
+            target.targetTransform.gameObject);
+
         target.damageable.TakeDamage(Mathf.Max(1, damage));
     }
 

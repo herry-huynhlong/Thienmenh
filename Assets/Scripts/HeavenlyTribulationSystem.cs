@@ -490,7 +490,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 
         LayerMask damageLayers = heaven != null
             ? heaven.damageLayers
-            : ~0;
+            : (LayerMask)~0;
 
         PlayStrikeVisual(visualPosition, impactPosition);
 

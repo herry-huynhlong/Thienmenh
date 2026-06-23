@@ -190,7 +190,19 @@ public class HunterJob : MonoBehaviour
 
         currentState = NpcJobState.Working;
         StopMotion();
-        SetAction("Đang săn " + GetMonsterName(currentMonsterTarget));
+        string attackAction =
+            NpcText.ActionFormat(
+                "attackMonsterNamed",
+                GetMonsterName(currentMonsterTarget));
+
+        if (villager != null)
+        {
+            villager.SetActionImmediate(attackAction, 0.45f);
+        }
+        else
+        {
+            SetAction(attackAction);
+        }
 
         if (Time.time < nextAttackTime)
         {

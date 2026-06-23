@@ -305,10 +305,11 @@ public class BottomMenuButtonRouter : MonoBehaviour
 
         foreach (Button button in buttons)
         {
+            RectTransform rectTransform = button != null ? button.transform as RectTransform : null;
             if (button == null ||
                 !button.gameObject.activeInHierarchy ||
                 !button.interactable ||
-                button.transform is not RectTransform rectTransform)
+                rectTransform == null)
             {
                 continue;
             }
