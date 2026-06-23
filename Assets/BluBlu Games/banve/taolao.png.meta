@@ -1,0 +1,1326 @@
+fileFormatVersion: 2
+guid: ce294fa5095d52f4d8f9c2e1354464c4
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -563674928869773544
+    second: taolao_0
+  - first:
+      213: 922548627303848636
+    second: taolao_1
+  - first:
+      213: 7309935488194063683
+    second: taolao_2
+  - first:
+      213: -6605337319495232086
+    second: taolao_3
+  - first:
+      213: -7759133671660590670
+    second: taolao_4
+  - first:
+      213: -516363824773029963
+    second: taolao_5
+  - first:
+      213: -1711992665328365808
+    second: taolao_6
+  - first:
+      213: 1683338840598598997
+    second: taolao_7
+  - first:
+      213: 2901004420222536905
+    second: taolao_8
+  - first:
+      213: -3945744335327566756
+    second: taolao_9
+  - first:
+      213: 5290194158308619610
+    second: taolao_10
+  - first:
+      213: -3553425413393301309
+    second: taolao_11
+  - first:
+      213: 3252670404355114977
+    second: taolao_12
+  - first:
+      213: 806288234572401064
+    second: taolao_13
+  - first:
+      213: 8166663365655258950
+    second: taolao_14
+  - first:
+      213: 469475174174773205
+    second: taolao_15
+  - first:
+      213: -2053027864345919122
+    second: taolao_16
+  - first:
+      213: -9139733018632648038
+    second: taolao_17
+  - first:
+      213: -7685605464996025545
+    second: taolao_18
+  - first:
+      213: 8109757197915448177
+    second: taolao_19
+  - first:
+      213: 1660831663796508386
+    second: taolao_20
+  - first:
+      213: 1087013304351843093
+    second: taolao_21
+  - first:
+      213: -3780675859877391044
+    second: taolao_22
+  - first:
+      213: 107701091942479187
+    second: taolao_23
+  - first:
+      213: -2214063177344897662
+    second: taolao_24
+  - first:
+      213: -6043859113185770853
+    second: taolao_25
+  - first:
+      213: 1540494895921275251
+    second: taolao_26
+  - first:
+      213: 7250294883659124016
+    second: taolao_27
+  - first:
+      213: -3428756242658606620
+    second: taolao_28
+  - first:
+      213: 6419737201968433014
+    second: taolao_29
+  - first:
+      213: -676320675943126365
+    second: taolao_30
+  - first:
+      213: -2390549028406677064
+    second: taolao_31
+  - first:
+      213: 8120762666415747770
+    second: taolao_32
+  - first:
+      213: -7304629665972291091
+    second: taolao_33
+  - first:
+      213: -8613660689822992957
+    second: taolao_34
+  - first:
+      213: -674706169161295081
+    second: taolao_35
+  - first:
+      213: -3551941380752069010
+    second: taolao_36
+  - first:
+      213: 3270601652852883949
+    second: taolao_37
+  - first:
+      213: 7846877960090959512
+    second: taolao_38
+  - first:
+      213: -2849414324948296562
+    second: taolao_39
+  - first:
+      213: 1191998158274009668
+    second: taolao_40
+  - first:
+      213: -3120832624176783917
+    second: taolao_41
+  - first:
+      213: 8172577893514533632
+    second: taolao_42
+  - first:
+      213: -4094378841352175875
+    second: taolao_43
+  - first:
+      213: -3554468179164563861
+    second: taolao_44
+  - first:
+      213: -1001122548947090183
+    second: taolao_45
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: taolao_0
+      rect:
+        serializedVersion: 2
+        x: 27
+        y: 553
+        width: 72
+        height: 49
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 81f6cef73ac6d28f0800000000000000
+      internalID: -563674928869773544
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_1
+      rect:
+        serializedVersion: 2
+        x: 114
+        y: 544
+        width: 79
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cba5872b61d8dcc00800000000000000
+      internalID: 922548627303848636
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_2
+      rect:
+        serializedVersion: 2
+        x: 197
+        y: 492
+        width: 88
+        height: 111
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 34d24d8c89b127560800000000000000
+      internalID: 7309935488194063683
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_3
+      rect:
+        serializedVersion: 2
+        x: 292
+        y: 489
+        width: 102
+        height: 135
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aa51bd954b02554a0800000000000000
+      internalID: -6605337319495232086
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_4
+      rect:
+        serializedVersion: 2
+        x: 395
+        y: 485
+        width: 132
+        height: 145
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b9e5e70905025490800000000000000
+      internalID: -7759133671660590670
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_5
+      rect:
+        serializedVersion: 2
+        x: 533
+        y: 477
+        width: 155
+        height: 150
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5bf9a8156d185d8f0800000000000000
+      internalID: -516363824773029963
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_6
+      rect:
+        serializedVersion: 2
+        x: 697
+        y: 482
+        width: 146
+        height: 121
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01f470dcdb7cd38e0800000000000000
+      internalID: -1711992665328365808
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_7
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 495
+        width: 93
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5555f7eb1cb6c5710800000000000000
+      internalID: 1683338840598598997
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_8
+      rect:
+        serializedVersion: 2
+        x: 124
+        y: 495
+        width: 60
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ccc3376620724820800000000000000
+      internalID: 2901004420222536905
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_9
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 414
+        width: 95
+        height: 62
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c546a46be66ed39c0800000000000000
+      internalID: -3945744335327566756
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_10
+      rect:
+        serializedVersion: 2
+        x: 124
+        y: 410
+        width: 101
+        height: 72
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a55f4deee8b8a6940800000000000000
+      internalID: 5290194158308619610
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_11
+      rect:
+        serializedVersion: 2
+        x: 238
+        y: 407
+        width: 102
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c0c8d2d962bfaec0800000000000000
+      internalID: -3553425413393301309
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_12
+      rect:
+        serializedVersion: 2
+        x: 353
+        y: 405
+        width: 65
+        height: 77
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e74307df7ec32d20800000000000000
+      internalID: 3252670404355114977
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_13
+      rect:
+        serializedVersion: 2
+        x: 431
+        y: 396
+        width: 128
+        height: 91
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a9c340a0e2803b00800000000000000
+      internalID: 806288234572401064
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_14
+      rect:
+        serializedVersion: 2
+        x: 566
+        y: 401
+        width: 82
+        height: 57
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 647e31eef01d55170800000000000000
+      internalID: 8166663365655258950
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_15
+      rect:
+        serializedVersion: 2
+        x: 654
+        y: 408
+        width: 65
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5df4d8bfe29e38600800000000000000
+      internalID: 469475174174773205
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_16
+      rect:
+        serializedVersion: 2
+        x: 729
+        y: 401
+        width: 105
+        height: 63
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e61cea7e80e2283e0800000000000000
+      internalID: -2053027864345919122
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_17
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 336
+        width: 71
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9a0e727e35292180800000000000000
+      internalID: -9139733018632648038
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_18
+      rect:
+        serializedVersion: 2
+        x: 133
+        y: 335
+        width: 60
+        height: 57
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73b6c17bc8e375590800000000000000
+      internalID: -7685605464996025545
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_19
+      rect:
+        serializedVersion: 2
+        x: 209
+        y: 332
+        width: 76
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 173ea644435ab8070800000000000000
+      internalID: 8109757197915448177
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_20
+      rect:
+        serializedVersion: 2
+        x: 305
+        y: 335
+        width: 71
+        height: 57
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2e6df4849957c0710800000000000000
+      internalID: 1660831663796508386
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_21
+      rect:
+        serializedVersion: 2
+        x: 396
+        y: 331
+        width: 68
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 513e30057d8d51f00800000000000000
+      internalID: 1087013304351843093
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_22
+      rect:
+        serializedVersion: 2
+        x: 488
+        y: 333
+        width: 65
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c351d191657588bc0800000000000000
+      internalID: -3780675859877391044
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_23
+      rect:
+        serializedVersion: 2
+        x: 572
+        y: 332
+        width: 64
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 355372f8291ae7100800000000000000
+      internalID: 107701091942479187
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_24
+      rect:
+        serializedVersion: 2
+        x: 661
+        y: 333
+        width: 65
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 28da51455411641e0800000000000000
+      internalID: -2214063177344897662
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_25
+      rect:
+        serializedVersion: 2
+        x: 753
+        y: 334
+        width: 61
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b920e068826ef1ca0800000000000000
+      internalID: -6043859113185770853
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_26
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 254
+        width: 84
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 371a0b922ffe06510800000000000000
+      internalID: 1540494895921275251
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_27
+      rect:
+        serializedVersion: 2
+        x: 133
+        y: 248
+        width: 72
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 03d855178c83e9460800000000000000
+      internalID: 7250294883659124016
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_28
+      rect:
+        serializedVersion: 2
+        x: 229
+        y: 253
+        width: 68
+        height: 63
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4e14ee61d5c9a60d0800000000000000
+      internalID: -3428756242658606620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_29
+      rect:
+        serializedVersion: 2
+        x: 311
+        y: 248
+        width: 83
+        height: 80
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 67740b2d8fc771950800000000000000
+      internalID: 6419737201968433014
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_30
+      rect:
+        serializedVersion: 2
+        x: 413
+        y: 253
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3aa6824bde93d96f0800000000000000
+      internalID: -676320675943126365
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_31
+      rect:
+        serializedVersion: 2
+        x: 492
+        y: 248
+        width: 70
+        height: 75
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8b13aa7035013ded0800000000000000
+      internalID: -2390549028406677064
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_32
+      rect:
+        serializedVersion: 2
+        x: 590
+        y: 250
+        width: 70
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab2f6f49e9eb2b070800000000000000
+      internalID: 8120762666415747770
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_33
+      rect:
+        serializedVersion: 2
+        x: 685
+        y: 259
+        width: 52
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de9f0f7350eb0aa90800000000000000
+      internalID: -7304629665972291091
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_34
+      rect:
+        serializedVersion: 2
+        x: 763
+        y: 262
+        width: 58
+        height: 55
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c5ba5f5d31267880800000000000000
+      internalID: -8613660689822992957
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_35
+      rect:
+        serializedVersion: 2
+        x: 17
+        y: 121
+        width: 139
+        height: 123
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71b506b5056f2a6f0800000000000000
+      internalID: -674706169161295081
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_36
+      rect:
+        serializedVersion: 2
+        x: 169
+        y: 119
+        width: 129
+        height: 131
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e6e23491228f4bec0800000000000000
+      internalID: -3551941380752069010
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_37
+      rect:
+        serializedVersion: 2
+        x: 314
+        y: 104
+        width: 173
+        height: 148
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de10a18ffd2836d20800000000000000
+      internalID: 3270601652852883949
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_38
+      rect:
+        serializedVersion: 2
+        x: 496
+        y: 118
+        width: 121
+        height: 107
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 89e301f1ee5b5ec60800000000000000
+      internalID: 7846877960090959512
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_39
+      rect:
+        serializedVersion: 2
+        x: 600
+        y: 21
+        width: 243
+        height: 228
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e8c1c8fa4c8d478d0800000000000000
+      internalID: -2849414324948296562
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_40
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 26
+        width: 143
+        height: 88
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 44a97dc6204da8010800000000000000
+      internalID: 1191998158274009668
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_41
+      rect:
+        serializedVersion: 2
+        x: 158
+        y: 34
+        width: 106
+        height: 65
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3dd1e70634390b4d0800000000000000
+      internalID: -3120832624176783917
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_42
+      rect:
+        serializedVersion: 2
+        x: 251
+        y: 34
+        width: 89
+        height: 65
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 00bd4224b44da6170800000000000000
+      internalID: 8172577893514533632
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_43
+      rect:
+        serializedVersion: 2
+        x: 331
+        y: 35
+        width: 82
+        height: 61
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dfef3510328dd27c0800000000000000
+      internalID: -4094378841352175875
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_44
+      rect:
+        serializedVersion: 2
+        x: 410
+        y: 34
+        width: 83
+        height: 65
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b66777ff50efbaec0800000000000000
+      internalID: -3554468179164563861
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: taolao_45
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 34
+        width: 97
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9f4006d885c4b12f0800000000000000
+      internalID: -1001122548947090183
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      taolao_0: -563674928869773544
+      taolao_1: 922548627303848636
+      taolao_10: 5290194158308619610
+      taolao_11: -3553425413393301309
+      taolao_12: 3252670404355114977
+      taolao_13: 806288234572401064
+      taolao_14: 8166663365655258950
+      taolao_15: 469475174174773205
+      taolao_16: -2053027864345919122
+      taolao_17: -9139733018632648038
+      taolao_18: -7685605464996025545
+      taolao_19: 8109757197915448177
+      taolao_2: 7309935488194063683
+      taolao_20: 1660831663796508386
+      taolao_21: 1087013304351843093
+      taolao_22: -3780675859877391044
+      taolao_23: 107701091942479187
+      taolao_24: -2214063177344897662
+      taolao_25: -6043859113185770853
+      taolao_26: 1540494895921275251
+      taolao_27: 7250294883659124016
+      taolao_28: -3428756242658606620
+      taolao_29: 6419737201968433014
+      taolao_3: -6605337319495232086
+      taolao_30: -676320675943126365
+      taolao_31: -2390549028406677064
+      taolao_32: 8120762666415747770
+      taolao_33: -7304629665972291091
+      taolao_34: -8613660689822992957
+      taolao_35: -674706169161295081
+      taolao_36: -3551941380752069010
+      taolao_37: 3270601652852883949
+      taolao_38: 7846877960090959512
+      taolao_39: -2849414324948296562
+      taolao_4: -7759133671660590670
+      taolao_40: 1191998158274009668
+      taolao_41: -3120832624176783917
+      taolao_42: 8172577893514533632
+      taolao_43: -4094378841352175875
+      taolao_44: -3554468179164563861
+      taolao_45: -1001122548947090183
+      taolao_5: -516363824773029963
+      taolao_6: -1711992665328365808
+      taolao_7: 1683338840598598997
+      taolao_8: 2901004420222536905
+      taolao_9: -3945744335327566756
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

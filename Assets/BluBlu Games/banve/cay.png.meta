@@ -1,0 +1,988 @@
+fileFormatVersion: 2
+guid: 7cee53312a434a54d84754120d45dab0
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -3843952343158564047
+    second: cay_0
+  - first:
+      213: -2529581021886861186
+    second: cay_1
+  - first:
+      213: -7258346346821104659
+    second: cay_2
+  - first:
+      213: 8628866982438148203
+    second: cay_3
+  - first:
+      213: 5357392504624407988
+    second: cay_4
+  - first:
+      213: 7167753666975154644
+    second: cay_5
+  - first:
+      213: 7982116919492567902
+    second: cay_6
+  - first:
+      213: -2719046938346230509
+    second: cay_7
+  - first:
+      213: 4209290948597900108
+    second: cay_8
+  - first:
+      213: -33189727600748063
+    second: cay_9
+  - first:
+      213: 5932313334214216630
+    second: cay_10
+  - first:
+      213: 695739985188610909
+    second: cay_11
+  - first:
+      213: 4507580742635146597
+    second: cay_12
+  - first:
+      213: -3177768346362837845
+    second: cay_13
+  - first:
+      213: -6414309359516989895
+    second: cay_14
+  - first:
+      213: -6448476692359631311
+    second: cay_15
+  - first:
+      213: -7045223532431982471
+    second: cay_16
+  - first:
+      213: -7455154203723990711
+    second: cay_17
+  - first:
+      213: -8332144619489522356
+    second: cay_18
+  - first:
+      213: -221250645970836356
+    second: cay_19
+  - first:
+      213: -6466328144584840007
+    second: cay_20
+  - first:
+      213: 3794859631443899824
+    second: cay_21
+  - first:
+      213: -856495683957076684
+    second: cay_22
+  - first:
+      213: 3980547147638325071
+    second: cay_23
+  - first:
+      213: 1026604681393917156
+    second: cay_24
+  - first:
+      213: 5692334401662751838
+    second: cay_25
+  - first:
+      213: 7395962840760986727
+    second: cay_26
+  - first:
+      213: -4960491361358443636
+    second: cay_27
+  - first:
+      213: 6927270245433872415
+    second: cay_28
+  - first:
+      213: 4293250120269958059
+    second: cay_29
+  - first:
+      213: 974696288864112873
+    second: cay_30
+  - first:
+      213: -9130361569703210619
+    second: cay_31
+  - first:
+      213: 2249923128173095590
+    second: cay_32
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 30
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: cay_0
+      rect:
+        serializedVersion: 2
+        x: 22
+        y: 550
+        width: 31
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 13bd084c5b987aac0800000000000000
+      internalID: -3843952343158564047
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_1
+      rect:
+        serializedVersion: 2
+        x: 78
+        y: 550
+        width: 35
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e703ddf767f15ecd0800000000000000
+      internalID: -2529581021886861186
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_2
+      rect:
+        serializedVersion: 2
+        x: 127
+        y: 547
+        width: 57
+        height: 62
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: deb49f4347c254b90800000000000000
+      internalID: -7258346346821104659
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_3
+      rect:
+        serializedVersion: 2
+        x: 199
+        y: 541
+        width: 116
+        height: 94
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b6892568dc4efb770800000000000000
+      internalID: 8628866982438148203
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_4
+      rect:
+        serializedVersion: 2
+        x: 325
+        y: 534
+        width: 115
+        height: 99
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b56a782918495a40800000000000000
+      internalID: 5357392504624407988
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_5
+      rect:
+        serializedVersion: 2
+        x: 450
+        y: 530
+        width: 113
+        height: 106
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d1ce85dbf9f87360800000000000000
+      internalID: 7167753666975154644
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_6
+      rect:
+        serializedVersion: 2
+        x: 575
+        y: 530
+        width: 115
+        height: 102
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e536df51c0d26ce60800000000000000
+      internalID: 7982116919492567902
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_7
+      rect:
+        serializedVersion: 2
+        x: 730
+        y: 536
+        width: 86
+        height: 96
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 31d62483731044ad0800000000000000
+      internalID: -2719046938346230509
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_8
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 411
+        width: 159
+        height: 134
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c43e173e0d76a6a30800000000000000
+      internalID: 4209290948597900108
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_9
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 297
+        width: 68
+        height: 119
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e95a2c5e161a8ff0800000000000000
+      internalID: -33189727600748063
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_10
+      rect:
+        serializedVersion: 2
+        x: 187
+        y: 414
+        width: 132
+        height: 119
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6bbc626fb8fc35250800000000000000
+      internalID: 5932313334214216630
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_11
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 410
+        width: 107
+        height: 118
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d53e33194d3c7a900800000000000000
+      internalID: 695739985188610909
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_12
+      rect:
+        serializedVersion: 2
+        x: 431
+        y: 402
+        width: 128
+        height: 116
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 56dc821adc42e8e30800000000000000
+      internalID: 4507580742635146597
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_13
+      rect:
+        serializedVersion: 2
+        x: 560
+        y: 402
+        width: 115
+        height: 120
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba40098868c46e3d0800000000000000
+      internalID: -3177768346362837845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_14
+      rect:
+        serializedVersion: 2
+        x: 679
+        y: 396
+        width: 164
+        height: 128
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 936c68a3f9bcbf6a0800000000000000
+      internalID: -6414309359516989895
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_15
+      rect:
+        serializedVersion: 2
+        x: 106
+        y: 296
+        width: 74
+        height: 111
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 13ea4812d986286a0800000000000000
+      internalID: -6448476692359631311
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_16
+      rect:
+        serializedVersion: 2
+        x: 187
+        y: 297
+        width: 78
+        height: 109
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9704b2246865a3e90800000000000000
+      internalID: -7045223532431982471
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_17
+      rect:
+        serializedVersion: 2
+        x: 265
+        y: 296
+        width: 94
+        height: 107
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 949754530c8f98890800000000000000
+      internalID: -7455154203723990711
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_18
+      rect:
+        serializedVersion: 2
+        x: 361
+        y: 284
+        width: 106
+        height: 120
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4d052a3d964e5c80800000000000000
+      internalID: -8332144619489522356
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_19
+      rect:
+        serializedVersion: 2
+        x: 470
+        y: 286
+        width: 106
+        height: 117
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c742590b5b5fdecf0800000000000000
+      internalID: -221250645970836356
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_20
+      rect:
+        serializedVersion: 2
+        x: 578
+        y: 284
+        width: 120
+        height: 111
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9bce8e400dcf246a0800000000000000
+      internalID: -6466328144584840007
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_21
+      rect:
+        serializedVersion: 2
+        x: 703
+        y: 274
+        width: 135
+        height: 115
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0b5fea09abc0aa430800000000000000
+      internalID: 3794859631443899824
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_22
+      rect:
+        serializedVersion: 2
+        x: 9
+        y: 25
+        width: 195
+        height: 168
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43d451e96bd1d14f0800000000000000
+      internalID: -856495683957076684
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_23
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 193
+        width: 119
+        height: 99
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f4f3daa7a8ebd3730800000000000000
+      internalID: 3980547147638325071
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_24
+      rect:
+        serializedVersion: 2
+        x: 149
+        y: 179
+        width: 166
+        height: 117
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4eccc3fb48b3f3e00800000000000000
+      internalID: 1026604681393917156
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_25
+      rect:
+        serializedVersion: 2
+        x: 328
+        y: 184
+        width: 108
+        height: 93
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5418d1aafb3ffe40800000000000000
+      internalID: 5692334401662751838
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_26
+      rect:
+        serializedVersion: 2
+        x: 449
+        y: 184
+        width: 101
+        height: 94
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 76c2c87a40db3a660800000000000000
+      internalID: 7395962840760986727
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_27
+      rect:
+        serializedVersion: 2
+        x: 558
+        y: 176
+        width: 111
+        height: 101
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c8b06de736bc82bb0800000000000000
+      internalID: -4960491361358443636
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_28
+      rect:
+        serializedVersion: 2
+        x: 682
+        y: 175
+        width: 145
+        height: 96
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f101832069b922060800000000000000
+      internalID: 6927270245433872415
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_29
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 24
+        width: 150
+        height: 163
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bab089edc30b49b30800000000000000
+      internalID: 4293250120269958059
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_30
+      rect:
+        serializedVersion: 2
+        x: 356
+        y: 27
+        width: 156
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e013ad4c11d68d00800000000000000
+      internalID: 974696288864112873
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_31
+      rect:
+        serializedVersion: 2
+        x: 504
+        y: 19
+        width: 144
+        height: 153
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 58156fee6807a4180800000000000000
+      internalID: -9130361569703210619
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cay_32
+      rect:
+        serializedVersion: 2
+        x: 651
+        y: 16
+        width: 196
+        height: 159
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6aa61ba1a25593f10800000000000000
+      internalID: 2249923128173095590
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      cay_0: -3843952343158564047
+      cay_1: -2529581021886861186
+      cay_10: 5932313334214216630
+      cay_11: 695739985188610909
+      cay_12: 4507580742635146597
+      cay_13: -3177768346362837845
+      cay_14: -6414309359516989895
+      cay_15: -6448476692359631311
+      cay_16: -7045223532431982471
+      cay_17: -7455154203723990711
+      cay_18: -8332144619489522356
+      cay_19: -221250645970836356
+      cay_2: -7258346346821104659
+      cay_20: -6466328144584840007
+      cay_21: 3794859631443899824
+      cay_22: -856495683957076684
+      cay_23: 3980547147638325071
+      cay_24: 1026604681393917156
+      cay_25: 5692334401662751838
+      cay_26: 7395962840760986727
+      cay_27: -4960491361358443636
+      cay_28: 6927270245433872415
+      cay_29: 4293250120269958059
+      cay_3: 8628866982438148203
+      cay_30: 974696288864112873
+      cay_31: -9130361569703210619
+      cay_32: 2249923128173095590
+      cay_4: 5357392504624407988
+      cay_5: 7167753666975154644
+      cay_6: 7982116919492567902
+      cay_7: -2719046938346230509
+      cay_8: 4209290948597900108
+      cay_9: -33189727600748063
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
