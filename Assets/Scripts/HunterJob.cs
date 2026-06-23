@@ -19,7 +19,9 @@ public class HunterJob : MonoBehaviour
     public LayerMask monsterLayers = ~0;
 
     [Header("Combat")]
-    public float attackRange = 0.85f;
+    // Hunter targets in this project have fairly large colliders, so the
+    // hunter needs a wider reach to actually enter the attack branch.
+    public float attackRange = 1.7f;
     public float attackInterval = 1.15f;
     public int attackDamage = 8;
     public bool useVillagerAttackStat = true;
@@ -71,6 +73,13 @@ public class HunterJob : MonoBehaviour
 
     void Update()
     {
+        if (villager != null &&
+            villager.ShouldGoHomeForRest())
+        {
+            villager.GoHomeToRest();
+            return;
+        }
+
         if (!running || !IsAllowedJob())
         {
             return;
@@ -81,6 +90,13 @@ public class HunterJob : MonoBehaviour
 
     public bool TryRun()
     {
+        if (villager != null &&
+            villager.ShouldGoHomeForRest())
+        {
+            villager.GoHomeToRest();
+            return true;
+        }
+
         if (!IsAllowedJob())
         {
             running = false;
@@ -227,7 +243,7 @@ public class HunterJob : MonoBehaviour
         WorldTilemapManager tilemap = WorldTilemapManager.Instance;
         if (tilemap != null)
         {
-            Vector3 huntingTile = tilemap.GetHuntingTile();
+            Vector3 huntingTile = tilemap.GetHuntingTile(huntZone);
             if (huntingTile != Vector3.zero &&
                 Vector2.Distance(transform.position, huntingTile) >
                 Mathf.Max(arriveDistance, 0.65f))
@@ -587,13 +603,26 @@ public class HunterJob : MonoBehaviour
     WorldStatItemPickup SpawnMeatPickup(Vector3 position, StatItemData item)
     {
         GameObject lootObject = new GameObject(ItemText.Name(item) + " Pickup");
-        lootObject.transform.position = position;
+
+        // Drop it a little off the corpse so the pickup stays visible before
+        // the hunter walks over and collects it.
+        Vector2 dropOffset = Random.insideUnitCircle;
+        if (dropOffset.sqrMagnitude < 0.0001f)
+        {
+            dropOffset = Vector2.right;
+        }
+
+        float dropRadius =
+            Mathf.Max(0.55f, lootCollectDistance + 0.1f);
+        lootObject.transform.position =
+            position + (Vector3)(dropOffset.normalized * dropRadius);
 
         WorldStatItemPickup pickup = lootObject.AddComponent<WorldStatItemPickup>();
         pickup.item = item;
         pickup.amount = Mathf.Max(1, guaranteedMeatAmount);
         pickup.allowNpcPickup = true;
         pickup.allowPlayerPickup = false;
+        pickup.requireNpcHarvestAction = true;
         pickup.destroyWhenEmpty = true;
 
         CircleCollider2D collider = lootObject.AddComponent<CircleCollider2D>();

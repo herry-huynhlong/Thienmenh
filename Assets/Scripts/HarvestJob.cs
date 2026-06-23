@@ -49,6 +49,13 @@ public class HarvestJob : MonoBehaviour
 
     void Update()
     {
+        if (villager != null &&
+            villager.ShouldGoHomeForRest())
+        {
+            villager.GoHomeToRest();
+            return;
+        }
+
         if (!IsAllowedJob())
         {
             return;
@@ -104,6 +111,13 @@ public class HarvestJob : MonoBehaviour
 
     public bool TryRun()
     {
+        if (villager != null &&
+            villager.ShouldGoHomeForRest())
+        {
+            villager.GoHomeToRest();
+            return true;
+        }
+
         if (!IsAllowedJob())
         {
             return false;

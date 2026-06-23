@@ -71,6 +71,22 @@ public class VillageHomeManager : MonoBehaviour
             return true;
         }
 
+        if (timeSystem != null &&
+            timeSystem.CurrentPhase == WorldTimePhase.Noon)
+        {
+            return true;
+        }
+
+        NpcScheduleController schedule =
+            NpcScheduleController.GetSchedule(villager.gameObject);
+        if (schedule != null &&
+            schedule.enforceSchedule &&
+            schedule.CurrentSlot != null &&
+            schedule.CurrentActivity == NpcScheduleActivity.ReturnHome)
+        {
+            return true;
+        }
+
         return returnVillagersHomeAtNight &&
             timeSystem != null &&
             timeSystem.CurrentPhase == WorldTimePhase.Night;

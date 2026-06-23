@@ -52,6 +52,7 @@ public partial class VillagerAI
         }
 
         string desiredWorkTargetKey = GetCurrentWorkTargetKey();
+        NpcMapZone preferredResourceZone = GetPreferredResourceGatherZone();
         if (currentWorkTargetKey != desiredWorkTargetKey)
         {
             hasWorkTarget = false;
@@ -81,10 +82,10 @@ public partial class VillagerAI
                     if (currentWorkTarget == Vector3.zero)
                     {
                         currentWorkTarget = GetFallbackPositionInZone(
-                            NpcMapZone.MaThuSonMach);
+                            preferredResourceZone);
                         currentWorkTargetZone =
                             GetZoneForPosition(currentWorkTarget) ??
-                            NpcMapZone.MaThuSonMach;
+                            preferredResourceZone;
                         currentAction = NpcText.Action("noFishingSpotFarmFallback");
                     }
                     break;
@@ -94,14 +95,14 @@ public partial class VillagerAI
                     if (currentWorkTarget == Vector3.zero)
                     {
                         currentWorkTarget = worldTilemap != null
-                            ? worldTilemap.GetHuntingTile()
+                            ? worldTilemap.GetHuntingTile(preferredResourceZone)
                             : Vector3.zero;
                     }
                     currentWorkTargetZone =
                         currentWorkTargetZone.HasValue
                         ? currentWorkTargetZone
                         : (GetZoneForPosition(currentWorkTarget) ??
-                            NpcMapZone.MaThuSonMach);
+                            preferredResourceZone);
                     break;
 
                 default:
@@ -116,13 +117,13 @@ public partial class VillagerAI
             if (currentWorkTarget == Vector3.zero)
             {
                 currentWorkTarget = job == VillagerJob.Hunter
-                    ? GetFallbackPositionInZone(NpcMapZone.MaThuSonMach)
+                    ? GetFallbackPositionInZone(preferredResourceZone)
                     : workPoint != null
                         ? workPoint.position
                         : GetFallbackActivityPosition();
                 currentWorkTargetZone = job == VillagerJob.Hunter
                     ? GetZoneForPosition(currentWorkTarget) ??
-                        NpcMapZone.MaThuSonMach
+                        preferredResourceZone
                     : NpcMapNavigator.GetDestinationZone(workPoint);
             }
 
@@ -194,11 +195,14 @@ public partial class VillagerAI
     {
         WorldTilemapManager worldTilemap =
             WorldTilemapManager.Instance;
+        NpcMapZone preferredZone = GetPreferredResourceGatherZone();
 
         if (worldTilemap != null)
         {
             Vector3 fishingTile =
-                worldTilemap.GetFishingTile(this);
+                worldTilemap.GetFishingTile(
+                    this,
+                    preferredZone);
 
             if (fishingTile != Vector3.zero)
             {
@@ -206,7 +210,7 @@ public partial class VillagerAI
             }
         }
 
-        NpcMapArea area = NpcMapArea.FindAreaByZone(NpcMapZone.MaThuSonMach);
+        NpcMapArea area = NpcMapArea.FindAreaByZone(preferredZone);
         if (area != null && area.areaBounds != null)
         {
             Bounds bounds = area.areaBounds.bounds;

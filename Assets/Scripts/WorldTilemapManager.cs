@@ -373,11 +373,32 @@ public class WorldTilemapManager : MonoBehaviour
             Random.Range(0, farmTiles.Count)];
     }
 
-    public Vector3 GetHuntingTile()
+    public Vector3 GetHuntingTile(NpcMapZone? preferredZone = null)
     {
         if (huntingTiles.Count == 0)
         {
             return Vector3.zero;
+        }
+
+        if (preferredZone.HasValue)
+        {
+            List<Vector3> preferredTiles =
+                new List<Vector3>();
+
+            foreach (Vector3 tile in huntingTiles)
+            {
+                NpcMapArea area = NpcMapArea.FindArea(tile);
+                if (area != null && area.zone == preferredZone.Value)
+                {
+                    preferredTiles.Add(tile);
+                }
+            }
+
+            if (preferredTiles.Count > 0)
+            {
+                return preferredTiles[
+                    Random.Range(0, preferredTiles.Count)];
+            }
         }
 
         return huntingTiles[
@@ -385,9 +406,12 @@ public class WorldTilemapManager : MonoBehaviour
     }
 
     public Vector3 GetFishingTile(
-        VillagerAI villager)
+        VillagerAI villager,
+        NpcMapZone? preferredZone = null)
     {
         List<Vector3> freeTiles =
+            new List<Vector3>();
+        List<Vector3> preferredTiles =
             new List<Vector3>();
 
         foreach (Vector3 tile in fishingTiles)
@@ -395,17 +419,31 @@ public class WorldTilemapManager : MonoBehaviour
             if (!occupiedFishing.ContainsKey(tile))
             {
                 freeTiles.Add(tile);
+
+                if (preferredZone.HasValue)
+                {
+                    NpcMapArea area = NpcMapArea.FindArea(tile);
+                    if (area != null && area.zone == preferredZone.Value)
+                    {
+                        preferredTiles.Add(tile);
+                    }
+                }
             }
         }
 
-        if (freeTiles.Count == 0)
+        List<Vector3> candidates =
+            preferredZone.HasValue && preferredTiles.Count > 0
+            ? preferredTiles
+            : freeTiles;
+
+        if (candidates.Count == 0)
         {
             return Vector3.zero;
         }
 
         Vector3 selected =
-            freeTiles[
-                Random.Range(0, freeTiles.Count)];
+            candidates[
+                Random.Range(0, candidates.Count)];
 
         occupiedFishing[selected] =
             villager;

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 using TMPro;
 
 public class WheelSlotAutoLayout : MonoBehaviour
@@ -73,7 +74,8 @@ public class WheelSlotAutoLayout : MonoBehaviour
     [ContextMenu("Apply Layout")]
     public void ApplyLayout()
     {
-        int count = transform.childCount;
+        List<RectTransform> slots = CollectActiveSlots();
+        int count = slots.Count;
         if (count == 0) return;
 
         float step = 360f / count;
@@ -81,7 +83,7 @@ public class WheelSlotAutoLayout : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
-            RectTransform slot = transform.GetChild(i) as RectTransform;
+            RectTransform slot = slots[i];
             if (slot == null) continue;
 
             SlotTweak tweak = GetTweak(i);
@@ -159,6 +161,30 @@ public class WheelSlotAutoLayout : MonoBehaviour
                 }
             }
         }
+    }
+
+    List<RectTransform> CollectActiveSlots()
+    {
+        List<RectTransform> slots = new List<RectTransform>();
+
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            Transform child = transform.GetChild(i);
+            if (child == null ||
+                !child.gameObject.activeSelf ||
+                !child.name.StartsWith("Slot_", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            RectTransform slot = child as RectTransform;
+            if (slot != null)
+            {
+                slots.Add(slot);
+            }
+        }
+
+        return slots;
     }
 
     float GetRotation(float angleDeg, RotationMode mode, float offset)

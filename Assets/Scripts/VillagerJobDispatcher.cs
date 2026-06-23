@@ -17,6 +17,12 @@ public class VillagerJobDispatcher : MonoBehaviour
             return false;
         }
 
+        if (villager.ShouldGoHomeForRest())
+        {
+            villager.GoHomeToRest();
+            return true;
+        }
+
         switch (villager.job)
         {
             case VillagerJob.Trader:
@@ -46,6 +52,12 @@ public class VillagerJobDispatcher : MonoBehaviour
         if (villager == null)
         {
             return false;
+        }
+
+        if (villager.ShouldGoHomeForRest())
+        {
+            villager.GoHomeToRest();
+            return true;
         }
 
         switch (villager.job)
