@@ -347,18 +347,35 @@ public class NpcLocationArea : MonoBehaviour
 
     bool IsBlocked(Vector3 point, GameObject npc)
     {
-        if (blockedLayers.value == 0 || blockedCheckRadius <= 0f)
+        if (blockedCheckRadius <= 0f)
         {
             return false;
         }
 
-        Collider2D[] hits =
-            Physics2D.OverlapCircleAll(
-                point,
-                blockedCheckRadius,
-                blockedLayers);
+        if (blockedLayers.value != 0)
+        {
+            Collider2D[] hits =
+                Physics2D.OverlapCircleAll(
+                    point,
+                    blockedCheckRadius,
+                    blockedLayers);
 
-        foreach (Collider2D hit in hits)
+            foreach (Collider2D hit in hits)
+            {
+                if (hit == null ||
+                    hit.isTrigger ||
+                    (npc != null && hit.transform.IsChildOf(npc.transform)))
+                {
+                    continue;
+                }
+
+                return true;
+            }
+        }
+
+        Collider2D[] npcHits =
+            Physics2D.OverlapCircleAll(point, blockedCheckRadius);
+        foreach (Collider2D hit in npcHits)
         {
             if (hit == null ||
                 hit.isTrigger ||
@@ -367,10 +384,36 @@ public class NpcLocationArea : MonoBehaviour
                 continue;
             }
 
-            return true;
+            if (GetNpcRoot(hit) != null)
+            {
+                return true;
+            }
         }
 
         return false;
+    }
+
+    Transform GetNpcRoot(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return null;
+        }
+
+        SmartNpcAI smartNpc = hit.GetComponentInParent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            return smartNpc.transform;
+        }
+
+        VillagerAI villager = hit.GetComponentInParent<VillagerAI>();
+        if (villager != null)
+        {
+            return villager.transform;
+        }
+
+        NpcMapMover2D mover = hit.GetComponentInParent<NpcMapMover2D>();
+        return mover != null ? mover.transform : null;
     }
 
     void OnDrawGizmosSelected()

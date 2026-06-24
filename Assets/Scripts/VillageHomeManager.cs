@@ -51,6 +51,11 @@ public class VillageHomeManager : MonoBehaviour
                 continue;
             }
 
+            if (villager.IsReturningHome)
+            {
+                continue;
+            }
+
             if (ShouldReturnHome(villager, timeSystem))
             {
                 villager.GoHomeToRest();

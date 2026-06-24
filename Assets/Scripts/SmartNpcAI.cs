@@ -195,6 +195,8 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
     private Vector3 spawnPosition;
     private Vector3 wanderTarget;
     private bool hasWanderTarget;
+    private Vector3 cultivationTarget;
+    private bool hasCultivationTarget;
     private GameObject cultivationEffectInstance;
     NpcResourceGatherer resourceGatherer;
     string currentScheduleSlotKey;
@@ -2672,6 +2674,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         treasureHuntItem = null;
         waitingOutsideTreasureLightning = false;
         hasWanderTarget = false;
+        hasCultivationTarget = false;
         hasEscapeTarget = false;
         hasHomeReturnTarget = false;
         hasObstacleAvoidTarget = false;
@@ -2770,9 +2773,7 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
                             return true;
                         }
 
-                        schedule.MarkCurrentSlotActivityCompleted(
-                            NpcScheduleActivity.Cultivate);
-                        ClearCompletedCultivationAction();
+                        CultivateNaturally();
                         return true;
                     }
 
@@ -2861,6 +2862,13 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
 
     void WaitForScheduledActivity(NpcScheduleActivity activity)
     {
+        if (activity == NpcScheduleActivity.Cultivate &&
+            canCultivate)
+        {
+            CultivateNaturally();
+            return;
+        }
+
         currentTarget = null;
         hasWanderTarget = false;
         hasEscapeTarget = false;
@@ -3487,6 +3495,37 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
             return false;
         }
 
+        if (currentAction == NpcText.Action("goCultivatePoint") &&
+            hasWanderTarget)
+        {
+            if (Vector2.Distance(transform.position, wanderTarget) <= escapeTargetReachDistance)
+            {
+                return false;
+            }
+
+            currentTarget = null;
+            hasEscapeTarget = false;
+            hasObstacleAvoidTarget = false;
+            return true;
+        }
+
+        if (hasCultivationTarget &&
+            IsMoveTargetFeasible(cultivationTarget))
+        {
+            if (Vector2.Distance(transform.position, cultivationTarget) <= escapeTargetReachDistance)
+            {
+                return false;
+            }
+
+            currentTarget = null;
+            wanderTarget = cultivationTarget;
+            hasWanderTarget = true;
+            hasEscapeTarget = false;
+            hasObstacleAvoidTarget = false;
+            currentAction = NpcText.Action("goCultivatePoint");
+            return true;
+        }
+
         Transform targetPoint = cultivationPoint;
         Vector3 cultivationPosition =
             targetPoint != null
@@ -3514,6 +3553,8 @@ public class SmartNpcAI : MonoBehaviour, IDamageable
         currentTarget = targetPoint;
         wanderTarget = cultivationPosition;
         hasWanderTarget = targetPoint == null;
+        cultivationTarget = cultivationPosition;
+        hasCultivationTarget = true;
         hasEscapeTarget = false;
         hasObstacleAvoidTarget = false;
         currentAction = NpcText.Action("goCultivatePoint");
@@ -4516,6 +4557,7 @@ bool ShouldFightMonster(
                 return 80;
         }
     }
+
     void Die()
     {
         if (isDead)

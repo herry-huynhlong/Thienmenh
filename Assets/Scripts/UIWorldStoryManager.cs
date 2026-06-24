@@ -8,19 +8,29 @@ public class UIWorldStoryManager : MonoBehaviour
     public static UIWorldStoryManager Instance;
 
     [Header("Giao Diện Chính")]
-    public GameObject storyPanel;       // Kéo khung to StoryPanel vào đây
-    public Transform contentContainer; // Kéo ô Content của Scroll View vào đây
-    public ScrollRect scrollRect;       // Kéo Scroll View vào đây
+    public GameObject storyPanel;
+    public Transform contentContainer;
+    public ScrollRect scrollRect;
 
     [Header("Mẫu Dòng Chữ (Prefab)")]
-    public GameObject logTextPrefab;   // Kéo Prefab TextMeshPro dòng chữ vào đây
+    public GameObject logTextPrefab;
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
 
-        if (storyPanel != null) storyPanel.SetActive(false);
+        if (storyPanel != null)
+        {
+            storyPanel.SetActive(false);
+        }
     }
 
     void OnEnable()
@@ -33,10 +43,12 @@ public class UIWorldStoryManager : MonoBehaviour
         WorldEventManager.OnLogUpdated -= RefreshUI;
     }
 
-    // Gắn hàm này vào Sự kiện OnClick của Nút bấm cuộn giấy lông vũ
     public void ToggleStoryPanel()
     {
-        if (storyPanel == null) return;
+        if (storyPanel == null)
+        {
+            return;
+        }
 
         bool isActive = !storyPanel.activeSelf;
         storyPanel.SetActive(isActive);
@@ -49,39 +61,128 @@ public class UIWorldStoryManager : MonoBehaviour
 
     public void RefreshUI()
     {
-        if (storyPanel == null || !storyPanel.activeSelf || contentContainer == null || logTextPrefab == null) 
-            return;
-
-        // Xóa các dòng chữ UI cũ
-        foreach (Transform child in contentContainer)
+        if (storyPanel == null || !storyPanel.activeSelf || contentContainer == null || logTextPrefab == null)
         {
-            Destroy(child.gameObject);
+            return;
         }
 
-        // Đọc data từ Manager
+        ClearOldLogs();
+
+        if (WorldEventManager.Instance == null)
+        {
+            Debug.LogWarning("UIWorldStoryManager: Không tìm thấy WorldEventManager.Instance");
+            return;
+        }
+
         List<LogEntry> logs = WorldEventManager.Instance.GetStoryLogs();
 
         foreach (LogEntry log in logs)
         {
-            GameObject newTextObj = Instantiate(logTextPrefab, contentContainer);
-            TextMeshProUGUI textMesh = newTextObj.GetComponent<TextMeshProUGUI>();
-
-            if (textMesh != null)
-            {
-                // Đổi màu dựa theo số int đơn giản (0: Nâu giấy, 1: Xanh lam, 2: Đỏ cam)
-                string colorHex = "#D2B48C"; 
-                if (log.logColorType == 1) colorHex = "#00FFFF"; 
-                if (log.logColorType == 2) colorHex = "#FF4500"; 
-
-                textMesh.text = $"<color={colorHex}>{log.timestamp}</color> {log.content}";
-            }
+            CreateLogItem(log);
         }
 
-        // Tự cuộn lên đầu trang
         Canvas.ForceUpdateCanvases();
+
         if (scrollRect != null)
         {
-            scrollRect.verticalNormalizedPosition = 1f; 
+            scrollRect.verticalNormalizedPosition = 1f;
         }
+    }
+
+    private void ClearOldLogs()
+    {
+        foreach (Transform child in contentContainer)
+        {
+            Destroy(child.gameObject);
+        }
+    }
+
+    private void CreateLogItem(LogEntry log)
+    {
+        GameObject newTextObj = Instantiate(logTextPrefab, contentContainer);
+
+        // Dùng GetComponentInChildren vì TextMeshPro nằm ở object con LogText
+        TextMeshProUGUI textMesh = newTextObj.GetComponentInChildren<TextMeshProUGUI>();
+
+        if (textMesh == null)
+        {
+            Debug.LogWarning("LogTextPrefab chưa có TextMeshProUGUI ở object con.");
+            return;
+        }
+
+        string timeText = FormatTimestamp(log.timestamp);
+        string contentColor = GetContentColorHex(log.logColorType);
+
+        textMesh.text =
+            $"<size=85%><color=#9E6A2E>{timeText}</color></size>\n" +
+            $"<color={contentColor}>{log.content}</color>";
+    }
+
+    private string GetContentColorHex(int type)
+    {
+        switch (type)
+        {
+            case 1:
+                return "#2F7C9D"; // tin đặc biệt / xanh lam dịu
+
+            case 2:
+                return "#B94735"; // cảnh báo / đỏ cam dịu
+
+            default:
+                return "#4B3726"; // chữ thường / nâu đậm
+        }
+    }
+
+    private string FormatTimestamp(string timestamp)
+    {
+        if (string.IsNullOrWhiteSpace(timestamp))
+        {
+            return "Ngày ?";
+        }
+
+        string clean = timestamp
+            .Replace("[", "")
+            .Replace("]", "")
+            .Trim();
+
+        int month = 0;
+        int day = 1;
+
+        try
+        {
+            string[] parts = clean.Split('-');
+
+            foreach (string part in parts)
+            {
+                string p = part.Trim();
+
+                // T1, T2, T3...
+                if (p.StartsWith("T"))
+                {
+                    string number = p.Replace("T", "").Trim();
+                    int.TryParse(number, out month);
+                }
+
+                // N1, N2, N3...
+                // Tránh nhầm với "Năm"
+                else if (p.StartsWith("N") && !p.StartsWith("Năm"))
+                {
+                    string number = p.Replace("N", "").Trim();
+                    int.TryParse(number, out day);
+                }
+            }
+        }
+        catch
+        {
+            return clean;
+        }
+
+        // Nếu chưa có tháng thật thì chỉ hiện ngày
+        if (month <= 0)
+        {
+            return $"Ngày {day}";
+        }
+
+        return $"Tháng {month} · Ngày {day}";
     }
 }

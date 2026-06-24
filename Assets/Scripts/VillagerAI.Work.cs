@@ -12,6 +12,12 @@ public partial class VillagerAI
             return;
         }
 
+        if (ShouldGoHomeForRest())
+        {
+            GoHomeToRest();
+            return;
+        }
+
         NpcResourceGatherer gatherer = EnsureWorkGatherer();
         if (job != VillagerJob.Farmer &&
             job != VillagerJob.Fisher &&

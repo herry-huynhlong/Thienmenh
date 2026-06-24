@@ -301,7 +301,7 @@ public static class EntityGenerator
             : WeightedGender();
         identity.age = kind == EntityKind.Beast
             ? UnityEngine.Random.Range(1, 80)
-            : UnityEngine.Random.Range(14, 91);
+            : UnityEngine.Random.Range(14, 80);
 
         if (kind == EntityKind.Beast)
         {

@@ -49,8 +49,7 @@ public class HarvestJob : MonoBehaviour
 
     void Update()
     {
-        if (villager != null &&
-            villager.ShouldGoHomeForRest())
+        if (ShouldAbortHarvestForHome())
         {
             villager.GoHomeToRest();
             return;
@@ -111,8 +110,7 @@ public class HarvestJob : MonoBehaviour
 
     public bool TryRun()
     {
-        if (villager != null &&
-            villager.ShouldGoHomeForRest())
+        if (ShouldAbortHarvestForHome())
         {
             villager.GoHomeToRest();
             return true;
@@ -148,8 +146,10 @@ public class HarvestJob : MonoBehaviour
         if (targetItem == null)
         {
             currentState = NpcJobState.Idle;
-            BeginWaitingCycle();
-            return true;
+            waitingForRetry = false;
+            retryTimer = 0f;
+            lastRetrySeconds = -1;
+            return false;
         }
 
         if (TryStartHarvestNow(targetItem))
@@ -174,6 +174,81 @@ public class HarvestJob : MonoBehaviour
         retryTimer = 0f;
         lastRetrySeconds = -1;
         return false;
+    }
+
+    bool ShouldAbortHarvestForHome()
+    {
+        if (villager == null)
+        {
+            return false;
+        }
+
+        if (villager.IsReturningHome)
+        {
+            return false;
+        }
+
+        if (villager.ShouldGoHomeForRest())
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.LogWarning(
+                "[HarvestJob] Abort for home (villager rule) -> " +
+                gameObject.name +
+                " action=" + villager.currentAction +
+                " job=" + villager.job +
+                " state=" + currentState +
+                " waiting=" + waitingForRetry +
+                " hour=" + (WorldTimeSystem.Instance != null
+                    ? WorldTimeSystem.Instance.CurrentHour.ToString("0.##")
+                    : "null"));
+#endif
+            return true;
+        }
+
+        NpcScheduleController schedule =
+            NpcScheduleController.GetSchedule(gameObject);
+        if (schedule != null &&
+            schedule.enforceSchedule &&
+            schedule.CurrentActivity == NpcScheduleActivity.ReturnHome)
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.LogWarning(
+                "[HarvestJob] Abort for home (schedule ReturnHome) -> " +
+                gameObject.name +
+                " action=" + villager.currentAction +
+                " job=" + villager.job +
+                " state=" + currentState +
+                " waiting=" + waitingForRetry +
+                " hour=" + (WorldTimeSystem.Instance != null
+                    ? WorldTimeSystem.Instance.CurrentHour.ToString("0.##")
+                    : "null"));
+#endif
+            return true;
+        }
+
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        bool shouldAbort =
+            timeSystem != null &&
+            (timeSystem.CurrentPhase == WorldTimePhase.Noon ||
+            (timeSystem.CurrentHour >= 11f &&
+                timeSystem.CurrentHour < 13f) ||
+            timeSystem.CurrentPhase == WorldTimePhase.Night);
+
+        if (shouldAbort)
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.LogWarning(
+                "[HarvestJob] Abort for home (time window) -> " +
+                gameObject.name +
+                " phase=" + (timeSystem != null ? timeSystem.CurrentPhase.ToString() : "null") +
+                " hour=" + (timeSystem != null ? timeSystem.CurrentHour.ToString("0.##") : "null") +
+                " action=" + villager.currentAction +
+                " state=" + currentState +
+                " waiting=" + waitingForRetry);
+#endif
+        }
+
+        return shouldAbort;
     }
 
     public StatItemData ResolveTargetItem()

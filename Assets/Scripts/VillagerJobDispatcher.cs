@@ -17,7 +17,22 @@ public class VillagerJobDispatcher : MonoBehaviour
             return false;
         }
 
+        if (villager.IsReturningHome)
+        {
+            return false;
+        }
+
         if (villager.ShouldGoHomeForRest())
+        {
+            villager.GoHomeToRest();
+            return true;
+        }
+
+        NpcScheduleController schedule =
+            NpcScheduleController.GetSchedule(villager.gameObject);
+        if (schedule != null &&
+            schedule.enforceSchedule &&
+            schedule.CurrentActivity == NpcScheduleActivity.ReturnHome)
         {
             villager.GoHomeToRest();
             return true;
@@ -54,7 +69,22 @@ public class VillagerJobDispatcher : MonoBehaviour
             return false;
         }
 
+        if (villager.IsReturningHome)
+        {
+            return false;
+        }
+
         if (villager.ShouldGoHomeForRest())
+        {
+            villager.GoHomeToRest();
+            return true;
+        }
+
+        NpcScheduleController schedule =
+            NpcScheduleController.GetSchedule(villager.gameObject);
+        if (schedule != null &&
+            schedule.enforceSchedule &&
+            schedule.CurrentActivity == NpcScheduleActivity.ReturnHome)
         {
             villager.GoHomeToRest();
             return true;

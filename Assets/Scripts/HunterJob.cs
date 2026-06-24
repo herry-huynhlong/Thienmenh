@@ -73,9 +73,19 @@ public class HunterJob : MonoBehaviour
 
     void Update()
     {
-        if (villager != null &&
-            villager.ShouldGoHomeForRest())
+        if (ShouldReturnHomeNow())
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.LogWarning(
+                "[HunterJob] Abort for home -> " +
+                gameObject.name +
+                " action=" + villager.currentAction +
+                " state=" + currentState +
+                " running=" + running +
+                " hour=" + (WorldTimeSystem.Instance != null
+                    ? WorldTimeSystem.Instance.CurrentHour.ToString("0.##")
+                    : "null"));
+#endif
             villager.GoHomeToRest();
             return;
         }
@@ -90,9 +100,19 @@ public class HunterJob : MonoBehaviour
 
     public bool TryRun()
     {
-        if (villager != null &&
-            villager.ShouldGoHomeForRest())
+        if (ShouldReturnHomeNow())
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.LogWarning(
+                "[HunterJob] TryRun aborted for home -> " +
+                gameObject.name +
+                " action=" + villager.currentAction +
+                " state=" + currentState +
+                " running=" + running +
+                " hour=" + (WorldTimeSystem.Instance != null
+                    ? WorldTimeSystem.Instance.CurrentHour.ToString("0.##")
+                    : "null"));
+#endif
             villager.GoHomeToRest();
             return true;
         }
@@ -106,6 +126,18 @@ public class HunterJob : MonoBehaviour
         RefreshReferences();
         running = true;
         TickHunterJob();
+        return true;
+    }
+
+    bool ShouldReturnHomeNow()
+    {
+        if (villager == null ||
+            villager.IsReturningHome ||
+            !villager.ShouldGoHomeForRest())
+        {
+            return false;
+        }
+
         return true;
     }
 

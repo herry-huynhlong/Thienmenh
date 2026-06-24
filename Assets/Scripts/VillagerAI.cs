@@ -215,7 +215,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
     [Header("Runtime")]
     public string currentAction = "idle";
     public Transform currentTarget;
-    public string lastWorkProductStatus;
     public string debugWorkTarget;
     [Header("Cultivation Effect")]
     public GameObject cultivationEffectPrefab;
@@ -245,6 +244,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
     Vector3 obstacleAvoidTarget;
     float obstacleAvoidUntil;
     bool hasObstacleAvoidTarget;
+    bool isReturningHome;
     NpcMapZone? movementTargetZone;
     bool hasWanderTarget;
     bool hasDirectMoveTarget;
@@ -257,6 +257,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
     float blockedMoveTimer;
     float crowdBlockedTimer;
     float nextReducedMovementUpdateTime;
+    int lastHomeTravelFrame = -1;
     Collider2D[] ownColliders;
     Renderer[] ownRenderers;
     NpcMapArea currentMapArea;
@@ -316,20 +317,33 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
     public bool IsHiddenAtHome => hiddenAtHome;
 
+    public bool IsReturningHome => isReturningHome;
+
     public Transform DamageTransform => transform;
 
     public bool ShouldGoHomeForRest()
     {
+        if (homePoint == null)
+        {
+            ResolveMissingHomePoint();
+        }
+
+        if (isReturningHome &&
+            !IsAtHomePosition(GetHomePosition()))
+        {
+            return false;
+        }
+
         if (hiddenAtHome ||
-            IsInDungeonCombatSession() ||
-            homePoint == null)
+            IsInDungeonCombatSession())
         {
             return false;
         }
 
         WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
         if (timeSystem != null &&
-            ((timeSystem.CurrentHour >= 11f &&
+            (timeSystem.CurrentPhase == WorldTimePhase.Noon ||
+            (timeSystem.CurrentHour >= 11f &&
                 timeSystem.CurrentHour < 13f) ||
             timeSystem.CurrentPhase == WorldTimePhase.Night))
         {
@@ -463,6 +477,10 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
     public void ForceHiddenAtHome(bool hidden)
     {
         hiddenAtHome = hidden;
+        if (hidden)
+        {
+            isReturningHome = false;
+        }
         if (spawnedWorldActor != null)
         {
             spawnedWorldActor.isHiddenAtHome = hidden;
@@ -594,7 +612,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         }
 
         villagerName = entityProfile.identity.entityName;
-        ageGroup = GetAgeGroup(entityProfile.identity.age);
         if (!keepInspectorJob &&
             job == VillagerJob.None)
         {
@@ -610,6 +627,16 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         maxHP = entityProfile.stats.maxHP;
         currentHP =
             Mathf.Clamp(entityProfile.stats.currentHP, 0, maxHP);
+        if (entityProfile.identity != null &&
+            currentHP > 0)
+        {
+            int safeSpawnAge = GetSafeSpawnAge(lifespan);
+            if (entityProfile.identity.age > safeSpawnAge)
+            {
+                entityProfile.identity.age = safeSpawnAge;
+            }
+        }
+        ageGroup = GetAgeGroup(entityProfile.identity.age);
         attack = entityProfile.stats.attack;
         defense = entityProfile.stats.defense;
         moveSpeed = entityProfile.stats.moveSpeed;
@@ -700,6 +727,16 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         return roll < 0.67f ? VillagerJob.Fisher : VillagerJob.Hunter;
     }
 
+    int GetSafeSpawnAge(int targetLifespan)
+    {
+        int worldYearOffset =
+            WorldTimeSystem.Instance != null
+                ? Mathf.Max(0, WorldTimeSystem.Instance.currentYear - 1)
+                : 0;
+
+        return Mathf.Max(1, targetLifespan - 1 - worldYearOffset);
+    }
+
     void Update()
     {
         SyncCultivationEffect();
@@ -719,14 +756,40 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
         RefreshScheduledStateForCurrentFrame();
 
+        if (isReturningHome &&
+            IsAtHomePosition(GetHomePosition()))
+        {
+            CompleteHomeArrival();
+        }
+
         if (ShouldForceReturnHomeForCurrentSchedule())
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.LogWarning(
+                "[VillagerAI] ReturnHome trigger -> " +
+                gameObject.name +
+                " action=" + currentAction +
+                " job=" + job +
+                " hour=" + (WorldTimeSystem.Instance != null
+                    ? WorldTimeSystem.Instance.CurrentHour.ToString("0.##")
+                    : "null"));
+#endif
             GoHomeToRest();
             return;
         }
 
         if (NpcTaskProvider.IsNpcBusyWithAnyProvider(gameObject))
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.LogWarning(
+                "[VillagerAI] Busy by provider -> " +
+                gameObject.name +
+                " action=" + currentAction +
+                " job=" + job +
+                " hour=" + (WorldTimeSystem.Instance != null
+                    ? WorldTimeSystem.Instance.CurrentHour.ToString("0.##")
+                    : "null"));
+#endif
             StopMoving();
             return;
         }
@@ -1025,6 +1088,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                 }
                 else
                 {
+                    isReturningHome = false;
                     StopMoving();
                     ClearMovementTargets();
                     currentAction = NpcText.Action("idle");
@@ -1238,7 +1302,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
     bool ShouldForceReturnHomeFromSchedule()
     {
-        return ShouldGoHomeForRest();
+        return ShouldForceReturnHomeForCurrentSchedule();
     }
 
     string BuildScheduleSlotKey(
@@ -1762,49 +1826,39 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
     public NpcMapZone GetPreferredResourceGatherZone()
     {
-        if (job == VillagerJob.Fisher ||
-            job == VillagerJob.Hunter)
+        if (job == VillagerJob.Fisher)
         {
-            if (job == VillagerJob.Hunter)
+            return NpcMapZone.Lang;
+        }
+
+        if (job == VillagerJob.Hunter)
+        {
+            HunterJob hunterJob = GetComponent<HunterJob>();
+            if (hunterJob != null)
             {
-                HunterJob hunterJob = GetComponent<HunterJob>();
-                if (hunterJob != null)
+                if (hunterJob.huntPoint != null)
                 {
-                    if (hunterJob.huntPoint != null)
+                    NpcMapZone? huntPointZone =
+                        NpcMapNavigator.GetDestinationZone(
+                            hunterJob.huntPoint);
+                    if (huntPointZone.HasValue)
                     {
-                        NpcMapZone? huntPointZone =
-                            NpcMapNavigator.GetDestinationZone(
-                                hunterJob.huntPoint);
-                        if (huntPointZone.HasValue)
-                        {
-                            return huntPointZone.Value;
-                        }
+                        return huntPointZone.Value;
                     }
-
-                    return hunterJob.huntZone;
                 }
-            }
 
-            if (workPoint != null)
+                return hunterJob.huntZone;
+            }
+        }
+
+        if (workPoint != null)
+        {
+            NpcMapZone? workZone =
+                NpcMapNavigator.GetDestinationZone(workPoint);
+            if (workZone.HasValue)
             {
-                NpcMapZone? workZone =
-                    NpcMapNavigator.GetDestinationZone(workPoint);
-                if (workZone.HasValue)
-                {
-                    return workZone.Value;
-                }
+                return workZone.Value;
             }
-
-            // When the NPC has no fixed work point, stay in the zone it is
-            // actually running around in instead of hard-coding one map area.
-            NpcMapZone? currentZone =
-                NpcMapNavigator.ResolveActorZone(gameObject);
-            if (currentZone.HasValue)
-            {
-                return currentZone.Value;
-            }
-
-            return NpcMapZone.MaThuSonMach;
         }
 
         return ShouldSeekForestResources()
@@ -2425,8 +2479,38 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             StopMoving();
             ClearMovementTargets();
             currentAction = NpcText.Action("idle");
+            isReturningHome = false;
             return;
         }
+
+        if (isReturningHome &&
+            !IsAtHomePosition(GetHomePosition()))
+        {
+            return;
+        }
+
+        if (Time.frameCount == lastHomeTravelFrame &&
+            currentAction == NpcText.Action("goHomeRest") &&
+            (currentTarget != null ||
+            hasDirectMoveTarget ||
+            hasWanderTarget ||
+            hasObstacleAvoidTarget))
+        {
+            return;
+        }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        Debug.LogWarning(
+            "[VillagerAI] GoHomeToRest -> " +
+            gameObject.name +
+            " action=" + currentAction +
+            " job=" + job +
+            " homePoint=" + (homePoint != null ? homePoint.name : "null") +
+            " hiddenAtHome=" + hiddenAtHome +
+            " hour=" + (WorldTimeSystem.Instance != null
+                ? WorldTimeSystem.Instance.CurrentHour.ToString("0.##")
+                : "null"));
+#endif
 
         if (!enabled)
         {
@@ -2434,37 +2518,68 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             enabled = true;
         }
 
+        if (homePoint == null)
+        {
+            ResolveMissingHomePoint();
+        }
+
         CancelScheduledWorkState();
+        isReturningHome = true;
+        lastHomeTravelFrame = Time.frameCount;
 
         Vector3 homePosition = GetHomePosition();
+        Vector3 travelTarget = homePosition;
+        TryResolveHomeTravelTarget(ref travelTarget);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (Vector2.Distance(homePosition, travelTarget) > 0.01f)
+        {
+            Debug.LogWarning(
+                "[VillagerAI] Home fallback target -> " +
+                gameObject.name +
+                " home=" + homePosition +
+                " fallback=" + travelTarget +
+                " hour=" + (WorldTimeSystem.Instance != null
+                    ? WorldTimeSystem.Instance.CurrentHour.ToString("0.##")
+                    : "null"));
+        }
+#endif
+        homePosition = travelTarget;
+        SetDirectMoveTarget(homePosition, false, GetHomeZone());
         MoveUsingRoad(homePosition, GetHomeZone());
         currentAction = NpcText.Action("goHomeRest");
 
         if (IsAtHomePosition(homePosition))
         {
-            ClearMovementTargets();
-            StopMoving();
-            fatigue = 0f;
-            if (characterStats != null)
-            {
-                characterStats.currentHP =
-                    Mathf.Min(
-                        characterStats.finalHP,
-                        characterStats.currentHP + 10);
-                SyncFromCharacterStats();
-            }
-            else
-            {
-                currentHP = Mathf.Min(maxHP, currentHP + 10);
-            }
-            actionTimer = restDuration;
-            currentAction = NpcText.Action("rest");
-            ResetDailyTargets();
+            CompleteHomeArrival();
+        }
+    }
 
-            if (hideAtHome)
-            {
-                ForceHiddenAtHome(true);
-            }
+    void CompleteHomeArrival()
+    {
+        ClearMovementTargets();
+        StopMoving();
+        fatigue = 0f;
+        if (characterStats != null)
+        {
+            characterStats.currentHP =
+                Mathf.Min(
+                    characterStats.finalHP,
+                    characterStats.currentHP + 10);
+            SyncFromCharacterStats();
+        }
+        else
+        {
+            currentHP = Mathf.Min(maxHP, currentHP + 10);
+        }
+
+        actionTimer = restDuration;
+        currentAction = NpcText.Action("rest");
+        ResetDailyTargets();
+        isReturningHome = false;
+
+        if (hideAtHome)
+        {
+            ForceHiddenAtHome(true);
         }
     }
 
@@ -2794,6 +2909,13 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (job == VillagerJob.Fisher &&
+            !HasSellableGoods())
+        {
+            GoHomeIdle(NpcText.Action("idle"));
+            return;
+        }
+
         if (!NpcScheduleController.AllowsTrade(gameObject))
         {
             GoHomeIdle(NpcText.Action("idle"));
@@ -2917,6 +3039,23 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         }
 
         Vector3 homePosition = GetHomePosition();
+        Vector3 travelTarget = homePosition;
+        TryResolveHomeTravelTarget(ref travelTarget);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (Vector2.Distance(homePosition, travelTarget) > 0.01f)
+        {
+            Debug.LogWarning(
+                "[VillagerAI] Home idle fallback target -> " +
+                gameObject.name +
+                " home=" + homePosition +
+                " fallback=" + travelTarget +
+                " hour=" + (WorldTimeSystem.Instance != null
+                    ? WorldTimeSystem.Instance.CurrentHour.ToString("0.##")
+                    : "null"));
+        }
+#endif
+        homePosition = travelTarget;
+        SetDirectMoveTarget(homePosition, false, GetHomeZone());
         MoveUsingRoad(homePosition, GetHomeZone());
         currentAction = action;
 
@@ -2938,6 +3077,34 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         return homePoint != null
             ? homePoint.position
             : spawnPosition;
+    }
+
+    bool TryResolveHomeTravelTarget(ref Vector3 homePosition)
+    {
+        if (IsMoveTargetFeasible(homePosition))
+        {
+            return true;
+        }
+
+        if (TryFindClearPointNear(homePosition, out Vector3 clearPoint) &&
+            IsMoveTargetFeasible(clearPoint))
+        {
+            homePosition = clearPoint;
+            return true;
+        }
+
+        NpcMapZone? homeZone = GetHomeZone();
+        if (homeZone.HasValue)
+        {
+            Vector3 zoneFallback = GetFallbackPositionInZone(homeZone.Value);
+            if (IsMoveTargetFeasible(zoneFallback))
+            {
+                homePosition = zoneFallback;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     void ResolveMissingHomePoint()
@@ -3583,11 +3750,39 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             }
         }
 
+        HarvestJob harvestJob = EnsureHarvestJob();
+        switch (job)
+        {
+            case VillagerJob.Farmer:
+                if (harvestJob != null)
+                {
+                    product = harvestJob.farmProduct;
+                }
+                break;
+
+            case VillagerJob.Fisher:
+                if (harvestJob != null)
+                {
+                    product = harvestJob.fishingProduct != null
+                        ? harvestJob.fishingProduct
+                        : fishingProduct;
+                }
+                break;
+
+            case VillagerJob.Hunter:
+                if (harvestJob != null)
+                {
+                    product = harvestJob.huntingProduct != null
+                        ? harvestJob.huntingProduct
+                        : huntingProduct;
+                }
+                break;
+        }
+
         if (product == null)
         {
             money += GetWorkIncome();
-            lastWorkProductStatus = NpcText.Get("workStatus", "noProductPaid");
-            currentAction = NpcText.Action("paidWork");
+            currentAction = GetWorkingAction();
             return true;
         }
 
@@ -3598,12 +3793,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             GetProfessionProductBonus();
 
         inventory.AddItem(product, amount);
-        lastWorkProductStatus =
-            NpcText.Format(
-                NpcText.Get("workStatus", "addedItemAmountInventory"),
-                product.itemName,
-                amount,
-                inventory.GetAmount(product));
         currentAction = NpcText.ActionFormat("harvestItemAmount", product.itemName, amount);
         return true;
     }
@@ -3687,7 +3876,13 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             }
         }
 
-        return amount >= Mathf.Max(1, sellGoodsThreshold);
+        int requiredAmount = Mathf.Max(1, sellGoodsThreshold);
+        if (job == VillagerJob.Fisher)
+        {
+            requiredAmount = Mathf.Max(requiredAmount, 3);
+        }
+
+        return amount >= requiredAmount;
     }
 
     bool IsSellableStack(ItemStack stack)
@@ -4218,8 +4413,32 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                 out Vector3 registryWorkPoint,
                 out NpcMapZone? registryWorkZone))
         {
+            if (targetJob == VillagerJob.Fisher &&
+                registryWorkZone.HasValue &&
+                registryWorkZone.Value != NpcMapZone.Lang)
+            {
+                currentWorkTargetZone = NpcMapZone.Lang;
+                return Vector3.zero;
+            }
+
             currentWorkTargetZone = registryWorkZone;
             return registryWorkPoint;
+        }
+
+        if (targetJob == VillagerJob.Fisher)
+        {
+            if (workPoint == null)
+            {
+                return Vector3.zero;
+            }
+
+            currentWorkTargetZone =
+                NpcMapNavigator.GetDestinationZone(workPoint);
+            if (currentWorkTargetZone.HasValue &&
+                currentWorkTargetZone.Value != NpcMapZone.Lang)
+            {
+                return Vector3.zero;
+            }
         }
 
         if (workPoint == null)
