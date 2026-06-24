@@ -468,6 +468,12 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             spawnedWorldActor.isHiddenAtHome = hidden;
         }
 
+        if (!hidden && !enabled)
+        {
+            // Re-enable the base AI so the villager can leave home again.
+            enabled = true;
+        }
+
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
@@ -2420,6 +2426,12 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             ClearMovementTargets();
             currentAction = NpcText.Action("idle");
             return;
+        }
+
+        if (!enabled)
+        {
+            // Another system may have paused the base AI; restore it so home travel runs.
+            enabled = true;
         }
 
         CancelScheduledWorkState();

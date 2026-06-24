@@ -2199,7 +2199,6 @@ GameObject:
   - component: {fileID: 141102549}
   - component: {fileID: 141102548}
   - component: {fileID: 141102551}
-  - component: {fileID: 141102552}
   m_Layer: 5
   m_Name: Button_Pack1
   m_TagString: Untagged
@@ -2326,30 +2325,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47d933c486c2bd343b833b38ff54718c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PhapTuongBreath
-  scaleAmount: 0.05
+  scaleAmount: 0.3
   breathSpeed: 1.2
---- !u!114 &141102552
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 141102546}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0175f2f407c734a804c60465938ef4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LuckyWheelEntryAliveEffect
-  target: {fileID: 141102547}
-  sparkRoot: {fileID: 141102547}
-  floatHeight: 0
-  floatSpeed: 0
-  pulseAmount: 0
-  pulseSpeed: 0
-  tiltAmount: 0
-  tiltSpeed: 0
-  sparkInterval: 0.45
-  sparkPerBurst: 4
 --- !u!1 &143541538
 GameObject:
   m_ObjectHideFlags: 0
@@ -2846,7 +2823,6 @@ GameObject:
   - component: {fileID: 160136024}
   - component: {fileID: 160136023}
   - component: {fileID: 160136022}
-  - component: {fileID: 160136026}
   m_Layer: 5
   m_Name: thiendaolau
   m_TagString: Untagged
@@ -2968,28 +2944,6 @@ RectTransform:
   m_AnchoredPosition: {x: -176, y: 187}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &160136026
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 160136021}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0175f2f407c734a804c60465938ef4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LuckyWheelEntryAliveEffect
-  target: {fileID: 160136025}
-  sparkRoot: {fileID: 160136025}
-  floatHeight: 0
-  floatSpeed: 0
-  pulseAmount: 0
-  pulseSpeed: 0
-  tiltAmount: 0
-  tiltSpeed: 0
-  sparkInterval: 0.45
-  sparkPerBurst: 4
 --- !u!1 &168313269
 GameObject:
   m_ObjectHideFlags: 0
@@ -8660,7 +8614,6 @@ GameObject:
   - component: {fileID: 548059813}
   - component: {fileID: 548059816}
   - component: {fileID: 548059817}
-  - component: {fileID: 548059818}
   m_Layer: 5
   m_Name: ShopPanel
   m_TagString: Untagged
@@ -8682,7 +8635,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -8771,30 +8724,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47d933c486c2bd343b833b38ff54718c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PhapTuongBreath
-  scaleAmount: 0.05
+  scaleAmount: 0.1
   breathSpeed: 2
---- !u!114 &548059818
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 548059812}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0175f2f407c734a804c60465938ef4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LuckyWheelEntryAliveEffect
-  target: {fileID: 548059815}
-  sparkRoot: {fileID: 548059815}
-  floatHeight: 0
-  floatSpeed: 0
-  pulseAmount: 0
-  pulseSpeed: 0
-  tiltAmount: 0
-  tiltSpeed: 0
-  sparkInterval: 0.45
-  sparkPerBurst: 4
 --- !u!1 &555824009
 GameObject:
   m_ObjectHideFlags: 0
@@ -17768,7 +17699,6 @@ GameObject:
   - component: {fileID: 1096623179}
   - component: {fileID: 1096623178}
   - component: {fileID: 1096623181}
-  - component: {fileID: 1096623182}
   m_Layer: 5
   m_Name: Button_Pack3
   m_TagString: Untagged
@@ -17895,30 +17825,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47d933c486c2bd343b833b38ff54718c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PhapTuongBreath
-  scaleAmount: 0.05
+  scaleAmount: 0.8
   breathSpeed: 2
---- !u!114 &1096623182
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1096623176}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0175f2f407c734a804c60465938ef4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LuckyWheelEntryAliveEffect
-  target: {fileID: 1096623177}
-  sparkRoot: {fileID: 1096623177}
-  floatHeight: 0
-  floatSpeed: 0
-  pulseAmount: 0
-  pulseSpeed: 0
-  tiltAmount: 0
-  tiltSpeed: 0
-  sparkInterval: 0.45
-  sparkPerBurst: 4
 --- !u!1 &1101935099
 GameObject:
   m_ObjectHideFlags: 0
@@ -19843,12 +19751,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LuckyWheelEntryAliveEffect
   target: {fileID: 1227731362}
   sparkRoot: {fileID: 651479830}
-  floatHeight: 0
-  floatSpeed: 0
-  pulseAmount: 0
-  pulseSpeed: 0
-  tiltAmount: 0
-  tiltSpeed: 0
+  floatHeight: 8
+  floatSpeed: 2.2
+  pulseAmount: 0.07
+  pulseSpeed: 3
+  tiltAmount: 5
+  tiltSpeed: 2.4
   sparkInterval: 0.45
   sparkPerBurst: 4
 --- !u!1 &1230229053
@@ -24516,13 +24424,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1566745322}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.93327296, g: 1, b: 0.7019608, a: 0}
+  m_Color: {r: 0.93327296, g: 1, b: 0.7019608, a: 0.8156863}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -30171,7 +30079,6 @@ GameObject:
   - component: {fileID: 1665687511}
   - component: {fileID: 1665687510}
   - component: {fileID: 1665687513}
-  - component: {fileID: 1665687514}
   m_Layer: 5
   m_Name: Button_Pack2
   m_TagString: Untagged
@@ -30298,30 +30205,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47d933c486c2bd343b833b38ff54718c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PhapTuongBreath
-  scaleAmount: 0.05
+  scaleAmount: 0.5
   breathSpeed: 2
---- !u!114 &1665687514
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1665687508}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0175f2f407c734a804c60465938ef4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LuckyWheelEntryAliveEffect
-  target: {fileID: 1665687509}
-  sparkRoot: {fileID: 1665687509}
-  floatHeight: 0
-  floatSpeed: 0
-  pulseAmount: 0
-  pulseSpeed: 0
-  tiltAmount: 0
-  tiltSpeed: 0
-  sparkInterval: 0.45
-  sparkPerBurst: 4
 --- !u!1 &1680467613
 GameObject:
   m_ObjectHideFlags: 0
@@ -36432,7 +36317,6 @@ GameObject:
   - component: {fileID: 2016528957}
   - component: {fileID: 2016528960}
   - component: {fileID: 2016528961}
-  - component: {fileID: 2016528962}
   m_Layer: 5
   m_Name: Button_WatchVideo
   m_TagString: Untagged
@@ -36573,30 +36457,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47d933c486c2bd343b833b38ff54718c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PhapTuongBreath
-  scaleAmount: 0.05
+  scaleAmount: 0.08
   breathSpeed: 1.2
---- !u!114 &2016528962
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2016528955}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0175f2f407c734a804c60465938ef4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LuckyWheelEntryAliveEffect
-  target: {fileID: 2016528956}
-  sparkRoot: {fileID: 2016528956}
-  floatHeight: 0
-  floatSpeed: 0
-  pulseAmount: 0
-  pulseSpeed: 0
-  tiltAmount: 0
-  tiltSpeed: 0
-  sparkInterval: 0.45
-  sparkPerBurst: 4
 --- !u!1 &2024511507
 GameObject:
   m_ObjectHideFlags: 0
