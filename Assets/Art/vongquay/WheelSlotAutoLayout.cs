@@ -12,8 +12,12 @@ public class WheelSlotAutoLayout : MonoBehaviour
         RadialIn
     }
 
+    [Header("Auto Apply")]
+    public bool applyOnStart = true;
+    public bool applyOnValidate = true;
+
     [Header("Circle Layout")]
-    public float radius = 200f;
+    public float radius = 230f;
     public float startAngle = 90f;
     public float globalAngleOffset = -18f;
     public bool clockwise = true;
@@ -26,9 +30,9 @@ public class WheelSlotAutoLayout : MonoBehaviour
 
     [Header("TierFrame Layout")]
     public RotationMode tierFrameRotation = RotationMode.RadialOut;
-    public float tierFrameRotationOffset = 0f;
-    public float tierFrameRadiusOffset = 0f;
-    public Vector2 tierFrameLocalOffset = Vector2.zero;
+    public float tierFrameRotationOffset = -100f;
+    public float tierFrameRadiusOffset = 2f;
+    public Vector2 tierFrameLocalOffset = new Vector2(2f, -5f);
     public bool flipTierFrameOnBottomHalf = false;
 
     [Header("ItemIcon Layout")]
@@ -40,10 +44,26 @@ public class WheelSlotAutoLayout : MonoBehaviour
     [Header("ItemText Layout")]
     public RotationMode itemTextRotation = RotationMode.RadialOut;
     public float itemTextRotationOffset = 0f;
-    public float itemTextRadiusOffset = 0f;
-    public Vector2 itemTextLocalOffset = new Vector2(0f, -18f);
+    public float itemTextRadiusOffset = -58f;
+    public Vector2 itemTextLocalOffset = Vector2.zero;
+    public bool flipTextOnBottomHalf = true;
     public bool textStayOneLine = true;
-    public Vector2 textSize = new Vector2(90f, 22f);
+    public Vector2 textSize = new Vector2(105f, 28f);
+    public float textFontSize = 16f;
+
+    [Header("Text Colors")]
+    public bool autoTextColorBySlot = true;
+
+    [Tooltip("Nếu Slot_00 đang nằm trên ô trắng thì bật. Nếu Slot_00 nằm trên ô xanh thì tắt.")]
+    public bool slot0IsWhite = true;
+
+    public Color textColorOnWhite = new Color32(75, 45, 18, 255);
+    public Color textColorOnBlue = Color.white;
+
+    [Header("Text Shadow / Outline")]
+    public bool addTMPOutline = false;
+    [Range(0f, 1f)] public float outlineWidth = 0.15f;
+    public Color outlineColor = new Color32(55, 32, 8, 255);
 
     [Header("Manual Slot Tweaks")]
     public SlotTweak[] slotTweaks;
@@ -71,11 +91,28 @@ public class WheelSlotAutoLayout : MonoBehaviour
         public float extraItemTextRotation = 0f;
     }
 
+    void Start()
+    {
+        if (applyOnStart)
+        {
+            ApplyLayout();
+        }
+    }
+
+    void OnValidate()
+    {
+        if (!applyOnValidate) return;
+        if (!gameObject.activeInHierarchy) return;
+
+        ApplyLayout();
+    }
+
     [ContextMenu("Apply Layout")]
     public void ApplyLayout()
     {
         List<RectTransform> slots = CollectActiveSlots();
         int count = slots.Count;
+
         if (count == 0) return;
 
         float step = 360f / count;
@@ -89,16 +126,28 @@ public class WheelSlotAutoLayout : MonoBehaviour
             SlotTweak tweak = GetTweak(i);
 
             float angleDeg = startAngle + globalAngleOffset + dir * i * step;
-            if (tweak != null) angleDeg += tweak.extraAngle;
+
+            if (tweak != null)
+            {
+                angleDeg += tweak.extraAngle;
+            }
 
             float finalRadius = radius;
-            if (tweak != null) finalRadius += tweak.extraRadius;
+
+            if (tweak != null)
+            {
+                finalRadius += tweak.extraRadius;
+            }
 
             float angleRad = angleDeg * Mathf.Deg2Rad;
             Vector2 radial = new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
 
             Vector2 slotPos = radial * finalRadius + centerOffset;
-            if (tweak != null) slotPos += tweak.extraSlotPosition;
+
+            if (tweak != null)
+            {
+                slotPos += tweak.extraSlotPosition;
+            }
 
             slot.anchoredPosition = slotPos;
             slot.localEulerAngles = Vector3.zero;
@@ -107,60 +156,135 @@ public class WheelSlotAutoLayout : MonoBehaviour
             RectTransform itemIcon = FindChildRecursive(slot, itemIconName);
             RectTransform itemText = FindChildRecursive(slot, itemTextName);
 
-            if (tierFrame != null)
+            ApplyTierFrameLayout(tierFrame, radial, angleDeg, tweak);
+            ApplyItemIconLayout(itemIcon, radial, angleDeg, tweak);
+            ApplyItemTextLayout(itemText, radial, angleDeg, i, tweak);
+        }
+    }
+
+    void ApplyTierFrameLayout(RectTransform tierFrame, Vector2 radial, float angleDeg, SlotTweak tweak)
+    {
+        if (tierFrame == null) return;
+
+        Vector2 pos = radial * tierFrameRadiusOffset + tierFrameLocalOffset;
+
+        if (tweak != null)
+        {
+            pos += tweak.extraTierFramePosition;
+        }
+
+        tierFrame.anchoredPosition = pos;
+
+        float rot = GetRotation(angleDeg, tierFrameRotation, tierFrameRotationOffset);
+
+        if (flipTierFrameOnBottomHalf && radial.y < 0f)
+        {
+            rot += 180f;
+        }
+
+        if (tweak != null)
+        {
+            rot += tweak.extraTierFrameRotation;
+        }
+
+        tierFrame.localEulerAngles = new Vector3(0f, 0f, rot);
+    }
+
+    void ApplyItemIconLayout(RectTransform itemIcon, Vector2 radial, float angleDeg, SlotTweak tweak)
+    {
+        if (itemIcon == null) return;
+
+        Vector2 pos = radial * itemIconRadiusOffset + itemIconLocalOffset;
+
+        if (tweak != null)
+        {
+            pos += tweak.extraItemIconPosition;
+        }
+
+        itemIcon.anchoredPosition = pos;
+
+        float rot = GetRotation(angleDeg, itemIconRotation, itemIconRotationOffset);
+
+        if (tweak != null)
+        {
+            rot += tweak.extraItemIconRotation;
+        }
+
+        itemIcon.localEulerAngles = new Vector3(0f, 0f, rot);
+    }
+
+    void ApplyItemTextLayout(RectTransform itemText, Vector2 radial, float angleDeg, int slotIndex, SlotTweak tweak)
+    {
+        if (itemText == null) return;
+
+        Vector2 pos = radial * itemTextRadiusOffset + itemTextLocalOffset;
+
+        if (tweak != null)
+        {
+            pos += tweak.extraItemTextPosition;
+        }
+
+        itemText.anchoredPosition = pos;
+        itemText.sizeDelta = textSize;
+
+        float rot = GetRotation(angleDeg, itemTextRotation, itemTextRotationOffset);
+
+        if (flipTextOnBottomHalf && radial.y < 0f)
+        {
+            rot += 180f;
+        }
+
+        if (tweak != null)
+        {
+            rot += tweak.extraItemTextRotation;
+        }
+
+        itemText.localEulerAngles = new Vector3(0f, 0f, rot);
+
+        TMP_Text tmp = itemText.GetComponent<TMP_Text>();
+
+        if (tmp != null)
+        {
+            tmp.alignment = TextAlignmentOptions.Center;
+            tmp.fontSize = textFontSize;
+
+            if (textStayOneLine)
             {
-                Vector2 pos = radial * tierFrameRadiusOffset + tierFrameLocalOffset;
-                if (tweak != null) pos += tweak.extraTierFramePosition;
-
-                tierFrame.anchoredPosition = pos;
-
-                float rot = GetRotation(angleDeg, tierFrameRotation, tierFrameRotationOffset);
-                if (flipTierFrameOnBottomHalf && radial.y < 0f)
-                    rot += 180f;
-
-                if (tweak != null) rot += tweak.extraTierFrameRotation;
-
-                tierFrame.localEulerAngles = new Vector3(0f, 0f, rot);
+                tmp.enableWordWrapping = false;
+                tmp.overflowMode = TextOverflowModes.Overflow;
             }
 
-            if (itemIcon != null)
+            if (autoTextColorBySlot)
             {
-                Vector2 pos = radial * itemIconRadiusOffset + itemIconLocalOffset;
-                if (tweak != null) pos += tweak.extraItemIconPosition;
-
-                itemIcon.anchoredPosition = pos;
-
-                float rot = GetRotation(angleDeg, itemIconRotation, itemIconRotationOffset);
-                if (tweak != null) rot += tweak.extraItemIconRotation;
-
-                itemIcon.localEulerAngles = new Vector3(0f, 0f, rot);
+                bool isWhiteSlot = slot0IsWhite ? slotIndex % 2 == 0 : slotIndex % 2 != 0;
+                tmp.color = isWhiteSlot ? textColorOnWhite : textColorOnBlue;
             }
 
-            if (itemText != null)
+            if (addTMPOutline)
             {
-                Vector2 pos = radial * itemTextRadiusOffset + itemTextLocalOffset;
-                if (tweak != null) pos += tweak.extraItemTextPosition;
-
-                itemText.anchoredPosition = pos;
-                itemText.sizeDelta = textSize;
-
-                float rot = GetRotation(angleDeg, itemTextRotation, itemTextRotationOffset);
-                if (tweak != null) rot += tweak.extraItemTextRotation;
-
-                itemText.localEulerAngles = new Vector3(0f, 0f, rot);
-
-                TMP_Text tmp = itemText.GetComponent<TMP_Text>();
-                if (tmp != null)
-                {
-                    tmp.alignment = TextAlignmentOptions.Center;
-                    if (textStayOneLine)
-                    {
-                        tmp.enableWordWrapping = false;
-                        tmp.overflowMode = TextOverflowModes.Overflow;
-                    }
-                }
+                ApplyTextOutline(tmp);
             }
         }
+    }
+
+    void ApplyTextOutline(TMP_Text tmp)
+    {
+        if (tmp == null) return;
+        if (tmp.fontMaterial == null) return;
+
+        Material mat = tmp.fontMaterial;
+
+        if (mat.HasProperty(ShaderUtilities.ID_OutlineWidth))
+        {
+            mat.SetFloat(ShaderUtilities.ID_OutlineWidth, outlineWidth);
+        }
+
+        if (mat.HasProperty(ShaderUtilities.ID_OutlineColor))
+        {
+            mat.SetColor(ShaderUtilities.ID_OutlineColor, outlineColor);
+        }
+
+        tmp.UpdateMeshPadding();
     }
 
     List<RectTransform> CollectActiveSlots()
@@ -170,21 +294,53 @@ public class WheelSlotAutoLayout : MonoBehaviour
         for (int i = 0; i < transform.childCount; i++)
         {
             Transform child = transform.GetChild(i);
-            if (child == null ||
-                !child.gameObject.activeSelf ||
-                !child.name.StartsWith("Slot_", StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
+
+            if (child == null) continue;
+            if (!child.gameObject.activeSelf) continue;
+            if (!child.name.StartsWith("Slot_", StringComparison.OrdinalIgnoreCase)) continue;
 
             RectTransform slot = child as RectTransform;
+
             if (slot != null)
             {
                 slots.Add(slot);
             }
         }
 
+        slots.Sort(CompareSlotName);
+
         return slots;
+    }
+
+    int CompareSlotName(RectTransform a, RectTransform b)
+    {
+        int indexA = ExtractSlotIndex(a != null ? a.name : "");
+        int indexB = ExtractSlotIndex(b != null ? b.name : "");
+
+        return indexA.CompareTo(indexB);
+    }
+
+    int ExtractSlotIndex(string slotName)
+    {
+        if (string.IsNullOrEmpty(slotName)) return int.MaxValue;
+
+        int underscoreIndex = slotName.IndexOf('_');
+
+        if (underscoreIndex < 0 || underscoreIndex >= slotName.Length - 1)
+        {
+            return int.MaxValue;
+        }
+
+        string numberPart = slotName.Substring(underscoreIndex + 1);
+
+        int result;
+
+        if (int.TryParse(numberPart, out result))
+        {
+            return result;
+        }
+
+        return int.MaxValue;
     }
 
     float GetRotation(float angleDeg, RotationMode mode, float offset)
@@ -210,34 +366,118 @@ public class WheelSlotAutoLayout : MonoBehaviour
         for (int i = 0; i < slotTweaks.Length; i++)
         {
             if (slotTweaks[i] != null && slotTweaks[i].slotIndex == slotIndex)
+            {
                 return slotTweaks[i];
+            }
         }
 
         return null;
     }
 
-    RectTransform FindChildRecursive(Transform parent, string targetName)
+    RectTransform FindChildRecursive(Transform root, string childName)
     {
-        foreach (Transform child in parent)
+        if (root == null || string.IsNullOrEmpty(childName)) return null;
+
+        for (int i = 0; i < root.childCount; i++)
         {
-            if (child.name == targetName)
-                return child as RectTransform;
+            Transform child = root.GetChild(i);
 
-            RectTransform found = FindChildRecursive(child, targetName);
+            if (child.name.Equals(childName, StringComparison.OrdinalIgnoreCase))
+            {
+                return child as RectTransform;
+            }
+
+            RectTransform found = FindChildRecursive(child, childName);
+
             if (found != null)
+            {
                 return found;
+            }
         }
 
         return null;
     }
-
-    private void OnValidate()
+        [ContextMenu("Capture Current Layout As Tweaks")]
+    public void CaptureCurrentLayoutAsTweaks()
     {
-        ApplyLayout();
-    }
+        List<RectTransform> slots = CollectActiveSlots();
+        int count = slots.Count;
 
-    private void Start()
-    {
-        ApplyLayout();
+        if (count == 0) return;
+
+        float step = 360f / count;
+        float dir = clockwise ? -1f : 1f;
+
+        SlotTweak[] newTweaks = new SlotTweak[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            RectTransform slot = slots[i];
+            if (slot == null) continue;
+
+            float angleDeg = startAngle + globalAngleOffset + dir * i * step;
+            float angleRad = angleDeg * Mathf.Deg2Rad;
+            Vector2 radial = new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
+
+            SlotTweak tweak = new SlotTweak();
+            tweak.slotIndex = i;
+
+            // Whole Slot
+            Vector2 expectedSlotPos = radial * radius + centerOffset;
+            tweak.extraSlotPosition = slot.anchoredPosition - expectedSlotPos;
+
+            // TierFrame
+            RectTransform tierFrame = FindChildRecursive(slot, tierFrameName);
+            if (tierFrame != null)
+            {
+                Vector2 expectedTierPos = radial * tierFrameRadiusOffset + tierFrameLocalOffset;
+                tweak.extraTierFramePosition = tierFrame.anchoredPosition - expectedTierPos;
+
+                float expectedRot = GetRotation(angleDeg, tierFrameRotation, tierFrameRotationOffset);
+                if (flipTierFrameOnBottomHalf && radial.y < 0f)
+                {
+                    expectedRot += 180f;
+                }
+
+                tweak.extraTierFrameRotation = Mathf.DeltaAngle(expectedRot, tierFrame.localEulerAngles.z);
+            }
+
+            // ItemIcon
+            RectTransform itemIcon = FindChildRecursive(slot, itemIconName);
+            if (itemIcon != null)
+            {
+                Vector2 expectedIconPos = radial * itemIconRadiusOffset + itemIconLocalOffset;
+                tweak.extraItemIconPosition = itemIcon.anchoredPosition - expectedIconPos;
+
+                float expectedRot = GetRotation(angleDeg, itemIconRotation, itemIconRotationOffset);
+                tweak.extraItemIconRotation = Mathf.DeltaAngle(expectedRot, itemIcon.localEulerAngles.z);
+            }
+
+            // ItemText
+            RectTransform itemText = FindChildRecursive(slot, itemTextName);
+            if (itemText != null)
+            {
+                Vector2 expectedTextPos = radial * itemTextRadiusOffset + itemTextLocalOffset;
+                tweak.extraItemTextPosition = itemText.anchoredPosition - expectedTextPos;
+
+                float expectedRot = GetRotation(angleDeg, itemTextRotation, itemTextRotationOffset);
+                if (flipTextOnBottomHalf && radial.y < 0f)
+                {
+                    expectedRot += 180f;
+                }
+
+                tweak.extraItemTextRotation = Mathf.DeltaAngle(expectedRot, itemText.localEulerAngles.z);
+            }
+
+            newTweaks[i] = tweak;
+        }
+
+        slotTweaks = newTweaks;
+
+    #if UNITY_EDITOR
+        UnityEditor.EditorUtility.SetDirty(this);
+    #endif
+
+        Debug.Log("Captured current slot positions into slotTweaks.");
     }
 }

@@ -73,6 +73,14 @@ public class HunterJob : MonoBehaviour
 
     void Update()
     {
+        RefreshReferences();
+
+        if (villager != null && villager.IsReturningHome)
+        {
+            villager.GoHomeToRest();
+            return;
+        }
+
         if (ShouldReturnHomeNow())
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -100,6 +108,14 @@ public class HunterJob : MonoBehaviour
 
     public bool TryRun()
     {
+        RefreshReferences();
+
+        if (villager != null && villager.IsReturningHome)
+        {
+            villager.GoHomeToRest();
+            return true;
+        }
+
         if (ShouldReturnHomeNow())
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -123,7 +139,6 @@ public class HunterJob : MonoBehaviour
             return false;
         }
 
-        RefreshReferences();
         running = true;
         TickHunterJob();
         return true;
@@ -132,19 +147,27 @@ public class HunterJob : MonoBehaviour
     bool ShouldReturnHomeNow()
     {
         if (villager == null ||
-            villager.IsReturningHome ||
-            !villager.ShouldGoHomeForRest())
+            villager.IsReturningHome)
         {
             return false;
         }
 
-        return true;
+        NpcScheduleController schedule =
+            NpcScheduleController.GetSchedule(gameObject);
+        if (schedule != null &&
+            schedule.enforceSchedule &&
+            schedule.CurrentActivity == NpcScheduleActivity.ReturnHome)
+        {
+            return true;
+        }
+
+        return villager.ShouldGoHomeForRest();
     }
 
     public void CancelHunterNow()
     {
         running = false;
-        currentState = NpcJobState.Idle;
+        currentState = NpcJobState.Returning;
         currentMonsterTarget = null;
         currentLootTarget = null;
         nextAttackTime = 0f;
@@ -159,7 +182,30 @@ public class HunterJob : MonoBehaviour
             rb.linearVelocity = Vector2.zero;
         }
 
-        SetAction("idle");
+        SetAction("goHomeRest");
+    }
+
+    void SuspendForHomeReturn()
+    {
+        running = false;
+        currentState = NpcJobState.Returning;
+        currentMonsterTarget = null;
+        currentLootTarget = null;
+        nextAttackTime = 0f;
+    }
+
+    void ResumeHuntAfterKill()
+    {
+        if (villager != null &&
+            villager.ShouldGoHomeForRest() &&
+            !villager.IsReturningHome)
+        {
+            villager.GoHomeToRest();
+            return;
+        }
+
+        currentState = NpcJobState.Moving;
+        SetAction("goHunt");
     }
 
     bool IsAllowedJob()
@@ -263,59 +309,200 @@ public class HunterJob : MonoBehaviour
 
     void MoveToHuntArea()
     {
-        Vector3 target = GetNextHuntPatrolPoint();
+        if (!TryResolveHuntTravelTarget(out Vector3 target, out NpcMapZone targetZone))
+        {
+            return;
+        }
+
         MoveTo(
             target,
-            huntZone,
+            targetZone,
             "Đi tới bãi săn");
     }
 
     Vector3 GetNextHuntPatrolPoint()
     {
+        if (TryResolveHuntTravelTarget(out Vector3 target, out NpcMapZone targetZone))
+        {
+            if (Vector2.Distance(transform.position, target) >
+                Mathf.Max(arriveDistance, 0.65f))
+            {
+                return target;
+            }
+
+            NpcMapArea area = NpcMapArea.FindNearestAreaInZone(
+                targetZone,
+                transform.position);
+            if (area == null || area.areaBounds == null)
+            {
+                area = NpcMapArea.FindAreaByZone(targetZone);
+            }
+
+            if (area != null && area.areaBounds != null)
+            {
+                Bounds bounds = area.areaBounds.bounds;
+                Vector3 seed = transform.position + new Vector3(
+                    Random.Range(-4f, 4f),
+                    Random.Range(-4f, 4f),
+                    0f);
+
+                Vector3 patrolPoint = new Vector3(
+                    Mathf.Clamp(seed.x, bounds.min.x, bounds.max.x),
+                    Mathf.Clamp(seed.y, bounds.min.y, bounds.max.y),
+                    transform.position.z);
+
+                if (Vector2.Distance(transform.position, patrolPoint) >
+                    Mathf.Max(arriveDistance, 0.65f))
+                {
+                    return patrolPoint;
+                }
+            }
+
+            return target;
+        }
+
+        return transform.position;
+    }
+
+    bool TryGetCrossZoneHuntFallback(out Vector3 target)
+    {
+        target = transform.position;
+
+        NpcMapZone? currentZone = NpcMapNavigator.ResolveActorZone(gameObject);
+        if (currentZone.HasValue &&
+            currentZone.Value == huntZone)
+        {
+            return false;
+        }
+
+        NpcTeleportGate bestGate = null;
+        float bestDistance = float.PositiveInfinity;
+        foreach (NpcTeleportGate gate in NpcTeleportGate.Gates)
+        {
+            if (gate == null ||
+                gate.toZone != huntZone)
+            {
+                continue;
+            }
+
+            float distance =
+                Vector2.Distance(transform.position, gate.EntryPosition);
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                bestGate = gate;
+            }
+        }
+
+        if (bestGate == null)
+        {
+            return false;
+        }
+
+        target = bestGate.ExitPosition;
+        return Vector2.Distance(transform.position, target) >
+            Mathf.Max(arriveDistance, 0.65f);
+    }
+
+    bool TryResolveHuntTravelTarget(
+        out Vector3 target,
+        out NpcMapZone targetZone)
+    {
+        target = transform.position;
+        targetZone = GetPreferredHuntZone();
+        Vector3 huntAreaTarget;
+
+        if (NpcLocationArea.TryGetPosition(
+                gameObject,
+                NpcScheduleActivity.Hunt,
+                VillagerJob.Hunter,
+                NpcLocationPurpose.Hunt,
+                targetZone,
+                transform.position,
+                out huntAreaTarget,
+                out NpcMapZone? huntAreaResolvedZone))
+        {
+            target = huntAreaTarget;
+            if (huntAreaResolvedZone.HasValue)
+            {
+                targetZone = huntAreaResolvedZone.Value;
+            }
+            return true;
+        }
+
         WorldTilemapManager tilemap = WorldTilemapManager.Instance;
         if (tilemap != null)
         {
-            Vector3 huntingTile = tilemap.GetHuntingTile(huntZone);
-            if (huntingTile != Vector3.zero &&
-                Vector2.Distance(transform.position, huntingTile) >
-                Mathf.Max(arriveDistance, 0.65f))
+            Vector3 huntingTile = tilemap.GetHuntingTile(targetZone);
+            if (huntingTile != Vector3.zero)
             {
-                return huntingTile;
+                target = huntingTile;
+                return true;
             }
         }
 
         if (huntPoint != null)
         {
-            Vector3 huntPosition = huntPoint.position;
-            if (Vector2.Distance(transform.position, huntPosition) >
-                Mathf.Max(arriveDistance, 0.65f))
+            target = huntPoint.position;
+            NpcMapZone? huntPointZone =
+                NpcMapNavigator.GetDestinationZone(huntPoint);
+            if (huntPointZone.HasValue)
             {
-                return huntPosition;
+                targetZone = huntPointZone.Value;
             }
+            return true;
         }
 
-        NpcMapArea area = NpcMapArea.FindAreaByZone(huntZone);
+        NpcMapArea area = NpcMapArea.FindNearestAreaInZone(
+            targetZone,
+            transform.position);
         if (area != null && area.areaBounds != null)
         {
-            Bounds bounds = area.areaBounds.bounds;
-            Vector3 seed = transform.position + new Vector3(
-                Random.Range(-4f, 4f),
-                Random.Range(-4f, 4f),
-                0f);
+            target = area.areaBounds.bounds.center;
+            return true;
+        }
 
-            Vector3 patrolPoint = new Vector3(
-                Mathf.Clamp(seed.x, bounds.min.x, bounds.max.x),
-                Mathf.Clamp(seed.y, bounds.min.y, bounds.max.y),
-                transform.position.z);
+        area = NpcMapArea.FindAreaByZone(targetZone);
+        if (area != null && area.areaBounds != null)
+        {
+            target = area.areaBounds.bounds.center;
+            return true;
+        }
 
-            if (Vector2.Distance(transform.position, patrolPoint) >
-                Mathf.Max(arriveDistance, 0.65f))
+        if (TryGetCrossZoneHuntFallback(out Vector3 crossZoneTarget))
+        {
+            target = crossZoneTarget;
+            return true;
+        }
+
+        if (villager != null &&
+            villager.workPoint != null)
+        {
+            target = villager.workPoint.position;
+            return true;
+        }
+
+        return false;
+    }
+
+    NpcMapZone GetPreferredHuntZone()
+    {
+        if (villager != null)
+        {
+            return villager.GetPreferredResourceGatherZone();
+        }
+
+        if (huntPoint != null)
+        {
+            NpcMapZone? huntPointZone =
+                NpcMapNavigator.GetDestinationZone(huntPoint);
+            if (huntPointZone.HasValue)
             {
-                return patrolPoint;
+                return huntPointZone.Value;
             }
         }
 
-        return GetHuntCenter();
+        return huntZone;
     }
 
     void MoveToMonster(MonsterAI monster)
@@ -414,8 +601,7 @@ public class HunterJob : MonoBehaviour
 
         if (currentLootTarget == null)
         {
-            currentState = NpcJobState.Idle;
-            SetAction("Săn xong nhưng không thấy thịt rơi");
+            ResumeHuntAfterKill();
         }
     }
 
@@ -451,8 +637,7 @@ public class HunterJob : MonoBehaviour
         }
 
         currentLootTarget = null;
-        currentState = NpcJobState.Idle;
-        SetAction("Đã thu thịt");
+        ResumeHuntAfterKill();
         return true;
     }
 
@@ -561,20 +746,9 @@ public class HunterJob : MonoBehaviour
 
     Vector3 GetHuntCenter()
     {
-        if (huntPoint != null)
+        if (TryResolveHuntTravelTarget(out Vector3 target, out _))
         {
-            return huntPoint.position;
-        }
-
-        if (villager != null && villager.workPoint != null)
-        {
-            return villager.workPoint.position;
-        }
-
-        NpcMapArea area = NpcMapArea.FindAreaByZone(huntZone);
-        if (area != null && area.areaBounds != null)
-        {
-            return area.areaBounds.bounds.center;
+            return target;
         }
 
         return transform.position;

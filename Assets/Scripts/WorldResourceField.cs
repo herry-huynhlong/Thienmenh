@@ -56,6 +56,10 @@ public class WorldResourceField : MonoBehaviour
     public bool requireNpcHarvestAction = true;
     public float harvestDuration = 8f;
 
+    [Header("Visual")]
+    [Tooltip("Bật nếu muốn item spawn ra tự hiện icon đứng yên. Tắt để ẩn icon item nhưng vẫn giữ logic nhặt/thu hoạch.")]
+    public bool showAutoItemVisual = false;
+
     [Header("Rare Item Effect")]
     public string rareEffectChildName = "ItemAuraParticle";
 
@@ -260,7 +264,11 @@ public class WorldResourceField : MonoBehaviour
         collider.isTrigger = true;
         collider.radius = colliderRadius;
 
-        EnsureVisual(resourceObject, entry.item);
+        if (showAutoItemVisual)
+        {
+            EnsureVisual(resourceObject, entry.item);
+        }
+
         SetupRareItemEffect(resourceObject, entry.item);
     }
 

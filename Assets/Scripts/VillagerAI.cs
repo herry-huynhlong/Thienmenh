@@ -1293,6 +1293,12 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         {
             harvestJob.CancelHarvestNow();
         }
+
+        HunterJob hunterJob = GetComponent<HunterJob>();
+        if (hunterJob != null)
+        {
+            hunterJob.CancelHunterNow();
+        }
     }
 
     bool ShouldForceReturnHomeForCurrentSchedule()
@@ -2484,7 +2490,11 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         }
 
         if (isReturningHome &&
-            !IsAtHomePosition(GetHomePosition()))
+            !IsAtHomePosition(GetHomePosition()) &&
+            (currentTarget != null ||
+            hasDirectMoveTarget ||
+            hasWanderTarget ||
+            hasObstacleAvoidTarget))
         {
             return;
         }
@@ -2526,6 +2536,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         CancelScheduledWorkState();
         isReturningHome = true;
         lastHomeTravelFrame = Time.frameCount;
+        actionTimer = 0f;
 
         Vector3 homePosition = GetHomePosition();
         Vector3 travelTarget = homePosition;
@@ -4532,11 +4543,21 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                 out usingTeleportRoute,
                 out routeAction);
 
+            if (usingTeleportRoute)
+            {
+                NpcMapZone? currentZone = GetCurrentMapZone();
+                if (currentZone.HasValue)
+                {
+                    targetZone = currentZone;
+                }
+            }
+
             if (usingTeleportRoute &&
                 !string.IsNullOrEmpty(routeAction) &&
                 CanRouteActionReplaceCurrentAction())
             {
                 currentAction = routeAction;
+                actionTimer = 0f;
             }
 
             if (WorldTilemapManager.Instance == null)
@@ -6943,6 +6964,13 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             currentTarget == null)
         {
             actionTimer = Mathf.Max(actionTimer, thinkInterval);
+
+            if (IsActionLocked ||
+                IsRoutineTravelOrCultivationAction(currentAction))
+            {
+                return;
+            }
+
             currentAction = NpcText.Action("idle");
         }
     }

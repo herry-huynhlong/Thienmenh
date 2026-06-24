@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 8dabf5f39cbffbb4eb05858d9702040c
+guid: 5f40e99456a912e4ebfe99b60ab8aa01
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -9149100019403540155
-    second: linhtai_0
+      213: -3953237994594438508
+    second: vongtronm_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -100,12 +100,12 @@ TextureImporter:
     buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: 47
+    textureFormat: -1
     textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
-    overridden: 1
+    overridden: 0
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: linhtai_0
+      name: vongtronm_0
       rect:
         serializedVersion: 2
-        x: 9
-        y: 4
-        width: 152
-        height: 218
+        x: 0
+        y: 9
+        width: 1254
+        height: 1245
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 549bee0a10ed70180800000000000000
-      internalID: -9149100019403540155
+      spriteID: 492fe933df64329c0800000000000000
+      internalID: -3953237994594438508
       vertices: []
       indices: 
       edges: []
@@ -151,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      linhtai_0: -9149100019403540155
+      vongtronm_0: -3953237994594438508
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
