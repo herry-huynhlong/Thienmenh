@@ -28,6 +28,7 @@ public class NpcResourceGatherer : MonoBehaviour
     int lastHarvestActionSeconds = -1;
     NpcMapMover2D mover;
     VillagerAI villager;
+    SmartNpcAI smartNpc;
     NpcItemCollector collector;
     float scanTimer;
     float nextGatherAllowedTime;
@@ -35,10 +36,15 @@ public class NpcResourceGatherer : MonoBehaviour
     int harvestsThisScheduleSession;
     StatItemData scheduledRequiredItem;
 
+    public bool HasActiveGatheringFlow =>
+        targetPickup != null ||
+        harvestingPickup != null;
+
     void Awake()
     {
         mover = GetComponent<NpcMapMover2D>();
         villager = GetComponent<VillagerAI>();
+        smartNpc = GetComponent<SmartNpcAI>();
         collector = GetComponent<NpcItemCollector>();
     }
 
@@ -264,6 +270,8 @@ public class NpcResourceGatherer : MonoBehaviour
 
         if (harvestingPickup != null)
         {
+            StopNpcMovement();
+            SetGatherAction();
             return true;
         }
 
@@ -432,6 +440,11 @@ public class NpcResourceGatherer : MonoBehaviour
             return;
         }
 
+        if (smartNpc == null)
+        {
+            smartNpc = GetComponent<SmartNpcAI>();
+        }
+
         targetPickup.RefreshReservation(gameObject, reservationDuration);
 
         float distance =
@@ -447,6 +460,15 @@ public class NpcResourceGatherer : MonoBehaviour
             villager.enabled)
         {
             villager.ForceGatherTarget(
+                targetPickup.transform,
+                targetPickup.item);
+            return;
+        }
+
+        if (smartNpc != null &&
+            smartNpc.enabled)
+        {
+            smartNpc.ForceGatherTarget(
                 targetPickup.transform,
                 targetPickup.item);
             return;

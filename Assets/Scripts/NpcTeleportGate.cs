@@ -52,11 +52,6 @@ public class NpcTeleportGate : MonoBehaviour
 
     Transform GetResolvedEntryTransform()
     {
-        if (!useEntryPointForNpcRoute)
-        {
-            return transform;
-        }
-
         if (entryPoint == null)
         {
             return transform;
@@ -69,7 +64,12 @@ public class NpcTeleportGate : MonoBehaviour
             return transform;
         }
 
-        return entryPoint;
+        if (useEntryPointForNpcRoute || entryPoint != transform)
+        {
+            return entryPoint;
+        }
+
+        return transform;
     }
     void Reset()
     {

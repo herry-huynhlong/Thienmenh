@@ -177,10 +177,6 @@ public partial class VillagerAI
                     workSessionMaxGameHours))
             : Mathf.Max(thinkInterval, 2f);
 
-        if (produced)
-        {
-            AddProfessionExp(professionExpPerWork);
-        }
     }
 
     NpcMapZone? GetZoneForPosition(Vector3 position)

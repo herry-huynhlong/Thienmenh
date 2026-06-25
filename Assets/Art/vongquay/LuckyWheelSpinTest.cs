@@ -282,6 +282,8 @@ public class LuckyWheelSpinTest : MonoBehaviour
         winEffect.PlayFromSlot(slotBindings[slotIndex].root);
     }
 
+    GiveRewardToPlayer(reward);
+
     if (spinButton != null)
     {
         spinButton.interactable = true;
@@ -946,5 +948,180 @@ public class LuckyWheelSpinTest : MonoBehaviour
         }
 
         return value;
+    }
+
+    void GiveRewardToPlayer(StatItemData reward)
+    {
+        if (reward == null)
+        {
+            return;
+        }
+
+        ItemInventory playerInventory = GetPlayerInventory();
+        if (playerInventory == null)
+        {
+            Debug.LogWarning(
+                "LuckyWheelSpinTest: khong tim thay ItemInventory cua player de nhan thuong.");
+            return;
+        }
+
+        ItemEffectSpawner.PlayPickupEffect(reward, playerInventory.transform);
+        playerInventory.AddItem(reward, 1);
+    }
+
+    ItemInventory GetPlayerInventory()
+    {
+        InventoryPanelUI inventoryPanel = FindBestInventoryPanel();
+        if (inventoryPanel != null)
+        {
+            if (inventoryPanel.inventory != null)
+            {
+                return inventoryPanel.inventory;
+            }
+
+            if (inventoryPanel.playerInventory != null)
+            {
+                return inventoryPanel.playerInventory;
+            }
+        }
+
+        InventoryToggleButton inventoryToggle =
+            FindObjectOfType<InventoryToggleButton>(true);
+        if (inventoryToggle != null &&
+            inventoryToggle.inventoryPanel != null)
+        {
+            ItemInventory inventory = inventoryToggle.inventoryPanel.inventory;
+            if (inventory != null)
+            {
+                return inventory;
+            }
+
+            inventory = inventoryToggle.inventoryPanel.playerInventory;
+            if (inventory != null)
+            {
+                return inventory;
+            }
+
+            inventory = inventoryToggle.inventoryPanel.GetComponent<ItemInventory>();
+            if (inventory != null)
+            {
+                return inventory;
+            }
+        }
+
+        PlayerHealth playerHealth = FindObjectOfType<PlayerHealth>(true);
+        if (playerHealth != null)
+        {
+            ItemInventory inventory = playerHealth.GetComponent<ItemInventory>();
+            if (inventory != null)
+            {
+                return inventory;
+            }
+
+            inventory = playerHealth.GetComponentInParent<ItemInventory>();
+            if (inventory != null)
+            {
+                return inventory;
+            }
+
+            inventory = playerHealth.GetComponentInChildren<ItemInventory>(true);
+            if (inventory != null)
+            {
+                return inventory;
+            }
+        }
+
+        GameObject taggedPlayer = GameObject.FindGameObjectWithTag("Player");
+        if (taggedPlayer != null)
+        {
+            ItemInventory inventory = taggedPlayer.GetComponent<ItemInventory>();
+            if (inventory != null)
+            {
+                return inventory;
+            }
+
+            inventory = taggedPlayer.GetComponentInChildren<ItemInventory>(true);
+            if (inventory != null)
+            {
+                return inventory;
+            }
+        }
+
+        return null;
+    }
+
+    InventoryPanelUI FindBestInventoryPanel()
+    {
+        InventoryPanelUI[] panels =
+            FindObjectsByType<InventoryPanelUI>(FindObjectsInactive.Include);
+
+        InventoryPanelUI exactBaloPanel = null;
+        InventoryPanelUI exactBalo = null;
+        InventoryPanelUI nameMatch = null;
+        InventoryPanelUI fallback = null;
+
+        foreach (InventoryPanelUI panel in panels)
+        {
+            if (panel == null ||
+                !panel.enabled ||
+                HasAncestorNamed(panel.transform, "menupanel"))
+            {
+                continue;
+            }
+
+            string nameKey = panel.name.ToLowerInvariant();
+            if (nameKey == "balopanel")
+            {
+                exactBaloPanel = panel;
+            }
+            else if (nameKey == "balo")
+            {
+                exactBalo = panel;
+            }
+            else if ((nameKey.Contains("balo") || nameKey.Contains("inventory")) &&
+                nameMatch == null)
+            {
+                nameMatch = panel;
+            }
+
+            if (fallback == null && !panel.readOnly)
+            {
+                fallback = panel;
+            }
+        }
+
+        if (exactBaloPanel != null)
+        {
+            return exactBaloPanel;
+        }
+
+        if (exactBalo != null)
+        {
+            return exactBalo;
+        }
+
+        if (nameMatch != null)
+        {
+            return nameMatch;
+        }
+
+        return fallback;
+    }
+
+    bool HasAncestorNamed(Transform current, string normalizedName)
+    {
+        while (current != null)
+        {
+            string key =
+                current.name.Replace(" ", "").Replace("_", "").ToLowerInvariant();
+            if (key == normalizedName)
+            {
+                return true;
+            }
+
+            current = current.parent;
+        }
+
+        return false;
     }
 }

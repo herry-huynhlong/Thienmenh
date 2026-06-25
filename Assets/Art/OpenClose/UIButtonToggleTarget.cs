@@ -14,6 +14,28 @@ public class UIButtonToggleTarget : MonoBehaviour
         Custom
     }
 
+    [Header("Auto Slot Layout")]
+    public bool useAutoSlotLayout = true;
+
+    [Tooltip("0 là nút ngoài cùng bên phải, 1 là nút kế bên trái, 2 tiếp tục qua trái...")]
+    public int slotIndex = 0;
+
+    [Tooltip("Vị trí nút đầu tiên tính từ góc phải trên của Canvas.")]
+    public Vector2 startOffset = new Vector2(-80f, -80f);
+
+    [Tooltip("Khoảng cách ngang giữa các nút.")]
+    public float spacingX = 110f;
+
+    [Tooltip("Bật: slot tăng thì đi qua trái. Tắt: slot tăng thì đi qua phải.")]
+    public bool goLeft = true;
+
+    [Header("Responsive Size")]
+    public bool forceButtonSize = true;
+    public Vector2 buttonSize = new Vector2(100f, 100f);
+
+    [Tooltip("Tự né tai thỏ / mép an toàn trên điện thoại.")]
+    public bool useSafeArea = true;
+
     [Header("Slide Settings")]
     public HideDirection hideDirection = HideDirection.Right;
     public float hideDistance = 140f;
@@ -46,6 +68,8 @@ public class UIButtonToggleTarget : MonoBehaviour
 
     private void Start()
     {
+        Prepare();
+
         if (GlobalUIButtonSwitch.Instance != null)
         {
             SetInstant(GlobalUIButtonSwitch.Instance.IsVisible);
@@ -56,15 +80,50 @@ public class UIButtonToggleTarget : MonoBehaviour
         }
     }
 
-    private void Prepare()
+#if UNITY_EDITOR
+    private void OnValidate()
     {
-        if (prepared)
+        prepared = false;
+
+        if (!gameObject.activeInHierarchy)
         {
             return;
         }
 
+        Prepare();
+
+        if (Application.isPlaying)
+        {
+            if (GlobalUIButtonSwitch.Instance != null)
+            {
+                SetInstant(GlobalUIButtonSwitch.Instance.IsVisible);
+            }
+            else
+            {
+                SetInstant(startVisible);
+            }
+        }
+        else
+        {
+            SetInstant(startVisible);
+        }
+    }
+#endif
+
+    private void Prepare()
+    {
         rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
+
+        if (rectTransform == null || canvasGroup == null)
+        {
+            return;
+        }
+
+        if (useAutoSlotLayout)
+        {
+            ApplySlotLayout();
+        }
 
         openedPosition = rectTransform.anchoredPosition;
         openedScale = rectTransform.localScale;
@@ -72,6 +131,64 @@ public class UIButtonToggleTarget : MonoBehaviour
         hiddenPosition = openedPosition + GetHiddenOffset();
 
         prepared = true;
+    }
+
+    private void ApplySlotLayout()
+    {
+        rectTransform.anchorMin = new Vector2(1f, 1f);
+        rectTransform.anchorMax = new Vector2(1f, 1f);
+        rectTransform.pivot = new Vector2(0.5f, 0.5f);
+
+        float direction = goLeft ? -1f : 1f;
+
+        Vector2 finalPosition = new Vector2(
+            startOffset.x + direction * spacingX * slotIndex,
+            startOffset.y
+        );
+
+        if (useSafeArea)
+        {
+            finalPosition += GetSafeAreaTopRightOffset();
+        }
+
+        rectTransform.anchoredPosition = finalPosition;
+
+        if (forceButtonSize)
+        {
+            rectTransform.sizeDelta = buttonSize;
+        }
+    }
+
+    private Vector2 GetSafeAreaTopRightOffset()
+    {
+        Rect safeArea = Screen.safeArea;
+
+        float rightInset = Screen.width - safeArea.xMax;
+        float topInset = Screen.height - safeArea.yMax;
+
+        Canvas canvas = GetComponentInParent<Canvas>();
+
+        if (canvas == null)
+        {
+            return Vector2.zero;
+        }
+
+        RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+
+        if (canvasRect == null)
+        {
+            return Vector2.zero;
+        }
+
+        if (Screen.width <= 0 || Screen.height <= 0)
+        {
+            return Vector2.zero;
+        }
+
+        float scaleX = canvasRect.rect.width / Screen.width;
+        float scaleY = canvasRect.rect.height / Screen.height;
+
+        return new Vector2(-rightInset * scaleX, -topInset * scaleY);
     }
 
     private Vector2 GetHiddenOffset()

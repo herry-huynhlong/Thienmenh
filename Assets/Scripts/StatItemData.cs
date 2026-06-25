@@ -222,6 +222,12 @@ public class StatItemData : ScriptableObject
     public int cultivationBonus;
     public bool breakthroughRealm;
 
+    [Header("Hiệu Ứng NPC Đặc Biệt")]
+    public bool awakenVillagerToSmartNpc;
+    public CultivationRealm awakenTargetRealm = CultivationRealm.QiRefining;
+    [Range(1, 9)]
+    public int awakenTargetStage = 1;
+
     [Header("Pháp Bảo")]
     public int damageBonus;
     public int armorBonus;
@@ -415,6 +421,25 @@ public class StatItemData : ScriptableObject
         if (target == null)
         {
             return false;
+        }
+
+        if (awakenVillagerToSmartNpc)
+        {
+            SmartNpcAI smartNpc =
+                target.GetComponent<SmartNpcAI>();
+
+            if (smartNpc != null &&
+                smartNpc.enabled)
+            {
+                return false;
+            }
+
+            VillagerAI villager =
+                target.GetComponent<VillagerAI>();
+
+            return villager != null &&
+                villager.enabled &&
+                !villager.IsDead;
         }
 
         if (!CanUseDirectly())
@@ -791,6 +816,15 @@ public class StatItemData : ScriptableObject
         if (target == null)
         {
             return false;
+        }
+
+        if (awakenVillagerToSmartNpc &&
+            direction > 0)
+        {
+            return NpcCultivationAwakeningUtility.TryConvertVillagerToSmartNpc(
+                target,
+                awakenTargetRealm,
+                awakenTargetStage);
         }
 
         CharacterStats characterStats =

@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1bb66bfaa1c7ac4ead170c1e140f63f, type: 3}
+  m_Name: "T\u1EA9y T\u1EE7y \u0110an"
+  m_EditorClassIdentifier: Assembly-CSharp::StatItemData
+  itemId: 5ed6d94863ba0ce4f814af854bae7c9e
+  itemName: "T\u1EA9y T\u1EE7y \u0110an"
+  description: "T\u1EA9y luy\u1EC7n th\xE2n th\u1EC3, khai m\u1EDF kinh m\u1EA1ch.
+    Ph\xE0m nh\xE2n sau khi d\xF9ng c\xF3 th\u1EC3 th\u1EE9c t\u1EC9nh linh c\u0103n
+    v\xE0 b\u01B0\u1EDBc v\xE0o con \u0111\u01B0\u1EDDng tu ti\xEAn."
+  itemType: 0
+  grade: 3
+  validTargets: -1
+  price: 0
+  icon: {fileID: 21300000, guid: 4742eb73b921dae4eb86bf15b3972311, type: 3}
+  consumeOnUse: 1
+  equipmentSlot: 0
+  artifactKind: 0
+  pillKind: 0
+  manualKind: 0
+  materialKind: 0
+  foodKind: 0
+  useStyle: 0
+  conversionType: 0
+  canUseDirectly: 1
+  canBeSold: 1
+  canBeRefinedIntoPill: 0
+  canBeForgedIntoArtifact: 0
+  canBeStudied: 1
+  rawUseEfficiency: 0.35
+  useSuccessChance: 1
+  rawUsePolicy: 0
+  rawToxicityDamage: 0
+  npcIntent: 0
+  refineValueMultiplier: 1.5
+  sellValueMultiplier: 1
+  maxDurability: 0
+  durabilityLossPerUse: 1
+  breaksAtZero: 1
+  hpBonus: 10
+  cultivationBonus: 3
+  breakthroughRealm: 0
+  awakenVillagerToSmartNpc: 1
+  awakenTargetRealm: 1
+  awakenTargetStage: 1
+  damageBonus: 0
+  armorBonus: 0
+  effectResistanceBonus: 0
+  canBeTaught: 1
+  studyProgressPerUse: 1
+  manualBreakAfterYears: 10
+  tieuThanhPower: 0.3
+  trungThanhPower: 0.6
+  daiThanhPower: 1
+  playBuyEffect: 0
+  buyEffectPrefab: {fileID: 0}
+  buyEffectOffset: {x: 0, y: 0.15, z: 0}
+  buyEffectScale: 1
+  playPickupEffect: 1
+  pickupEffectPrefab: {fileID: 0}
+  pickupEffectOffset: {x: 0, y: 0.15, z: 0}
+  pickupEffectScale: 1
+  isTemporary: 0
+  duration: 10
+  modifiers: []

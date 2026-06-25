@@ -389,6 +389,7 @@ public class NpcTaskProvider : MonoBehaviour
     [Header("Provider Placement")]
     public bool keepProviderStationary = true;
     public Transform providerStandPoint;
+    public bool disableBaseAiWhileStationary = true;
 
     [Header("Reward Wallet")]
     public ItemInventory inventory;
@@ -1119,6 +1120,21 @@ public class NpcTaskProvider : MonoBehaviour
         {
             smartNpc.autonomousActivitiesEnabled = false;
             smartNpc.currentTarget = null;
+            if (disableBaseAiWhileStationary)
+            {
+                smartNpc.enabled = false;
+            }
+        }
+
+        VillagerAI villager = GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            villager.currentTarget = null;
+            villager.StopMoving();
+            if (disableBaseAiWhileStationary)
+            {
+                villager.enabled = false;
+            }
         }
     }
 

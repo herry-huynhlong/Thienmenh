@@ -157,7 +157,7 @@ public class NewGameIntroPanel : MonoBehaviour
             }
             else
             {
-                titleText.text = "Thiên Mệnh Chi Tử";
+                titleText.text = "Trùng Tu Thiên Đạo";
             }
         }
 
@@ -225,6 +225,8 @@ public class NewGameIntroPanel : MonoBehaviour
 
         isTyping = false;
         typingCoroutine = null;
+
+        RefreshButtons();
     }
 
     private void FinishTypingImmediately()
@@ -308,24 +310,21 @@ public class NewGameIntroPanel : MonoBehaviour
 
         pageTitles = new string[]
         {
-            "Thiên Đạo Vỡ Nát",
-            "Vùng Rìa Hoang Cổ Đại Lục",
-            "Quyền Chưởng Khống",
-            "Ban Phát Cơ Duyên",
-            "Không Có Đường Lui"
+            " Thiên Đạo Hoàn Chỉnh",
+            " Hạo Kiếp Diệt Giới",
+            " Bản Nguyên Vỡ Nát",
+            " Trùng Tu Thiên Đạo"
         };
 
         pageBodies = new string[]
         {
-            "Chào mừng ngươi đến với Hoang Cổ Đại Lục.\n\nĐây từng là một thế giới hoàn chỉnh, nơi Thiên Đạo bao phủ vạn vật, sinh linh sinh ra, tu luyện, tranh đấu rồi hóa thành bụi đất.\n\nNhưng hiện tại, Thiên Đạo đã không còn nguyên vẹn.\nThần thức của ngươi chỉ còn có thể bao phủ một vùng rìa nhỏ bé của đại lục này.",
+            "Thuở thiên địa còn nguyên vẹn, Hoang Cổ Đại Lục từng là một thế giới phồn thịnh.\n\nThiên Đạo bao phủ vạn vật, nhật nguyệt vận hành có thứ tự, linh khí luân chuyển không dứt.\n\nSinh linh sinh ra, tu luyện, tranh đấu, truyền thừa rồi hóa thành một phần của thiên địa.\n\nTông môn hưng thịnh, yêu thú tung hoành, linh thảo sinh trưởng khắp núi sông. Mỗi sinh mệnh đều có quỹ tích riêng, mỗi cơ duyên đều nằm trong đại đạo tuần hoàn.",
 
-            "Trong vùng đất còn nằm dưới ánh nhìn của ngươi, vạn vật vẫn đang tự vận hành.\n\nNgươi có thể nhìn thấy tu sĩ, yêu thú, bảo vật, linh thảo, cây cối và những sinh linh đang cố gắng sinh tồn.\n\nMỗi ngày trôi qua, sẽ có người trưởng thành, có kẻ đột phá, có người ngã xuống trong rừng sâu, cũng có đời sau tiếp tục sinh ra.",
+            "Nhưng vào một kỷ nguyên xa xưa, hư không bỗng rạn nứt.\n\nMột thế lực đến từ ngoài thiên địa xâm nhập Hoang Cổ Đại Lục.\n\nChúng không tuân theo Thiên Đạo, không nhập luân hồi, chỉ muốn nuốt lấy linh khí, bản nguyên và sinh cơ của cả thế giới.\n\nTrận hạo kiếp ấy khiến núi sông sụp đổ, tông môn tiêu vong, vô số sinh linh hóa thành tro bụi. Trật tự thiên địa bắt đầu tan rã.",
 
-            "Ngươi không phải một phàm nhân bước vào thế giới này.\n\nNgươi là ý chí còn sót lại của Thiên Đạo.\nNgươi có thể quan sát vận mệnh của từng sinh linh, nhìn bọn họ tranh đoạt cơ duyên, kết thù, kết bạn, tu luyện, săn giết và chết đi.\n\nNhưng quyền chưởng khống của ngươi hiện tại vẫn còn rất yếu.",
+            "Để giữ lại một tia sinh cơ cuối cùng, Thiên Đạo đã cưỡng ép thiêu đốt bản nguyên của chính mình.\n\nSức mạnh ấy đánh lui ngoại địch, phong bế vết nứt hư không, cứu lấy phần còn sót lại của Hoang Cổ Đại Lục.\n\nNhưng cái giá phải trả quá lớn.\n\nBản nguyên Thiên Đạo vỡ nát, quyền năng thất lạc khắp nơi. Linh khí suy yếu, pháp tắc hỗn loạn, thế giới chỉ còn lại những vùng đất rời rạc đang tự chống chọi với thời gian.",
 
-            "Để khôi phục Thiên Đạo đã vỡ nát, ngươi cần từng bước mở rộng quyền năng của mình.\n\nNgươi có thể ban phát bảo vật cho một tu sĩ mà ngươi để mắt tới, cũng có thể trao cơ duyên cho yêu thú, hoặc thả bảo vật xuống một khu vực bất kỳ.\n\nNếu món bảo vật đủ hấp dẫn, nó có thể khiến cả vùng đất nổi lên tranh đoạt, thậm chí dẫn đến một trận đại chiến.",
-
-            "Hãy nhớ kỹ.\n\nMột khi thế giới này bắt đầu vận hành, vận mệnh sẽ không còn quay đầu.\nSinh linh đã chết sẽ không thể sống lại.\nCơ duyên đã rơi xuống sẽ tạo ra nhân quả.\nMỗi lựa chọn của ngươi đều có thể thay đổi tương lai của Hoang Cổ Đại Lục.\n\nChúc may mắn, Thiên Đạo Chi Chủ."
+            "Hiện tại, một tia tàn ý của Thiên Đạo đã thức tỉnh.\n\nĐó chính là ngươi.\n\nNgươi chưa thể chưởng khống toàn bộ thế giới, chỉ có thể quan sát một vùng đất nhỏ bé nơi rìa Hoang Cổ Đại Lục.\n\nNhưng từ nơi này, Thiên Đạo có thể bắt đầu trùng tu.\n\nHãy dẫn dắt sinh linh, ban phát cơ duyên, thúc đẩy tu luyện, mở rộng vùng đất, khôi phục linh khí và từng bước thu hồi bản nguyên đã mất.\n\nKhi Thiên Đạo đủ mạnh, Hoang Cổ Đại Lục sẽ một lần nữa nghênh đón thời đại mới."
         };
     }
 }

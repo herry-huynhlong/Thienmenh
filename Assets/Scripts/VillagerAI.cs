@@ -205,10 +205,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
     {
         get
         {
-            int need = GetProfessionExpToNextLevel();
-            return need <= 0
-                ? 1f
-                : Mathf.Clamp01(professionExp / (float)need);
+            return 0f;
         }
     }
 
@@ -361,6 +358,21 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         }
 
         return false;
+    }
+
+    bool ShouldLeaveHiddenHomeNow()
+    {
+        NpcScheduleController schedule =
+            NpcScheduleController.GetSchedule(gameObject);
+        if (schedule == null ||
+            !schedule.enforceSchedule)
+        {
+            return false;
+        }
+
+        NpcScheduleActivity activity = schedule.CurrentActivity;
+        return activity != NpcScheduleActivity.Sleep &&
+            activity != NpcScheduleActivity.ReturnHome;
     }
 
     public void AddMoney(int amount)
@@ -743,7 +755,14 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
         if (hiddenAtHome)
         {
-            return;
+            if (ShouldLeaveHiddenHomeNow())
+            {
+                ForceHiddenAtHome(false);
+            }
+            else
+            {
+                return;
+            }
         }
 
         SyncFromCharacterStats();
@@ -1520,6 +1539,15 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         {
             GoHomeToRest();
             return;
+        }
+
+        if (!hiddenAtHome &&
+            !isReturningHome &&
+            IsAtHomePosition(GetHomePosition()) &&
+            IsCurrentScheduleActivity(NpcScheduleActivity.Work))
+        {
+            actionTimer = 0f;
+            currentAction = string.Empty;
         }
 
         if (TryHandleAdultImmediateNeeds())
@@ -3833,41 +3861,12 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
     void AddProfessionExp(int amount)
     {
-        if (amount <= 0 ||
-            professionLevel >= maxProfessionLevel)
-        {
-            return;
-        }
-
-        professionExp += amount;
-
-        while (professionLevel < maxProfessionLevel)
-        {
-            int need = GetProfessionExpToNextLevel();
-
-            if (professionExp < need)
-            {
-                break;
-            }
-
-            professionExp -= need;
-            professionLevel++;
-        }
-
-        if (professionLevel >= maxProfessionLevel)
-        {
-            professionLevel = maxProfessionLevel;
-            professionExp = 0;
-        }
+        return;
     }
 
     int GetProfessionExpToNextLevel()
     {
-        return Mathf.Max(
-            1,
-            baseProfessionExpToNextLevel +
-            Mathf.Max(0, professionLevel - 1) *
-            Mathf.Max(0, professionExpGrowthPerLevel));
+        return 0;
     }
 
     bool HasSellableGoods()
@@ -4530,7 +4529,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
     void MoveUsingRoad(Vector3 target, NpcMapZone? targetZone = null)
     {
         NpcMapZone? previousMovementTargetZone = movementTargetZone;
-        movementTargetZone = targetZone;
+        NpcMapZone? routeZone = targetZone;
 
         try
         {
@@ -4545,12 +4544,10 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
             if (usingTeleportRoute)
             {
-                NpcMapZone? currentZone = GetCurrentMapZone();
-                if (currentZone.HasValue)
-                {
-                    targetZone = currentZone;
-                }
+                routeZone = GetCurrentMapZone() ?? targetZone;
             }
+
+            movementTargetZone = routeZone;
 
             if (usingTeleportRoute &&
                 !string.IsNullOrEmpty(routeAction) &&
@@ -4562,14 +4559,14 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
             if (WorldTilemapManager.Instance == null)
             {
-                MoveToPosition(target, targetZone);
+                MoveToPosition(target, routeZone);
                 return;
             }
 
             if (ShouldBypassRoad())
             {
                 hasRoadPreference = false;
-                MoveToPosition(target, targetZone);
+                MoveToPosition(target, routeZone);
                 return;
             }
 
@@ -4585,22 +4582,22 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
             if (!prefersRoadForCurrentRoute)
             {
-                MoveToPosition(target, targetZone);
+                MoveToPosition(target, routeZone);
                 return;
             }
 
-            Vector3 roadWaypoint;
-            bool hasRoadRoute =
-                WorldTilemapManager.Instance.TryGetRoadWaypointToTarget(
-                    transform.position,
-                    target,
-                    GetCurrentMapZone(),
-                    IsReachableRoadTile,
-                    out roadWaypoint);
+                Vector3 roadWaypoint;
+                bool hasRoadRoute =
+                    WorldTilemapManager.Instance.TryGetRoadWaypointToTarget(
+                        transform.position,
+                        target,
+                        routeZone,
+                        IsReachableRoadTile,
+                        out roadWaypoint);
 
             if (!hasRoadRoute)
             {
-                MoveToPosition(target, targetZone);
+                MoveToPosition(target, routeZone);
                 return;
             }
 
@@ -4611,7 +4608,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
             if (roadDistance > pathWaypointReachDistance)
             {
-                MoveToPosition(roadWaypoint, targetZone);
+                MoveToPosition(roadWaypoint, routeZone);
 
                 if (CanRouteActionReplaceCurrentAction())
                 {
@@ -4621,7 +4618,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                 return;
             }
 
-            MoveToPosition(target, targetZone);
+            MoveToPosition(target, routeZone);
 
             if (Vector2.Distance(transform.position, target) < 0.4f)
             {
@@ -7873,7 +7870,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
     public string GetRealmText()
     {
-        return NpcText.RealmWithStage(CultivationRealm.Mortal, 1);
+        return NpcText.Realm(CultivationRealm.Mortal);
     }
 
     public int GetAge()
@@ -8029,86 +8026,17 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
     public void AddCultivationExp(int amount)
     {
-        if (amount == 0 ||
-            waitingForHeavenlyTribulation ||
-            realm == CultivationRealm.Tribulation)
-        {
-            return;
-        }
-
-        if (amount < 0)
-        {
-            cultivationExp = System.Math.Max(0L, cultivationExp + amount);
-            return;
-        }
-
-        cultivationExp += amount;
-
-        while (!waitingForHeavenlyTribulation &&
-            cultivationExp >= ExpToNextRealm() &&
-            realm != CultivationRealm.Tribulation)
-        {
-            cultivationExp -= ExpToNextRealm();
-            Breakthrough();
-        }
+        return;
     }
 
     void Breakthrough()
     {
-        if (waitingForHeavenlyTribulation)
-        {
-            return;
-        }
-
-        if (realm == CultivationRealm.Tribulation)
-        {
-            cultivationExp = 0;
-            return;
-        }
-
-        if (realm == CultivationRealm.Mortal &&
-            realmStage >= CultivationProgression.MaxStage)
-        {
-            realmStage = 1;
-            realm = CultivationRealm.QiRefining;
-            ApplyRealmPower(true);
-            return;
-        }
-
-        if (CultivationProgression.RequiresHeavenlyTribulation(
-                realm,
-                realmStage))
-        {
-            CultivationRealm targetRealm =
-                CultivationProgression.GetNextRealm(realm);
-
-            waitingForHeavenlyTribulation = true;
-            currentAction = NpcText.Action("waitTribulation");
-            HeavenlyTribulationSystem.Request(
-                gameObject,
-                villagerName,
-                targetRealm,
-                () => CompleteMajorBreakthrough(targetRealm));
-            return;
-        }
-
-        realmStage += 1;
-        ApplyRealmPower(true);
-        currentAction = NpcText.Action("breakthrough");
+        return;
     }
 
     void CompleteMajorBreakthrough(CultivationRealm targetRealm)
     {
-        waitingForHeavenlyTribulation = false;
-        if (IsDead)
-        {
-            return;
-        }
-
-        realmStage = 1;
-        realm = targetRealm;
-        ApplyRealmPower(true);
-        currentAction = NpcText.Action("breakthrough");
+        return;
     }
 
     void ApplyRealmPower(bool fillHP = false)
@@ -8162,7 +8090,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                 break;
 
             case StatType.Cultivation:
-                AddCultivationExp(intValue);
                 break;
 
             case StatType.Attack:
@@ -8189,10 +8116,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                 break;
 
             case StatType.Breakthrough:
-                if (direction > 0)
-                {
-                    Breakthrough();
-                }
                 break;
         }
     }

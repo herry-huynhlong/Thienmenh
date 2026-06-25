@@ -471,12 +471,6 @@ public static class NpcRoleUtility
             stats.AddCultivationExp(amount);
             return;
         }
-
-        VillagerAI villager = GetActiveVillagerAI(npc);
-        if (villager != null)
-        {
-            villager.AddCultivationExp(amount);
-        }
     }
 
     public static void Damage(GameObject target, int amount)

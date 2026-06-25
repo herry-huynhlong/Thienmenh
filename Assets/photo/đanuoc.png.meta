@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: a1afbd9d84627b041adaeca4eeb725d3
+guid: 07f784bfd5947714f97711e13d5b4c5e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3722107964443156863
-    second: congphap_0
+      213: 3911786254900477786
+    second: "\u0111anuoc_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -97,19 +97,6 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
-    buildTarget: Android
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
     buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -126,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: congphap_0
+      name: "\u0111anuoc_0"
       rect:
         serializedVersion: 2
-        x: 1
-        y: 0
-        width: 833
-        height: 299
+        x: 58
+        y: 273
+        width: 1415
+        height: 585
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 18e96b3e68a685cc0800000000000000
-      internalID: -3722107964443156863
+      spriteID: a5f39909fd4794630800000000000000
+      internalID: 3911786254900477786
       vertices: []
       indices: 
       edges: []
@@ -161,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      congphap_0: -3722107964443156863
+      "\u0111anuoc_0": 3911786254900477786
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
