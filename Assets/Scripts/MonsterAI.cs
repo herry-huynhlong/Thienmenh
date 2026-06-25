@@ -33,9 +33,9 @@ public class MonsterAI : MonoBehaviour, IDamageable
     public long cultivationExp;
     public int baseExpToNextRealm = 100;
     public bool waitingForHeavenlyTribulation;
-    public int baseMaxHP = 80;
-    public int baseDamage = 8;
-    public int baseDefense = 3;
+    public int baseMaxHP = 150;
+    public int baseDamage = 15;
+    public int baseDefense = 8;
     public int baseEffectResistance;
     public float baseMoveSpeed = 2f;
     [Min(0f)] public float naturalCultivationExpPerSecond = 0.35f;
@@ -45,8 +45,8 @@ public class MonsterAI : MonoBehaviour, IDamageable
     public bool healAfterDevouringNpc = true;
 
     [Header("===== DAMAGE =====")]
-    public int damage = 10;
-    public int defense = 0;
+    public int damage = 15;
+    public int defense = 8;
     public int effectResistance = 0;
 
     [Header("===== BAN NANG YEU THU =====")]

@@ -139,7 +139,8 @@ public static class NpcRoleUtility
             return Mathf.RoundToInt(CultivationProgression.GetStatPower(
                 monster.realm,
                 monster.realmStage,
-                EntityKind.Beast));
+                EntityKind.Beast) *
+                CultivationProgression.GetEntityStatMultiplier(EntityKind.Beast));
         }
 
         return 0;

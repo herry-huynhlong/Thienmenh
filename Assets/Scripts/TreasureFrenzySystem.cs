@@ -882,7 +882,8 @@ public class TreasureFrenzySystem : MonoBehaviour
                 ? CultivationProgression.GetStatPower(
                     monster.realm,
                     monster.realmStage,
-                    EntityKind.Beast)
+                    EntityKind.Beast) *
+                    CultivationProgression.GetEntityStatMultiplier(EntityKind.Beast)
                 : 1f;
         }
 

@@ -113,33 +113,71 @@ public static class NpcDailyRoutineLibrary
             return;
         }
 
-        float phaseOffset = GetCultivatorPhaseOffset(npc);
-        float dawnEnd = 6f + phaseOffset;
-        float morningEnd = 11f + phaseOffset;
-        float noonEnd = 13f + phaseOffset;
-        float afternoonEnd = 17f + phaseOffset;
-        float sellEnd = 18f + phaseOffset;
-        float buyEnd = 19f + phaseOffset;
-
-        NpcScheduleActivity morningActivity =
-            PickCultivatorActivity(
+        NpcScheduleActivity dawnActivity =
+            PickCultivatorFieldActivity(
                 npc,
-                useResourcePriority: true,
                 salt: 0,
-                disallow: NpcScheduleActivity.Idle);
-        NpcScheduleActivity afternoonActivity =
-            PickCultivatorActivity(
+                disallow: NpcScheduleActivity.Cultivate);
+        NpcScheduleActivity middayActivity =
+            PickCultivatorFieldActivity(
                 npc,
-                useResourcePriority: false,
                 salt: 1,
-                disallow: morningActivity);
+                disallow: dawnActivity);
+        NpcScheduleActivity nightActivity =
+            PickCultivatorFieldActivity(
+                npc,
+                salt: 2,
+                disallow: middayActivity);
 
-        Add(slots, NpcScheduleActivity.Cultivate, buyEnd, dawnEnd);
-        Add(slots, morningActivity, dawnEnd, morningEnd);
-        Add(slots, NpcScheduleActivity.Cultivate, morningEnd, noonEnd);
-        Add(slots, afternoonActivity, noonEnd, afternoonEnd);
-        Add(slots, NpcScheduleActivity.SellGoods, afternoonEnd, sellEnd);
-        Add(slots, NpcScheduleActivity.BuyGoods, sellEnd, buyEnd);
+        Add(slots, NpcScheduleActivity.Cultivate, 0f, 6f);
+        Add(slots, dawnActivity, 6f, 12f);
+        Add(slots, middayActivity, 12f, 17f);
+        Add(slots, NpcScheduleActivity.SellGoods, 17f, 18f);
+        Add(slots, NpcScheduleActivity.BuyGoods, 18f, 19f);
+        Add(slots, nightActivity, 19f, 24f);
+    }
+
+    static NpcScheduleActivity PickCultivatorFieldActivity(
+        GameObject npc,
+        int salt,
+        NpcScheduleActivity disallow)
+    {
+        List<NpcScheduleActivity> options =
+            new List<NpcScheduleActivity>();
+        SmartNpcAI smartNpc =
+            npc != null
+            ? npc.GetComponent<SmartNpcAI>()
+            : null;
+
+        if (smartNpc != null)
+        {
+            if (smartNpc.canFight)
+            {
+                options.Add(NpcScheduleActivity.Hunt);
+            }
+
+            if (smartNpc.canGather)
+            {
+                options.Add(NpcScheduleActivity.Gather);
+            }
+        }
+
+        if (options.Count == 0)
+        {
+            options.Add(NpcScheduleActivity.Cultivate);
+        }
+
+        int seed = GetCultivatorScheduleSeed(npc);
+        int index = PositiveModulo(seed + salt * 7, options.Count);
+        NpcScheduleActivity picked = options[index];
+
+        if (picked == disallow &&
+            options.Count > 1)
+        {
+            picked = options[(index + 1) % options.Count];
+        }
+
+        return picked;
     }
 
     static NpcScheduleActivity PickCultivatorActivity(

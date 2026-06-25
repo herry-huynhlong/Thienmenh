@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: efdd1769a15aca94086425cfbb1f30d9
+guid: 300619761c1aa1d4ca1b71947ca45614
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -481174388473029224
-    second: cuahang_0
+      213: -1011416902258037615
+    second: cuahang1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -97,7 +97,7 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
-    buildTarget: WebGL
+    buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -110,7 +110,7 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
-    buildTarget: Android
+    buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: cuahang_0
+      name: cuahang1_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 20
-        width: 577
-        height: 413
+        y: 19
+        width: 1448
+        height: 1067
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 89d9c0c61768259f0800000000000000
-      internalID: -481174388473029224
+      spriteID: 19c6515afa9b6f1f0800000000000000
+      internalID: -1011416902258037615
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      cuahang_0: -481174388473029224
+      cuahang1_0: -1011416902258037615
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

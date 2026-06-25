@@ -370,47 +370,51 @@ public static class EntityGenerator
 
         float realmPower =
             CultivationProgression.GetStatPower(stats.realm, stats.realmStage, kind);
+        float entityStatMultiplier =
+            CultivationProgression.GetEntityStatMultiplier(kind);
 
         float talentPower = TalentPower(talent.grade);
-        int baseHp;
-        int baseAttack;
-        int baseDefense;
+        int baseHp = CultivationProgression.GetConfiguredBaseMaxHP();
+        int baseAttack = CultivationProgression.GetConfiguredBaseAttack();
+        int baseDefense = CultivationProgression.GetConfiguredBaseDefense();
         float baseMoveSpeed;
         int baseMoney;
         int baseSpiritStone;
 
         if (kind == EntityKind.Beast)
         {
-            baseHp = UnityEngine.Random.Range(90, 180);
-            baseAttack = UnityEngine.Random.Range(10, 24);
-            baseDefense = UnityEngine.Random.Range(5, 16);
             baseMoveSpeed = UnityEngine.Random.Range(1.6f, 3.2f);
             baseMoney = 0;
             baseSpiritStone = 0;
         }
         else if (kind == EntityKind.Cultivator)
         {
-            baseHp = 100;
-            baseAttack = 10;
-            baseDefense = 5;
             baseMoveSpeed = UnityEngine.Random.Range(1.2f, 2.1f);
             baseMoney = UnityEngine.Random.Range(5, 220);
             baseSpiritStone = UnityEngine.Random.Range(0, 12);
         }
         else
         {
-            baseHp = 100;
-            baseAttack = 10;
-            baseDefense = 5;
             baseMoveSpeed = UnityEngine.Random.Range(1.0f, 1.8f);
             baseMoney = UnityEngine.Random.Range(2, 140);
             baseSpiritStone = UnityEngine.Random.Range(0, 5);
         }
 
-        stats.maxHP = Mathf.Max(1, Mathf.RoundToInt(baseHp * realmPower));
+        stats.maxHP =
+            Mathf.Max(
+                1,
+                Mathf.RoundToInt(baseHp * realmPower * entityStatMultiplier));
         stats.currentHP = stats.maxHP;
-        stats.attack = Mathf.Max(1, Mathf.RoundToInt(baseAttack * realmPower * talent.combatMultiplier));
-        stats.defense = Mathf.Max(0, Mathf.RoundToInt(baseDefense * realmPower * talent.combatMultiplier));
+        stats.attack =
+            Mathf.Max(
+                1,
+                Mathf.RoundToInt(
+                    baseAttack * realmPower * entityStatMultiplier));
+        stats.defense =
+            Mathf.Max(
+                0,
+                Mathf.RoundToInt(
+                    baseDefense * realmPower * entityStatMultiplier));
         stats.effectResistance = Mathf.RoundToInt(UnityEngine.Random.Range(0, 8) * talentPower);
         stats.moveSpeed = baseMoveSpeed;
         stats.cultivationExp = UnityEngine.Random.Range(0, 80) * Mathf.Max(1, (int)stats.realm + 1);

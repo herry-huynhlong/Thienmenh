@@ -35,6 +35,17 @@ public partial class SmartNpcAI
             return;
         }
 
+        if (HasActiveHuntTravelIntent())
+        {
+            if (canFight)
+            {
+                SearchMonster();
+            }
+
+            DebugFlow("ThinkHunt", "Preserve active hunt travel");
+            return;
+        }
+
         WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
         if (timeSystem != null)
         {
@@ -52,7 +63,7 @@ public partial class SmartNpcAI
         WeatherSystem weather = WeatherSystem.Instance;
         if (weather != null &&
             weather.CurrentWeather == WorldWeather.DenseSpiritualQi &&
-            canCultivate)
+            CanUseScheduledCultivation())
         {
             Cultivate();
             DebugFlow("ThinkWeather", "Dense spiritual qi");
@@ -80,8 +91,7 @@ public partial class SmartNpcAI
         }
 
         if (dailyRoutineEnabled &&
-            dailyTaskVisitEnabled &&
-            Random.value < dailyTaskVisitChance &&
+            CanVisitTaskProviderToday() &&
             TryVisitTaskProvider())
         {
             DebugFlow("ThinkTask", "Daily task visit");
@@ -98,7 +108,8 @@ public partial class SmartNpcAI
         }
 
         if (canCultivate &&
-            (pill > 0 || spiritStone > 0))
+            (pill > 0 || spiritStone > 0) &&
+            CanUseScheduledCultivation())
         {
             Cultivate();
             DebugFlow("ThinkCultivate", "Consume pill or spirit stone");
@@ -152,19 +163,23 @@ public partial class SmartNpcAI
             return;
         }
 
-        if (canCultivate)
-        {
-            CultivateNaturally();
-            DebugFlow("ThinkFallback", "Fallback cultivation");
-            return;
-        }
+        StartIdleWander();
+        DebugFlow("ThinkFallback", "Idle instead of cultivation");
+        return;
+    }
 
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector2.zero;
-        }
+    bool HasActiveHuntTravelIntent()
+    {
+        return currentMonsterTarget != null ||
+            currentAction == NpcText.Action("goHunt") ||
+            currentAction == NpcText.Action("huntMonsterNamed") ||
+            currentAction == NpcText.Action("attackMonsterNamed");
+    }
 
-        currentAction = "";
-        DebugFlow("ThinkIdle", "No branch selected");
+    bool CanUseScheduledCultivation()
+    {
+        return canCultivate &&
+            dailyRoutineEnabled &&
+            IsScheduledCultivationTime();
     }
 }

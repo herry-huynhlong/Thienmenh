@@ -28,30 +28,53 @@ public partial class SmartNpcAI
             " " + slot.startHour.ToString("0.##") +
             "-" + slot.endHour.ToString("0.##"));
 
-        currentScheduleSlotKey = key;
-        currentTarget = null;
-        currentMonsterTarget = null;
-        treasureHuntTarget = null;
-        treasureHuntItem = null;
-        waitingOutsideTreasureLightning = false;
-        hasWanderTarget = false;
-        hasCultivationTarget = false;
-        hasEscapeTarget = false;
-        hasHomeReturnTarget = false;
-        hasObstacleAvoidTarget = false;
-        actionTimer = 0f;
-        currentAction = string.Empty;
+        bool preserveActiveFlow =
+            HasLockedDirectedTarget() ||
+            currentMonsterTarget != null ||
+            currentAction == NpcText.Action("goHunt") ||
+            currentAction == NpcText.Action("huntMonsterNamed") ||
+            currentAction == NpcText.Action("attackMonsterNamed") ||
+            waitingOutsideTreasureLightning ||
+            treasureHuntTarget != null ||
+            hasTreasureWaitPosition;
 
-        if (rb != null)
+        currentScheduleSlotKey = key;
+        if (!preserveActiveFlow)
         {
-            rb.linearVelocity = Vector2.zero;
+            currentTarget = null;
+            currentMonsterTarget = null;
+            treasureHuntTarget = null;
+            treasureHuntItem = null;
+            waitingOutsideTreasureLightning = false;
+            hasWanderTarget = false;
+            hasCultivationTarget = false;
+            hasEscapeTarget = false;
+            hasHomeReturnTarget = false;
+            hasObstacleAvoidTarget = false;
+            actionTimer = 0f;
+            currentAction = string.Empty;
+
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+
+            UpdateCultivationEffect(false);
+
+            if (resourceGatherer != null)
+            {
+                resourceGatherer.CancelGatheringNow();
+            }
+        }
+        else
+        {
+            DebugFlow("ScheduleSlot", "Preserve active travel flow");
         }
 
-        UpdateCultivationEffect(false);
-
-        if (resourceGatherer != null)
+        if (schedule.CurrentActivity == NpcScheduleActivity.Gather ||
+            schedule.CurrentActivity == NpcScheduleActivity.Hunt)
         {
-            resourceGatherer.CancelGatheringNow();
+            schedule.ClearCurrentSlotActivityState(schedule.CurrentActivity);
         }
     }
 
@@ -68,6 +91,7 @@ public partial class SmartNpcAI
     {
         NpcScheduleController schedule =
             GetComponent<NpcScheduleController>();
+        bool isCultivatorSchedule = IsCultivatorSchedule();
 
         if (schedule == null ||
             !schedule.enforceSchedule)
@@ -101,7 +125,27 @@ public partial class SmartNpcAI
             slot.allowFatigueInterrupt &&
             fatigue >= 90f)
         {
-            Sleep();
+            if (activity == NpcScheduleActivity.Cultivate &&
+                canCultivate)
+            {
+                CultivateNaturally();
+            }
+
+            else
+            {
+                WaitForScheduledActivity(activity);
+            }
+
+            return true;
+        }
+
+        if (HasActiveHuntTravelIntent())
+        {
+            if (canFight)
+            {
+                SearchMonster();
+            }
+
             return true;
         }
 
@@ -123,8 +167,7 @@ public partial class SmartNpcAI
                         if (currentAction == NpcText.Action("goCultivatePoint"))
                         {
                             if (currentTarget != null ||
-                                hasWanderTarget ||
-                                hasHomeReturnTarget)
+                                hasWanderTarget)
                             {
                                 return true;
                             }
@@ -176,6 +219,11 @@ public partial class SmartNpcAI
                 return true;
 
             case NpcScheduleActivity.TakeTask:
+                if (!HasDailyTaskQuotaRemaining())
+                {
+                    return false;
+                }
+
                 if (!TryVisitTaskProvider())
                 {
                     WaitForScheduledActivity(NpcScheduleActivity.TakeTask);
@@ -217,7 +265,12 @@ public partial class SmartNpcAI
                 return true;
 
             case NpcScheduleActivity.Sleep:
-                if (IgnoresMortalNeeds())
+                if (isCultivatorSchedule &&
+                    canCultivate)
+                {
+                    CultivateNaturally();
+                }
+                else if (IgnoresMortalNeeds())
                 {
                     WaitForScheduledActivity(NpcScheduleActivity.Sleep);
                 }
@@ -245,7 +298,6 @@ public partial class SmartNpcAI
         currentTarget = null;
         hasWanderTarget = false;
         hasEscapeTarget = false;
-        hasHomeReturnTarget = false;
         hasObstacleAvoidTarget = false;
         actionTimer = Mathf.Max(actionTimer, GameHoursToSeconds(0.15f));
 
@@ -259,14 +311,16 @@ public partial class SmartNpcAI
         DebugFlow("ScheduleWait", "Waiting " + activity);
     }
 
+    bool IsCultivatorSchedule()
+    {
+        NpcScheduleController schedule =
+            GetComponent<NpcScheduleController>();
+        return schedule != null &&
+            schedule.lifePath == NpcLifePath.Cultivator;
+    }
+
     void StartIdleWander()
     {
-        if (canCultivate)
-        {
-            CultivateNaturally();
-            return;
-        }
-
         actionTimer =
             Mathf.Max(
                 actionTimer,
@@ -313,8 +367,7 @@ public partial class SmartNpcAI
 
     bool TryStartScheduledNonCultivationActivity()
     {
-        if (dailyTaskVisitEnabled &&
-            Random.value < dailyTaskVisitChance &&
+        if (CanVisitTaskProviderToday() &&
             TryVisitTaskProvider())
         {
             return true;
@@ -339,16 +392,13 @@ public partial class SmartNpcAI
             if (currentTarget == null &&
                 currentAction != NpcText.Action("buyPill"))
             {
-                if (canCultivate)
-                {
-                    CultivateNaturally();
-                }
-                else if (rb != null)
+                if (rb != null)
                 {
                     rb.linearVelocity = Vector2.zero;
                     currentAction = "";
                 }
 
+                StartIdleWander();
                 return true;
             }
 
@@ -367,16 +417,13 @@ public partial class SmartNpcAI
             SearchMonster();
             if (currentMonsterTarget == null)
             {
-                if (canCultivate)
-                {
-                    CultivateNaturally();
-                }
-                else if (rb != null)
+                if (rb != null)
                 {
                     rb.linearVelocity = Vector2.zero;
                     currentAction = "";
                 }
 
+                StartIdleWander();
                 return true;
             }
 
@@ -405,18 +452,7 @@ public partial class SmartNpcAI
             return true;
         }
 
-        if (canCultivate)
-        {
-            CultivateNaturally();
-            return true;
-        }
-
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector2.zero;
-        }
-
-        currentAction = "";
+        StartIdleWander();
         return true;
     }
 
@@ -517,13 +553,7 @@ public partial class SmartNpcAI
 
     bool TryVisitTaskProvider()
     {
-        if (!IsTaskVisitStaggerReady())
-        {
-            return false;
-        }
-
-        int day = GetCurrentWorldDay();
-        if (lastTaskProviderVisitDay == day)
+        if (!CanVisitTaskProviderToday())
         {
             return false;
         }
@@ -553,10 +583,10 @@ public partial class SmartNpcAI
 
         currentTarget = null;
         hasWanderTarget = false;
-        lastTaskProviderVisitDay = day;
 
         if (provider.TryHandleVisitor(gameObject))
         {
+            MarkDailyTaskAccepted();
             DebugFlow("TaskProvider", "Handled by provider");
             return true;
         }

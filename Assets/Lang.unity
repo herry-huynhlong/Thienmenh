@@ -11170,11 +11170,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -204.1
+      value: -184.5
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 262.5
+      value: 264.3
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.z
@@ -11210,15 +11210,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: size.x
-      value: 3
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: size.y
-      value: 3
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: allowMaterials
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: maxNaturalGrade
@@ -11234,7 +11234,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: initialSpawnCount
-      value: 100
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: showAutoItemVisual
@@ -14605,7 +14605,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -2.9091568, y: 1.8346848}
+  m_Offset: {x: -2.934555, y: 1.7331204}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -14615,7 +14615,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 23.814804, y: 15.497022}
+  m_Size: {x: 22.545258, y: 16.715782}
   m_EdgeRadius: 0
 --- !u!114 &200175864
 MonoBehaviour:
@@ -15849,7 +15849,7 @@ Transform:
   m_GameObject: {fileID: 235963097}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 117.06, y: 6.99, z: 0}
+  m_LocalPosition: {x: 117.31, y: 6.72, z: 0}
   m_LocalScale: {x: 15, y: 15, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -17241,16 +17241,17 @@ MonoBehaviour:
   dailyCultivationMaxHours: 8
   earliestCultivationHour: 5
   latestCultivationStartHour: 20
+  dailyTaskVisitEnabled: 1
+  dailyTaskMinCount: 5
+  dailyTaskMaxCount: 7
+  taskProviderStartHour: 6
+  taskProviderEndHour: 17
   cultivationSessionMinGameHours: 1
   cultivationSessionMaxGameHours: 2
   tradeSessionMinGameHours: 0.5
   tradeSessionMaxGameHours: 1.5
   socialSessionMinGameHours: 0.5
   socialSessionMaxGameHours: 1.5
-  dailyTaskVisitEnabled: 1
-  dailyTaskVisitChance: 1
-  staggerDailyTaskVisits: 1
-  dailyTaskVisitStaggerHours: 2
   homePoint: {fileID: 0}
   cultivationPoint: {fileID: 1093959400}
   tavernPoint: {fileID: 0}
@@ -17318,43 +17319,43 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 19.75
-    endHour: 6.75
+    startHour: 0
+    endHour: 6
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 6
-    startHour: 6.75
-    endHour: 11.75
+    startHour: 6
+    endHour: 12
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 11.75
-    endHour: 13.75
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 13.75
-    endHour: 17.75
+  - activity: 7
+    startHour: 12
+    endHour: 17
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 4
-    startHour: 17.75
-    endHour: 18.75
+    startHour: 17
+    endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 5
-    startHour: 18.75
-    endHour: 19.75
+    startHour: 18
+    endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 19
+    endHour: 0
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -18156,16 +18157,17 @@ MonoBehaviour:
   dailyCultivationMaxHours: 8
   earliestCultivationHour: 5
   latestCultivationStartHour: 20
+  dailyTaskVisitEnabled: 1
+  dailyTaskMinCount: 5
+  dailyTaskMaxCount: 7
+  taskProviderStartHour: 6
+  taskProviderEndHour: 17
   cultivationSessionMinGameHours: 1
   cultivationSessionMaxGameHours: 2
   tradeSessionMinGameHours: 0.5
   tradeSessionMaxGameHours: 1.5
   socialSessionMinGameHours: 0.5
   socialSessionMaxGameHours: 1.5
-  dailyTaskVisitEnabled: 1
-  dailyTaskVisitChance: 1
-  staggerDailyTaskVisits: 1
-  dailyTaskVisitStaggerHours: 2
   homePoint: {fileID: 0}
   cultivationPoint: {fileID: 0}
   tavernPoint: {fileID: 0}
@@ -18192,43 +18194,43 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 19.5
-    endHour: 6.5
+    startHour: 0
+    endHour: 6
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 7
-    startHour: 6.5
-    endHour: 11.5
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 11.5
-    endHour: 13.5
+    startHour: 6
+    endHour: 12
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 6
-    startHour: 13.5
-    endHour: 17.5
+    startHour: 12
+    endHour: 17
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 4
-    startHour: 17.5
-    endHour: 18.5
+    startHour: 17
+    endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 5
-    startHour: 18.5
-    endHour: 19.5
+    startHour: 18
+    endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 7
+    startHour: 19
+    endHour: 0
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -18356,11 +18358,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -185
+      value: -181.6
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 266.5
+      value: 255.5
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.z
@@ -18404,7 +18406,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: allowMaterials
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: maxNaturalGrade
@@ -19416,16 +19418,17 @@ MonoBehaviour:
   dailyCultivationMaxHours: 8
   earliestCultivationHour: 5
   latestCultivationStartHour: 20
+  dailyTaskVisitEnabled: 1
+  dailyTaskMinCount: 5
+  dailyTaskMaxCount: 7
+  taskProviderStartHour: 6
+  taskProviderEndHour: 17
   cultivationSessionMinGameHours: 1
   cultivationSessionMaxGameHours: 2
   tradeSessionMinGameHours: 0.5
   tradeSessionMaxGameHours: 1.5
   socialSessionMinGameHours: 0.5
   socialSessionMaxGameHours: 1.5
-  dailyTaskVisitEnabled: 1
-  dailyTaskVisitChance: 1
-  staggerDailyTaskVisits: 1
-  dailyTaskVisitStaggerHours: 2
   homePoint: {fileID: 0}
   cultivationPoint: {fileID: 0}
   tavernPoint: {fileID: 0}
@@ -19509,43 +19512,43 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 19.25
-    endHour: 6.25
+    startHour: 0
+    endHour: 6
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 6
-    startHour: 6.25
-    endHour: 11.25
+    startHour: 6
+    endHour: 12
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 11.25
-    endHour: 13.25
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 13.25
-    endHour: 17.25
+  - activity: 7
+    startHour: 12
+    endHour: 17
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 4
-    startHour: 17.25
-    endHour: 18.25
+    startHour: 17
+    endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 5
-    startHour: 18.25
-    endHour: 19.25
+    startHour: 18
+    endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 19
+    endHour: 0
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -25123,7 +25126,7 @@ Transform:
   m_GameObject: {fileID: 466907381}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 134.67, y: -0.3, z: 0}
+  m_LocalPosition: {x: 133.49, y: 0.01, z: 0}
   m_LocalScale: {x: 15, y: 15, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -28795,8 +28798,6 @@ Transform:
   - {fileID: 138231408}
   - {fileID: 393253380}
   - {fileID: 926227695}
-  - {fileID: 1253986511}
-  - {fileID: 1072802306}
   - {fileID: 854790654}
   - {fileID: 426541909}
   - {fileID: 2046949239}
@@ -29649,11 +29650,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -214.1
+      value: -202.8
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 252.5
+      value: 253.5
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.z
@@ -29689,7 +29690,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: size.x
-      value: 10
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: size.y
@@ -29713,7 +29714,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: initialSpawnCount
-      value: 10
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: showAutoItemVisual
@@ -35650,43 +35651,43 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 19.5
-    endHour: 6.5
+    startHour: 0
+    endHour: 6
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 8
-    startHour: 6.5
-    endHour: 11.5
+    startHour: 6
+    endHour: 12
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 8
-    startHour: 11.5
-    endHour: 13.5
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 13.5
-    endHour: 17.5
+    startHour: 12
+    endHour: 17
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 4
-    startHour: 17.5
-    endHour: 18.5
+    startHour: 17
+    endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 5
-    startHour: 18.5
-    endHour: 19.5
+    startHour: 18
+    endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 8
+    startHour: 19
+    endHour: 0
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -35904,7 +35905,7 @@ Transform:
   m_GameObject: {fileID: 614410418}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 116.58, y: -0.69, z: 0}
+  m_LocalPosition: {x: 117.19, y: -0.26, z: 0}
   m_LocalScale: {x: 15, y: 15, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -44019,7 +44020,7 @@ Transform:
   m_GameObject: {fileID: 734932529}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 134.71, y: 7.25, z: 0}
+  m_LocalPosition: {x: 134.09, y: 6.64, z: 0}
   m_LocalScale: {x: 15, y: 15, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -44886,16 +44887,17 @@ MonoBehaviour:
   dailyCultivationMaxHours: 8
   earliestCultivationHour: 5
   latestCultivationStartHour: 20
+  dailyTaskVisitEnabled: 1
+  dailyTaskMinCount: 5
+  dailyTaskMaxCount: 7
+  taskProviderStartHour: 6
+  taskProviderEndHour: 17
   cultivationSessionMinGameHours: 1
   cultivationSessionMaxGameHours: 2
   tradeSessionMinGameHours: 0.5
   tradeSessionMaxGameHours: 1.5
   socialSessionMinGameHours: 0.5
   socialSessionMaxGameHours: 1.5
-  dailyTaskVisitEnabled: 1
-  dailyTaskVisitChance: 1
-  staggerDailyTaskVisits: 1
-  dailyTaskVisitStaggerHours: 2
   homePoint: {fileID: 0}
   cultivationPoint: {fileID: 0}
   tavernPoint: {fileID: 0}
@@ -44963,43 +44965,43 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 19.5
-    endHour: 6.5
+    startHour: 0
+    endHour: 6
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 6.5
-    endHour: 11.5
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 11.5
-    endHour: 13.5
+  - activity: 6
+    startHour: 6
+    endHour: 12
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 7
-    startHour: 13.5
-    endHour: 17.5
+    startHour: 12
+    endHour: 17
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 4
-    startHour: 17.5
-    endHour: 18.5
+    startHour: 17
+    endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 5
-    startHour: 18.5
-    endHour: 19.5
+    startHour: 18
+    endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 19
+    endHour: 0
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -45830,37 +45832,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!1 &778545701
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 778545702}
-  m_Layer: 0
-  m_Name: mealpoint
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &778545702
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 778545701}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 91.05, y: 0.87, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2085516815}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &779349832
 GameObject:
   m_ObjectHideFlags: 0
@@ -49796,7 +49767,7 @@ Transform:
   m_GameObject: {fileID: 905394366}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.113, y: 0.109, z: 0}
+  m_LocalPosition: {x: 0.13, y: 0.109, z: 0}
   m_LocalScale: {x: 0.023434501, y: 0.023434501, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -58285,16 +58256,17 @@ MonoBehaviour:
   dailyCultivationMaxHours: 8
   earliestCultivationHour: 5
   latestCultivationStartHour: 20
+  dailyTaskVisitEnabled: 1
+  dailyTaskMinCount: 5
+  dailyTaskMaxCount: 7
+  taskProviderStartHour: 6
+  taskProviderEndHour: 17
   cultivationSessionMinGameHours: 1
   cultivationSessionMaxGameHours: 2
   tradeSessionMinGameHours: 0.5
   tradeSessionMaxGameHours: 1.5
   socialSessionMinGameHours: 0.5
   socialSessionMaxGameHours: 1.5
-  dailyTaskVisitEnabled: 1
-  dailyTaskVisitChance: 1
-  staggerDailyTaskVisits: 1
-  dailyTaskVisitStaggerHours: 2
   homePoint: {fileID: 0}
   cultivationPoint: {fileID: 0}
   tavernPoint: {fileID: 0}
@@ -58362,43 +58334,43 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 19.25
-    endHour: 6.25
+    startHour: 0
+    endHour: 6
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 6
-    startHour: 6.25
-    endHour: 11.25
+    startHour: 6
+    endHour: 12
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 11.25
-    endHour: 13.25
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 13.25
-    endHour: 17.25
+  - activity: 7
+    startHour: 12
+    endHour: 17
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 4
-    startHour: 17.25
-    endHour: 18.25
+    startHour: 17
+    endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 5
-    startHour: 18.25
-    endHour: 19.25
+    startHour: 18
+    endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 19
+    endHour: 0
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -61176,16 +61148,17 @@ MonoBehaviour:
   dailyCultivationMaxHours: 8
   earliestCultivationHour: 5
   latestCultivationStartHour: 20
+  dailyTaskVisitEnabled: 1
+  dailyTaskMinCount: 5
+  dailyTaskMaxCount: 7
+  taskProviderStartHour: 6
+  taskProviderEndHour: 17
   cultivationSessionMinGameHours: 1
   cultivationSessionMaxGameHours: 2
   tradeSessionMinGameHours: 0.5
   tradeSessionMaxGameHours: 1.5
   socialSessionMinGameHours: 0.5
   socialSessionMaxGameHours: 1.5
-  dailyTaskVisitEnabled: 1
-  dailyTaskVisitChance: 1
-  staggerDailyTaskVisits: 1
-  dailyTaskVisitStaggerHours: 2
   homePoint: {fileID: 0}
   cultivationPoint: {fileID: 0}
   tavernPoint: {fileID: 0}
@@ -61271,43 +61244,43 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 19.5
-    endHour: 6.5
+    startHour: 0
+    endHour: 6
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 6.5
-    endHour: 11.5
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 11.5
-    endHour: 13.5
+  - activity: 6
+    startHour: 6
+    endHour: 12
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 7
-    startHour: 13.5
-    endHour: 17.5
+    startHour: 12
+    endHour: 17
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 4
-    startHour: 17.5
-    endHour: 18.5
+    startHour: 17
+    endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 5
-    startHour: 18.5
-    endHour: 19.5
+    startHour: 18
+    endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 19
+    endHour: 0
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -62238,84 +62211,6 @@ CapsuleCollider2D:
   m_Offset: {x: -0.034668446, y: -1.0140908}
   m_Size: {x: 1.4033176, y: 1.4405687}
   m_Direction: 0
---- !u!1 &1072802305
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1072802306}
-  - component: {fileID: 1072802307}
-  m_Layer: 0
-  m_Name: Counter (11)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1072802306
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1072802305}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.61, y: -1.12, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 570709292}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!61 &1072802307
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1072802305}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 1.0799865, y: -0.06655325}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 1.4685829, y: 0.6885241}
-  m_EdgeRadius: 0
 --- !u!1001 &1073206260
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -86269,7 +86164,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -236
+      value: -230
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.y
@@ -86309,15 +86204,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: size.x
-      value: 10
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: size.y
-      value: 30
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: allowMaterials
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: resourceSaveKey
@@ -86329,7 +86224,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: initialSpawnCount
-      value: 15
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: showAutoItemVisual
@@ -93622,84 +93517,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!1 &1253986510
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1253986511}
-  - component: {fileID: 1253986512}
-  m_Layer: 0
-  m_Name: Counter (10)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1253986511
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1253986510}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.61, y: 0.75, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 570709292}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!61 &1253986512
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1253986510}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 1.0799865, y: -0.06655325}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 1.4685829, y: 0.6885241}
-  m_EdgeRadius: 0
 --- !u!213 &1258411825
 Sprite:
   m_ObjectHideFlags: 0
@@ -95269,16 +95086,17 @@ MonoBehaviour:
   dailyCultivationMaxHours: 8
   earliestCultivationHour: 5
   latestCultivationStartHour: 20
+  dailyTaskVisitEnabled: 1
+  dailyTaskMinCount: 5
+  dailyTaskMaxCount: 7
+  taskProviderStartHour: 6
+  taskProviderEndHour: 17
   cultivationSessionMinGameHours: 1
   cultivationSessionMaxGameHours: 2
   tradeSessionMinGameHours: 0.5
   tradeSessionMaxGameHours: 1.5
   socialSessionMinGameHours: 0.5
   socialSessionMaxGameHours: 1.5
-  dailyTaskVisitEnabled: 1
-  dailyTaskVisitChance: 1
-  staggerDailyTaskVisits: 1
-  dailyTaskVisitStaggerHours: 2
   homePoint: {fileID: 0}
   cultivationPoint: {fileID: 0}
   tavernPoint: {fileID: 0}
@@ -95346,43 +95164,43 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 19.75
-    endHour: 6.75
+    startHour: 0
+    endHour: 6
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 6
-    startHour: 6.75
-    endHour: 11.75
+    startHour: 6
+    endHour: 12
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 11.75
-    endHour: 13.75
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 13.75
-    endHour: 17.75
+  - activity: 7
+    startHour: 12
+    endHour: 17
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 4
-    startHour: 17.75
-    endHour: 18.75
+    startHour: 17
+    endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 5
-    startHour: 18.75
-    endHour: 19.75
+    startHour: 18
+    endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 19
+    endHour: 0
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -95641,7 +95459,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.10671997, y: 0.32016718}
+  m_Offset: {x: 0.14492798, y: 0.068516344}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -95651,7 +95469,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 4.3617554, y: 1.7470567}
+  m_Size: {x: 4.8650513, y: 1.847717}
   m_EdgeRadius: 0
 --- !u!1 &1293106833
 GameObject:
@@ -95997,16 +95815,17 @@ MonoBehaviour:
   dailyCultivationMaxHours: 8
   earliestCultivationHour: 5
   latestCultivationStartHour: 20
+  dailyTaskVisitEnabled: 1
+  dailyTaskMinCount: 5
+  dailyTaskMaxCount: 7
+  taskProviderStartHour: 6
+  taskProviderEndHour: 17
   cultivationSessionMinGameHours: 1
   cultivationSessionMaxGameHours: 2
   tradeSessionMinGameHours: 0.5
   tradeSessionMaxGameHours: 1.5
   socialSessionMinGameHours: 0.5
   socialSessionMaxGameHours: 1.5
-  dailyTaskVisitEnabled: 1
-  dailyTaskVisitChance: 1
-  staggerDailyTaskVisits: 1
-  dailyTaskVisitStaggerHours: 2
   homePoint: {fileID: 0}
   cultivationPoint: {fileID: 0}
   tavernPoint: {fileID: 0}
@@ -96074,28 +95893,21 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 19
+    startHour: 0
     endHour: 6
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  - activity: 8
+  - activity: 6
     startHour: 6
-    endHour: 11
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 11
-    endHour: 13
+    endHour: 12
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 7
-    startHour: 13
+    startHour: 12
     endHour: 17
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -96111,6 +95923,13 @@ MonoBehaviour:
   - activity: 5
     startHour: 18
     endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 19
+    endHour: 0
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -97888,16 +97707,17 @@ MonoBehaviour:
   dailyCultivationMaxHours: 8
   earliestCultivationHour: 5
   latestCultivationStartHour: 20
+  dailyTaskVisitEnabled: 1
+  dailyTaskMinCount: 5
+  dailyTaskMaxCount: 7
+  taskProviderStartHour: 6
+  taskProviderEndHour: 17
   cultivationSessionMinGameHours: 1
   cultivationSessionMaxGameHours: 2
   tradeSessionMinGameHours: 0.5
   tradeSessionMaxGameHours: 1.5
   socialSessionMinGameHours: 0.5
   socialSessionMaxGameHours: 1.5
-  dailyTaskVisitEnabled: 1
-  dailyTaskVisitChance: 1
-  staggerDailyTaskVisits: 1
-  dailyTaskVisitStaggerHours: 2
   homePoint: {fileID: 0}
   cultivationPoint: {fileID: 0}
   tavernPoint: {fileID: 0}
@@ -97929,43 +97749,43 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 19.25
-    endHour: 6.25
+    startHour: 0
+    endHour: 6
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 7
-    startHour: 6.25
-    endHour: 11.25
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 11.25
-    endHour: 13.25
+    startHour: 6
+    endHour: 12
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 6
-    startHour: 13.25
-    endHour: 17.25
+    startHour: 12
+    endHour: 17
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 4
-    startHour: 17.25
-    endHour: 18.25
+    startHour: 17
+    endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 5
-    startHour: 18.25
-    endHour: 19.25
+    startHour: 18
+    endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 7
+    startHour: 19
+    endHour: 0
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -98632,16 +98452,17 @@ MonoBehaviour:
   dailyCultivationMaxHours: 8
   earliestCultivationHour: 5
   latestCultivationStartHour: 20
+  dailyTaskVisitEnabled: 1
+  dailyTaskMinCount: 5
+  dailyTaskMaxCount: 7
+  taskProviderStartHour: 6
+  taskProviderEndHour: 17
   cultivationSessionMinGameHours: 1
   cultivationSessionMaxGameHours: 2
   tradeSessionMinGameHours: 0.5
   tradeSessionMaxGameHours: 1.5
   socialSessionMinGameHours: 0.5
   socialSessionMaxGameHours: 1.5
-  dailyTaskVisitEnabled: 1
-  dailyTaskVisitChance: 1
-  staggerDailyTaskVisits: 1
-  dailyTaskVisitStaggerHours: 2
   homePoint: {fileID: 0}
   cultivationPoint: {fileID: 1093959400}
   tavernPoint: {fileID: 0}
@@ -98709,7 +98530,7 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 19
+    startHour: 0
     endHour: 6
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -98717,20 +98538,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 6
     startHour: 6
-    endHour: 11
+    endHour: 12
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 11
-    endHour: 13
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 13
+  - activity: 7
+    startHour: 12
     endHour: 17
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -98746,6 +98560,13 @@ MonoBehaviour:
   - activity: 5
     startHour: 18
     endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 19
+    endHour: 0
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -98774,11 +98595,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -236
+      value: -229.9
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 252.5
+      value: 251.5
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.z
@@ -98818,11 +98639,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: size.y
-      value: 30
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: allowMaterials
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: resourceSaveKey
@@ -98834,7 +98655,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: initialSpawnCount
-      value: 35
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: showAutoItemVisual
@@ -99522,16 +99343,17 @@ MonoBehaviour:
   dailyCultivationMaxHours: 8
   earliestCultivationHour: 5
   latestCultivationStartHour: 20
+  dailyTaskVisitEnabled: 1
+  dailyTaskMinCount: 5
+  dailyTaskMaxCount: 7
+  taskProviderStartHour: 6
+  taskProviderEndHour: 17
   cultivationSessionMinGameHours: 1
   cultivationSessionMaxGameHours: 2
   tradeSessionMinGameHours: 0.5
   tradeSessionMaxGameHours: 1.5
   socialSessionMinGameHours: 0.5
   socialSessionMaxGameHours: 1.5
-  dailyTaskVisitEnabled: 1
-  dailyTaskVisitChance: 1
-  staggerDailyTaskVisits: 1
-  dailyTaskVisitStaggerHours: 2
   homePoint: {fileID: 0}
   cultivationPoint: {fileID: 0}
   tavernPoint: {fileID: 0}
@@ -99848,28 +99670,21 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 19
+    startHour: 0
     endHour: 6
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  - activity: 8
+  - activity: 6
     startHour: 6
-    endHour: 11
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 11
-    endHour: 13
+    endHour: 12
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 7
-    startHour: 13
+    startHour: 12
     endHour: 17
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -99885,6 +99700,13 @@ MonoBehaviour:
   - activity: 5
     startHour: 18
     endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 19
+    endHour: 0
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -101444,7 +101266,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 230.62, y: 813}
+  m_AnchoredPosition: {x: 230.62, y: 832}
   m_SizeDelta: {x: 791.464, y: 373.254}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1416582729
@@ -101475,7 +101297,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: aaaaaaa
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
   m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
@@ -101502,8 +101324,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
-  m_fontSizeBase: 50
+  m_fontSize: 100
+  m_fontSizeBase: 100
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -101541,7 +101363,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 8.192123, y: 6.8089824, z: -1.678459, w: -6.9437637}
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -106460,7 +106282,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 4.3009863, y: -3.3178148}
+  m_Offset: {x: 4.3866196, y: -3.4462707}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -106470,7 +106292,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 23.897524, y: 15.481016}
+  m_Size: {x: 22.356049, y: 16.594297}
   m_EdgeRadius: 0
 --- !u!114 &1561792175
 MonoBehaviour:
@@ -106884,11 +106706,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -219.2
+      value: -199.4
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 256.9
+      value: 255.3
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.z
@@ -107640,8 +107462,8 @@ MonoBehaviour:
   generateFromEntityProfile: 1
   entityProfile: {fileID: 0}
   monsterName: Yeu Thu
-  maxHP: 399
-  currentHP: 399
+  maxHP: 380
+  currentHP: 380
   beastLevel: 4
   huntTargetType: 1
   autoStatsFromRealm: 1
@@ -107661,8 +107483,8 @@ MonoBehaviour:
   npcDevourExpMultiplier: 0.35
   minNpcDevourExp: 20
   healAfterDevouringNpc: 1
-  damage: 40
-  defense: 15
+  damage: 38
+  defense: 14
   effectResistance: 10
   beastInstinct: 60
   aggression: 50
@@ -108055,8 +107877,8 @@ MonoBehaviour:
   generateFromEntityProfile: 1
   entityProfile: {fileID: 0}
   monsterName: 
-  maxHP: 147
-  currentHP: 147
+  maxHP: 140
+  currentHP: 140
   beastLevel: 1
   huntTargetType: 1
   autoStatsFromRealm: 1
@@ -108076,8 +107898,8 @@ MonoBehaviour:
   npcDevourExpMultiplier: 0.35
   minNpcDevourExp: 20
   healAfterDevouringNpc: 1
-  damage: 15
-  defense: 6
+  damage: 14
+  defense: 5
   effectResistance: 2
   beastInstinct: 60
   aggression: 50
@@ -121257,7 +121079,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: aaa
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
   m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
@@ -121284,15 +121106,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 60
-  m_fontSizeBase: 60
+  m_fontSize: 100
+  m_fontSizeBase: 100
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 2
-  m_VerticalAlignment: 512
+  m_HorizontalAlignment: 1
+  m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -126494,7 +126316,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -224.99
+      value: -202.5
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.y
@@ -127552,16 +127374,17 @@ MonoBehaviour:
   dailyCultivationMaxHours: 8
   earliestCultivationHour: 5
   latestCultivationStartHour: 20
+  dailyTaskVisitEnabled: 1
+  dailyTaskMinCount: 5
+  dailyTaskMaxCount: 7
+  taskProviderStartHour: 6
+  taskProviderEndHour: 17
   cultivationSessionMinGameHours: 1
   cultivationSessionMaxGameHours: 2
   tradeSessionMinGameHours: 0.5
   tradeSessionMaxGameHours: 1.5
   socialSessionMinGameHours: 0.5
   socialSessionMaxGameHours: 1.5
-  dailyTaskVisitEnabled: 1
-  dailyTaskVisitChance: 1
-  staggerDailyTaskVisits: 1
-  dailyTaskVisitStaggerHours: 2
   homePoint: {fileID: 0}
   cultivationPoint: {fileID: 0}
   tavernPoint: {fileID: 0}
@@ -127600,43 +127423,43 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 19.25
-    endHour: 6.25
+    startHour: 0
+    endHour: 6
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 6
-    startHour: 6.25
-    endHour: 11.25
+    startHour: 6
+    endHour: 12
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 11.25
-    endHour: 13.25
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 13.25
-    endHour: 17.25
+  - activity: 7
+    startHour: 12
+    endHour: 17
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 4
-    startHour: 17.25
-    endHour: 18.25
+    startHour: 17
+    endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 5
-    startHour: 18.25
-    endHour: 19.25
+    startHour: 18
+    endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 19
+    endHour: 0
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -128285,16 +128108,17 @@ MonoBehaviour:
   dailyCultivationMaxHours: 8
   earliestCultivationHour: 5
   latestCultivationStartHour: 20
+  dailyTaskVisitEnabled: 1
+  dailyTaskMinCount: 5
+  dailyTaskMaxCount: 7
+  taskProviderStartHour: 6
+  taskProviderEndHour: 17
   cultivationSessionMinGameHours: 1
   cultivationSessionMaxGameHours: 2
   tradeSessionMinGameHours: 0.5
   tradeSessionMaxGameHours: 1.5
   socialSessionMinGameHours: 0.5
   socialSessionMaxGameHours: 1.5
-  dailyTaskVisitEnabled: 1
-  dailyTaskVisitChance: 1
-  staggerDailyTaskVisits: 1
-  dailyTaskVisitStaggerHours: 2
   homePoint: {fileID: 0}
   cultivationPoint: {fileID: 0}
   tavernPoint: {fileID: 0}
@@ -128397,28 +128221,21 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 19
+    startHour: 0
     endHour: 6
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  - activity: 8
+  - activity: 6
     startHour: 6
-    endHour: 11
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 11
-    endHour: 13
+    endHour: 12
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 7
-    startHour: 13
+    startHour: 12
     endHour: 17
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -128434,6 +128251,13 @@ MonoBehaviour:
   - activity: 5
     startHour: 18
     endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 19
+    endHour: 0
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -128458,11 +128282,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -187.3
+      value: -179.3
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 246.1
+      value: 244.7
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: m_LocalPosition.z
@@ -128506,7 +128330,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: allowMaterials
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 11400001, guid: 5df2bb4f5f954e12be7a9bf1f5307dc6, type: 3}
       propertyPath: maxNaturalGrade
@@ -129711,16 +129535,17 @@ MonoBehaviour:
   dailyCultivationMaxHours: 8
   earliestCultivationHour: 5
   latestCultivationStartHour: 20
+  dailyTaskVisitEnabled: 1
+  dailyTaskMinCount: 5
+  dailyTaskMaxCount: 7
+  taskProviderStartHour: 6
+  taskProviderEndHour: 17
   cultivationSessionMinGameHours: 1
   cultivationSessionMaxGameHours: 2
   tradeSessionMinGameHours: 0.5
   tradeSessionMaxGameHours: 1.5
   socialSessionMinGameHours: 0.5
   socialSessionMaxGameHours: 1.5
-  dailyTaskVisitEnabled: 1
-  dailyTaskVisitChance: 1
-  staggerDailyTaskVisits: 1
-  dailyTaskVisitStaggerHours: 2
   homePoint: {fileID: 2007863596}
   cultivationPoint: {fileID: 0}
   tavernPoint: {fileID: 0}
@@ -129747,43 +129572,43 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 19.75
-    endHour: 6.75
+    startHour: 0
+    endHour: 6
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 7
-    startHour: 6.75
-    endHour: 11.75
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 11.75
-    endHour: 13.75
+    startHour: 6
+    endHour: 12
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 6
-    startHour: 13.75
-    endHour: 17.75
+    startHour: 12
+    endHour: 17
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 4
-    startHour: 17.75
-    endHour: 18.75
+    startHour: 17
+    endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 5
-    startHour: 18.75
-    endHour: 19.75
+    startHour: 18
+    endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 7
+    startHour: 19
+    endHour: 0
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -141436,7 +141261,6 @@ Transform:
   - {fileID: 1666113420}
   - {fileID: 1717157298}
   - {fileID: 200175861}
-  - {fileID: 778545702}
   - {fileID: 1287582323}
   - {fileID: 2137819296}
   - {fileID: 1343057899}
@@ -148585,16 +148409,17 @@ MonoBehaviour:
   dailyCultivationMaxHours: 8
   earliestCultivationHour: 5
   latestCultivationStartHour: 20
+  dailyTaskVisitEnabled: 1
+  dailyTaskMinCount: 5
+  dailyTaskMaxCount: 7
+  taskProviderStartHour: 6
+  taskProviderEndHour: 17
   cultivationSessionMinGameHours: 1
   cultivationSessionMaxGameHours: 2
   tradeSessionMinGameHours: 0.5
   tradeSessionMaxGameHours: 1.5
   socialSessionMinGameHours: 0.5
   socialSessionMaxGameHours: 1.5
-  dailyTaskVisitEnabled: 1
-  dailyTaskVisitChance: 1
-  staggerDailyTaskVisits: 1
-  dailyTaskVisitStaggerHours: 2
   homePoint: {fileID: 0}
   cultivationPoint: {fileID: 1093959400}
   tavernPoint: {fileID: 0}
@@ -148723,43 +148548,43 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 19.5
-    endHour: 6.5
+    startHour: 0
+    endHour: 6
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 6.5
-    endHour: 11.5
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 11.5
-    endHour: 13.5
+  - activity: 6
+    startHour: 6
+    endHour: 12
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 7
-    startHour: 13.5
-    endHour: 17.5
+    startHour: 12
+    endHour: 17
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 4
-    startHour: 17.5
-    endHour: 18.5
+    startHour: 17
+    endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 5
-    startHour: 18.5
-    endHour: 19.5
+    startHour: 18
+    endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 6
+    startHour: 19
+    endHour: 0
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -154606,7 +154431,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.84043884, y: 1.2673285}
+  m_Offset: {x: -0.62233734, y: 1.2673285}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -154616,7 +154441,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 3.4812927, y: 4.1216297}
+  m_Size: {x: 3.9174957, y: 4.1216297}
   m_EdgeRadius: 0
 --- !u!1 &2143624748
 GameObject:

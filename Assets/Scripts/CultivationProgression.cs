@@ -4,6 +4,10 @@ public static class CultivationProgression
 {
     public const int MaxStage = 9;
     public const int SpiritStoneBaseExp = 10;
+    public const int NpcBaseMaxHP = 100;
+    public const int NpcBaseAttack = 10;
+    public const int NpcBaseDefense = 5;
+    public const float MonsterStatMultiplier = 1.5f;
 
     static readonly int[] mortalStageExp =
     {
@@ -159,12 +163,30 @@ public static class CultivationProgression
             1f +
             (realmIndex * 0.75f) +
             ((clampedStage - 1) * 0.1f);
-        if (kind == EntityKind.Beast)
-        {
-            power *= 1.05f;
-        }
 
         return Mathf.Max(1f, power);
+    }
+
+    public static float GetEntityStatMultiplier(EntityKind kind)
+    {
+        return kind == EntityKind.Beast
+            ? MonsterStatMultiplier
+            : 1f;
+    }
+
+    public static int GetConfiguredBaseMaxHP()
+    {
+        return NpcBaseMaxHP;
+    }
+
+    public static int GetConfiguredBaseAttack()
+    {
+        return NpcBaseAttack;
+    }
+
+    public static int GetConfiguredBaseDefense()
+    {
+        return NpcBaseDefense;
     }
 }
 

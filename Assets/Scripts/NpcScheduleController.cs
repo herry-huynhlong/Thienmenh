@@ -282,6 +282,17 @@ public class NpcScheduleController : MonoBehaviour
         }
     }
 
+    public void ClearCurrentSlotActivityState(
+        NpcScheduleActivity activity)
+    {
+        string key = GetCurrentSlotActivityKey(activity);
+        if (!string.IsNullOrEmpty(key))
+        {
+            startedSlotActivities.Remove(key);
+            completedSlotActivities.Remove(key);
+        }
+    }
+
     public void AwakenCultivationPath(bool byMarrowCleansingPill)
     {
         canCultivate = true;

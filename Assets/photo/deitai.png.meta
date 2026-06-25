@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: ce14e451e22cb48458e96138503b9168
+guid: 6f74ccf226f69294ba8c06216b8bd769
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5425899283323721654
-    second: deltai_0
+      213: 4330341977658494895
+    second: deitai_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: deltai_0
+      name: deitai_0
       rect:
         serializedVersion: 2
-        x: 50
-        y: 4
-        width: 229
-        height: 578
+        x: 178
+        y: 99
+        width: 666
+        height: 1415
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a486176795553b4b0800000000000000
-      internalID: -5425899283323721654
+      spriteID: faf0c46e517781c30800000000000000
+      internalID: 4330341977658494895
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      deltai_0: -5425899283323721654
+      deitai_0: 4330341977658494895
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

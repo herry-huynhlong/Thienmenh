@@ -179,18 +179,20 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
     public bool dailyRoutineEnabled = true;
     [Range(0f, 24f)] public float dailyCultivationMinHours = 4f;
     [Range(0f, 24f)] public float dailyCultivationMaxHours = 8f;
-    [Range(0f, 24f)] public float earliestCultivationHour = 5f;
-    [Range(0f, 24f)] public float latestCultivationStartHour = 20f;
+    [Range(0f, 24f)] public float earliestCultivationHour = 19f;
+    [Range(0f, 24f)] public float latestCultivationStartHour = 22f;
+    [Header("Daily Tasks")]
+    public bool dailyTaskVisitEnabled = true;
+    [Range(1, 20)] public int dailyTaskMinCount = 5;
+    [Range(1, 20)] public int dailyTaskMaxCount = 7;
+    [Range(0f, 24f)] public float taskProviderStartHour = 6f;
+    [Range(0f, 24f)] public float taskProviderEndHour = 17f;
     public float cultivationSessionMinGameHours = 1f;
     public float cultivationSessionMaxGameHours = 2f;
     public float tradeSessionMinGameHours = 0.5f;
     public float tradeSessionMaxGameHours = 1.5f;
     public float socialSessionMinGameHours = 0.5f;
     public float socialSessionMaxGameHours = 1.5f;
-    public bool dailyTaskVisitEnabled = true;
-    [Range(0f, 1f)] public float dailyTaskVisitChance = 1f;
-    public bool staggerDailyTaskVisits = true;
-    [Range(0f, 4f)] public float dailyTaskVisitStaggerHours = 2f;
 
     private Vector3 spawnPosition;
     private Vector3 wanderTarget;
@@ -227,9 +229,9 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
     int routinePlanDay = int.MinValue;
     float routineCultivationStartHour;
     float routineCultivationEndHour;
-    float taskVisitAnchorHour = -1f;
-    float taskVisitDelayHours;
-    int lastTaskProviderVisitDay = int.MinValue;
+    int taskRoutineDay = int.MinValue;
+    int taskRoutineTargetCount;
+    int taskRoutineAcceptedCount;
     Vector3 homeReturnTarget;
     bool hasHomeReturnTarget;
     bool reportedVillagerBrainConflict;
@@ -367,7 +369,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         spawnPosition = transform.position;
         lastUnstuckPosition = transform.position;
-        InitializeTaskVisitStagger();
+        InitializeDailyTaskRoutine();
 
         characterStats = GetComponent<CharacterStats>();
 
@@ -711,14 +713,9 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         bool movingToTreasureWait =
             waitingOutsideTreasureLightning &&
             hasTreasureWaitPosition;
-        bool movingHomeToCultivate =
-            hasHomeReturnTarget &&
-            canCultivate;
-
         bool holdPositionWithoutTarget =
             currentTarget == null &&
             !movingToTreasureWait &&
-            !movingHomeToCultivate &&
             Time.time >= postTeleportRecoveryUntil &&
             IsStationaryAction(currentAction);
 
@@ -747,11 +744,6 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         if (movingToTreasureWait)
         {
             desiredTarget = treasureWaitPosition;
-        }
-        else if (movingHomeToCultivate)
-        {
-            desiredTarget = homeReturnTarget;
-            hasWanderTarget = false;
         }
         else if (currentTarget != null)
         {
@@ -807,31 +799,6 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (movingHomeToCultivate)
-        {
-            float homeDistance =
-                Vector2.Distance(
-                    transform.position,
-                    homeReturnTarget);
-
-            if (homeDistance <=
-                Mathf.Max(escapeTargetReachDistance, targetClearRadius * 2f))
-            {
-                hasHomeReturnTarget = false;
-                currentTarget = null;
-                hasEscapeTarget = false;
-                hasObstacleAvoidTarget = false;
-
-                if (rb != null)
-                {
-                    rb.linearVelocity = Vector2.zero;
-                }
-
-                CultivateNaturally();
-                return;
-            }
-        }
-
         if (hasObstacleAvoidTarget)
         {
             if (Time.time >= obstacleAvoidUntil ||
@@ -880,8 +847,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         bool isCultivationTravelRoute =
             currentTarget == cultivationPoint ||
-            currentAction == NpcText.Action("goCultivatePoint") ||
-            currentAction == NpcText.Action("goHomeCultivate");
+            currentAction == NpcText.Action("goCultivatePoint");
 
         bool isAutonomousWorkRoute =
             currentAction == NpcText.Action("tradeSeek") ||
@@ -906,7 +872,19 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             !isAutonomousWorkRoute &&
             distanceFromSpawn > maxRoamDistance)
         {
-            ReturnToSpawn();
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+
+            hasEscapeTarget = false;
+            hasObstacleAvoidTarget = false;
+            hasHomeReturnTarget = false;
+
+            if (!IsStationaryAction(currentAction))
+            {
+                currentAction = NpcText.Action("idle");
+            }
 
             return;
         }
@@ -925,7 +903,14 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 rb.linearVelocity = Vector2.zero;
             }
 
-            CultivateNaturally();
+            if (CanUseScheduledCultivation())
+            {
+                CultivateNaturally();
+            }
+            else
+            {
+                currentAction = NpcText.Action("idle");
+            }
             return;
         }
 
@@ -1014,26 +999,44 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
     void OnNpcMapTeleported(GameObject gateObject)
     {
+        bool preserveTravelState =
+            currentTarget != null ||
+            hasWanderTarget ||
+            currentMonsterTarget != null ||
+            waitingOutsideTreasureLightning ||
+            hasTreasureWaitPosition ||
+            treasureHuntTarget != null ||
+            treasureHuntItem != null ||
+            hasHomeReturnTarget;
+
         spawnPosition = transform.position;       // Đặt lại điểm gốc di chuyển tại map mới
         lastUnstuckPosition = transform.position; // Reset vị trí chống kẹt
-        hasWanderTarget = false;                  // Hủy điểm muốn đi dạo cũ ở Map A
-        currentTarget = null;                     // Hủy mục tiêu đuổi theo cũ ở Map A
-        currentMonsterTarget = null;
-        waitingOutsideTreasureLightning = false;
-        hasTreasureWaitPosition = false;
-        treasureWaitLowPowerSkirmish = false;
-        treasureHuntTarget = null;
-        treasureHuntItem = null;
+        if (!preserveTravelState)
+        {
+            hasWanderTarget = false;
+            currentTarget = null;
+            currentMonsterTarget = null;
+            waitingOutsideTreasureLightning = false;
+            hasTreasureWaitPosition = false;
+            treasureWaitLowPowerSkirmish = false;
+            treasureHuntTarget = null;
+            treasureHuntItem = null;
+            hasHomeReturnTarget = false;
+        }
+
         hasEscapeTarget = false;
         hasObstacleAvoidTarget = false;
         movementPausedUntil = 0f;
         crowdYieldUntil = 0f;
-        postTeleportRecoveryUntil = Time.time + 5f;
+        postTeleportRecoveryUntil = Time.time + 0.35f;
         stuckMoveTimer = 0f;
         blockedMoveTimer = 0f;
         actionTimer = 0f;
         thinkTimer = 0f;
-        currentAction = "";
+        if (!preserveTravelState)
+        {
+            currentAction = "";
+        }
 
         NpcTeleportGate gate = gateObject != null
             ? gateObject.GetComponent<NpcTeleportGate>()
@@ -1454,64 +1457,19 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
     void ReturnToSpawn()
     {
-        homeReturnTarget = spawnPosition;
-        hasHomeReturnTarget = true;
+        homeReturnTarget = transform.position;
+        hasHomeReturnTarget = false;
 
-        Vector2 direction =
-            (spawnPosition -
-            transform.position).normalized;
-
-        if (useObstacleAvoidance &&
-            IsMovementBlocked(direction))
-        {
-            if (TryChooseObstacleDetourDirection(direction, spawnPosition, out Vector2 spawnDetour))
-            {
-                if (TryCommitObstacleAvoidTarget(spawnDetour))
-                {
-                    return;
-                }
-
-                HandleBlockedMovement(spawnPosition, spawnPosition);
-                return;
-            }
-            else
-            {
-                HandleBlockedMovement(spawnPosition, spawnPosition);
-                return;
-            }
-        }
-
-        if (!TryResolveCrowdAhead(direction, out direction))
-        {
-            return;
-        }
-
-        direction = ApplyCrowdAvoidance(direction);
-
-        rb.linearVelocity =
-            direction * moveSpeed;
-
-        currentAction = canCultivate
-            ? NpcText.Action("goHomeCultivate")
-            : NpcText.Action("idle");
-
-        float distance =
-            Vector2.Distance(
-                transform.position,
-                spawnPosition);
-
-        if (distance < 1f)
+        if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
-
-            currentTarget = null;
-            hasHomeReturnTarget = false;
-
-            if (canCultivate)
-            {
-                CultivateNaturally();
-            }
         }
+
+        currentTarget = null;
+        hasWanderTarget = false;
+        hasEscapeTarget = false;
+        hasObstacleAvoidTarget = false;
+        currentAction = NpcText.Action("idle");
     }
 
     bool TryPickIdleWanderTarget(out Vector3 target)
@@ -1596,9 +1554,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
     {
         bool hasDirectedTravelTarget =
             currentTarget != null ||
-            hasWanderTarget ||
-            (hasHomeReturnTarget &&
-                currentAction == NpcText.Action("goHomeCultivate"));
+            hasWanderTarget;
 
         if (!hasDirectedTravelTarget)
         {
@@ -1607,7 +1563,6 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         return currentAction == NpcText.Action("goTaskProviderDaily") ||
             currentAction == NpcText.Action("visitedTaskProvider") ||
-            currentAction == NpcText.Action("goHomeCultivate") ||
             currentAction == NpcText.Action("tradeSeek") ||
             currentAction == NpcText.Action("goTavern") ||
             currentAction == NpcText.Action("buyPill") ||
@@ -2789,41 +2744,68 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         return true;
     }
 
-    void InitializeTaskVisitStagger()
+    void InitializeDailyTaskRoutine()
     {
-        taskVisitAnchorHour = GetCurrentWorldHour();
+        taskRoutineDay = int.MinValue;
+        taskRoutineTargetCount = 0;
+        taskRoutineAcceptedCount = 0;
+        EnsureDailyTaskRoutine();
+    }
 
-        if (!staggerDailyTaskVisits ||
-            dailyTaskVisitStaggerHours <= 0f)
+    void EnsureDailyTaskRoutine()
+    {
+        int day = GetCurrentWorldDay();
+        if (taskRoutineDay == day)
         {
-            taskVisitDelayHours = 0f;
             return;
         }
 
-        taskVisitDelayHours =
-            Random.Range(0f, Mathf.Max(0.1f, dailyTaskVisitStaggerHours));
+        taskRoutineDay = day;
+        taskRoutineAcceptedCount = 0;
+
+        int minCount = Mathf.Max(1, dailyTaskMinCount);
+        int maxCount = Mathf.Max(minCount, dailyTaskMaxCount);
+        taskRoutineTargetCount = Random.Range(minCount, maxCount + 1);
     }
 
-    bool IsTaskVisitStaggerReady()
+    bool HasDailyTaskQuotaRemaining()
     {
-        if (!staggerDailyTaskVisits ||
-            taskVisitDelayHours <= 0f)
+        EnsureDailyTaskRoutine();
+        return taskRoutineAcceptedCount < taskRoutineTargetCount;
+    }
+
+    bool IsTaskProviderWindow()
+    {
+        float hour = GetCurrentWorldHour();
+        float start = Mathf.Repeat(taskProviderStartHour, 24f);
+        float end = Mathf.Repeat(taskProviderEndHour, 24f);
+
+        if (Mathf.Approximately(start, end))
         {
             return true;
         }
 
-        if (taskVisitAnchorHour < 0f)
+        if (start < end)
         {
-            InitializeTaskVisitStagger();
+            return hour >= start && hour < end;
         }
 
-        float elapsedHours = GetCurrentWorldHour() - taskVisitAnchorHour;
-        if (elapsedHours < 0f)
-        {
-            elapsedHours += 24f;
-        }
+        return hour >= start || hour < end;
+    }
 
-        return elapsedHours >= taskVisitDelayHours;
+    bool CanVisitTaskProviderToday()
+    {
+        return dailyTaskVisitEnabled &&
+            HasDailyTaskQuotaRemaining() &&
+            IsTaskProviderWindow();
+    }
+
+    void MarkDailyTaskAccepted()
+    {
+        EnsureDailyTaskRoutine();
+        taskRoutineAcceptedCount = Mathf.Min(
+            taskRoutineTargetCount,
+            taskRoutineAcceptedCount + 1);
     }
 
     bool IsLockedRoutineAction(string action)
@@ -2865,7 +2847,6 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
     bool IsPreservedTravelAction(string action)
     {
         return action == NpcText.Action("visitedTaskProvider") ||
-            action == NpcText.Action("goHomeCultivate") ||
             action == NpcText.Action("goVanBaoLauBroker") ||
             action == NpcText.Action("goVanBaoLauTask") ||
             action == NpcText.Action("checkedVanBaoLau") ||
@@ -3458,6 +3439,8 @@ bool ShouldFightMonster(
                 CultivationProgression.GetStatPower(
                     monster.realm,
                     monster.realmStage,
+                    EntityKind.Beast) *
+                CultivationProgression.GetEntityStatMultiplier(
                     EntityKind.Beast)));
 
     int difference =
@@ -3522,6 +3505,13 @@ bool ShouldFightMonster(
             resourceGatherer = GetComponent<NpcResourceGatherer>();
         }
 
+        if (resourceGatherer != null)
+        {
+            resourceGatherer.canGather = true;
+            resourceGatherer.limitHarvestsPerScheduleSlot = false;
+            resourceGatherer.maxHarvestsPerScheduleSlot = 0;
+        }
+
         if (resourceGatherer != null &&
             resourceGatherer.HasActiveGatheringFlow)
         {
@@ -3538,8 +3528,18 @@ bool ShouldFightMonster(
                 NpcScheduleActivity.Gather);
         if (gatherCompleted)
         {
-            DebugFlow("Gather", "Schedule slot already completed");
-            return false;
+            if (schedule != null &&
+                resourceGatherer != null &&
+                !resourceGatherer.limitHarvestsPerScheduleSlot)
+            {
+                schedule.ClearCurrentSlotActivityState(
+                    NpcScheduleActivity.Gather);
+            }
+            else
+            {
+                DebugFlow("Gather", "Schedule slot already completed");
+                return false;
+            }
         }
 
         bool gatherStarted =
@@ -3570,7 +3570,6 @@ bool ShouldFightMonster(
             return false;
         }
 
-        resourceGatherer.canGather = true;
         if (resourceGatherer.TryStartGatheringNow())
         {
             DebugFlow("Gather", "Start gathering immediately");
