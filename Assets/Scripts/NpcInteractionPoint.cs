@@ -1,17 +1,38 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class NpcInteractionPoint : MonoBehaviour
 {
+    class StandReservation
+    {
+        public int ownerId;
+        public Vector3 position;
+        public float expiresAt;
+    }
+
+    static readonly Dictionary<int, List<StandReservation>> reservationsByPoint =
+        new Dictionary<int, List<StandReservation>>();
+
     [Header("Interaction")]
     public float interactionRadius = 0.45f;
     public bool spreadNpcAroundPoint = true;
     public float standSpacing = 0.35f;
     public bool requireClearStandSpot = true;
     public LayerMask blockedLayers = ~0;
+    [Min(0.1f)]
+    public float reservationHoldSeconds = 1.25f;
+    [Min(0.05f)]
+    public float reservationSpacingRadius = 0.2f;
 
     public Vector3 GetStandPositionFor(GameObject npc)
     {
+        CleanupExpiredReservations();
+
         Vector3 seed = transform.position;
+        if (TryGetReservedStandSpotFor(npc, out Vector3 reservedPosition))
+        {
+            return reservedPosition;
+        }
 
         if (spreadNpcAroundPoint &&
             npc != null &&
@@ -33,7 +54,18 @@ public class NpcInteractionPoint : MonoBehaviour
             return seed;
         }
 
-        return FindClearStandSpot(seed, npc);
+        Vector3 standPosition = FindClearStandSpot(seed, npc);
+        if (TryReserveStandSpot(npc, standPosition))
+        {
+            return standPosition;
+        }
+
+        if (TryFindClearStandSpotInBox(seed, npc, out Vector3 boxPosition))
+        {
+            return boxPosition;
+        }
+
+        return standPosition;
     }
 
     public bool IsNpcInRange(GameObject npc)
@@ -50,7 +82,7 @@ public class NpcInteractionPoint : MonoBehaviour
 
     Vector3 FindClearStandSpot(Vector3 seed, GameObject npc)
     {
-        if (!IsBlocked(seed, npc))
+        if (!IsBlocked(seed, npc) && TryReserveStandSpot(npc, seed))
         {
             return seed;
         }
@@ -76,7 +108,10 @@ public class NpcInteractionPoint : MonoBehaviour
 
                 if (!IsBlocked(candidate, npc))
                 {
-                    return candidate;
+                    if (TryReserveStandSpot(npc, candidate))
+                    {
+                        return candidate;
+                    }
                 }
             }
         }
@@ -84,18 +119,102 @@ public class NpcInteractionPoint : MonoBehaviour
         return seed;
     }
 
-    bool IsBlocked(Vector3 position, GameObject npc)
+    bool TryFindClearStandSpotInBox(
+        Vector3 seed,
+        GameObject npc,
+        out Vector3 position)
+    {
+        position = seed;
+
+        BoxCollider2D box = GetComponent<BoxCollider2D>();
+        if (box == null)
+        {
+            box = GetComponentInParent<BoxCollider2D>();
+        }
+
+        if (box == null || !box.enabled)
+        {
+            return false;
+        }
+
+        Bounds bounds = box.bounds;
+        Vector3 center = bounds.center;
+        Vector3 extents = bounds.extents;
+        float margin = Mathf.Max(0.05f, Mathf.Min(extents.x, extents.y) * 0.12f);
+        float startX = center.x - extents.x + margin;
+        float endX = center.x + extents.x - margin;
+        float startY = center.y - extents.y + margin;
+        float endY = center.y + extents.y - margin;
+        float stepSize = Mathf.Max(
+            0.16f,
+            Mathf.Min(
+                Mathf.Max(0.1f, interactionRadius),
+                Mathf.Max(0.1f, standSpacing),
+                Mathf.Max(0.05f, reservationSpacingRadius * 1.5f)));
+        float stepX = stepSize;
+        float stepY = stepSize;
+
+        Vector3 best = seed;
+        float bestDistance = float.PositiveInfinity;
+
+        if (bounds.Contains(seed) && !IsBlocked(seed, npc, box))
+        {
+            if (TryReserveStandSpot(npc, seed))
+            {
+                position = seed;
+                return true;
+            }
+        }
+
+        for (float y = startY; y <= endY; y += stepY)
+        {
+            for (float x = startX; x <= endX; x += stepX)
+            {
+                Vector3 candidate = new Vector3(x, y, transform.position.z);
+                if (!bounds.Contains(candidate))
+                {
+                    continue;
+                }
+
+                if (IsBlocked(candidate, npc, box))
+                {
+                    continue;
+                }
+
+                float distance = (candidate - seed).sqrMagnitude;
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    best = candidate;
+                }
+            }
+        }
+
+        if (bestDistance < float.PositiveInfinity)
+        {
+            if (TryReserveStandSpot(npc, best))
+            {
+                position = best;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool IsBlocked(Vector3 position, GameObject npc, Collider2D allowedCollider = null)
     {
         Collider2D[] hits =
             Physics2D.OverlapCircleAll(
                 position,
-                Mathf.Max(0.1f, interactionRadius),
+                Mathf.Max(0.1f, Mathf.Max(interactionRadius, standSpacing)),
                 blockedLayers);
 
         foreach (Collider2D hit in hits)
         {
             if (hit == null ||
                 hit.isTrigger ||
+                hit == allowedCollider ||
                 (npc != null && hit.transform.IsChildOf(npc.transform)))
             {
                 continue;
@@ -111,6 +230,201 @@ public class NpcInteractionPoint : MonoBehaviour
             return true;
         }
 
+        if (IsReservedByAnotherNpc(position, npc))
+        {
+            return true;
+        }
+
         return false;
+    }
+
+    bool TryGetReservedStandSpotFor(GameObject npc, out Vector3 position)
+    {
+        position = transform.position;
+
+        if (npc == null)
+        {
+            return false;
+        }
+
+        int pointId = GetInstanceID();
+        int ownerId = npc.GetInstanceID();
+
+        if (!reservationsByPoint.TryGetValue(pointId, out List<StandReservation> reservations))
+        {
+            return false;
+        }
+
+        for (int i = reservations.Count - 1; i >= 0; i--)
+        {
+            StandReservation reservation = reservations[i];
+            if (reservation == null ||
+                reservation.expiresAt <= Time.time)
+            {
+                reservations.RemoveAt(i);
+                continue;
+            }
+
+            if (reservation.ownerId == ownerId)
+            {
+                reservation.expiresAt =
+                    Time.time + Mathf.Max(0.1f, reservationHoldSeconds);
+                position = reservation.position;
+                return true;
+            }
+        }
+
+        if (reservations.Count == 0)
+        {
+            reservationsByPoint.Remove(pointId);
+        }
+
+        return false;
+    }
+
+    bool TryReserveStandSpot(GameObject npc, Vector3 position)
+    {
+        if (npc == null)
+        {
+            return false;
+        }
+
+        if (IsReservedByAnotherNpc(position, npc))
+        {
+            return false;
+        }
+
+        int pointId = GetInstanceID();
+        int ownerId = npc.GetInstanceID();
+        if (!reservationsByPoint.TryGetValue(pointId, out List<StandReservation> reservations))
+        {
+            reservations = new List<StandReservation>();
+            reservationsByPoint[pointId] = reservations;
+        }
+
+        for (int i = reservations.Count - 1; i >= 0; i--)
+        {
+            StandReservation reservation = reservations[i];
+            if (reservation == null ||
+                reservation.expiresAt <= Time.time)
+            {
+                reservations.RemoveAt(i);
+                continue;
+            }
+
+            if (reservation.ownerId == ownerId)
+            {
+                reservation.position = position;
+                reservation.expiresAt =
+                    Time.time + Mathf.Max(0.1f, reservationHoldSeconds);
+                return true;
+            }
+        }
+
+        reservations.Add(new StandReservation
+        {
+            ownerId = ownerId,
+            position = position,
+            expiresAt = Time.time + Mathf.Max(0.1f, reservationHoldSeconds)
+        });
+        return true;
+    }
+
+    bool IsReservedByAnotherNpc(Vector3 position, GameObject npc)
+    {
+        int pointId = GetInstanceID();
+        if (!reservationsByPoint.TryGetValue(pointId, out List<StandReservation> reservations))
+        {
+            return false;
+        }
+
+        int ownerId = npc != null ? npc.GetInstanceID() : 0;
+        float minSpacing = Mathf.Max(
+            0.1f,
+            Mathf.Min(
+                Mathf.Max(interactionRadius, standSpacing),
+                reservationSpacingRadius));
+
+        for (int i = reservations.Count - 1; i >= 0; i--)
+        {
+            StandReservation reservation = reservations[i];
+            if (reservation == null ||
+                reservation.expiresAt <= Time.time)
+            {
+                reservations.RemoveAt(i);
+                continue;
+            }
+
+            if (reservation.ownerId == ownerId)
+            {
+                continue;
+            }
+
+            if (Vector2.Distance(reservation.position, position) <= minSpacing)
+            {
+                return true;
+            }
+        }
+
+        if (reservations.Count == 0)
+        {
+            reservationsByPoint.Remove(pointId);
+        }
+
+        return false;
+    }
+
+    static void CleanupExpiredReservations()
+    {
+        if (reservationsByPoint.Count == 0)
+        {
+            return;
+        }
+
+        List<int> emptyKeys = null;
+        foreach (KeyValuePair<int, List<StandReservation>> pair in reservationsByPoint)
+        {
+            List<StandReservation> reservations = pair.Value;
+            if (reservations == null)
+            {
+                if (emptyKeys == null)
+                {
+                    emptyKeys = new List<int>();
+                }
+
+                emptyKeys.Add(pair.Key);
+                continue;
+            }
+
+            for (int i = reservations.Count - 1; i >= 0; i--)
+            {
+                StandReservation reservation = reservations[i];
+                if (reservation == null ||
+                    reservation.expiresAt <= Time.time)
+                {
+                    reservations.RemoveAt(i);
+                }
+            }
+
+            if (reservations.Count == 0)
+            {
+                if (emptyKeys == null)
+                {
+                    emptyKeys = new List<int>();
+                }
+
+                emptyKeys.Add(pair.Key);
+            }
+        }
+
+        if (emptyKeys == null)
+        {
+            return;
+        }
+
+        foreach (int key in emptyKeys)
+        {
+            reservationsByPoint.Remove(key);
+        }
     }
 }

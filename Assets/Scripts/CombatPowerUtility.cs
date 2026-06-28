@@ -2,6 +2,9 @@ using UnityEngine;
 
 public static class CombatPowerUtility
 {
+    const float HelpHpThreshold = 0.5f;
+    const float RetreatHpThreshold = 0.05f;
+
     public static float GetPower(GameObject actor)
     {
         if (actor == null)
@@ -82,7 +85,12 @@ public static class CombatPowerUtility
         float monsterPower = Mathf.Max(1f, GetPower(monster));
         float npcHpRatio = GetCurrentHpRatio(npc);
 
-        if (npcHpRatio <= 0.35f)
+        if (npcHpRatio <= RetreatHpThreshold)
+        {
+            return false;
+        }
+
+        if (npcHpRatio > HelpHpThreshold)
         {
             return false;
         }
@@ -97,7 +105,7 @@ public static class CombatPowerUtility
         float monsterPower = Mathf.Max(1f, GetPower(monster));
         float npcHpRatio = GetCurrentHpRatio(npc);
 
-        if (npcHpRatio <= 0.35f)
+        if (npcHpRatio <= RetreatHpThreshold)
         {
             return true;
         }

@@ -113,6 +113,10 @@ public static class NpcDailyRoutineLibrary
         Add(slots, NpcScheduleActivity.FreeHuntAndGather, 13f, 18f);
         Add(slots, NpcScheduleActivity.DoMission, 18f, 22f);
         Add(slots, NpcScheduleActivity.TradeBuySell, 22f, 24f);
+
+        // SmartAI dùng lịch gốc nhưng lệch giờ theo seed từng NPC
+        // để tránh tất cả cùng dồn vào một hoạt động tại cùng thời điểm.
+        ApplySchedulePhaseOffset(slots, GetSmartCultivatorPhaseOffset(npc));
     }
 
     static NpcScheduleActivity PickCultivatorFieldActivity(
@@ -371,6 +375,100 @@ public static class NpcDailyRoutineLibrary
         return PositiveModulo(seed / 11, 8) * 0.5f;
     }
 
+    static float GetSmartCultivatorPhaseOffset(GameObject npc)
+    {
+        SmartNpcAI smartNpc =
+            npc != null
+            ? npc.GetComponent<SmartNpcAI>()
+            : null;
+        if (smartNpc == null)
+        {
+            return 0f;
+        }
+
+        SmartNpcAI[] smartNpcs =
+            Object.FindObjectsByType<SmartNpcAI>(
+                FindObjectsInactive.Exclude);
+        if (smartNpcs == null || smartNpcs.Length == 0)
+        {
+            return 0f;
+        }
+
+        List<SmartNpcAI> ordered = new List<SmartNpcAI>(smartNpcs.Length);
+        for (int i = 0; i < smartNpcs.Length; i++)
+        {
+            SmartNpcAI candidate = smartNpcs[i];
+            if (candidate == null ||
+                !candidate.isActiveAndEnabled)
+            {
+                continue;
+            }
+
+            ordered.Add(candidate);
+        }
+
+        if (ordered.Count <= 1)
+        {
+            return 0f;
+        }
+
+        ordered.Sort(CompareSmartNpcOrder);
+
+        int index = ordered.IndexOf(smartNpc);
+        if (index < 0)
+        {
+            return 0f;
+        }
+
+        float stepHours =
+            Mathf.Clamp(24f / Mathf.Max(1, ordered.Count), 0.5f, 4f);
+        return Mathf.Repeat(index * stepHours, 24f);
+    }
+
+    static int CompareSmartNpcOrder(
+        SmartNpcAI first,
+        SmartNpcAI second)
+    {
+        if (first == second)
+        {
+            return 0;
+        }
+
+        string firstKey = GetSmartNpcOrderKey(first);
+        string secondKey = GetSmartNpcOrderKey(second);
+
+        int compare = string.CompareOrdinal(firstKey, secondKey);
+        if (compare != 0)
+        {
+            return compare;
+        }
+
+        return first.GetInstanceID().CompareTo(second.GetInstanceID());
+    }
+
+    static string GetSmartNpcOrderKey(SmartNpcAI smartNpc)
+    {
+        if (smartNpc == null)
+        {
+            return string.Empty;
+        }
+
+        NPCIdentity identity =
+            smartNpc.GetComponent<NPCIdentity>() ??
+            smartNpc.GetComponentInParent<NPCIdentity>(true) ??
+            smartNpc.GetComponentInChildren<NPCIdentity>(true);
+        if (identity != null &&
+            !string.IsNullOrWhiteSpace(identity.npcId))
+        {
+            return "0:" + identity.npcId;
+        }
+
+        return "1:" +
+            smartNpc.gameObject.scene.name + ":" +
+            smartNpc.gameObject.name + ":" +
+            smartNpc.GetInstanceID();
+    }
+
     static int GetCultivatorScheduleSeed(GameObject npc)
     {
         if (npc == null)
@@ -460,3 +558,4 @@ public static class NpcDailyRoutineLibrary
         }
     }
 }
+

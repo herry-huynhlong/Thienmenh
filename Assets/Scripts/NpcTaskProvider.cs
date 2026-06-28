@@ -148,8 +148,19 @@ public partial class NpcTaskProvider : MonoBehaviour
         new HashSet<NpcTaskOffer>();
     static readonly List<NpcTaskOffer> staleLockedEscortOffers =
         new List<NpcTaskOffer>();
+    static readonly HashSet<NpcTaskOffer> claimedTaskOffers =
+        new HashSet<NpcTaskOffer>();
+    static readonly List<NpcTaskOffer> staleClaimedTaskOffers =
+        new List<NpcTaskOffer>();
 
     public static NpcTaskProvider FindNearestProvider(Vector3 position)
+    {
+        return FindNearestProvider(null, position);
+    }
+
+    public static NpcTaskProvider FindNearestProvider(
+        GameObject npc,
+        Vector3 position)
     {
         NpcTaskProvider best = null;
         float bestDistance = float.PositiveInfinity;
@@ -165,6 +176,12 @@ public partial class NpcTaskProvider : MonoBehaviour
                 continue;
             }
 
+            if (npc != null &&
+                !provider.HasAnyOfferForNpc(npc))
+            {
+                continue;
+            }
+
             float distance = Vector2.Distance(position, provider.transform.position);
             if (distance < bestDistance)
             {
@@ -174,6 +191,19 @@ public partial class NpcTaskProvider : MonoBehaviour
         }
 
         return best;
+    }
+
+    public bool HasAnyOfferForNpc(GameObject npc)
+    {
+        if (npc == null ||
+            !provideTasks ||
+            offers == null ||
+            offers.Length == 0)
+        {
+            return false;
+        }
+
+        return PickOfferFor(npc, false) != null;
     }
 
     public static bool IsNpcBusyWithAnyProvider(GameObject npc)
@@ -275,6 +305,61 @@ public partial class NpcTaskProvider : MonoBehaviour
         }
 
         lockedEscortOffers.Remove(offer);
+    }
+
+    static bool IsTaskOfferClaimed(NpcTaskOffer offer)
+    {
+        if (offer == null)
+        {
+            return false;
+        }
+
+        CleanupClaimedTaskOffers();
+        return claimedTaskOffers.Contains(offer);
+    }
+
+    static bool ClaimTaskOffer(NpcTaskOffer offer)
+    {
+        if (offer == null)
+        {
+            return false;
+        }
+
+        CleanupClaimedTaskOffers();
+        if (claimedTaskOffers.Contains(offer))
+        {
+            return false;
+        }
+
+        claimedTaskOffers.Add(offer);
+        return true;
+    }
+
+    static void ReleaseTaskOffer(NpcTaskOffer offer)
+    {
+        if (offer == null)
+        {
+            return;
+        }
+
+        claimedTaskOffers.Remove(offer);
+    }
+
+    static void CleanupClaimedTaskOffers()
+    {
+        staleClaimedTaskOffers.Clear();
+        foreach (NpcTaskOffer offer in claimedTaskOffers)
+        {
+            if (offer == null)
+            {
+                staleClaimedTaskOffers.Add(offer);
+            }
+        }
+
+        foreach (NpcTaskOffer offer in staleClaimedTaskOffers)
+        {
+            claimedTaskOffers.Remove(offer);
+        }
     }
 
     static void CleanupEscortLocks()
@@ -748,6 +833,7 @@ public partial class NpcTaskProvider : MonoBehaviour
 
             runningTasks.RemoveAt(i);
             UnmarkNpcBusyWithProvider(task != null ? task.npc : null);
+            ReleaseTaskOffer(task != null ? task.offer : null);
             RestoreEscortCompanionHome(task);
             ResumeBaseAi(task);
 
@@ -1194,7 +1280,8 @@ public partial class NpcTaskProvider : MonoBehaviour
             HasBusyNpc(npc) ||
             NpcRoleUtility.IsDead(npc) ||
             !NpcScheduleController.AllowsTask(npc) ||
-            !CanNpcAcceptOffer(npc, offer))
+            !CanNpcAcceptOffer(npc, offer) ||
+            !ClaimTaskOffer(offer))
         {
             return false;
         }
@@ -3655,6 +3742,7 @@ public partial class NpcTaskProvider : MonoBehaviour
 
         runningTasks.RemoveAt(index);
         UnmarkNpcBusyWithProvider(task != null ? task.npc : null);
+        ReleaseTaskOffer(task != null ? task.offer : null);
         RestoreEscortCompanionHome(task);
         ResumeEscortCompanion(task);
         if (task != null &&
@@ -4054,9 +4142,14 @@ public partial class NpcTaskProvider : MonoBehaviour
     Vector3 GetClearTaskPositionNear(Vector3 position, GameObject npc)
     {
         position.z = transform.position.z;
-        if (!IsTaskPositionBlocked(position, npc))
+        if (!IsTaskPositionBlocked(position, npc, null, true))
         {
             return position;
+        }
+
+        if (TryFindClearTaskPositionInBox(position, npc, out Vector3 boxPosition))
+        {
+            return boxPosition;
         }
 
         float baseRadius = Mathf.Max(arriveDistance, providerVisitorStandRadius, 0.45f);
@@ -4072,9 +4165,15 @@ public partial class NpcTaskProvider : MonoBehaviour
                     position +
                     new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0f) * radius;
 
-                if (!IsTaskPositionBlocked(candidate, npc))
+                bool candidateBlocked =
+                    IsTaskPositionBlocked(candidate, npc, null, true);
+                bool hasBoxCandidate =
+                    candidateBlocked &&
+                    TryFindClearTaskPositionInBox(candidate, npc, out boxPosition);
+
+                if (!candidateBlocked || hasBoxCandidate)
                 {
-                    return candidate;
+                    return hasBoxCandidate ? boxPosition : candidate;
                 }
             }
         }
@@ -4082,7 +4181,11 @@ public partial class NpcTaskProvider : MonoBehaviour
         return position;
     }
 
-    bool IsTaskPositionBlocked(Vector3 position, GameObject npc)
+    bool IsTaskPositionBlocked(
+        Vector3 position,
+        GameObject npc,
+        Collider2D allowedCollider = null,
+        bool blockNpcBodies = false)
     {
         Collider2D[] hits =
             Physics2D.OverlapCircleAll(
@@ -4093,11 +4196,89 @@ public partial class NpcTaskProvider : MonoBehaviour
         {
             if (hit == null ||
                 hit.isTrigger ||
+                hit == allowedCollider ||
                 (npc != null && hit.transform.IsChildOf(npc.transform)))
             {
                 continue;
             }
 
+            if (!blockNpcBodies &&
+                (hit.GetComponentInParent<VillagerAI>() != null ||
+                 hit.GetComponentInParent<SmartNpcAI>() != null ||
+                 hit.GetComponentInParent<NpcMapMover2D>() != null))
+            {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    bool TryFindClearTaskPositionInBox(
+        Vector3 seed,
+        GameObject npc,
+        out Vector3 position)
+    {
+        position = seed;
+
+        BoxCollider2D box = GetComponent<BoxCollider2D>();
+        if (box == null)
+        {
+            box = GetComponentInParent<BoxCollider2D>();
+        }
+
+        if (box == null || !box.enabled)
+        {
+            return false;
+        }
+
+        Bounds bounds = box.bounds;
+        Vector3 center = bounds.center;
+        Vector3 extents = bounds.extents;
+        float margin = Mathf.Max(0.05f, Mathf.Min(extents.x, extents.y) * 0.12f);
+        float startX = center.x - extents.x + margin;
+        float endX = center.x + extents.x - margin;
+        float startY = center.y - extents.y + margin;
+        float endY = center.y + extents.y - margin;
+
+        float stepSize = Mathf.Max(
+            0.18f,
+            Mathf.Min(providerVisitorStandRadius, Mathf.Min(extents.x, extents.y) * 0.35f));
+        float stepX = stepSize;
+        float stepY = stepSize;
+
+        Vector3 best = seed;
+        float bestDistance = float.PositiveInfinity;
+
+        for (float y = startY; y <= endY; y += stepY)
+        {
+            for (float x = startX; x <= endX; x += stepX)
+            {
+                Vector3 candidate = new Vector3(x, y, transform.position.z);
+                if (!bounds.Contains(candidate))
+                {
+                    continue;
+                }
+
+                if (IsTaskPositionBlocked(candidate, npc, box, true))
+                {
+                    continue;
+                }
+
+                float distance = (candidate - seed).sqrMagnitude;
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    best = candidate;
+                }
+            }
+        }
+
+        if (bestDistance < float.PositiveInfinity)
+        {
+            position = best;
             return true;
         }
 
@@ -5346,6 +5527,7 @@ public partial class NpcTaskProvider : MonoBehaviour
         }
     }
 }
+
 
 
 

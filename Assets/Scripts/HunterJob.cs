@@ -21,7 +21,7 @@ public class HunterJob : MonoBehaviour
     [Header("Combat")]
     // Hunter targets in this project have fairly large colliders, so the
     // hunter needs a wider reach to actually enter the attack branch.
-    public float attackRange = 1.7f;
+    public float attackRange = 1.15f;
     public float attackInterval = 1.15f;
     public int attackDamage = 8;
     public bool useVillagerAttackStat = true;

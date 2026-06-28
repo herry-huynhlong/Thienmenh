@@ -7,8 +7,8 @@ public class NpcResourceGatherer : MonoBehaviour
     public bool canGather = false;
     public float scanInterval = 2f;
     public float maxSearchDistance = 12f;
-    public float arriveDistance = 0.35f;
-    public float retargetDistance = 0.75f;
+    public float arriveDistance = 0.28f;
+    public float retargetDistance = 0.6f;
     public float reservationDuration = 3f;
     public float harvestBreakDistance = 2f;
     public float harvestCooldownAfterSuccess = 45f;
@@ -35,6 +35,11 @@ public class NpcResourceGatherer : MonoBehaviour
     string scheduleSessionKey;
     int harvestsThisScheduleSession;
     StatItemData scheduledRequiredItem;
+
+    float GetApproachDistance()
+    {
+        return Mathf.Min(arriveDistance, 0.16f);
+    }
 
     public bool HasActiveGatheringFlow =>
         targetPickup != null ||
@@ -542,7 +547,7 @@ public class NpcResourceGatherer : MonoBehaviour
         float distance =
             Vector2.Distance(transform.position, targetPickup.transform.position);
 
-        if (distance <= arriveDistance)
+        if (distance <= GetApproachDistance())
         {
             StartHarvest();
             return;
@@ -618,7 +623,7 @@ public class NpcResourceGatherer : MonoBehaviour
         float distance =
             Vector2.Distance(transform.position, harvestingPickup.transform.position);
 
-        if (distance > Mathf.Max(arriveDistance + retargetDistance, harvestBreakDistance))
+        if (distance > Mathf.Max(GetApproachDistance() + retargetDistance, harvestBreakDistance))
         {
             harvestingPickup.RefreshReservation(gameObject, reservationDuration);
             targetPickup = harvestingPickup;

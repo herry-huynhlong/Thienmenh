@@ -426,6 +426,11 @@ public partial class NpcTaskProvider
             return false;
         }
 
+        if (IsTaskOfferClaimed(offer))
+        {
+            return false;
+        }
+
         switch (offer.taskType)
         {
             case NpcTaskType.GatherResource:

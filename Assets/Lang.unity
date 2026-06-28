@@ -15987,7 +15987,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8362687194981446776, guid: 52234395ac81e954b8415221c10525ea, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -16994,6 +16994,8 @@ MonoBehaviour:
   blockedTargetRetryDelay: 0.8
   useObstacleAvoidance: 1
   ignoreNpcBodyCollisions: 1
+  sharedTargetSpacingRadius: 0.55
+  sharedTargetOccupancyRadius: 0.3
   currentTarget: {fileID: 0}
   attackRange: 1.5
   attackCooldown: 1
@@ -17101,36 +17103,36 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 0
-    endHour: 7
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 13
-    startHour: 7
-    endHour: 13
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 14
-    startHour: 13
-    endHour: 18
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 13
-    startHour: 18
+    startHour: 15
     endHour: 22
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  - activity: 15
+  - activity: 13
     startHour: 22
-    endHour: 0
+    endHour: 4
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 14
+    startHour: 4
+    endHour: 9
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 13
+    startHour: 9
+    endHour: 13
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 15
+    startHour: 13
+    endHour: 15
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -17583,7 +17585,7 @@ MonoBehaviour:
   huntPoint: {fileID: 236824679}
   gatherPoint: {fileID: 363782717}
   patrolPoint: {fileID: 1642532623}
-  patrolPointB: {fileID: 0}
+  patrolPointB: {fileID: 1509621239}
   deliverPoint: {fileID: 1343057899}
   escortMeetPoint: {fileID: 1776821966}
   escortCompletionPoint: {fileID: 1783360636}
@@ -17824,6 +17826,8 @@ MonoBehaviour:
   blockedTargetRetryDelay: 0.8
   useObstacleAvoidance: 1
   ignoreNpcBodyCollisions: 1
+  sharedTargetSpacingRadius: 0.55
+  sharedTargetOccupancyRadius: 0.3
   currentTarget: {fileID: 0}
   attackRange: 1.5
   attackCooldown: 1
@@ -17890,36 +17894,36 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 0
-    endHour: 7
+    startHour: 3
+    endHour: 10
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 13
-    startHour: 7
-    endHour: 13
+    startHour: 10
+    endHour: 16
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 14
-    startHour: 13
-    endHour: 18
+    startHour: 16
+    endHour: 21
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 13
-    startHour: 18
-    endHour: 22
+    startHour: 21
+    endHour: 1
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 15
-    startHour: 22
-    endHour: 0
+    startHour: 1
+    endHour: 3
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -19107,6 +19111,8 @@ MonoBehaviour:
   blockedTargetRetryDelay: 0.8
   useObstacleAvoidance: 1
   ignoreNpcBodyCollisions: 1
+  sharedTargetSpacingRadius: 0.55
+  sharedTargetOccupancyRadius: 0.3
   currentTarget: {fileID: 0}
   attackRange: 1.5
   attackCooldown: 1
@@ -22626,8 +22632,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -223, y: 251.1}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: -215.09, y: 252.59}
+  m_SizeDelta: {x: 84.181, y: 46.42}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &376594119
 GameObject:
@@ -23645,7 +23651,7 @@ Transform:
   m_GameObject: {fileID: 401802538}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.018, y: 0.037036657, z: 0}
+  m_LocalPosition: {x: 0.093, y: 0.107, z: 0}
   m_LocalScale: {x: 0.33333334, y: 0.33333334, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -24370,8 +24376,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -187, y: 241}
-  m_SizeDelta: {x: 100, y: 50}
+  m_AnchoredPosition: {x: -214.73, y: 252.82}
+  m_SizeDelta: {x: 83.453, y: 46.873}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &438222699
 MonoBehaviour:
@@ -24422,7 +24428,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -27.99253, y: 11.904406}
+  m_Offset: {x: 0.13161469, y: -0.11317444}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -24432,7 +24438,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 82.83571, y: 46.269543}
+  m_Size: {x: 82.350815, y: 45.574844}
   m_EdgeRadius: 0
 --- !u!1 &438945324
 GameObject:
@@ -24855,7 +24861,7 @@ Transform:
   m_GameObject: {fileID: 466907381}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 117.17, y: 0.39, z: 0}
+  m_LocalPosition: {x: 117.83, y: 5.15, z: 0}
   m_LocalScale: {x: 15, y: 15, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -25440,6 +25446,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 499056989}
+  - component: {fileID: 499056990}
   m_Layer: 0
   m_Name: Bar_Workpoint
   m_TagString: Untagged
@@ -25462,6 +25469,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 319443810}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &499056990
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 499056988}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0.91913605, y: 0.11312398}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 4.478552, y: 1.226248}
+  m_EdgeRadius: 0
 --- !u!1 &499336975
 GameObject:
   m_ObjectHideFlags: 0
@@ -37831,7 +37884,7 @@ SpriteRenderer:
   m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -2684912476612544580, guid: b64147ff764445445882f136f5b2c213, type: 3}
-  m_Color: {r: 0.6320754, g: 0.43827873, b: 0.43827873, a: 1}
+  m_Color: {r: 0.6981132, g: 0.44455323, b: 0.44455323, a: 0.6392157}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -39144,7 +39197,7 @@ Transform:
   m_GameObject: {fileID: 734932529}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 134.09, y: 6.35, z: 0}
+  m_LocalPosition: {x: 134.48, y: 7.12, z: 0}
   m_LocalScale: {x: 15, y: 15, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -39994,6 +40047,8 @@ MonoBehaviour:
   blockedTargetRetryDelay: 0.8
   useObstacleAvoidance: 1
   ignoreNpcBodyCollisions: 1
+  sharedTargetSpacingRadius: 0.55
+  sharedTargetOccupancyRadius: 0.3
   currentTarget: {fileID: 0}
   attackRange: 1.5
   attackCooldown: 1
@@ -53362,6 +53417,8 @@ MonoBehaviour:
   blockedTargetRetryDelay: 0.8
   useObstacleAvoidance: 1
   ignoreNpcBodyCollisions: 1
+  sharedTargetSpacingRadius: 0.55
+  sharedTargetOccupancyRadius: 0.3
   currentTarget: {fileID: 0}
   attackRange: 1.5
   attackCooldown: 1
@@ -56172,6 +56229,8 @@ MonoBehaviour:
   blockedTargetRetryDelay: 0.8
   useObstacleAvoidance: 1
   ignoreNpcBodyCollisions: 1
+  sharedTargetSpacingRadius: 0.55
+  sharedTargetOccupancyRadius: 0.3
   currentTarget: {fileID: 0}
   attackRange: 1.5
   attackCooldown: 1
@@ -74681,6 +74740,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1152505638}
+  - component: {fileID: 1152505639}
   m_Layer: 0
   m_Name: ProviderPoint
   m_TagString: Untagged
@@ -74703,6 +74763,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 319443810}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &1152505639
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1152505637}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: -0.5090496, y: 0.11312413}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 4.733086, y: 1.2262483}
+  m_EdgeRadius: 0
 --- !u!1 &1154004902
 GameObject:
   m_ObjectHideFlags: 0
@@ -80940,6 +81046,8 @@ MonoBehaviour:
   blockedTargetRetryDelay: 0.8
   useObstacleAvoidance: 1
   ignoreNpcBodyCollisions: 1
+  sharedTargetSpacingRadius: 0.55
+  sharedTargetOccupancyRadius: 0.3
   currentTarget: {fileID: 0}
   attackRange: 1.5
   attackCooldown: 1
@@ -81674,6 +81782,8 @@ MonoBehaviour:
   blockedTargetRetryDelay: 0.8
   useObstacleAvoidance: 1
   ignoreNpcBodyCollisions: 1
+  sharedTargetSpacingRadius: 0.55
+  sharedTargetOccupancyRadius: 0.3
   currentTarget: {fileID: 0}
   attackRange: 1.5
   attackCooldown: 1
@@ -82404,8 +82514,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -211, y: 252.3}
-  m_SizeDelta: {x: 100, y: 50}
+  m_AnchoredPosition: {x: -214.72696, y: 252.59}
+  m_SizeDelta: {x: 83.4549, y: 46.423}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!61 &1315211882
 BoxCollider2D:
@@ -82441,7 +82551,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -3.5484657, y: 0.390234}
+  m_Offset: {x: 0.23730087, y: -0.26486683}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -82451,7 +82561,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 82.63203, y: 46.267376}
+  m_Size: {x: 83.13679, y: 45.96673}
   m_EdgeRadius: 0
 --- !u!82 &1315211883
 AudioSource:
@@ -83071,7 +83181,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.4135437, y: 0.61365384}
+  m_Offset: {x: 2.7028809, y: 0.6136539}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -83081,7 +83191,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1.8270874, y: 3.454615}
+  m_Size: {x: 6.4057617, y: 3.454615}
   m_EdgeRadius: 0
 --- !u!1 &1343210575
 GameObject:
@@ -83571,6 +83681,8 @@ MonoBehaviour:
   blockedTargetRetryDelay: 0.8
   useObstacleAvoidance: 1
   ignoreNpcBodyCollisions: 1
+  sharedTargetSpacingRadius: 0.55
+  sharedTargetOccupancyRadius: 0.3
   currentTarget: {fileID: 0}
   attackRange: 1.5
   attackCooldown: 1
@@ -84321,6 +84433,8 @@ MonoBehaviour:
   blockedTargetRetryDelay: 0.8
   useObstacleAvoidance: 1
   ignoreNpcBodyCollisions: 1
+  sharedTargetSpacingRadius: 0.55
+  sharedTargetOccupancyRadius: 0.3
   currentTarget: {fileID: 0}
   attackRange: 1.5
   attackCooldown: 1
@@ -84428,36 +84542,36 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 0
-    endHour: 7
+    startHour: 21
+    endHour: 4
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 13
-    startHour: 7
-    endHour: 13
+    startHour: 4
+    endHour: 10
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 14
-    startHour: 13
-    endHour: 18
+    startHour: 10
+    endHour: 15
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 13
-    startHour: 18
-    endHour: 22
+    startHour: 15
+    endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 15
-    startHour: 22
-    endHour: 0
+    startHour: 19
+    endHour: 21
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -85147,7 +85261,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1375171526}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0b281d7812be4154f9595571919a4202, type: 3}
   m_Name: 
@@ -85217,6 +85331,8 @@ MonoBehaviour:
   blockedTargetRetryDelay: 0.8
   useObstacleAvoidance: 1
   ignoreNpcBodyCollisions: 1
+  sharedTargetSpacingRadius: 0.55
+  sharedTargetOccupancyRadius: 0.3
   currentTarget: {fileID: 0}
   attackRange: 1.5
   attackCooldown: 1
@@ -94357,8 +94473,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -214.4, y: 252.8}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: -214.73, y: 252.8138}
+  m_SizeDelta: {x: 83.452, y: 46.8766}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1618443981
 MonoBehaviour:
@@ -112450,6 +112566,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1749781245}
+  - component: {fileID: 1749781246}
   m_Layer: 0
   m_Name: TaskBoardPoint
   m_TagString: Untagged
@@ -112466,12 +112583,58 @@ Transform:
   m_GameObject: {fileID: 1749781244}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.13, y: -1.25, z: 0}
+  m_LocalPosition: {x: -0.13, y: -1.84, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 319443810}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &1749781246
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1749781244}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0.22624779, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 3.432168, y: 1}
+  m_EdgeRadius: 0
 --- !u!1 &1750842583
 GameObject:
   m_ObjectHideFlags: 0
@@ -118485,6 +118648,8 @@ MonoBehaviour:
   blockedTargetRetryDelay: 0.8
   useObstacleAvoidance: 1
   ignoreNpcBodyCollisions: 1
+  sharedTargetSpacingRadius: 0.55
+  sharedTargetOccupancyRadius: 0.3
   currentTarget: {fileID: 0}
   attackRange: 1.5
   attackCooldown: 1
@@ -118563,36 +118728,36 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 0
-    endHour: 7
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 13
-    startHour: 7
+    startHour: 6
     endHour: 13
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  - activity: 14
+  - activity: 13
     startHour: 13
-    endHour: 18
+    endHour: 19
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 14
+    startHour: 19
+    endHour: 0
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 13
-    startHour: 18
-    endHour: 22
+    startHour: 0
+    endHour: 4
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 15
-    startHour: 22
-    endHour: 0
+    startHour: 4
+    endHour: 6
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -119135,6 +119300,8 @@ MonoBehaviour:
   blockedTargetRetryDelay: 0.8
   useObstacleAvoidance: 1
   ignoreNpcBodyCollisions: 1
+  sharedTargetSpacingRadius: 0.55
+  sharedTargetOccupancyRadius: 0.3
   currentTarget: {fileID: 0}
   attackRange: 1.5
   attackCooldown: 1
@@ -119277,36 +119444,36 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 0
-    endHour: 7
+    startHour: 9
+    endHour: 16
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 13
-    startHour: 7
-    endHour: 13
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 14
-    startHour: 13
-    endHour: 18
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 13
-    startHour: 18
+    startHour: 16
     endHour: 22
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  - activity: 15
+  - activity: 14
     startHour: 22
-    endHour: 0
+    endHour: 3
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 13
+    startHour: 3
+    endHour: 7
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 15
+    startHour: 7
+    endHour: 9
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -120567,6 +120734,8 @@ MonoBehaviour:
   blockedTargetRetryDelay: 0.8
   useObstacleAvoidance: 1
   ignoreNpcBodyCollisions: 1
+  sharedTargetSpacingRadius: 0.55
+  sharedTargetOccupancyRadius: 0.3
   currentTarget: {fileID: 0}
   attackRange: 1.5
   attackCooldown: 1
@@ -120633,36 +120802,36 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 0
+    startHour: 18
+    endHour: 1
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 13
+    startHour: 1
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
-  - activity: 13
-    startHour: 7
-    endHour: 13
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
   - activity: 14
-    startHour: 13
-    endHour: 18
+    startHour: 7
+    endHour: 12
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 13
-    startHour: 18
-    endHour: 22
+    startHour: 12
+    endHour: 16
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 15
-    startHour: 22
-    endHour: 0
+    startHour: 16
+    endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -123261,6 +123430,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1911871447}
+  - component: {fileID: 1911871448}
   m_Layer: 0
   m_Name: couterpoint
   m_TagString: Untagged
@@ -123283,6 +123453,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2085516815}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &1911871448
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1911871446}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0.5016899, y: 0.06919825}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 7.400856, y: 1.9687779}
+  m_EdgeRadius: 0
 --- !u!1 &1915502997
 GameObject:
   m_ObjectHideFlags: 0
@@ -134496,6 +134712,8 @@ MonoBehaviour:
   blockedTargetRetryDelay: 0.8
   useObstacleAvoidance: 1
   ignoreNpcBodyCollisions: 1
+  sharedTargetSpacingRadius: 0.55
+  sharedTargetOccupancyRadius: 0.3
   currentTarget: {fileID: 0}
   attackRange: 1.5
   attackCooldown: 1
@@ -134664,36 +134882,36 @@ MonoBehaviour:
   lifePath: 2
   slots:
   - activity: 8
-    startHour: 0
-    endHour: 7
+    startHour: 12
+    endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 13
-    startHour: 7
-    endHour: 13
+    startHour: 19
+    endHour: 1
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 14
-    startHour: 13
-    endHour: 18
+    startHour: 1
+    endHour: 6
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 13
-    startHour: 18
-    endHour: 22
+    startHour: 6
+    endHour: 10
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 15
-    startHour: 22
-    endHour: 0
+    startHour: 10
+    endHour: 12
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
@@ -145378,7 +145596,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.62233734, y: 1.2673285}
+  m_Offset: {x: 0.1815567, y: 1.2673285}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -145388,7 +145606,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 3.9174957, y: 4.1216297}
+  m_Size: {x: 5.525284, y: 4.1216297}
   m_EdgeRadius: 0
 --- !u!1 &2143624748
 GameObject:

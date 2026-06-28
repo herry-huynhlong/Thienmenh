@@ -125,6 +125,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
     public float blockedTargetRetryDelay = 0.8f;
     public bool useObstacleAvoidance = true;
     public bool ignoreNpcBodyCollisions = true;
+    public float sharedTargetSpacingRadius = 0.55f;
+    public float sharedTargetOccupancyRadius = 0.3f;
 
     public Transform currentTarget;
     Transform treasureHuntTarget;
@@ -770,8 +772,9 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
     void UpdateMovement()
     {
-        if (Time.time < movementPausedUntil ||
-            Time.time < crowdYieldUntil)
+        if ((Time.time < movementPausedUntil ||
+            Time.time < crowdYieldUntil) &&
+            !hasEscapeTarget)
         {
             DebugFlow(
                 "Move",
@@ -794,7 +797,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             currentTarget == null &&
             !movingToTreasureWait &&
             Time.time >= postTeleportRecoveryUntil &&
-            IsStationaryAction(currentAction);
+            IsStationaryAction(currentAction) &&
+            !hasEscapeTarget;
 
         if (currentTarget == null &&
             !movingToTreasureWait &&
@@ -822,14 +826,34 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         Vector3 desiredTarget;
 
-        if (movingToTreasureWait)
+        if (hasEscapeTarget)
+        {
+            desiredTarget = escapeTarget;
+        }
+        else if (movingToTreasureWait)
         {
             desiredTarget = treasureWaitPosition;
         }
         else if (currentTarget != null)
         {
-            desiredTarget = currentTarget.position;
+            desiredTarget = GetApproachPosition(currentTarget);
             hasWanderTarget = false;
+
+            if (currentTarget.GetComponentInParent<NpcTaskProvider>() != null ||
+                currentAction == NpcText.Action("goTaskProviderDaily") ||
+                currentAction == NpcText.Action("visitedTaskProvider"))
+            {
+                DebugFlow(
+                    "Move",
+                    "Approach provider target=" +
+                    currentTarget.name +
+                    " desired=" +
+                    desiredTarget +
+                    " pos=" +
+                    transform.position +
+                    " dist=" +
+                    Vector2.Distance(transform.position, desiredTarget).ToString("0.00"));
+            }
         }
         else if (hasWanderTarget)
         {
@@ -840,10 +864,32 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             if (currentAction == NpcText.Action("goTaskProviderDaily"))
             {
                 DebugFlow("Move", "Reached task provider route end");
+
+                if (TryVisitTaskProvider())
+                {
+                    return;
+                }
+
                 currentAction = NpcText.Action("visitedTaskProvider");
                 actionTimer = Mathf.Max(
                     actionTimer,
                     GameHoursToSeconds(0.2f));
+
+                if (rb != null)
+                {
+                    rb.linearVelocity = Vector2.zero;
+                }
+
+                return;
+            }
+
+            if (IsTeleportRouteAction(currentAction))
+            {
+                DebugFlow(
+                    "Move",
+                    "Teleport route ended without follow target");
+
+                currentAction = "";
 
                 if (rb != null)
                 {
@@ -1055,6 +1101,21 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                     hasWanderTarget ||
                     HasLockedDirectedTarget())
                 {
+                    if (currentTarget != null &&
+                        currentTarget.GetComponentInParent<NpcTaskProvider>() != null)
+                    {
+                        DebugFlow(
+                            "Move",
+                            "Crowd blocked near provider target=" +
+                            currentTarget.name +
+                            " desired=" +
+                            desiredTarget +
+                            " moveTarget=" +
+                            moveTarget +
+                            " pos=" +
+                            transform.position);
+                    }
+
                     HandleBlockedMovement(moveTarget, desiredTarget);
                 }
                 return;
@@ -1094,6 +1155,21 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 hasWanderTarget ||
                 HasLockedDirectedTarget())
             {
+                if (currentTarget != null &&
+                    currentTarget.GetComponentInParent<NpcTaskProvider>() != null)
+                {
+                    DebugFlow(
+                        "Move",
+                        "Crowd blocked with avoidance near provider target=" +
+                        currentTarget.name +
+                        " desired=" +
+                        desiredTarget +
+                        " moveTarget=" +
+                        moveTarget +
+                        " pos=" +
+                        transform.position);
+                }
+
                 HandleBlockedMovement(moveTarget, desiredTarget);
             }
             return;
@@ -1139,8 +1215,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             hasTreasureWaitPosition ||
             treasureHuntTarget != null ||
             treasureHuntItem != null ||
-            hasHomeReturnTarget ||
-            IsTeleportRouteAction(currentAction);
+            hasHomeReturnTarget;
 
         spawnPosition = transform.position;       // Đặt lại điểm gốc di chuyển tại map mới
         lastUnstuckPosition = transform.position; // Reset vị trí chống kẹt
@@ -1787,8 +1862,10 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         else
         {
             Vector3 finalTarget =
-                currentTarget != null
-                ? currentTarget.position
+                hasEscapeTarget
+                ? escapeTarget
+                : currentTarget != null
+                ? GetApproachPosition(currentTarget)
                 : hasWanderTarget
                     ? wanderTarget
                     : transform.position + (Vector3)moveDirection;
@@ -2220,6 +2297,19 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         blockedMoveTimer += Time.fixedDeltaTime;
         rb.linearVelocity = Vector2.zero;
 
+        DebugFlow(
+            "Move",
+            "Blocked movement blocked=" +
+            blockedTarget +
+            " final=" +
+            finalTarget +
+            " timer=" +
+            blockedMoveTimer.ToString("0.00") +
+            " escape=" +
+            hasEscapeTarget +
+            " obstacle=" +
+            hasObstacleAvoidTarget);
+
         if (blockedMoveTimer < blockedTargetRetryDelay)
         {
             return;
@@ -2236,6 +2326,12 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 out Vector2 detourDirection) &&
             TryCommitObstacleAvoidTarget(detourDirection))
         {
+            DebugFlow(
+                "Move",
+                "Committed obstacle detour toward=" +
+                detourDirection +
+                " final=" +
+                finalTarget);
             return;
         }
 
@@ -2248,6 +2344,23 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             obstacleAvoidUntil = Time.time + 1f;
             hasObstacleAvoidTarget = true;
             hasEscapeTarget = false;
+            DebugFlow(
+                "Move",
+                "Picked escape point=" +
+                clear +
+                " seed=" +
+                escapeSeed +
+                " final=" +
+                finalTarget);
+        }
+        else
+        {
+            DebugFlow(
+                "Move",
+                "Failed to find escape point seed=" +
+                escapeSeed +
+                " final=" +
+                finalTarget);
         }
     }
 
@@ -2479,15 +2592,141 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         }
 
         Vector2 separation = GetNpcSeparationDirection();
-        if (separation.sqrMagnitude <= 0.0001f ||
-            IsMovementBlocked(separation))
+        if (separation.sqrMagnitude > 0.0001f &&
+            !IsMovementBlocked(separation))
+        {
+            rb.linearVelocity =
+                separation.normalized * moveSpeed * 0.65f;
+            return true;
+        }
+
+        if (TryPickUnstuckEscapeTarget(separation, out escapeTarget))
+        {
+            hasEscapeTarget = true;
+            hasObstacleAvoidTarget = false;
+            blockedMoveTimer = 0f;
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    Vector3 GetApproachPosition(Transform target)
+    {
+        if (target == null)
+        {
+            return transform.position;
+        }
+
+        Vector3 targetPosition = target.position;
+        if (!ShouldUseSharedTargetSpacing(target))
+        {
+            return targetPosition;
+        }
+
+        int slotCount = 8;
+        int slotIndex = Mathf.Abs(
+            gameObject.GetInstanceID() ^
+            target.gameObject.GetInstanceID()) % slotCount;
+        float spacingRadius = Mathf.Max(
+            targetClearRadius * 3f,
+            sharedTargetSpacingRadius,
+            0.85f);
+
+        return FindOpenSharedTargetSlot(
+            targetPosition,
+            slotCount,
+            slotIndex,
+            spacingRadius);
+    }
+
+    Vector3 FindOpenSharedTargetSlot(
+        Vector3 targetPosition,
+        int slotCount,
+        int startSlotIndex,
+        float spacingRadius)
+    {
+        Vector3 fallback = targetPosition;
+
+        for (int i = 0; i < slotCount; i++)
+        {
+            int slotIndex = (startSlotIndex + i) % slotCount;
+            float angle = (Mathf.PI * 2f * slotIndex) / slotCount;
+            Vector3 candidate =
+                targetPosition +
+                new Vector3(
+                    Mathf.Cos(angle),
+                    Mathf.Sin(angle),
+                    0f) * spacingRadius;
+
+            if (!IsSharedTargetOccupied(candidate))
+            {
+                return candidate;
+            }
+
+            fallback = candidate;
+        }
+
+        return fallback;
+    }
+
+    bool ShouldUseSharedTargetSpacing(Transform target)
+    {
+        if (target == null)
         {
             return false;
         }
 
-        rb.linearVelocity =
-            separation.normalized * moveSpeed * 0.65f;
-        return true;
+        if (target.GetComponentInParent<NpcTaskProvider>() != null ||
+            target.GetComponentInParent<NpcCounterBroker>() != null)
+        {
+            return false;
+        }
+
+        return target.GetComponentInParent<MonsterAI>() != null;
+    }
+
+    bool IsSharedTargetOccupied(Vector3 targetPosition)
+    {
+        float radius = Mathf.Max(0.18f, sharedTargetOccupancyRadius);
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(
+                targetPosition,
+                radius,
+                crowdLayers);
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Collider2D hit = hits[i];
+            if (hit == null || IsSelfCollider(hit))
+            {
+                continue;
+            }
+
+            VillagerAI otherVillager =
+                hit.GetComponentInParent<VillagerAI>();
+            if (otherVillager != null &&
+                otherVillager.gameObject != gameObject &&
+                !otherVillager.IsDead)
+            {
+                return true;
+            }
+
+            SmartNpcAI otherCultivator =
+                hit.GetComponentInParent<SmartNpcAI>();
+            if (otherCultivator != null &&
+                otherCultivator.gameObject != gameObject &&
+                !otherCultivator.IsDead)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     Vector2 GetNpcSeparationDirection()

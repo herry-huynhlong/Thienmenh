@@ -112,23 +112,7 @@ public class NpcTeleportGate : MonoBehaviour
             return EntryPosition;
         }
 
-        Collider2D gateCollider = GetComponent<Collider2D>();
-        if (gateCollider == null)
-        {
-            return EntryPosition;
-        }
-
-        Vector2 closestPoint = gateCollider.ClosestPoint(actorPosition);
-        Vector3 approach = closestPoint;
-        approach.z = transform.position.z;
-
-        if ((approach - actorPosition).sqrMagnitude <= 0.0001f)
-        {
-            approach = gateCollider.bounds.center;
-            approach.z = transform.position.z;
-        }
-
-        return approach;
+        return EntryPosition;
     }
 
     Vector3 GetResolvedEntryPosition()

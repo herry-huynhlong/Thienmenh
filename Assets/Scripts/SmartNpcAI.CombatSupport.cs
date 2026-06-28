@@ -228,6 +228,20 @@ public partial class SmartNpcAI
 
     Vector3 GetRetreatPoint(Vector3 threatPosition)
     {
+        NpcMapArea area = NpcMapArea.FindArea(transform.position);
+        NpcTeleportGate escapeGate = FindNearestTeleportGate(area);
+        if (escapeGate != null)
+        {
+            return escapeGate.EntryPosition;
+        }
+
+        Vector3 center = transform.position;
+        if (area != null &&
+            area.areaBounds != null)
+        {
+            center = area.areaBounds.bounds.center;
+        }
+
         Vector2 away =
             (Vector2)transform.position - (Vector2)threatPosition;
         if (away.sqrMagnitude <= 0.01f)
@@ -235,21 +249,90 @@ public partial class SmartNpcAI
             away = Random.insideUnitCircle;
         }
 
+        Vector2 toCenter = (Vector2)center - (Vector2)transform.position;
+        if (toCenter.sqrMagnitude <= 0.01f)
+        {
+            toCenter = Vector2.zero;
+        }
+
+        Vector2 mixedDirection = away.normalized * 0.75f;
+        if (toCenter.sqrMagnitude > 0.01f)
+        {
+            mixedDirection += toCenter.normalized * 0.55f;
+        }
+
+        if (mixedDirection.sqrMagnitude <= 0.01f)
+        {
+            mixedDirection = away.normalized;
+        }
+
         float retreatDistance =
             Mathf.Max(4f, Mathf.Max(1f, idleWanderRadius) * 1.5f);
         Vector3 point =
-            transform.position + (Vector3)away.normalized * retreatDistance;
+            transform.position + (Vector3)mixedDirection.normalized * retreatDistance;
 
-        NpcMapArea area = NpcMapArea.FindArea(transform.position);
         if (area != null &&
             area.areaBounds != null)
         {
             Bounds bounds = area.areaBounds.bounds;
-            point.x = Mathf.Clamp(point.x, bounds.min.x, bounds.max.x);
-            point.y = Mathf.Clamp(point.y, bounds.min.y, bounds.max.y);
+            float padding = Mathf.Max(
+                1.75f,
+                Mathf.Min(bounds.extents.x, bounds.extents.y) * 0.22f);
+            float minX = bounds.min.x + padding;
+            float maxX = bounds.max.x - padding;
+            float minY = bounds.min.y + padding;
+            float maxY = bounds.max.y - padding;
+
+            if (minX >= maxX || minY >= maxY)
+            {
+                point = bounds.center;
+            }
+            else
+            {
+                point.x = Mathf.Clamp(point.x, minX, maxX);
+                point.y = Mathf.Clamp(point.y, minY, maxY);
+            }
         }
 
         return point;
+    }
+
+    NpcTeleportGate FindNearestTeleportGate(NpcMapArea area)
+    {
+        if (area == null)
+        {
+            return null;
+        }
+
+        NpcTeleportGate bestGate = null;
+        float bestDistance = float.PositiveInfinity;
+
+        foreach (NpcTeleportGate gate in NpcTeleportGate.Gates)
+        {
+            if (gate == null ||
+                !gate.TryGetOtherZone(area.zone, out _))
+            {
+                continue;
+            }
+
+            Vector3 gatePosition = gate.EntryPosition;
+            NpcMapArea gateArea = NpcMapArea.FindArea(gatePosition);
+            if (gateArea == null ||
+                gateArea.zone != area.zone)
+            {
+                continue;
+            }
+
+            float distance =
+                Vector2.Distance(transform.position, gatePosition);
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                bestGate = gate;
+            }
+        }
+
+        return bestGate;
     }
 
     bool IsValidHelpRequest(SmartNpcHelpRequestSystem.HelpRequest request)

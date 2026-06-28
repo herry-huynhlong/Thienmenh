@@ -2195,6 +2195,9 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         }
 
         collector.canPickupItems = true;
+        collector.pickupRadius = collector.pickupRadius > 0f
+            ? Mathf.Min(collector.pickupRadius, 0.22f)
+            : 0.22f;
 
         NpcResourceGatherer gatherer = GetComponent<NpcResourceGatherer>();
         if (gatherer == null)
@@ -2204,6 +2207,9 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
         gatherer.canGather = true;
         gatherer.useVillagerPreferredZone = true;
+        gatherer.arriveDistance = gatherer.arriveDistance > 0f
+            ? Mathf.Min(gatherer.arriveDistance, 0.16f)
+            : 0.16f;
         return gatherer;
     }
 

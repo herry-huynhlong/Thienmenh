@@ -709,13 +709,16 @@ public partial class SmartNpcAI
         }
 
         NpcTaskProvider provider =
-            NpcTaskProvider.FindNearestProvider(transform.position);
+            NpcTaskProvider.FindNearestProvider(
+                gameObject,
+                transform.position);
 
         if (provider == null)
         {
             DebugFlow(
                 "TaskProvider",
-                "No provider found quota=" + GetDailyTaskQuotaDebugText());
+                "No provider with valid offer found quota=" +
+                GetDailyTaskQuotaDebugText());
             return false;
         }
 
@@ -729,6 +732,29 @@ public partial class SmartNpcAI
         bool inProviderRange =
             provider.IsNpcInProviderInteractionRange(gameObject);
 
+        DebugFlow(
+            "TaskProvider",
+            "Eval provider=" +
+            provider.name +
+            " providerPos=" +
+            providerPosition +
+            " standPoint=" +
+            (provider.providerStandPoint != null
+                ? provider.providerStandPoint.position.ToString()
+                : "null") +
+            " inRange=" +
+            inProviderRange +
+            " arrive=" +
+            providerArriveDistance.ToString("0.00") +
+            " dist=" +
+            Vector2.Distance(transform.position, providerPosition).ToString("0.00") +
+            " pos=" +
+            transform.position +
+            " target=" +
+            (currentTarget != null ? currentTarget.name : "null") +
+            " wander=" +
+            hasWanderTarget);
+
         currentAction = NpcText.Action("goTaskProviderDaily");
 
         if (!inProviderRange &&
@@ -736,9 +762,17 @@ public partial class SmartNpcAI
             providerArriveDistance)
         {
             ClearTravelTargets();
-            currentTarget = null;
-            wanderTarget = providerPosition;
-            hasWanderTarget = true;
+            if (provider.providerStandPoint != null)
+            {
+                currentTarget = provider.providerStandPoint;
+                hasWanderTarget = false;
+            }
+            else
+            {
+                currentTarget = null;
+                wanderTarget = providerPosition;
+                hasWanderTarget = true;
+            }
             actionTimer = 0f;
             DebugFlow(
                 "TaskProvider",
@@ -751,9 +785,17 @@ public partial class SmartNpcAI
         if (!inProviderRange)
         {
             ClearTravelTargets();
-            currentTarget = null;
-            wanderTarget = providerPosition;
-            hasWanderTarget = true;
+            if (provider.providerStandPoint != null)
+            {
+                currentTarget = provider.providerStandPoint;
+                hasWanderTarget = false;
+            }
+            else
+            {
+                currentTarget = null;
+                wanderTarget = providerPosition;
+                hasWanderTarget = true;
+            }
             actionTimer = 0f;
             DebugFlow(
                 "TaskProvider",
@@ -768,6 +810,9 @@ public partial class SmartNpcAI
         if (provider.TryHandleVisitor(gameObject))
         {
             MarkDailyTaskAccepted();
+            ClearTravelTargetsAndStop();
+            currentAction = NpcText.Action("visitedTaskProvider");
+            actionTimer = GameHoursToSeconds(0.2f);
             DebugFlow(
                 "TaskProvider",
                 "Handled by provider " + provider.name +
@@ -775,11 +820,14 @@ public partial class SmartNpcAI
             return true;
         }
 
+        ClearTravelTargetsAndStop();
         actionTimer = Mathf.Max(thinkDelay, GameHoursToSeconds(0.15f));
         currentAction = NpcText.Action("visitedTaskProvider");
         DebugFlow(
             "TaskProvider",
             "Visited but no task handled provider=" + provider.name +
+            " providerPos=" +
+            providerPosition +
             " quota=" + GetDailyTaskQuotaDebugText());
         return true;
     }
