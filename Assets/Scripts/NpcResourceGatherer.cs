@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(NpcItemCollector))]
 public class NpcResourceGatherer : MonoBehaviour
@@ -297,12 +297,19 @@ public class NpcResourceGatherer : MonoBehaviour
         bool force)
     {
         NpcMapZone? preferredZone = GetPreferredZone();
+        NpcDangerTier? preferredDangerTier = GetPreferredDangerTier();
         WorldStatItemPickup candidate =
-            WorldResourceField.GetNearestAvailablePickupInAllFields(
-                GetSearchPosition(),
-                requiredItem,
-                preferredZone,
-                gameObject);
+            smartNpc != null &&
+            requiredItem == null
+                ? FindNearestAvailableAutoPickupInAllFields(
+                    preferredZone,
+                    preferredDangerTier)
+                : WorldResourceField.GetNearestAvailablePickupInAllFields(
+                    GetSearchPosition(),
+                    requiredItem,
+                    preferredZone,
+                    preferredDangerTier,
+                    gameObject);
 
         if (candidate == null && requiredItem != null)
         {
@@ -344,6 +351,82 @@ public class NpcResourceGatherer : MonoBehaviour
         return true;
     }
 
+    WorldStatItemPickup FindNearestAvailableAutoPickupInAllFields(
+        NpcMapZone? preferredZone,
+        NpcDangerTier? preferredDangerTier)
+    {
+        WorldStatItemPickup[] pickups =
+            FindObjectsByType<WorldStatItemPickup>(
+                FindObjectsInactive.Exclude);
+
+        WorldStatItemPickup best = null;
+        float bestDistance = float.MaxValue;
+        Vector3 searchPosition = GetSearchPosition();
+
+        foreach (WorldStatItemPickup pickup in pickups)
+        {
+            if (!IsPickupAvailable(pickup, false) ||
+                pickup.item == null)
+            {
+                continue;
+            }
+
+            if (pickup.item.itemType == ItemType.ThucPham)
+            {
+                continue;
+            }
+
+            if (!MatchesPreferredGatherArea(
+                    pickup,
+                    preferredZone,
+                    preferredDangerTier))
+            {
+                continue;
+            }
+
+            float distance = Vector2.Distance(searchPosition, pickup.transform.position);
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                best = pickup;
+            }
+        }
+
+        return best;
+    }
+
+    bool MatchesPreferredGatherArea(
+        WorldStatItemPickup pickup,
+        NpcMapZone? preferredZone,
+        NpcDangerTier? preferredDangerTier)
+    {
+        if (pickup == null)
+        {
+            return false;
+        }
+
+        NpcMapArea pickupMapArea = NpcMapArea.FindArea(pickup.transform.position);
+        NpcLocationArea pickupLocationArea =
+            NpcLocationArea.FindArea(pickup.transform.position);
+
+        if (preferredZone.HasValue)
+        {
+            if (pickupMapArea == null ||
+                pickupMapArea.zone != preferredZone.Value)
+            {
+                return false;
+            }
+        }
+
+        if (!preferredDangerTier.HasValue ||
+            pickupLocationArea == null ||
+            pickupLocationArea.dangerTier == NpcDangerTier.Any)
+        {
+            return true;
+        }
+
+        return pickupLocationArea.dangerTier == preferredDangerTier.Value;
+    }
 
     WorldStatItemPickup FindNearestAvailablePickupInScene(
         StatItemData requiredItem,
@@ -351,8 +434,7 @@ public class NpcResourceGatherer : MonoBehaviour
     {
         WorldStatItemPickup[] pickups =
             FindObjectsByType<WorldStatItemPickup>(
-                FindObjectsInactive.Exclude,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Exclude);
 
         WorldStatItemPickup best = null;
         float bestDistance = float.MaxValue;
@@ -432,6 +514,16 @@ public class NpcResourceGatherer : MonoBehaviour
         }
 
         return villager.GetPreferredResourceGatherZone();
+    }
+
+    NpcDangerTier? GetPreferredDangerTier()
+    {
+        if (smartNpc == null)
+        {
+            return null;
+        }
+
+        return smartNpc.GetSmartDangerTier();
     }
     void MoveToTarget()
     {
@@ -625,7 +717,31 @@ public class NpcResourceGatherer : MonoBehaviour
 
         string verb = "Đang hái ";
 
-        if (villager != null)
+        if (harvestingPickup != null &&
+            harvestingPickup.item != null)
+        {
+            if (harvestingPickup.item.itemType == ItemType.ThucPham &&
+                harvestingPickup.item.foodKind == FoodKind.Fish)
+            {
+                verb = "Đang bắt ";
+            }
+            else if (villager != null)
+            {
+                switch (villager.job)
+                {
+                    case VillagerJob.Farmer:
+                        verb = "Đang thu hoạch ";
+                        break;
+                    case VillagerJob.Fisher:
+                        verb = "Đang thu hoạch ";
+                        break;
+                    case VillagerJob.Hunter:
+                        verb = "Đang thu thịt ";
+                        break;
+                }
+            }
+        }
+        else if (villager != null)
         {
             switch (villager.job)
             {
@@ -736,6 +852,28 @@ public class NpcResourceGatherer : MonoBehaviour
 
         NpcMapArea pickupArea = NpcMapArea.FindArea(pickup.transform.position);
         return pickupArea != null && pickupArea.zone == preferredZone.Value;
+    }
+
+    public bool HasAutonomousGatherCandidate()
+    {
+        if (smartNpc == null)
+        {
+            return false;
+        }
+
+        return HasAutonomousGatherCandidate(GetPreferredDangerTier());
+    }
+
+    public bool HasAutonomousGatherCandidate(NpcDangerTier? preferredDangerTier)
+    {
+        if (smartNpc == null)
+        {
+            return false;
+        }
+
+        return FindNearestAvailableAutoPickupInAllFields(
+            GetPreferredZone(),
+            preferredDangerTier) != null;
     }
 
     StatItemData GetPickupItem(WorldStatItemPickup pickup)

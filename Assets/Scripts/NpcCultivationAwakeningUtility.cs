@@ -250,7 +250,12 @@ public static class NpcCultivationAwakeningUtility
         smartNpc.defense = characterStats.defense;
         smartNpc.lifespan = Mathf.Max(preservedLifespan, 120);
         smartNpc.waitingForHeavenlyTribulation = false;
-        smartNpc.currentAction = NpcText.Action("breakthrough");
+        smartNpc.RequestEmergencyTask(
+            SmartAITaskGoal.CriticalBreakthrough,
+            SmartAITaskPriority.Critical,
+            false,
+            "cultivation awakening");
+        smartNpc.ForceSetCurrentAction(NpcText.Action("breakthrough"));
 
         NpcScheduleController schedule =
             target.GetComponent<NpcScheduleController>();

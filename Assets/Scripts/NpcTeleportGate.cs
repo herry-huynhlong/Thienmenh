@@ -8,16 +8,21 @@ public class NpcTeleportGate : MonoBehaviour
         new List<NpcTeleportGate>();
     static readonly Dictionary<int, float> npcTeleportCooldowns =
         new Dictionary<int, float>();
+    static readonly Dictionary<int, float> npcTeleportReentryLocks =
+        new Dictionary<int, float>();
 
     public NpcMapZone fromZone = NpcMapZone.Lang;
     public NpcMapZone toZone = NpcMapZone.VanBaoLau;
     public Transform entryPoint;
     public Transform exitPoint;
     public DoorTeleportSameScene sameSceneTeleport;
+    [HideInInspector]
     public float npcAutoUseRadius = 0.45f;
     public float npcGlobalTeleportCooldown = 10f;
+    public float npcReentryLockDuration = 1.5f;
     public bool preferOwnTransformWhenEntryIsParent = true;
     public bool useEntryPointForNpcRoute;
+    public bool bidirectional = true;
 
     public static IReadOnlyList<NpcTeleportGate> Gates => gates;
 
@@ -42,8 +47,103 @@ public class NpcTeleportGate : MonoBehaviour
         }
     }
 
+    public bool TryGetOtherZone(
+        NpcMapZone zone,
+        out NpcMapZone otherZone)
+    {
+        if (zone == fromZone)
+        {
+            otherZone = toZone;
+            return true;
+        }
+
+        if (bidirectional && zone == toZone)
+        {
+            otherZone = fromZone;
+            return true;
+        }
+
+        otherZone = default;
+        return false;
+    }
+
+    public bool Connects(NpcMapZone zoneA, NpcMapZone zoneB)
+    {
+        if (fromZone == zoneA && toZone == zoneB)
+        {
+            return true;
+        }
+
+        return bidirectional &&
+            fromZone == zoneB &&
+            toZone == zoneA;
+    }
+
+    public bool TryGetTeleportRouteForZone(
+        NpcMapZone zone,
+        out Vector3 entryPosition,
+        out Vector3 exitPosition,
+        out NpcMapZone destinationZone)
+    {
+        entryPosition = EntryPosition;
+        exitPosition = ExitPosition;
+        destinationZone = toZone;
+
+        if (zone == fromZone)
+        {
+            return true;
+        }
+
+        if (bidirectional && zone == toZone)
+        {
+            entryPosition = ExitPosition;
+            exitPosition = EntryPosition;
+            destinationZone = fromZone;
+            return true;
+        }
+
+        return false;
+    }
+
+    public Vector3 GetApproachPosition(Vector3 actorPosition)
+    {
+        if (useEntryPointForNpcRoute)
+        {
+            return EntryPosition;
+        }
+
+        Collider2D gateCollider = GetComponent<Collider2D>();
+        if (gateCollider == null)
+        {
+            return EntryPosition;
+        }
+
+        Vector2 closestPoint = gateCollider.ClosestPoint(actorPosition);
+        Vector3 approach = closestPoint;
+        approach.z = transform.position.z;
+
+        if ((approach - actorPosition).sqrMagnitude <= 0.0001f)
+        {
+            approach = gateCollider.bounds.center;
+            approach.z = transform.position.z;
+        }
+
+        return approach;
+    }
+
     Vector3 GetResolvedEntryPosition()
     {
+        if (!useEntryPointForNpcRoute)
+        {
+            Collider2D gateCollider = GetComponent<Collider2D>();
+            if (gateCollider != null)
+            {
+                Vector3 center = gateCollider.bounds.center;
+                center.z = transform.position.z;
+                return center;
+            }
+        }
+
         Transform resolved = GetResolvedEntryTransform();
         return resolved != null
             ? resolved.position
@@ -52,6 +152,11 @@ public class NpcTeleportGate : MonoBehaviour
 
     Transform GetResolvedEntryTransform()
     {
+        if (!useEntryPointForNpcRoute)
+        {
+            return transform;
+        }
+
         if (entryPoint == null)
         {
             return transform;
@@ -64,12 +169,7 @@ public class NpcTeleportGate : MonoBehaviour
             return transform;
         }
 
-        if (useEntryPointForNpcRoute || entryPoint != transform)
-        {
-            return entryPoint;
-        }
-
-        return transform;
+        return entryPoint;
     }
     void Reset()
     {
@@ -121,35 +221,6 @@ public class NpcTeleportGate : MonoBehaviour
         sameSceneTeleport.targetPoint = exitPoint;
     }
 
-    void Update()
-    {
-        if (npcAutoUseRadius <= 0f)
-        {
-            return;
-        }
-
-        Collider2D[] hits = Physics2D.OverlapCircleAll(
-            EntryPosition,
-            npcAutoUseRadius);
-
-        foreach (Collider2D hit in hits)
-        {
-            if (hit == null)
-            {
-                continue;
-            }
-
-            GameObject actor = ResolveActorRoot(hit);
-
-            if (!IsNpcActor(actor))
-            {
-                continue;
-            }
-
-            ProcessNpcAtGate(actor);
-        }
-    }
-
     void OnTriggerEnter2D(Collider2D other)
     {
         ProcessNpcAtGate(ResolveActorRoot(other));
@@ -173,6 +244,11 @@ public class NpcTeleportGate : MonoBehaviour
         }
 
         int cooldownKey = GetNpcCooldownKey(actor);
+        if (IsNpcReentryLocked(cooldownKey))
+        {
+            return;
+        }
+
         if (npcTeleportCooldowns.TryGetValue(
                 cooldownKey,
                 out float nextAllowedTeleport) &&
@@ -185,6 +261,8 @@ public class NpcTeleportGate : MonoBehaviour
         {
             npcTeleportCooldowns[cooldownKey] =
                 Time.time + Mathf.Max(0.1f, npcGlobalTeleportCooldown);
+            npcTeleportReentryLocks[cooldownKey] =
+                Time.time + Mathf.Max(0.1f, npcReentryLockDuration);
         }
     }
 
@@ -219,12 +297,35 @@ public class NpcTeleportGate : MonoBehaviour
             return false;
         }
 
-        return actorZone.Value == fromZone;
+        return TryGetTeleportRouteForZone(
+            actorZone.Value,
+            out _,
+            out _,
+            out _);
     }
 
     static int GetNpcCooldownKey(GameObject actor)
     {
         return actor != null ? actor.GetInstanceID() : 0;
+    }
+
+    static bool IsNpcReentryLocked(int cooldownKey)
+    {
+        if (npcTeleportReentryLocks.TryGetValue(
+                cooldownKey,
+                out float reentryUnlockedAt) &&
+            Time.time < reentryUnlockedAt)
+        {
+            return true;
+        }
+
+        if (npcTeleportReentryLocks.ContainsKey(cooldownKey) &&
+            Time.time >= npcTeleportReentryLocks[cooldownKey])
+        {
+            npcTeleportReentryLocks.Remove(cooldownKey);
+        }
+
+        return false;
     }
 
     GameObject ResolveActorRoot(Collider2D hit)
@@ -267,14 +368,22 @@ public class NpcTeleportGate : MonoBehaviour
             return false;
         }
 
-        SyncSameSceneTeleportTarget();
-        if (sameSceneTeleport != null &&
-            sameSceneTeleport.TryTeleport(actor, true))
+        NpcMapZone? actorZone = NpcMapNavigator.ResolveActorZone(actor);
+        if (!actorZone.HasValue)
         {
-            return true;
+            return false;
         }
 
-        Vector3 targetPosition = ExitPosition;
+        if (!TryGetTeleportRouteForZone(
+                actorZone.Value,
+                out _,
+                out Vector3 exitPosition,
+                out _))
+        {
+            return false;
+        }
+
+        Vector3 targetPosition = exitPosition;
         Rigidbody2D rb = actor.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
@@ -283,12 +392,28 @@ public class NpcTeleportGate : MonoBehaviour
         }
 
         actor.transform.position = targetPosition;
+
+        if (sameSceneTeleport == null ||
+            sameSceneTeleport.refreshCameraBounds)
+        {
+            RefreshCameraBounds();
+        }
+
         actor.SendMessage(
             "OnNpcMapTeleported",
             gameObject,
             SendMessageOptions.DontRequireReceiver);
 
         return true;
+    }
+
+    void RefreshCameraBounds()
+    {
+        CameraBounds bounds = FindAnyObjectByType<CameraBounds>();
+        if (bounds != null)
+        {
+            bounds.RefreshBounds();
+        }
     }
 
     void OnEnable()
@@ -304,9 +429,4 @@ public class NpcTeleportGate : MonoBehaviour
         gates.Remove(this);
     }
 
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(EntryPosition, Mathf.Max(0f, npcAutoUseRadius));
-    }
 }

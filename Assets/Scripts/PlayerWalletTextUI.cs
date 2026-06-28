@@ -67,44 +67,11 @@ public class PlayerWalletTextUI : MonoBehaviour
     string FormatLinhThach(long amount)
     {
         string textValue =
-            FormatCompactAmount(amount);
+            NpcEconomy.FormatCompactAmount(amount);
 
         return showCurrencyShortName
             ? textValue + " " + NpcEconomy.CurrencyShortName
             : textValue;
-    }
-
-    string FormatCompactAmount(long amount)
-    {
-        if (amount >= 1000000000000)
-        {
-            return
-                (amount / 1000000000000f)
-                .ToString("0.#") + "T";
-        }
-
-        if (amount >= 1000000000)
-        {
-            return
-                (amount / 1000000000f)
-                .ToString("0.#") + "B";
-        }
-
-        if (amount >= 1000000)
-        {
-            return
-                (amount / 1000000f)
-                .ToString("0.#") + "M";
-        }
-
-        if (amount >= 1000)
-        {
-            return
-                (amount / 1000f)
-                .ToString("0.#") + "K";
-        }
-
-        return amount.ToString();
     }
 
     void RefreshIcon()
@@ -140,7 +107,8 @@ public class PlayerWalletTextUI : MonoBehaviour
         if (wallet == null)
         {
             wallet =
-                FindObjectOfType<PlayerWallet>(true);
+                FindAnyObjectByType<PlayerWallet>(
+                    FindObjectsInactive.Include);
         }
     }
 }

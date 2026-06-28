@@ -91,23 +91,48 @@ public class NPCVisualAnimation : MonoBehaviour
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
 
+        RebindAnimatorController(
+            animator != null ? animator.runtimeAnimatorController : null);
+    }
+
+    public void RebindAnimatorController(
+        RuntimeAnimatorController controller)
+    {
+        animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+
+        if (animator == null)
+        {
+            return;
+        }
+
+        currentClip = null;
+
+        if (controller == null)
+        {
+            overrideController = null;
+            return;
+        }
+
+        animator.runtimeAnimatorController = controller;
         TryAssignClipsFromAnimator(this);
 
-        if (animator != null &&
-            animator.runtimeAnimatorController != null)
+        AnimationClip[] originalClips = controller.animationClips;
+        if (originalClips != null &&
+            originalClips.Length > 0)
         {
-            AnimationClip[] originalClips =
-                animator.runtimeAnimatorController.animationClips;
-
-            if (originalClips.Length > 0)
-            {
-                overrideController =
-                    new AnimatorOverrideController(
-                        animator.runtimeAnimatorController);
-                overrideClipName = originalClips[0].name;
-                animator.runtimeAnimatorController = overrideController;
-            }
+            overrideController =
+                new AnimatorOverrideController(controller);
+            overrideClipName = originalClips[0].name;
+            animator.runtimeAnimatorController = overrideController;
         }
+        else
+        {
+            overrideController = null;
+        }
+
+        animator.Rebind();
+        animator.Update(0f);
     }
 
     public void UpdateNPCAnimation(

@@ -1,0 +1,663 @@
+fileFormatVersion: 2
+guid: d59a7ac516b688c4e8d6fa78d0eb7e04
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -8300482940462494977
+    second: laoba3_0
+  - first:
+      213: -4695530899736661933
+    second: laoba3_1
+  - first:
+      213: 4740909757381807355
+    second: laoba3_2
+  - first:
+      213: 5006680660042829874
+    second: laoba3_3
+  - first:
+      213: 8734467117679498831
+    second: laoba3_4
+  - first:
+      213: -5443887828484241651
+    second: laoba3_5
+  - first:
+      213: 6199197896006689830
+    second: laoba3_6
+  - first:
+      213: -4029763156967834189
+    second: laoba3_7
+  - first:
+      213: -1322957301602874139
+    second: laoba3_8
+  - first:
+      213: 3860854196817897498
+    second: laoba3_9
+  - first:
+      213: 3975099986886029721
+    second: laoba3_10
+  - first:
+      213: 4879186786666108546
+    second: laoba3_11
+  - first:
+      213: -4050921432966096348
+    second: laoba3_12
+  - first:
+      213: -6123098939955648846
+    second: laoba3_13
+  - first:
+      213: -5217949397019538705
+    second: laoba3_14
+  - first:
+      213: -4529812633749512210
+    second: laoba3_15
+  - first:
+      213: 412943899634173825
+    second: laoba3_16
+  - first:
+      213: -6826878899432371631
+    second: laoba3_17
+  - first:
+      213: 2925091175045336467
+    second: laoba3_18
+  - first:
+      213: -9090835511166540066
+    second: laoba3_19
+  - first:
+      213: -8433688779067436089
+    second: laoba3_20
+  - first:
+      213: -6575572272615102662
+    second: laoba3_21
+  - first:
+      213: 7686655252436562482
+    second: laoba3_22
+  - first:
+      213: 8960280338597477739
+    second: laoba3_23
+  - first:
+      213: -3937757951448887939
+    second: laoba3_24
+  - first:
+      213: 5421402714448658425
+    second: laoba3_25
+  - first:
+      213: -3061624898248967728
+    second: laoba3_26
+  - first:
+      213: -2826755843154602569
+    second: laoba3_27
+  - first:
+      213: -1745420425227537297
+    second: laoba3_28
+  - first:
+      213: 8134689402400052189
+    second: laoba3_29
+  - first:
+      213: -6368179698520557763
+    second: laoba3_30
+  - first:
+      213: -4258069922820730032
+    second: laoba3_31
+  - first:
+      213: 4309666740308514457
+    second: laoba3_32
+  - first:
+      213: -3913949788539319076
+    second: laoba3_33
+  - first:
+      213: 4256737480084237882
+    second: laoba3_34
+  - first:
+      213: -8179431452766763593
+    second: laoba3_35
+  - first:
+      213: -6118827001600875747
+    second: laoba3_36
+  - first:
+      213: 2266359306710779832
+    second: laoba3_37
+  - first:
+      213: -8512493482407474169
+    second: laoba3_38
+  - first:
+      213: 7472471421761057212
+    second: laoba3_39
+  - first:
+      213: -1227004649984779000
+    second: laoba3_40
+  - first:
+      213: -2310288774128782495
+    second: laoba3_41
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 32
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: laoba3_0
+      rect:
+        serializedVersion: 2
+        x: 1004
+        y: 930
+        width: 200
+        height: 264
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ffa0b855eb2cecc80800000000000000
+      internalID: -8300482940462494977
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: laoba3_7
+      rect:
+        serializedVersion: 2
+        x: 195
+        y: 943
+        width: 186
+        height: 251
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3bdb9f362c76318c0800000000000000
+      internalID: -4029763156967834189
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: laoba3_8
+      rect:
+        serializedVersion: 2
+        x: 475
+        y: 943
+        width: 154
+        height: 251
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ec83f0f759e3ade0800000000000000
+      internalID: -1322957301602874139
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: laoba3_9
+      rect:
+        serializedVersion: 2
+        x: 714
+        y: 943
+        width: 180
+        height: 245
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a1828e2bf62849530800000000000000
+      internalID: 3860854196817897498
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: laoba3_16
+      rect:
+        serializedVersion: 2
+        x: 243
+        y: 658
+        width: 190
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1870cd1f9421bb500800000000000000
+      internalID: 412943899634173825
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: laoba3_17
+      rect:
+        serializedVersion: 2
+        x: 477
+        y: 658
+        width: 151
+        height: 249
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 15a49b2bfcd0241a0800000000000000
+      internalID: -6826878899432371631
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: laoba3_18
+      rect:
+        serializedVersion: 2
+        x: 760
+        y: 651
+        width: 137
+        height: 254
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39d05380de2089820800000000000000
+      internalID: 2925091175045336467
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: laoba3_19
+      rect:
+        serializedVersion: 2
+        x: 999
+        y: 658
+        width: 198
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ed66965944dd6d180800000000000000
+      internalID: -9090835511166540066
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: laoba3_25
+      rect:
+        serializedVersion: 2
+        x: 208
+        y: 372
+        width: 157
+        height: 246
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9fffc038b01bc3b40800000000000000
+      internalID: 5421402714448658425
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: laoba3_26
+      rect:
+        serializedVersion: 2
+        x: 479
+        y: 374
+        width: 135
+        height: 249
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d9f060506ce285d0800000000000000
+      internalID: -3061624898248967728
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: laoba3_27
+      rect:
+        serializedVersion: 2
+        x: 675
+        y: 373
+        width: 218
+        height: 243
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b59206998855c8d0800000000000000
+      internalID: -2826755843154602569
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: laoba3_28
+      rect:
+        serializedVersion: 2
+        x: 939
+        y: 371
+        width: 192
+        height: 247
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f64f992fe5507c7e0800000000000000
+      internalID: -1745420425227537297
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: laoba3_33
+      rect:
+        serializedVersion: 2
+        x: 246
+        y: 84
+        width: 159
+        height: 248
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cdc0661876bdea9c0800000000000000
+      internalID: -3913949788539319076
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: laoba3_34
+      rect:
+        serializedVersion: 2
+        x: 494
+        y: 86
+        width: 135
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a3e238a5f28f21b30800000000000000
+      internalID: 4256737480084237882
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: laoba3_35
+      rect:
+        serializedVersion: 2
+        x: 726
+        y: 84
+        width: 219
+        height: 243
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b50e212e62dc7e80800000000000000
+      internalID: -8179431452766763593
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: laoba3_36
+      rect:
+        serializedVersion: 2
+        x: 1010
+        y: 77
+        width: 188
+        height: 244
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d13e28fc24f851ba0800000000000000
+      internalID: -6118827001600875747
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: b89c3196ea8e22448810ce59fd1b3eec
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      laoba3_0: -8300482940462494977
+      laoba3_1: -4695530899736661933
+      laoba3_10: 3975099986886029721
+      laoba3_11: 4879186786666108546
+      laoba3_12: -4050921432966096348
+      laoba3_13: -6123098939955648846
+      laoba3_14: -5217949397019538705
+      laoba3_15: -4529812633749512210
+      laoba3_16: 412943899634173825
+      laoba3_17: -6826878899432371631
+      laoba3_18: 2925091175045336467
+      laoba3_19: -9090835511166540066
+      laoba3_2: 4740909757381807355
+      laoba3_20: -8433688779067436089
+      laoba3_21: -6575572272615102662
+      laoba3_22: 7686655252436562482
+      laoba3_23: 8960280338597477739
+      laoba3_24: -3937757951448887939
+      laoba3_25: 5421402714448658425
+      laoba3_26: -3061624898248967728
+      laoba3_27: -2826755843154602569
+      laoba3_28: -1745420425227537297
+      laoba3_29: 8134689402400052189
+      laoba3_3: 5006680660042829874
+      laoba3_30: -6368179698520557763
+      laoba3_31: -4258069922820730032
+      laoba3_32: 4309666740308514457
+      laoba3_33: -3913949788539319076
+      laoba3_34: 4256737480084237882
+      laoba3_35: -8179431452766763593
+      laoba3_36: -6118827001600875747
+      laoba3_37: 2266359306710779832
+      laoba3_38: -8512493482407474169
+      laoba3_39: 7472471421761057212
+      laoba3_4: 8734467117679498831
+      laoba3_40: -1227004649984779000
+      laoba3_41: -2310288774128782495
+      laoba3_5: -5443887828484241651
+      laoba3_6: 6199197896006689830
+      laoba3_7: -4029763156967834189
+      laoba3_8: -1322957301602874139
+      laoba3_9: 3860854196817897498
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

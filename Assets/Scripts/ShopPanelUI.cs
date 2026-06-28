@@ -409,7 +409,8 @@ public class ShopPanelUI : MonoBehaviour
     void AutoFindMissingReferences()
     {
         InventoryToggleButton inventoryToggle =
-            FindObjectOfType<InventoryToggleButton>(true);
+            FindAnyObjectByType<InventoryToggleButton>(
+                FindObjectsInactive.Include);
 
         if (inventoryToggle != null &&
             inventoryToggle.inventoryPanel != null)
@@ -421,7 +422,8 @@ public class ShopPanelUI : MonoBehaviour
         if (inventoryPanelUI == null)
         {
             inventoryPanelUI =
-                FindObjectOfType<InventoryPanelUI>(true);
+                FindAnyObjectByType<InventoryPanelUI>(
+                    FindObjectsInactive.Include);
         }
 
         if (inventoryPanelUI != null &&
@@ -434,13 +436,15 @@ public class ShopPanelUI : MonoBehaviour
         if (playerInventory == null)
         {
             playerInventory =
-                FindObjectOfType<ItemInventory>(true);
+                FindAnyObjectByType<ItemInventory>(
+                    FindObjectsInactive.Include);
         }
 
         if (playerWallet == null)
         {
             playerWallet =
-                FindObjectOfType<PlayerWallet>(true);
+                FindAnyObjectByType<PlayerWallet>(
+                    FindObjectsInactive.Include);
         }
 
         if (playerWallet == null &&
@@ -1547,7 +1551,8 @@ public class ShopPanelUI : MonoBehaviour
         }
 
         PlayerWalletTextUI[] walletTexts =
-            FindObjectsOfType<PlayerWalletTextUI>(true);
+            FindObjectsByType<PlayerWalletTextUI>(
+                FindObjectsInactive.Include);
 
         foreach (PlayerWalletTextUI walletText in walletTexts)
         {

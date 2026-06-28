@@ -45,7 +45,8 @@ public class TreasureFrenzySystem : MonoBehaviour
         }
 
         TreasureFrenzySystem existing =
-            FindObjectOfType<TreasureFrenzySystem>(true);
+            FindAnyObjectByType<TreasureFrenzySystem>(
+                FindObjectsInactive.Include);
 
         if (existing != null)
         {
@@ -151,11 +152,6 @@ public class TreasureFrenzySystem : MonoBehaviour
         List<TreasureParticipant> candidates =
             new List<TreasureParticipant>();
 
-        foreach (VillagerAI villager in FindObjectsByType<VillagerAI>(FindObjectsInactive.Exclude))
-        {
-            AddCandidate(candidates, villager.gameObject, ActorKind.Villager, frenzyEvent);
-        }
-
         foreach (SmartNpcAI smartNpc in FindObjectsByType<SmartNpcAI>(FindObjectsInactive.Exclude))
         {
             AddCandidate(candidates, smartNpc.gameObject, ActorKind.SmartNpc, frenzyEvent);
@@ -172,10 +168,9 @@ public class TreasureFrenzySystem : MonoBehaviour
         int maxLimit = Mathf.Clamp(maxParticipants, minLimit, 32);
         int limit = Random.Range(minLimit, maxLimit + 1);
 
-        int npcQuota = Mathf.Max(1, Mathf.RoundToInt(limit * 0.35f));
+        int smartNpcQuota = Mathf.Max(1, Mathf.RoundToInt(limit * 0.4f));
         int monsterQuota = Mathf.Max(1, Mathf.RoundToInt(limit * 0.35f));
-        AddTopCandidatesByKind(candidates, frenzyEvent.participants, ActorKind.Villager, npcQuota);
-        AddTopCandidatesByKind(candidates, frenzyEvent.participants, ActorKind.SmartNpc, npcQuota);
+        AddTopCandidatesByKind(candidates, frenzyEvent.participants, ActorKind.SmartNpc, smartNpcQuota);
         AddTopCandidatesByKind(candidates, frenzyEvent.participants, ActorKind.Monster, monsterQuota);
 
         for (int i = 0; i < candidates.Count && frenzyEvent.participants.Count < limit; i++)
@@ -403,7 +398,6 @@ public class TreasureFrenzySystem : MonoBehaviour
 
         if (participant.kind == ActorKind.Villager)
         {
-            participant.actor.GetComponent<VillagerAI>()?.ForceTreasureWait(origin, safeRadius, item, lowPowerSkirmish);
             return;
         }
 
@@ -767,7 +761,6 @@ public class TreasureFrenzySystem : MonoBehaviour
 
         if (participant.kind == ActorKind.Villager)
         {
-            participant.actor.GetComponent<VillagerAI>()?.ForceTreasureHunt(target, item);
             return;
         }
 
@@ -904,9 +897,9 @@ public class TreasureFrenzySystem : MonoBehaviour
             return 1f;
         }
 
-        return ((int)villager.realm * CultivationProgression.MaxStage) +
-            Mathf.Clamp(villager.realmStage, 1, CultivationProgression.MaxStage) +
-            villager.attack + villager.defense;
+        return Mathf.Max(
+            1f,
+            villager.maxHP * 0.05f);
     }
 
     bool IsDead(GameObject actor, ActorKind kind)

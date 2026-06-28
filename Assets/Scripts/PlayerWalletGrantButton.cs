@@ -11,7 +11,8 @@ public class PlayerWalletGrantButton : MonoBehaviour
         if (wallet == null)
         {
             wallet =
-                FindObjectOfType<PlayerWallet>(true);
+                FindAnyObjectByType<PlayerWallet>(
+                    FindObjectsInactive.Include);
         }
 
         if (wallet == null)
@@ -23,7 +24,8 @@ public class PlayerWalletGrantButton : MonoBehaviour
         wallet.AddLinhThach(amount, source);
 
         ShopPanelUI shopPanel =
-            FindObjectOfType<ShopPanelUI>(true);
+            FindAnyObjectByType<ShopPanelUI>(
+                FindObjectsInactive.Include);
 
         if (shopPanel != null)
         {

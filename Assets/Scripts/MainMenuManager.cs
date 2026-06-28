@@ -51,7 +51,7 @@ public class MainMenuManager : MonoBehaviour
         if (newGameIntroPanel == null)
         {
             newGameIntroPanel =
-                FindFirstObjectByType<NewGameIntroPanel>(
+                FindAnyObjectByType<NewGameIntroPanel>(
                     FindObjectsInactive.Include);
         }
 
@@ -122,9 +122,7 @@ public class MainMenuManager : MonoBehaviour
     void HookMainMenuButtonsByName()
     {
         Button[] buttons =
-            FindObjectsByType<Button>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
+            FindObjectsByType<Button>(FindObjectsInactive.Include);
 
         foreach (Button button in buttons)
         {
@@ -169,9 +167,7 @@ public class MainMenuManager : MonoBehaviour
     void EnsureSingleActiveEventSystem()
     {
         EventSystem[] systems =
-            FindObjectsByType<EventSystem>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
+            FindObjectsByType<EventSystem>(FindObjectsInactive.Include);
 
         if (systems.Length == 0)
         {
@@ -259,7 +255,7 @@ public class MainMenuManager : MonoBehaviour
 
     void EnsureCanvasRaycaster()
     {
-        Canvas canvas = FindFirstObjectByType<Canvas>();
+        Canvas canvas = FindAnyObjectByType<Canvas>();
 
         if (canvas == null)
         {
@@ -557,9 +553,7 @@ public class MainMenuManager : MonoBehaviour
     void HookSettingsButtonByName()
     {
         Button[] buttons =
-            FindObjectsByType<Button>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
+            FindObjectsByType<Button>(FindObjectsInactive.Include);
 
         foreach (Button button in buttons)
         {
@@ -677,7 +671,7 @@ public class MainMenuManager : MonoBehaviour
             return;
         }
 
-        Canvas canvas = FindFirstObjectByType<Canvas>();
+        Canvas canvas = FindAnyObjectByType<Canvas>();
 
         if (canvas == null)
         {

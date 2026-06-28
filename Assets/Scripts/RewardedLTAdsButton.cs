@@ -38,7 +38,7 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
             watchAdButton = GetComponent<Button>();
 
         if (playerWallet == null)
-            playerWallet = FindObjectOfType<PlayerWallet>();
+            playerWallet = FindAnyObjectByType<PlayerWallet>();
 
         if (watchAdButton != null)
         {
@@ -172,7 +172,7 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
     private void GiveReward()
     {
         if (playerWallet == null)
-            playerWallet = FindObjectOfType<PlayerWallet>();
+            playerWallet = FindAnyObjectByType<PlayerWallet>();
 
         if (playerWallet != null)
         {

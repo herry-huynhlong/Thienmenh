@@ -2,11 +2,23 @@ using UnityEngine;
 
 public static class NpcRoleUtility
 {
-    static VillagerAI GetActiveVillagerAI(GameObject npc)
+    static VillagerAI GetVillagerAI(GameObject npc)
     {
-        VillagerAI villager = npc != null
+        return npc != null
             ? npc.GetComponent<VillagerAI>()
             : null;
+    }
+
+    static SmartNpcAI GetSmartNpcAI(GameObject npc)
+    {
+        return npc != null
+            ? npc.GetComponent<SmartNpcAI>()
+            : null;
+    }
+
+    static VillagerAI GetActiveVillagerAI(GameObject npc)
+    {
+        VillagerAI villager = GetVillagerAI(npc);
         return villager != null && villager.enabled
             ? villager
             : null;
@@ -14,9 +26,7 @@ public static class NpcRoleUtility
 
     static SmartNpcAI GetActiveSmartNpcAI(GameObject npc)
     {
-        SmartNpcAI smartNpc = npc != null
-            ? npc.GetComponent<SmartNpcAI>()
-            : null;
+        SmartNpcAI smartNpc = GetSmartNpcAI(npc);
         return smartNpc != null && smartNpc.enabled
             ? smartNpc
             : null;
@@ -24,14 +34,34 @@ public static class NpcRoleUtility
 
     public static bool IsCommoner(GameObject npc)
     {
-        return npc != null &&
-            GetActiveVillagerAI(npc) != null;
+        if (npc == null)
+        {
+            return false;
+        }
+
+        if (GetActiveVillagerAI(npc) != null)
+        {
+            return true;
+        }
+
+        return GetVillagerAI(npc) != null &&
+            GetSmartNpcAI(npc) == null;
     }
 
     public static bool IsCultivator(GameObject npc)
     {
-        return npc != null &&
-            GetActiveSmartNpcAI(npc) != null;
+        if (npc == null)
+        {
+            return false;
+        }
+
+        if (GetActiveSmartNpcAI(npc) != null)
+        {
+            return true;
+        }
+
+        return GetSmartNpcAI(npc) != null &&
+            GetVillagerAI(npc) == null;
     }
 
     public static string GetRoleLabel(GameObject npc)
@@ -70,13 +100,15 @@ public static class NpcRoleUtility
             return profile.identity.entityName;
         }
 
-        VillagerAI villager = GetActiveVillagerAI(npc);
+        VillagerAI villager = GetActiveVillagerAI(npc) ??
+            GetVillagerAI(npc);
         if (villager != null)
         {
             return villager.villagerName;
         }
 
-        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc);
+        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc) ??
+            GetSmartNpcAI(npc);
         if (smartNpc != null)
         {
             return smartNpc.npcName;
@@ -106,41 +138,53 @@ public static class NpcRoleUtility
         CharacterStats stats = npc.GetComponent<CharacterStats>();
         if (stats != null)
         {
-            return Mathf.RoundToInt(CultivationProgression.GetStatPower(
-                stats.realm,
-                stats.realmStage,
-                stats.entityProfile != null &&
-                stats.entityProfile.kind == EntityKind.Beast
-                    ? EntityKind.Beast
-                    : EntityKind.Cultivator));
+            return CombatStatCalculator.ClampToInt(
+                CombatStatCalculator.GetRealmMultiplier(
+                    Mathf.Max(0, (int)stats.realm),
+                    Mathf.Clamp(
+                        stats.realmStage,
+                        1,
+                        CultivationProgression.MaxStage) - 1));
         }
 
-        VillagerAI villager = GetActiveVillagerAI(npc);
+        VillagerAI villager = GetActiveVillagerAI(npc) ??
+            GetVillagerAI(npc);
         if (villager != null)
         {
-            return Mathf.RoundToInt(CultivationProgression.GetStatPower(
-                villager.realm,
-                villager.realmStage,
-                EntityKind.Cultivator));
+            return CombatStatCalculator.ClampToInt(
+                CombatStatCalculator.GetRealmMultiplier(
+                    Mathf.Max(0, (int)villager.realm),
+                    Mathf.Clamp(
+                        villager.realmStage,
+                        1,
+                        CultivationProgression.MaxStage) - 1));
         }
 
-        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc);
+        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc) ??
+            GetSmartNpcAI(npc);
         if (smartNpc != null)
         {
-            return Mathf.RoundToInt(CultivationProgression.GetStatPower(
-                smartNpc.realm,
-                smartNpc.realmStage,
-                EntityKind.Cultivator));
+            return CombatStatCalculator.ClampToInt(
+                CombatStatCalculator.GetRealmMultiplier(
+                    Mathf.Max(0, (int)smartNpc.realm),
+                    Mathf.Clamp(
+                        smartNpc.realmStage,
+                        1,
+                        CultivationProgression.MaxStage) - 1));
         }
 
         MonsterAI monster = npc.GetComponent<MonsterAI>();
         if (monster != null)
         {
-            return Mathf.RoundToInt(CultivationProgression.GetStatPower(
-                monster.realm,
-                monster.realmStage,
-                EntityKind.Beast) *
-                CultivationProgression.GetEntityStatMultiplier(EntityKind.Beast));
+            return CombatStatCalculator.ClampToInt(
+                CombatStatCalculator.GetRealmMultiplier(
+                    Mathf.Max(0, (int)monster.realm),
+                    Mathf.Clamp(
+                        monster.realmStage,
+                        1,
+                        CultivationProgression.MaxStage) - 1) *
+                CultivationProgression.GetEntityStatMultiplier(
+                    EntityKind.Beast));
         }
 
         return 0;
@@ -169,13 +213,15 @@ public static class NpcRoleUtility
             return true;
         }
 
-        VillagerAI villager = GetActiveVillagerAI(npc);
+        VillagerAI villager = GetActiveVillagerAI(npc) ??
+            GetVillagerAI(npc);
         if (villager != null)
         {
             return villager.IsDead;
         }
 
-        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc);
+        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc) ??
+            GetSmartNpcAI(npc);
         if (smartNpc != null)
         {
             return smartNpc.IsDead;
@@ -225,13 +271,15 @@ public static class NpcRoleUtility
 
     static string GetCurrentAction(GameObject npc)
     {
-        VillagerAI villager = GetActiveVillagerAI(npc);
+        VillagerAI villager = GetActiveVillagerAI(npc) ??
+            GetVillagerAI(npc);
         if (villager != null)
         {
             return villager.currentAction;
         }
 
-        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc);
+        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc) ??
+            GetSmartNpcAI(npc);
         if (smartNpc != null)
         {
             return smartNpc.currentAction;
@@ -283,13 +331,15 @@ public static class NpcRoleUtility
             return Mathf.Max(1, stats.attack);
         }
 
-        VillagerAI villager = GetActiveVillagerAI(npc);
+        VillagerAI villager = GetActiveVillagerAI(npc) ??
+            GetVillagerAI(npc);
         if (villager != null)
         {
             return Mathf.Max(1, villager.attack);
         }
 
-        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc);
+        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc) ??
+            GetSmartNpcAI(npc);
         if (smartNpc != null)
         {
             return Mathf.Max(1, smartNpc.attack);
@@ -311,13 +361,15 @@ public static class NpcRoleUtility
             return Mathf.Max(0.1f, stats.moveSpeed);
         }
 
-        VillagerAI villager = GetActiveVillagerAI(npc);
+        VillagerAI villager = GetActiveVillagerAI(npc) ??
+            GetVillagerAI(npc);
         if (villager != null)
         {
             return Mathf.Max(0.1f, villager.moveSpeed);
         }
 
-        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc);
+        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc) ??
+            GetSmartNpcAI(npc);
         if (smartNpc != null)
         {
             return Mathf.Max(0.1f, smartNpc.moveSpeed);
@@ -334,7 +386,8 @@ public static class NpcRoleUtility
             return;
         }
 
-        VillagerAI villager = GetActiveVillagerAI(npc);
+        VillagerAI villager = GetActiveVillagerAI(npc) ??
+            GetVillagerAI(npc);
         if (villager != null)
         {
             if (!villager.IsActionLocked)
@@ -343,10 +396,11 @@ public static class NpcRoleUtility
             }
         }
 
-        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc);
+        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc) ??
+            GetSmartNpcAI(npc);
         if (smartNpc != null)
         {
-            smartNpc.currentAction = action;
+            smartNpc.ForceSetCurrentAction(action);
         }
     }
 
@@ -399,13 +453,15 @@ public static class NpcRoleUtility
             return;
         }
 
-        VillagerAI villager = GetActiveVillagerAI(npc);
+        VillagerAI villager = GetActiveVillagerAI(npc) ??
+            GetVillagerAI(npc);
         if (villager != null)
         {
             villager.StopForConversation();
         }
 
-        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc);
+        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc) ??
+            GetSmartNpcAI(npc);
         if (smartNpc != null)
         {
             smartNpc.StopForConversation();
@@ -432,13 +488,15 @@ public static class NpcRoleUtility
             return;
         }
 
-        VillagerAI villager = GetActiveVillagerAI(npc);
+        VillagerAI villager = GetActiveVillagerAI(npc) ??
+            GetVillagerAI(npc);
         if (villager != null)
         {
             villager.StopForConversation(duration);
         }
 
-        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc);
+        SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc) ??
+            GetSmartNpcAI(npc);
         if (smartNpc != null)
         {
             smartNpc.StopForConversation(duration);

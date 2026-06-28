@@ -29,6 +29,25 @@ public partial class SmartNpcAI
             return;
         }
 
+        if (!IsCurrentScheduleActivity(NpcScheduleActivity.Hunt))
+        {
+            ClearActiveHuntFlow();
+        }
+
+        if (TryHandleCombatSupport())
+        {
+            DebugFlow("ThinkHunt", "Combat support or retreat");
+            return;
+        }
+
+        if (TryHandleSmartTaskOverride())
+        {
+            DebugFlow(
+                "ThinkTask",
+                "Emergency task " + currentSmartTask.goal);
+            return;
+        }
+
         if (TryRunScheduledActivity())
         {
             DebugFlow("ThinkSchedule", "Handled by schedule");
@@ -134,7 +153,8 @@ public partial class SmartNpcAI
         }
 
         if (autonomousActivitiesEnabled &&
-            canFight)
+            canFight &&
+            canCompeteResource)
         {
             SearchMonster();
             DebugFlow("ThinkHunt", "Autonomous monster search");
@@ -170,10 +190,65 @@ public partial class SmartNpcAI
 
     bool HasActiveHuntTravelIntent()
     {
+        if (HasCombatSupportIntent())
+        {
+            return true;
+        }
+
+        bool isHuntOrFreeHunt =
+            IsCurrentScheduleActivity(NpcScheduleActivity.Hunt) ||
+            IsCurrentScheduleActivity(NpcScheduleActivity.FreeHuntAndGather);
+
+        if (!isHuntOrFreeHunt)
+        {
+            return false;
+        }
+
         return currentMonsterTarget != null ||
             currentAction == NpcText.Action("goHunt") ||
             currentAction == NpcText.Action("huntMonsterNamed") ||
             currentAction == NpcText.Action("attackMonsterNamed");
+    }
+
+    bool IsCurrentScheduleActivity(NpcScheduleActivity activity)
+    {
+        NpcScheduleController schedule =
+            GetComponent<NpcScheduleController>();
+
+        return schedule != null &&
+            schedule.enforceSchedule &&
+            NpcScheduleController.IsMatchingActivity(
+                schedule.CurrentActivity,
+                activity);
+    }
+
+    void ClearActiveHuntFlow()
+    {
+        ReleaseMonsterReservation();
+        ClearHelpRequestState();
+        isRetreatingFromMonster = false;
+        retreatUntilTime = 0f;
+        retreatTarget = Vector3.zero;
+
+        if (currentMonsterTarget == null &&
+            currentAction != NpcText.Action("goHunt") &&
+            currentAction != NpcText.Action("huntMonsterNamed") &&
+            currentAction != NpcText.Action("attackMonsterNamed"))
+        {
+            return;
+        }
+
+        currentMonsterTarget = null;
+        currentTarget = null;
+        hasWanderTarget = false;
+        StopNpcMovement();
+
+        if (currentAction == NpcText.Action("goHunt") ||
+            currentAction == NpcText.Action("huntMonsterNamed") ||
+            currentAction == NpcText.Action("attackMonsterNamed"))
+        {
+            currentAction = string.Empty;
+        }
     }
 
     bool CanUseScheduledCultivation()

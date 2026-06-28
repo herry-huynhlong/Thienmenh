@@ -30,34 +30,33 @@ public partial class SmartNpcAI
 
         bool preserveActiveFlow =
             HasLockedDirectedTarget() ||
-            currentMonsterTarget != null ||
+            (currentSmartTask != null &&
+            currentSmartTask.priority > SmartAITaskPriority.Normal) ||
+            HasCombatSupportIntent() ||
+            (NpcScheduleController.IsMatchingActivity(
+                schedule.CurrentActivity,
+                NpcScheduleActivity.Hunt) &&
+            (currentMonsterTarget != null ||
             currentAction == NpcText.Action("goHunt") ||
             currentAction == NpcText.Action("huntMonsterNamed") ||
-            currentAction == NpcText.Action("attackMonsterNamed") ||
+            currentAction == NpcText.Action("attackMonsterNamed"))) ||
             waitingOutsideTreasureLightning ||
             treasureHuntTarget != null ||
-            hasTreasureWaitPosition;
+            hasTreasureWaitPosition ||
+            IsTeleportRouteAction(currentAction);
 
         currentScheduleSlotKey = key;
         if (!preserveActiveFlow)
         {
-            currentTarget = null;
+            ClearTravelTargetsAndStop();
             currentMonsterTarget = null;
             treasureHuntTarget = null;
             treasureHuntItem = null;
             waitingOutsideTreasureLightning = false;
-            hasWanderTarget = false;
             hasCultivationTarget = false;
-            hasEscapeTarget = false;
             hasHomeReturnTarget = false;
-            hasObstacleAvoidTarget = false;
             actionTimer = 0f;
             currentAction = string.Empty;
-
-            if (rb != null)
-            {
-                rb.linearVelocity = Vector2.zero;
-            }
 
             UpdateCultivationEffect(false);
 
@@ -71,8 +70,19 @@ public partial class SmartNpcAI
             DebugFlow("ScheduleSlot", "Preserve active travel flow");
         }
 
+        RequestScheduledTask(
+            MapScheduleActivityToSmartGoal(schedule.CurrentActivity),
+            "schedule " + schedule.CurrentActivity);
+        DebugFlow(
+            "ScheduleGoal",
+            "hour=" + GetCurrentWorldHour().ToString("0.00") +
+            " activity=" + schedule.CurrentActivity +
+            " mappedGoal=" +
+            MapScheduleActivityToSmartGoal(schedule.CurrentActivity));
+
         if (schedule.CurrentActivity == NpcScheduleActivity.Gather ||
-            schedule.CurrentActivity == NpcScheduleActivity.Hunt)
+            schedule.CurrentActivity == NpcScheduleActivity.Hunt ||
+            schedule.CurrentActivity == NpcScheduleActivity.FreeHuntAndGather)
         {
             schedule.ClearCurrentSlotActivityState(schedule.CurrentActivity);
         }
@@ -85,6 +95,31 @@ public partial class SmartNpcAI
         return day + ":" + activity + ":" +
             Mathf.RoundToInt(slot.startHour * 100f) + ":" +
             Mathf.RoundToInt(slot.endHour * 100f);
+    }
+
+    void ClearTravelTargets(bool clearWanderTarget = true)
+    {
+        currentTarget = null;
+        if (clearWanderTarget)
+        {
+            hasWanderTarget = false;
+        }
+        hasEscapeTarget = false;
+        hasObstacleAvoidTarget = false;
+    }
+
+    void StopNpcMovement()
+    {
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+    }
+
+    void ClearTravelTargetsAndStop(bool clearWanderTarget = true)
+    {
+        ClearTravelTargets(clearWanderTarget);
+        StopNpcMovement();
     }
 
     bool TryRunScheduledActivity()
@@ -110,6 +145,16 @@ public partial class SmartNpcAI
         }
 
         DebugFlow("ScheduleRun", "Activity " + activity);
+
+        if (HasEmergencySmartTask &&
+            currentSmartTask.goal != MapScheduleActivityToSmartGoal(activity))
+        {
+            DebugFlow(
+                "ScheduleRun",
+                "Emergency task active, keep current override " +
+                currentSmartTask.goal);
+            return true;
+        }
 
         if (canLive &&
             slot.allowHungerInterrupt &&
@@ -141,7 +186,13 @@ public partial class SmartNpcAI
 
         if (HasActiveHuntTravelIntent())
         {
-            if (canFight)
+            if (isRetreatingFromMonster)
+            {
+                WaitForScheduledActivity(NpcScheduleActivity.Hunt);
+                return true;
+            }
+
+            if (canFight && currentMonsterTarget != null)
             {
                 SearchMonster();
             }
@@ -200,6 +251,73 @@ public partial class SmartNpcAI
                 }
                 return true;
 
+            case NpcScheduleActivity.DoMission:
+                DebugFlow(
+                    "DoMission",
+                    "Begin quota=" + GetDailyTaskQuotaDebugText() +
+                    " canVisit=" + CanVisitTaskProviderToday());
+                if (!HasDailyTaskQuotaRemaining())
+                {
+                    DebugFlow(
+                        "DoMission",
+                        "Blocked by quota quota=" + GetDailyTaskQuotaDebugText());
+                    WaitForScheduledActivity(NpcScheduleActivity.DoMission);
+                    return true;
+                }
+
+                bool didVisitTaskProvider = TryVisitTaskProvider();
+                DebugFlow(
+                    "DoMission",
+                    "TryVisitTaskProvider result=" + didVisitTaskProvider +
+                    " quota=" + GetDailyTaskQuotaDebugText());
+                if (!didVisitTaskProvider)
+                {
+                    WaitForScheduledActivity(NpcScheduleActivity.DoMission);
+                }
+                return true;
+
+            case NpcScheduleActivity.FreeHuntAndGather:
+                if (canFight && canCompeteResource)
+                {
+                    SearchMonster();
+                    return true;
+                }
+
+                if (canGather && canCompeteResource)
+                {
+                    if (!TryStartResourceGatheringRoutine())
+                    {
+                        WaitForScheduledActivity(NpcScheduleActivity.FreeHuntAndGather);
+                    }
+
+                    return true;
+                }
+
+                WaitForScheduledActivity(NpcScheduleActivity.FreeHuntAndGather);
+                return true;
+
+            case NpcScheduleActivity.TradeBuySell:
+                if (!canTrade)
+                {
+                    WaitForScheduledActivity(NpcScheduleActivity.TradeBuySell);
+                    return true;
+                }
+
+                if (HasSellableGoods() &&
+                    TryStartSellGoodsRoutine())
+                {
+                    return true;
+                }
+
+                if (money >= 50)
+                {
+                    GoToTavernAndBuyPill();
+                    return true;
+                }
+
+                WaitForScheduledActivity(NpcScheduleActivity.TradeBuySell);
+                return true;
+
             case NpcScheduleActivity.BuyGoods:
                 if (canTrade && money >= 50)
                 {
@@ -231,6 +349,12 @@ public partial class SmartNpcAI
                 return true;
 
             case NpcScheduleActivity.Gather:
+                if (!canCompeteResource)
+                {
+                    WaitForScheduledActivity(NpcScheduleActivity.Gather);
+                    return true;
+                }
+
                 if (!TryStartResourceGatheringRoutine())
                 {
                     WaitForScheduledActivity(NpcScheduleActivity.Gather);
@@ -238,6 +362,12 @@ public partial class SmartNpcAI
                 return true;
 
             case NpcScheduleActivity.Hunt:
+                if (!canFight || !canCompeteResource)
+                {
+                    WaitForScheduledActivity(NpcScheduleActivity.Hunt);
+                    return true;
+                }
+
                 if (canFight)
                 {
                     SearchMonster();
@@ -295,16 +425,8 @@ public partial class SmartNpcAI
             return;
         }
 
-        currentTarget = null;
-        hasWanderTarget = false;
-        hasEscapeTarget = false;
-        hasObstacleAvoidTarget = false;
+        ClearTravelTargetsAndStop();
         actionTimer = Mathf.Max(actionTimer, GameHoursToSeconds(0.15f));
-
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector2.zero;
-        }
 
         UpdateCultivationEffect(false);
         currentAction = "waitSchedule" + activity;
@@ -319,6 +441,29 @@ public partial class SmartNpcAI
             schedule.lifePath == NpcLifePath.Cultivator;
     }
 
+    SmartAITaskGoal MapScheduleActivityToSmartGoal(
+        NpcScheduleActivity activity)
+    {
+        switch (activity)
+        {
+            case NpcScheduleActivity.Cultivate:
+                return SmartAITaskGoal.Cultivate;
+            case NpcScheduleActivity.DoMission:
+            case NpcScheduleActivity.TakeTask:
+                return SmartAITaskGoal.DoMission;
+            case NpcScheduleActivity.FreeHuntAndGather:
+            case NpcScheduleActivity.Hunt:
+            case NpcScheduleActivity.Gather:
+                return SmartAITaskGoal.FreeHuntAndGather;
+            case NpcScheduleActivity.TradeBuySell:
+            case NpcScheduleActivity.BuyGoods:
+            case NpcScheduleActivity.SellGoods:
+                return SmartAITaskGoal.TradeBuySell;
+            default:
+                return SmartAITaskGoal.None;
+        }
+    }
+
     void StartIdleWander()
     {
         actionTimer =
@@ -326,17 +471,21 @@ public partial class SmartNpcAI
                 actionTimer,
                 GameHoursToSeconds(Random.Range(0.4f, 1.2f)));
         currentAction = "";
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector2.zero;
-        }
+        StopNpcMovement();
     }
 
     void ConfigureAutonomousWorkSystems()
     {
-        if (canGather)
+        NpcItemCollector itemCollector = GetComponent<NpcItemCollector>();
+        if (itemCollector != null)
         {
-            if (GetComponent<NpcItemCollector>() == null)
+            itemCollector.canPickupItems =
+                canGather && canCompeteResource;
+        }
+
+        if (canGather && canCompeteResource)
+        {
+            if (itemCollector == null)
             {
                 gameObject.AddComponent<NpcItemCollector>();
             }
@@ -348,6 +497,14 @@ public partial class SmartNpcAI
             }
 
             resourceGatherer.canGather = true;
+        }
+        else
+        {
+            resourceGatherer = GetComponent<NpcResourceGatherer>();
+            if (resourceGatherer != null)
+            {
+                resourceGatherer.canGather = false;
+            }
         }
 
         if (canTrade || canSellGoods)
@@ -392,11 +549,8 @@ public partial class SmartNpcAI
             if (currentTarget == null &&
                 currentAction != NpcText.Action("buyPill"))
             {
-                if (rb != null)
-                {
-                    rb.linearVelocity = Vector2.zero;
-                    currentAction = "";
-                }
+                ClearTravelTargetsAndStop();
+                currentAction = "";
 
                 StartIdleWander();
                 return true;
@@ -411,17 +565,15 @@ public partial class SmartNpcAI
         }
 
         if (canFight &&
+            canCompeteResource &&
             bravery >= 45 &&
             Random.value < 0.25f)
         {
             SearchMonster();
             if (currentMonsterTarget == null)
             {
-                if (rb != null)
-                {
-                    rb.linearVelocity = Vector2.zero;
-                    currentAction = "";
-                }
+                ClearTravelTargetsAndStop();
+                currentAction = "";
 
                 StartIdleWander();
                 return true;
@@ -541,20 +693,18 @@ public partial class SmartNpcAI
     {
         currentForgeTradeTarget = null;
         currentForgeTradeItem = null;
-        currentTarget = null;
-        hasWanderTarget = false;
-        hasEscapeTarget = false;
-        hasObstacleAvoidTarget = false;
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector2.zero;
-        }
+        ClearTravelTargetsAndStop();
     }
 
     bool TryVisitTaskProvider()
     {
         if (!CanVisitTaskProviderToday())
         {
+            DebugFlow(
+                "TaskProvider",
+                "Visit blocked enabled=" + dailyTaskVisitEnabled +
+                " quota=" + GetDailyTaskQuotaDebugText() +
+                " window=" + IsTaskProviderWindow());
             return false;
         }
 
@@ -563,37 +713,74 @@ public partial class SmartNpcAI
 
         if (provider == null)
         {
-            DebugFlow("TaskProvider", "No provider found");
+            DebugFlow(
+                "TaskProvider",
+                "No provider found quota=" + GetDailyTaskQuotaDebugText());
             return false;
         }
 
         Vector3 providerPosition =
             provider.GetProviderPositionFor(gameObject);
+        float providerArriveDistance =
+            Mathf.Max(
+                0.45f,
+                targetClearRadius * 2f,
+                provider.providerTalkDistance * 0.9f);
+        bool inProviderRange =
+            provider.IsNpcInProviderInteractionRange(gameObject);
 
         currentAction = NpcText.Action("goTaskProviderDaily");
 
-        if (Vector2.Distance(transform.position, providerPosition) > 1.5f)
+        if (!inProviderRange &&
+            Vector2.Distance(transform.position, providerPosition) >
+            providerArriveDistance)
         {
-            currentTarget = provider.transform;
-            hasWanderTarget = false;
+            ClearTravelTargets();
+            currentTarget = null;
+            wanderTarget = providerPosition;
+            hasWanderTarget = true;
             actionTimer = 0f;
-            DebugFlow("TaskProvider", "Moving to provider");
+            DebugFlow(
+                "TaskProvider",
+                "Moving to provider " + provider.name +
+                " stand=" + providerPosition +
+                " quota=" + GetDailyTaskQuotaDebugText());
             return true;
         }
 
-        currentTarget = null;
-        hasWanderTarget = false;
+        if (!inProviderRange)
+        {
+            ClearTravelTargets();
+            currentTarget = null;
+            wanderTarget = providerPosition;
+            hasWanderTarget = true;
+            actionTimer = 0f;
+            DebugFlow(
+                "TaskProvider",
+                "Adjusting to exact provider stand " + provider.name +
+                " stand=" + providerPosition +
+                " quota=" + GetDailyTaskQuotaDebugText());
+            return true;
+        }
+
+        ClearTravelTargets();
 
         if (provider.TryHandleVisitor(gameObject))
         {
             MarkDailyTaskAccepted();
-            DebugFlow("TaskProvider", "Handled by provider");
+            DebugFlow(
+                "TaskProvider",
+                "Handled by provider " + provider.name +
+                " quota=" + GetDailyTaskQuotaDebugText());
             return true;
         }
 
         actionTimer = Mathf.Max(thinkDelay, GameHoursToSeconds(0.15f));
         currentAction = NpcText.Action("visitedTaskProvider");
-        DebugFlow("TaskProvider", "Visited but no task handled");
+        DebugFlow(
+            "TaskProvider",
+            "Visited but no task handled provider=" + provider.name +
+            " quota=" + GetDailyTaskQuotaDebugText());
         return true;
     }
 

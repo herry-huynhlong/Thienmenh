@@ -250,7 +250,7 @@ public class WheelSlotAutoLayout : MonoBehaviour
 
             if (textStayOneLine)
             {
-                tmp.enableWordWrapping = false;
+                tmp.textWrappingMode = TextWrappingModes.NoWrap;
                 tmp.overflowMode = TextOverflowModes.Overflow;
             }
 

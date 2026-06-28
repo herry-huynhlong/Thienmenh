@@ -423,6 +423,11 @@ public class StatItemData : ScriptableObject
             return false;
         }
 
+        if (IsBlockedCultivationPillForCommoner(target))
+        {
+            return false;
+        }
+
         if (awakenVillagerToSmartNpc)
         {
             SmartNpcAI smartNpc =
@@ -818,6 +823,11 @@ public class StatItemData : ScriptableObject
             return false;
         }
 
+        if (IsBlockedCultivationPillForCommoner(target))
+        {
+            return false;
+        }
+
         if (awakenVillagerToSmartNpc &&
             direction > 0)
         {
@@ -876,6 +886,31 @@ public class StatItemData : ScriptableObject
         }
 
         return false;
+    }
+
+    bool IsBlockedCultivationPillForCommoner(GameObject target)
+    {
+        if (target == null ||
+            itemType != ItemType.DanDuoc ||
+            awakenVillagerToSmartNpc)
+        {
+            return false;
+        }
+
+        if (pillKind != PillKind.Cultivation &&
+            pillKind != PillKind.Breakthrough)
+        {
+            return false;
+        }
+
+        VillagerAI villager =
+            target.GetComponent<VillagerAI>();
+        SmartNpcAI smartNpc =
+            target.GetComponent<SmartNpcAI>();
+
+        return villager != null &&
+            villager.enabled &&
+            (smartNpc == null || !smartNpc.enabled);
     }
 
     ItemTargetType GetTargetType(GameObject target)

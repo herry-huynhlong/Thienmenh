@@ -6,7 +6,7 @@ public static class CultivationProgression
     public const int SpiritStoneBaseExp = 10;
     public const int NpcBaseMaxHP = 100;
     public const int NpcBaseAttack = 10;
-    public const int NpcBaseDefense = 5;
+    public const int NpcBaseDefense = 3;
     public const float MonsterStatMultiplier = 1.5f;
 
     static readonly int[] mortalStageExp =
@@ -157,14 +157,29 @@ public static class CultivationProgression
         int stage,
         EntityKind kind)
     {
-        int realmIndex = Mathf.Max(0, (int)realm);
-        int clampedStage = Mathf.Clamp(stage, 1, MaxStage);
-        float power =
-            1f +
-            (realmIndex * 0.75f) +
-            ((clampedStage - 1) * 0.1f);
+        int majorRealmIndex = Mathf.Max(0, (int)realm);
+        int minorStageIndex = Mathf.Clamp(stage, 1, MaxStage) - 1;
 
-        return Mathf.Max(1f, power);
+        return Mathf.Max(
+            1f,
+            (float)CombatStatCalculator.GetRealmMultiplier(
+                majorRealmIndex,
+                minorStageIndex));
+    }
+
+    public static float GetCultivationRealmMultiplier(
+        CultivationRealm realm,
+        int stage)
+    {
+        int majorRealmIndex = Mathf.Max(0, (int)realm);
+        int stageIndex = Mathf.Clamp(stage, 1, MaxStage);
+
+        float majorMultiplier = majorRealmIndex <= 0
+            ? 0.25f
+            : Mathf.Pow(10f, Mathf.Max(0, majorRealmIndex - 1));
+        float stageMultiplier = 1f + Mathf.Max(0, stageIndex - 1) * 0.1f;
+
+        return Mathf.Max(0.1f, majorMultiplier * stageMultiplier);
     }
 
     public static float GetEntityStatMultiplier(EntityKind kind)
@@ -176,17 +191,17 @@ public static class CultivationProgression
 
     public static int GetConfiguredBaseMaxHP()
     {
-        return NpcBaseMaxHP;
+        return CombatStatCalculator.ClampToInt(CombatStatCalculator.BaseHp);
     }
 
     public static int GetConfiguredBaseAttack()
     {
-        return NpcBaseAttack;
+        return CombatStatCalculator.ClampToInt(CombatStatCalculator.BaseAttack);
     }
 
     public static int GetConfiguredBaseDefense()
     {
-        return NpcBaseDefense;
+        return CombatStatCalculator.ClampToInt(CombatStatCalculator.BaseDefense);
     }
 }
 

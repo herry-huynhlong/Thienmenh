@@ -169,7 +169,7 @@ public class DoorTeleportSameScene : MonoBehaviour
     void RefreshCameraBounds()
     {
         CameraBounds bounds =
-            FindFirstObjectByType<CameraBounds>();
+            FindAnyObjectByType<CameraBounds>();
 
         if (bounds != null)
         {

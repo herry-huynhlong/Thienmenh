@@ -54,6 +54,8 @@ public class TouchSelectTarget : MonoBehaviour
 
     public TMP_Text jobValueText;
 
+    public TMP_Text maritalStatusText;
+
     public TMP_Text statusText;
 
     public Transform equipmentListRoot;
@@ -165,7 +167,8 @@ public class TouchSelectTarget : MonoBehaviour
             if (cameraController == null)
             {
                 cameraController =
-                    FindObjectOfType<MobileCameraController>(true);
+                    FindAnyObjectByType<MobileCameraController>(
+                        FindObjectsInactive.Include);
             }
 
             if (cameraController == null)
@@ -201,7 +204,8 @@ public class TouchSelectTarget : MonoBehaviour
         if (npcInventoryPanel == null)
         {
             npcInventoryPanel =
-                FindObjectOfType<NpcInventoryPanelUI>(true);
+                FindAnyObjectByType<NpcInventoryPanelUI>(
+                    FindObjectsInactive.Include);
         }
 
         BindTabButtons();
@@ -785,6 +789,23 @@ public class TouchSelectTarget : MonoBehaviour
                 FindRowValueText(detailRoot, "Chức Vụ");
         }
 
+        if (maritalStatusText == null)
+        {
+            maritalStatusText =
+                FindRowValueText(detailRoot, "tinhtrang");
+
+            if (maritalStatusText == null)
+            {
+                maritalStatusText =
+                    FindRowValueText(detailRoot, "TinhTrang");
+            }
+        }
+
+        if (maritalStatusText != null)
+        {
+            maritalStatusText.raycastTarget = false;
+        }
+
         if (statusText == null)
         {
             Transform statusTransform =
@@ -899,6 +920,11 @@ public class TouchSelectTarget : MonoBehaviour
 
         hasAnyDetail |=
             SetOptionalValueText(
+                maritalStatusText,
+                GetTargetMarriageStatus(target));
+
+        hasAnyDetail |=
+            SetOptionalValueText(
                 statusText,
                 FormatTargetActionText(target));
 
@@ -917,6 +943,7 @@ public class TouchSelectTarget : MonoBehaviour
         SetValueText(defenseValueText, "-");
         SetValueText(lifespanValueText, "-");
         SetValueText(jobValueText, "-");
+        SetValueText(maritalStatusText, "-");
         SetValueText(statusText, "-");
         ClearSpawnedRows(spawnedEquipmentRows, equipmentListRoot);
         ClearSpawnedRows(spawnedSkillRows, skillListRoot);
@@ -1730,7 +1757,8 @@ public class TouchSelectTarget : MonoBehaviour
         if (worldItemInfoPanel == null)
         {
             RectTransform[] rects =
-                FindObjectsOfType<RectTransform>(true);
+                FindObjectsByType<RectTransform>(
+                    FindObjectsInactive.Include);
 
             foreach (RectTransform rect in rects)
             {
@@ -2447,6 +2475,7 @@ public class TouchSelectTarget : MonoBehaviour
         Vector2 worldPos)
     {
         Transform closestTarget = null;
+        int closestPriority = int.MaxValue;
         float closestDistance = Mathf.Infinity;
 
         foreach (Collider2D hit in hits)
@@ -2469,14 +2498,41 @@ public class TouchSelectTarget : MonoBehaviour
                     worldPos,
                     target.position);
 
-            if (distance < closestDistance)
+            int priority = GetSelectableTargetPriority(target);
+
+            if (priority < closestPriority ||
+                (priority == closestPriority &&
+                distance < closestDistance))
             {
+                closestPriority = priority;
                 closestDistance = distance;
                 closestTarget = target;
             }
         }
 
         return closestTarget;
+    }
+
+    int GetSelectableTargetPriority(Transform target)
+    {
+        if (target == null)
+        {
+            return int.MaxValue;
+        }
+
+        if (IsNpcTarget(target) ||
+            target.GetComponent<MonsterAI>() != null ||
+            target.GetComponent<BicanhBoneMonsterAI>() != null)
+        {
+            return 0;
+        }
+
+        if (IsWorldItemTarget(target))
+        {
+            return 1;
+        }
+
+        return 2;
     }
 
     string GetTargetName(Transform target)
@@ -3001,7 +3057,10 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (hpText != null)
         {
-            hpText.text = currentHP + " / " + maxHP;
+            hpText.text =
+                FormatCompactNumber(currentHP) +
+                " / " +
+                FormatCompactNumber(maxHP);
         }
     }
 
@@ -3026,16 +3085,19 @@ public class TouchSelectTarget : MonoBehaviour
             ratePer10Seconds > 0)
         {
             expText.text =
-                currentExp +
+                FormatCompactNumber(currentExp) +
                 " / " +
-                needExp +
+                FormatCompactNumber(needExp) +
                 "  (+" +
-                ratePer10Seconds +
+                FormatCompactNumber(ratePer10Seconds) +
                 "/10s)";
             return;
         }
 
-        expText.text = currentExp + " / " + needExp;
+        expText.text =
+            FormatCompactNumber(currentExp) +
+            " / " +
+            FormatCompactNumber(needExp);
     }
 
     Color GetFactionTint(Transform target)
@@ -3073,12 +3135,17 @@ public class TouchSelectTarget : MonoBehaviour
 
     string FormatMaybeInt(int value)
     {
-        return value < 0 ? "-" : value.ToString();
+        return value < 0 ? "-" : NpcEconomy.FormatCompactAmount(value);
     }
 
     string FormatMaybeFloat(float value)
     {
         return value < 0f ? "-" : value.ToString("0.##");
+    }
+
+    string FormatCompactNumber(long value)
+    {
+        return NpcEconomy.FormatCompactAmount(value);
     }
 
     int GetTargetAttack(Transform target)
@@ -3234,29 +3301,13 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (smartNpc != null)
         {
-            float multiplier = 1f;
-
-            if (smartNpc.physique == PhysiqueType.FiveElementBody)
-            {
-                multiplier = 10f;
-            }
-            else if (smartNpc.physique == PhysiqueType.ChaosBody)
-            {
-                multiplier = 100f;
-            }
-
-            multiplier += smartNpc.comprehension * 0.05f;
-
-            WeatherSystem weather = WeatherSystem.Instance;
-            if (weather != null)
-            {
-                multiplier *= weather.CultivationMultiplier();
-            }
+            float multiplier =
+                Mathf.Max(0.1f, smartNpc.GetCultivationMultiplier());
 
             if (smartNpc.pill > 0)
             {
                 ratePer10Seconds =
-                    Mathf.RoundToInt(30f * multiplier);
+                    Mathf.RoundToInt(3000f * multiplier);
                 return true;
             }
 
@@ -3267,6 +3318,7 @@ public class TouchSelectTarget : MonoBehaviour
                         CultivationProgression.GetSpiritStoneExp(
                             smartNpc.realm,
                             smartNpc.realmStage) *
+                        10f *
                         multiplier);
                 return true;
             }
@@ -3275,12 +3327,8 @@ public class TouchSelectTarget : MonoBehaviour
                 Mathf.Max(
                     1,
                     Mathf.RoundToInt(
-                        (1f +
-                            (int)smartNpc.realm +
-                            smartNpc.realmStage * 0.2f) *
-                        Mathf.Max(0.5f, smartNpc.comprehension / 50f) *
-                        multiplier *
-                        0.1f));
+                        500f *
+                        multiplier));
             return true;
         }
 
@@ -3293,9 +3341,10 @@ public class TouchSelectTarget : MonoBehaviour
                 Mathf.Max(
                     1,
                     Mathf.RoundToInt(
-                        (1f +
-                            (int)villager.realm +
-                            villager.realmStage * 0.2f) *
+                        500f *
+                        CultivationProgression.GetCultivationRealmMultiplier(
+                            villager.realm,
+                            villager.realmStage) *
                         Mathf.Max(0.5f, villager.diligence / 50f)));
             return true;
         }
@@ -3309,7 +3358,19 @@ public class TouchSelectTarget : MonoBehaviour
                 Mathf.Max(
                     1,
                     Mathf.RoundToInt(
-                        monster.naturalCultivationExpPerSecond * 10f));
+                        monster.naturalCultivationExpPerSecond *
+                        10f *
+                        CultivationProgression.GetCultivationRealmMultiplier(
+                            monster.realm,
+                            monster.realmStage) *
+                        Mathf.Lerp(
+                            1f,
+                            monster.hungryCultivationEfficiency,
+                            Mathf.Clamp01(monster.hunger / 100f)) *
+                        Mathf.Max(
+                            0.05f,
+                            CultivationProgression.GetSpiritStoneEfficiency(
+                                monster.realm))));
             return true;
         }
 
@@ -3322,7 +3383,7 @@ public class TouchSelectTarget : MonoBehaviour
             ratePer10Seconds =
                 Mathf.Max(
                     1,
-                    Mathf.RoundToInt(Mathf.Max(1f, need / 30f)));
+                    Mathf.RoundToInt(Mathf.Max(500f, need / 10f)));
             return true;
         }
 
@@ -3435,6 +3496,7 @@ public class TouchSelectTarget : MonoBehaviour
         builder.AppendLine(NpcText.Label("age") + ": " + GetTargetAge(target));
         builder.AppendLine(NpcText.Label("lifespan") + ": " + GetTargetLifespan(target));
         builder.AppendLine(NpcText.Label("job") + ": " + GetTargetJob(target));
+        builder.AppendLine(NpcText.Label("maritalStatus") + ": " + GetTargetMarriageStatus(target));
         builder.AppendLine(NpcText.Label("attack") + ": " + FormatMaybeInt(GetTargetAttack(target)));
         builder.AppendLine(NpcText.Label("defense") + ": " + FormatMaybeInt(GetTargetDefense(target)));
         builder.AppendLine(NpcText.Label("speed") + ": " + FormatMaybeFloat(GetTargetMoveSpeed(target)));
@@ -3626,12 +3688,30 @@ public class TouchSelectTarget : MonoBehaviour
             return Mathf.Max(1, monster.beastLevel).ToString();
         }
 
+        if (TryGetTargetLifespanValues(target, out int currentLifespan, out int maxLifespan))
+        {
+            return currentLifespan + " / " + maxLifespan;
+        }
+
+        return "-";
+    }
+
+    bool TryGetTargetLifespanValues(
+        Transform target,
+        out int currentLifespan,
+        out int maxLifespan)
+    {
+        currentLifespan = 0;
+        maxLifespan = 0;
+
         VillagerAI villager =
             target.GetComponent<VillagerAI>();
 
         if (villager != null)
         {
-            return villager.GetLifespan().ToString();
+            maxLifespan = Mathf.Max(1, villager.GetLifespan());
+            currentLifespan = Mathf.Max(0, villager.GetAge());
+            return true;
         }
 
         SmartNpcAI smartNpc =
@@ -3639,10 +3719,12 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (smartNpc != null)
         {
-            return smartNpc.GetLifespan().ToString();
+            maxLifespan = Mathf.Max(1, smartNpc.GetLifespan());
+            currentLifespan = Mathf.Max(0, smartNpc.GetAge());
+            return true;
         }
 
-        return "-";
+        return false;
     }
 
     string GetTargetJob(Transform target)
@@ -3672,6 +3754,49 @@ public class TouchSelectTarget : MonoBehaviour
             : "-";
     }
 
+    string GetTargetMarriageStatus(Transform target)
+    {
+        if (target == null ||
+            IsMonsterTarget(target))
+        {
+            return "-";
+        }
+
+        NPCIdentity identity =
+            target.GetComponent<NPCIdentity>();
+
+        if (identity == null)
+        {
+            identity =
+                target.GetComponentInParent<NPCIdentity>();
+        }
+
+        if (identity != null)
+        {
+            return string.IsNullOrWhiteSpace(identity.spouseId)
+                ? NpcText.Get("maritalStatus", "single", "Độc thân")
+                : NpcText.Get("maritalStatus", "married", "Đã có vợ chồng");
+        }
+
+        VillagerRelationship relationship =
+            target.GetComponent<VillagerRelationship>();
+
+        if (relationship == null)
+        {
+            relationship =
+                target.GetComponentInParent<VillagerRelationship>();
+        }
+
+        if (relationship != null)
+        {
+            return relationship.IsSingle()
+                ? NpcText.Get("maritalStatus", "single", "Độc thân")
+                : NpcText.Get("maritalStatus", "married", "Đã có vợ chồng");
+        }
+
+        return NpcText.Get("maritalStatus", "single", "Độc thân");
+    }
+
     string BuildHealthText(Transform target)
     {
         int maxHP =
@@ -3682,9 +3807,9 @@ public class TouchSelectTarget : MonoBehaviour
 
         return BuildBar(currentHP, maxHP, 12) +
             " " +
-            currentHP +
+            FormatCompactNumber(currentHP) +
             " / " +
-            maxHP +
+            FormatCompactNumber(maxHP) +
             " (" +
             NpcText.HealthStatus(currentHP, maxHP) +
             ")";
@@ -3882,7 +4007,8 @@ public class TouchSelectTarget : MonoBehaviour
         }
 
         InventoryPanelUI[] inventoryPanels =
-            FindObjectsOfType<InventoryPanelUI>(true);
+            FindObjectsByType<InventoryPanelUI>(
+                FindObjectsInactive.Include);
 
         foreach (InventoryPanelUI panel in inventoryPanels)
         {
@@ -3910,7 +4036,8 @@ public class TouchSelectTarget : MonoBehaviour
         }
 
         InventoryItemButtonUI[] itemButtons =
-            FindObjectsOfType<InventoryItemButtonUI>(true);
+            FindObjectsByType<InventoryItemButtonUI>(
+                FindObjectsInactive.Include);
 
         foreach (InventoryItemButtonUI button in itemButtons)
         {

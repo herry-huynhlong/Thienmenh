@@ -202,7 +202,8 @@ public class MobileCameraController : MonoBehaviour
     public void RefreshMapBoundsForPosition(Vector3 referencePosition)
     {
         BoxCollider2D[] colliders =
-            FindObjectsOfType<BoxCollider2D>(true);
+            FindObjectsByType<BoxCollider2D>(
+                FindObjectsInactive.Include);
 
         BoxCollider2D bestBounds = null;
         float bestDistance = float.PositiveInfinity;

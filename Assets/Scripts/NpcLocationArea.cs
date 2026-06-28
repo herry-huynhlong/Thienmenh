@@ -20,6 +20,14 @@ public enum NpcLocationPurpose
     Farming
 }
 
+public enum NpcDangerTier
+{
+    Any,
+    Low,
+    Medium,
+    High
+}
+
 [RequireComponent(typeof(Collider2D))]
 public class NpcLocationArea : MonoBehaviour
 {
@@ -32,6 +40,8 @@ public class NpcLocationArea : MonoBehaviour
     public VillagerJob job = VillagerJob.None;
     public NpcLifePath lifePath = NpcLifePath.Commoner;
     public NpcMapZone zone = NpcMapZone.Lang;
+    [Header("Danger")]
+    public NpcDangerTier dangerTier = NpcDangerTier.Any;
     public int priority;
 
     [Header("Matching")]
@@ -39,6 +49,7 @@ public class NpcLocationArea : MonoBehaviour
     public bool matchJob;
     public bool matchLifePath;
     public bool matchZone;
+    public bool matchDangerTier;
 
     [Header("Area")]
     public Collider2D areaBounds;
@@ -93,6 +104,7 @@ public class NpcLocationArea : MonoBehaviour
         VillagerJob job,
         NpcLocationPurpose purpose,
         NpcMapZone? preferredZone,
+        NpcDangerTier? preferredDangerTier,
         Vector3 fallback,
         out Vector3 position,
         out NpcMapZone? zone)
@@ -104,6 +116,7 @@ public class NpcLocationArea : MonoBehaviour
                 job,
                 purpose,
                 preferredZone,
+                preferredDangerTier,
                 fallback);
 
         if (area == null)
@@ -133,6 +146,7 @@ public class NpcLocationArea : MonoBehaviour
             job,
             purpose,
             null,
+            null,
             fallback,
             out position,
             out zone);
@@ -144,6 +158,7 @@ public class NpcLocationArea : MonoBehaviour
         VillagerJob job,
         NpcLocationPurpose purpose,
         NpcMapZone? preferredZone,
+        NpcDangerTier? preferredDangerTier,
         Vector3 origin)
     {
         NpcLocationArea exactPurposeArea =
@@ -153,6 +168,7 @@ public class NpcLocationArea : MonoBehaviour
                 job,
                 purpose,
                 preferredZone,
+                preferredDangerTier,
                 origin,
                 true);
 
@@ -167,8 +183,41 @@ public class NpcLocationArea : MonoBehaviour
             job,
             purpose,
             preferredZone,
+            preferredDangerTier,
             origin,
             false);
+    }
+
+    public static NpcLocationArea FindBestArea(
+        GameObject npc,
+        NpcScheduleActivity activity,
+        VillagerJob job,
+        NpcLocationPurpose purpose,
+        NpcMapZone? preferredZone,
+        Vector3 origin)
+    {
+        return FindBestArea(
+            npc,
+            activity,
+            job,
+            purpose,
+            preferredZone,
+            null,
+            origin);
+    }
+
+    public static NpcLocationArea FindArea(Vector3 position)
+    {
+        foreach (NpcLocationArea area in areas)
+        {
+            if (area != null &&
+                area.Contains(position))
+            {
+                return area;
+            }
+        }
+
+        return null;
     }
 
     static NpcLocationArea FindBestAreaInternal(
@@ -177,6 +226,7 @@ public class NpcLocationArea : MonoBehaviour
         VillagerJob job,
         NpcLocationPurpose purpose,
         NpcMapZone? preferredZone,
+        NpcDangerTier? preferredDangerTier,
         Vector3 origin,
         bool requireExactPurpose)
     {
@@ -188,14 +238,25 @@ public class NpcLocationArea : MonoBehaviour
             if (area == null ||
                 !area.isActiveAndEnabled ||
                 (requireExactPurpose && area.purpose != purpose) ||
-                !area.Matches(npc, activity, job, purpose, preferredZone))
+                !area.Matches(
+                    npc,
+                    activity,
+                    job,
+                    purpose,
+                    preferredZone,
+                    preferredDangerTier))
             {
                 continue;
             }
 
             float score =
                 area.priority * 1000f +
-                area.GetMatchScore(activity, job, purpose, preferredZone) -
+                area.GetMatchScore(
+                    activity,
+                    job,
+                    purpose,
+                    preferredZone,
+                    preferredDangerTier) -
                 Vector2.Distance(origin, area.transform.position);
 
             if (score > bestScore)
@@ -213,7 +274,8 @@ public class NpcLocationArea : MonoBehaviour
         NpcScheduleActivity requestedActivity,
         VillagerJob requestedJob,
         NpcLocationPurpose requestedPurpose,
-        NpcMapZone? preferredZone)
+        NpcMapZone? preferredZone,
+        NpcDangerTier? preferredDangerTier)
     {
         if (requestedPurpose != NpcLocationPurpose.Any &&
             purpose != NpcLocationPurpose.Any &&
@@ -239,6 +301,14 @@ public class NpcLocationArea : MonoBehaviour
             return false;
         }
 
+        if (matchDangerTier &&
+            preferredDangerTier.HasValue &&
+            dangerTier != NpcDangerTier.Any &&
+            dangerTier != preferredDangerTier.Value)
+        {
+            return false;
+        }
+
         if (matchLifePath && npc != null)
         {
             NpcScheduleController schedule =
@@ -257,7 +327,8 @@ public class NpcLocationArea : MonoBehaviour
         NpcScheduleActivity requestedActivity,
         VillagerJob requestedJob,
         NpcLocationPurpose requestedPurpose,
-        NpcMapZone? preferredZone)
+        NpcMapZone? preferredZone,
+        NpcDangerTier? preferredDangerTier)
     {
         float score = 0f;
 
@@ -287,7 +358,25 @@ public class NpcLocationArea : MonoBehaviour
             score += 75f;
         }
 
+        if (matchDangerTier &&
+            preferredDangerTier.HasValue &&
+            dangerTier == preferredDangerTier.Value)
+        {
+            score += 175f;
+        }
+
         return score;
+    }
+
+    bool Contains(Vector3 position)
+    {
+        if (areaBounds == null)
+        {
+            return false;
+        }
+
+        Vector2 closest = areaBounds.ClosestPoint(position);
+        return Vector2.Distance(closest, position) <= 0.02f;
     }
 
     public Vector3 GetRandomPoint(GameObject npc = null)

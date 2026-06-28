@@ -31,7 +31,7 @@ public class TaskBoardPanelUI : MonoBehaviour
     {
         if (provider == null)
         {
-            provider = FindFirstObjectByType<NpcTaskProvider>();
+            provider = FindAnyObjectByType<NpcTaskProvider>();
         }
 
         if (provider == null)

@@ -70,17 +70,13 @@ public class CharacterStats : MonoBehaviour, IDamageable
         realm = entityProfile.stats.realm;
         realmStage = entityProfile.stats.realmStage;
         cultivationExp = entityProfile.stats.cultivationExp;
-        float realmMultiplier =
-            CultivationProgression.GetStatPower(
-                realm,
-                realmStage,
-                entityProfile != null &&
-                entityProfile.kind == EntityKind.Beast
-                ? EntityKind.Beast
-                : EntityKind.Cultivator);
-        baseMaxHP = Mathf.Max(1, Mathf.RoundToInt(entityProfile.stats.maxHP / realmMultiplier));
-        baseAttack = Mathf.Max(1, Mathf.RoundToInt(entityProfile.stats.attack / realmMultiplier));
-        baseDefense = Mathf.Max(0, Mathf.RoundToInt(entityProfile.stats.defense / realmMultiplier));
+        double realmMultiplier =
+            CombatStatCalculator.GetRealmMultiplier(
+                Mathf.Max(0, (int)realm),
+                Mathf.Clamp(realmStage, 1, CultivationProgression.MaxStage) - 1);
+        baseMaxHP = Mathf.Max(1, CombatStatCalculator.ClampToInt(entityProfile.stats.maxHP / realmMultiplier));
+        baseAttack = Mathf.Max(1, CombatStatCalculator.ClampToInt(entityProfile.stats.attack / realmMultiplier));
+        baseDefense = Mathf.Max(0, CombatStatCalculator.ClampToInt(entityProfile.stats.defense / realmMultiplier));
         baseMoveSpeed = Mathf.Max(0.1f, entityProfile.stats.moveSpeed);
         finalHP = Mathf.Max(1, entityProfile.stats.maxHP);
         currentHP =
@@ -206,32 +202,36 @@ public class CharacterStats : MonoBehaviour, IDamageable
         float hpPercent =
             Mathf.Clamp01((float)currentHP / oldFinalHP);
 
-        float multiplier =
-            CultivationProgression.GetStatPower(
-                realm,
-                realmStage,
-                entityProfile != null &&
-                entityProfile.kind == EntityKind.Beast
-                ? EntityKind.Beast
-                : EntityKind.Cultivator);
+        double multiplier =
+            CombatStatCalculator.GetRealmMultiplier(
+                Mathf.Max(0, (int)realm),
+                Mathf.Clamp(realmStage, 1, CultivationProgression.MaxStage) - 1);
 
-        finalHP =
-            Mathf.RoundToInt(
+        long scaledHp =
+            (long)CombatStatCalculator.ClampToInt(
                 Mathf.Max(1, baseMaxHP) *
                 multiplier) +
             bonusMaxHP;
-
-        attack =
-            Mathf.RoundToInt(
+        long scaledAttack =
+            (long)CombatStatCalculator.ClampToInt(
                 Mathf.Max(1, baseAttack) *
                 multiplier) +
             bonusAttack;
-
-        defense =
-            Mathf.RoundToInt(
+        long scaledDefense =
+            (long)CombatStatCalculator.ClampToInt(
                 Mathf.Max(0, baseDefense) *
                 multiplier) +
             bonusDefense;
+
+        finalHP = (int)System.Math.Max(
+            1L,
+            System.Math.Min((long)int.MaxValue, scaledHp));
+        attack = (int)System.Math.Max(
+            1L,
+            System.Math.Min((long)int.MaxValue, scaledAttack));
+        defense = (int)System.Math.Max(
+            0L,
+            System.Math.Min((long)int.MaxValue, scaledDefense));
 
         effectResistance =
             bonusEffectResistance;
@@ -368,7 +368,9 @@ public class CharacterStats : MonoBehaviour, IDamageable
         }
 
         int finalDamage =
-            Mathf.Max(1, damage - defense);
+            CombatStatCalculator.CalculateFinalDamageInt(
+                damage,
+                defense);
 
         currentHP -= finalDamage;
         currentHP = Mathf.Clamp(currentHP, 0, finalHP);

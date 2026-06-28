@@ -33,55 +33,11 @@ public static class NpcDailyRoutineLibrary
         GameObject npc,
         List<NpcScheduleSlot> slots)
     {
-        VillagerAI villager = npc != null
-            ? npc.GetComponent<VillagerAI>()
-            : null;
-
-        VillagerJob job = villager != null
-            ? villager.job
-            : VillagerJob.None;
-
-        switch (job)
-        {
-            case VillagerJob.Trader:
-                Add(slots, NpcScheduleActivity.BuyGoods, 0f, 24f);
-                return;
-            case VillagerJob.Farmer:
-            case VillagerJob.Fisher:
-            case VillagerJob.Hunter:
-            case VillagerJob.Worker:
-            case VillagerJob.Guard:
-                Add(slots, NpcScheduleActivity.Sleep, 20f, 5f);
-                Add(slots, NpcScheduleActivity.Work, 5f, 11f);
-                Add(slots, NpcScheduleActivity.ReturnHome, 11f, 13f);
-                Add(slots, NpcScheduleActivity.Work, 13f, 17f);
-                Add(slots, NpcScheduleActivity.ReturnHome, 17f, 18f);
-                Add(slots, NpcScheduleActivity.SellGoods, 18f, 19f);
-                Add(slots, NpcScheduleActivity.BuyGoods, 19f, 20f);
-                return;
-            case VillagerJob.Alchemist:
-            case VillagerJob.Blacksmith:
-                Add(slots, NpcScheduleActivity.Sleep, 20f, 5f);
-                Add(slots, NpcScheduleActivity.Work, 5f, 11f);
-                Add(slots, NpcScheduleActivity.ReturnHome, 11f, 13f);
-                Add(slots, NpcScheduleActivity.Work, 13f, 17f);
-                Add(slots, NpcScheduleActivity.ReturnHome, 17f, 18f);
-                Add(slots, NpcScheduleActivity.SellGoods, 18f, 19f);
-                Add(slots, NpcScheduleActivity.BuyGoods, 19f, 20f);
-                return;
-            case VillagerJob.Healer:
-                Add(slots, NpcScheduleActivity.TakeTask, 0f, 24f);
-                return;
-            default:
-                Add(slots, NpcScheduleActivity.Sleep, 20f, 5f);
-                Add(slots, NpcScheduleActivity.Work, 5f, 11f);
-                Add(slots, NpcScheduleActivity.ReturnHome, 11f, 13f);
-                Add(slots, NpcScheduleActivity.Work, 13f, 17f);
-                Add(slots, NpcScheduleActivity.ReturnHome, 17f, 18f);
-                Add(slots, NpcScheduleActivity.SellGoods, 18f, 19f);
-                Add(slots, NpcScheduleActivity.BuyGoods, 19f, 20f);
-                return;
-        }
+        Add(slots, NpcScheduleActivity.Sleep, 20f, 5f);
+        Add(slots, NpcScheduleActivity.Work, 5f, 11f);
+        Add(slots, NpcScheduleActivity.ReturnHome, 11f, 13f);
+        Add(slots, NpcScheduleActivity.Work, 13f, 17f);
+        Add(slots, NpcScheduleActivity.ReturnHome, 17f, 20f);
     }
 
     static void BuildSemiCultivatorSchedule(
@@ -113,6 +69,15 @@ public static class NpcDailyRoutineLibrary
             return;
         }
 
+        SmartNpcAI smartNpc = npc != null
+            ? npc.GetComponent<SmartNpcAI>()
+            : null;
+        if (smartNpc != null)
+        {
+            BuildSmartCultivatorSchedule(npc, slots);
+            return;
+        }
+
         NpcScheduleActivity dawnActivity =
             PickCultivatorFieldActivity(
                 npc,
@@ -135,6 +100,19 @@ public static class NpcDailyRoutineLibrary
         Add(slots, NpcScheduleActivity.SellGoods, 17f, 18f);
         Add(slots, NpcScheduleActivity.BuyGoods, 18f, 19f);
         Add(slots, nightActivity, 19f, 24f);
+
+        ApplySchedulePhaseOffset(slots, GetCultivatorPhaseOffset(npc));
+    }
+
+    static void BuildSmartCultivatorSchedule(
+        GameObject npc,
+        List<NpcScheduleSlot> slots)
+    {
+        Add(slots, NpcScheduleActivity.Cultivate, 0f, 7f);
+        Add(slots, NpcScheduleActivity.DoMission, 7f, 13f);
+        Add(slots, NpcScheduleActivity.FreeHuntAndGather, 13f, 18f);
+        Add(slots, NpcScheduleActivity.DoMission, 18f, 22f);
+        Add(slots, NpcScheduleActivity.TradeBuySell, 22f, 24f);
     }
 
     static NpcScheduleActivity PickCultivatorFieldActivity(
@@ -151,12 +129,14 @@ public static class NpcDailyRoutineLibrary
 
         if (smartNpc != null)
         {
-            if (smartNpc.canFight)
+            if (smartNpc.canFight &&
+                smartNpc.canCompeteResource)
             {
                 options.Add(NpcScheduleActivity.Hunt);
             }
 
-            if (smartNpc.canGather)
+            if (smartNpc.canGather &&
+                smartNpc.canCompeteResource)
             {
                 options.Add(NpcScheduleActivity.Gather);
             }
@@ -221,12 +201,14 @@ public static class NpcDailyRoutineLibrary
 
         if (smartNpc != null)
         {
-            if (smartNpc.canFight)
+            if (smartNpc.canFight &&
+                smartNpc.canCompeteResource)
             {
                 options.Add(NpcScheduleActivity.Hunt);
             }
 
-            if (smartNpc.canGather)
+            if (smartNpc.canGather &&
+                smartNpc.canCompeteResource)
             {
                 options.Add(NpcScheduleActivity.Gather);
             }
@@ -273,13 +255,15 @@ public static class NpcDailyRoutineLibrary
         }
 
         if (smartNpc != null &&
-            smartNpc.canFight)
+            smartNpc.canFight &&
+            smartNpc.canCompeteResource)
         {
             options.Add(NpcScheduleActivity.Hunt);
         }
 
         if (smartNpc != null &&
-            smartNpc.canGather)
+            smartNpc.canGather &&
+            smartNpc.canCompeteResource)
         {
             options.Add(NpcScheduleActivity.Gather);
         }
@@ -292,10 +276,99 @@ public static class NpcDailyRoutineLibrary
         return options;
     }
 
+    static List<NpcScheduleActivity> BuildSmartCultivatorSupportPool(
+        GameObject npc)
+    {
+        List<NpcScheduleActivity> options =
+            new List<NpcScheduleActivity>();
+        SmartNpcAI smartNpc =
+            npc != null
+            ? npc.GetComponent<SmartNpcAI>()
+            : null;
+
+        if (smartNpc != null &&
+            smartNpc.canCultivate)
+        {
+            options.Add(NpcScheduleActivity.Cultivate);
+        }
+
+        if (smartNpc != null &&
+            smartNpc.dailyTaskVisitEnabled)
+        {
+            options.Add(NpcScheduleActivity.TakeTask);
+            options.Add(NpcScheduleActivity.TakeTask);
+        }
+
+        if (options.Count == 0)
+        {
+            options.Add(NpcScheduleActivity.Cultivate);
+        }
+
+        return options;
+    }
+
+    static NpcScheduleActivity PickSmartSupportActivity(
+        GameObject npc,
+        int salt)
+    {
+        List<NpcScheduleActivity> options =
+            BuildSmartCultivatorSupportPool(npc);
+
+        int seed = GetCultivatorScheduleSeed(npc);
+        int index = PositiveModulo(seed + salt * 7, options.Count);
+        return options[index];
+    }
+
+    static NpcScheduleActivity[] ApplySmartBlockOrder(
+        NpcScheduleActivity[] blocks,
+        int seed)
+    {
+        if (blocks == null || blocks.Length != 4)
+        {
+            return blocks;
+        }
+
+        switch (PositiveModulo(seed, 4))
+        {
+            case 0:
+                return new[]
+                {
+                    blocks[0],
+                    blocks[1],
+                    blocks[2],
+                    blocks[3]
+                };
+            case 1:
+                return new[]
+                {
+                    blocks[3],
+                    blocks[2],
+                    blocks[1],
+                    blocks[0]
+                };
+            case 2:
+                return new[]
+                {
+                    blocks[1],
+                    blocks[2],
+                    blocks[3],
+                    blocks[0]
+                };
+            default:
+                return new[]
+                {
+                    blocks[2],
+                    blocks[3],
+                    blocks[0],
+                    blocks[1]
+                };
+        }
+    }
+
     static float GetCultivatorPhaseOffset(GameObject npc)
     {
         int seed = GetCultivatorScheduleSeed(npc);
-        return PositiveModulo(seed / 11, 4) * 0.25f;
+        return PositiveModulo(seed / 11, 8) * 0.5f;
     }
 
     static int GetCultivatorScheduleSeed(GameObject npc)
@@ -361,5 +434,29 @@ public static class NpcDailyRoutineLibrary
                 startHour = Mathf.Repeat(startHour, 24f),
                 endHour = Mathf.Repeat(endHour, 24f)
             });
+    }
+
+    static void ApplySchedulePhaseOffset(
+        List<NpcScheduleSlot> slots,
+        float offsetHours)
+    {
+        if (slots == null ||
+            slots.Count == 0 ||
+            Mathf.Abs(offsetHours) <= 0.0001f)
+        {
+            return;
+        }
+
+        for (int i = 0; i < slots.Count; i++)
+        {
+            NpcScheduleSlot slot = slots[i];
+            if (slot == null)
+            {
+                continue;
+            }
+
+            slot.startHour = Mathf.Repeat(slot.startHour + offsetHours, 24f);
+            slot.endHour = Mathf.Repeat(slot.endHour + offsetHours, 24f);
+        }
     }
 }

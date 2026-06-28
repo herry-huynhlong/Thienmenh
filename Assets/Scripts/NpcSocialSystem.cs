@@ -1142,7 +1142,7 @@ public class NpcOverheadDialogueUI : MonoBehaviour
         text = textObject.AddComponent<TextMeshPro>();
         text.alignment = TextAlignmentOptions.Center;
         ApplyTextStyle();
-        text.enableWordWrapping = true;
+        text.textWrappingMode = TMPro.TextWrappingModes.Normal;
         text.rectTransform.sizeDelta = new Vector2(5.6f, 1.8f);
         NormalizeTextTransform();
 
@@ -1889,7 +1889,7 @@ public class NpcConversationAgent : MonoBehaviour
     MonsterAI FindNearbyStrongMonster()
     {
         MonsterAI[] monsters =
-            FindObjectsByType<MonsterAI>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            FindObjectsByType<MonsterAI>(FindObjectsInactive.Exclude);
 
         MonsterAI best = null;
         float bestDistance = float.MaxValue;
@@ -2828,13 +2828,15 @@ public class NpcSocialWorldInstaller : MonoBehaviour
     [ContextMenu("Install For Scene NPCs")]
     public void InstallForSceneNpcs()
     {
-        VillagerAI[] villagers = FindObjectsOfType<VillagerAI>(true);
+        VillagerAI[] villagers = FindObjectsByType<VillagerAI>(
+            FindObjectsInactive.Include);
         for (int i = 0; i < villagers.Length; i++)
         {
             Install(villagers[i].gameObject);
         }
 
-        SmartNpcAI[] smartNpcs = FindObjectsOfType<SmartNpcAI>(true);
+        SmartNpcAI[] smartNpcs = FindObjectsByType<SmartNpcAI>(
+            FindObjectsInactive.Include);
         for (int i = 0; i < smartNpcs.Length; i++)
         {
             Install(smartNpcs[i].gameObject);

@@ -527,8 +527,7 @@ public class HarvestJob : MonoBehaviour
 
         WorldStatItemPickup[] pickups =
             FindObjectsByType<WorldStatItemPickup>(
-                FindObjectsInactive.Exclude,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Exclude);
 
         foreach (WorldStatItemPickup pickup in pickups)
         {

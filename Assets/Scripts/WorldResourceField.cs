@@ -37,6 +37,7 @@ public class WorldResourceField : MonoBehaviour
     [Header("Natural Resource Rules")]
     public bool naturalResourcesOnly = true;
     public ItemGrade maxNaturalGrade = ItemGrade.Ha;
+    public bool useAreaDangerTierForNaturalGrade = true;
     public bool allowMaterials = true;
     public bool allowFood = true;
     public bool allowMedicine = true;
@@ -561,7 +562,7 @@ public class WorldResourceField : MonoBehaviour
         if (!naturalResourcesOnly)
             return true;
 
-        if (item.grade > maxNaturalGrade)
+        if (item.grade > GetNaturalGradeCap())
             return false;
 
         if (allowMaterials && item.itemType == ItemType.VatLieu)
@@ -576,10 +577,40 @@ public class WorldResourceField : MonoBehaviour
         return false;
     }
 
+    ItemGrade GetNaturalGradeCap()
+    {
+        if (!useAreaDangerTierForNaturalGrade)
+        {
+            return maxNaturalGrade;
+        }
+
+        NpcLocationArea area = GetComponentInParent<NpcLocationArea>();
+        if (area == null)
+        {
+            return maxNaturalGrade;
+        }
+
+        switch (area.dangerTier)
+        {
+            case NpcDangerTier.Low:
+                return ItemGrade.Ha;
+
+            case NpcDangerTier.Medium:
+                return ItemGrade.Trung;
+
+            case NpcDangerTier.High:
+                return ItemGrade.Thuong;
+
+            default:
+                return maxNaturalGrade;
+        }
+    }
+
     public WorldStatItemPickup GetNearestAvailablePickup(
         Vector3 position,
         StatItemData requiredItem = null,
         NpcMapZone? requiredZone = null,
+        NpcDangerTier? requiredDangerTier = null,
         GameObject requester = null)
     {
         WorldStatItemPickup[] pickups = GetComponentsInChildren<WorldStatItemPickup>(true);
@@ -592,7 +623,8 @@ public class WorldResourceField : MonoBehaviour
             if (!IsAvailable(pickup) ||
                 pickup.IsReservedByOther(requester) ||
                 !MatchesRequiredItem(pickup, requiredItem) ||
-                !MatchesRequiredZone(pickup, requiredZone))
+                !MatchesRequiredZone(pickup, requiredZone) ||
+                !MatchesRequiredDangerTier(pickup, requiredDangerTier))
                 continue;
 
             float distance = Vector2.Distance(position, pickup.transform.position);
@@ -611,6 +643,7 @@ public class WorldResourceField : MonoBehaviour
         Vector3 position,
         StatItemData requiredItem = null,
         NpcMapZone? requiredZone = null,
+        NpcDangerTier? requiredDangerTier = null,
         GameObject requester = null)
     {
         WorldStatItemPickup best = null;
@@ -622,7 +655,12 @@ public class WorldResourceField : MonoBehaviour
                 continue;
 
             WorldStatItemPickup candidate =
-                field.GetNearestAvailablePickup(position, requiredItem, requiredZone, requester);
+                field.GetNearestAvailablePickup(
+                    position,
+                    requiredItem,
+                    requiredZone,
+                    requiredDangerTier,
+                    requester);
 
             if (candidate == null)
                 continue;
@@ -647,6 +685,31 @@ public class WorldResourceField : MonoBehaviour
         NpcMapArea area = NpcMapArea.FindArea(pickup.transform.position);
 
         return area != null && area.zone == requiredZone.Value;
+    }
+
+    bool MatchesRequiredDangerTier(
+        WorldStatItemPickup pickup,
+        NpcDangerTier? requiredDangerTier)
+    {
+        if (!requiredDangerTier.HasValue)
+        {
+            return true;
+        }
+
+        if (pickup == null)
+        {
+            return false;
+        }
+
+        NpcLocationArea area =
+            NpcLocationArea.FindArea(pickup.transform.position);
+
+        if (area == null || area.dangerTier == NpcDangerTier.Any)
+        {
+            return true;
+        }
+
+        return area.dangerTier == requiredDangerTier.Value;
     }
 
     bool MatchesRequiredItem(WorldStatItemPickup pickup, StatItemData requiredItem)

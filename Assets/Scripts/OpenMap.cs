@@ -74,7 +74,8 @@ public class OpenMap :
     void CloseInventoryPanel()
     {
         InventoryPanelUI inventoryPanel =
-            FindObjectOfType<InventoryPanelUI>(true);
+            FindAnyObjectByType<InventoryPanelUI>(
+                FindObjectsInactive.Include);
 
         if (inventoryPanel != null)
         {

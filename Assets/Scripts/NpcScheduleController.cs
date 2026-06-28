@@ -23,7 +23,10 @@ public enum NpcScheduleActivity
     Alchemy,
     Forge,
     TakeTask,
-    ReturnHome
+    ReturnHome,
+    DoMission,
+    FreeHuntAndGather,
+    TradeBuySell
 }
 
 [System.Serializable]
@@ -105,7 +108,9 @@ public class NpcScheduleController : MonoBehaviour
         NpcScheduleActivity activity = schedule.CurrentActivity;
         return activity == NpcScheduleActivity.BuyGoods ||
             activity == NpcScheduleActivity.SellGoods ||
-            activity == NpcScheduleActivity.TakeTask;
+            activity == NpcScheduleActivity.TakeTask ||
+            activity == NpcScheduleActivity.DoMission ||
+            activity == NpcScheduleActivity.TradeBuySell;
     }
 
     public static bool AllowsGather(GameObject npc)
@@ -117,7 +122,8 @@ public class NpcScheduleController : MonoBehaviour
         }
 
         NpcScheduleActivity activity = schedule.CurrentActivity;
-        return activity == NpcScheduleActivity.Gather;
+        return activity == NpcScheduleActivity.Gather ||
+            activity == NpcScheduleActivity.FreeHuntAndGather;
     }
 
     public static bool AllowsAlchemy(GameObject npc)
@@ -132,7 +138,8 @@ public class NpcScheduleController : MonoBehaviour
 
     public static bool AllowsTask(GameObject npc)
     {
-        return AllowsActivity(npc, NpcScheduleActivity.TakeTask);
+        return AllowsActivity(npc, NpcScheduleActivity.TakeTask) ||
+            AllowsActivity(npc, NpcScheduleActivity.DoMission);
     }
 
     public static bool AllowsSocial(GameObject npc)
@@ -168,7 +175,39 @@ public class NpcScheduleController : MonoBehaviour
         NpcScheduleController schedule = GetSchedule(npc);
         return schedule == null ||
             !schedule.enforceSchedule ||
-            schedule.CurrentActivity == activity;
+            IsMatchingActivity(schedule.CurrentActivity, activity);
+    }
+
+    public static bool IsMatchingActivity(
+        NpcScheduleActivity current,
+        NpcScheduleActivity requested)
+    {
+        if (current == requested)
+        {
+            return true;
+        }
+
+        if (current == NpcScheduleActivity.DoMission)
+        {
+            return requested == NpcScheduleActivity.TakeTask ||
+                requested == NpcScheduleActivity.DoMission;
+        }
+
+        if (current == NpcScheduleActivity.FreeHuntAndGather)
+        {
+            return requested == NpcScheduleActivity.Hunt ||
+                requested == NpcScheduleActivity.Gather ||
+                requested == NpcScheduleActivity.FreeHuntAndGather;
+        }
+
+        if (current == NpcScheduleActivity.TradeBuySell)
+        {
+            return requested == NpcScheduleActivity.BuyGoods ||
+                requested == NpcScheduleActivity.SellGoods ||
+                requested == NpcScheduleActivity.TradeBuySell;
+        }
+
+        return current == requested;
     }
 
     public static NpcScheduleController GetSchedule(GameObject npc)
@@ -298,10 +337,11 @@ public class NpcScheduleController : MonoBehaviour
         canCultivate = true;
         awakenedCultivation = true;
         awakenedByMarrowCleansingPill |= byMarrowCleansingPill;
-
-        if (lifePath == NpcLifePath.Commoner)
+        SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
+        if (smartNpc != null &&
+            smartNpc.enabled)
         {
-            lifePath = NpcLifePath.SemiCultivator;
+            lifePath = NpcLifePath.Cultivator;
         }
 
         if (autoBuildDefaultSchedule)
@@ -326,23 +366,22 @@ public class NpcScheduleController : MonoBehaviour
             return;
         }
 
-        VillagerAI villager = GetComponent<VillagerAI>();
-        if (villager != null && villager.enabled)
-        {
-            if (villager.realm > CultivationRealm.Mortal)
-            {
-                lifePath = NpcLifePath.SemiCultivator;
-                canCultivate = true;
-            }
-
-            return;
-        }
-
         SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
-        if (smartNpc != null && smartNpc.enabled)
+        if (smartNpc != null &&
+            smartNpc.enabled)
         {
             lifePath = NpcLifePath.Cultivator;
             canCultivate = true;
+            return;
+        }
+
+        VillagerAI villager = GetComponent<VillagerAI>();
+        if (villager != null &&
+            villager.enabled)
+        {
+            lifePath = NpcLifePath.Commoner;
+            canCultivate = false;
+            awakenedCultivation = false;
         }
     }
 

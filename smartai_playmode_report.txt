@@ -1,0 +1,36 @@
+[11:55:46] Open scene: Assets/Lang.unity
+[11:55:55] Entered Play Mode
+[11:55:55] WorldTimeSystem created by EnsureInstance()
+[11:55:55] Tracked NPCs: satthu1, tusinu1
+[11:55:55] Sample monster: Yeu Thu
+[11:55:55] Set time -> 0.50
+[11:55:55] Schedule case start: 00:30 Cultivate
+[11:55:59] Schedule snapshot 00:30 Cultivate [satthu1] -> PASS activity=Cultivate action=Đến điểm tu luyện taskGoal=Cultivate hp=316228/316228
+[11:55:59] Schedule snapshot 00:30 Cultivate [tusinu1] -> PASS activity=Cultivate action=Đến điểm tu luyện taskGoal=Cultivate hp=6310/6310
+[11:55:59] Set time -> 7.50
+[11:55:59] Schedule case start: 07:30 DoMission
+[11:56:02] Schedule snapshot 07:30 DoMission [satthu1] -> PASS activity=DoMission action=Đi cổng dịch chuyển đến Vạn Bảo Lâu taskGoal=DoMission hp=316228/316228
+[11:56:02] Schedule snapshot 07:30 DoMission [tusinu1] -> PASS activity=DoMission action=Đi cổng dịch chuyển đến Vạn Bảo Lâu taskGoal=DoMission hp=6310/6310
+[11:56:02] Set time -> 13.50
+[11:56:02] Schedule case start: 13:30 FreeHuntAndGather
+[11:56:06] Schedule snapshot 13:30 FreeHuntAndGather [satthu1] -> WARN activity=FreeHuntAndGather action=fleeMonsterArea taskGoal=Pursued hp=316228/316228
+[11:56:06] Schedule snapshot 13:30 FreeHuntAndGather [tusinu1] -> WARN activity=FreeHuntAndGather action=fleeMonsterArea taskGoal=Pursued hp=6310/6310
+[11:56:06] Set time -> 18.50
+[11:56:06] Schedule case start: 18:30 DoMission
+[11:56:09] Schedule snapshot 18:30 DoMission [satthu1] -> PASS activity=DoMission action= taskGoal=DoMission hp=316228/316228
+[11:56:09] Schedule snapshot 18:30 DoMission [tusinu1] -> PASS activity=DoMission action= taskGoal=DoMission hp=6310/6310
+[11:56:09] Set time -> 22.50
+[11:56:09] Schedule case start: 22:30 TradeBuySell
+[11:56:13] Schedule snapshot 22:30 TradeBuySell [satthu1] -> WARN activity=TradeBuySell action=Đi cổng dịch chuyển đến Vạn Bảo Lâu taskGoal=NeedPotion hp=316228/316228
+[11:56:13] Schedule snapshot 22:30 TradeBuySell [tusinu1] -> WARN activity=TradeBuySell action=Đi cổng dịch chuyển đến Vạn Bảo Lâu taskGoal=NeedPotion hp=6310/6310
+[11:56:13] Set time -> 0.50
+[11:56:13] Override case A start: cultivate -> flee/retreat
+[11:56:16] Override case A result -> PASS activity=Cultivate action=fleeMonsterArea taskGoal=Pursued hp=316228/316228
+[11:56:17] Set time -> 7.50
+[11:56:17] Override case B start: DoMission -> low HP emergency
+[11:56:20] Override case B result -> WARN activity=DoMission action=Đi cổng dịch chuyển đến Vạn Bảo Lâu taskGoal=LowHpRecovery hp=79056/316228
+[11:56:22] Set time -> 6.83
+[11:56:22] Override case C start: 06:50 emergency then 07:30 schedule recovery
+[11:56:24] Set time -> 7.50
+[11:56:24] Override case C result -> WARN activity=DoMission action=fleeMonsterArea taskGoal=Pursued hp=316228/316228
+[11:56:29] PlayMode verification complete.

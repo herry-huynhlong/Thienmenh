@@ -83,7 +83,8 @@ public class TreasureHeatSystem : MonoBehaviour
     void ScanTreasureOwners()
     {
         ItemInventory[] inventories =
-            FindObjectsOfType<ItemInventory>(true);
+            FindObjectsByType<ItemInventory>(
+                FindObjectsInactive.Include);
 
         foreach (ItemInventory inventory in inventories)
         {
@@ -436,17 +437,6 @@ public class TreasureHeatSystem : MonoBehaviour
         GameObject owner,
         TreasureThreat threat)
     {
-        VillagerAI villager =
-            robber.GetComponent<VillagerAI>();
-
-        if (villager != null)
-        {
-            villager.ForceTreasureHunt(
-                owner.transform,
-                threat.item);
-            return;
-        }
-
         SmartNpcAI smartNpc =
             robber.GetComponent<SmartNpcAI>();
 

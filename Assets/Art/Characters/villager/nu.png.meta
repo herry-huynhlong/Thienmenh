@@ -1,0 +1,559 @@
+fileFormatVersion: 2
+guid: e8df4b51c533cdb4d9edc389dc6bce7c
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1709593926932927304
+    second: villagernu_0
+  - first:
+      213: 4762483750805388438
+    second: villagernu_1
+  - first:
+      213: 522418636898442232
+    second: villagernu_2
+  - first:
+      213: -8611092025412386277
+    second: villagernu_3
+  - first:
+      213: 2271444905331513767
+    second: villagernu_4
+  - first:
+      213: 5212389164489481403
+    second: villagernu_5
+  - first:
+      213: 8466895290913576502
+    second: villagernu_6
+  - first:
+      213: 7871298038178245484
+    second: villagernu_7
+  - first:
+      213: 6734251827215469059
+    second: villagernu_8
+  - first:
+      213: -8085764087942543641
+    second: villagernu_9
+  - first:
+      213: -4057714514537113213
+    second: villagernu_10
+  - first:
+      213: 8026837192511396679
+    second: villagernu_11
+  - first:
+      213: -8229576130116384414
+    second: villagernu_12
+  - first:
+      213: 3556738556285575138
+    second: villagernu_13
+  - first:
+      213: -7884956258119739207
+    second: villagernu_14
+  - first:
+      213: 2169293259305426783
+    second: villagernu_15
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: villagernu_0
+      rect:
+        serializedVersion: 2
+        x: 221
+        y: 965
+        width: 122
+        height: 271
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 84390056e92b9b710800000000000000
+      internalID: 1709593926932927304
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: villagernu_1
+      rect:
+        serializedVersion: 2
+        x: 476
+        y: 975
+        width: 120
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69c33571dbdb71240800000000000000
+      internalID: 4762483750805388438
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: villagernu_2
+      rect:
+        serializedVersion: 2
+        x: 728
+        y: 964
+        width: 122
+        height: 269
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8fb106c7bf0004700800000000000000
+      internalID: 522418636898442232
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: villagernu_3
+      rect:
+        serializedVersion: 2
+        x: 981
+        y: 964
+        width: 123
+        height: 274
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b1288192d614f7880800000000000000
+      internalID: -8611092025412386277
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: villagernu_4
+      rect:
+        serializedVersion: 2
+        x: 221
+        y: 666
+        width: 122
+        height: 265
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a9d7255b1bc58f10800000000000000
+      internalID: 2271444905331513767
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: villagernu_5
+      rect:
+        serializedVersion: 2
+        x: 475
+        y: 662
+        width: 118
+        height: 265
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bbc9d742450265840800000000000000
+      internalID: 5212389164489481403
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: villagernu_6
+      rect:
+        serializedVersion: 2
+        x: 730
+        y: 663
+        width: 119
+        height: 264
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 636d4555864708570800000000000000
+      internalID: 8466895290913576502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: villagernu_7
+      rect:
+        serializedVersion: 2
+        x: 981
+        y: 659
+        width: 119
+        height: 266
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c6be7de9cd77c3d60800000000000000
+      internalID: 7871298038178245484
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: villagernu_8
+      rect:
+        serializedVersion: 2
+        x: 218
+        y: 375
+        width: 120
+        height: 251
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30a04357b5ed47d50800000000000000
+      internalID: 6734251827215469059
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: villagernu_9
+      rect:
+        serializedVersion: 2
+        x: 469
+        y: 374
+        width: 119
+        height: 248
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7e60398f66899cf80800000000000000
+      internalID: -8085764087942543641
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: villagernu_10
+      rect:
+        serializedVersion: 2
+        x: 725
+        y: 375
+        width: 117
+        height: 244
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3899111d52a10b7c0800000000000000
+      internalID: -4057714514537113213
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: villagernu_11
+      rect:
+        serializedVersion: 2
+        x: 979
+        y: 373
+        width: 118
+        height: 251
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74b198906ed056f60800000000000000
+      internalID: 8026837192511396679
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: villagernu_12
+      rect:
+        serializedVersion: 2
+        x: 218
+        y: 85
+        width: 120
+        height: 252
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2690160ac1caacd80800000000000000
+      internalID: -8229576130116384414
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: villagernu_13
+      rect:
+        serializedVersion: 2
+        x: 475
+        y: 85
+        width: 117
+        height: 249
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2ef565e5fd21c5130800000000000000
+      internalID: 3556738556285575138
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: villagernu_14
+      rect:
+        serializedVersion: 2
+        x: 731
+        y: 85
+        width: 117
+        height: 252
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9b8974d3f02039290800000000000000
+      internalID: -7884956258119739207
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: villagernu_15
+      rect:
+        serializedVersion: 2
+        x: 979
+        y: 86
+        width: 119
+        height: 252
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f5f9c86d9b0ea1e10800000000000000
+      internalID: 2169293259305426783
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 9bda308235152434eaeeaeb252a491a3
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      villagernu_0: 1709593926932927304
+      villagernu_1: 4762483750805388438
+      villagernu_10: -4057714514537113213
+      villagernu_11: 8026837192511396679
+      villagernu_12: -8229576130116384414
+      villagernu_13: 3556738556285575138
+      villagernu_14: -7884956258119739207
+      villagernu_15: 2169293259305426783
+      villagernu_2: 522418636898442232
+      villagernu_3: -8611092025412386277
+      villagernu_4: 2271444905331513767
+      villagernu_5: 5212389164489481403
+      villagernu_6: 8466895290913576502
+      villagernu_7: 7871298038178245484
+      villagernu_8: 6734251827215469059
+      villagernu_9: -8085764087942543641
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

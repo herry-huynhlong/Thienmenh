@@ -103,7 +103,7 @@ public class TaskBoardInteract : MonoBehaviour
             return true;
         }
 
-        provider = FindFirstObjectByType<NpcTaskProvider>();
+        provider = FindAnyObjectByType<NpcTaskProvider>();
         return provider != null;
     }
 

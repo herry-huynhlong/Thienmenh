@@ -20,6 +20,10 @@
           "value": "Nghề"
         },
         {
+          "key": "maritalStatus",
+          "value": "T\u00ecnh tr\u1ea1ng"
+        },
+        {
           "key": "realm",
           "value": "Tu vi"
         },
@@ -83,6 +87,19 @@
         {
           "key": "villager",
           "value": "Dân làng"
+        }
+      ]
+    },
+    {
+      "name": "maritalStatus",
+      "entries": [
+        {
+          "key": "single",
+          "value": "\u0110\u1ed9c th\u00e2n"
+        },
+        {
+          "key": "married",
+          "value": "\u0110\u00e3 c\u00f3 v\u1ee3 ch\u1ed3ng"
         }
       ]
     },

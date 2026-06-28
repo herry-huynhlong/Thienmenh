@@ -303,7 +303,7 @@ public class WorldScreenNotificationHub : MonoBehaviour
 
         if (view.text != null)
         {
-            view.text.enableWordWrapping = false;
+            view.text.textWrappingMode = TMPro.TextWrappingModes.NoWrap;
             view.text.overflowMode = TextOverflowModes.Overflow;
             view.text.alignment = TextAlignmentOptions.Left;
             view.text.isRightToLeftText = false;
@@ -522,7 +522,7 @@ public class WorldScreenNotificationHub : MonoBehaviour
             return direct;
         }
 
-        Transform[] roots = FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        Transform[] roots = FindObjectsByType<Transform>(FindObjectsInactive.Include);
         for (int i = 0; i < roots.Length; i++)
         {
             Transform candidate = roots[i];

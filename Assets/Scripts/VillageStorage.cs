@@ -55,8 +55,7 @@ public class VillageStorage : MonoBehaviour
 
         VillageStorage[] storages =
             FindObjectsByType<VillageStorage>(
-                FindObjectsInactive.Exclude,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Exclude);
 
         foreach (VillageStorage storage in storages)
         {

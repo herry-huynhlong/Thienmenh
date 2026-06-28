@@ -268,36 +268,63 @@ public static class NpcEconomy
             CurrencyName;
     }
 
+    public static string FormatCompactAmount(long amount)
+    {
+        if (amount == long.MinValue)
+        {
+            amount = long.MaxValue;
+        }
+
+        bool negative = amount < 0;
+        ulong absValue = (ulong)(negative ? -amount : amount);
+
+        string formatted;
+        if (absValue < 1000UL)
+        {
+            formatted = absValue.ToString(CultureInfo.InvariantCulture);
+        }
+        else if (absValue < 1000000UL)
+        {
+            formatted = FormatCompactUnit(absValue, 1000UL, "k");
+        }
+        else if (absValue < 1000000000UL)
+        {
+            formatted = FormatCompactUnit(absValue, 1000000UL, "m");
+        }
+        else if (absValue < 1000000000000UL)
+        {
+            formatted = FormatCompactUnit(absValue, 1000000000UL, "b");
+        }
+        else
+        {
+            formatted = FormatCompactUnit(absValue, 1000000000000UL, "t");
+        }
+
+        return negative ? "-" + formatted : formatted;
+    }
+
     static string FormatCompactAmount(int amount)
     {
-        if (amount >= 1000000)
-        {
-            return FormatCompactUnit(amount, 1000000f, "m");
-        }
-
-        if (amount >= 1000)
-        {
-            return FormatCompactUnit(amount, 1000f, "k");
-        }
-
-        return amount.ToString(CultureInfo.InvariantCulture);
+        return FormatCompactAmount((long)amount);
     }
 
     static string FormatCompactUnit(
-        int amount,
-        float unit,
+        ulong amount,
+        ulong unit,
         string suffix)
     {
-        float value =
-            amount / unit;
+        ulong whole = amount / unit;
+        ulong remainder = amount % unit;
+        ulong leading = remainder / (unit / 10UL);
 
-        string text =
-            value >= 100f ||
-            Mathf.Approximately(value, Mathf.Round(value))
-            ? Mathf.RoundToInt(value).ToString(CultureInfo.InvariantCulture)
-            : value.ToString("0.#", CultureInfo.InvariantCulture);
+        if (leading == 0UL)
+        {
+            return whole.ToString(CultureInfo.InvariantCulture) + suffix;
+        }
 
-        return text + suffix;
+        return whole.ToString(CultureInfo.InvariantCulture) +
+            suffix +
+            leading.ToString(CultureInfo.InvariantCulture);
     }
 
     static int GetBasePrice(

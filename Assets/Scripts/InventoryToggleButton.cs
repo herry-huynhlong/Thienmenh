@@ -79,7 +79,8 @@ public class InventoryToggleButton : MonoBehaviour, IPointerDownHandler
     void FindInventoryPanel()
     {
         InventoryPanelUI[] panels =
-            FindObjectsOfType<InventoryPanelUI>(true);
+            FindObjectsByType<InventoryPanelUI>(
+                FindObjectsInactive.Include);
 
         foreach (InventoryPanelUI panel in panels)
         {

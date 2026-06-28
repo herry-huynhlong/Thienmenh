@@ -1,0 +1,559 @@
+fileFormatVersion: 2
+guid: 1f4550e534868494cadf2a80df348fbe
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -8251063218338150998
+    second: caotuoinu_0
+  - first:
+      213: -1837357518020538368
+    second: caotuoinu_1
+  - first:
+      213: -5662355750133143756
+    second: caotuoinu_2
+  - first:
+      213: -8506154149376550967
+    second: caotuoinu_3
+  - first:
+      213: -7907635581058455807
+    second: caotuoinu_4
+  - first:
+      213: -2763722020791567962
+    second: caotuoinu_5
+  - first:
+      213: 8170918395276473802
+    second: caotuoinu_6
+  - first:
+      213: 950213604678834502
+    second: caotuoinu_7
+  - first:
+      213: 6472115103930265874
+    second: caotuoinu_8
+  - first:
+      213: 8410371023586032906
+    second: caotuoinu_9
+  - first:
+      213: 8768848176098272776
+    second: caotuoinu_10
+  - first:
+      213: 130809826154008126
+    second: caotuoinu_11
+  - first:
+      213: -8716089441538751375
+    second: caotuoinu_12
+  - first:
+      213: 9190031555273676311
+    second: caotuoinu_13
+  - first:
+      213: -5158430779215100740
+    second: caotuoinu_14
+  - first:
+      213: -3672954888228409361
+    second: caotuoinu_15
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: caotuoinu_0
+      rect:
+        serializedVersion: 2
+        x: 214
+        y: 955
+        width: 130
+        height: 271
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aa5c9ab08b55e7d80800000000000000
+      internalID: -8251063218338150998
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: caotuoinu_1
+      rect:
+        serializedVersion: 2
+        x: 469
+        y: 957
+        width: 129
+        height: 267
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0001ef472156086e0800000000000000
+      internalID: -1837357518020538368
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: caotuoinu_2
+      rect:
+        serializedVersion: 2
+        x: 725
+        y: 955
+        width: 128
+        height: 267
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4376c6912754b61b0800000000000000
+      internalID: -5662355750133143756
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: caotuoinu_3
+      rect:
+        serializedVersion: 2
+        x: 978
+        y: 955
+        width: 138
+        height: 273
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c712b16ed114f980800000000000000
+      internalID: -8506154149376550967
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: caotuoinu_4
+      rect:
+        serializedVersion: 2
+        x: 214
+        y: 653
+        width: 130
+        height: 267
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 10765c1e55f624290800000000000000
+      internalID: -7907635581058455807
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: caotuoinu_5
+      rect:
+        serializedVersion: 2
+        x: 467
+        y: 654
+        width: 130
+        height: 266
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a93bc4077945a9d0800000000000000
+      internalID: -2763722020791567962
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: caotuoinu_6
+      rect:
+        serializedVersion: 2
+        x: 725
+        y: 654
+        width: 129
+        height: 265
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac5b8273dfee46170800000000000000
+      internalID: 8170918395276473802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: caotuoinu_7
+      rect:
+        serializedVersion: 2
+        x: 974
+        y: 654
+        width: 130
+        height: 264
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 64910af2d36df2d00800000000000000
+      internalID: 950213604678834502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: caotuoinu_8
+      rect:
+        serializedVersion: 2
+        x: 209
+        y: 366
+        width: 118
+        height: 246
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2113433756291d950800000000000000
+      internalID: 6472115103930265874
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: caotuoinu_9
+      rect:
+        serializedVersion: 2
+        x: 467
+        y: 366
+        width: 113
+        height: 245
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a0d751ac2e3a7b470800000000000000
+      internalID: 8410371023586032906
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: caotuoinu_10
+      rect:
+        serializedVersion: 2
+        x: 721
+        y: 366
+        width: 115
+        height: 242
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8066ba1f4f431b970800000000000000
+      internalID: 8768848176098272776
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: caotuoinu_11
+      rect:
+        serializedVersion: 2
+        x: 979
+        y: 366
+        width: 114
+        height: 242
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3e4a0508dab0d100800000000000000
+      internalID: 130809826154008126
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: caotuoinu_12
+      rect:
+        serializedVersion: 2
+        x: 210
+        y: 67
+        width: 125
+        height: 262
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 174cc8e25da3a0780800000000000000
+      internalID: -8716089441538751375
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: caotuoinu_13
+      rect:
+        serializedVersion: 2
+        x: 474
+        y: 76
+        width: 118
+        height: 253
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 716d7b6320d898f70800000000000000
+      internalID: 9190031555273676311
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: caotuoinu_14
+      rect:
+        serializedVersion: 2
+        x: 732
+        y: 75
+        width: 117
+        height: 251
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb4417e69829968b0800000000000000
+      internalID: -5158430779215100740
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: caotuoinu_15
+      rect:
+        serializedVersion: 2
+        x: 983
+        y: 75
+        width: 120
+        height: 251
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fef6c134dfa070dc0800000000000000
+      internalID: -3672954888228409361
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: d4ba76bd45b95f14680c81fe86f75d17
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      caotuoinu_0: -8251063218338150998
+      caotuoinu_1: -1837357518020538368
+      caotuoinu_10: 8768848176098272776
+      caotuoinu_11: 130809826154008126
+      caotuoinu_12: -8716089441538751375
+      caotuoinu_13: 9190031555273676311
+      caotuoinu_14: -5158430779215100740
+      caotuoinu_15: -3672954888228409361
+      caotuoinu_2: -5662355750133143756
+      caotuoinu_3: -8506154149376550967
+      caotuoinu_4: -7907635581058455807
+      caotuoinu_5: -2763722020791567962
+      caotuoinu_6: 8170918395276473802
+      caotuoinu_7: 950213604678834502
+      caotuoinu_8: 6472115103930265874
+      caotuoinu_9: 8410371023586032906
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

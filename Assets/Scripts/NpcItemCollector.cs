@@ -122,6 +122,7 @@ public class NpcItemCollector : MonoBehaviour
             pickedItem,
             ItemLifecycleEventType.Picked,
             false);
+        pickup.ClearReservation(gameObject);
 
         return true;
     }

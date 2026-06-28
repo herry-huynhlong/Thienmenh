@@ -20,7 +20,7 @@ public class ShopItemAssetPostprocessor : AssetPostprocessor
 
         SimpleItemShop[] shops =
             Object.FindObjectsByType<SimpleItemShop>(
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
 
         foreach (SimpleItemShop shop in shops)
         {

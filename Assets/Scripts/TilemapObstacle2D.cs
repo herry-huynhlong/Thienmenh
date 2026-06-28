@@ -39,7 +39,8 @@ public class TilemapObstacle2D : MonoBehaviour
 
         if (!useCompositeCollider)
         {
-            tilemapCollider.usedByComposite = false;
+            tilemapCollider.compositeOperation =
+                Collider2D.CompositeOperation.None;
             return;
         }
 
@@ -69,6 +70,7 @@ public class TilemapObstacle2D : MonoBehaviour
 
         composite.isTrigger = isTrigger;
         composite.geometryType = CompositeCollider2D.GeometryType.Outlines;
-        tilemapCollider.usedByComposite = true;
+        tilemapCollider.compositeOperation =
+            Collider2D.CompositeOperation.Merge;
     }
 }

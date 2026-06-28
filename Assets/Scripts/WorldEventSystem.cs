@@ -126,7 +126,8 @@ public class WorldEventSystem : MonoBehaviour
 
     void MakeBeastsAggressive(float amount)
     {
-        MonsterAI[] monsters = Object.FindObjectsByType<MonsterAI>(FindObjectsSortMode.None);
+        MonsterAI[] monsters =
+            Object.FindObjectsByType<MonsterAI>(FindObjectsInactive.Exclude);
         foreach (MonsterAI monster in monsters)
         {
             if (monster == null || monster.IsDead)
@@ -149,7 +150,7 @@ public class WorldEventSystem : MonoBehaviour
 
         List<CharacterStats> stats =
             new List<CharacterStats>(
-                Object.FindObjectsByType<CharacterStats>(FindObjectsSortMode.None));
+                Object.FindObjectsByType<CharacterStats>(FindObjectsInactive.Exclude));
 
         CharacterStats strongest = null;
         int strongestPower = 0;

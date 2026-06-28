@@ -156,12 +156,24 @@ public static class NpcMapNavigator
             return finalTarget;
         }
 
+        if (!gate.TryGetTeleportRouteForZone(
+                currentZone.Value,
+                out _,
+                out _,
+                out NpcMapZone destinationZone))
+        {
+            return finalTarget;
+        }
+
+        Vector3 entryPosition =
+            gate.GetApproachPosition(npc.transform.position);
+
         usingTeleportRoute = true;
         routeAction =
             "Đi cổng dịch chuyển đến " +
-            GetZoneName(gate.toZone);
+            GetZoneName(destinationZone);
 
-        return gate.EntryPosition;
+        return entryPosition;
     }
 
     public static NpcMapZone? GetDestinationZone(Transform target)
@@ -208,12 +220,13 @@ public static class NpcMapNavigator
 
             foreach (NpcTeleportGate gate in NpcTeleportGate.Gates)
             {
-                if (gate == null || gate.fromZone != zone)
+                if (gate == null ||
+                    !gate.TryGetOtherZone(zone, out NpcMapZone nextZone))
                 {
                     continue;
                 }
 
-                if (visited.Contains(gate.toZone))
+                if (visited.Contains(nextZone))
                 {
                     continue;
                 }
@@ -223,14 +236,14 @@ public static class NpcMapNavigator
                     ? gate
                     : firstGateByZone[zone];
 
-                if (gate.toZone == targetZone)
+                if (nextZone == targetZone)
                 {
                     return firstGate;
                 }
 
-                firstGateByZone[gate.toZone] = firstGate;
-                visited.Add(gate.toZone);
-                queue.Enqueue(gate.toZone);
+                firstGateByZone[nextZone] = firstGate;
+                visited.Add(nextZone);
+                queue.Enqueue(nextZone);
             }
         }
 
@@ -243,12 +256,46 @@ public static class NpcMapNavigator
     {
         foreach (NpcTeleportGate gate in NpcTeleportGate.Gates)
         {
+            if (gate == null ||
+                !gate.Connects(fromZone, toZone) ||
+                ResolvePhysicalGateZone(gate) != fromZone)
+            {
+                continue;
+            }
+
+            return gate;
+        }
+
+        foreach (NpcTeleportGate gate in NpcTeleportGate.Gates)
+        {
             if (gate != null &&
-                gate.fromZone == fromZone &&
-                gate.toZone == toZone)
+                gate.Connects(fromZone, toZone))
             {
                 return gate;
             }
+        }
+
+        return null;
+    }
+
+    static NpcMapZone? ResolvePhysicalGateZone(NpcTeleportGate gate)
+    {
+        if (gate == null)
+        {
+            return null;
+        }
+
+        NpcMapArea area =
+            NpcMapArea.FindArea(gate.transform.position);
+        if (area != null)
+        {
+            return area.zone;
+        }
+
+        area = NpcMapArea.FindArea(gate.EntryPosition);
+        if (area != null)
+        {
+            return area.zone;
         }
 
         return null;
@@ -268,16 +315,17 @@ public static class NpcMapNavigator
                 continue;
             }
 
-            if (gate.toZone == zone &&
-                Vector2.Distance(position, gate.ExitPosition) <= exitBuffer)
+            if (gate.TryGetTeleportRouteForZone(
+                    zone,
+                    out Vector3 entryPosition,
+                    out Vector3 exitPosition,
+                    out _))
             {
-                return true;
-            }
-
-            if (gate.fromZone == zone &&
-                Vector2.Distance(position, gate.EntryPosition) <= entryBuffer)
-            {
-                return true;
+                if (Vector2.Distance(position, exitPosition) <= exitBuffer ||
+                    Vector2.Distance(position, entryPosition) <= entryBuffer)
+                {
+                    return true;
+                }
             }
         }
 

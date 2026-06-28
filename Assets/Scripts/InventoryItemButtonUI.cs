@@ -408,7 +408,7 @@ public class InventoryItemButtonUI :
         rect.localScale = Vector3.one;
         rect.localRotation = Quaternion.identity;
         nameText.alignment = TextAlignmentOptions.Bottom;
-        nameText.enableWordWrapping = true;
+        nameText.textWrappingMode = TMPro.TextWrappingModes.Normal;
         nameText.fontSize =
             autoScaleNameFont
             ? GetNameFontSize(itemRect)

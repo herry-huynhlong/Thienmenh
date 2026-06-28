@@ -55,6 +55,16 @@ public class WorldStatItemPickup : MonoBehaviour
             return false;
         }
 
+        CleanupInvalidReservation();
+
+        TargetReservationSystem reservationSystem =
+            TargetReservationSystem.TryGetExistingInstance();
+        if (reservationSystem != null &&
+            reservationSystem.IsReservedByOther(gameObject, reserver))
+        {
+            return false;
+        }
+
         if (reservedBy != null &&
             reservedBy != reserver &&
             reservationExpiresAt > Time.time)
@@ -64,11 +74,30 @@ public class WorldStatItemPickup : MonoBehaviour
 
         reservedBy = reserver;
         reservationExpiresAt = Time.time + Mathf.Max(0.25f, duration);
+        if (reservationSystem != null)
+        {
+            reservationSystem.TryReserve(
+                gameObject,
+                reserver,
+                duration,
+                "Pickup");
+        }
+
         return true;
     }
 
     public bool IsReservedByOther(GameObject requester)
     {
+        CleanupInvalidReservation();
+
+        TargetReservationSystem reservationSystem =
+            TargetReservationSystem.TryGetExistingInstance();
+        if (reservationSystem != null &&
+            reservationSystem.IsReservedByOther(gameObject, requester))
+        {
+            return true;
+        }
+
         if (reservedBy == null ||
             reservedBy == requester ||
             reservationExpiresAt <= Time.time)
@@ -81,18 +110,45 @@ public class WorldStatItemPickup : MonoBehaviour
 
     public void RefreshReservation(GameObject reserver, float duration)
     {
-        if (reserver == null ||
-            reservedBy != reserver)
+        if (reserver == null)
         {
             return;
         }
 
+        CleanupInvalidReservation();
+
+        if (reservedBy != null &&
+            reservedBy != reserver &&
+            reservationExpiresAt > Time.time)
+        {
+            return;
+        }
+
+        reservedBy = reserver;
         reservationExpiresAt = Time.time + Mathf.Max(0.25f, duration);
+
+        TargetReservationSystem reservationSystem =
+            TargetReservationSystem.TryGetExistingInstance();
+        if (reservationSystem != null)
+        {
+            reservationSystem.TryReserve(
+                gameObject,
+                reserver,
+                duration,
+                "Pickup");
+        }
     }
 
     public void ClearReservation(GameObject reserver)
     {
-        if (reserver == null ||
+        if (reserver == null)
+        {
+            return;
+        }
+
+        CleanupInvalidReservation();
+
+        if (reservedBy != null &&
             reservedBy != reserver)
         {
             return;
@@ -100,6 +156,29 @@ public class WorldStatItemPickup : MonoBehaviour
 
         reservedBy = null;
         reservationExpiresAt = 0f;
+
+        TargetReservationSystem reservationSystem =
+            TargetReservationSystem.TryGetExistingInstance();
+        if (reservationSystem != null)
+        {
+            reservationSystem.Release(gameObject, reserver);
+        }
+    }
+
+    void OnDisable()
+    {
+        if (reservedBy != null)
+        {
+            ClearReservation(reservedBy);
+        }
+    }
+
+    void OnDestroy()
+    {
+        if (reservedBy != null)
+        {
+            ClearReservation(reservedBy);
+        }
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -163,6 +242,7 @@ public class WorldStatItemPickup : MonoBehaviour
                 pickedItem,
                 ItemLifecycleEventType.Picked,
                 false);
+            ClearReservation(target.gameObject);
             return true;
         }
 
@@ -184,6 +264,7 @@ public class WorldStatItemPickup : MonoBehaviour
             pickedItem,
             target.gameObject);
         TreasureHeatSystem.NotifyNpcReceivedItem(target.gameObject, pickedItem);
+        ClearReservation(target.gameObject);
         return true;
     }
 
@@ -215,6 +296,7 @@ public class WorldStatItemPickup : MonoBehaviour
 
         ItemEffectSpawner.PlayPickupEffect(pickedItem, target);
         inventory.AddItem(pickedItem, 1);
+        ClearReservation(target.gameObject);
         return true;
     }
 
@@ -271,5 +353,16 @@ public class WorldStatItemPickup : MonoBehaviour
         }
 
         return null;
+    }
+
+    void CleanupInvalidReservation()
+    {
+        if (reservedBy == null ||
+            !reservedBy.activeInHierarchy ||
+            reservationExpiresAt <= Time.time)
+        {
+            reservedBy = null;
+            reservationExpiresAt = 0f;
+        }
     }
 }

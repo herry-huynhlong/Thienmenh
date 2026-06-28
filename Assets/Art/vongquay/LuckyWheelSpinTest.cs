@@ -986,7 +986,8 @@ public class LuckyWheelSpinTest : MonoBehaviour
         }
 
         InventoryToggleButton inventoryToggle =
-            FindObjectOfType<InventoryToggleButton>(true);
+            FindAnyObjectByType<InventoryToggleButton>(
+                FindObjectsInactive.Include);
         if (inventoryToggle != null &&
             inventoryToggle.inventoryPanel != null)
         {
@@ -1009,7 +1010,8 @@ public class LuckyWheelSpinTest : MonoBehaviour
             }
         }
 
-        PlayerHealth playerHealth = FindObjectOfType<PlayerHealth>(true);
+        PlayerHealth playerHealth =
+            FindAnyObjectByType<PlayerHealth>(FindObjectsInactive.Include);
         if (playerHealth != null)
         {
             ItemInventory inventory = playerHealth.GetComponent<ItemInventory>();

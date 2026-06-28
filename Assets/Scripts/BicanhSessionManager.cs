@@ -14,7 +14,7 @@ public class BicanhSessionManager : MonoBehaviour
     [Range(1, 9)] public int minimumRealmStage = 1;
     public bool includeSmartNpcAI = true;
     public bool includeMonsterAI = true;
-    public bool includeVillagerAI = true;
+    public bool includeVillagerAI = false;
 
     [Header("Spawn")]
     public Transform spawnPointsRoot;
@@ -395,9 +395,12 @@ public class BicanhSessionManager : MonoBehaviour
         }
 
         VillagerAI villager = entity.GetComponent<VillagerAI>();
-        if (villager != null)
+        if (villager != null &&
+            villager.enabled)
         {
-            return CultivationProgression.GetRealmPower(villager.realm, villager.realmStage);
+            return CultivationProgression.GetRealmPower(
+                CultivationRealm.Mortal,
+                1);
         }
 
         MonsterAI monster = entity.GetComponent<MonsterAI>();
@@ -664,7 +667,7 @@ public class BicanhSessionManager : MonoBehaviour
             smartNpc.canCreateSect = snapshot.smartNpcCanCreateSect;
             if (!string.IsNullOrEmpty(snapshot.smartNpcCurrentAction))
             {
-                smartNpc.currentAction = snapshot.smartNpcCurrentAction;
+                smartNpc.ForceSetCurrentAction(snapshot.smartNpcCurrentAction);
             }
         }
 
@@ -699,7 +702,7 @@ public class BicanhSessionManager : MonoBehaviour
             SetPrivateBool(snapshot.smartNpc, "isDead", false);
             if (!string.IsNullOrEmpty(snapshot.smartNpcCurrentAction))
             {
-                snapshot.smartNpc.currentAction = snapshot.smartNpcCurrentAction;
+                snapshot.smartNpc.ForceSetCurrentAction(snapshot.smartNpcCurrentAction);
             }
         }
 

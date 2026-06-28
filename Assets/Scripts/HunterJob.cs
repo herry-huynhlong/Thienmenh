@@ -47,6 +47,16 @@ public class HunterJob : MonoBehaviour
         RefreshReferences();
     }
 
+    void OnDisable()
+    {
+        TargetReservationSystem.TryGetExistingInstance()?.ReleaseAllByOwner(gameObject);
+    }
+
+    void OnDestroy()
+    {
+        TargetReservationSystem.TryGetExistingInstance()?.ReleaseAllByOwner(gameObject);
+    }
+
 #if UNITY_EDITOR
     void OnValidate()
     {
@@ -261,7 +271,13 @@ public class HunterJob : MonoBehaviour
 
         if (!IsValidMonster(currentMonsterTarget))
         {
+            ReleaseMonsterTarget(currentMonsterTarget);
             currentMonsterTarget = FindNearestMonster();
+            if (currentMonsterTarget != null &&
+                !TryReserveMonsterTarget(currentMonsterTarget))
+            {
+                currentMonsterTarget = null;
+            }
         }
 
         if (currentMonsterTarget == null)
@@ -399,7 +415,7 @@ public class HunterJob : MonoBehaviour
             return false;
         }
 
-        target = bestGate.ExitPosition;
+        target = bestGate.EntryPosition;
         return Vector2.Distance(transform.position, target) >
             Mathf.Max(arriveDistance, 0.65f);
     }
@@ -418,6 +434,7 @@ public class HunterJob : MonoBehaviour
                 VillagerJob.Hunter,
                 NpcLocationPurpose.Hunt,
                 targetZone,
+                null,
                 transform.position,
                 out huntAreaTarget,
                 out NpcMapZone? huntAreaResolvedZone))
@@ -644,8 +661,7 @@ public class HunterJob : MonoBehaviour
     MonsterAI FindNearestMonster()
     {
         MonsterAI[] monsters = FindObjectsByType<MonsterAI>(
-            FindObjectsInactive.Exclude,
-            FindObjectsSortMode.None);
+            FindObjectsInactive.Exclude);
 
         MonsterAI best = null;
         float bestDistance = float.MaxValue;
@@ -654,6 +670,13 @@ public class HunterJob : MonoBehaviour
         foreach (MonsterAI monster in monsters)
         {
             if (!IsValidMonster(monster))
+            {
+                continue;
+            }
+
+            if (TargetReservationSystem.Instance.IsReservedByOther(
+                    monster.gameObject,
+                    gameObject))
             {
                 continue;
             }
@@ -689,7 +712,10 @@ public class HunterJob : MonoBehaviour
     {
         return monster != null &&
             monster.gameObject.activeInHierarchy &&
-            !monster.IsDead;
+            !monster.IsDead &&
+            !TargetReservationSystem.Instance.IsReservedByOther(
+                monster.gameObject,
+                gameObject);
     }
 
     bool IsMonsterInHuntZone(MonsterAI monster)
@@ -760,14 +786,37 @@ public class HunterJob : MonoBehaviour
         return area != null ? area.zone : (NpcMapZone?)null;
     }
 
+    bool TryReserveMonsterTarget(MonsterAI monster)
+    {
+        if (monster == null)
+        {
+            return false;
+        }
+
+        return TargetReservationSystem.Instance.TryReserve(
+            monster.gameObject,
+            gameObject,
+            Mathf.Max(4f, attackInterval * 4f),
+            "Combat");
+    }
+
+    void ReleaseMonsterTarget(MonsterAI monster)
+    {
+        if (monster == null)
+        {
+            return;
+        }
+
+        TargetReservationSystem.Instance.Release(monster.gameObject, gameObject);
+    }
+
     WorldStatItemPickup FindNearestLoot(
         Vector3 position,
         StatItemData item,
         float radius)
     {
         WorldStatItemPickup[] pickups = FindObjectsByType<WorldStatItemPickup>(
-            FindObjectsInactive.Exclude,
-            FindObjectsSortMode.None);
+            FindObjectsInactive.Exclude);
 
         WorldStatItemPickup best = null;
         float bestDistance = float.MaxValue;

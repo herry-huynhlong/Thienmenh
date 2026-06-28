@@ -61,8 +61,7 @@ public class WorldTimeSystem : MonoBehaviour
         }
 
         WorldTimeSystem[] systems = FindObjectsByType<WorldTimeSystem>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None);
+            FindObjectsInactive.Include);
 
         foreach (WorldTimeSystem system in systems)
         {
@@ -163,6 +162,41 @@ public class WorldTimeSystem : MonoBehaviour
         {
             TriggerTimeEvents(true);
         }
+    }
+
+    public void SetCurrentDayHour(float hour, bool triggerEvents = true)
+    {
+        SetTime(currentYear, currentMonth, currentDay, hour, triggerEvents);
+    }
+
+    [ContextMenu("Debug/Set Time 00:30")]
+    void DebugSetTime0030()
+    {
+        SetCurrentDayHour(0.5f);
+    }
+
+    [ContextMenu("Debug/Set Time 07:30")]
+    void DebugSetTime0730()
+    {
+        SetCurrentDayHour(7.5f);
+    }
+
+    [ContextMenu("Debug/Set Time 13:30")]
+    void DebugSetTime1330()
+    {
+        SetCurrentDayHour(13.5f);
+    }
+
+    [ContextMenu("Debug/Set Time 18:30")]
+    void DebugSetTime1830()
+    {
+        SetCurrentDayHour(18.5f);
+    }
+
+    [ContextMenu("Debug/Set Time 22:30")]
+    void DebugSetTime2230()
+    {
+        SetCurrentDayHour(22.5f);
     }
 
     public void SaveNow()
@@ -302,6 +336,23 @@ public class WorldTimeSystem : MonoBehaviour
         {
             lastTriggeredDateCode = dateCode;
             OnDayChanged?.Invoke(CurrentAbsoluteDay);
+
+            if (!force)
+            {
+                VillagerRelationshipManager relationshipManager =
+                    VillagerRelationshipManager.EnsureInstance();
+                if (relationshipManager != null)
+                {
+                    relationshipManager.DailyRelationshipTick();
+                }
+
+                VillagerBirthManager birthManager =
+                    VillagerBirthManager.EnsureInstance();
+                if (birthManager != null)
+                {
+                    birthManager.DailyBirthTick();
+                }
+            }
         }
     }
 

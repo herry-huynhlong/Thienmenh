@@ -22,7 +22,8 @@ public class NpcFavoriteManager : MonoBehaviour
             return Instance;
         }
 
-        NpcFavoriteManager existing = FindObjectOfType<NpcFavoriteManager>(true);
+        NpcFavoriteManager existing =
+            FindAnyObjectByType<NpcFavoriteManager>(FindObjectsInactive.Include);
 
         if (existing != null)
         {

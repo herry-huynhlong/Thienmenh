@@ -158,7 +158,7 @@ public class DayNightLightingSystem : MonoBehaviour
         {
             Light2D[] lights =
                 Object.FindObjectsByType<Light2D>(
-                    FindObjectsSortMode.None);
+                    FindObjectsInactive.Exclude);
 
             foreach (Light2D light in lights)
             {

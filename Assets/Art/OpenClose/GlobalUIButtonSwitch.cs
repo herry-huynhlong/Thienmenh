@@ -141,11 +141,11 @@ public class GlobalUIButtonSwitch : MonoBehaviour
     {
 #if UNITY_2023_1_OR_NEWER
         return FindObjectsByType<UIButtonToggleTarget>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None
+            FindObjectsInactive.Include
         );
 #else
-        return FindObjectsOfType<UIButtonToggleTarget>(true);
+        return FindObjectsByType<UIButtonToggleTarget>(
+            FindObjectsInactive.Include);
 #endif
     }
 

@@ -58,7 +58,8 @@ public class FullGameSaveController : MonoBehaviour
             return instance;
         }
 
-        FullGameSaveController existing = FindObjectOfType<FullGameSaveController>(true);
+        FullGameSaveController existing =
+            FindAnyObjectByType<FullGameSaveController>(FindObjectsInactive.Include);
         if (existing != null)
         {
             instance = existing;
@@ -428,13 +429,15 @@ public class FullGameSaveController : MonoBehaviour
             return taggedPlayer;
         }
 
-        PlayerHealth health = FindObjectOfType<PlayerHealth>(true);
+        PlayerHealth health =
+            FindAnyObjectByType<PlayerHealth>(FindObjectsInactive.Include);
         if (health != null)
         {
             return health.gameObject;
         }
 
-        CharacterStats stats = FindObjectOfType<CharacterStats>(true);
+        CharacterStats stats =
+            FindAnyObjectByType<CharacterStats>(FindObjectsInactive.Include);
         return stats != null ? stats.gameObject : null;
     }
 

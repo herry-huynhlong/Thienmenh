@@ -70,6 +70,11 @@ public partial class SmartNpcAI
             }
         }
 
+        if (currentHP > Mathf.Max(1, maxHP / 2))
+        {
+            ClearEmergencyTaskIfMatches(SmartAITaskGoal.LowHpRecovery);
+        }
+
         Debug.Log(NpcText.Format(NpcText.Get("logs", "sleep"), npcName));
     }
 }

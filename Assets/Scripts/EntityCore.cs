@@ -368,15 +368,9 @@ public static class EntityGenerator
         stats.realm = WeightedRealm(kind);
         stats.realmStage = UnityEngine.Random.Range(1, 10);
 
-        float realmPower =
-            CultivationProgression.GetStatPower(stats.realm, stats.realmStage, kind);
-        float entityStatMultiplier =
-            CultivationProgression.GetEntityStatMultiplier(kind);
-
         float talentPower = TalentPower(talent.grade);
-        int baseHp = CultivationProgression.GetConfiguredBaseMaxHP();
-        int baseAttack = CultivationProgression.GetConfiguredBaseAttack();
-        int baseDefense = CultivationProgression.GetConfiguredBaseDefense();
+        int majorRealmIndex = Mathf.Max(0, (int)stats.realm);
+        int minorStageIndex = Mathf.Clamp(stats.realmStage, 1, CultivationProgression.MaxStage) - 1;
         float baseMoveSpeed;
         int baseMoney;
         int baseSpiritStone;
@@ -400,21 +394,47 @@ public static class EntityGenerator
             baseSpiritStone = UnityEngine.Random.Range(0, 5);
         }
 
-        stats.maxHP =
-            Mathf.Max(
-                1,
-                Mathf.RoundToInt(baseHp * realmPower * entityStatMultiplier));
+        if (kind == EntityKind.Beast)
+        {
+            stats.maxHP =
+                CombatStatCalculator.ClampToInt(
+                    CombatStatCalculator.CalculateMonsterHp(
+                        majorRealmIndex,
+                        minorStageIndex));
+            stats.attack =
+                CombatStatCalculator.ClampToInt(
+                    CombatStatCalculator.CalculateMonsterAttack(
+                        majorRealmIndex,
+                        minorStageIndex));
+            stats.defense =
+                CombatStatCalculator.ClampToInt(
+                    CombatStatCalculator.CalculateMonsterDefense(
+                        majorRealmIndex,
+                        minorStageIndex));
+        }
+        else
+        {
+            stats.maxHP =
+                CombatStatCalculator.ClampToInt(
+                    CombatStatCalculator.CalculateNpcHp(
+                        majorRealmIndex,
+                        minorStageIndex));
+            stats.attack =
+                CombatStatCalculator.ClampToInt(
+                    CombatStatCalculator.CalculateNpcAttack(
+                        majorRealmIndex,
+                        minorStageIndex));
+            stats.defense =
+                CombatStatCalculator.ClampToInt(
+                    CombatStatCalculator.CalculateNpcDefense(
+                        majorRealmIndex,
+                        minorStageIndex));
+        }
+
+        stats.maxHP = Mathf.Max(1, stats.maxHP);
+        stats.attack = Mathf.Max(1, stats.attack);
+        stats.defense = Mathf.Max(0, stats.defense);
         stats.currentHP = stats.maxHP;
-        stats.attack =
-            Mathf.Max(
-                1,
-                Mathf.RoundToInt(
-                    baseAttack * realmPower * entityStatMultiplier));
-        stats.defense =
-            Mathf.Max(
-                0,
-                Mathf.RoundToInt(
-                    baseDefense * realmPower * entityStatMultiplier));
         stats.effectResistance = Mathf.RoundToInt(UnityEngine.Random.Range(0, 8) * talentPower);
         stats.moveSpeed = baseMoveSpeed;
         stats.cultivationExp = UnityEngine.Random.Range(0, 80) * Mathf.Max(1, (int)stats.realm + 1);

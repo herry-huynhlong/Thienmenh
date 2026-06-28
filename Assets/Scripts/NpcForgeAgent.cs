@@ -649,8 +649,7 @@ public class NpcForgeAgent : MonoBehaviour
 
         NpcForgeAgent[] agents =
             FindObjectsByType<NpcForgeAgent>(
-                FindObjectsInactive.Exclude,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Exclude);
 
         foreach (NpcForgeAgent agent in agents)
         {
@@ -820,8 +819,7 @@ public class NpcForgeAgent : MonoBehaviour
 
         NpcForgeAgent[] agents =
             FindObjectsByType<NpcForgeAgent>(
-                FindObjectsInactive.Exclude,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Exclude);
 
         foreach (NpcForgeAgent agent in agents)
         {
@@ -883,8 +881,7 @@ public class NpcForgeAgent : MonoBehaviour
 
         NpcForgeAgent[] agents =
             FindObjectsByType<NpcForgeAgent>(
-                FindObjectsInactive.Exclude,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Exclude);
 
         NpcForgeAgent best = null;
         float bestDistance = float.MaxValue;
@@ -1187,8 +1184,7 @@ public class NpcForgeAgent : MonoBehaviour
 
         NpcForgeAgent[] agents =
             FindObjectsByType<NpcForgeAgent>(
-                FindObjectsInactive.Exclude,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Exclude);
 
         NpcForgeAgent best = null;
         float bestDistance = float.MaxValue;

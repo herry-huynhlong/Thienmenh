@@ -1,0 +1,559 @@
+fileFormatVersion: 2
+guid: 3c71e35250f16f74586890b31bb7c78d
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1419369863449664890
+    second: trungniennu_0
+  - first:
+      213: -2209484769255413984
+    second: trungniennu_1
+  - first:
+      213: -8796551073267634312
+    second: trungniennu_2
+  - first:
+      213: 3241731377456854149
+    second: trungniennu_3
+  - first:
+      213: 4835191798211033960
+    second: trungniennu_4
+  - first:
+      213: 7188565983049096281
+    second: trungniennu_5
+  - first:
+      213: 3270745165801963364
+    second: trungniennu_6
+  - first:
+      213: 4860709447496304835
+    second: trungniennu_7
+  - first:
+      213: -7143609004676205382
+    second: trungniennu_8
+  - first:
+      213: -3746249321051901332
+    second: trungniennu_9
+  - first:
+      213: 3211737620560406534
+    second: trungniennu_10
+  - first:
+      213: -4928985883681954906
+    second: trungniennu_11
+  - first:
+      213: 2479599976820447940
+    second: trungniennu_12
+  - first:
+      213: 7895710925864934826
+    second: trungniennu_13
+  - first:
+      213: 8471553525548155665
+    second: trungniennu_14
+  - first:
+      213: -683724642995762263
+    second: trungniennu_15
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: trungniennu_0
+      rect:
+        serializedVersion: 2
+        x: 211
+        y: 960
+        width: 133
+        height: 277
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 682203c11a26d4ce0800000000000000
+      internalID: -1419369863449664890
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: trungniennu_1
+      rect:
+        serializedVersion: 2
+        x: 471
+        y: 964
+        width: 128
+        height: 270
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 02725e70f455651e0800000000000000
+      internalID: -2209484769255413984
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: trungniennu_2
+      rect:
+        serializedVersion: 2
+        x: 725
+        y: 960
+        width: 130
+        height: 274
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 87f2d4da76f5ce580800000000000000
+      internalID: -8796551073267634312
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: trungniennu_3
+      rect:
+        serializedVersion: 2
+        x: 978
+        y: 962
+        width: 135
+        height: 292
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 584bd8a2381fcfc20800000000000000
+      internalID: 3241731377456854149
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: trungniennu_4
+      rect:
+        serializedVersion: 2
+        x: 212
+        y: 658
+        width: 132
+        height: 271
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86b3041925d0a1340800000000000000
+      internalID: 4835191798211033960
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: trungniennu_5
+      rect:
+        serializedVersion: 2
+        x: 467
+        y: 658
+        width: 132
+        height: 270
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 95c1918ccaae2c360800000000000000
+      internalID: 7188565983049096281
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: trungniennu_6
+      rect:
+        serializedVersion: 2
+        x: 725
+        y: 661
+        width: 130
+        height: 267
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46fb37e2665046d20800000000000000
+      internalID: 3270745165801963364
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: trungniennu_7
+      rect:
+        serializedVersion: 2
+        x: 973
+        y: 660
+        width: 133
+        height: 268
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c807664d75b47340800000000000000
+      internalID: 4860709447496304835
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: trungniennu_8
+      rect:
+        serializedVersion: 2
+        x: 209
+        y: 373
+        width: 118
+        height: 243
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab43efd657dccdc90800000000000000
+      internalID: -7143609004676205382
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: trungniennu_9
+      rect:
+        serializedVersion: 2
+        x: 467
+        y: 372
+        width: 112
+        height: 244
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c6237aa4716a20cc0800000000000000
+      internalID: -3746249321051901332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: trungniennu_10
+      rect:
+        serializedVersion: 2
+        x: 724
+        y: 372
+        width: 115
+        height: 243
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 608e2417952629c20800000000000000
+      internalID: 3211737620560406534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: trungniennu_11
+      rect:
+        serializedVersion: 2
+        x: 980
+        y: 372
+        width: 114
+        height: 244
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a3e8342479b89bb0800000000000000
+      internalID: -4928985883681954906
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: trungniennu_12
+      rect:
+        serializedVersion: 2
+        x: 213
+        y: 76
+        width: 121
+        height: 254
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4ca137b9a0f496220800000000000000
+      internalID: 2479599976820447940
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: trungniennu_13
+      rect:
+        serializedVersion: 2
+        x: 472
+        y: 75
+        width: 117
+        height: 255
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aad9959f043339d60800000000000000
+      internalID: 7895710925864934826
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: trungniennu_14
+      rect:
+        serializedVersion: 2
+        x: 729
+        y: 77
+        width: 122
+        height: 253
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 113810a1c01019570800000000000000
+      internalID: 8471553525548155665
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: trungniennu_15
+      rect:
+        serializedVersion: 2
+        x: 982
+        y: 77
+        width: 122
+        height: 253
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ab8e0a4f0ce286f0800000000000000
+      internalID: -683724642995762263
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 4cb80a54d479edc4a82bb12a4bd40fcd
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      trungniennu_0: -1419369863449664890
+      trungniennu_1: -2209484769255413984
+      trungniennu_10: 3211737620560406534
+      trungniennu_11: -4928985883681954906
+      trungniennu_12: 2479599976820447940
+      trungniennu_13: 7895710925864934826
+      trungniennu_14: 8471553525548155665
+      trungniennu_15: -683724642995762263
+      trungniennu_2: -8796551073267634312
+      trungniennu_3: 3241731377456854149
+      trungniennu_4: 4835191798211033960
+      trungniennu_5: 7188565983049096281
+      trungniennu_6: 3270745165801963364
+      trungniennu_7: 4860709447496304835
+      trungniennu_8: -7143609004676205382
+      trungniennu_9: -3746249321051901332
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

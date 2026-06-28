@@ -312,7 +312,12 @@ public class NpcRageNearbyAttack : MonoBehaviour
                 cachedSmartNpcAction = smartNpcAI.currentAction;
             }
 
-            smartNpcAI.currentAction = resolvedAttackAction;
+            smartNpcAI.RequestEmergencyTask(
+                SmartAITaskGoal.Combat,
+                SmartAITaskPriority.Emergency,
+                false,
+                "rage nearby attack");
+            smartNpcAI.ForceSetCurrentAction(resolvedAttackAction);
         }
     }
 
@@ -335,7 +340,7 @@ public class NpcRageNearbyAttack : MonoBehaviour
 
         if (smartNpcAI != null && !string.IsNullOrEmpty(cachedSmartNpcAction))
         {
-            smartNpcAI.currentAction = cachedSmartNpcAction;
+            smartNpcAI.ForceSetCurrentAction(cachedSmartNpcAction);
         }
     }
 

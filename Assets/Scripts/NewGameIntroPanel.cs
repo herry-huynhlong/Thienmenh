@@ -287,7 +287,7 @@ public class NewGameIntroPanel : MonoBehaviour
         }
 
         MainMenuManager mainMenuManager =
-            FindFirstObjectByType<MainMenuManager>();
+            FindAnyObjectByType<MainMenuManager>();
 
         if (mainMenuManager != null)
         {
