@@ -724,6 +724,13 @@ public partial class SmartNpcAI
 
         Vector3 providerPosition =
             provider.GetProviderPositionFor(gameObject);
+        NpcMapArea providerArea = NpcMapArea.FindArea(providerPosition);
+        NpcMapArea selfArea = NpcMapArea.FindArea(transform.position);
+        NpcMapZone? providerStandZone =
+            provider.providerStandPoint != null
+                ? NpcMapNavigator.GetDestinationZone(
+                    provider.providerStandPoint)
+                : (NpcMapZone?)null;
         float providerArriveDistance =
             Mathf.Max(
                 0.45f,
@@ -750,6 +757,14 @@ public partial class SmartNpcAI
             Vector2.Distance(transform.position, providerPosition).ToString("0.00") +
             " pos=" +
             transform.position +
+            " selfArea=" +
+            (selfArea != null ? selfArea.name : "null") +
+            " providerArea=" +
+            (providerArea != null ? providerArea.name : "null") +
+            " providerZone=" +
+            (providerArea != null ? providerArea.zone.ToString() : "None") +
+            " standZone=" +
+            (providerStandZone.HasValue ? providerStandZone.Value.ToString() : "None") +
             " target=" +
             (currentTarget != null ? currentTarget.name : "null") +
             " wander=" +
@@ -778,6 +793,14 @@ public partial class SmartNpcAI
                 "TaskProvider",
                 "Moving to provider " + provider.name +
                 " stand=" + providerPosition +
+                " mode=" +
+                (provider.providerStandPoint != null
+                    ? "TransformTarget"
+                    : "WanderTarget") +
+                " providerArea=" +
+                (providerArea != null ? providerArea.name : "null") +
+                " providerZone=" +
+                (providerArea != null ? providerArea.zone.ToString() : "None") +
                 " quota=" + GetDailyTaskQuotaDebugText());
             return true;
         }
@@ -801,6 +824,14 @@ public partial class SmartNpcAI
                 "TaskProvider",
                 "Adjusting to exact provider stand " + provider.name +
                 " stand=" + providerPosition +
+                " mode=" +
+                (provider.providerStandPoint != null
+                    ? "TransformTarget"
+                    : "WanderTarget") +
+                " providerArea=" +
+                (providerArea != null ? providerArea.name : "null") +
+                " providerZone=" +
+                (providerArea != null ? providerArea.zone.ToString() : "None") +
                 " quota=" + GetDailyTaskQuotaDebugText());
             return true;
         }

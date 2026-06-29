@@ -101,20 +101,40 @@ public static class CombatPowerUtility
 
     public static bool ShouldRetreat(GameObject npc, GameObject monster)
     {
+        float npcHpRatio = GetCurrentHpRatio(npc);
+        return npcHpRatio <= RetreatHpThreshold;
+    }
+
+    public static string DescribeNpcVsMonster(GameObject npc, GameObject monster)
+    {
         float npcPower = Mathf.Max(1f, GetPower(npc));
         float monsterPower = Mathf.Max(1f, GetPower(monster));
         float npcHpRatio = GetCurrentHpRatio(npc);
+        float threatRatio = monsterPower / Mathf.Max(1f, npcPower);
+        bool lowHpRetreat = npcHpRatio <= RetreatHpThreshold;
+        bool heavilyOutmatched = npcPower < monsterPower * 0.45f;
+        bool doubledThreat = monsterPower >= npcPower * 2f;
+        bool requestHelp =
+            npcHpRatio > RetreatHpThreshold &&
+            npcHpRatio <= HelpHpThreshold &&
+            npcPower < monsterPower * 0.85f &&
+            npcPower >= monsterPower * 0.45f;
+        bool canFight =
+            npcHpRatio > 0.35f &&
+            npcPower >= monsterPower * 0.85f;
 
-        if (npcHpRatio <= RetreatHpThreshold)
-        {
-            return true;
-        }
-
-        return npcPower < monsterPower * 0.45f ||
-            monsterPower >= npcPower * 2f;
+        return "npcPower=" + npcPower.ToString("0.0") +
+            " monsterPower=" + monsterPower.ToString("0.0") +
+            " threatRatio=" + threatRatio.ToString("0.00") +
+            " npcHpRatio=" + npcHpRatio.ToString("0.00") +
+            " canFight=" + canFight +
+            " requestHelp=" + requestHelp +
+            " retreatLowHp=" + lowHpRetreat +
+            " heavilyOutmatched=" + heavilyOutmatched +
+            " doubledThreat=" + doubledThreat;
     }
 
-    static float GetCurrentHpRatio(GameObject actor)
+    public static float GetCurrentHpRatio(GameObject actor)
     {
         if (actor == null)
         {

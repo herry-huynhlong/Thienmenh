@@ -152,6 +152,10 @@ public partial class NpcTaskProvider : MonoBehaviour
         new HashSet<NpcTaskOffer>();
     static readonly List<NpcTaskOffer> staleClaimedTaskOffers =
         new List<NpcTaskOffer>();
+    readonly Dictionary<GameObject, NpcTaskOffer> lastCompletedOfferByNpc =
+        new Dictionary<GameObject, NpcTaskOffer>();
+    readonly List<GameObject> staleCompletedOfferNpcs =
+        new List<GameObject>();
 
     public static NpcTaskProvider FindNearestProvider(Vector3 position)
     {
@@ -377,6 +381,74 @@ public partial class NpcTaskProvider : MonoBehaviour
         {
             lockedEscortOffers.Remove(offer);
         }
+    }
+
+    void CleanupCompletedOfferHistory()
+    {
+        staleCompletedOfferNpcs.Clear();
+
+        foreach (KeyValuePair<GameObject, NpcTaskOffer> pair in
+            lastCompletedOfferByNpc)
+        {
+            if (pair.Key == null || pair.Value == null)
+            {
+                staleCompletedOfferNpcs.Add(pair.Key);
+            }
+        }
+
+        foreach (GameObject npc in staleCompletedOfferNpcs)
+        {
+            lastCompletedOfferByNpc.Remove(npc);
+        }
+    }
+
+    NpcTaskOffer GetLastCompletedOfferForNpc(GameObject npc)
+    {
+        CleanupCompletedOfferHistory();
+
+        if (npc == null)
+        {
+            return null;
+        }
+
+        NpcTaskOffer offer;
+        return lastCompletedOfferByNpc.TryGetValue(npc, out offer)
+            ? offer
+            : null;
+    }
+
+    void RecordCompletedOffer(GameObject npc, NpcTaskOffer offer)
+    {
+        if (npc == null || offer == null)
+        {
+            return;
+        }
+
+        CleanupCompletedOfferHistory();
+        lastCompletedOfferByNpc[npc] = offer;
+    }
+
+    void MoveOfferToEnd(NpcTaskOffer offer)
+    {
+        if (offer == null ||
+            offers == null ||
+            offers.Length <= 1)
+        {
+            return;
+        }
+
+        int index = System.Array.IndexOf(offers, offer);
+        if (index < 0 || index >= offers.Length - 1)
+        {
+            return;
+        }
+
+        for (int i = index; i < offers.Length - 1; i++)
+        {
+            offers[i] = offers[i + 1];
+        }
+
+        offers[offers.Length - 1] = offer;
     }
 
     [Header("Tavern Service")]
@@ -1290,6 +1362,7 @@ public partial class NpcTaskProvider : MonoBehaviour
         if (RequiresExplicitRequiredItem(offer) &&
             requiredItem == null)
         {
+            ReleaseTaskOffer(offer);
             return false;
         }
 
@@ -3761,6 +3834,8 @@ public partial class NpcTaskProvider : MonoBehaviour
             return;
         }
 
+        RecordCompletedOffer(task.npc, task.offer);
+        MoveOfferToEnd(task.offer);
         RewardNpc(task);
     }
 

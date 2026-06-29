@@ -12,15 +12,10 @@ public partial class SmartNpcAI
     {
         if (isRetreatingFromMonster)
         {
-            if (Time.time >= retreatUntilTime)
+            if (!ShouldRetreatFromCurrentMonster() ||
+                Time.time >= retreatUntilTime)
             {
-                isRetreatingFromMonster = false;
-                retreatTarget = Vector3.zero;
-                ClearEmergencyTaskIfMatches(SmartAITaskGoal.Pursued);
-                if (currentAction == NpcText.Action("fleeMonsterArea"))
-                {
-                    currentAction = string.Empty;
-                }
+                StopMonsterRetreat();
             }
             else
             {
@@ -72,6 +67,27 @@ public partial class SmartNpcAI
         }
 
         return false;
+    }
+
+    bool ShouldRetreatFromCurrentMonster()
+    {
+        return currentMonsterTarget != null &&
+            CombatPowerUtility.ShouldRetreat(
+                gameObject,
+                currentMonsterTarget.gameObject);
+    }
+
+    void StopMonsterRetreat()
+    {
+        isRetreatingFromMonster = false;
+        retreatUntilTime = 0f;
+        retreatTarget = Vector3.zero;
+        hasWanderTarget = false;
+        ClearEmergencyTaskIfMatches(SmartAITaskGoal.Pursued);
+        if (currentAction == NpcText.Action("fleeMonsterArea"))
+        {
+            currentAction = string.Empty;
+        }
     }
 
     bool TryAdoptHelpRequest()
@@ -153,6 +169,20 @@ public partial class SmartNpcAI
             Time.time + Random.Range(10f, 20f);
     }
 
+    bool TryBeginMonsterRetreat(MonsterAI monster)
+    {
+        if (monster == null ||
+            !CombatPowerUtility.ShouldRetreat(
+                gameObject,
+                monster.gameObject))
+        {
+            return false;
+        }
+
+        BeginMonsterRetreat(monster);
+        return true;
+    }
+
     bool TryReserveMonsterTarget(
         MonsterAI monster,
         float durationSeconds)
@@ -204,9 +234,34 @@ public partial class SmartNpcAI
 
     void BeginMonsterRetreat(MonsterAI monster)
     {
-        if (monster == null)
+        if (!TryEnterMonsterRetreat(monster, false))
         {
             return;
+        }
+    }
+
+    void ForceBeginMonsterRetreatForDebug(MonsterAI monster)
+    {
+        TryEnterMonsterRetreat(monster, true);
+    }
+
+    bool TryEnterMonsterRetreat(MonsterAI monster, bool force)
+    {
+        if (monster == null)
+        {
+            return false;
+        }
+
+        if (!force &&
+            !CombatPowerUtility.ShouldRetreat(
+                gameObject,
+                monster.gameObject))
+        {
+            DebugFlow(
+                "Hunt",
+                "Ignored retreat request " +
+                DescribeMonsterMatchup(monster));
+            return false;
         }
 
         isRetreatingFromMonster = true;
@@ -224,6 +279,7 @@ public partial class SmartNpcAI
             "monster retreat");
         currentAction = NpcText.Action("fleeMonsterArea");
         StopNpcMovement();
+        return true;
     }
 
     Vector3 GetRetreatPoint(Vector3 threatPosition)

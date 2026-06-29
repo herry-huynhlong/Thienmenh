@@ -1,0 +1,714 @@
+fileFormatVersion: 2
+guid: f5742d54f58735e488bf34ea983e0151
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1400577613655494940
+    second: tusinu_0
+  - first:
+      213: -6353890802092792088
+    second: tusinu_1
+  - first:
+      213: -7214007767573383164
+    second: tusinu_2
+  - first:
+      213: -6186999762071129439
+    second: tusinu_3
+  - first:
+      213: -4158847404620155211
+    second: tusinu_4
+  - first:
+      213: -1594886720737844006
+    second: tusinu_5
+  - first:
+      213: 977770871127501200
+    second: tusinu_6
+  - first:
+      213: -7367475236120663890
+    second: tusinu_7
+  - first:
+      213: 8031743463481530196
+    second: tusinu_8
+  - first:
+      213: 2286649732374714884
+    second: tusinu_9
+  - first:
+      213: 1534477812848882922
+    second: tusinu_10
+  - first:
+      213: 5791131560600897624
+    second: tusinu_11
+  - first:
+      213: -3249040603941252920
+    second: tusinu_12
+  - first:
+      213: -8007580633124815354
+    second: tusinu_13
+  - first:
+      213: 7465624994786527659
+    second: tusinu_14
+  - first:
+      213: -3271074871065717209
+    second: tusinu_15
+  - first:
+      213: 7480315746158453222
+    second: tusinu_16
+  - first:
+      213: -1273160549658832779
+    second: tusinu_17
+  - first:
+      213: -1555004778420451569
+    second: tusinu_18
+  - first:
+      213: 8788928636406080764
+    second: tusinu_19
+  - first:
+      213: 1636537855922006699
+    second: tusinu_20
+  - first:
+      213: 4120784089652524286
+    second: tusinu_21
+  - first:
+      213: -7098034932377721874
+    second: tusinu_22
+  - first:
+      213: 3893041116148183449
+    second: tusinu_23
+  - first:
+      213: -6023135271865720030
+    second: tusinu_24
+  - first:
+      213: -7637283131601085
+    second: tusinu_25
+  - first:
+      213: -9218865642660465992
+    second: tusinu_26
+  - first:
+      213: 474464027034507346
+    second: tusinu_27
+  - first:
+      213: -1190117265200624394
+    second: tusinu_28
+  - first:
+      213: 8929797519688874021
+    second: tusinu_29
+  - first:
+      213: -5128138267830115764
+    second: tusinu_30
+  - first:
+      213: 1917309404285043476
+    second: tusinu_31
+  - first:
+      213: -465331869960142535
+    second: tusinu_32
+  - first:
+      213: 7967517071055704998
+    second: tusinu_33
+  - first:
+      213: -269911157646163544
+    second: tusinu_34
+  - first:
+      213: -7099494357372965281
+    second: tusinu_35
+  - first:
+      213: -2184749195342936384
+    second: tusinu_36
+  - first:
+      213: 6431152332993350081
+    second: tusinu_37
+  - first:
+      213: 3676152581525374778
+    second: tusinu_38
+  - first:
+      213: 5326893660742738644
+    second: tusinu_39
+  - first:
+      213: -3253183677909650848
+    second: tusinu_40
+  - first:
+      213: 10768368630995760
+    second: tusinu_41
+  - first:
+      213: -6116582450340626766
+    second: tusinu_42
+  - first:
+      213: 733753151860270538
+    second: tusinu_43
+  - first:
+      213: -8811167194633594454
+    second: tusinu_44
+  - first:
+      213: 5949905398545684885
+    second: tusinu_45
+  - first:
+      213: 8015348248421498671
+    second: tusinu_46
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 90
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: tusinu_1
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 975
+        width: 199
+        height: 249
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e623a7daf172d7a0800000000000000
+      internalID: -6353890802092792088
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tusinu_2
+      rect:
+        serializedVersion: 2
+        x: 468
+        y: 974
+        width: 147
+        height: 275
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40831e62822b2eb90800000000000000
+      internalID: -7214007767573383164
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tusinu_3
+      rect:
+        serializedVersion: 2
+        x: 699
+        y: 957
+        width: 233
+        height: 263
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a2f25c1f7c532aa0800000000000000
+      internalID: -6186999762071129439
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tusinu_4
+      rect:
+        serializedVersion: 2
+        x: 998
+        y: 975
+        width: 239
+        height: 248
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b67f8ce15ec846c0800000000000000
+      internalID: -4158847404620155211
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tusinu_11
+      rect:
+        serializedVersion: 2
+        x: 697
+        y: 1019
+        width: 13
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8588b2db87b3e5050800000000000000
+      internalID: 5791131560600897624
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tusinu_14
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 661
+        width: 200
+        height: 252
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba94780d06a3b9760800000000000000
+      internalID: 7465624994786527659
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tusinu_15
+      rect:
+        serializedVersion: 2
+        x: 466
+        y: 661
+        width: 143
+        height: 273
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 726db645cbeca92d0800000000000000
+      internalID: -3271074871065717209
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tusinu_17
+      rect:
+        serializedVersion: 2
+        x: 710
+        y: 661
+        width: 190
+        height: 266
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5705b8fb933d45ee0800000000000000
+      internalID: -1273160549658832779
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tusinu_18
+      rect:
+        serializedVersion: 2
+        x: 1011
+        y: 661
+        width: 210
+        height: 248
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f07c63e84638b6ae0800000000000000
+      internalID: -1555004778420451569
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tusinu_26
+      rect:
+        serializedVersion: 2
+        x: 171
+        y: 385
+        width: 199
+        height: 234
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8b27b29aa82001080800000000000000
+      internalID: -9218865642660465992
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tusinu_27
+      rect:
+        serializedVersion: 2
+        x: 448
+        y: 381
+        width: 154
+        height: 233
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 258d71ec482a59600800000000000000
+      internalID: 474464027034507346
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tusinu_28
+      rect:
+        serializedVersion: 2
+        x: 635
+        y: 381
+        width: 316
+        height: 227
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6fc48ae17aadb7fe0800000000000000
+      internalID: -1190117265200624394
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tusinu_29
+      rect:
+        serializedVersion: 2
+        x: 982
+        y: 381
+        width: 260
+        height: 237
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 528383538830deb70800000000000000
+      internalID: 8929797519688874021
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tusinu_34
+      rect:
+        serializedVersion: 2
+        x: 949
+        y: 462
+        width: 11
+        height: 6
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a1069f6b35114cf0800000000000000
+      internalID: -269911157646163544
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tusinu_37
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 99
+        width: 200
+        height: 235
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c94e7029fa004950800000000000000
+      internalID: 6431152332993350081
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tusinu_38
+      rect:
+        serializedVersion: 2
+        x: 440
+        y: 93
+        width: 154
+        height: 237
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a3784f9bb41540330800000000000000
+      internalID: 3676152581525374778
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tusinu_39
+      rect:
+        serializedVersion: 2
+        x: 644
+        y: 93
+        width: 308
+        height: 232
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d2e9d4bf8dece940800000000000000
+      internalID: 5326893660742738644
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tusinu_40
+      rect:
+        serializedVersion: 2
+        x: 973
+        y: 93
+        width: 196
+        height: 237
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 062b8195eae5ad2d0800000000000000
+      internalID: -3253183677909650848
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: aae755d5f6505924cadb5cbb3d198b41
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      tusinu_0: -1400577613655494940
+      tusinu_1: -6353890802092792088
+      tusinu_10: 1534477812848882922
+      tusinu_11: 5791131560600897624
+      tusinu_12: -3249040603941252920
+      tusinu_13: -8007580633124815354
+      tusinu_14: 7465624994786527659
+      tusinu_15: -3271074871065717209
+      tusinu_16: 7480315746158453222
+      tusinu_17: -1273160549658832779
+      tusinu_18: -1555004778420451569
+      tusinu_19: 8788928636406080764
+      tusinu_2: -7214007767573383164
+      tusinu_20: 1636537855922006699
+      tusinu_21: 4120784089652524286
+      tusinu_22: -7098034932377721874
+      tusinu_23: 3893041116148183449
+      tusinu_24: -6023135271865720030
+      tusinu_25: -7637283131601085
+      tusinu_26: -9218865642660465992
+      tusinu_27: 474464027034507346
+      tusinu_28: -1190117265200624394
+      tusinu_29: 8929797519688874021
+      tusinu_3: -6186999762071129439
+      tusinu_30: -5128138267830115764
+      tusinu_31: 1917309404285043476
+      tusinu_32: -465331869960142535
+      tusinu_33: 7967517071055704998
+      tusinu_34: -269911157646163544
+      tusinu_35: -7099494357372965281
+      tusinu_36: -2184749195342936384
+      tusinu_37: 6431152332993350081
+      tusinu_38: 3676152581525374778
+      tusinu_39: 5326893660742738644
+      tusinu_4: -4158847404620155211
+      tusinu_40: -3253183677909650848
+      tusinu_41: 10768368630995760
+      tusinu_42: -6116582450340626766
+      tusinu_43: 733753151860270538
+      tusinu_44: -8811167194633594454
+      tusinu_45: 5949905398545684885
+      tusinu_46: 8015348248421498671
+      tusinu_5: -1594886720737844006
+      tusinu_6: 977770871127501200
+      tusinu_7: -7367475236120663890
+      tusinu_8: 8031743463481530196
+      tusinu_9: 2286649732374714884
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

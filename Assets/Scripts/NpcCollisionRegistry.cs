@@ -10,7 +10,7 @@ public static class NpcCollisionRegistry
     }
 
     static readonly List<Entry> entries = new List<Entry>();
-    static bool npcLayerCollisionDisabled;
+    static bool npcLayerCollisionConfigured;
 
     public static void Register(Object owner, Collider2D[] colliders)
     {
@@ -58,20 +58,72 @@ public static class NpcCollisionRegistry
 
     static void EnsureNpcLayerSelfCollisionIgnored()
     {
-        if (npcLayerCollisionDisabled)
+        if (npcLayerCollisionConfigured)
         {
             return;
         }
 
-        int npcLayer = LayerMask.NameToLayer("NPC");
+        int npcLayer = FindExistingLayer(
+            "NPC",
+            "npc");
         if (npcLayer < 0)
         {
-            npcLayerCollisionDisabled = true;
+            npcLayerCollisionConfigured = true;
             return;
         }
 
         Physics2D.IgnoreLayerCollision(npcLayer, npcLayer, true);
-        npcLayerCollisionDisabled = true;
+        IgnoreNpcAgainstResolvedLayer(
+            npcLayer,
+            "Monster",
+            "monster",
+            "Monter",
+            "monter");
+        IgnoreNpcAgainstResolvedLayer(
+            npcLayer,
+            "Animal",
+            "animal",
+            "Animail",
+            "animail");
+        npcLayerCollisionConfigured = true;
+    }
+
+    static void IgnoreNpcAgainstResolvedLayer(
+        int npcLayer,
+        params string[] candidates)
+    {
+        int otherLayer = FindExistingLayer(candidates);
+        if (otherLayer < 0)
+        {
+            return;
+        }
+
+        Physics2D.IgnoreLayerCollision(npcLayer, otherLayer, true);
+    }
+
+    static int FindExistingLayer(params string[] candidates)
+    {
+        if (candidates == null)
+        {
+            return -1;
+        }
+
+        for (int i = 0; i < candidates.Length; i++)
+        {
+            string candidate = candidates[i];
+            if (string.IsNullOrWhiteSpace(candidate))
+            {
+                continue;
+            }
+
+            int layer = LayerMask.NameToLayer(candidate);
+            if (layer >= 0)
+            {
+                return layer;
+            }
+        }
+
+        return -1;
     }
 
     public static void Unregister(Object owner)

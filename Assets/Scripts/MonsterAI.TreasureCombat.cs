@@ -124,6 +124,15 @@ public partial class MonsterAI
         attackTimer = attackCooldown;
         isAttacking = true;
 
+        DebugFlow(
+            "Combat",
+            "Attack start target=" +
+            (currentTarget != null ? currentTarget.name : "null") +
+            " cooldown=" +
+            attackCooldown.ToString("0.00") +
+            " damageDelay=" +
+            attackDamageDelay.ToString("0.00"));
+
         if (useAnimation)
         {
             if (directionalAnimator != null)
@@ -159,6 +168,12 @@ public partial class MonsterAI
             Vector2.Distance(transform.position, currentTarget.position);
         if (distance > attackRange + 0.25f)
         {
+            DebugFlow(
+                "Combat",
+                "Attack damage skipped target=" +
+                currentTarget.name +
+                " centerDistance=" +
+                distance.ToString("0.00"));
             return;
         }
 
@@ -180,6 +195,15 @@ public partial class MonsterAI
                 NpcText.Dialogue("combatBeastReason"));
         }
 
+        DebugFlow(
+            "Combat",
+            "Attack damage target=" +
+            (damagedTarget != null ? damagedTarget.name : "null") +
+            " finalDamage=" +
+            finalDamage +
+            " centerDistance=" +
+            distance.ToString("0.00"));
+
         damagedTargetDamageable.TakeDamage(finalDamage);
 
         if (damagedTargetDamageable.IsDead)
@@ -192,6 +216,7 @@ public partial class MonsterAI
     void EndAttack()
     {
         isAttacking = false;
+        DebugFlow("Combat", "Attack end");
     }
 
     public void ShootFireball()

@@ -16,9 +16,13 @@ public partial class NpcTaskProvider
             return null;
         }
 
+        NpcTaskOffer lastCompletedOffer =
+            GetLastCompletedOfferForNpc(npc);
         NpcTaskOffer best = null;
+        NpcTaskOffer bestNonRepeated = null;
         float minScore = GetMinAcceptanceScore(autoAssigned);
         float bestScore = minScore - 0.01f;
+        float bestNonRepeatedScore = minScore - 0.01f;
 
         foreach (NpcTaskOffer offer in offers)
         {
@@ -28,6 +32,13 @@ public partial class NpcTaskProvider
             }
 
             float score = GetOfferAcceptanceScore(npc, offer, autoAssigned);
+            if (offer != lastCompletedOffer &&
+                score > bestNonRepeatedScore)
+            {
+                bestNonRepeatedScore = score;
+                bestNonRepeated = offer;
+            }
+
             if (score <= bestScore)
             {
                 continue;
@@ -37,7 +48,7 @@ public partial class NpcTaskProvider
             best = offer;
         }
 
-        return best;
+        return bestNonRepeated ?? best;
     }
 
     bool CanNpcAcceptOffer(GameObject npc, NpcTaskOffer offer)

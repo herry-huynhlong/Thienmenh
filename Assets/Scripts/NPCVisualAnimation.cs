@@ -197,6 +197,30 @@ public class NPCVisualAnimation : MonoBehaviour
         SetFacingDirection(targetPosition - transform.position);
     }
 
+    public void ReplayActionAnimation(string currentAction)
+    {
+        if (animator == null || overrideController == null)
+        {
+            return;
+        }
+
+        ActionCategory actionCategory = ResolveActionCategory(currentAction);
+        if (actionCategory == ActionCategory.None)
+        {
+            return;
+        }
+
+        AnimationClip clipToPlay =
+            GetActionClip(actionCategory, lastDirection);
+        if (clipToPlay == null)
+        {
+            return;
+        }
+
+        currentClip = null;
+        PlayClip(clipToPlay);
+    }
+
     Vector2 GetCardinalDirection(Vector2 direction)
     {
         if (direction.sqrMagnitude <
@@ -250,6 +274,7 @@ public class NPCVisualAnimation : MonoBehaviour
 
         if (MatchesAction(currentAction, "attackMonsterNamed", true) ||
             MatchesAction(currentAction, "attackMonster", true) ||
+            MatchesAction(currentAction, "attack", true) ||
             MatchesAction(currentAction, "fightBlockingMonster") ||
             MatchesAction(currentAction, "guardSpiritHerbMonster") ||
             MatchesAction(currentAction, "clearHarvestMonster") ||
@@ -282,13 +307,17 @@ public class NPCVisualAnimation : MonoBehaviour
             return false;
         }
 
-        string pattern = NpcText.Action(key);
-        if (string.IsNullOrEmpty(pattern))
+        if (string.Equals(
+                action,
+                key,
+                System.StringComparison.OrdinalIgnoreCase))
         {
-            return false;
+            return true;
         }
 
-        if (string.Equals(
+        string pattern = NpcText.Action(key);
+        if (!string.IsNullOrEmpty(pattern) &&
+            string.Equals(
                 action,
                 pattern,
                 System.StringComparison.OrdinalIgnoreCase))
@@ -298,13 +327,37 @@ public class NPCVisualAnimation : MonoBehaviour
 
         if (!allowPrefix)
         {
+            return action.IndexOf(
+                       key,
+                       System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                (!string.IsNullOrEmpty(pattern) &&
+                action.IndexOf(
+                    pattern,
+                    System.StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
+        if (ActionMatchesPrefix(action, key))
+        {
+            return true;
+        }
+
+        return ActionMatchesPrefix(action, pattern);
+    }
+
+    bool ActionMatchesPrefix(string action, string pattern)
+    {
+        if (string.IsNullOrEmpty(action) ||
+            string.IsNullOrEmpty(pattern))
+        {
             return false;
         }
 
         int placeholderIndex = pattern.IndexOf('{');
         if (placeholderIndex < 0)
         {
-            return false;
+            return action.StartsWith(
+                pattern,
+                System.StringComparison.OrdinalIgnoreCase);
         }
 
         string prefix = pattern.Substring(0, placeholderIndex).TrimEnd();

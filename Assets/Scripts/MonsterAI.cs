@@ -83,6 +83,7 @@ public partial class MonsterAI : MonoBehaviour, IDamageable
     public bool attackOtherMonsters;
 
     [Header("===== RUNTIME DEBUG =====")]
+    public bool debugFlowLogs;
     public string currentAction = "Idle";
     public Vector2 currentMoveVelocity;
 
@@ -153,8 +154,103 @@ public partial class MonsterAI : MonoBehaviour, IDamageable
 
     float naturalCultivationRemainder;
 
+    static readonly string[] TrackedDebugMonsterNames =
+    {
+        "yeuthu",
+        "cap23",
+        "cap235"
+    };
+
     public bool IsDead => isDead;
     public Transform DamageTransform => transform;
+
+    void DebugFlow(string stage, string detail)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (!debugFlowLogs &&
+            !IsTrackedDebugMonster())
+        {
+            return;
+        }
+
+        string targetName =
+            currentTarget != null
+                ? currentTarget.name
+                : "null";
+        string key =
+            stage + "|" +
+            detail + "|" +
+            currentAction + "|" +
+            targetName;
+
+        if (lastDebugKey == key &&
+            Time.time - lastDebugTime < 0.75f)
+        {
+            return;
+        }
+
+        lastDebugKey = key;
+        lastDebugTime = Time.time;
+
+        Debug.LogWarning(
+            "[MonsterAI] " + gameObject.name +
+            " stage=" + stage +
+            " detail=" + detail +
+            " action=" + currentAction +
+            " target=" + targetName +
+            " hp=" + currentHP + "/" + maxHP +
+            " vel=" + currentMoveVelocity.ToString("F2"));
+#endif
+    }
+
+    string lastDebugKey;
+    float lastDebugTime;
+
+    bool IsTrackedDebugMonster()
+    {
+        return IsTrackedDebugMonsterName(gameObject.name) ||
+            IsTrackedDebugMonsterName(monsterName);
+    }
+
+    static bool IsTrackedDebugMonsterName(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return false;
+        }
+
+        string normalized = NormalizeDebugMonsterName(value);
+        for (int i = 0; i < TrackedDebugMonsterNames.Length; i++)
+        {
+            if (normalized == TrackedDebugMonsterNames[i])
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    static string NormalizeDebugMonsterName(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return string.Empty;
+        }
+
+        System.Text.StringBuilder builder =
+            new System.Text.StringBuilder(value.Length);
+        for (int i = 0; i < value.Length; i++)
+        {
+            char c = char.ToLowerInvariant(value[i]);
+            if (char.IsLetterOrDigit(c))
+            {
+                builder.Append(c);
+            }
+        }
+
+        return builder.ToString();
+    }
 
     void Start()
     {
@@ -344,6 +440,146 @@ public partial class MonsterAI : MonoBehaviour, IDamageable
         {
             transform.position += (Vector3)(desiredVelocity * Time.fixedDeltaTime);
         }
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        TryIgnoreCombatBodyCollision(collision != null ? collision.collider : null);
+    }
+
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        TryIgnoreCombatBodyCollision(collision != null ? collision.collider : null);
+    }
+
+    void TryIgnoreCombatBodyCollision(Collider2D other)
+    {
+        if (other == null || other.isTrigger)
+        {
+            return;
+        }
+
+        if (other.GetComponentInParent<VillagerAI>() == null &&
+            other.GetComponentInParent<SmartNpcAI>() == null)
+        {
+            return;
+        }
+
+        DebugFlow(
+            "Collision",
+            "Ignore body collision other=" +
+            other.name +
+            " otherRoot=" +
+            other.transform.root.name);
+
+        if (cachedColliders == null || cachedColliders.Length == 0)
+        {
+            cachedColliders = GetComponentsInChildren<Collider2D>(true);
+        }
+
+        for (int i = 0; i < cachedColliders.Length; i++)
+        {
+            Collider2D own = cachedColliders[i];
+            if (own != null &&
+                !own.isTrigger &&
+                own != other)
+            {
+                Physics2D.IgnoreCollision(own, other, true);
+            }
+        }
+    }
+
+    void TryIgnoreCombatTargetCollision(Transform target)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        DebugFlow(
+            "Collision",
+            "Ignore target collision target=" +
+            target.name +
+            " surfaceDistance=" +
+            GetCombatSurfaceDistance(target).ToString("0.00"));
+
+        if (cachedColliders == null || cachedColliders.Length == 0)
+        {
+            cachedColliders = GetComponentsInChildren<Collider2D>(true);
+        }
+
+        Collider2D[] targetColliders =
+            target.GetComponentsInChildren<Collider2D>(true);
+
+        for (int i = 0; i < cachedColliders.Length; i++)
+        {
+            Collider2D own = cachedColliders[i];
+            if (own == null || own.isTrigger || !own.enabled)
+            {
+                continue;
+            }
+
+            for (int j = 0; j < targetColliders.Length; j++)
+            {
+                Collider2D other = targetColliders[j];
+                if (other == null || other.isTrigger || !other.enabled)
+                {
+                    continue;
+                }
+
+                Physics2D.IgnoreCollision(own, other, true);
+            }
+        }
+    }
+
+    float GetCombatSurfaceDistance(Transform target)
+    {
+        if (target == null)
+        {
+            return float.PositiveInfinity;
+        }
+
+        if (cachedColliders == null || cachedColliders.Length == 0)
+        {
+            cachedColliders = GetComponentsInChildren<Collider2D>(true);
+        }
+
+        Collider2D[] targetColliders =
+            target.GetComponentsInChildren<Collider2D>(true);
+        float bestDistance = float.PositiveInfinity;
+
+        for (int i = 0; i < cachedColliders.Length; i++)
+        {
+            Collider2D own = cachedColliders[i];
+            if (own == null || own.isTrigger || !own.enabled)
+            {
+                continue;
+            }
+
+            for (int j = 0; j < targetColliders.Length; j++)
+            {
+                Collider2D other = targetColliders[j];
+                if (other == null || other.isTrigger || !other.enabled)
+                {
+                    continue;
+                }
+
+                ColliderDistance2D distanceInfo =
+                    own.Distance(other);
+                float gap =
+                    distanceInfo.isOverlapped
+                        ? 0f
+                        : Mathf.Max(0f, distanceInfo.distance);
+                bestDistance = Mathf.Min(bestDistance, gap);
+            }
+        }
+
+        if (float.IsPositiveInfinity(bestDistance))
+        {
+            return Vector2.Distance(transform.position, target.position);
+        }
+
+        return bestDistance;
     }
 
     bool ShouldUseReducedFixedUpdate()

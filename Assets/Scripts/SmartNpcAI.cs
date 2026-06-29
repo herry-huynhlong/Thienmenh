@@ -308,6 +308,20 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 #endif
     }
 
+    string DescribeMonsterMatchup(MonsterAI monster)
+    {
+        if (monster == null)
+        {
+            return "matchup=null";
+        }
+
+        return "monster=" + monster.monsterName +
+            " monsterHp=" + monster.currentHP + "/" + monster.maxHP +
+            " " + CombatPowerUtility.DescribeNpcVsMonster(
+                gameObject,
+                monster.gameObject);
+    }
+
     bool IsTrackedDebugNpc()
     {
         return IsTrackedDebugName(gameObject.name) ||
@@ -790,6 +804,34 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (ShouldHoldCombatPosition())
+        {
+            if (visualAnimation != null &&
+                currentMonsterTarget != null)
+            {
+                visualAnimation.SetFacingTarget(
+                    currentMonsterTarget.transform.position);
+            }
+
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+
+            hasEscapeTarget = false;
+            hasObstacleAvoidTarget = false;
+            blockedMoveTimer = 0f;
+            stuckMoveTimer = 0f;
+            lastUnstuckPosition = transform.position;
+            DebugFlow(
+                "Move",
+                "Hold combat position target=" +
+                (currentMonsterTarget != null
+                    ? currentMonsterTarget.monsterName
+                    : "null"));
+            return;
+        }
+
         bool movingToTreasureWait =
             waitingOutsideTreasureLightning &&
             hasTreasureWaitPosition;
@@ -965,6 +1007,65 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 desiredTarget,
                 out usingTeleportRoute,
                 out routeAction);
+
+        NpcMapArea currentArea = NpcMapArea.FindArea(transform.position);
+        NpcMapArea desiredTargetArea = NpcMapArea.FindArea(desiredTarget);
+        NpcMapZone? currentZone = NpcMapNavigator.ResolveActorZone(gameObject);
+        NpcMapZone? desiredZone =
+            currentTarget != null
+                ? NpcMapNavigator.GetDestinationZone(currentTarget)
+                : (NpcMapZone?)null;
+        if (!desiredZone.HasValue && desiredTargetArea != null)
+        {
+            desiredZone = desiredTargetArea.zone;
+        }
+
+        if (usingTeleportRoute)
+        {
+            DebugFlow(
+                "MoveRoute",
+                "Teleport route action=" +
+                routeAction +
+                " currentZone=" +
+                (currentZone.HasValue ? currentZone.Value.ToString() : "None") +
+                " currentArea=" +
+                (currentArea != null ? currentArea.name : "null") +
+                " desiredZone=" +
+                (desiredZone.HasValue ? desiredZone.Value.ToString() : "None") +
+                " desiredArea=" +
+                (desiredTargetArea != null ? desiredTargetArea.name : "null") +
+                " moveTarget=" +
+                moveTarget +
+                " desiredTarget=" +
+                desiredTarget +
+                " target=" +
+                (currentTarget != null ? currentTarget.name : "null") +
+                " wander=" +
+                hasWanderTarget);
+        }
+        else if (IsTeleportRouteAction(currentAction))
+        {
+            DebugFlow(
+                "MoveRoute",
+                "Teleport action without route currentAction=" +
+                currentAction +
+                " currentZone=" +
+                (currentZone.HasValue ? currentZone.Value.ToString() : "None") +
+                " currentArea=" +
+                (currentArea != null ? currentArea.name : "null") +
+                " desiredZone=" +
+                (desiredZone.HasValue ? desiredZone.Value.ToString() : "None") +
+                " desiredArea=" +
+                (desiredTargetArea != null ? desiredTargetArea.name : "null") +
+                " moveTarget=" +
+                moveTarget +
+                " desiredTarget=" +
+                desiredTarget +
+                " target=" +
+                (currentTarget != null ? currentTarget.name : "null") +
+                " wander=" +
+                hasWanderTarget);
+        }
 
         if (usingTeleportRoute &&
             !string.IsNullOrEmpty(routeAction))
@@ -1183,6 +1284,114 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         UpdateUnstuck(direction);
     }
 
+    bool ShouldHoldCombatPosition()
+    {
+        if (currentMonsterTarget == null ||
+            isRetreatingFromMonster ||
+            IsDead)
+        {
+            return false;
+        }
+
+        if (currentMonsterTarget.currentHP <= 0)
+        {
+            return false;
+        }
+
+        if (currentTarget != null &&
+            currentTarget != currentMonsterTarget.transform)
+        {
+            return false;
+        }
+
+        float distance =
+            GetCombatSurfaceDistance(
+                currentMonsterTarget.transform);
+
+        float holdRange =
+            Mathf.Max(
+                attackRange,
+                attackRange - 0.05f,
+                0.45f);
+
+        return distance <= holdRange;
+    }
+
+    bool IsMonsterCombatApproachActive()
+    {
+        if (currentMonsterTarget == null ||
+            currentTarget == null ||
+            currentTarget != currentMonsterTarget.transform ||
+            isRetreatingFromMonster ||
+            IsDead ||
+            currentMonsterTarget.currentHP <= 0)
+        {
+            return false;
+        }
+
+        return MatchesSmartAction("goHunt") ||
+            MatchesSmartAction("huntMonsterNamed", true) ||
+            MatchesSmartAction("attackMonsterNamed", true);
+    }
+
+    bool MatchesSmartAction(string key, bool allowPrefix = false)
+    {
+        if (string.IsNullOrEmpty(currentAction) ||
+            string.IsNullOrEmpty(key))
+        {
+            return false;
+        }
+
+        if (string.Equals(
+                currentAction,
+                key,
+                System.StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        string pattern = NpcText.Action(key);
+        if (!string.IsNullOrEmpty(pattern) &&
+            string.Equals(
+                currentAction,
+                pattern,
+                System.StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        if (!allowPrefix)
+        {
+            return false;
+        }
+
+        return ActionMatchesPrefix(currentAction, key) ||
+            ActionMatchesPrefix(currentAction, pattern);
+    }
+
+    static bool ActionMatchesPrefix(string action, string pattern)
+    {
+        if (string.IsNullOrEmpty(action) ||
+            string.IsNullOrEmpty(pattern))
+        {
+            return false;
+        }
+
+        int placeholderIndex = pattern.IndexOf('{');
+        if (placeholderIndex < 0)
+        {
+            return action.StartsWith(
+                pattern,
+                System.StringComparison.OrdinalIgnoreCase);
+        }
+
+        string prefix = pattern.Substring(0, placeholderIndex).TrimEnd();
+        return !string.IsNullOrEmpty(prefix) &&
+            action.StartsWith(
+                prefix,
+                System.StringComparison.OrdinalIgnoreCase);
+    }
+
     void OnDisable()
     {
         UpdateCultivationEffect(false);
@@ -1388,7 +1597,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         if (other.GetComponentInParent<VillagerAI>() == null &&
             other.GetComponentInParent<SmartNpcAI>() == null &&
-            other.GetComponentInParent<NpcMapMover2D>() == null)
+            other.GetComponentInParent<NpcMapMover2D>() == null &&
+            other.GetComponentInParent<MonsterAI>() == null)
         {
             return;
         }
@@ -1408,6 +1618,92 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 Physics2D.IgnoreCollision(own, other, true);
             }
         }
+    }
+
+    void TryIgnoreCombatTargetCollision(Transform target)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        if (selfColliders == null || selfColliders.Length == 0)
+        {
+            selfColliders = GetComponentsInChildren<Collider2D>();
+        }
+
+        Collider2D[] targetColliders =
+            target.GetComponentsInChildren<Collider2D>(true);
+
+        for (int i = 0; i < selfColliders.Length; i++)
+        {
+            Collider2D own = selfColliders[i];
+            if (own == null || own.isTrigger)
+            {
+                continue;
+            }
+
+            for (int j = 0; j < targetColliders.Length; j++)
+            {
+                Collider2D other = targetColliders[j];
+                if (other == null || other.isTrigger || own == other)
+                {
+                    continue;
+                }
+
+                Physics2D.IgnoreCollision(own, other, true);
+            }
+        }
+    }
+
+    float GetCombatSurfaceDistance(Transform target)
+    {
+        if (target == null)
+        {
+            return float.PositiveInfinity;
+        }
+
+        if (selfColliders == null || selfColliders.Length == 0)
+        {
+            selfColliders = GetComponentsInChildren<Collider2D>(true);
+        }
+
+        Collider2D[] targetColliders =
+            target.GetComponentsInChildren<Collider2D>(true);
+        float bestDistance = float.PositiveInfinity;
+
+        for (int i = 0; i < selfColliders.Length; i++)
+        {
+            Collider2D own = selfColliders[i];
+            if (own == null || own.isTrigger || !own.enabled)
+            {
+                continue;
+            }
+
+            for (int j = 0; j < targetColliders.Length; j++)
+            {
+                Collider2D other = targetColliders[j];
+                if (other == null || other.isTrigger || !other.enabled)
+                {
+                    continue;
+                }
+
+                ColliderDistance2D distanceInfo =
+                    own.Distance(other);
+                float gap =
+                    distanceInfo.isOverlapped
+                        ? 0f
+                        : Mathf.Max(0f, distanceInfo.distance);
+                bestDistance = Mathf.Min(bestDistance, gap);
+            }
+        }
+
+        if (float.IsPositiveInfinity(bestDistance))
+        {
+            return Vector2.Distance(transform.position, target.position);
+        }
+
+        return bestDistance;
     }
 
     void TryEscapeObstacleCollision(Collision2D collision)
@@ -2297,6 +2593,19 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         blockedMoveTimer += Time.fixedDeltaTime;
         rb.linearVelocity = Vector2.zero;
 
+        NpcMapArea currentArea = NpcMapArea.FindArea(transform.position);
+        NpcMapArea blockedArea = NpcMapArea.FindArea(blockedTarget);
+        NpcMapArea finalArea = NpcMapArea.FindArea(finalTarget);
+        NpcMapZone? currentZone = NpcMapNavigator.ResolveActorZone(gameObject);
+        NpcMapZone? targetZone =
+            currentTarget != null
+                ? NpcMapNavigator.GetDestinationZone(currentTarget)
+                : (NpcMapZone?)null;
+        if (!targetZone.HasValue && finalArea != null)
+        {
+            targetZone = finalArea.zone;
+        }
+
         DebugFlow(
             "Move",
             "Blocked movement blocked=" +
@@ -2308,7 +2617,23 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             " escape=" +
             hasEscapeTarget +
             " obstacle=" +
-            hasObstacleAvoidTarget);
+            hasObstacleAvoidTarget +
+            " currentZone=" +
+            (currentZone.HasValue ? currentZone.Value.ToString() : "None") +
+            " currentArea=" +
+            (currentArea != null ? currentArea.name : "null") +
+            " blockedArea=" +
+            (blockedArea != null ? blockedArea.name : "null") +
+            " finalArea=" +
+            (finalArea != null ? finalArea.name : "null") +
+            " targetZone=" +
+            (targetZone.HasValue ? targetZone.Value.ToString() : "None") +
+            " target=" +
+            (currentTarget != null ? currentTarget.name : "null") +
+            " wander=" +
+            hasWanderTarget +
+            " wanderTarget=" +
+            wanderTarget);
 
         if (blockedMoveTimer < blockedTargetRetryDelay)
         {
@@ -2623,6 +2948,12 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         }
 
         Vector3 targetPosition = target.position;
+        if (currentMonsterTarget != null &&
+            target == currentMonsterTarget.transform)
+        {
+            return GetMonsterCombatApproachPosition(target);
+        }
+
         if (!ShouldUseSharedTargetSpacing(target))
         {
             return targetPosition;
@@ -2674,9 +3005,73 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         return fallback;
     }
 
+    Vector3 GetMonsterCombatApproachPosition(Transform target)
+    {
+        if (target == null)
+        {
+            return transform.position;
+        }
+
+        if (selfColliders == null || selfColliders.Length == 0)
+        {
+            selfColliders = GetComponentsInChildren<Collider2D>(true);
+        }
+
+        Collider2D[] targetColliders =
+            target.GetComponentsInChildren<Collider2D>(true);
+        Vector2 fromPosition = transform.position;
+        Vector2 bestPoint = target.position;
+        float bestDistance = float.PositiveInfinity;
+
+        for (int i = 0; i < targetColliders.Length; i++)
+        {
+            Collider2D other = targetColliders[i];
+            if (other == null || other.isTrigger || !other.enabled)
+            {
+                continue;
+            }
+
+            Vector2 candidate = other.ClosestPoint(fromPosition);
+            float distance =
+                Vector2.Distance(fromPosition, candidate);
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                bestPoint = candidate;
+            }
+        }
+
+        Vector2 away = fromPosition - bestPoint;
+        if (away.sqrMagnitude <= 0.0001f)
+        {
+            away = fromPosition - (Vector2)target.position;
+        }
+
+        if (away.sqrMagnitude <= 0.0001f)
+        {
+            away = Vector2.right;
+        }
+
+        float desiredGap =
+            Mathf.Min(
+                Mathf.Max(0.08f, targetClearRadius * 0.35f),
+                Mathf.Max(0.08f, attackRange * 0.2f));
+
+        Vector3 approach =
+            (Vector3)(bestPoint + away.normalized * desiredGap);
+        approach.z = transform.position.z;
+        return approach;
+    }
+
     bool ShouldUseSharedTargetSpacing(Transform target)
     {
         if (target == null)
+        {
+            return false;
+        }
+
+        if (currentMonsterTarget != null &&
+            target == currentMonsterTarget.transform)
         {
             return false;
         }
@@ -3674,9 +4069,14 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                     currentMonsterTarget.gameObject))
             {
                 RequestHelpForMonster(currentMonsterTarget);
-                BeginMonsterRetreat(currentMonsterTarget);
-                DebugFlow("Hunt", "Retreat from stronger monster");
-                return;
+                if (TryBeginMonsterRetreat(currentMonsterTarget))
+                {
+                    DebugFlow(
+                        "Hunt",
+                        "Retreat from stronger monster " +
+                        DescribeMonsterMatchup(currentMonsterTarget));
+                    return;
+                }
             }
 
             if (CombatPowerUtility.ShouldRequestHelp(
@@ -3688,6 +4088,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
             currentTarget =
                 currentMonsterTarget.transform;
+            TryIgnoreCombatTargetCollision(currentTarget);
 
             // Tiep tuc tan cong muc tieu hien tai.
             TryAttackMonster();
@@ -3715,9 +4116,14 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                     monster.gameObject))
             {
                 RequestHelpForMonster(monster);
-                BeginMonsterRetreat(monster);
-                DebugFlow("Hunt", "Retreat before selecting stronger monster");
-                return;
+                if (TryBeginMonsterRetreat(monster))
+                {
+                    DebugFlow(
+                        "Hunt",
+                        "Retreat before selecting stronger monster " +
+                        DescribeMonsterMatchup(monster));
+                    return;
+                }
             }
 
             if (CombatPowerUtility.ShouldRequestHelp(
@@ -3779,6 +4185,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             {
                 currentTarget =
                     bestTarget.transform;
+                TryIgnoreCombatTargetCollision(currentTarget);
                 currentAction =
                     NpcText.ActionFormat(
                         "huntMonsterNamed",
@@ -3931,19 +4338,35 @@ void TryAttackMonster()
             currentMonsterTarget.gameObject))
     {
         RequestHelpForMonster(currentMonsterTarget);
-        BeginMonsterRetreat(currentMonsterTarget);
-        return;
+        if (TryBeginMonsterRetreat(currentMonsterTarget))
+        {
+            return;
+        }
     }
 
+    TryIgnoreCombatTargetCollision(
+        currentMonsterTarget.transform);
+
     float distance =
-        Vector2.Distance(
-            transform.position,
-            currentMonsterTarget.transform.position);
+        GetCombatSurfaceDistance(
+            currentMonsterTarget.transform);
 
     // Chua toi tam danh.
     if (distance > attackRange)
     {
         return;
+    }
+
+    currentAction =
+        NpcText.ActionFormat(
+            "attackMonsterNamed",
+            currentMonsterTarget.monsterName);
+    actionTimer = Mathf.Max(actionTimer, 0.22f);
+
+    if (visualAnimation != null)
+    {
+        visualAnimation.SetFacingTarget(
+            currentMonsterTarget.transform.position);
     }
 
     // Hoi chieu tan cong.
@@ -3962,6 +4385,11 @@ void TryAttackMonster()
             attack);
 
     // Gay damage.
+    if (visualAnimation != null)
+    {
+        visualAnimation.ReplayActionAnimation(currentAction);
+    }
+
     NpcSocialEventBus.PublishHostility(
         gameObject,
         currentMonsterTarget.gameObject,
@@ -3969,7 +4397,6 @@ void TryAttackMonster()
         currentMonsterTarget.transform.position,
         NpcText.Dialogue("combatMonsterReason"));
 
-    currentAction = NpcText.ActionFormat("attackMonsterNamed", currentMonsterTarget.monsterName);
     actionTimer = Mathf.Max(actionTimer, 0.45f);
     currentMonsterTarget.TakeDamage(attackDamage);
 
@@ -4614,6 +5041,14 @@ bool ShouldSmartAutoHuntMonster(MonsterAI monster)
         stuckMoveTimer = 0f;
         blockedMoveTimer = 0f;
         currentAction = NpcText.Action("dead");
+
+        if (visualAnimation != null &&
+            rb != null &&
+            rb.linearVelocity.sqrMagnitude > 0.0001f)
+        {
+            visualAnimation.SetFacingDirection(rb.linearVelocity);
+        }
+
         UpdateCultivationEffect(false);
         UpdateVisualAnimation();
 

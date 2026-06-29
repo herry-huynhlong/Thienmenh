@@ -65,6 +65,15 @@ public partial class MonsterAI
             currentTargetDamageable = bestDamageable;
             hasTarget = false;
             currentAction = "Phat hien ke xam pham";
+            DebugFlow(
+                "Target",
+                "Acquire target=" +
+                bestTarget.name +
+                " distance=" +
+                Vector2.Distance(
+                    transform.position,
+                    bestTarget.position).ToString("0.00"));
+            TryIgnoreCombatTargetCollision(currentTarget);
         }
     }
 
@@ -386,8 +395,22 @@ public partial class MonsterAI
             return;
         }
 
+        TryIgnoreCombatTargetCollision(currentTarget);
+        distance = GetCombatSurfaceDistance(currentTarget);
+
         Vector2 direction = currentTarget.position - transform.position;
         FaceDirection(direction);
+
+        DebugFlow(
+            "Combat",
+            "Follow target=" +
+            currentTarget.name +
+            " surfaceDistance=" +
+            distance.ToString("0.00") +
+            " attackRange=" +
+            attackRange.ToString("0.00") +
+            " attacking=" +
+            isAttacking);
 
         if (distance > attackRange)
         {

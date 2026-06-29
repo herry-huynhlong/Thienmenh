@@ -68,6 +68,9 @@ public static class SmartAiPlayModeBatchRunner
 
     static readonly MethodInfo BeginMonsterRetreatMethod =
         typeof(SmartNpcAI).GetMethod(
+            "ForceBeginMonsterRetreatForDebug",
+            BindingFlags.Instance | BindingFlags.NonPublic) ??
+        typeof(SmartNpcAI).GetMethod(
             "BeginMonsterRetreat",
             BindingFlags.Instance | BindingFlags.NonPublic);
 
