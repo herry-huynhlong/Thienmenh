@@ -5,7 +5,7 @@ public class NpcFavorite : MonoBehaviour
 {
     [Header("Saved NPC info")]
     public string npcDisplayName = "";
-    public string realmText = "Pham nhan";
+    public string realmText = "";
 
     [Header("Star mark above NPC")]
     public GameObject starMark;
@@ -29,13 +29,16 @@ public class NpcFavorite : MonoBehaviour
 
     public string GetRealmText()
     {
-        if (!string.IsNullOrWhiteSpace(realmText) && realmText != "Pham nhan")
+        if (!string.IsNullOrWhiteSpace(realmText) &&
+            !IsLegacyDefaultRealmText(realmText))
         {
             return realmText;
         }
 
         string resolvedRealm = ResolveRealmText();
-        return string.IsNullOrWhiteSpace(resolvedRealm) ? realmText : resolvedRealm;
+        return string.IsNullOrWhiteSpace(resolvedRealm)
+            ? NpcText.Realm(CultivationRealm.Mortal)
+            : resolvedRealm;
     }
 
     public void SetFavoriteState(bool value)
@@ -133,7 +136,7 @@ public class NpcFavorite : MonoBehaviour
 
         if (characterStats == null)
         {
-            return realmText;
+            return NpcText.Realm(CultivationRealm.Mortal);
         }
 
         string realm = ReadMember(characterStats, "cultivationRealm");
@@ -167,10 +170,10 @@ public class NpcFavorite : MonoBehaviour
 
         if (string.IsNullOrWhiteSpace(realm))
         {
-            return realmText;
+            return NpcText.Realm(CultivationRealm.Mortal);
         }
 
-        string vietnameseRealm = ConvertRealmToVietnamese(realm);
+        string vietnameseRealm = ConvertRealmToLocalizedRealm(realm);
 
         if (!string.IsNullOrWhiteSpace(stage))
         {
@@ -178,6 +181,17 @@ public class NpcFavorite : MonoBehaviour
         }
 
         return vietnameseRealm;
+    }
+
+    private bool IsLegacyDefaultRealmText(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return true;
+        }
+
+        return string.Equals(value, "Pham nhan", System.StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(value, NpcText.Realm(CultivationRealm.Mortal), System.StringComparison.OrdinalIgnoreCase);
     }
 
     private void RefreshStar()
@@ -215,37 +229,37 @@ public class NpcFavorite : MonoBehaviour
         return "";
     }
 
-    private string ConvertRealmToVietnamese(string rawRealm)
+    private string ConvertRealmToLocalizedRealm(string rawRealm)
     {
         switch (rawRealm)
         {
             case "Mortal":
-                return "Pham nhan";
+                return NpcText.Realm(CultivationRealm.Mortal);
             case "QiRefining":
             case "LuyenKhi":
             case "Luyen Khi":
-                return "Luyen Khi";
+                return NpcText.Realm(CultivationRealm.QiRefining);
             case "Foundation":
             case "FoundationBuilding":
             case "TrucCo":
             case "Truc Co":
-                return "Truc Co";
+                return NpcText.Realm(CultivationRealm.Foundation);
             case "GoldenCore":
             case "KimDan":
             case "Kim Dan":
-                return "Kim Dan";
+                return NpcText.Realm(CultivationRealm.GoldenCore);
             case "NascentSoul":
             case "NguyenAnh":
             case "Nguyen Anh":
-                return "Nguyen Anh";
+                return NpcText.Realm(CultivationRealm.NascentSoul);
             case "SoulFormation":
             case "HoaThan":
             case "Hoa Than":
-                return "Hoa Than";
+                return NpcText.Realm(CultivationRealm.SoulFormation);
             case "Tribulation":
             case "DoKiep":
             case "Do Kiep":
-                return "Do Kiep";
+                return NpcText.Realm(CultivationRealm.Tribulation);
             default:
                 return rawRealm;
         }

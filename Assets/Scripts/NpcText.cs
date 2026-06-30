@@ -36,6 +36,7 @@ public static class NpcText
 
     static Dictionary<string, string> values;
     static Dictionary<string, string[]> lists;
+    static string loadedLanguageCode;
 
     public static string Get(string category, string key, string fallback = "")
     {
@@ -202,18 +203,30 @@ public static class NpcText
 
     static void EnsureLoaded()
     {
-        if (values != null && lists != null)
+        string currentLanguageCode =
+            LocalizationSettings.CurrentLanguageCode;
+        if (values != null &&
+            lists != null &&
+            string.Equals(
+                loadedLanguageCode,
+                currentLanguageCode,
+                StringComparison.OrdinalIgnoreCase))
         {
             return;
         }
 
         values = new Dictionary<string, string>();
         lists = new Dictionary<string, string[]>();
+        loadedLanguageCode = currentLanguageCode;
 
-        TextAsset asset = Resources.Load<TextAsset>(ResourceName);
+        TextAsset asset =
+            LocalizationSettings.LoadTextAsset(ResourceName);
         if (asset == null)
         {
-            Debug.LogWarning("Missing Resources/" + ResourceName + ".json");
+            Debug.LogWarning(
+                "Missing Resources/" +
+                LocalizationSettings.GetLocalizedResourcePath(ResourceName) +
+                ".json");
             return;
         }
 

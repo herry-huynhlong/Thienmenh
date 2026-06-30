@@ -10,6 +10,7 @@ public class WorldStatItemPickup : MonoBehaviour
     public bool destroyWhenEmpty = true;
     public bool requireNpcHarvestAction;
     public float harvestDuration = 8f;
+    public bool trackReceiverInHeavenNurture;
     public event Action OnDepleted;
 
     GameObject reservedBy;
@@ -242,6 +243,7 @@ public class WorldStatItemPickup : MonoBehaviour
                 pickedItem,
                 ItemLifecycleEventType.Picked,
                 false);
+            TryTrackReceiver(target.gameObject);
             ClearReservation(target.gameObject);
             return true;
         }
@@ -264,6 +266,7 @@ public class WorldStatItemPickup : MonoBehaviour
             pickedItem,
             target.gameObject);
         TreasureHeatSystem.NotifyNpcReceivedItem(target.gameObject, pickedItem);
+        TryTrackReceiver(target.gameObject);
         ClearReservation(target.gameObject);
         return true;
     }
@@ -364,5 +367,23 @@ public class WorldStatItemPickup : MonoBehaviour
             reservedBy = null;
             reservationExpiresAt = 0f;
         }
+    }
+
+    void TryTrackReceiver(GameObject target)
+    {
+        if (!trackReceiverInHeavenNurture ||
+            target == null)
+        {
+            return;
+        }
+
+        NpcFavoriteManager manager =
+            NpcFavoriteManager.EnsureInstance();
+        if (manager == null)
+        {
+            return;
+        }
+
+        manager.AddFavorite(target);
     }
 }

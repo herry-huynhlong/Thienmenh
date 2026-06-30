@@ -123,7 +123,11 @@ public class FavoriteNpcListUI : MonoBehaviour
 
         if (countText != null)
         {
-            countText.text = list.Count + "/" + manager.maxFavorites;
+            countText.text = UiText.Format(
+                "favorites",
+                "countFormat",
+                list.Count,
+                manager.maxFavorites);
         }
     }
 

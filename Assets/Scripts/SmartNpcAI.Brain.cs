@@ -206,8 +206,8 @@ public partial class SmartNpcAI
 
         return currentMonsterTarget != null ||
             currentAction == NpcText.Action("goHunt") ||
-            currentAction == NpcText.Action("huntMonsterNamed") ||
-            currentAction == NpcText.Action("attackMonsterNamed");
+            MatchesSmartAction("huntMonsterNamed", true) ||
+            MatchesSmartAction("attackMonsterNamed", true);
     }
 
     bool IsCurrentScheduleActivity(NpcScheduleActivity activity)
@@ -232,8 +232,8 @@ public partial class SmartNpcAI
 
         if (currentMonsterTarget == null &&
             currentAction != NpcText.Action("goHunt") &&
-            currentAction != NpcText.Action("huntMonsterNamed") &&
-            currentAction != NpcText.Action("attackMonsterNamed"))
+            !MatchesSmartAction("huntMonsterNamed", true) &&
+            !MatchesSmartAction("attackMonsterNamed", true))
         {
             return;
         }
@@ -244,8 +244,8 @@ public partial class SmartNpcAI
         StopNpcMovement();
 
         if (currentAction == NpcText.Action("goHunt") ||
-            currentAction == NpcText.Action("huntMonsterNamed") ||
-            currentAction == NpcText.Action("attackMonsterNamed"))
+            MatchesSmartAction("huntMonsterNamed", true) ||
+            MatchesSmartAction("attackMonsterNamed", true))
         {
             currentAction = string.Empty;
         }

@@ -565,14 +565,41 @@ public class TreasureHeatSystem : MonoBehaviour
 
         if (villager != null)
         {
-            return ContainsTradeAction(villager.currentAction);
+            return IsTradeAction(villager.currentAction);
         }
 
         SmartNpcAI smartNpc =
             owner.GetComponent<SmartNpcAI>();
 
         return smartNpc != null &&
-            ContainsTradeAction(smartNpc.currentAction);
+            IsTradeAction(smartNpc.currentAction);
+    }
+
+    bool IsTradeAction(string action)
+    {
+        if (string.IsNullOrEmpty(action))
+        {
+            return false;
+        }
+
+        return MatchesLocalizedAction(action, "tradeSeek") ||
+            MatchesLocalizedAction(action, "goMarketTrade") ||
+            MatchesLocalizedAction(action, "trading") ||
+            MatchesLocalizedAction(action, "bringGoodsToCounter") ||
+            MatchesLocalizedAction(action, "soldGoods") ||
+            MatchesLocalizedAction(action, "waitTraderBuyGoods") ||
+            MatchesLocalizedAction(action, "goBuyGoods") ||
+            MatchesLocalizedAction(action, "boughtGoods") ||
+            MatchesLocalizedAction(action, "goVanBaoLauBroker") ||
+            MatchesLocalizedAction(action, "checkedVanBaoLau") ||
+            ContainsTradeAction(action);
+    }
+
+    bool MatchesLocalizedAction(string action, string key)
+    {
+        string localized = NpcText.Action(key);
+        return !string.IsNullOrEmpty(localized) &&
+            action.Contains(localized);
     }
 
     bool ContainsTradeAction(string action)

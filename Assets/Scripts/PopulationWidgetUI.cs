@@ -93,7 +93,9 @@ public class PopulationWidgetUI : MonoBehaviour
             cultivatorCount +
             monsterCount;
 
-        SetText(totalText, totalPrefix + totalCount);
+        SetText(
+            totalText,
+            UiText.Format("population", "totalFormat", totalCount));
         SetText(commonerCountText, commonerCount.ToString());
         SetText(cultivatorCountText, cultivatorCount.ToString());
         SetText(monsterCountText, monsterCount.ToString());

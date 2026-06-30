@@ -189,6 +189,8 @@ public class HeavenGiftPlacementController : MonoBehaviour
             return;
         }
 
+        pickup.trackReceiverInHeavenNurture = true;
+
         HeavenGiftEffectSession session =
             new HeavenGiftEffectSession();
 

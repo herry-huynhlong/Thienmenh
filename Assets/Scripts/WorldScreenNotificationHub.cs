@@ -38,7 +38,7 @@ public class WorldScreenNotificationHub : MonoBehaviour
     public Color originAccentColor = new Color(0.25f, 0.78f, 1f, 1f);
 
     [Header("Fallback Prefix")]
-    public string originPrefix = "Thiên Đạo";
+    public string originPrefix = "";
     public string normalPrefix = "";
     public bool useRunningText = true;
     public bool disableAnimatorsWhileMarquee = true;
@@ -180,12 +180,17 @@ public class WorldScreenNotificationHub : MonoBehaviour
             return "";
         }
 
-        if (string.IsNullOrWhiteSpace(normalPrefix))
+        string resolvedPrefix = GetResolvedNormalPrefix();
+        if (string.IsNullOrWhiteSpace(resolvedPrefix))
         {
             return entry.content;
         }
 
-        return normalPrefix + ": " + entry.content;
+        return UiText.Format(
+            "worldNotifications",
+            "normalPrefixFormat",
+            resolvedPrefix,
+            entry.content);
     }
 
     string BuildOriginMessage(string content, HeavenDaoStoryReward reward)
@@ -194,14 +199,43 @@ public class WorldScreenNotificationHub : MonoBehaviour
             reward != null &&
             !string.IsNullOrWhiteSpace(reward.displayLabel)
             ? reward.displayLabel
-            : "origin";
+            : UiText.Get(
+                "worldNotifications",
+                "originLabelFallback",
+                "origin");
 
         if (reward != null && reward.originReward > 0)
         {
-            return originPrefix + " +" + reward.originReward + " " + label + "\n" + content;
+            return UiText.Format(
+                "worldNotifications",
+                "originRewardFormat",
+                GetResolvedOriginPrefix(),
+                reward.originReward,
+                label,
+                content);
         }
 
-        return originPrefix + "\n" + content;
+        return UiText.Format(
+            "worldNotifications",
+            "originPrefixFormat",
+            GetResolvedOriginPrefix(),
+            content);
+    }
+
+    string GetResolvedOriginPrefix()
+    {
+        return UiText.Get(
+            "worldNotifications",
+            "originPrefix",
+            originPrefix);
+    }
+
+    string GetResolvedNormalPrefix()
+    {
+        return UiText.Get(
+            "worldNotifications",
+            "normalPrefix",
+            normalPrefix);
     }
 
     IEnumerator PlayQueue(

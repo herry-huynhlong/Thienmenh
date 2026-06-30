@@ -18,7 +18,7 @@ public class NpcInventoryPanelUI : MonoBehaviour
     public bool useItemGrid = true;
     public bool hideItemsTextWhenUsingGrid = true;
     public bool readOnly = true;
-    public string emptyText = "Không có vật phẩm";
+    public string emptyText = "";
     public bool blockMapDrag;
     public float infoRefreshInterval = 0.5f;
     public bool autoCreateInfoText = false;
@@ -41,6 +41,10 @@ public class NpcInventoryPanelUI : MonoBehaviour
         {
             panelRoot = gameObject;
         }
+
+        emptyText = GetLocalizedInventoryText(
+            "emptyText",
+            "");
 
         AutoFindItemGridPanel();
         SanitizeCopiedInventoryGrid();
@@ -203,7 +207,10 @@ public class NpcInventoryPanelUI : MonoBehaviour
         if (titleText != null)
         {
             titleText.text =
-                GetNpcName(currentNpc) + " - Kho đồ";
+                UiText.Format(
+                    "npcInventory",
+                    "titleFormat",
+                    GetNpcName(currentNpc));
         }
 
         EnsureInfoText();
@@ -244,6 +251,8 @@ public class NpcInventoryPanelUI : MonoBehaviour
 
             ReserveGridTopSpace();
         }
+
+        ApplyLocalizedTexts();
     }
 
     public void Hide()
@@ -571,10 +580,11 @@ public class NpcInventoryPanelUI : MonoBehaviour
             inventoryValue +
             NpcEconomy.GetNpcLinhThach(npc.gameObject);
 
-        return "Balo: " +
-            NpcEconomy.FormatCurrency(inventoryValue) +
-            " | Tổng: " +
-            NpcEconomy.FormatCurrency(totalAssets);
+        return UiText.Format(
+            "npcInventory",
+            "compactInfoFormat",
+            NpcEconomy.FormatCurrency(inventoryValue),
+            NpcEconomy.FormatCurrency(totalAssets));
     }
 
     string BuildInfoText(
@@ -622,28 +632,38 @@ public class NpcInventoryPanelUI : MonoBehaviour
         if (hasWallet)
         {
             builder.AppendLine(
-                "Linh thạch: " +
-                NpcEconomy.FormatCurrency(Mathf.Max(0, money)));
+                UiText.Format(
+                    "npcInventory",
+                    "walletLine",
+                    NpcEconomy.FormatCurrency(Mathf.Max(0, money))));
 
             builder.AppendLine(
-                "Linh thạch tu luyện: " +
-                Mathf.Max(0, spiritStone));
+                UiText.Format(
+                    "npcInventory",
+                    "spiritStoneLine",
+                    Mathf.Max(0, spiritStone)));
         }
 
         builder.AppendLine(
-            "Giá trị balo: " +
-            NpcEconomy.FormatCurrency(inventoryValue));
+            UiText.Format(
+                "npcInventory",
+                "inventoryValueLine",
+                NpcEconomy.FormatCurrency(inventoryValue)));
 
         builder.AppendLine(
-            "Tổng tài sản: " +
-            NpcEconomy.FormatCurrency(
-                inventoryValue +
-                NpcEconomy.GetNpcLinhThach(npc.gameObject)));
+            UiText.Format(
+                "npcInventory",
+                "totalAssetsLine",
+                NpcEconomy.FormatCurrency(
+                    inventoryValue +
+                    NpcEconomy.GetNpcLinhThach(npc.gameObject))));
 
-        builder.Append("Số loại hàng: ");
-        builder.Append(itemKindCount);
-        builder.Append(" / Tổng món: ");
-        builder.Append(itemTotalCount);
+        builder.Append(
+            UiText.Format(
+                "npcInventory",
+                "itemCountsFormat",
+                itemKindCount,
+                itemTotalCount));
 
         return builder.ToString();
     }
@@ -754,6 +774,183 @@ public class NpcInventoryPanelUI : MonoBehaviour
         return string.IsNullOrEmpty(result)
             ? emptyText
             : result;
+    }
+
+    void ApplyLocalizedTexts()
+    {
+        if (currentNpc == null ||
+            currentInventory == null)
+        {
+            return;
+        }
+
+        if (titleText != null)
+        {
+            titleText.text = FormatLocalizedInventoryText(
+                "titleFormat",
+                "{0} - Kho do",
+                GetNpcName(currentNpc));
+        }
+
+        if (infoText != null &&
+            infoText.gameObject.activeSelf)
+        {
+            infoText.text = createdInfoText
+                ? BuildLocalizedCompactInfoText(currentNpc, currentInventory)
+                : BuildLocalizedInfoText(currentNpc, currentInventory);
+        }
+
+        if (itemsText != null &&
+            itemsText.gameObject.activeSelf)
+        {
+            itemsText.text = BuildLocalizedItemsText(currentInventory);
+        }
+    }
+
+    string BuildLocalizedCompactInfoText(
+        Transform npc,
+        ItemInventory inventory)
+    {
+        int inventoryValue =
+            GetInventoryValue(inventory);
+        int totalAssets =
+            inventoryValue +
+            NpcEconomy.GetNpcLinhThach(npc.gameObject);
+
+        return FormatLocalizedInventoryText(
+            "compactInfoFormat",
+            "Balo: {0} | Tong: {1}",
+            NpcEconomy.FormatCurrency(inventoryValue),
+            NpcEconomy.FormatCurrency(totalAssets));
+    }
+
+    string BuildLocalizedInfoText(
+        Transform npc,
+        ItemInventory inventory)
+    {
+        StringBuilder builder =
+            new StringBuilder();
+
+        int money = 0;
+        int spiritStone = 0;
+        bool hasWallet = false;
+
+        VillagerAI villager =
+            npc.GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            money = villager.money;
+            spiritStone = villager.spiritStone;
+            hasWallet = true;
+        }
+        else
+        {
+            SmartNpcAI smartNpc =
+                npc.GetComponent<SmartNpcAI>();
+            if (smartNpc != null)
+            {
+                money = smartNpc.money;
+                spiritStone = smartNpc.spiritStone;
+                hasWallet = true;
+            }
+        }
+
+        int itemKindCount =
+            GetItemKindCount(inventory);
+        int itemTotalCount =
+            GetItemTotalCount(inventory);
+        int inventoryValue =
+            GetInventoryValue(inventory);
+
+        if (hasWallet)
+        {
+            builder.AppendLine(FormatLocalizedInventoryText(
+                "walletLine",
+                "Linh thach: {0}",
+                NpcEconomy.FormatCurrency(Mathf.Max(0, money))));
+
+            builder.AppendLine(FormatLocalizedInventoryText(
+                "spiritStoneLine",
+                "Linh thach tu luyen: {0}",
+                Mathf.Max(0, spiritStone)));
+        }
+
+        builder.AppendLine(FormatLocalizedInventoryText(
+            "inventoryValueLine",
+            "Gia tri balo: {0}",
+            NpcEconomy.FormatCurrency(inventoryValue)));
+
+        builder.AppendLine(FormatLocalizedInventoryText(
+            "totalAssetsLine",
+            "Tong tai san: {0}",
+            NpcEconomy.FormatCurrency(
+                inventoryValue +
+                NpcEconomy.GetNpcLinhThach(npc.gameObject))));
+
+        builder.Append(FormatLocalizedInventoryText(
+            "itemCountsFormat",
+            "So loai hang: {0} / Tong mon: {1}",
+            itemKindCount,
+            itemTotalCount));
+
+        return builder.ToString();
+    }
+
+    string BuildLocalizedItemsText(ItemInventory inventory)
+    {
+        if (inventory == null ||
+            inventory.items.Count == 0)
+        {
+            return GetLocalizedInventoryText(
+                "emptyText",
+                emptyText);
+        }
+
+        StringBuilder builder =
+            new StringBuilder();
+
+        foreach (ItemStack stack in inventory.items)
+        {
+            if (stack == null ||
+                stack.item == null ||
+                stack.amount <= 0)
+            {
+                continue;
+            }
+
+            builder.AppendLine(FormatLocalizedInventoryText(
+                "itemLineFormat",
+                "{0} x{1} - {2}",
+                ItemText.Name(stack.item),
+                stack.amount,
+                NpcEconomy.FormatPrice(stack.item)));
+        }
+
+        string result =
+            builder.ToString().TrimEnd();
+
+        return string.IsNullOrEmpty(result)
+            ? GetLocalizedInventoryText(
+                "emptyText",
+                emptyText)
+            : result;
+    }
+
+    string GetLocalizedInventoryText(
+        string key,
+        string fallback)
+    {
+        return UiText.Get("npcInventory", key, fallback);
+    }
+
+    string FormatLocalizedInventoryText(
+        string key,
+        string fallback,
+        params object[] args)
+    {
+        return NpcText.Format(
+            GetLocalizedInventoryText(key, fallback),
+            args);
     }
 
     string GetNpcName(Transform npc)

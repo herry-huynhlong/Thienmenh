@@ -21,7 +21,7 @@
         },
         {
           "key": "maritalStatus",
-          "value": "T\u00ecnh tr\u1ea1ng"
+          "value": "Tình trạng"
         },
         {
           "key": "realm",
@@ -95,11 +95,11 @@
       "entries": [
         {
           "key": "single",
-          "value": "\u0110\u1ed9c th\u00e2n"
+          "value": "Độc thân"
         },
         {
           "key": "married",
-          "value": "\u0110\u00e3 c\u00f3 v\u1ee3 ch\u1ed3ng"
+          "value": "Đã có vợ chồng"
         }
       ]
     },
@@ -501,6 +501,42 @@
         {
           "key": "lawAttack",
           "value": "Công kích kẻ vi phạm luật {0}"
+        },
+        {
+          "key": "detectIntruder",
+          "value": "Phat hien ke xam pham"
+        },
+        {
+          "key": "retreat",
+          "value": "Luc lui"
+        },
+        {
+          "key": "flee",
+          "value": "Bo chay"
+        },
+        {
+          "key": "restTerritory",
+          "value": "Nghi trong lanh dia"
+        },
+        {
+          "key": "returnTerritory",
+          "value": "Tro ve lanh dia"
+        },
+        {
+          "key": "patrolTerritory",
+          "value": "Tuan tra lanh dia"
+        },
+        {
+          "key": "chaseIntruder",
+          "value": "Duoi ke xam pham"
+        },
+        {
+          "key": "attackIntruder",
+          "value": "Tan cong ke xam pham"
+        },
+        {
+          "key": "choosePatrolPoint",
+          "value": "Chon diem tuan tra"
         }
       ]
     },
@@ -1308,10 +1344,52 @@
     },
     {
       "name": "professions",
-      "entries": {
-        "key": "tavernManager",
-        "value": "Quản Sự Tửu Quán"
-      }
+      "entries": [
+        {
+          "key": "none",
+          "value": "Không nghề"
+        },
+        {
+          "key": "farmer",
+          "value": "Nông dân"
+        },
+        {
+          "key": "trader",
+          "value": "Thương nhân"
+        },
+        {
+          "key": "worker",
+          "value": "Công nhân"
+        },
+        {
+          "key": "guard",
+          "value": "Vệ sĩ"
+        },
+        {
+          "key": "healer",
+          "value": "Y sĩ"
+        },
+        {
+          "key": "fisher",
+          "value": "Ngư phủ"
+        },
+        {
+          "key": "hunter",
+          "value": "Thợ săn"
+        },
+        {
+          "key": "alchemist",
+          "value": "Luyện đan sư"
+        },
+        {
+          "key": "blacksmith",
+          "value": "Thợ rèn"
+        },
+        {
+          "key": "tavernManager",
+          "value": "Quản sự Tửu Quán"
+        }
+      ]
     },
     {
       "name": "taskDisplay",

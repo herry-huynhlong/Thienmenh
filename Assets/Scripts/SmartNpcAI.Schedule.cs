@@ -38,8 +38,8 @@ public partial class SmartNpcAI
                 NpcScheduleActivity.Hunt) &&
             (currentMonsterTarget != null ||
             currentAction == NpcText.Action("goHunt") ||
-            currentAction == NpcText.Action("huntMonsterNamed") ||
-            currentAction == NpcText.Action("attackMonsterNamed"))) ||
+            MatchesSmartAction("huntMonsterNamed", true) ||
+            MatchesSmartAction("attackMonsterNamed", true))) ||
             waitingOutsideTreasureLightning ||
             treasureHuntTarget != null ||
             hasTreasureWaitPosition ||
@@ -374,8 +374,8 @@ public partial class SmartNpcAI
                     bool huntFlowActive =
                         currentMonsterTarget != null ||
                         currentAction == NpcText.Action("goHunt") ||
-                        currentAction == NpcText.Action("huntMonsterNamed") ||
-                        currentAction == NpcText.Action("attackMonsterNamed") ||
+                        MatchesSmartAction("huntMonsterNamed", true) ||
+                        MatchesSmartAction("attackMonsterNamed", true) ||
                         currentTarget != null ||
                         hasWanderTarget;
 
@@ -470,7 +470,7 @@ public partial class SmartNpcAI
             Mathf.Max(
                 actionTimer,
                 GameHoursToSeconds(Random.Range(0.4f, 1.2f)));
-        currentAction = "";
+        currentAction = NpcText.Action("idle");
         StopNpcMovement();
     }
 
@@ -550,7 +550,7 @@ public partial class SmartNpcAI
                 currentAction != NpcText.Action("buyPill"))
             {
                 ClearTravelTargetsAndStop();
-                currentAction = "";
+                currentAction = NpcText.Action("idle");
 
                 StartIdleWander();
                 return true;
@@ -573,7 +573,7 @@ public partial class SmartNpcAI
             if (currentMonsterTarget == null)
             {
                 ClearTravelTargetsAndStop();
-                currentAction = "";
+                currentAction = NpcText.Action("idle");
 
                 StartIdleWander();
                 return true;

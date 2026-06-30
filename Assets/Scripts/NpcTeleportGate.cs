@@ -362,7 +362,7 @@ public class NpcTeleportGate : MonoBehaviour
                 actorZone.Value,
                 out _,
                 out Vector3 exitPosition,
-                out _))
+                out NpcMapZone destinationZone))
         {
             return false;
         }
@@ -376,6 +376,7 @@ public class NpcTeleportGate : MonoBehaviour
         }
 
         actor.transform.position = targetPosition;
+        NpcMapNavigator.LockNpcZone(actor, destinationZone, 3f);
 
         if (sameSceneTeleport == null ||
             sameSceneTeleport.refreshCameraBounds)

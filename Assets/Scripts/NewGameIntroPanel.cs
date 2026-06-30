@@ -151,14 +151,7 @@ public class NewGameIntroPanel : MonoBehaviour
 
         if (titleText != null)
         {
-            if (pageTitles != null && currentPage < pageTitles.Length)
-            {
-                titleText.text = pageTitles[currentPage];
-            }
-            else
-            {
-                titleText.text = "Trùng Tu Thiên Đạo";
-            }
+            titleText.text = GetLocalizedPageTitle();
         }
 
         currentFullBodyText = pageBodies[currentPage];
@@ -176,14 +169,7 @@ public class NewGameIntroPanel : MonoBehaviour
             }
         }
 
-        if (pageText != null)
-        {
-            pageText.text =
-                (currentPage + 1).ToString() +
-                " / " +
-                pageBodies.Length.ToString();
-        }
-
+        ApplyLocalizedPageIndicator();
         RefreshButtons();
     }
 
@@ -303,28 +289,67 @@ public class NewGameIntroPanel : MonoBehaviour
 
     private void CreateDefaultIntroIfEmpty()
     {
+        if (TryLoadIntroFromJson())
+        {
+            return;
+        }
+
         if (pageBodies != null && pageBodies.Length > 0)
         {
             return;
         }
 
-        pageTitles = new string[]
+        pageTitles = UiText.Lines("intro", "defaultPageTitles");
+        pageBodies = UiText.Lines("intro", "defaultPageBodies");
+    }
+
+    private string GetLocalizedPageTitle()
+    {
+        if (pageTitles != null &&
+            currentPage < pageTitles.Length &&
+            !string.IsNullOrWhiteSpace(pageTitles[currentPage]))
         {
-            " Thiên Đạo Hoàn Chỉnh",
-            " Hạo Kiếp Diệt Giới",
-            " Bản Nguyên Vỡ Nát",
-            " Trùng Tu Thiên Đạo"
-        };
+            return pageTitles[currentPage];
+        }
 
-        pageBodies = new string[]
+        return UiText.Get("intro", "fallbackTitle");
+    }
+
+    private void ApplyLocalizedPageIndicator()
+    {
+        if (pageText == null ||
+            pageBodies == null ||
+            pageBodies.Length == 0)
         {
-            "Thuở thiên địa còn nguyên vẹn, Hoang Cổ Đại Lục từng là một thế giới phồn thịnh.\n\nThiên Đạo bao phủ vạn vật, nhật nguyệt vận hành có thứ tự, linh khí luân chuyển không dứt.\n\nSinh linh sinh ra, tu luyện, tranh đấu, truyền thừa rồi hóa thành một phần của thiên địa.\n\nTông môn hưng thịnh, yêu thú tung hoành, linh thảo sinh trưởng khắp núi sông. Mỗi sinh mệnh đều có quỹ tích riêng, mỗi cơ duyên đều nằm trong đại đạo tuần hoàn.",
+            return;
+        }
 
-            "Nhưng vào một kỷ nguyên xa xưa, hư không bỗng rạn nứt.\n\nMột thế lực đến từ ngoài thiên địa xâm nhập Hoang Cổ Đại Lục.\n\nChúng không tuân theo Thiên Đạo, không nhập luân hồi, chỉ muốn nuốt lấy linh khí, bản nguyên và sinh cơ của cả thế giới.\n\nTrận hạo kiếp ấy khiến núi sông sụp đổ, tông môn tiêu vong, vô số sinh linh hóa thành tro bụi. Trật tự thiên địa bắt đầu tan rã.",
+        pageText.text = UiText.Format(
+            "intro",
+            "pageIndicatorFormat",
+            currentPage + 1,
+            pageBodies.Length);
+    }
 
-            "Để giữ lại một tia sinh cơ cuối cùng, Thiên Đạo đã cưỡng ép thiêu đốt bản nguyên của chính mình.\n\nSức mạnh ấy đánh lui ngoại địch, phong bế vết nứt hư không, cứu lấy phần còn sót lại của Hoang Cổ Đại Lục.\n\nNhưng cái giá phải trả quá lớn.\n\nBản nguyên Thiên Đạo vỡ nát, quyền năng thất lạc khắp nơi. Linh khí suy yếu, pháp tắc hỗn loạn, thế giới chỉ còn lại những vùng đất rời rạc đang tự chống chọi với thời gian.",
+    private bool TryLoadIntroFromJson()
+    {
+        string[] loadedBodies =
+            UiText.Lines("intro", "pageBodies");
+        if (loadedBodies == null ||
+            loadedBodies.Length == 0)
+        {
+            return false;
+        }
 
-            "Hiện tại, một tia tàn ý của Thiên Đạo đã thức tỉnh.\n\nĐó chính là ngươi.\n\nNgươi chưa thể chưởng khống toàn bộ thế giới, chỉ có thể quan sát một vùng đất nhỏ bé nơi rìa Hoang Cổ Đại Lục.\n\nNhưng từ nơi này, Thiên Đạo có thể bắt đầu trùng tu.\n\nHãy dẫn dắt sinh linh, ban phát cơ duyên, thúc đẩy tu luyện, mở rộng vùng đất, khôi phục linh khí và từng bước thu hồi bản nguyên đã mất.\n\nKhi Thiên Đạo đủ mạnh, Hoang Cổ Đại Lục sẽ một lần nữa nghênh đón thời đại mới."
-        };
+        string[] loadedTitles =
+            UiText.Lines("intro", "pageTitles");
+
+        pageBodies = loadedBodies;
+        pageTitles =
+            loadedTitles != null &&
+            loadedTitles.Length > 0
+                ? loadedTitles
+                : pageTitles;
+        return true;
     }
 }

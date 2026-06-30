@@ -977,7 +977,7 @@ public partial class NpcTaskProvider : MonoBehaviour
             return;
         }
 
-        profession.professionName = NpcText.Get("professions", "tavernManager", "Quản Sự Tửu Quán");
+        profession.professionName = NpcText.Get("professions", "tavernManager");
     }
 
     void FixedUpdate()
@@ -3374,7 +3374,7 @@ public partial class NpcTaskProvider : MonoBehaviour
             return TaskDisplay("linhRice");
         }
 
-        return NpcText.Get("taskDisplay", "spiritHerb", "linh thảo");
+        return NpcText.Get("taskDisplay", "spiritHerb");
     }
 
     int GetTaskGatherProgress(RunningNpcTask task)
@@ -3536,7 +3536,7 @@ public partial class NpcTaskProvider : MonoBehaviour
             return TaskDisplay("linhRice");
         }
 
-        return NpcText.Get("taskDisplay", "spiritHerb", "linh thảo");
+        return NpcText.Get("taskDisplay", "spiritHerb");
     }
 
     string BuildGatherProgressText(RunningNpcTask task)

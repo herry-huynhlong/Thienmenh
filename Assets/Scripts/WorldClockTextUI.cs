@@ -36,7 +36,6 @@ public class WorldClockTextUI : MonoBehaviour
         }
     }
 
-    // Cập nhật liên tục mỗi khung hình để số Phút nhảy mượt mà theo thời gian thực
     void Update()
     {
         Refresh(0);
@@ -57,12 +56,19 @@ public class WorldClockTextUI : MonoBehaviour
         WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
         if (timeSystem == null)
         {
-            // Chuỗi ký tự mặc định khi hệ thống chưa load xong
-            clockText.text = prefix + "Hoang Cổ Đại Lục - Năm 1 Tháng 1 Ngày 1 - 06:00";
+            clockText.text =
+                GetResolvedPrefix() +
+                UiText.Get(
+                    "worldClock",
+                    "defaultWhenUnavailable");
             return;
         }
 
-        // Gọi hàm bốc chuỗi văn bản hoàn chỉnh từ hệ thống lõi thời gian
-        clockText.text = prefix + timeSystem.GetClockText();
+        clockText.text = GetResolvedPrefix() + timeSystem.GetClockText();
+    }
+
+    string GetResolvedPrefix()
+    {
+        return UiText.Get("worldClock", "prefix", prefix);
     }
 }

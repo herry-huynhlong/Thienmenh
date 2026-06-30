@@ -136,30 +136,45 @@ public class MainMenuManager : MonoBehaviour
             if (IsNewGameButtonKey(key))
             {
                 ReplaceButtonClick(button, NewGame);
+                SetButtonLabel(
+                    button,
+                    UiText.Get("mainMenu", "newGame"));
                 continue;
             }
 
             if (IsContinueButtonKey(key))
             {
                 ReplaceButtonClick(button, ContinueGame);
+                SetButtonLabel(
+                    button,
+                    UiText.Get("mainMenu", "continueGame"));
                 continue;
             }
 
             if (IsSettingsButtonKey(key))
             {
                 ReplaceButtonClick(button, OpenSettings);
+                SetButtonLabel(
+                    button,
+                    UiText.Get("mainMenu", "settingsMenu"));
                 continue;
             }
 
             if (IsAboutButtonKey(key))
             {
                 ReplaceButtonClick(button, About);
+                SetButtonLabel(
+                    button,
+                    UiText.Get("mainMenu", "aboutMenu"));
                 continue;
             }
 
             if (IsExitButtonKey(key))
             {
                 ReplaceButtonClick(button, QuitGame);
+                SetButtonLabel(
+                    button,
+                    UiText.Get("mainMenu", "exitGame"));
             }
         }
     }
@@ -305,6 +320,27 @@ public class MainMenuManager : MonoBehaviour
         return legacyText != null ? legacyText.text : "";
     }
 
+    void SetButtonLabel(Button button, string value)
+    {
+        if (button == null || string.IsNullOrEmpty(value))
+        {
+            return;
+        }
+
+        TMP_Text tmpText = button.GetComponentInChildren<TMP_Text>(true);
+        if (tmpText != null)
+        {
+            tmpText.text = value;
+            return;
+        }
+
+        Text legacyText = button.GetComponentInChildren<Text>(true);
+        if (legacyText != null)
+        {
+            legacyText.text = value;
+        }
+    }
+
     bool IsNewGameButtonKey(string key)
     {
         return key.Contains("newgame") ||
@@ -381,7 +417,7 @@ public class MainMenuManager : MonoBehaviour
 
     public void About()
     {
-        Debug.Log("Thien Menh Chi Tu - Game tu tien RPG");
+        Debug.Log(UiText.Get("mainMenu", "aboutLog"));
     }
 
     public void Settings()
@@ -683,28 +719,53 @@ public class MainMenuManager : MonoBehaviour
         createdRuntimeSettingsPanel = true;
 
         settingsPanel = CreatePanel(canvas.transform);
-        CreateLabel(settingsPanel.transform, "Cai dat", new Vector2(0f, 150f), 42);
+        CreateLabel(
+            settingsPanel.transform,
+            UiText.Get("mainMenu", "settingsTitle"),
+            new Vector2(0f, 150f),
+            42);
 
         masterVolumeSlider =
-            CreateSlider(settingsPanel.transform, "Am luong", new Vector2(0f, 70f));
+            CreateSlider(
+                settingsPanel.transform,
+                UiText.Get("mainMenu", "settingsVolume"),
+                new Vector2(0f, 70f));
 
         fullscreenToggle =
-            CreateToggle(settingsPanel.transform, "Toan man hinh", new Vector2(0f, 10f));
+            CreateToggle(
+                settingsPanel.transform,
+                UiText.Get("mainMenu", "settingsFullscreen"),
+                new Vector2(0f, 10f));
 
         targetFpsDropdown =
-            CreateDropdown(settingsPanel.transform, "FPS", new Vector2(0f, -60f));
+            CreateDropdown(
+                settingsPanel.transform,
+                UiText.Get("mainMenu", "settingsFps"),
+                new Vector2(0f, -60f));
 
         muteVolumeButton =
-            CreateButton(settingsPanel.transform, "Tat am", new Vector2(-110f, -105f));
+            CreateButton(
+                settingsPanel.transform,
+                UiText.Get("mainMenu", "settingsMute"),
+                new Vector2(-110f, -105f));
 
         unmuteVolumeButton =
-            CreateButton(settingsPanel.transform, "Bat am", new Vector2(110f, -105f));
+            CreateButton(
+                settingsPanel.transform,
+                UiText.Get("mainMenu", "settingsUnmute"),
+                new Vector2(110f, -105f));
 
         applySettingsButton =
-            CreateButton(settingsPanel.transform, "Luu", new Vector2(-110f, -165f));
+            CreateButton(
+                settingsPanel.transform,
+                UiText.Get("mainMenu", "settingsSave"),
+                new Vector2(-110f, -165f));
 
         closeSettingsButton =
-            CreateButton(settingsPanel.transform, "Dong", new Vector2(110f, -165f));
+            CreateButton(
+                settingsPanel.transform,
+                UiText.Get("mainMenu", "settingsClose"),
+                new Vector2(110f, -165f));
 
         HookSettingsControls();
         settingsPanel.SetActive(false);

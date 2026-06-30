@@ -419,7 +419,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
     void Start()
     {
         ignoreNpcBodyCollisions = true;
-        currentAction = "";
+        currentAction = NpcText.Action("idle");
         visualAnimation = NPCVisualAnimation.EnsureOn(gameObject);
         ItemInventory inventory = GetComponent<ItemInventory>();
         if (inventory == null)
@@ -684,8 +684,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         }
 
         if (currentMonsterTarget != null ||
-            currentAction == NpcText.Action("huntMonsterNamed") ||
-            currentAction == NpcText.Action("attackMonsterNamed"))
+            MatchesSmartAction("huntMonsterNamed", true) ||
+            MatchesSmartAction("attackMonsterNamed", true))
         {
             SearchMonster();
             if (canLive)
@@ -931,7 +931,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                     "Move",
                     "Teleport route ended without follow target");
 
-                currentAction = "";
+                currentAction = NpcText.Action("idle");
 
                 if (rb != null)
                 {
@@ -965,7 +965,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
             if (!IsStationaryAction(currentAction))
             {
-                currentAction = "";
+                currentAction = NpcText.Action("idle");
             }
 
             return;
@@ -1093,8 +1093,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             currentAction == NpcText.Action("goTavern") ||
             currentAction == NpcText.Action("buyPill") ||
             currentAction == NpcText.Action("goHunt") ||
-            currentAction == NpcText.Action("huntMonsterNamed") ||
-            currentAction == NpcText.Action("attackMonsterNamed");
+            MatchesSmartAction("huntMonsterNamed", true) ||
+            MatchesSmartAction("attackMonsterNamed", true);
 
         bool hasActiveDirectedTarget =
             currentTarget != null ||
@@ -1157,16 +1157,9 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 rb.linearVelocity = Vector2.zero;
             }
 
-            CultivateNaturally();
-
-            if (currentAction != NpcText.Action("cultivate") &&
-                currentAction != NpcText.Action("cultivateAbsorbQi"))
-            {
-                currentAction = NpcText.Action("cultivate");
-                SyncCultivationEffect();
-            }
-
-            DebugFlow("Move", "Started cultivate at point");
+            currentAction = NpcText.Action("idle");
+            SyncCultivationEffect();
+            DebugFlow("Move", "Arrived at cultivate point, wait for cultivate action");
             return;
         }
 
@@ -1311,7 +1304,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         float holdRange =
             Mathf.Max(
                 attackRange,
-                attackRange - 0.05f,
+                attackRange + 0.25f,
                 0.45f);
 
         return distance <= holdRange;
@@ -1365,8 +1358,48 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             return false;
         }
 
-        return ActionMatchesPrefix(currentAction, key) ||
-            ActionMatchesPrefix(currentAction, pattern);
+        return MatchesActionKey(
+            currentAction,
+            key,
+            allowPrefix);
+    }
+
+    bool MatchesActionKey(
+        string action,
+        string key,
+        bool allowPrefix = false)
+    {
+        if (string.IsNullOrEmpty(action) ||
+            string.IsNullOrEmpty(key))
+        {
+            return false;
+        }
+
+        if (string.Equals(
+                action,
+                key,
+                System.StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        string pattern = NpcText.Action(key);
+        if (!string.IsNullOrEmpty(pattern) &&
+            string.Equals(
+                action,
+                pattern,
+                System.StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        if (!allowPrefix)
+        {
+            return false;
+        }
+
+        return ActionMatchesPrefix(action, key) ||
+            ActionMatchesPrefix(action, pattern);
     }
 
     static bool ActionMatchesPrefix(string action, string pattern)
@@ -1404,6 +1437,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         UpdateCultivationEffect(false);
         TargetReservationSystem.TryGetExistingInstance()?.ReleaseAllByOwner(gameObject);
         NpcCollisionRegistry.Unregister(this);
+        NpcMapNavigator.ClearNpcState(gameObject);
     }
 
     void OnNpcMapTeleported()
@@ -1452,7 +1486,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         thinkTimer = 0f;
         if (!preserveTravelState)
         {
-            currentAction = "";
+            currentAction = NpcText.Action("idle");
         }
 
         NpcTeleportGate gate = gateObject != null
@@ -1461,6 +1495,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         if (gate != null)
         {
+            NpcMapNavigator.LockNpcZone(gameObject, gate.toZone, 3f);
             NpcMapNavigator.ReportNpcZone(gameObject, gate.toZone);
             NpcMapArea resolvedArea =
                 NpcMapNavigator.ResolveMapAreaAfterTeleport(
@@ -1468,7 +1503,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                     gate.toZone,
                     transform.position);
 
-            if (resolvedArea != null)
+            if (resolvedArea != null &&
+                resolvedArea.zone == gate.toZone)
             {
                 NpcMapNavigator.ReportNpcZone(gameObject, resolvedArea.zone);
             }
@@ -2058,16 +2094,29 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
     bool IsStationaryAction(string action)
     {
         return action == NpcText.Action("eating") ||
+            action == NpcText.Action("idle") ||
             action == NpcText.Action("rest") ||
+            action == NpcText.Action("restNearHome") ||
+            action == NpcText.Action("restVillageNoon") ||
+            action == NpcText.Action("stayNearHome") ||
             action == NpcText.Action("cultivate") ||
             action == NpcText.Action("cultivateAbsorbQi") ||
             action == NpcText.Action("waitTribulation") ||
+            ContainsIgnoreCase(action, "waitSchedule") ||
             action == NpcText.Action("breakthrough") ||
             action == NpcText.Action("injured") ||
             action == NpcText.Action("dead") ||
             action == NpcText.Action("oldAgeDeath") ||
             action == NpcText.Action("outerSkirmishNamed") ||
+            action == NpcText.Action("visitedTaskProvider") ||
             action == NpcText.Action("waitLightningNamed");
+    }
+
+    static bool ContainsIgnoreCase(string source, string value)
+    {
+        return !string.IsNullOrEmpty(source) &&
+            !string.IsNullOrEmpty(value) &&
+            source.IndexOf(value, System.StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
     bool HasLockedDirectedTarget()
@@ -2951,7 +3000,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         if (currentMonsterTarget != null &&
             target == currentMonsterTarget.transform)
         {
-            return GetMonsterCombatApproachPosition(target);
+            return targetPosition;
         }
 
         if (!ShouldUseSharedTargetSpacing(target))
@@ -3453,7 +3502,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         if (currentAction == NpcText.Action("cultivate") ||
             currentAction == NpcText.Action("cultivateAbsorbQi"))
         {
-            currentAction = "";
+            currentAction = NpcText.Action("idle");
             SyncCultivationEffect();
         }
 
@@ -3644,8 +3693,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             action == NpcText.Action("goTavern") ||
             action == NpcText.Action("buyPill") ||
             action == NpcText.Action("goHunt") ||
-            action == NpcText.Action("huntMonsterNamed") ||
-            action == NpcText.Action("attackMonsterNamed") ||
+            MatchesActionKey(action, "huntMonsterNamed", true) ||
+            MatchesActionKey(action, "attackMonsterNamed", true) ||
             action == NpcText.Action("makeFriend") ||
             action == NpcText.Action("createSect") ||
             action == NpcText.Action("goMarketTrade") ||

@@ -6,6 +6,15 @@ public static class NpcMapNavigator
     static readonly Dictionary<GameObject, NpcMapZone> knownNpcZones =
         new Dictionary<GameObject, NpcMapZone>();
 
+    static readonly Dictionary<GameObject, ZoneLockState> lockedNpcZones =
+        new Dictionary<GameObject, ZoneLockState>();
+
+    struct ZoneLockState
+    {
+        public NpcMapZone zone;
+        public float expiresAt;
+    }
+
     public static void ReportNpcZone(GameObject npc, NpcMapZone zone)
     {
         if (npc == null)
@@ -14,6 +23,42 @@ public static class NpcMapNavigator
         }
 
         knownNpcZones[npc] = zone;
+    }
+
+    public static void LockNpcZone(
+        GameObject npc,
+        NpcMapZone zone,
+        float duration)
+    {
+        if (npc == null)
+        {
+            return;
+        }
+
+        ReportNpcZone(npc, zone);
+
+        if (duration <= 0f)
+        {
+            lockedNpcZones.Remove(npc);
+            return;
+        }
+
+        lockedNpcZones[npc] = new ZoneLockState
+        {
+            zone = zone,
+            expiresAt = Time.time + duration
+        };
+    }
+
+    public static void ClearNpcState(GameObject npc)
+    {
+        if (npc == null)
+        {
+            return;
+        }
+
+        knownNpcZones.Remove(npc);
+        lockedNpcZones.Remove(npc);
     }
 
     public static bool TryGetKnownNpcZone(
@@ -37,21 +82,24 @@ public static class NpcMapNavigator
             return null;
         }
 
+        if (TryGetLockedNpcZone(npc, out NpcMapZone lockedZone))
+        {
+            return lockedZone;
+        }
+
         NpcMapArea areaAtPosition =
             NpcMapArea.FindArea(npc.transform.position);
-
-        if (areaAtPosition != null &&
-            TryGetKnownNpcZone(npc, out NpcMapZone knownZone) &&
-            knownZone != areaAtPosition.zone &&
-            IsNearTeleportBoundary(npc.transform.position, knownZone))
-        {
-            return knownZone;
-        }
 
         if (areaAtPosition != null)
         {
             ReportNpcZone(npc, areaAtPosition.zone);
             return areaAtPosition.zone;
+        }
+
+        if (TryGetKnownNpcZone(npc, out NpcMapZone knownZone) &&
+            IsNearTeleportBoundary(npc.transform.position, knownZone))
+        {
+            return knownZone;
         }
 
         if (TryGetKnownNpcZone(npc, out NpcMapZone known))
@@ -276,6 +324,32 @@ public static class NpcMapNavigator
         }
 
         return null;
+    }
+
+    static bool TryGetLockedNpcZone(
+        GameObject npc,
+        out NpcMapZone zone)
+    {
+        zone = default;
+
+        if (npc == null)
+        {
+            return false;
+        }
+
+        if (!lockedNpcZones.TryGetValue(npc, out ZoneLockState lockState))
+        {
+            return false;
+        }
+
+        if (Time.time >= lockState.expiresAt)
+        {
+            lockedNpcZones.Remove(npc);
+            return false;
+        }
+
+        zone = lockState.zone;
+        return true;
     }
 
     static NpcMapZone? ResolvePhysicalGateZone(NpcTeleportGate gate)

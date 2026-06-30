@@ -139,16 +139,7 @@ public class HeavenDaoPanelUI : MonoBehaviour
 
         SetProgressFill(fill);
 
-        if (controlText != null)
-        {
-            controlText.text = "Chưởng Khống : " + system.ControlPercent + "%";
-        }
-
-        if (karmaText != null)
-        {
-            karmaText.text = "Nhân Quả: " + system.karma;
-        }
-
+        ApplyOverviewTexts();
         RefreshPowers();
         RefreshRecentLogs();
     }
@@ -191,17 +182,8 @@ public class HeavenDaoPanelUI : MonoBehaviour
         HeavenDaoUnlock next = system.GetNextUnlock();
         if (nextUnlockText != null)
         {
-            if (system.bypassUnlockRequirements && !system.HasForcedLocks)
-            {
-                nextUnlockText.text = "Đang mở tất cả quyền trong chế độ dev";
-            }
-            else
-            {
-                nextUnlockText.text = next != null
-                    ? "Sắp mở " + next.controlPercent + "%: " + next.displayName
-                    : "Đã mở hết mức hiện tại";
-            }
         }
+        ApplyNextUnlockText(next);
     }
 
     void RefreshRecentLogs()
@@ -225,10 +207,7 @@ public class HeavenDaoPanelUI : MonoBehaviour
                 : "";
         }
 
-        if (footerHintText != null)
-        {
-            footerHintText.text = "Bản Nguyên hồi phục khi thế giới phát triển.";
-        }
+        ApplyFooterHintText();
     }
 
     void SetProgressFill(float fill)
@@ -251,6 +230,72 @@ public class HeavenDaoPanelUI : MonoBehaviour
             anchorMax.x = fill;
             originFillRect.anchorMax = anchorMax;
         }
+    }
+
+    void ApplyOverviewTexts()
+    {
+        if (system == null)
+        {
+            return;
+        }
+
+        if (controlText != null)
+        {
+            controlText.text = UiText.Format(
+                "heavenDao",
+                "controlFormat",
+                system.ControlPercent);
+        }
+
+        if (karmaText != null)
+        {
+            karmaText.text = UiText.Format(
+                "heavenDao",
+                "karmaFormat",
+                system.karma);
+        }
+    }
+
+    void ApplyNextUnlockText(HeavenDaoUnlock next)
+    {
+        if (nextUnlockText == null)
+        {
+            return;
+        }
+
+        if (system != null &&
+            system.bypassUnlockRequirements &&
+            !system.HasForcedLocks)
+        {
+            nextUnlockText.text =
+                UiText.Get(
+                    "heavenDao",
+                    "devUnlockAll");
+            return;
+        }
+
+        nextUnlockText.text = next != null
+            ? UiText.Format(
+                "heavenDao",
+                "nextUnlockFormat",
+                next.controlPercent,
+                next.displayName)
+            : UiText.Get(
+                "heavenDao",
+                "allUnlocked");
+    }
+
+    void ApplyFooterHintText()
+    {
+        if (footerHintText == null)
+        {
+            return;
+        }
+
+        footerHintText.text =
+            UiText.Get(
+                "heavenDao",
+                "footerHint");
     }
 
     void AutoBind()

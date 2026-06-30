@@ -43,7 +43,12 @@ public static class ItemLifecycleSystem
         GameObject other)
     {
         string actorName =
-            actor != null ? actor.name : "Vo danh";
+            actor != null
+                ? actor.name
+                : UiText.Get(
+                    "itemLifecycle",
+                    "anonymous",
+                    "Vo danh");
 
         string otherName =
             other != null ? other.name : "";
@@ -51,25 +56,49 @@ public static class ItemLifecycleSystem
         switch (eventType)
         {
             case ItemLifecycleEventType.Broken:
-                return ItemText.Name(item) + " cua " + actorName + " da hong.";
+                return UiText.Format(
+                    "itemLifecycle",
+                    "broken",
+                    ItemText.Name(item),
+                    actorName);
 
             case ItemLifecycleEventType.Refined:
-                return actorName + " luyen hoa " + ItemText.Name(item) +
-                    " thanh dan duoc.";
+                return UiText.Format(
+                    "itemLifecycle",
+                    "refined",
+                    actorName,
+                    ItemText.Name(item));
 
             case ItemLifecycleEventType.Forged:
-                return actorName + " ren " + ItemText.Name(item) + ".";
+                return UiText.Format(
+                    "itemLifecycle",
+                    "forged",
+                    actorName,
+                    ItemText.Name(item));
 
             case ItemLifecycleEventType.Stolen:
-                return actorName + " doat " + ItemText.Name(item) +
-                    " tu " + otherName + ".";
+                return UiText.Format(
+                    "itemLifecycle",
+                    "stolen",
+                    actorName,
+                    ItemText.Name(item),
+                    otherName);
 
             case ItemLifecycleEventType.Taught:
-                return actorName + " truyen thu " + ItemText.Name(item) +
-                    " cho " + otherName + ".";
+                return UiText.Format(
+                    "itemLifecycle",
+                    "taught",
+                    actorName,
+                    ItemText.Name(item),
+                    otherName);
 
             default:
-                return actorName + " " + eventType + " " + ItemText.Name(item);
+                return UiText.Format(
+                    "itemLifecycle",
+                    "default",
+                    actorName,
+                    eventType,
+                    ItemText.Name(item));
         }
     }
 }

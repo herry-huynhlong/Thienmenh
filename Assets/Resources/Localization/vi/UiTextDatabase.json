@@ -1,0 +1,703 @@
+{
+  "categories": [
+    {
+      "name": "shop",
+      "entries": [
+        {
+          "key": "titleDanDuoc",
+          "value": "Linh DÆ°á»£c ÄÆ°á»ng"
+        },
+        {
+          "key": "titlePhapBao",
+          "value": "Tháº§n Binh CÃ¡c"
+        },
+        {
+          "key": "titleCongPhap",
+          "value": "CÃ´ng PhÃ¡p TÃ ng"
+        },
+        {
+          "key": "titleVatLieu",
+          "value": "ThiÃªn TÃ i CÃ¡c"
+        },
+        {
+          "key": "titleThucPham",
+          "value": "Ngá»± Thiá»‡n PhÆ°á»ng"
+        },
+        {
+          "key": "buyButtonBuy",
+          "value": "Mua"
+        },
+        {
+          "key": "buyButtonNotEnough",
+          "value": "KhÃ´ng Ä‘á»§ LT"
+        },
+        {
+          "key": "buyButtonUnavailable",
+          "value": "KhÃ´ng bÃ¡n"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "heavenDao",
+      "entries": [
+        {
+          "key": "controlFormat",
+          "value": "ChÆ°á»Ÿng Khá»‘ng: {0}%"
+        },
+        {
+          "key": "karmaFormat",
+          "value": "NhÃ¢n Quáº£: {0}"
+        },
+        {
+          "key": "devUnlockAll",
+          "value": "Äang má»Ÿ táº¥t cáº£ quyá»n trong cháº¿ Ä‘á»™ dev"
+        },
+        {
+          "key": "nextUnlockFormat",
+          "value": "Sáº¯p má»Ÿ {0}%: {1}"
+        },
+        {
+          "key": "allUnlocked",
+          "value": "ÄÃ£ má»Ÿ háº¿t má»©c hiá»‡n táº¡i"
+        },
+        {
+          "key": "footerHint",
+          "value": "Báº£n NguyÃªn há»“i phá»¥c khi tháº¿ giá»›i phÃ¡t triá»ƒn."
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "rewardedAds",
+      "entries": [
+        {
+          "key": "loading",
+          "value": "Äang táº£i quáº£ng cÃ¡o..."
+        },
+        {
+          "key": "missingAdUnit",
+          "value": "KhÃ´ng cÃ³ Ad Unit ID."
+        },
+        {
+          "key": "notReady",
+          "value": "Quáº£ng cÃ¡o chÆ°a sáºµn sÃ ng."
+        },
+        {
+          "key": "opening",
+          "value": "Äang má»Ÿ quáº£ng cÃ¡o..."
+        },
+        {
+          "key": "readyRewardFormat",
+          "value": "Xem quáº£ng cÃ¡o nháº­n +{0} LT"
+        },
+        {
+          "key": "loadFailed",
+          "value": "Táº£i quáº£ng cÃ¡o lá»—i."
+        },
+        {
+          "key": "watching",
+          "value": "Äang xem quáº£ng cÃ¡o..."
+        },
+        {
+          "key": "showFailed",
+          "value": "KhÃ´ng má»Ÿ Ä‘Æ°á»£c quáº£ng cÃ¡o."
+        },
+        {
+          "key": "incomplete",
+          "value": "ChÆ°a xem xong nÃªn khÃ´ng nháº­n thÆ°á»Ÿng."
+        },
+        {
+          "key": "rewardGrantedFormat",
+          "value": "ÄÃ£ nháº­n +{0} LT"
+        },
+        {
+          "key": "walletMissing",
+          "value": "KhÃ´ng tÃ¬m tháº¥y vÃ­ Linh Tháº¡ch."
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "population",
+      "entries": [
+        {
+          "key": "totalFormat",
+          "value": "Sinh linh: {0}"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "favorites",
+      "entries": [
+        {
+          "key": "countFormat",
+          "value": "{0}/{1}"
+        },
+        {
+          "key": "focusButton",
+          "value": "Den Tu si"
+        },
+        {
+          "key": "removeButton",
+          "value": "Xoa Tu si"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "npcInventory",
+      "entries": [
+        {
+          "key": "emptyText",
+          "value": "Khong co vat pham"
+        },
+        {
+          "key": "titleFormat",
+          "value": "{0} - Kho do"
+        },
+        {
+          "key": "compactInfoFormat",
+          "value": "Balo: {0} | Tong: {1}"
+        },
+        {
+          "key": "walletLine",
+          "value": "Linh thach: {0}"
+        },
+        {
+          "key": "spiritStoneLine",
+          "value": "Linh thach tu luyen: {0}"
+        },
+        {
+          "key": "inventoryValueLine",
+          "value": "Gia tri balo: {0}"
+        },
+        {
+          "key": "totalAssetsLine",
+          "value": "Tong tai san: {0}"
+        },
+        {
+          "key": "itemCountsFormat",
+          "value": "So loai hang: {0} / Tong mon: {1}"
+        },
+        {
+          "key": "itemLineFormat",
+          "value": "{0} x{1} - {2}"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "worldClock",
+      "entries": [
+        {
+          "key": "prefix",
+          "value": ""
+        },
+        {
+          "key": "defaultWhenUnavailable",
+          "value": "Hoang C? ??i L?c - N?m 1 Th?ng 1 Ng?y 1 - 06:00"
+        },
+        {
+          "key": "continentName",
+          "value": "Hoang C? ??i L?c"
+        },
+        {
+          "key": "dayFormat",
+          "value": "Ng?y {0}"
+        },
+        {
+          "key": "monthFormat",
+          "value": "Th?ng {0} - {1}"
+        },
+        {
+          "key": "yearFormat",
+          "value": "N?m {0} - {1}"
+        },
+        {
+          "key": "clockFormat",
+          "value": "{0}\n{1}\n{2:00}h{3:00}"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "worldNotifications",
+      "entries": [
+        {
+          "key": "originPrefix",
+          "value": "ThiÃªn Äáº¡o"
+        },
+        {
+          "key": "normalPrefix",
+          "value": ""
+        },
+        {
+          "key": "normalPrefixFormat",
+          "value": "{0}: {1}"
+        },
+        {
+          "key": "originLabelFallback",
+          "value": "báº£n nguyÃªn"
+        },
+        {
+          "key": "originRewardFormat",
+          "value": "{0} +{1} {2}\n{3}"
+        },
+        {
+          "key": "originPrefixFormat",
+          "value": "{0}\n{1}"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "mainMenu",
+      "entries": [
+        {
+          "key": "aboutLog",
+          "value": "Thi?n M?nh Chi T? - game tu ti?n RPG"
+        },
+        {
+          "key": "settingsTitle",
+          "value": "C?i ??t"
+        },
+        {
+          "key": "settingsVolume",
+          "value": "?m l??ng"
+        },
+        {
+          "key": "settingsFullscreen",
+          "value": "To?n m?n h?nh"
+        },
+        {
+          "key": "settingsFps",
+          "value": "FPS"
+        },
+        {
+          "key": "settingsMute",
+          "value": "T?t ?m"
+        },
+        {
+          "key": "settingsUnmute",
+          "value": "B?t ?m"
+        },
+        {
+          "key": "settingsSave",
+          "value": "L?u"
+        },
+        {
+          "key": "settingsClose",
+          "value": "??ng"
+        },
+        {
+          "key": "newGame",
+          "value": "B?t ??u"
+        },
+        {
+          "key": "continueGame",
+          "value": "Ti?p t?c"
+        },
+        {
+          "key": "settingsMenu",
+          "value": "C?i ??t"
+        },
+        {
+          "key": "aboutMenu",
+          "value": "Gi?i thi?u"
+        },
+        {
+          "key": "exitGame",
+          "value": "Tho?t"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "intro",
+      "entries": [
+        {
+          "key": "fallbackTitle",
+          "value": "Tr?ng Tu Thi?n ??o"
+        },
+        {
+          "key": "pageIndicatorFormat",
+          "value": "{0} / {1}"
+        }
+      ],
+      "lists": [
+        {
+          "key": "pageTitles",
+          "values": [
+            "ThiÃªn Äáº¡o HoÃ n Chá»‰nh",
+            "Háº¡o Kiáº¿p Diá»‡t Giá»›i",
+            "Báº£n NguyÃªn Vá»¡ NÃ¡t",
+            "TrÃ¹ng Tu ThiÃªn Äáº¡o"
+          ]
+        },
+        {
+          "key": "pageBodies",
+          "values": [
+            "Thuá»Ÿ thiÃªn Ä‘á»‹a cÃ²n nguyÃªn váº¹n, Hoang Cá»• Äáº¡i Lá»¥c tá»«ng lÃ  má»™t tháº¿ giá»›i phá»“n thá»‹nh.\n\nThiÃªn Äáº¡o bao phá»§ váº¡n váº­t, nháº­t nguyá»‡t váº­n hÃ nh cÃ³ thá»© tá»±, linh khÃ­ luÃ¢n chuyá»ƒn khÃ´ng dá»©t.\n\nSinh linh sinh ra, tu luyá»‡n, tranh Ä‘áº¥u, truyá»n thá»«a rá»“i hÃ³a thÃ nh má»™t pháº§n cá»§a thiÃªn Ä‘á»‹a.\n\nTÃ´ng mÃ´n hÆ°ng thá»‹nh, yÃªu thÃº tung hoÃ nh, linh tháº£o sinh trÆ°á»Ÿng kháº¯p nÃºi sÃ´ng. Má»—i sinh má»‡nh Ä‘á»u cÃ³ quá»¹ tÃ­ch riÃªng, má»—i cÆ¡ duyÃªn Ä‘á»u náº±m trong Ä‘áº¡i Ä‘áº¡o tuáº§n hoÃ n.",
+            "NhÆ°ng vÃ o má»™t ká»· nguyÃªn xa xÆ°a, hÆ° khÃ´ng bá»—ng ráº¡n ná»©t.\n\nMá»™t tháº¿ lá»±c Ä‘áº¿n tá»« ngoÃ i thiÃªn Ä‘á»‹a xÃ¢m nháº­p Hoang Cá»• Äáº¡i Lá»¥c.\n\nChÃºng khÃ´ng tuÃ¢n theo ThiÃªn Äáº¡o, khÃ´ng nháº­p luÃ¢n há»“i, chá»‰ muá»‘n nuá»‘t láº¥y linh khÃ­, báº£n nguyÃªn vÃ  sinh cÆ¡ cá»§a cáº£ tháº¿ giá»›i.\n\nTráº­n háº¡o kiáº¿p áº¥y khiáº¿n nÃºi sÃ´ng sá»¥p Ä‘á»•, tÃ´ng mÃ´n tiÃªu vong, vÃ´ sá»‘ sinh linh hÃ³a thÃ nh tro bá»¥i. Tráº­t tá»± thiÃªn Ä‘á»‹a báº¯t Ä‘áº§u tan rÃ£.",
+            "Äá»ƒ giá»¯ láº¡i má»™t tia sinh cÆ¡ cuá»‘i cÃ¹ng, ThiÃªn Äáº¡o Ä‘Ã£ cÆ°á»¡ng Ã©p thiÃªu Ä‘á»‘t báº£n nguyÃªn cá»§a chÃ­nh mÃ¬nh.\n\nSá»©c máº¡nh áº¥y Ä‘Ã¡nh lui ngoáº¡i Ä‘á»‹ch, phong báº¿ váº¿t ná»©t hÆ° khÃ´ng, cá»©u láº¥y pháº§n cÃ²n sÃ³t láº¡i cá»§a Hoang Cá»• Äáº¡i Lá»¥c.\n\nNhÆ°ng cÃ¡i giÃ¡ pháº£i tráº£ quÃ¡ lá»›n.\n\nBáº£n nguyÃªn ThiÃªn Äáº¡o vá»¡ nÃ¡t, quyá»n nÄƒng tháº¥t láº¡c kháº¯p nÆ¡i. Linh khÃ­ suy yáº¿u, phÃ¡p táº¯c há»—n loáº¡n, tháº¿ giá»›i chá»‰ cÃ²n láº¡i nhá»¯ng vÃ¹ng Ä‘áº¥t rá»i ráº¡c Ä‘ang tá»± chá»‘ng chá»i vá»›i thá»i gian.",
+            "Hiá»‡n táº¡i, má»™t tia tÃ n Ã½ cá»§a ThiÃªn Äáº¡o Ä‘Ã£ thá»©c tá»‰nh.\n\nÄÃ³ chÃ­nh lÃ  ngÆ°Æ¡i.\n\nNgÆ°Æ¡i chÆ°a thá»ƒ chÆ°á»Ÿng khá»‘ng toÃ n bá»™ tháº¿ giá»›i, chá»‰ cÃ³ thá»ƒ quan sÃ¡t má»™t vÃ¹ng Ä‘áº¥t nhá» bÃ© nÆ¡i rÃ¬a Hoang Cá»• Äáº¡i Lá»¥c.\n\nNhÆ°ng tá»« nÆ¡i nÃ y, ThiÃªn Äáº¡o cÃ³ thá»ƒ báº¯t Ä‘áº§u trÃ¹ng tu.\n\nHÃ£y dáº«n dáº¯t sinh linh, ban phÃ¡t cÆ¡ duyÃªn, thÃºc Ä‘áº©y tu luyá»‡n, má»Ÿ rá»™ng vÃ¹ng Ä‘áº¥t, khÃ´i phá»¥c linh khÃ­ vÃ  tá»«ng bÆ°á»›c thu há»“i báº£n nguyÃªn Ä‘Ã£ máº¥t.\n\nKhi ThiÃªn Äáº¡o Ä‘á»§ máº¡nh, Hoang Cá»• Äáº¡i Lá»¥c sáº½ má»™t láº§n ná»¯a nghÃªnh Ä‘Ã³n thá»i Ä‘áº¡i má»›i."
+          ]
+        },
+        {
+          "key": "defaultPageTitles",
+          "values": [
+            "Thi?n ??o Ho?n Ch?nh",
+            "H?o Ki?p Di?t Gi?i",
+            "B?n Nguy?n V? N?t",
+            "Tr?ng Tu Thi?n ??o"
+          ]
+        },
+        {
+          "key": "defaultPageBodies",
+          "values": [
+            "Thu? thi?n ??a c?n nguy?n v?n, Hoang C? ??i L?c t?ng l? m?t th? gi?i ph?n th?nh.\n\nThi?n ??o bao ph? v?n v?t, nh?t nguy?t v?n h?nh c? th? t?, linh kh? lu?n chuy?n kh?ng d?t.\n\nSinh linh sinh ra, tu luy?n, tranh ??u, truy?n th?a r?i h?a th?nh m?t ph?n c?a thi?n ??a.\n\nT?ng m?n h?ng th?nh, y?u th? tung ho?nh, linh th?o sinh tr??ng kh?p n?i s?ng. M?i sinh m?nh ??u c? qu? t?ch ri?ng, m?i c? duy?n ??u n?m trong ??i ??o tu?n ho?n.",
+            "Nh?ng v?o m?t k? nguy?n xa x?a, h? kh?ng b?ng r?n n?t.\n\nM?t th? l?c ??n t? ngo?i thi?n ??a x?m nh?p Hoang C? ??i L?c.\n\nCh?ng kh?ng tu?n theo Thi?n ??o, kh?ng nh?p lu?n h?i, ch? mu?n nu?t l?y linh kh?, b?n nguy?n v? sinh c? c?a c? th? gi?i.\n\nTr?n h?o ki?p ?y khi?n n?i s?ng s?p ??, t?ng m?n ti?u vong, v? s? sinh linh h?a th?nh tro b?i. Tr?t t? thi?n ??a b?t ??u tan r?.",
+            "?? gi? l?i m?t tia sinh c? cu?i c?ng, Thi?n ??o ?? c??ng ?p thi?u ??t b?n nguy?n c?a ch?nh m?nh.\n\nS?c m?nh ?y ??nh lui ngo?i ??ch, phong b? v?t n?t h? kh?ng, c?u l?y ph?n c?n s?t l?i c?a Hoang C? ??i L?c.\n\nNh?ng c?i gi? ph?i tr? qu? l?n.\n\nB?n nguy?n Thi?n ??o v? n?t, quy?n n?ng th?t l?c kh?p n?i. Linh kh? suy y?u, ph?p t?c h?n lo?n, th? gi?i ch? c?n l?i nh?ng v?ng ??t r?i r?c ?ang t? ch?ng ch?i v?i th?i gian.",
+            "Hi?n t?i, m?t tia t?n ? c?a Thi?n ??o ?? th?c t?nh.\n\n?? ch?nh l? ng??i.\n\nNg??i ch?a th? ch??ng kh?ng to?n b? th? gi?i, ch? c? th? quan s?t m?t v?ng ??t nh? b? n?i r?a Hoang C? ??i L?c.\n\nNh?ng t? n?i n?y, Thi?n ??o c? th? b?t ??u tr?ng tu.\n\nH?y d?n d?t sinh linh, ban ph?t c? duy?n, th?c ??y tu luy?n, m? r?ng v?ng ??t, kh?i ph?c linh kh? v? t?ng b??c thu h?i b?n nguy?n ?? m?t.\n\nKhi Thi?n ??o ?? m?nh, Hoang C? ??i L?c s? m?t l?n n?a ngh?nh ??n th?i ??i m?i."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "touchSelect",
+      "entries": [
+        {
+          "key": "placeholder",
+          "value": "-"
+        },
+        {
+          "key": "damageRow",
+          "value": "DamageRow"
+        },
+        {
+          "key": "defenseRow",
+          "value": "Phòng Thủ"
+        },
+        {
+          "key": "lifespanRow",
+          "value": "Thọ Nguyên"
+        },
+        {
+          "key": "jobRow",
+          "value": "Chức Vụ"
+        },
+        {
+          "key": "maritalStatusRow",
+          "value": "tinhtrang"
+        },
+        {
+          "key": "statusRow",
+          "value": "Trạng Thái : "
+        },
+        {
+          "key": "statusRowAlt",
+          "value": "Trạng Thái:"
+        },
+        {
+          "key": "equipmentList",
+          "value": "EquipmentList"
+        },
+        {
+          "key": "skillList",
+          "value": "SkillList"
+        },
+        {
+          "key": "equipmentWeapon",
+          "value": "VÅ© KhÃ­"
+        },
+        {
+          "key": "equipmentArmor",
+          "value": "GiÃ¡p"
+        },
+        {
+          "key": "equipmentAccessory",
+          "value": "PhÃ¡p Báº£o"
+        },
+        {
+          "key": "actionFormat",
+          "value": "Äang {0}"
+        },
+        {
+          "key": "monsterLootNone",
+          "value": "KhÃ´ng"
+        },
+        {
+          "key": "monsterLootUnset",
+          "value": "ChÆ°a gáº¯n"
+        },
+        {
+          "key": "inventoryEmpty",
+          "value": "Trá»‘ng"
+        },
+        {
+          "key": "inventorySummaryFormat",
+          "value": "{0} loáº¡i / {1} mÃ³n"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "worldStory",
+      "entries": [
+        {
+          "key": "dayUnknown",
+          "value": "Ngay ?"
+        },
+        {
+          "key": "dayOnlyFormat",
+          "value": "Ngay {0}"
+        },
+        {
+          "key": "monthDayFormat",
+          "value": "Thang {0} - Ngay {1}"
+        },
+        {
+          "key": "timeUnknown",
+          "value": "[Th?i Kh?ng]"
+        },
+        {
+          "key": "introLogWelcome",
+          "value": "Ch?o m?ng ??n v?i Hoang C? ??i L?c! Linh kh? an l?nh, tr?i quang m?y t?nh."
+        },
+        {
+          "key": "introLogSecretRealm",
+          "value": "D? ??ng t?i ph??ng ??ng! K?t gi?i Th??ng C? B? C?nh c? d?u hi?u suy y?u."
+        },
+        {
+          "key": "introLogBeastWave",
+          "value": "Y?u kh? ng?p tr?i! Th? Tri?u ?ang r?c r?ch chu?n b? t?n c?ng th?n l?ng!"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "itemLifecycle",
+      "entries": [
+        {
+          "key": "anonymous",
+          "value": "Vo danh"
+        },
+        {
+          "key": "broken",
+          "value": "{0} cua {1} da hong."
+        },
+        {
+          "key": "refined",
+          "value": "{0} luyen hoa {1} thanh dan duoc."
+        },
+        {
+          "key": "forged",
+          "value": "{0} ren {1}."
+        },
+        {
+          "key": "stolen",
+          "value": "{0} doat {1} tu {2}."
+        },
+        {
+          "key": "taught",
+          "value": "{0} truyen thu {1} cho {2}."
+        },
+        {
+          "key": "default",
+          "value": "{0} {1} {2}"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "heavenNurture",
+      "entries": [
+        {
+          "key": "panelTitle",
+          "value": "THIEN DAO CHIEU CO"
+        },
+        {
+          "key": "listTitle",
+          "value": "Sinh linh duoc chu y"
+        },
+        {
+          "key": "listHeader",
+          "value": "danh sach"
+        },
+        {
+          "key": "countFormat",
+          "value": "{0}/{1}"
+        },
+        {
+          "key": "filterAll",
+          "value": "Tat Ca"
+        },
+        {
+          "key": "filterCultivator",
+          "value": "Tu Si"
+        },
+        {
+          "key": "filterMonster",
+          "value": "Yeu Thu"
+        },
+        {
+          "key": "searchPlaceholder",
+          "value": "Tim ten / canh gioi..."
+        },
+        {
+          "key": "labelName",
+          "value": "Ten:"
+        },
+        {
+          "key": "labelTitle",
+          "value": "Danh Hieu:"
+        },
+        {
+          "key": "labelRealm",
+          "value": "Canh Gioi:"
+        },
+        {
+          "key": "labelOrigin",
+          "value": "Xuat Than:"
+        },
+        {
+          "key": "labelAptitude",
+          "value": "Tu Chat"
+        },
+        {
+          "key": "labelFear",
+          "value": "Kinh So"
+        },
+        {
+          "key": "labelFate",
+          "value": "Co Duyen"
+        },
+        {
+          "key": "labelDescription",
+          "value": "Mo ta/Ghi chu"
+        },
+        {
+          "key": "buttonGiveFate",
+          "value": "Ban Co Duyen"
+        },
+        {
+          "key": "buttonRemove",
+          "value": "Xoa"
+        },
+        {
+          "key": "unknownName",
+          "value": "Vo danh"
+        },
+        {
+          "key": "unknownRealm",
+          "value": "Khong ro"
+        },
+        {
+          "key": "titleNone",
+          "value": "Khong"
+        },
+        {
+          "key": "originNone",
+          "value": "Khong"
+        },
+        {
+          "key": "originCultivator",
+          "value": "Tu si"
+        },
+        {
+          "key": "originCommoner",
+          "value": "Dan lang"
+        },
+        {
+          "key": "originMonster",
+          "value": "Yeu thu"
+        },
+        {
+          "key": "sampleName",
+          "value": "Nguyễn Thanh"
+        },
+        {
+          "key": "sampleRealm",
+          "value": "Luyện Khí"
+        },
+        {
+          "key": "stateWatching",
+          "value": "Dang chu y"
+        },
+        {
+          "key": "stateBlessed",
+          "value": "Duoc ban duyen"
+        },
+        {
+          "key": "stateReceived",
+          "value": "Da nhan"
+        },
+        {
+          "key": "detailEmpty",
+          "value": "-"
+        },
+        {
+          "key": "descriptionNone",
+          "value": "Khong co ghi chu"
+        },
+        {
+          "key": "descriptionFallbackFormat",
+          "value": "{0} dang duoc Thien Dao chu y o canh gioi {1}."
+        },
+        {
+          "key": "aptitudeFormat",
+          "value": "{0}/100"
+        },
+        {
+          "key": "fearFormat",
+          "value": "Kinh so: {0}"
+        },
+        {
+          "key": "titleChildOfHeaven",
+          "value": "Chi Tu"
+        },
+        {
+          "key": "titleSaintBody",
+          "value": "Thanh The"
+        },
+        {
+          "key": "titleSwordHeart",
+          "value": "Kiem Tam"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "entityTypes",
+      "entries": [
+        {
+          "key": "monster",
+          "value": "Y?u Th?"
+        },
+        {
+          "key": "npc",
+          "value": "Tu s?"
+        },
+        {
+          "key": "villager",
+          "value": "D?n l?ng"
+        },
+        {
+          "key": "commoner",
+          "value": "Ng??i d?n"
+        },
+        {
+          "key": "cultivator",
+          "value": "Tu s?"
+        },
+        {
+          "key": "unknown",
+          "value": "Kh?ng r?"
+        }
+      ],
+      "lists": []
+    }
+  ]
+}

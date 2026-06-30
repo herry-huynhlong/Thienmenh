@@ -46,8 +46,7 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
             watchAdButton.onClick.RemoveListener(ShowAd);
             watchAdButton.onClick.AddListener(ShowAd);
         }
-
-        SetStatus("Đang tải quảng cáo...");
+        SetStatusByKey("loading");
     }
 
     private void OnEnable()
@@ -73,7 +72,7 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
     {
         if (string.IsNullOrEmpty(adUnitId))
         {
-            SetStatus("Không có Ad Unit ID.");
+            SetStatusByKey("missingAdUnit");
             return;
         }
 
@@ -81,8 +80,7 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
 
         if (watchAdButton != null)
             watchAdButton.interactable = false;
-
-        SetStatus("Đang tải quảng cáo...");
+        SetStatusByKey("loading");
         Advertisement.Load(adUnitId, this);
     }
 
@@ -90,7 +88,7 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
     {
         if (!adLoaded)
         {
-            SetStatus("Quảng cáo chưa sẵn sàng.");
+            SetStatusByKey("notReady");
             return;
         }
 
@@ -98,8 +96,7 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
 
         if (watchAdButton != null)
             watchAdButton.interactable = false;
-
-        SetStatus("Đang mở quảng cáo...");
+        SetStatusByKey("opening");
         Advertisement.Show(adUnitId, this);
     }
 
@@ -113,7 +110,7 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
         if (watchAdButton != null)
             watchAdButton.interactable = true;
 
-        SetStatus("Xem quảng cáo nhận +" + rewardLinhThach + " LT");
+        SetStatus(UiText.Format("rewardedAds", "readyRewardFormat", rewardLinhThach));
         Debug.Log("Rewarded Ads đã tải xong: " + loadedAdUnitId);
     }
 
@@ -126,14 +123,13 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
 
         if (watchAdButton != null)
             watchAdButton.interactable = false;
-
-        SetStatus("Tải quảng cáo lỗi.");
+        SetStatusByKey("loadFailed");
         Debug.LogWarning("Load Ads lỗi: " + error + " - " + message);
     }
 
     public void OnUnityAdsShowStart(string shownAdUnitId)
     {
-        SetStatus("Đang xem quảng cáo...");
+        SetStatusByKey("watching");
     }
 
     public void OnUnityAdsShowClick(string shownAdUnitId)
@@ -144,8 +140,7 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
     {
         if (failedAdUnitId != adUnitId)
             return;
-
-        SetStatus("Không mở được quảng cáo.");
+        SetStatusByKey("showFailed");
         Debug.LogWarning("Show Ads lỗi: " + error + " - " + message);
 
         LoadAd();
@@ -162,7 +157,7 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
         }
         else
         {
-            SetStatus("Chưa xem xong nên không nhận thưởng.");
+            SetStatusByKey("incomplete");
             Debug.Log("Người chơi chưa xem xong quảng cáo, không cộng LT.");
         }
 
@@ -178,12 +173,12 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
         {
             playerWallet.AddRewardedVideoCurrency(rewardLinhThach);
 
-            SetStatus("Đã nhận +" + rewardLinhThach + " LT");
+            SetStatus(UiText.Format("rewardedAds", "rewardGrantedFormat", rewardLinhThach));
             Debug.Log("Người chơi xem quảng cáo xong, nhận +" + rewardLinhThach + " LT.");
         }
         else
         {
-            SetStatus("Không tìm thấy ví Linh Thạch.");
+            SetStatusByKey("walletMissing");
             Debug.LogWarning("Không tìm thấy PlayerWallet nên chưa cộng được Linh Thạch.");
         }
     }
@@ -192,5 +187,10 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
     {
         if (statusText != null)
             statusText.text = message;
+    }
+
+    private void SetStatusByKey(string key)
+    {
+        SetStatus(UiText.Get("rewardedAds", key));
     }
 }

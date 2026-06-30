@@ -15,7 +15,7 @@ public class ShopPanelUI : MonoBehaviour
     [Header("Panel")]
     public GameObject panelRoot;
     public TMP_Text shopTitleText;
-    public string shopTitle = "Linh Dược Đường";
+    public string shopTitle = "";
     public bool closeWhenClickOutside = true;
 
     [Header("Items")]
@@ -198,22 +198,22 @@ public class ShopPanelUI : MonoBehaviour
 
     public void ShowDanDuoc()
     {
-        ShowCategory(ItemType.DanDuoc, "Linh Dược Đường");
+        ShowCategory(ItemType.DanDuoc, UiText.Get("shop", "titleDanDuoc"));
     }
 
     public void ShowPhapBao()
     {
-        ShowCategory(ItemType.PhapBao, "Thần Binh Các");
+        ShowCategory(ItemType.PhapBao, UiText.Get("shop", "titlePhapBao"));
     }
 
     public void ShowCongPhap()
     {
-        ShowCategory(ItemType.CongPhap, "Công Pháp Tàng");
+        ShowCategory(ItemType.CongPhap, UiText.Get("shop", "titleCongPhap"));
     }
 
     public void ShowVatLieu()
     {
-        ShowCategory(ItemType.VatLieu, "Thiên Tài Các");
+        ShowCategory(ItemType.VatLieu, UiText.Get("shop", "titleVatLieu"));
     }
 
     public void ShowCategory(
@@ -221,7 +221,7 @@ public class ShopPanelUI : MonoBehaviour
         string title)
     {
         currentType = itemType;
-        shopTitle = title;
+        shopTitle = GetLocalizedCategoryTitle(itemType, title);
         selectedItemIndex = -1;
 
         RefreshShopSource();
@@ -336,6 +336,7 @@ public class ShopPanelUI : MonoBehaviour
         PositionDetailAndBuyPanel(itemIndex);
         EnsureBuyPanelVisible();
         RefreshBuyButton();
+        ApplyLocalizedBuyButtonText();
     }
 
     public void BuySelectedItem()
@@ -359,6 +360,7 @@ public class ShopPanelUI : MonoBehaviour
         if (!bought)
         {
             RefreshBuyButton();
+            ApplyLocalizedBuyButtonText();
             return;
         }
 
@@ -386,6 +388,55 @@ public class ShopPanelUI : MonoBehaviour
         return shop != null
             ? shop.GetBuyContext()
             : NpcTradeContext.MarketBuy;
+    }
+
+    string GetLocalizedCategoryTitle(
+        ItemType itemType,
+        string fallbackTitle)
+    {
+        switch (itemType)
+        {
+            case ItemType.DanDuoc:
+                return UiText.Get("shop", "titleDanDuoc", fallbackTitle);
+            case ItemType.PhapBao:
+                return UiText.Get("shop", "titlePhapBao", fallbackTitle);
+            case ItemType.CongPhap:
+                return UiText.Get("shop", "titleCongPhap", fallbackTitle);
+            case ItemType.VatLieu:
+                return UiText.Get("shop", "titleVatLieu", fallbackTitle);
+            case ItemType.ThucPham:
+                return UiText.Get("shop", "titleThucPham", fallbackTitle);
+            default:
+                return fallbackTitle;
+        }
+    }
+
+    void ApplyLocalizedBuyButtonText()
+    {
+        if (buyButtonText == null ||
+            shop == null)
+        {
+            return;
+        }
+
+        ShopItemSlot slot =
+            shop.GetSlot(selectedItemIndex);
+
+        bool canTrade =
+            slot != null &&
+            slot.item != null &&
+            NpcEconomy.CanTradeNormally(slot.item);
+
+        bool canBuy =
+            canTrade &&
+            slot.amount > 0 &&
+            CanPay(GetDisplayPrice(slot.item));
+
+        buyButtonText.text = canBuy
+            ? UiText.Get("shop", "buyButtonBuy")
+            : canTrade
+                ? UiText.Get("shop", "buyButtonNotEnough")
+                : UiText.Get("shop", "buyButtonUnavailable");
     }
 
     void RefreshInventoryPanel()
@@ -1589,10 +1640,10 @@ public class ShopPanelUI : MonoBehaviour
         {
             buyButtonText.text =
                 canBuy
-                ? "Mua"
+                ? UiText.Get("shop", "buyButtonBuy")
                 : canTrade
-                    ? "Không đủ LT"
-                    : "Không bán";
+                    ? UiText.Get("shop", "buyButtonNotEnough")
+                    : UiText.Get("shop", "buyButtonUnavailable");
         }
     }
 

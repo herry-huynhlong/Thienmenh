@@ -27,6 +27,7 @@ public static class ItemText
     const string ResourceName = "ItemTextDatabase";
 
     static Dictionary<string, string> values;
+    static string loadedLanguageCode;
 
     public static string Get(string category, string key, string fallback = "")
     {
@@ -170,17 +171,28 @@ public static class ItemText
 
     static void EnsureLoaded()
     {
-        if (values != null)
+        string currentLanguageCode =
+            LocalizationSettings.CurrentLanguageCode;
+        if (values != null &&
+            string.Equals(
+                loadedLanguageCode,
+                currentLanguageCode,
+                StringComparison.OrdinalIgnoreCase))
         {
             return;
         }
 
         values = new Dictionary<string, string>();
+        loadedLanguageCode = currentLanguageCode;
 
-        TextAsset asset = Resources.Load<TextAsset>(ResourceName);
+        TextAsset asset =
+            LocalizationSettings.LoadTextAsset(ResourceName);
         if (asset == null)
         {
-            Debug.LogWarning("Missing Resources/" + ResourceName + ".json");
+            Debug.LogWarning(
+                "Missing Resources/" +
+                LocalizationSettings.GetLocalizedResourcePath(ResourceName) +
+                ".json");
             return;
         }
 

@@ -68,22 +68,22 @@ public static class NpcRoleUtility
     {
         if (IsCommoner(npc))
         {
-            return "Người dân";
+            return NpcText.Get("entityTypes", "commoner");
         }
 
         if (IsCultivator(npc))
         {
-            return "Tu sĩ";
+            return NpcText.Get("entityTypes", "cultivator");
         }
 
-        return "Không rõ";
+        return NpcText.Get("entityTypes", "unknown");
     }
 
     public static string GetDisplayName(GameObject npc)
     {
         if (npc == null)
         {
-            return "Không rõ";
+            return NpcText.Get("entityTypes", "unknown");
         }
 
         MonsterAI monster = npc.GetComponent<MonsterAI>();

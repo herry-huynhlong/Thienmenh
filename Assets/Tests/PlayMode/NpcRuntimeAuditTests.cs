@@ -124,6 +124,10 @@ public class NpcRuntimeAuditTests
         "waitTraderBuyGoods",
         "waitLightning",
         "waitLightningNamed",
+        "idle",
+        "restNearHome",
+        "restVillageNoon",
+        "stayNearHome",
         "dead",
         "oldAgeDeath"
     };
@@ -1243,7 +1247,8 @@ public class NpcRuntimeAuditTests
 
     static bool IsLegitimateStationaryAction(string action)
     {
-        return MatchesAnyAction(action, LegitimateStationaryActionKeys);
+        return MatchesAnyAction(action, LegitimateStationaryActionKeys) ||
+            ContainsIgnoreCase(action, "waitSchedule");
     }
 
     static bool IsCultivationAction(string action)

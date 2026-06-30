@@ -1,9 +1,11 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PhapTuongBreath : MonoBehaviour
 {
-    Vector3 originalScale;
-    SpriteRenderer sr;
+    private Vector3 originalScale;
+    private SpriteRenderer spriteRenderer;
+    private Graphic graphic;
 
     public float scaleAmount = 0.08f;
     public float breathSpeed = 1.2f;
@@ -11,21 +13,40 @@ public class PhapTuongBreath : MonoBehaviour
     void Start()
     {
         originalScale = transform.localScale;
-        sr = GetComponent<SpriteRenderer>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+
+        if (spriteRenderer == null)
+        {
+            graphic = GetComponent<Graphic>();
+        }
+
+        if (spriteRenderer == null && graphic == null)
+        {
+            enabled = false;
+        }
     }
 
     void Update()
     {
+        if (spriteRenderer == null && graphic == null)
+        {
+            return;
+        }
+
         float t = (Mathf.Sin(Time.time * breathSpeed) + 1f) * 0.5f;
 
-        // Scale phập phồng
-        transform.localScale =
-            originalScale *
-            (1f + t * scaleAmount);
+        transform.localScale = originalScale * (1f + t * scaleAmount);
 
-        // Alpha dao động nhẹ
-        Color c = sr.color;
-        c.a = Mathf.Lerp(0.15f, 0.25f, t);
-        sr.color = c;
+        if (spriteRenderer != null)
+        {
+            Color color = spriteRenderer.color;
+            color.a = Mathf.Lerp(0.15f, 0.25f, t);
+            spriteRenderer.color = color;
+            return;
+        }
+
+        Color graphicColor = graphic.color;
+        graphicColor.a = Mathf.Lerp(0.15f, 0.25f, t);
+        graphic.color = graphicColor;
     }
 }

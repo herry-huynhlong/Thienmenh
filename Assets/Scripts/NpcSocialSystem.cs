@@ -191,7 +191,7 @@ public static class NpcSocialEventBus
 
         string monsterName = !string.IsNullOrWhiteSpace(monster.monsterName)
             ? monster.monsterName
-            : NpcText.Get("entityTypes", "monster", "Yeu thu");
+            : NpcText.Get("entityTypes", "monster");
 
         MonsterDefeated?.Invoke(
             monster,
@@ -1938,7 +1938,7 @@ public class NpcConversationAgent : MonoBehaviour
 
         string monsterName = !string.IsNullOrWhiteSpace(monster.monsterName)
             ? monster.monsterName
-            : NpcText.Get("entityTypes", "monster", "Yeu thu");
+            : NpcText.Get("entityTypes", "monster");
 
         return NpcText.Format(
             template,
@@ -2120,7 +2120,7 @@ public class NpcConversationAgent : MonoBehaviour
     {
         return other != null
             ? NpcRoleUtility.GetDisplayName(other.gameObject)
-            : NpcText.Get("entityTypes", "npc", "Tu si");
+            : NpcText.Get("entityTypes", "npc");
     }
 
     string Pick(string[] lines, string fallback)

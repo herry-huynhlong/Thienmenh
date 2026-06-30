@@ -31,12 +31,18 @@ public class FavoriteNpcRowUI : MonoBehaviour
         {
             focusButton.onClick.RemoveAllListeners();
             focusButton.onClick.AddListener(FocusNpc);
+            SetButtonLabel(
+                focusButton,
+                UiText.Get("favorites", "focusButton"));
         }
 
         if (removeButton != null)
         {
             removeButton.onClick.RemoveAllListeners();
             removeButton.onClick.AddListener(RemoveNpc);
+            SetButtonLabel(
+                removeButton,
+                UiText.Get("favorites", "removeButton"));
         }
     }
 
@@ -53,6 +59,20 @@ public class FavoriteNpcRowUI : MonoBehaviour
         if (NpcFavoriteManager.Instance != null)
         {
             NpcFavoriteManager.Instance.RemoveFavorite(npc);
+        }
+    }
+
+    void SetButtonLabel(Button button, string value)
+    {
+        if (button == null || string.IsNullOrEmpty(value))
+        {
+            return;
+        }
+
+        TMP_Text label = button.GetComponentInChildren<TMP_Text>(true);
+        if (label != null)
+        {
+            label.text = value;
         }
     }
 }

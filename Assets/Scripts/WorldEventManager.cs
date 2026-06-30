@@ -41,9 +41,9 @@ public class WorldEventManager : MonoBehaviour
             return;
         }
 
-        AddLog("Chào mừng đến với Hoang Cổ Đại Lục! Linh khí an lành, trời quang mây tạnh.", 0, true);
-        AddLog("Dị động tại phương Đông! Kết giới Thượng Cổ Bí Cảnh có dấu hiệu suy yếu.", 1, true);
-        AddLog("Yêu khí ngập trời! Thú Triều đang rục rịch chuẩn bị tấn công thôn làng!", 2, true);
+        AddLog(UiText.Get("worldStory", "introLogWelcome"), 0, true);
+        AddLog(UiText.Get("worldStory", "introLogSecretRealm"), 1, true);
+        AddLog(UiText.Get("worldStory", "introLogBeastWave"), 2, true);
     }
 
     public void AddLog(string content, int colorType, bool isStoryLog = false)
@@ -93,7 +93,7 @@ public class WorldEventManager : MonoBehaviour
     {
         if (WorldTimeSystem.Instance == null)
         {
-            return "[Thời Không]";
+            return UiText.Get("worldStory", "timeUnknown");
         }
 
         int month = WorldTimeSystem.Instance.currentMonth;

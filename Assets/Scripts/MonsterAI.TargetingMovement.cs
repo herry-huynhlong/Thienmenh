@@ -64,7 +64,7 @@ public partial class MonsterAI
             currentTarget = bestTarget;
             currentTargetDamageable = bestDamageable;
             hasTarget = false;
-            currentAction = "Phat hien ke xam pham";
+            currentAction = NpcText.Action("detectIntruder");
             DebugFlow(
                 "Target",
                 "Acquire target=" +
@@ -212,7 +212,7 @@ public partial class MonsterAI
 
         isRetreating = true;
         retreatUntilTime = Time.time + retreatDuration;
-        currentAction = "Luc lui";
+        currentAction = NpcText.Action("retreat");
         return true;
     }
 
@@ -327,7 +327,7 @@ public partial class MonsterAI
         }
 
         desiredVelocity = direction * moveSpeed * 1.25f;
-        currentAction = "Bo chay";
+        currentAction = NpcText.Action("flee");
         SetMovingAnimation(true);
         FaceDirection(direction);
     }
@@ -339,13 +339,13 @@ public partial class MonsterAI
         if (distance <= 0.15f)
         {
             desiredVelocity = Vector2.zero;
-            currentAction = "Nghi trong lanh dia";
+            currentAction = NpcText.Action("restTerritory");
             SetMovingAnimation(false);
             return;
         }
 
         desiredVelocity = direction.normalized * moveSpeed;
-        currentAction = "Tro ve lanh dia";
+        currentAction = NpcText.Action("returnTerritory");
         SetMovingAnimation(true);
         FaceDirection(direction);
     }
@@ -355,7 +355,7 @@ public partial class MonsterAI
         if (!hasTarget)
         {
             desiredVelocity = Vector2.zero;
-            currentAction = "Nghi ngoi";
+            currentAction = NpcText.Action("restTerritory");
             waitTimer -= Time.deltaTime;
             SetMovingAnimation(false);
 
@@ -375,14 +375,14 @@ public partial class MonsterAI
             hasTarget = false;
             waitTimer = waitTime;
             desiredVelocity = Vector2.zero;
-            currentAction = "Dung lai nghi";
+            currentAction = NpcText.Action("restTerritory");
             SetMovingAnimation(false);
             return;
         }
 
         direction = direction.normalized;
         desiredVelocity = direction * moveSpeed;
-        currentAction = "Tuan tra lanh dia";
+        currentAction = NpcText.Action("patrolTerritory");
         SetMovingAnimation(true);
         FaceDirection(direction);
     }
@@ -415,13 +415,13 @@ public partial class MonsterAI
         if (distance > attackRange)
         {
             desiredVelocity = direction.normalized * moveSpeed;
-            currentAction = "Duoi ke xam pham";
+            currentAction = NpcText.Action("chaseIntruder");
             SetMovingAnimation(true);
             return;
         }
 
         desiredVelocity = Vector2.zero;
-        currentAction = "Tan cong ke xam pham";
+        currentAction = NpcText.Action("attackIntruder");
         SetMovingAnimation(false);
 
         if (attackTimer <= 0f)
@@ -435,6 +435,6 @@ public partial class MonsterAI
         Vector2 randomPoint = Random.insideUnitCircle * roamRadius;
         targetPosition = startPosition + randomPoint;
         hasTarget = true;
-        currentAction = "Chon diem tuan tra";
+        currentAction = NpcText.Action("choosePatrolPoint");
     }
 }

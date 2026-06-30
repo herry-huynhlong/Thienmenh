@@ -19,7 +19,7 @@ public class WorldTimeSystem : MonoBehaviour
     const int MonthsInYear = 12;
 
     [Header("World")]
-    public string continentName = "Hoang Co Dai Luc";
+    public string continentName = "";
 
     [Header("Clock")]
     [Min(1f)] public float realSecondsPerGameDay = 900f;
@@ -218,24 +218,35 @@ public class WorldTimeSystem : MonoBehaviour
         int hour = Mathf.FloorToInt(currentHour);
         int minute = Mathf.FloorToInt((currentHour - hour) * 60f);
 
-        string dateText = "Ngay " + currentDay;
+        string dateText = UiText.Format("worldClock", "dayFormat", currentDay);
         if (currentMonth > 1 || currentYear > 1)
         {
-            dateText = "Thang " + currentMonth + " - " + dateText;
+            dateText = UiText.Format(
+                "worldClock",
+                "monthFormat",
+                currentMonth,
+                dateText);
         }
 
         if (currentYear > 1)
         {
-            dateText = "Nam " + currentYear + " - " + dateText;
+            dateText = UiText.Format(
+                "worldClock",
+                "yearFormat",
+                currentYear,
+                dateText);
         }
 
-        return continentName +
-            "\n" +
-            dateText +
-            "\n" +
-            hour.ToString("00") +
-            "h" +
-            minute.ToString("00");
+        string resolvedContinentName =
+            UiText.Get("worldClock", "continentName", continentName);
+
+        return UiText.Format(
+            "worldClock",
+            "clockFormat",
+            resolvedContinentName,
+            dateText,
+            hour,
+            minute);
     }
 
     public bool IsDangerousNight()

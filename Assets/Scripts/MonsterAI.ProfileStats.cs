@@ -162,19 +162,13 @@ public partial class MonsterAI
         switch (realm)
         {
             case CultivationRealm.Mortal:
-                return "Pham Nhan";
             case CultivationRealm.QiRefining:
-                return "Luyen Khi";
             case CultivationRealm.Foundation:
-                return "Truc Co";
             case CultivationRealm.GoldenCore:
-                return "Kim Dan";
             case CultivationRealm.NascentSoul:
-                return "Nguyen Anh";
             case CultivationRealm.SoulFormation:
-                return "Hoa Than";
             case CultivationRealm.Tribulation:
-                return "Do Kiep";
+                return NpcText.Realm(realm);
             default:
                 return realm.ToString();
         }

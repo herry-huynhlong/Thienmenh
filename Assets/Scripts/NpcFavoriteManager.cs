@@ -90,6 +90,14 @@ public class NpcFavoriteManager : MonoBehaviour
         return true;
     }
 
+    public bool AddFavorite(GameObject target)
+    {
+        NpcFavorite favorite =
+            GetOrCreateFavorite(target);
+
+        return AddFavorite(favorite);
+    }
+
     public void RemoveFavorite(NpcFavorite npc)
     {
         if (npc == null)
@@ -119,5 +127,77 @@ public class NpcFavoriteManager : MonoBehaviour
 
         favorites.Clear();
         OnFavoritesChanged?.Invoke();
+    }
+
+    public NpcFavorite GetOrCreateFavorite(GameObject target)
+    {
+        GameObject favoriteTarget =
+            ResolveFavoriteTarget(target);
+
+        if (favoriteTarget == null)
+        {
+            return null;
+        }
+
+        NpcFavorite favorite =
+            favoriteTarget.GetComponent<NpcFavorite>();
+
+        if (favorite == null)
+        {
+            favorite =
+                favoriteTarget.AddComponent<NpcFavorite>();
+        }
+
+        return favorite;
+    }
+
+    public GameObject ResolveFavoriteTarget(GameObject target)
+    {
+        if (target == null)
+        {
+            return null;
+        }
+
+        if (target.GetComponentInParent<WorldStatItemPickup>() != null)
+        {
+            return null;
+        }
+
+        MonsterAI monster =
+            target.GetComponentInParent<MonsterAI>();
+        if (monster != null)
+        {
+            return monster.gameObject;
+        }
+
+        VillagerAI villager =
+            target.GetComponentInParent<VillagerAI>();
+        if (villager != null)
+        {
+            return villager.gameObject;
+        }
+
+        SmartNpcAI smartNpc =
+            target.GetComponentInParent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            return smartNpc.gameObject;
+        }
+
+        NpcData npcData =
+            target.GetComponentInParent<NpcData>();
+        if (npcData != null)
+        {
+            return npcData.gameObject;
+        }
+
+        NpcFavorite favorite =
+            target.GetComponentInParent<NpcFavorite>();
+        if (favorite != null)
+        {
+            return favorite.gameObject;
+        }
+
+        return null;
     }
 }

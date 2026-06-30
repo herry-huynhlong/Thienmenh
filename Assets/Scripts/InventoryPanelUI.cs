@@ -859,6 +859,7 @@ public class InventoryPanelUI : MonoBehaviour
 
         ItemEffectSpawner.PlayPickupEffect(item, selectedTarget);
         targetInventory.AddItem(item, 1);
+        NpcFavoriteManager.EnsureInstance()?.AddFavorite(selectedTarget.gameObject);
         selectedItem = null;
         Refresh();
     }
@@ -901,7 +902,8 @@ public class InventoryPanelUI : MonoBehaviour
     bool CanReceiveItem(Transform target)
     {
         return target.GetComponent<VillagerAI>() != null ||
-            target.GetComponent<SmartNpcAI>() != null;
+            target.GetComponent<SmartNpcAI>() != null ||
+            target.GetComponent<MonsterAI>() != null;
     }
 
     bool HasHeavenDaoPower(HeavenDaoPower power)

@@ -110,7 +110,7 @@ public class UIWorldStoryManager : MonoBehaviour
             return;
         }
 
-        string timeText = FormatTimestamp(log.timestamp);
+        string timeText = GetLocalizedTimestamp(log.timestamp);
         string contentColor = GetContentColorHex(log.logColorType);
 
         textMesh.text =
@@ -137,7 +137,7 @@ public class UIWorldStoryManager : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(timestamp))
         {
-            return "Ngày ?";
+            return UiText.Get("worldStory", "dayUnknown");
         }
 
         string clean = timestamp
@@ -164,8 +164,8 @@ public class UIWorldStoryManager : MonoBehaviour
                 }
 
                 // N1, N2, N3...
-                // Tránh nhầm với "Năm"
-                else if (p.StartsWith("N") && !p.StartsWith("Năm"))
+                // Tranh nham voi "Nam"
+                else if (p.StartsWith("N") && !p.StartsWith("Nam"))
                 {
                     string number = p.Replace("N", "").Trim();
                     int.TryParse(number, out day);
@@ -177,12 +177,62 @@ public class UIWorldStoryManager : MonoBehaviour
             return clean;
         }
 
-        // Nếu chưa có tháng thật thì chỉ hiện ngày
         if (month <= 0)
         {
-            return $"Ngày {day}";
+            return UiText.Format("worldStory", "dayOnlyFormat", day);
         }
 
-        return $"Tháng {month} · Ngày {day}";
+        return UiText.Format("worldStory", "monthDayFormat", month, day);
+    }
+
+    private string GetLocalizedTimestamp(string timestamp)
+    {
+        string fallback = FormatTimestamp(timestamp);
+        if (string.IsNullOrWhiteSpace(timestamp))
+        {
+            return UiText.Get("worldStory", "dayUnknown", fallback);
+        }
+
+        string clean = timestamp
+            .Replace("[", "")
+            .Replace("]", "")
+            .Trim();
+
+        int month = 0;
+        int day = 1;
+
+        try
+        {
+            string[] parts = clean.Split('-');
+
+            foreach (string part in parts)
+            {
+                string p = part.Trim();
+                if (p.StartsWith("T"))
+                {
+                    int.TryParse(
+                        p.Replace("T", "").Trim(),
+                        out month);
+                }
+                else if (p.StartsWith("N") &&
+                    !p.StartsWith("Nam"))
+                {
+                    int.TryParse(
+                        p.Replace("N", "").Trim(),
+                        out day);
+                }
+            }
+        }
+        catch
+        {
+            return fallback;
+        }
+
+        if (month <= 0)
+        {
+            return UiText.Format("worldStory", "dayOnlyFormat", day);
+        }
+
+        return UiText.Format("worldStory", "monthDayFormat", month, day);
     }
 }

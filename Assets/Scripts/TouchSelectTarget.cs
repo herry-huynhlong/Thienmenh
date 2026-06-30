@@ -382,10 +382,7 @@ public class TouchSelectTarget : MonoBehaviour
             SetInfoContentVisible(true);
 
             string lockedMessage =
-                NpcText.Get(
-                    "dialogue",
-                    "heavenDaoBasicLocked",
-                    "Thiên Đạo chưa đủ Chưởng Khống.\nCần 5% để xem thông tin Tu sĩ.");
+                NpcText.Get("dialogue", "heavenDaoBasicLocked");
 
             SetValueText(damageValueText, "-");
             SetValueText(defenseValueText, "-");
@@ -768,36 +765,48 @@ public class TouchSelectTarget : MonoBehaviour
         if (damageValueText == null)
         {
             damageValueText =
-                FindRowValueText(detailRoot, "DamageRow");
+                FindRowValueText(
+                    detailRoot,
+                    UiText.Get("touchSelect", "damageRow"));
         }
 
         if (defenseValueText == null)
         {
             defenseValueText =
-                FindRowValueText(detailRoot, "Phòng Thủ");
+                FindRowValueText(
+                    detailRoot,
+                    UiText.Get("touchSelect", "defenseRow"));
         }
 
         if (lifespanValueText == null)
         {
             lifespanValueText =
-                FindRowValueText(detailRoot, "Thọ Nguyên");
+                FindRowValueText(
+                    detailRoot,
+                    UiText.Get("touchSelect", "lifespanRow"));
         }
 
         if (jobValueText == null)
         {
             jobValueText =
-                FindRowValueText(detailRoot, "Chức Vụ");
+                FindRowValueText(
+                    detailRoot,
+                    UiText.Get("touchSelect", "jobRow"));
         }
 
         if (maritalStatusText == null)
         {
             maritalStatusText =
-                FindRowValueText(detailRoot, "tinhtrang");
+                FindRowValueText(
+                    detailRoot,
+                    UiText.Get("touchSelect", "maritalStatusRow"));
 
             if (maritalStatusText == null)
             {
                 maritalStatusText =
-                    FindRowValueText(detailRoot, "TinhTrang");
+                    FindRowValueText(
+                        detailRoot,
+                        UiText.Get("touchSelect", "maritalStatusRowAlt"));
             }
         }
 
@@ -809,12 +818,16 @@ public class TouchSelectTarget : MonoBehaviour
         if (statusText == null)
         {
             Transform statusTransform =
-                FindChildByName(detailRoot, "Trạng Thái : ");
+                FindChildByName(
+                    detailRoot,
+                    UiText.Get("touchSelect", "statusRow"));
 
             if (statusTransform == null)
             {
                 statusTransform =
-                    FindChildByName(detailRoot, "Trạng Thái:");
+                    FindChildByName(
+                        detailRoot,
+                        UiText.Get("touchSelect", "statusRowAlt"));
             }
 
             if (statusTransform != null)
@@ -826,7 +839,9 @@ public class TouchSelectTarget : MonoBehaviour
         if (equipmentListRoot == null)
         {
             Transform equipmentTransform =
-                FindChildByName(detailRoot, "EquipmentList");
+                FindChildByName(
+                    detailRoot,
+                    UiText.Get("touchSelect", "equipmentList"));
 
             if (equipmentTransform != null)
             {
@@ -845,7 +860,9 @@ public class TouchSelectTarget : MonoBehaviour
         if (skillListRoot == null)
         {
             Transform skillTransform =
-                FindChildByName(detailRoot, "SkillList");
+                FindChildByName(
+                    detailRoot,
+                    UiText.Get("touchSelect", "skillList"));
 
             if (skillTransform != null)
             {
@@ -879,10 +896,7 @@ public class TouchSelectTarget : MonoBehaviour
         AutoFindTabReferences();
 
         string lockedMessage =
-            NpcText.Get(
-                "dialogue",
-                "heavenDaoBasicLocked",
-                "Thiên Đạo chưa đủ Chưởng Khống.\nCần 5% để xem thông tin Tu sĩ.");
+            NpcText.Get("dialogue", "heavenDaoBasicLocked");
 
         if (false && !HasHeavenDaoPower(HeavenDaoPower.ViewBasicNpcInfo))
         {
@@ -1484,7 +1498,7 @@ public class TouchSelectTarget : MonoBehaviour
     {
         if (item == null)
         {
-            return "-";
+            return UiText.Get("touchSelect", "placeholder");
         }
 
         EquipmentSlot slot =
@@ -1493,16 +1507,16 @@ public class TouchSelectTarget : MonoBehaviour
         switch (slot)
         {
             case EquipmentSlot.Weapon:
-                return "Vũ Khí";
+                return UiText.Get("touchSelect", "equipmentWeapon");
             case EquipmentSlot.Armor:
-                return "Giáp";
+                return UiText.Get("touchSelect", "equipmentArmor");
             case EquipmentSlot.Accessory:
-                return "Pháp Bảo";
+                return UiText.Get("touchSelect", "equipmentAccessory");
         }
 
         return item.itemType == ItemType.PhapBao
-            ? "Pháp Bảo"
-            : "-";
+            ? UiText.Get("touchSelect", "equipmentAccessory")
+            : UiText.Get("touchSelect", "placeholder");
     }
 
     float GetManualPower(ItemStack stack)
@@ -1547,7 +1561,7 @@ public class TouchSelectTarget : MonoBehaviour
             return action;
         }
 
-        return "Đang " + action;
+        return UiText.Format("touchSelect", "actionFormat", action);
     }
 
     bool SetValueText(
@@ -2603,7 +2617,7 @@ public class TouchSelectTarget : MonoBehaviour
                 monster.entityProfile.stats.realmStage);
         }
 
-        return "Y\u00EAu Th\u00FA";
+        return NpcText.Get("entityTypes", "monster");
     }
 
     void UpdateRealmIcon(Transform target)
@@ -3487,7 +3501,7 @@ public class TouchSelectTarget : MonoBehaviour
             IsNpcTarget(target) &&
             !HasHeavenDaoPower(HeavenDaoPower.ViewBasicNpcInfo))
         {
-            return NpcText.Get("dialogue", "heavenDaoBasicLocked", "Thiên Đạo chưa đủ Chưởng Khống.\nCần 5% để xem thông tin Tu sĩ.");
+            return NpcText.Get("dialogue", "heavenDaoBasicLocked");
         }
 
         StringBuilder builder =
@@ -3530,7 +3544,7 @@ public class TouchSelectTarget : MonoBehaviour
         StringBuilder builder =
             new StringBuilder();
 
-        builder.AppendLine(NpcText.Label("type") + ": " + NpcText.Get("entityTypes", "monster", "Yêu Thú"));
+        builder.AppendLine(NpcText.Label("type") + ": " + NpcText.Get("entityTypes", "monster"));
         builder.AppendLine(NpcText.Label("level") + ": " + Mathf.Max(1, monster.beastLevel));
         builder.AppendLine(NpcText.Label("damage") + ": " + FormatMaybeInt(GetTargetAttack(monster.transform)));
         builder.AppendLine(NpcText.Label("defense") + ": " + FormatMaybeInt(GetTargetDefense(monster.transform)));
@@ -3572,7 +3586,7 @@ public class TouchSelectTarget : MonoBehaviour
             !monster.dropLootOnDeath ||
             monster.lootDropChance <= 0f)
         {
-            return "Kh\u00F4ng";
+            return UiText.Get("touchSelect", "monsterLootNone");
         }
 
         StatItemData loot =
@@ -3580,7 +3594,7 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (loot == null)
         {
-            return "Ch\u01B0a g\u1EAFn";
+            return UiText.Get("touchSelect", "monsterLootUnset");
         }
 
         int amount =
@@ -3734,7 +3748,7 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (monster != null)
         {
-            return NpcText.Get("entityTypes", "monster", "Yêu Thú");
+            return NpcText.Get("entityTypes", "monster");
         }
 
         NpcSpecialProfession profession =
@@ -3750,8 +3764,35 @@ public class TouchSelectTarget : MonoBehaviour
             target.GetComponent<VillagerAI>();
 
         return villager != null
-            ? villager.job.ToString()
-            : "-";
+            ? GetVillagerJobText(villager.job)
+            : UiText.Get("touchSelect", "placeholder");
+    }
+
+    string GetVillagerJobText(VillagerJob job)
+    {
+        switch (job)
+        {
+            case VillagerJob.Farmer:
+                return NpcText.Get("professions", "farmer");
+            case VillagerJob.Trader:
+                return NpcText.Get("professions", "trader");
+            case VillagerJob.Worker:
+                return NpcText.Get("professions", "worker");
+            case VillagerJob.Guard:
+                return NpcText.Get("professions", "guard");
+            case VillagerJob.Healer:
+                return NpcText.Get("professions", "healer");
+            case VillagerJob.Fisher:
+                return NpcText.Get("professions", "fisher");
+            case VillagerJob.Hunter:
+                return NpcText.Get("professions", "hunter");
+            case VillagerJob.Alchemist:
+                return NpcText.Get("professions", "alchemist");
+            case VillagerJob.Blacksmith:
+                return NpcText.Get("professions", "blacksmith");
+            default:
+                return NpcText.Get("professions", "none");
+        }
     }
 
     string GetTargetMarriageStatus(Transform target)
@@ -3759,7 +3800,7 @@ public class TouchSelectTarget : MonoBehaviour
         if (target == null ||
             IsMonsterTarget(target))
         {
-            return "-";
+            return UiText.Get("touchSelect", "placeholder");
         }
 
         NPCIdentity identity =
@@ -3774,8 +3815,8 @@ public class TouchSelectTarget : MonoBehaviour
         if (identity != null)
         {
             return string.IsNullOrWhiteSpace(identity.spouseId)
-                ? NpcText.Get("maritalStatus", "single", "Độc thân")
-                : NpcText.Get("maritalStatus", "married", "Đã có vợ chồng");
+                ? NpcText.Get("maritalStatus", "single")
+                : NpcText.Get("maritalStatus", "married");
         }
 
         VillagerRelationship relationship =
@@ -3790,11 +3831,11 @@ public class TouchSelectTarget : MonoBehaviour
         if (relationship != null)
         {
             return relationship.IsSingle()
-                ? NpcText.Get("maritalStatus", "single", "Độc thân")
-                : NpcText.Get("maritalStatus", "married", "Đã có vợ chồng");
+                ? NpcText.Get("maritalStatus", "single")
+                : NpcText.Get("maritalStatus", "married");
         }
 
-        return NpcText.Get("maritalStatus", "single", "Độc thân");
+        return NpcText.Get("maritalStatus", "single");
     }
 
     string BuildHealthText(Transform target)
@@ -3910,7 +3951,7 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (inventory == null)
         {
-            return "Tr\u1ED1ng";
+            return UiText.Get("touchSelect", "inventoryEmpty");
         }
 
         int itemKinds = 0;
@@ -3931,10 +3972,14 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (itemKinds <= 0)
         {
-            return "Tr\u1ED1ng";
+            return UiText.Get("touchSelect", "inventoryEmpty");
         }
 
-        return itemKinds + " lo\u1EA1i / " + totalAmount + " m\u00F3n";
+        return UiText.Format(
+            "touchSelect",
+            "inventorySummaryFormat",
+            itemKinds,
+            totalAmount);
     }
 
     void HidePanel()

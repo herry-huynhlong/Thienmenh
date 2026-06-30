@@ -1,0 +1,17 @@
+{
+  "targets": [
+    {
+      "id": "nguyen-thanh",
+      "displayName": "Nguyen Thanh",
+      "targetType": 0,
+      "realm": "Luyen Khi",
+      "aptitude": 68,
+      "fear": 43,
+      "title": "",
+      "origin": "Tu si",
+      "fateState": "Duoc ban duyen",
+      "description": "Sinh linh dang duoc Thien Dao luu tam.",
+      "hasReceivedFate": true
+    }
+  ]
+}
