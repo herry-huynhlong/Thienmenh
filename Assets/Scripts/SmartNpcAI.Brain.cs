@@ -4,20 +4,28 @@ public partial class SmartNpcAI
 {
     void ThinkBrainCore()
     {
+        if (runtimeTraceEveryThink)
+        {
+            TraceRuntime("ThinkBrainCore", "enter");
+        }
+
         if (IsDead)
         {
+            TraceBranch("ThinkBrainCore", "IsDead", true);
             Die();
             return;
         }
 
         if (currentHP <= 0)
         {
+            TraceBranch("ThinkBrainCore", "HP<=0", true);
             Die();
             return;
         }
 
         if (ShouldDieFromOldAge())
         {
+            TraceBranch("ThinkBrainCore", "OldAgeDeath", true);
             currentAction = NpcText.Action("oldAgeDeath");
             Die();
             return;
@@ -25,6 +33,7 @@ public partial class SmartNpcAI
 
         if (IsLockedRoutineAction(currentAction))
         {
+            TraceBranch("ThinkBrainCore", "LockedRoutineAction", true);
             DebugFlow("ThinkLocked", "Locked by current action");
             return;
         }
@@ -36,20 +45,33 @@ public partial class SmartNpcAI
 
         if (TryHandleCombatSupport())
         {
+            TraceBranch("ThinkBrainCore", "TryHandleCombatSupport", true);
             DebugFlow("ThinkHunt", "Combat support or retreat");
             return;
         }
 
         if (TryHandleSmartTaskOverride())
         {
+            TraceBranch("ThinkBrainCore", "TryHandleSmartTaskOverride", true);
             DebugFlow(
                 "ThinkTask",
                 "Emergency task " + currentSmartTask.goal);
             return;
         }
 
+        if (currentMonsterTarget != null)
+        {
+            TraceBranch("ThinkBrainCore", "ActiveMonsterTarget", true);
+            DebugFlow(
+                "ThinkHunt",
+                "Active monster target " + currentMonsterTarget.monsterName);
+            SearchMonster();
+            return;
+        }
+
         if (TryRunScheduledActivity())
         {
+            TraceBranch("ThinkBrainCore", "TryRunScheduledActivity", true);
             DebugFlow("ThinkSchedule", "Handled by schedule");
             return;
         }
@@ -61,6 +83,7 @@ public partial class SmartNpcAI
                 SearchMonster();
             }
 
+            TraceBranch("ThinkBrainCore", "HasActiveHuntTravelIntent", true);
             DebugFlow("ThinkHunt", "Preserve active hunt travel");
             return;
         }
@@ -74,6 +97,7 @@ public partial class SmartNpcAI
                 kindness + greed < 130)
             {
                 MakeFriend();
+                TraceBranch("ThinkBrainCore", "EveningSocial", true);
                 DebugFlow("ThinkEvening", "Evening social");
                 return;
             }
@@ -85,6 +109,7 @@ public partial class SmartNpcAI
             CanUseScheduledCultivation())
         {
             Cultivate();
+            TraceBranch("ThinkBrainCore", "DenseSpiritualQi", true);
             DebugFlow("ThinkWeather", "Dense spiritual qi");
             return;
         }
@@ -95,6 +120,7 @@ public partial class SmartNpcAI
             hunger >= 80)
         {
             Eat();
+            TraceBranch("ThinkBrainCore", "NeedFood", true);
             DebugFlow("ThinkNeed", "Need food");
             return;
         }
@@ -105,6 +131,7 @@ public partial class SmartNpcAI
             fatigue >= 85)
         {
             Sleep();
+            TraceBranch("ThinkBrainCore", "NeedRest", true);
             DebugFlow("ThinkNeed", "Need rest");
             return;
         }
@@ -113,6 +140,7 @@ public partial class SmartNpcAI
             CanVisitTaskProviderToday() &&
             TryVisitTaskProvider())
         {
+            TraceBranch("ThinkBrainCore", "TryVisitTaskProvider", true);
             DebugFlow("ThinkTask", "Daily task visit");
             return;
         }
@@ -122,6 +150,7 @@ public partial class SmartNpcAI
             IsScheduledCultivationTime())
         {
             CultivateNaturally();
+            TraceBranch("ThinkBrainCore", "ScheduledCultivation", true);
             DebugFlow("ThinkCultivate", "Scheduled cultivation");
             return;
         }
@@ -131,6 +160,7 @@ public partial class SmartNpcAI
             CanUseScheduledCultivation())
         {
             Cultivate();
+            TraceBranch("ThinkBrainCore", "ConsumePillOrSpiritStone", true);
             DebugFlow("ThinkCultivate", "Consume pill or spirit stone");
             return;
         }
@@ -138,6 +168,7 @@ public partial class SmartNpcAI
         if (dailyRoutineEnabled &&
             TryStartScheduledNonCultivationActivity())
         {
+            TraceBranch("ThinkBrainCore", "TryStartScheduledNonCultivationActivity", true);
             DebugFlow("ThinkRoutine", "Scheduled non-cultivation");
             return;
         }
@@ -147,7 +178,11 @@ public partial class SmartNpcAI
             money >= 50 &&
             pill <= 0)
         {
-            GoToTavernAndBuyPill();
+            if (!GoToTavernAndBuyPill())
+            {
+                StartIdleWander();
+            }
+            TraceBranch("ThinkBrainCore", "AutonomousPillPurchase", true);
             DebugFlow("ThinkTrade", "Autonomous pill purchase");
             return;
         }
@@ -157,6 +192,7 @@ public partial class SmartNpcAI
             canCompeteResource)
         {
             SearchMonster();
+            TraceBranch("ThinkBrainCore", "AutonomousMonsterSearch", true);
             DebugFlow("ThinkHunt", "Autonomous monster search");
             return;
         }
@@ -165,6 +201,7 @@ public partial class SmartNpcAI
             canMakeFriends)
         {
             MakeFriend();
+            TraceBranch("ThinkBrainCore", "AutonomousSocial", true);
             DebugFlow("ThinkSocial", "Autonomous social");
             return;
         }
@@ -173,17 +210,20 @@ public partial class SmartNpcAI
             canCreateSect)
         {
             TryCreateSect();
+            TraceBranch("ThinkBrainCore", "AutonomousSectCreation", true);
             DebugFlow("ThinkSect", "Autonomous sect creation");
             return;
         }
 
         if (TryStartScheduledNonCultivationActivity())
         {
+            TraceBranch("ThinkBrainCore", "TryStartScheduledNonCultivationActivityFallback", true);
             DebugFlow("ThinkFallback", "Fallback routine");
             return;
         }
 
         StartIdleWander();
+        TraceBranch("ThinkBrainCore", "StartIdleWander", true);
         DebugFlow("ThinkFallback", "Idle instead of cultivation");
         return;
     }

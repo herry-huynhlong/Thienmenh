@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System;
 
@@ -861,7 +862,15 @@ public class TouchSelectTarget : MonoBehaviour
             Transform statusTransform =
                 FindChildByName(
                     detailRoot,
+                    "trangthai");
+
+            if (statusTransform == null)
+            {
+                statusTransform =
+                    FindChildByName(
+                        detailRoot,
                     UiText.Get("touchSelect", "statusRow"));
+            }
 
             if (statusTransform == null)
             {
@@ -884,8 +893,21 @@ public class TouchSelectTarget : MonoBehaviour
                         UiText.Get("touchSelect", "statusRow"),
                         UiText.Get("touchSelect", "statusRowAlt"),
                         "trạng thái",
-                        "trang thai");
+                        "trang thai",
+                        "trangthai",
+                        "status");
             }
+        }
+
+        if (statusText != null &&
+            maritalStatusText == statusText)
+        {
+            maritalStatusText = null;
+        }
+
+        if (statusText != null)
+        {
+            statusText.raycastTarget = false;
         }
 
         if (equipmentListRoot == null)
@@ -998,8 +1020,9 @@ public class TouchSelectTarget : MonoBehaviour
                 GetTargetMarriageStatus(target));
 
         hasAnyDetail |=
-            SetOptionalValueText(
+            SetValueText(
                 statusText,
+                UiText.Get("touchSelect", "statusRow") +
                 FormatTargetActionText(target));
 
         hasAnyDetail |=
@@ -1186,15 +1209,7 @@ public class TouchSelectTarget : MonoBehaviour
             return;
         }
 
-        GameObject sectionObject =
-            FindSectionContainer(root);
-
-        if (sectionObject == null)
-        {
-            sectionObject = root.gameObject;
-        }
-
-        sectionObject.SetActive(visible);
+        root.gameObject.SetActive(visible);
     }
 
     GameObject FindSectionContainer(Transform root)
@@ -1677,11 +1692,30 @@ public class TouchSelectTarget : MonoBehaviour
             return string.Empty;
         }
 
-        return value
-            .Replace(" ", string.Empty)
-            .Replace("_", string.Empty)
-            .Replace(":", string.Empty)
-            .ToLowerInvariant();
+        string normalized = value.Normalize(NormalizationForm.FormD);
+        StringBuilder builder = new StringBuilder(normalized.Length);
+
+        for (int i = 0; i < normalized.Length; i++)
+        {
+            char c = normalized[i];
+            UnicodeCategory category = CharUnicodeInfo.GetUnicodeCategory(c);
+
+            if (category == UnicodeCategory.NonSpacingMark)
+            {
+                continue;
+            }
+
+            if (char.IsWhiteSpace(c) ||
+                c == '_' ||
+                c == ':')
+            {
+                continue;
+            }
+
+            builder.Append(char.ToLowerInvariant(c));
+        }
+
+        return builder.ToString();
     }
 
     string GetEquipmentSlotLabel(StatItemData item)
@@ -1738,7 +1772,9 @@ public class TouchSelectTarget : MonoBehaviour
 
     string FormatTargetActionText(Transform target)
     {
-        string action = GetTargetAction(target);
+        string action =
+            GetDisplayAction(
+                GetTargetAction(target));
 
         if (string.IsNullOrWhiteSpace(action))
         {
@@ -3121,8 +3157,7 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (villager != null)
         {
-            return GetDisplayAction(
-                GetCurrentNpcActionForDisplay(target, villager.currentAction));
+            return villager.GetPlayerActionText();
         }
 
         SmartNpcAI smartNpc =
@@ -3130,8 +3165,7 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (smartNpc != null)
         {
-            return GetDisplayAction(
-                GetCurrentNpcActionForDisplay(target, smartNpc.currentAction));
+            return smartNpc.GetPlayerActionText();
         }
 
         MonsterAI monster =
@@ -3139,7 +3173,25 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (monster != null)
         {
-            return GetDisplayAction(monster.currentAction);
+            return monster.GetPlayerActionText();
+        }
+
+        NpcData npcData =
+            target.GetComponent<NpcData>();
+
+        if (npcData != null &&
+            !string.IsNullOrWhiteSpace(npcData.currentAction))
+        {
+            return npcData.currentAction;
+        }
+
+        NpcMapMover2D mapMover =
+            target.GetComponent<NpcMapMover2D>();
+
+        if (mapMover != null &&
+            !string.IsNullOrWhiteSpace(mapMover.currentAction))
+        {
+            return mapMover.currentAction;
         }
 
         return "";
@@ -3148,7 +3200,6 @@ public class TouchSelectTarget : MonoBehaviour
     string GetDisplayAction(string action)
     {
         if (string.IsNullOrEmpty(action) ||
-            action == NpcText.Action("idle") ||
             action == NpcText.Action("avoidObstacle"))
         {
             return "";

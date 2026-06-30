@@ -17313,6 +17313,11 @@ MonoBehaviour:
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
   debugFlowLogs: 1
+  runtimeTraceEnabled: 1
+  runtimeTraceTarget: ""
+  runtimeTraceEveryUpdate: 1
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!114 &263152473
 MonoBehaviour:
   m_ObjectHideFlags: 0

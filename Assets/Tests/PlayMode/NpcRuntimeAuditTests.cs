@@ -146,6 +146,8 @@ public class NpcRuntimeAuditTests
     static readonly Type SmartNpcType = GetGameType("SmartNpcAI");
     static readonly Type NpcMapMoverType = GetGameType("NpcMapMover2D");
     static readonly Type NpcMapAreaType = GetGameType("NpcMapArea");
+    static readonly Type NpcLocationAreaType = GetGameType("NpcLocationArea");
+    static readonly Type NpcCounterBrokerType = GetGameType("NpcCounterBroker");
     static readonly Type NpcTeleportGateType = GetGameType("NpcTeleportGate");
     static readonly Type NpcTextType = GetGameType("NpcText");
     static readonly Type NpcScheduleControllerType = GetGameType("NpcScheduleController");
@@ -429,6 +431,73 @@ public class NpcRuntimeAuditTests
         Assert.IsFalse(
             visitAllowed,
             "SmartNpcAI should not revisit a task provider again on the same world day.");
+    }
+
+    [UnityTest]
+    [Timeout(120000)]
+    public IEnumerator SmartNpcBuyGoodsUsesFallbackAreaInsteadOfStandingStill()
+    {
+        yield return LoadSceneAndWarmup(QuickWarmupSeconds);
+
+        Behaviour smart = FindFirstActiveBehaviour(SmartNpcType);
+        Assert.NotNull(smart, "No active SmartNpcAI was found in the loaded scene.");
+        Assert.NotNull(NpcLocationAreaType, "NpcLocationArea type was not found.");
+
+        Behaviour broker = FindFirstActiveBehaviour(NpcCounterBrokerType);
+        bool brokerReceiveAll = false;
+        if (broker != null)
+        {
+            brokerReceiveAll = Convert.ToBoolean(GetFieldValue(broker, "receiveAllNpcRequests"));
+            SetFieldValue(broker, "receiveAllNpcRequests", false);
+        }
+
+        GameObject fallbackAreaObject = new GameObject("SmartBuyFallbackArea");
+        try
+        {
+            BoxCollider2D collider = fallbackAreaObject.AddComponent<BoxCollider2D>();
+            collider.isTrigger = true;
+
+            Component fallbackArea = fallbackAreaObject.AddComponent(NpcLocationAreaType);
+            SetFieldValue(fallbackArea, "purpose", Enum.Parse(
+                NpcLocationAreaType.GetField("purpose").FieldType,
+                "Any"));
+            SetFieldValue(fallbackArea, "activity", Enum.Parse(
+                fallbackArea.GetType().GetField("activity").FieldType,
+                "BuyGoods"));
+            SetFieldValue(fallbackArea, "matchActivity", false);
+            SetFieldValue(fallbackArea, "matchJob", false);
+            SetFieldValue(fallbackArea, "matchZone", false);
+            SetFieldValue(fallbackArea, "matchDangerTier", false);
+            SetFieldValue(fallbackArea, "areaBounds", collider);
+            SetFieldValue(fallbackArea, "fallbackSize", new Vector2(4f, 4f));
+
+            yield return null;
+
+            SetFieldValue(smart, "tavernPoint", null);
+            SetFieldValue(smart, "money", 100);
+            SetFieldValue(smart, "pill", 0);
+
+            bool started = InvokePrivateMethod<bool>(smart, "GoToTavernAndBuyPill");
+            Assert.IsTrue(started, "SmartNpcAI should start a buy-travel fallback instead of stopping.");
+
+            bool hasWanderTarget = Convert.ToBoolean(GetFieldValue(smart, "hasWanderTarget"));
+            Assert.IsTrue(
+                hasWanderTarget,
+                "SmartNpcAI should keep a wander target when no tavern point is assigned.");
+
+            Assert.IsNull(
+                GetFieldValue(smart, "currentTarget"),
+                "Fallback buy travel should not require a direct transform target.");
+        }
+        finally
+        {
+            if (broker != null)
+            {
+                SetFieldValue(broker, "receiveAllNpcRequests", brokerReceiveAll);
+            }
+
+            UnityEngine.Object.Destroy(fallbackAreaObject);
+        }
     }
 
     static List<ActorState> CreateActorStates()

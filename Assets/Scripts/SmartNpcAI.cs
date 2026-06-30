@@ -241,8 +241,19 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
     bool reportedVillagerBrainConflict;
     [Header("Debug")]
     public bool debugFlowLogs;
+    [Tooltip("Trace runtime decisions for this NPC only.")]
+    public bool runtimeTraceEnabled;
+    [Tooltip("Exact name or substring to match for runtime trace. Leave empty to trace this NPC when enabled.")]
+    public string runtimeTraceTarget = "";
+    [Tooltip("Trace every Update call for the matched NPC.")]
+    public bool runtimeTraceEveryUpdate;
+    [Tooltip("Trace every ThinkBrainCore call for the matched NPC.")]
+    public bool runtimeTraceEveryThink = true;
+    [Tooltip("Trace schedule slot switches and schedule overrides.")]
+    public bool runtimeTraceScheduleChanges = true;
     string lastDebugFlowKey;
     float lastDebugFlowTime;
+    int runtimeTraceSequence;
 
     static readonly string[] TrackedDebugNpcNames =
     {
@@ -306,6 +317,91 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             " timer=" + actionTimer.ToString("0.00") +
             " hp=" + currentHP + "/" + maxHP +
             " hour=" + hour.ToString("0.00"));
+#endif
+    }
+
+    bool ShouldTraceRuntime()
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (!runtimeTraceEnabled &&
+            !debugFlowLogs)
+        {
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(runtimeTraceTarget))
+        {
+            return true;
+        }
+
+        string filter = runtimeTraceTarget.Trim();
+        return ContainsIgnoreCase(gameObject.name, filter) ||
+            ContainsIgnoreCase(npcName, filter);
+#else
+        return false;
+#endif
+    }
+
+    void TraceRuntime(
+        string function,
+        string detail,
+        bool force = false)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (!force &&
+            !ShouldTraceRuntime())
+        {
+            return;
+        }
+
+        runtimeTraceSequence++;
+
+        NpcScheduleController schedule =
+            GetComponent<NpcScheduleController>();
+        NpcScheduleSlot slot =
+            schedule != null ? schedule.CurrentSlot : null;
+        float hour = GetCurrentWorldHour();
+        string slotText =
+            slot != null
+                ? slot.activity + " " +
+                    slot.startHour.ToString("0.##") + "-" +
+                    slot.endHour.ToString("0.##")
+                : "none";
+        string scheduleText =
+            schedule != null
+                ? schedule.CurrentActivity.ToString()
+                : "none";
+
+        Debug.LogWarning(
+            "[SmartNpcTrace] seq=" + runtimeTraceSequence +
+            " frame=" + Time.frameCount +
+            " fn=" + function +
+            " detail=" + detail +
+            " day=" + (WorldTimeSystem.Instance != null
+                ? WorldTimeSystem.Instance.CurrentDay.ToString()
+                : "null") +
+            " hour=" + hour.ToString("0.00") +
+            " slot=" + slotText +
+            " schedule=" + scheduleText +
+            " action=" + currentAction +
+            " target=" + (currentTarget != null ? currentTarget.name : "null") +
+            " wander=" + hasWanderTarget +
+            " homeReturn=" + hasHomeReturnTarget +
+            " monster=" + (currentMonsterTarget != null ? currentMonsterTarget.monsterName : "null") +
+            " task=" + DescribeTask(currentSmartTask) +
+            " scheduleTask=" + DescribeTask(scheduleSmartTask) +
+            " thinkTimer=" + thinkTimer.ToString("0.00") +
+            " actionTimer=" + actionTimer.ToString("0.00"));
+#endif
+    }
+
+    void TraceBranch(
+        string function,
+        string branch,
+        bool result)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        TraceRuntime(function, branch + " => " + (result ? "true" : "false"));
 #endif
     }
 
@@ -635,6 +731,12 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (runtimeTraceEveryUpdate &&
+            ShouldTraceRuntime())
+        {
+            TraceRuntime("Update", "enter");
+        }
+
         RefreshScheduledStateForCurrentFrame();
 
         if (NpcTaskProvider.IsNpcBusyWithAnyProvider(gameObject))
@@ -642,6 +744,11 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             if (rb != null)
             {
                 rb.linearVelocity = Vector2.zero;
+            }
+
+            if (runtimeTraceEveryUpdate)
+            {
+                TraceRuntime("Update", "busy-by-provider");
             }
 
             return;
@@ -654,6 +761,11 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         if (waitingOutsideTreasureLightning)
         {
+            if (runtimeTraceEveryUpdate)
+            {
+                TraceRuntime("Update", "treasure-wait");
+            }
+
             UpdateTreasureWaitAction();
             thinkTimer = 0f;
             if (canLive)
@@ -665,6 +777,11 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         if (treasureHuntTarget != null)
         {
+            if (runtimeTraceEveryUpdate)
+            {
+                TraceRuntime("Update", "treasure-hunt");
+            }
+
             RefreshTreasureHuntAction();
             thinkTimer = 0f;
             if (canLive)
@@ -676,6 +793,11 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         if (actionTimer > 0f)
         {
+            if (runtimeTraceEveryUpdate)
+            {
+                TraceRuntime("Update", "cooldown actionTimer=" + actionTimer.ToString("0.00"));
+            }
+
             if (canLive)
             {
                 UpdateNeeds();
@@ -688,6 +810,11 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             MatchesSmartAction("huntMonsterNamed", true) ||
             MatchesSmartAction("attackMonsterNamed", true))
         {
+            if (runtimeTraceEveryUpdate)
+            {
+                TraceRuntime("Update", "preserve-hunt-travel");
+            }
+
             SearchMonster();
             if (canLive)
             {
@@ -699,6 +826,11 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         if (HasLockedDirectedTarget())
         {
+            if (runtimeTraceEveryUpdate)
+            {
+                TraceRuntime("Update", "locked-directed-target");
+            }
+
             if (canLive)
             {
                 UpdateNeeds();
@@ -710,6 +842,11 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         if (thinkTimer >= thinkDelay)
         {
             thinkTimer = 0;
+
+            if (runtimeTraceEveryUpdate)
+            {
+                TraceRuntime("Update", "Think()");
+            }
 
             Think();
         }
@@ -852,6 +989,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             !movingToTreasureWait &&
             Time.time >= postTeleportRecoveryUntil &&
             IsStationaryAction(currentAction) &&
+            !hasWanderTarget &&
+            !hasObstacleAvoidTarget &&
             !hasEscapeTarget;
 
         if (currentTarget == null &&
@@ -1315,8 +1454,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         float holdRange =
             Mathf.Max(
-                attackRange,
-                attackRange + 0.25f,
+                attackRange + 0.35f,
                 0.45f);
 
         return distance <= holdRange;
@@ -2042,6 +2180,42 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
     bool TryPickIdleWanderTarget(out Vector3 target)
     {
+        Vector3 anchor = spawnPosition;
+        if (homePoint != null)
+        {
+            anchor = homePoint.position;
+        }
+        else if (cultivationPoint != null)
+        {
+            anchor = cultivationPoint.position;
+        }
+
+        if (TryPickIdleWanderTargetFromCenter(
+                transform.position,
+                anchor,
+                out target))
+        {
+            return true;
+        }
+
+        if (homePoint != null &&
+            TryPickIdleWanderTargetFromCenter(
+                homePoint.position,
+                homePoint.position,
+                out target))
+        {
+            return true;
+        }
+
+        if (cultivationPoint != null &&
+            TryPickIdleWanderTargetFromCenter(
+                cultivationPoint.position,
+                anchor,
+                out target))
+        {
+            return true;
+        }
+
         target = transform.position;
         return false;
     }
@@ -3897,7 +4071,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         Debug.Log(NpcText.Format(NpcText.Get("logs", "breakthrough"), npcName, GetRealmName(), realmStage));
     }
 
-    void GoToTavernAndBuyPill()
+    bool GoToTavernAndBuyPill()
     {
         RequestEmergencyTask(
             SmartAITaskGoal.NeedPotion,
@@ -3918,7 +4092,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             {
                 ClearTravelTargetsAndStop();
                 currentAction = NpcText.Action("calm");
-                return;
+                return false;
             }
 
             currentAction = NpcText.Action("goVanBaoLauBroker");
@@ -3928,7 +4102,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             if (Vector2.Distance(transform.position, brokerTarget.position) >
                 Mathf.Max(0.5f, broker.CustomerServiceRadius))
             {
-                return;
+                return true;
             }
 
             if (tradeAgent == null)
@@ -3960,13 +4134,13 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                             tradeSessionMinGameHours,
                             tradeSessionMaxGameHours));
                 currentAction = NpcText.Action("checkedVanBaoLau");
-                return;
+                return true;
             }
 
             ClearTravelTargetsAndStop();
             actionTimer = Mathf.Max(thinkDelay, GameHoursToSeconds(0.15f));
             currentAction = NpcText.Action("checkedVanBaoLau");
-            return;
+            return true;
         }
 
         Transform buyTarget = tavernPoint;
@@ -3976,18 +4150,17 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 : Vector3.zero;
 
         if (buyTarget == null &&
-            !NpcLocationArea.TryGetPosition(
-                gameObject,
+            !TryResolveTradeFallbackPosition(
                 NpcScheduleActivity.BuyGoods,
-                VillagerJob.None,
-                NpcLocationPurpose.Market,
-                transform.position,
-                out buyPosition,
-                out _))
+                NpcLocationPurpose.BuyGoods,
+                out buyPosition))
         {
             ClearTravelTargetsAndStop();
-            currentAction = NpcText.Action("calm");
-            return;
+            currentAction = NpcText.Action("idle");
+            TraceRuntime(
+                "GoToTavernAndBuyPill",
+                "no-destination");
+            return false;
         }
 
         currentAction = NpcText.Action("goTavern");
@@ -4019,6 +4192,45 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
             Debug.Log(NpcText.Format(NpcText.Get("logs", "buyPill"), npcName));
         }
+
+        return true;
+    }
+
+    bool TryResolveTradeFallbackPosition(
+        NpcScheduleActivity activity,
+        NpcLocationPurpose purpose,
+        out Vector3 position)
+    {
+        if (NpcLocationArea.TryGetPosition(
+                gameObject,
+                activity,
+                VillagerJob.None,
+                purpose,
+                transform.position,
+                out position,
+                out _))
+        {
+            return true;
+        }
+
+        NpcLocationArea fallbackArea =
+            NpcLocationArea.FindBestArea(
+                gameObject,
+                activity,
+                VillagerJob.None,
+                NpcLocationPurpose.Any,
+                null,
+                GetSmartDangerTier(),
+                transform.position);
+
+        if (fallbackArea != null)
+        {
+            position = fallbackArea.GetRandomPoint(gameObject);
+            return true;
+        }
+
+        position = transform.position;
+        return false;
     }
 
     bool IsPointInsideNpcLocationArea(
@@ -4419,8 +4631,13 @@ void TryAttackMonster()
         GetCombatSurfaceDistance(
             currentMonsterTarget.transform);
 
+    float engageRange =
+        Mathf.Max(
+            attackRange + 0.35f,
+            0.45f);
+
     // Chua toi tam danh.
-    if (distance > attackRange)
+    if (distance > engageRange)
     {
         return;
     }
@@ -4764,6 +4981,22 @@ bool ShouldSmartAutoHuntMonster(MonsterAI monster)
         NpcCounterBroker broker = NpcCounterBroker.Active;
         if (broker == null)
         {
+            if (TryResolveTradeFallbackPosition(
+                NpcScheduleActivity.SellGoods,
+                NpcLocationPurpose.SellGoods,
+                out Vector3 fallbackSellPosition))
+            {
+                ClearTravelTargets();
+                currentTarget = null;
+                wanderTarget = fallbackSellPosition;
+                hasWanderTarget = true;
+                hasEscapeTarget = false;
+                hasObstacleAvoidTarget = false;
+                currentAction = NpcText.Action("goMarketTrade");
+                DebugFlow("Sell", "No active broker; moving to fallback area");
+                return true;
+            }
+
             DebugFlow("Sell", "No active broker");
             return false;
         }
@@ -4907,6 +5140,11 @@ bool ShouldSmartAutoHuntMonster(MonsterAI monster)
         {
             resourceGatherer.CancelGatheringNow();
         }
+
+        ClearTravelTargets();
+        StopNpcMovement();
+        actionTimer = 0f;
+        currentAction = NpcText.Action("injured");
     }
 
     void TryReactToNearbyAttackingMonster()

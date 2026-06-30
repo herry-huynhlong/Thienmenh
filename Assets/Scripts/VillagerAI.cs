@@ -7309,6 +7309,8 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             characterStats.TakeDamage(damage);
             SyncFromCharacterStats();
 
+            InterruptGatheringForCombat();
+
             if (IsDead)
             {
                 Die();
@@ -7344,6 +7346,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
         if (currentHP > 0)
         {
+            InterruptGatheringForCombat();
             NpcCombatTechniqueSystem.ReactToDamageTaken(
                 gameObject,
                 damage);
@@ -7358,6 +7361,26 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             currentAction = NpcText.Action("panicBurned");
             currentTarget = homePoint;
         }
+    }
+
+    void InterruptGatheringForCombat()
+    {
+        NpcResourceGatherer gatherer = GetComponent<NpcResourceGatherer>();
+        if (gatherer != null)
+        {
+            gatherer.CancelGatheringNow();
+        }
+
+        HarvestJob harvestJob = GetComponent<HarvestJob>();
+        if (harvestJob != null)
+        {
+            harvestJob.CancelHarvestNow();
+        }
+
+        ClearMovementTargets();
+        StopMoving();
+        actionTimer = 0f;
+        currentAction = NpcText.Action("injured");
     }
 
     public void ApplyItem(StatItemData item)

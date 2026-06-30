@@ -271,6 +271,13 @@ public static class NpcRoleUtility
 
     static string GetCurrentAction(GameObject npc)
     {
+        NpcData npcData = npc.GetComponent<NpcData>();
+        if (npcData != null &&
+            !string.IsNullOrWhiteSpace(npcData.currentAction))
+        {
+            return npcData.currentAction;
+        }
+
         VillagerAI villager = GetActiveVillagerAI(npc) ??
             GetVillagerAI(npc);
         if (villager != null)
@@ -289,6 +296,13 @@ public static class NpcRoleUtility
         if (monster != null)
         {
             return monster.currentAction;
+        }
+
+        NpcMapMover2D mapMover = npc.GetComponent<NpcMapMover2D>();
+        if (mapMover != null &&
+            !string.IsNullOrWhiteSpace(mapMover.currentAction))
+        {
+            return mapMover.currentAction;
         }
 
         return "";

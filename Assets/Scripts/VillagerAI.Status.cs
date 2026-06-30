@@ -1,0 +1,64 @@
+using UnityEngine;
+
+public partial class VillagerAI
+{
+    public string GetPlayerActionText()
+    {
+        if (IsDead)
+        {
+            return NpcText.Action("dead");
+        }
+
+        string action = NormalizeDisplayAction(currentAction);
+        if (!string.IsNullOrWhiteSpace(action))
+        {
+            return action;
+        }
+
+        return NpcText.Action("idle");
+    }
+
+    string NormalizeDisplayAction(string action)
+    {
+        if (string.IsNullOrWhiteSpace(action))
+        {
+            return "";
+        }
+
+        if (IsIdleLikeDisplayAction(action))
+        {
+            return "";
+        }
+
+        if (IsTravelIntentAction(action) &&
+            !HasActiveTravelContext())
+        {
+            return "";
+        }
+
+        return action;
+    }
+
+    bool IsIdleLikeDisplayAction(string action)
+    {
+        return action == NpcText.Action("idle") ||
+            action == NpcText.Action("rest") ||
+            action == NpcText.Action("restNearHome") ||
+            action == NpcText.Action("restVillageNoon") ||
+            action == NpcText.Action("stayNearHome") ||
+            action == NpcText.Action("visitedTaskProvider") ||
+            action == NpcText.Action("checkedVanBaoLau") ||
+            action == NpcText.Action("calm") ||
+            action.StartsWith("waitSchedule", System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    bool HasActiveTravelContext()
+    {
+        return currentTarget != null ||
+            hasWorkTarget ||
+            hasTradeTarget ||
+            hasBuyTarget ||
+            hasEatTarget ||
+            hasSellTarget;
+    }
+}
