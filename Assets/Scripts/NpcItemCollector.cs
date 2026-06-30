@@ -103,7 +103,7 @@ public class NpcItemCollector : MonoBehaviour
 
         if (pickup == null ||
             !pickup.allowNpcPickup ||
-            pickup.requireNpcHarvestAction ||
+            pickup.RequiresNpcHarvestAction() ||
             pickup.item == null ||
             inventory == null ||
             pickup.IsReservedByOther(gameObject))

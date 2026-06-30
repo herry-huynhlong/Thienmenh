@@ -1,0 +1,17 @@
+{
+  "targets": [
+    {
+      "id": "nguyen-thanh",
+      "displayName": "阮青",
+      "targetType": 0,
+      "realm": "炼气",
+      "aptitude": 68,
+      "fear": 43,
+      "title": "",
+      "origin": "修士",
+      "fateState": "已获机缘",
+      "description": "此生灵正受天道关注。",
+      "hasReceivedFate": true
+    }
+  ]
+}

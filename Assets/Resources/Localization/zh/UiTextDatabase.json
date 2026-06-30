@@ -1,0 +1,703 @@
+{
+  "categories": [
+    {
+      "name": "shop",
+      "entries": [
+        {
+          "key": "titleDanDuoc",
+          "value": "灵药堂"
+        },
+        {
+          "key": "titlePhapBao",
+          "value": "神兵阁"
+        },
+        {
+          "key": "titleCongPhap",
+          "value": "功法藏"
+        },
+        {
+          "key": "titleVatLieu",
+          "value": "天材阁"
+        },
+        {
+          "key": "titleThucPham",
+          "value": "御膳坊"
+        },
+        {
+          "key": "buyButtonBuy",
+          "value": "购买"
+        },
+        {
+          "key": "buyButtonNotEnough",
+          "value": "灵石不足"
+        },
+        {
+          "key": "buyButtonUnavailable",
+          "value": "不可购买"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "heavenDao",
+      "entries": [
+        {
+          "key": "controlFormat",
+          "value": "掌控：{0}%"
+        },
+        {
+          "key": "karmaFormat",
+          "value": "因果：{0}"
+        },
+        {
+          "key": "devUnlockAll",
+          "value": "开发模式已解锁全部权限"
+        },
+        {
+          "key": "nextUnlockFormat",
+          "value": "即将解锁 {0}%：{1}"
+        },
+        {
+          "key": "allUnlocked",
+          "value": "当前等级已全部解锁"
+        },
+        {
+          "key": "footerHint",
+          "value": "世界发展时，本源会逐渐恢复。"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "rewardedAds",
+      "entries": [
+        {
+          "key": "loading",
+          "value": "正在加载广告..."
+        },
+        {
+          "key": "missingAdUnit",
+          "value": "缺少广告单元ID。"
+        },
+        {
+          "key": "notReady",
+          "value": "广告尚未准备好。"
+        },
+        {
+          "key": "opening",
+          "value": "正在打开广告..."
+        },
+        {
+          "key": "readyRewardFormat",
+          "value": "观看广告获得 +{0} 灵石"
+        },
+        {
+          "key": "loadFailed",
+          "value": "广告加载失败。"
+        },
+        {
+          "key": "watching",
+          "value": "正在观看广告..."
+        },
+        {
+          "key": "showFailed",
+          "value": "无法打开广告。"
+        },
+        {
+          "key": "incomplete",
+          "value": "广告未看完，无法获得奖励。"
+        },
+        {
+          "key": "rewardGrantedFormat",
+          "value": "已获得 +{0} 灵石"
+        },
+        {
+          "key": "walletMissing",
+          "value": "找不到灵石钱包。"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "population",
+      "entries": [
+        {
+          "key": "totalFormat",
+          "value": "生灵：{0}"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "favorites",
+      "entries": [
+        {
+          "key": "countFormat",
+          "value": "{0}/{1}"
+        },
+        {
+          "key": "focusButton",
+          "value": "前往修士"
+        },
+        {
+          "key": "removeButton",
+          "value": "移除修士"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "npcInventory",
+      "entries": [
+        {
+          "key": "emptyText",
+          "value": "没有物品"
+        },
+        {
+          "key": "titleFormat",
+          "value": "{0} - 背包"
+        },
+        {
+          "key": "compactInfoFormat",
+          "value": "背包：{0} | 总计：{1}"
+        },
+        {
+          "key": "walletLine",
+          "value": "灵石：{0}"
+        },
+        {
+          "key": "spiritStoneLine",
+          "value": "修炼灵石：{0}"
+        },
+        {
+          "key": "inventoryValueLine",
+          "value": "背包价值：{0}"
+        },
+        {
+          "key": "totalAssetsLine",
+          "value": "总资产：{0}"
+        },
+        {
+          "key": "itemCountsFormat",
+          "value": "物品种类：{0} / 总物品：{1}"
+        },
+        {
+          "key": "itemLineFormat",
+          "value": "{0} x{1} - {2}"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "worldClock",
+      "entries": [
+        {
+          "key": "prefix",
+          "value": ""
+        },
+        {
+          "key": "defaultWhenUnavailable",
+          "value": "荒古大陆 - 第1年 第1月 第1日 - 06:00"
+        },
+        {
+          "key": "continentName",
+          "value": "荒古大陆"
+        },
+        {
+          "key": "dayFormat",
+          "value": "第{0}日"
+        },
+        {
+          "key": "monthFormat",
+          "value": "第{0}月 - {1}"
+        },
+        {
+          "key": "yearFormat",
+          "value": "第{0}年 - {1}"
+        },
+        {
+          "key": "clockFormat",
+          "value": "{0}\n{1}\n{2:00}时{3:00}分"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "worldNotifications",
+      "entries": [
+        {
+          "key": "originPrefix",
+          "value": "天道"
+        },
+        {
+          "key": "normalPrefix",
+          "value": ""
+        },
+        {
+          "key": "normalPrefixFormat",
+          "value": "{0}：{1}"
+        },
+        {
+          "key": "originLabelFallback",
+          "value": "本源"
+        },
+        {
+          "key": "originRewardFormat",
+          "value": "{0} +{1} {2}\n{3}"
+        },
+        {
+          "key": "originPrefixFormat",
+          "value": "{0}\n{1}"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "mainMenu",
+      "entries": [
+        {
+          "key": "aboutLog",
+          "value": "天命之子 - 修仙RPG"
+        },
+        {
+          "key": "settingsTitle",
+          "value": "设置"
+        },
+        {
+          "key": "settingsVolume",
+          "value": "音量"
+        },
+        {
+          "key": "settingsFullscreen",
+          "value": "全屏"
+        },
+        {
+          "key": "settingsFps",
+          "value": "FPS"
+        },
+        {
+          "key": "settingsMute",
+          "value": "静音"
+        },
+        {
+          "key": "settingsUnmute",
+          "value": "取消静音"
+        },
+        {
+          "key": "settingsSave",
+          "value": "保存"
+        },
+        {
+          "key": "settingsClose",
+          "value": "关闭"
+        },
+        {
+          "key": "newGame",
+          "value": "开始游戏"
+        },
+        {
+          "key": "continueGame",
+          "value": "继续"
+        },
+        {
+          "key": "settingsMenu",
+          "value": "设置"
+        },
+        {
+          "key": "aboutMenu",
+          "value": "介绍"
+        },
+        {
+          "key": "exitGame",
+          "value": "退出"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "intro",
+      "entries": [
+        {
+          "key": "fallbackTitle",
+          "value": "重修天道"
+        },
+        {
+          "key": "pageIndicatorFormat",
+          "value": "{0} / {1}"
+        }
+      ],
+      "lists": [
+        {
+          "key": "pageTitles",
+          "values": [
+            "天道完整",
+            "浩劫灭世",
+            "本源破碎",
+            "重修天道"
+          ]
+        },
+        {
+          "key": "pageBodies",
+          "values": [
+            "天地尚且完整之时，荒古大陆曾是一方繁盛世界。\n\n天道覆盖万物，日月运行有序，灵气循环不息。\n\n生灵诞生、修炼、争斗、传承，最终化为天地的一部分。\n\n宗门兴盛，妖兽纵横，灵草遍生山河。每一个生命都有自己的轨迹，每一份机缘都在大道轮转之中。",
+            "然而在久远纪元之前，虚空忽然裂开。\n\n一股来自天地之外的力量侵入荒古大陆。\n\n它们不遵天道，不入轮回，只想吞噬整方世界的灵气、本源与生机。\n\n那场浩劫令山河崩塌，宗门覆灭，无数生灵化为灰烬。天地秩序自此开始崩坏。",
+            "为保住最后一线生机，天道强行燃烧自身本源。\n\n那股力量击退外敌，封闭虚空裂隙，救下荒古大陆残存的一角。\n\n但代价极为沉重。\n\n天道本源破碎，权能散落各处。灵气衰弱，法则混乱，世界只剩下一片片破碎土地，在时光中艰难支撑。",
+            "如今，天道的一缕残念已经苏醒。\n\n那便是你。\n\n你尚不能掌控整个世界，只能观望荒古大陆边缘的一小片土地。\n\n但从这里开始，天道可以重新修复。\n\n引导生灵，赐予机缘，推动修炼，扩展土地，恢复灵气，并一步步收回散落的本源。\n\n当天道足够强大，荒古大陆将再次迎来新的时代。"
+          ]
+        },
+        {
+          "key": "defaultPageTitles",
+          "values": [
+            "天道完整",
+            "浩劫灭世",
+            "本源破碎",
+            "重修天道"
+          ]
+        },
+        {
+          "key": "defaultPageBodies",
+          "values": [
+            "天地尚且完整之时，荒古大陆曾是一方繁盛世界。\n\n天道覆盖万物，日月运行有序，灵气循环不息。\n\n生灵诞生、修炼、争斗、传承，最终化为天地的一部分。\n\n宗门兴盛，妖兽纵横，灵草遍生山河。每一个生命都有自己的轨迹，每一份机缘都在大道轮转之中。",
+            "然而在久远纪元之前，虚空忽然裂开。\n\n一股来自天地之外的力量侵入荒古大陆。\n\n它们不遵天道，不入轮回，只想吞噬整方世界的灵气、本源与生机。\n\n那场浩劫令山河崩塌，宗门覆灭，无数生灵化为灰烬。天地秩序自此开始崩坏。",
+            "为保住最后一线生机，天道强行燃烧自身本源。\n\n那股力量击退外敌，封闭虚空裂隙，救下荒古大陆残存的一角。\n\n但代价极为沉重。\n\n天道本源破碎，权能散落各处。灵气衰弱，法则混乱，世界只剩下一片片破碎土地，在时光中艰难支撑。",
+            "如今，天道的一缕残念已经苏醒。\n\n那便是你。\n\n你尚不能掌控整个世界，只能观望荒古大陆边缘的一小片土地。\n\n但从这里开始，天道可以重新修复。\n\n引导生灵，赐予机缘，推动修炼，扩展土地，恢复灵气，并一步步收回散落的本源。\n\n当天道足够强大，荒古大陆将再次迎来新的时代。"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "touchSelect",
+      "entries": [
+        {
+          "key": "placeholder",
+          "value": "-"
+        },
+        {
+          "key": "damageRow",
+          "value": "伤害"
+        },
+        {
+          "key": "defenseRow",
+          "value": "防御"
+        },
+        {
+          "key": "lifespanRow",
+          "value": "寿元"
+        },
+        {
+          "key": "jobRow",
+          "value": "职位"
+        },
+        {
+          "key": "maritalStatusRow",
+          "value": "状态"
+        },
+        {
+          "key": "statusRow",
+          "value": "状态："
+        },
+        {
+          "key": "statusRowAlt",
+          "value": "状态："
+        },
+        {
+          "key": "equipmentList",
+          "value": "装备"
+        },
+        {
+          "key": "skillList",
+          "value": "技能"
+        },
+        {
+          "key": "equipmentWeapon",
+          "value": "武器"
+        },
+        {
+          "key": "equipmentArmor",
+          "value": "护甲"
+        },
+        {
+          "key": "equipmentAccessory",
+          "value": "法宝"
+        },
+        {
+          "key": "actionFormat",
+          "value": "正在{0}"
+        },
+        {
+          "key": "monsterLootNone",
+          "value": "无"
+        },
+        {
+          "key": "monsterLootUnset",
+          "value": "未设置"
+        },
+        {
+          "key": "inventoryEmpty",
+          "value": "空"
+        },
+        {
+          "key": "inventorySummaryFormat",
+          "value": "{0}种 / {1}件"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "worldStory",
+      "entries": [
+        {
+          "key": "dayUnknown",
+          "value": "第？日"
+        },
+        {
+          "key": "dayOnlyFormat",
+          "value": "第{0}日"
+        },
+        {
+          "key": "monthDayFormat",
+          "value": "第{0}月 - 第{1}日"
+        },
+        {
+          "key": "timeUnknown",
+          "value": "【时空】"
+        },
+        {
+          "key": "introLogWelcome",
+          "value": "欢迎来到荒古大陆！灵气安宁，天清云朗。"
+        },
+        {
+          "key": "introLogSecretRealm",
+          "value": "东方有异动！上古秘境结界出现衰弱迹象。"
+        },
+        {
+          "key": "introLogBeastWave",
+          "value": "妖气冲天！兽潮正在躁动，准备袭击村庄！"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "itemLifecycle",
+      "entries": [
+        {
+          "key": "anonymous",
+          "value": "无名"
+        },
+        {
+          "key": "broken",
+          "value": "{1}的{0}已经损坏。"
+        },
+        {
+          "key": "refined",
+          "value": "{0}将{1}炼化成丹药。"
+        },
+        {
+          "key": "forged",
+          "value": "{0}锻造了{1}。"
+        },
+        {
+          "key": "stolen",
+          "value": "{0}从{2}手中夺走{1}。"
+        },
+        {
+          "key": "taught",
+          "value": "{0}将{1}传授给{2}。"
+        },
+        {
+          "key": "default",
+          "value": "{0} {1} {2}"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "heavenNurture",
+      "entries": [
+        {
+          "key": "panelTitle",
+          "value": "天道照拂"
+        },
+        {
+          "key": "listTitle",
+          "value": "受关注的生灵"
+        },
+        {
+          "key": "listHeader",
+          "value": "列表"
+        },
+        {
+          "key": "countFormat",
+          "value": "{0}/{1}"
+        },
+        {
+          "key": "filterAll",
+          "value": "全部"
+        },
+        {
+          "key": "filterCultivator",
+          "value": "修士"
+        },
+        {
+          "key": "filterMonster",
+          "value": "妖兽"
+        },
+        {
+          "key": "searchPlaceholder",
+          "value": "搜索姓名 / 境界..."
+        },
+        {
+          "key": "labelName",
+          "value": "姓名："
+        },
+        {
+          "key": "labelTitle",
+          "value": "称号："
+        },
+        {
+          "key": "labelRealm",
+          "value": "境界："
+        },
+        {
+          "key": "labelOrigin",
+          "value": "出身："
+        },
+        {
+          "key": "labelAptitude",
+          "value": "资质"
+        },
+        {
+          "key": "labelFear",
+          "value": "敬畏"
+        },
+        {
+          "key": "labelFate",
+          "value": "机缘"
+        },
+        {
+          "key": "labelDescription",
+          "value": "描述 / 备注"
+        },
+        {
+          "key": "buttonGiveFate",
+          "value": "赐予机缘"
+        },
+        {
+          "key": "buttonRemove",
+          "value": "移除"
+        },
+        {
+          "key": "unknownName",
+          "value": "无名"
+        },
+        {
+          "key": "unknownRealm",
+          "value": "未知"
+        },
+        {
+          "key": "titleNone",
+          "value": "无"
+        },
+        {
+          "key": "originNone",
+          "value": "无"
+        },
+        {
+          "key": "originCultivator",
+          "value": "修士"
+        },
+        {
+          "key": "originCommoner",
+          "value": "凡民"
+        },
+        {
+          "key": "originMonster",
+          "value": "妖兽"
+        },
+        {
+          "key": "sampleName",
+          "value": "阮青"
+        },
+        {
+          "key": "sampleRealm",
+          "value": "炼气"
+        },
+        {
+          "key": "stateWatching",
+          "value": "关注中"
+        },
+        {
+          "key": "stateBlessed",
+          "value": "已赐机缘"
+        },
+        {
+          "key": "stateReceived",
+          "value": "已获得"
+        },
+        {
+          "key": "detailEmpty",
+          "value": "-"
+        },
+        {
+          "key": "descriptionNone",
+          "value": "无备注"
+        },
+        {
+          "key": "descriptionFallbackFormat",
+          "value": "{0}正受天道关注，当前境界为{1}。"
+        },
+        {
+          "key": "aptitudeFormat",
+          "value": "{0}/100"
+        },
+        {
+          "key": "fearFormat",
+          "value": "敬畏：{0}"
+        },
+        {
+          "key": "titleChildOfHeaven",
+          "value": "天命之子"
+        },
+        {
+          "key": "titleSaintBody",
+          "value": "圣体"
+        },
+        {
+          "key": "titleSwordHeart",
+          "value": "剑心"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "entityTypes",
+      "entries": [
+        {
+          "key": "monster",
+          "value": "妖兽"
+        },
+        {
+          "key": "npc",
+          "value": "修士"
+        },
+        {
+          "key": "villager",
+          "value": "村民"
+        },
+        {
+          "key": "commoner",
+          "value": "凡民"
+        },
+        {
+          "key": "cultivator",
+          "value": "修士"
+        },
+        {
+          "key": "unknown",
+          "value": "未知"
+        }
+      ],
+      "lists": []
+    }
+  ]
+}

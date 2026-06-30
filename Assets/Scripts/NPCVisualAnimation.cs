@@ -3,6 +3,11 @@ using UnityEngine;
 
 public class NPCVisualAnimation : MonoBehaviour
 {
+    static readonly string[] TrackedDebugVisualNames =
+    {
+        "thusinh33"
+    };
+
     [Header("Movement Clips")]
     public AnimationClip downWalkClip;
     public AnimationClip upWalkClip;
@@ -133,6 +138,20 @@ public class NPCVisualAnimation : MonoBehaviour
 
         animator.Rebind();
         animator.Update(0f);
+
+        if (IsTrackedVisual())
+        {
+            Debug.LogWarning(
+                "[NPCVisualAnimation] Rebind object=" +
+                gameObject.name +
+                " controller=" +
+                (controller != null ? controller.name : "null") +
+                " overrideClipName=" + overrideClipName +
+                " attackDown=" + DescribeClip(attackDownClip) +
+                " attackUp=" + DescribeClip(attackUpClip) +
+                " attackSide=" + DescribeClip(attackSideClip) +
+                " dieDown=" + DescribeClip(dieDownClip));
+        }
     }
 
     public void UpdateNPCAnimation(
@@ -140,7 +159,7 @@ public class NPCVisualAnimation : MonoBehaviour
         bool isIdling,
         string currentAction = "")
     {
-        if (animator == null || overrideController == null)
+        if (!EnsureRuntimeBinding())
         {
             return;
         }
@@ -158,11 +177,28 @@ public class NPCVisualAnimation : MonoBehaviour
         {
             clipToPlay = GetActionClip(actionCategory, lastDirection);
 
+            if (IsTrackedVisual())
+            {
+                Debug.LogWarning(
+                    "[NPCVisualAnimation] Action resolve object=" +
+                    gameObject.name +
+                    " action=" + currentAction +
+                    " category=" + actionCategory +
+                    " direction=" + lastDirection +
+                    " clip=" + DescribeClip(clipToPlay));
+            }
+
             if (clipToPlay != null)
             {
                 PlayClip(clipToPlay);
                 return;
             }
+
+            Debug.LogWarning(
+                "[NPCVisualAnimation] Missing action clip object=" +
+                gameObject.name +
+                " action=" + currentAction +
+                " direction=" + lastDirection);
 
             if (actionCategory == ActionCategory.Die)
             {
@@ -199,7 +235,7 @@ public class NPCVisualAnimation : MonoBehaviour
 
     public void ReplayActionAnimation(string currentAction)
     {
-        if (animator == null || overrideController == null)
+        if (!EnsureRuntimeBinding())
         {
             return;
         }
@@ -212,8 +248,24 @@ public class NPCVisualAnimation : MonoBehaviour
 
         AnimationClip clipToPlay =
             GetActionClip(actionCategory, lastDirection);
+        if (IsTrackedVisual())
+        {
+            Debug.LogWarning(
+                "[NPCVisualAnimation] Replay resolve object=" +
+                gameObject.name +
+                " action=" + currentAction +
+                " category=" + actionCategory +
+                " direction=" + lastDirection +
+                " clip=" + DescribeClip(clipToPlay));
+        }
+
         if (clipToPlay == null)
         {
+            Debug.LogWarning(
+                "[NPCVisualAnimation] Replay action clip missing object=" +
+                gameObject.name +
+                " action=" + currentAction +
+                " direction=" + lastDirection);
             return;
         }
 
@@ -369,9 +421,24 @@ public class NPCVisualAnimation : MonoBehaviour
 
     void PlayClip(AnimationClip clipToPlay)
     {
+        if (!EnsureRuntimeBinding())
+        {
+            return;
+        }
+
         if (clipToPlay == null || currentClip == clipToPlay)
         {
             return;
+        }
+
+        if (IsTrackedVisual())
+        {
+            Debug.LogWarning(
+                "[NPCVisualAnimation] Play object=" +
+                gameObject.name +
+                " override=" + overrideClipName +
+                " clip=" + DescribeClip(clipToPlay) +
+                " facing=" + lastDirection);
         }
 
         overrideController[overrideClipName] = clipToPlay;
@@ -543,6 +610,74 @@ public class NPCVisualAnimation : MonoBehaviour
             invertSideFlip
             ? !shouldFlip
             : shouldFlip;
+    }
+
+    bool EnsureRuntimeBinding()
+    {
+        if (animator == null)
+        {
+            animator = GetComponent<Animator>();
+        }
+
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponent<SpriteRenderer>();
+        }
+
+        if (animator == null)
+        {
+            return false;
+        }
+
+        RuntimeAnimatorController controller =
+            animator.runtimeAnimatorController;
+        if (controller == null)
+        {
+            overrideController = null;
+            return false;
+        }
+
+        if (overrideController == null)
+        {
+            RebindAnimatorController(controller);
+        }
+        else
+        {
+            TryAssignActionClipsFromAnimator(
+                this,
+                controller.animationClips);
+        }
+
+        return overrideController != null;
+    }
+
+    bool IsTrackedVisual()
+    {
+        return IsTrackedVisualName(gameObject.name);
+    }
+
+    static bool IsTrackedVisualName(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return false;
+        }
+
+        string normalized = NormalizeClipName(value);
+        for (int i = 0; i < TrackedDebugVisualNames.Length; i++)
+        {
+            if (normalized == TrackedDebugVisualNames[i])
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    static string DescribeClip(AnimationClip clip)
+    {
+        return clip != null ? clip.name : "null";
     }
 
     static bool HasCompleteClips(NPCVisualAnimation visual)

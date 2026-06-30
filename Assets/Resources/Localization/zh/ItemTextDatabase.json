@@ -1,0 +1,348 @@
+{
+  "categories": [
+    {
+      "name": "detail",
+      "entries": [
+        {
+          "key": "amountFormat",
+          "value": "数量：x{0}"
+        },
+        {
+          "key": "typeFormat",
+          "value": "类型：{0}"
+        },
+        {
+          "key": "gradeFormat",
+          "value": "品质：{0}"
+        },
+        {
+          "key": "targetsFormat",
+          "value": "适用对象：{0}"
+        },
+        {
+          "key": "priceFormat",
+          "value": "价格：{0}"
+        }
+      ]
+    },
+    {
+      "name": "stats",
+      "entries": [
+        {
+          "key": "hpBonus",
+          "value": "生命 +{0}"
+        },
+        {
+          "key": "cultivationBonus",
+          "value": "修为 +{0}"
+        },
+        {
+          "key": "breakthroughRealm",
+          "value": "突破境界"
+        },
+        {
+          "key": "damageBonus",
+          "value": "伤害 +{0}"
+        },
+        {
+          "key": "armorBonus",
+          "value": "护甲 +{0}"
+        },
+        {
+          "key": "effectResistanceBonus",
+          "value": "效果抗性 +{0}"
+        },
+        {
+          "key": "duration",
+          "value": "持续时间：{0}秒"
+        },
+        {
+          "key": "successChance",
+          "value": "成功率：{0}%"
+        },
+        {
+          "key": "durability",
+          "value": "耐久：{0}/{1}"
+        },
+        {
+          "key": "mastery",
+          "value": "领悟：{0}"
+        },
+        {
+          "key": "useStyle",
+          "value": "使用方式：{0}"
+        },
+        {
+          "key": "rawUse",
+          "value": "直接使用：{0}"
+        },
+        {
+          "key": "rawEfficiency",
+          "value": "生食效率：{0}%"
+        },
+        {
+          "key": "toxicity",
+          "value": "毒性：-{0}生命"
+        },
+        {
+          "key": "canRefinePill",
+          "value": "可炼制丹药"
+        },
+        {
+          "key": "canForgeArtifact",
+          "value": "可炼制法宝"
+        },
+        {
+          "key": "canStudy",
+          "value": "可研究"
+        },
+        {
+          "key": "cannotSell",
+          "value": "不可出售"
+        },
+        {
+          "key": "npcIntent",
+          "value": "修士优先：{0}"
+        }
+      ]
+    },
+    {
+      "name": "itemNames",
+      "entries": []
+    },
+    {
+      "name": "itemDescriptions",
+      "entries": []
+    },
+    {
+      "name": "itemTypes",
+      "entries": [
+        {
+          "key": "DanDuoc",
+          "value": "丹药"
+        },
+        {
+          "key": "PhapBao",
+          "value": "法宝"
+        },
+        {
+          "key": "VatLieu",
+          "value": "材料"
+        },
+        {
+          "key": "CongPhap",
+          "value": "功法"
+        },
+        {
+          "key": "ThucPham",
+          "value": "食物"
+        }
+      ]
+    },
+    {
+      "name": "itemGrades",
+      "entries": [
+        {
+          "key": "Ha",
+          "value": "下"
+        },
+        {
+          "key": "Trung",
+          "value": "中"
+        },
+        {
+          "key": "Thuong",
+          "value": "上"
+        },
+        {
+          "key": "Tien",
+          "value": "仙"
+        }
+      ]
+    },
+    {
+      "name": "itemGradeLong",
+      "entries": [
+        {
+          "key": "Ha",
+          "value": "下品"
+        },
+        {
+          "key": "Trung",
+          "value": "中品"
+        },
+        {
+          "key": "Thuong",
+          "value": "上品"
+        },
+        {
+          "key": "Tien",
+          "value": "仙品"
+        }
+      ]
+    },
+    {
+      "name": "itemTargets",
+      "entries": [
+        {
+          "key": "None",
+          "value": "无"
+        },
+        {
+          "key": "Player",
+          "value": "玩家"
+        },
+        {
+          "key": "Npc",
+          "value": "修士"
+        },
+        {
+          "key": "Monster",
+          "value": "妖兽"
+        },
+        {
+          "key": "All",
+          "value": "全部"
+        }
+      ]
+    },
+    {
+      "name": "itemUseStyles",
+      "entries": [
+        {
+          "key": "Auto",
+          "value": "自动"
+        },
+        {
+          "key": "Consumable",
+          "value": "消耗品"
+        },
+        {
+          "key": "RawMaterial",
+          "value": "生材料"
+        },
+        {
+          "key": "DurableEquipment",
+          "value": "耐久装备"
+        },
+        {
+          "key": "StudyManual",
+          "value": "研习典籍"
+        }
+      ]
+    },
+    {
+      "name": "rawUsePolicies",
+      "entries": [
+        {
+          "key": "Allowed",
+          "value": "允许"
+        },
+        {
+          "key": "Risky",
+          "value": "有风险"
+        },
+        {
+          "key": "Forbidden",
+          "value": "禁止"
+        }
+      ]
+    },
+    {
+      "name": "npcItemIntents",
+      "entries": [
+        {
+          "key": "Auto",
+          "value": "自动"
+        },
+        {
+          "key": "PreferUseRaw",
+          "value": "生食"
+        },
+        {
+          "key": "PreferRefine",
+          "value": "炼丹"
+        },
+        {
+          "key": "PreferSell",
+          "value": "出售"
+        },
+        {
+          "key": "Keep",
+          "value": "保留"
+        }
+      ]
+    },
+    {
+      "name": "manualMastery",
+      "entries": [
+        {
+          "key": "None",
+          "value": "尚未修炼"
+        },
+        {
+          "key": "TieuThanh",
+          "value": "小成"
+        },
+        {
+          "key": "TrungThanh",
+          "value": "中成"
+        },
+        {
+          "key": "DaiThanh",
+          "value": "大成"
+        }
+      ]
+    },
+    {
+      "name": "heavenGiftNames",
+      "entries": [
+        {
+          "key": "DanDuoc",
+          "value": "{0}宝丹"
+        },
+        {
+          "key": "PhapBao",
+          "value": "{0}法宝"
+        },
+        {
+          "key": "CongPhap",
+          "value": "{0}功法"
+        },
+        {
+          "key": "VatLieu",
+          "value": "{0}灵材"
+        },
+        {
+          "key": "ThucPham",
+          "value": "灵食"
+        },
+        {
+          "key": "Default",
+          "value": "{0}宝物"
+        }
+      ]
+    },
+    {
+      "name": "messages",
+      "entries": [
+        {
+          "key": "noValidTarget",
+          "value": "尚未选择适合使用此物品的目标。"
+        },
+        {
+          "key": "needHeavenControlGift",
+          "value": "天道掌控不足。直接赐予物品需要10%。"
+        },
+        {
+          "key": "noSelectedCultivator",
+          "value": "尚未选择要赐予物品的修士。"
+        },
+        {
+          "key": "needHeavenControlDrop",
+          "value": "天道掌控不足。向区域投放机缘需要20%。"
+        }
+      ]
+    }
+  ]
+}

@@ -163,6 +163,7 @@ public partial class MonsterAI : MonoBehaviour, IDamageable
 
     public bool IsDead => isDead;
     public Transform DamageTransform => transform;
+    public Transform CurrentCombatTarget => currentTarget;
 
     void DebugFlow(string stage, string detail)
     {

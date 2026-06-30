@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public static class NpcMapNavigator
@@ -217,9 +217,9 @@ public static class NpcMapNavigator
             gate.GetApproachPosition(npc.transform.position);
 
         usingTeleportRoute = true;
-        routeAction =
-            "Đi cổng dịch chuyển đến " +
-            GetZoneName(destinationZone);
+        routeAction = NpcText.ActionFormat(
+            "teleportGateTo",
+            GetZoneName(destinationZone));
 
         return entryPosition;
     }
@@ -419,3 +419,4 @@ public static class NpcMapNavigator
         }
     }
 }
+

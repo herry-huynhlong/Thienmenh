@@ -121,7 +121,13 @@ public static class NpcText
             lists.TryGetValue(lookupKey, out string[] lines) &&
             lines != null)
         {
-            return lines;
+            string[] cleaned = new string[lines.Length];
+            for (int i = 0; i < lines.Length; i++)
+            {
+                cleaned[i] = CleanDisplayText(lines[i]);
+            }
+
+            return cleaned;
         }
 
         string value = Get(category, key, "");
@@ -278,11 +284,12 @@ public static class NpcText
             return value;
         }
 
+        string repaired = TryRepairMojibake(value);
         System.Text.StringBuilder builder = null;
 
-        for (int i = 0; i < value.Length; i++)
+        for (int i = 0; i < repaired.Length; i++)
         {
-            char c = value[i];
+            char c = repaired[i];
             bool isControl = (c < 32 && c != '\n' && c != '\r' && c != '\t') ||
                 (c >= 0x80 && c <= 0x9F);
 
@@ -298,11 +305,139 @@ public static class NpcText
 
             if (builder == null)
             {
-                builder = new System.Text.StringBuilder(value.Length);
-                builder.Append(value, 0, i);
+                builder = new System.Text.StringBuilder(repaired.Length);
+                builder.Append(repaired, 0, i);
             }
         }
 
-        return builder == null ? value : builder.ToString();
+        return builder == null ? repaired : builder.ToString();
+    }
+
+    static string TryRepairMojibake(string value)
+    {
+        if (string.IsNullOrEmpty(value) ||
+            !LooksLikeMojibake(value))
+        {
+            return value;
+        }
+
+        string best = value;
+        int bestScore = GetDisplayQualityScore(value);
+        string current = value;
+
+        for (int i = 0; i < 3; i++)
+        {
+            string candidate = DecodeLatin1Utf8(current);
+            if (string.IsNullOrEmpty(candidate) ||
+                string.Equals(candidate, current, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            int candidateScore = GetDisplayQualityScore(candidate);
+            if (candidateScore <= bestScore)
+            {
+                break;
+            }
+
+            best = candidate;
+            bestScore = candidateScore;
+            current = candidate;
+        }
+
+        return best;
+    }
+
+    static string DecodeLatin1Utf8(string value)
+    {
+        try
+        {
+            byte[] bytes =
+                System.Text.Encoding.GetEncoding("ISO-8859-1")
+                    .GetBytes(value);
+            return System.Text.Encoding.UTF8.GetString(bytes);
+        }
+        catch
+        {
+            return value;
+        }
+    }
+
+    static bool LooksLikeMojibake(string value)
+    {
+        return value.IndexOf('Ã') >= 0 ||
+            value.IndexOf('Â') >= 0 ||
+            value.IndexOf('Ä') >= 0 ||
+            value.IndexOf('Æ') >= 0 ||
+            value.IndexOf('á') >= 0 ||
+            value.IndexOf('º') >= 0 ||
+            value.IndexOf('»') >= 0;
+    }
+
+    static int GetDisplayQualityScore(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return 0;
+        }
+
+        int score = 0;
+        for (int i = 0; i < value.Length; i++)
+        {
+            char c = value[i];
+            if (IsReadableVietnameseChar(c))
+            {
+                score += 3;
+                continue;
+            }
+
+            if (char.IsLetterOrDigit(c))
+            {
+                score += 2;
+                continue;
+            }
+
+            if (char.IsWhiteSpace(c) ||
+                char.IsPunctuation(c) ||
+                char.IsSymbol(c))
+            {
+                score += 1;
+                continue;
+            }
+
+            score -= 4;
+        }
+
+        score -= CountSuspiciousSequences(value) * 8;
+        return score;
+    }
+
+    static bool IsReadableVietnameseChar(char c)
+    {
+        return c == 'đ' ||
+            c == 'Đ' ||
+            "ăâêôơưáàảãạắằẳẵặấầẩẫậéèẻẽẹếềểễệóòỏõọốồổỗộớờởỡợúùủũụứừửữựíìỉĩịýỳỷỹỵ".IndexOf(c) >= 0 ||
+            "ĂÂÊÔƠƯÁÀẢÃẠẮẰẲẴẶẤẦẨẪẬÉÈẺẼẸẾỀỂỄỆÓÒỎÕỌỐỒỔỖỘỚỜỞỠỢÚÙỦŨỤỨỪỬỮỰÍÌỈĨỊÝỲỶỸỴ".IndexOf(c) >= 0;
+    }
+
+    static int CountSuspiciousSequences(string value)
+    {
+        int count = 0;
+        for (int i = 0; i < value.Length; i++)
+        {
+            switch (value[i])
+            {
+                case 'Ã':
+                case 'Â':
+                case 'Ä':
+                case 'Æ':
+                case 'º':
+                case '»':
+                    count++;
+                    break;
+            }
+        }
+
+        return count;
     }
 }

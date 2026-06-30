@@ -67,7 +67,7 @@ public class NewGameIntroPanel : MonoBehaviour
             closeButton.onClick.AddListener(HideIntro);
         }
 
-        CreateDefaultIntroIfEmpty();
+        ReloadLocalizedIntroContent();
 
         if (bodyText != null)
         {
@@ -75,10 +75,17 @@ public class NewGameIntroPanel : MonoBehaviour
         }
 
         RefreshButtons();
+        LocalizationSettings.LanguageChanged += HandleLanguageChanged;
+    }
+
+    private void OnDestroy()
+    {
+        LocalizationSettings.LanguageChanged -= HandleLanguageChanged;
     }
 
     public void ShowIntro()
     {
+        ReloadLocalizedIntroContent();
         currentPage = 0;
 
         if (introPanel != null)
@@ -301,6 +308,29 @@ public class NewGameIntroPanel : MonoBehaviour
 
         pageTitles = UiText.Lines("intro", "defaultPageTitles");
         pageBodies = UiText.Lines("intro", "defaultPageBodies");
+    }
+
+    private void ReloadLocalizedIntroContent()
+    {
+        pageTitles = null;
+        pageBodies = null;
+        CreateDefaultIntroIfEmpty();
+    }
+
+    private void HandleLanguageChanged()
+    {
+        ReloadLocalizedIntroContent();
+
+        if (introPanel != null && introPanel.activeSelf)
+        {
+            currentPage = Mathf.Clamp(
+                currentPage,
+                0,
+                pageBodies != null && pageBodies.Length > 0
+                    ? pageBodies.Length - 1
+                    : 0);
+            RefreshPage();
+        }
     }
 
     private string GetLocalizedPageTitle()

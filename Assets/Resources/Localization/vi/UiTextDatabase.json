@@ -5,23 +5,23 @@
       "entries": [
         {
           "key": "titleDanDuoc",
-          "value": "Linh DÆ°á»£c ÄÆ°á»ng"
+          "value": "Linh Dược Đường"
         },
         {
           "key": "titlePhapBao",
-          "value": "Tháº§n Binh CÃ¡c"
+          "value": "Thần Binh Các"
         },
         {
           "key": "titleCongPhap",
-          "value": "CÃ´ng PhÃ¡p TÃ ng"
+          "value": "Công Pháp Tàng"
         },
         {
           "key": "titleVatLieu",
-          "value": "ThiÃªn TÃ i CÃ¡c"
+          "value": "Thiên Tài Các"
         },
         {
           "key": "titleThucPham",
-          "value": "Ngá»± Thiá»‡n PhÆ°á»ng"
+          "value": "Ngự Thiện Phường"
         },
         {
           "key": "buyButtonBuy",
@@ -29,11 +29,11 @@
         },
         {
           "key": "buyButtonNotEnough",
-          "value": "KhÃ´ng Ä‘á»§ LT"
+          "value": "Không đủ LT"
         },
         {
           "key": "buyButtonUnavailable",
-          "value": "KhÃ´ng bÃ¡n"
+          "value": "Không bán"
         }
       ],
       "lists": []
@@ -43,27 +43,27 @@
       "entries": [
         {
           "key": "controlFormat",
-          "value": "ChÆ°á»Ÿng Khá»‘ng: {0}%"
+          "value": "Chưởng Khống: {0}%"
         },
         {
           "key": "karmaFormat",
-          "value": "NhÃ¢n Quáº£: {0}"
+          "value": "Nhân Quả: {0}"
         },
         {
           "key": "devUnlockAll",
-          "value": "Äang má»Ÿ táº¥t cáº£ quyá»n trong cháº¿ Ä‘á»™ dev"
+          "value": "Đang mở tất cả quyền trong chế độ dev"
         },
         {
           "key": "nextUnlockFormat",
-          "value": "Sáº¯p má»Ÿ {0}%: {1}"
+          "value": "Sắp mở {0}%: {1}"
         },
         {
           "key": "allUnlocked",
-          "value": "ÄÃ£ má»Ÿ háº¿t má»©c hiá»‡n táº¡i"
+          "value": "Đã mở hết mức hiện tại"
         },
         {
           "key": "footerHint",
-          "value": "Báº£n NguyÃªn há»“i phá»¥c khi tháº¿ giá»›i phÃ¡t triá»ƒn."
+          "value": "Bản Nguyên hồi phục khi thế giới phát triển."
         }
       ],
       "lists": []
@@ -73,47 +73,47 @@
       "entries": [
         {
           "key": "loading",
-          "value": "Äang táº£i quáº£ng cÃ¡o..."
+          "value": "Đang tải quảng cáo..."
         },
         {
           "key": "missingAdUnit",
-          "value": "KhÃ´ng cÃ³ Ad Unit ID."
+          "value": "Không có Ad Unit ID."
         },
         {
           "key": "notReady",
-          "value": "Quáº£ng cÃ¡o chÆ°a sáºµn sÃ ng."
+          "value": "Quảng cáo chưa sẵn sàng."
         },
         {
           "key": "opening",
-          "value": "Äang má»Ÿ quáº£ng cÃ¡o..."
+          "value": "Đang mở quảng cáo..."
         },
         {
           "key": "readyRewardFormat",
-          "value": "Xem quáº£ng cÃ¡o nháº­n +{0} LT"
+          "value": "Xem quảng cáo nhận +{0} LT"
         },
         {
           "key": "loadFailed",
-          "value": "Táº£i quáº£ng cÃ¡o lá»—i."
+          "value": "Tải quảng cáo lỗi."
         },
         {
           "key": "watching",
-          "value": "Äang xem quáº£ng cÃ¡o..."
+          "value": "Đang xem quảng cáo..."
         },
         {
           "key": "showFailed",
-          "value": "KhÃ´ng má»Ÿ Ä‘Æ°á»£c quáº£ng cÃ¡o."
+          "value": "Không mở được quảng cáo."
         },
         {
           "key": "incomplete",
-          "value": "ChÆ°a xem xong nÃªn khÃ´ng nháº­n thÆ°á»Ÿng."
+          "value": "Chưa xem xong nên không nhận thưởng."
         },
         {
           "key": "rewardGrantedFormat",
-          "value": "ÄÃ£ nháº­n +{0} LT"
+          "value": "Đã nhận +{0} LT"
         },
         {
           "key": "walletMissing",
-          "value": "KhÃ´ng tÃ¬m tháº¥y vÃ­ Linh Tháº¡ch."
+          "value": "Không tìm thấy ví Linh Thạch."
         }
       ],
       "lists": []
@@ -137,11 +137,11 @@
         },
         {
           "key": "focusButton",
-          "value": "Den Tu si"
+          "value": "Đến Tu sĩ"
         },
         {
           "key": "removeButton",
-          "value": "Xoa Tu si"
+          "value": "Xóa Tu sĩ"
         }
       ],
       "lists": []
@@ -151,35 +151,35 @@
       "entries": [
         {
           "key": "emptyText",
-          "value": "Khong co vat pham"
+          "value": "Không có vật phẩm"
         },
         {
           "key": "titleFormat",
-          "value": "{0} - Kho do"
+          "value": "{0} - Kho đồ"
         },
         {
           "key": "compactInfoFormat",
-          "value": "Balo: {0} | Tong: {1}"
+          "value": "Balo: {0} | Tổng: {1}"
         },
         {
           "key": "walletLine",
-          "value": "Linh thach: {0}"
+          "value": "Linh thạch: {0}"
         },
         {
           "key": "spiritStoneLine",
-          "value": "Linh thach tu luyen: {0}"
+          "value": "Linh thạch tu luyện: {0}"
         },
         {
           "key": "inventoryValueLine",
-          "value": "Gia tri balo: {0}"
+          "value": "Giá trị balo: {0}"
         },
         {
           "key": "totalAssetsLine",
-          "value": "Tong tai san: {0}"
+          "value": "Tổng tài sản: {0}"
         },
         {
           "key": "itemCountsFormat",
-          "value": "So loai hang: {0} / Tong mon: {1}"
+          "value": "Số loại hàng: {0} / Tổng món: {1}"
         },
         {
           "key": "itemLineFormat",
@@ -197,23 +197,23 @@
         },
         {
           "key": "defaultWhenUnavailable",
-          "value": "Hoang C? ??i L?c - N?m 1 Th?ng 1 Ng?y 1 - 06:00"
+          "value": "Hoang Cổ Đại Lục - Năm 1 Tháng 1 Ngày 1 - 06:00"
         },
         {
           "key": "continentName",
-          "value": "Hoang C? ??i L?c"
+          "value": "Hoang Cổ Đại Lục"
         },
         {
           "key": "dayFormat",
-          "value": "Ng?y {0}"
+          "value": "Ngày {0}"
         },
         {
           "key": "monthFormat",
-          "value": "Th?ng {0} - {1}"
+          "value": "Tháng {0} - {1}"
         },
         {
           "key": "yearFormat",
-          "value": "N?m {0} - {1}"
+          "value": "Năm {0} - {1}"
         },
         {
           "key": "clockFormat",
@@ -227,7 +227,7 @@
       "entries": [
         {
           "key": "originPrefix",
-          "value": "ThiÃªn Äáº¡o"
+          "value": "Thiên Đạo"
         },
         {
           "key": "normalPrefix",
@@ -239,7 +239,7 @@
         },
         {
           "key": "originLabelFallback",
-          "value": "báº£n nguyÃªn"
+          "value": "bản nguyên"
         },
         {
           "key": "originRewardFormat",
@@ -257,19 +257,19 @@
       "entries": [
         {
           "key": "aboutLog",
-          "value": "Thi?n M?nh Chi T? - game tu ti?n RPG"
+          "value": "Thiên Mệnh Chi Tử - game tu tiên RPG"
         },
         {
           "key": "settingsTitle",
-          "value": "C?i ??t"
+          "value": "Cài đặt"
         },
         {
           "key": "settingsVolume",
-          "value": "?m l??ng"
+          "value": "Âm lượng"
         },
         {
           "key": "settingsFullscreen",
-          "value": "To?n m?n h?nh"
+          "value": "Toàn màn hình"
         },
         {
           "key": "settingsFps",
@@ -277,39 +277,39 @@
         },
         {
           "key": "settingsMute",
-          "value": "T?t ?m"
+          "value": "Tắt âm"
         },
         {
           "key": "settingsUnmute",
-          "value": "B?t ?m"
+          "value": "Bật âm"
         },
         {
           "key": "settingsSave",
-          "value": "L?u"
+          "value": "Lưu"
         },
         {
           "key": "settingsClose",
-          "value": "??ng"
+          "value": "Đóng"
         },
         {
           "key": "newGame",
-          "value": "B?t ??u"
+          "value": "Bắt đầu"
         },
         {
           "key": "continueGame",
-          "value": "Ti?p t?c"
+          "value": "Tiếp tục"
         },
         {
           "key": "settingsMenu",
-          "value": "C?i ??t"
+          "value": "Cài đặt"
         },
         {
           "key": "aboutMenu",
-          "value": "Gi?i thi?u"
+          "value": "Giới thiệu"
         },
         {
           "key": "exitGame",
-          "value": "Tho?t"
+          "value": "Thoát"
         }
       ],
       "lists": []
@@ -319,7 +319,7 @@
       "entries": [
         {
           "key": "fallbackTitle",
-          "value": "Tr?ng Tu Thi?n ??o"
+          "value": "Trùng Tu Thiên Đạo"
         },
         {
           "key": "pageIndicatorFormat",
@@ -330,37 +330,19 @@
         {
           "key": "pageTitles",
           "values": [
-            "ThiÃªn Äáº¡o HoÃ n Chá»‰nh",
-            "Háº¡o Kiáº¿p Diá»‡t Giá»›i",
-            "Báº£n NguyÃªn Vá»¡ NÃ¡t",
-            "TrÃ¹ng Tu ThiÃªn Äáº¡o"
+            "Thiên Đạo Hoàn Chỉnh",
+            "Hạo Kiếp Diệt Giới",
+            "Bản Nguyên Vỡ Nát",
+            "Trùng Tu Thiên Đạo"
           ]
         },
         {
           "key": "pageBodies",
           "values": [
-            "Thuá»Ÿ thiÃªn Ä‘á»‹a cÃ²n nguyÃªn váº¹n, Hoang Cá»• Äáº¡i Lá»¥c tá»«ng lÃ  má»™t tháº¿ giá»›i phá»“n thá»‹nh.\n\nThiÃªn Äáº¡o bao phá»§ váº¡n váº­t, nháº­t nguyá»‡t váº­n hÃ nh cÃ³ thá»© tá»±, linh khÃ­ luÃ¢n chuyá»ƒn khÃ´ng dá»©t.\n\nSinh linh sinh ra, tu luyá»‡n, tranh Ä‘áº¥u, truyá»n thá»«a rá»“i hÃ³a thÃ nh má»™t pháº§n cá»§a thiÃªn Ä‘á»‹a.\n\nTÃ´ng mÃ´n hÆ°ng thá»‹nh, yÃªu thÃº tung hoÃ nh, linh tháº£o sinh trÆ°á»Ÿng kháº¯p nÃºi sÃ´ng. Má»—i sinh má»‡nh Ä‘á»u cÃ³ quá»¹ tÃ­ch riÃªng, má»—i cÆ¡ duyÃªn Ä‘á»u náº±m trong Ä‘áº¡i Ä‘áº¡o tuáº§n hoÃ n.",
-            "NhÆ°ng vÃ o má»™t ká»· nguyÃªn xa xÆ°a, hÆ° khÃ´ng bá»—ng ráº¡n ná»©t.\n\nMá»™t tháº¿ lá»±c Ä‘áº¿n tá»« ngoÃ i thiÃªn Ä‘á»‹a xÃ¢m nháº­p Hoang Cá»• Äáº¡i Lá»¥c.\n\nChÃºng khÃ´ng tuÃ¢n theo ThiÃªn Äáº¡o, khÃ´ng nháº­p luÃ¢n há»“i, chá»‰ muá»‘n nuá»‘t láº¥y linh khÃ­, báº£n nguyÃªn vÃ  sinh cÆ¡ cá»§a cáº£ tháº¿ giá»›i.\n\nTráº­n háº¡o kiáº¿p áº¥y khiáº¿n nÃºi sÃ´ng sá»¥p Ä‘á»•, tÃ´ng mÃ´n tiÃªu vong, vÃ´ sá»‘ sinh linh hÃ³a thÃ nh tro bá»¥i. Tráº­t tá»± thiÃªn Ä‘á»‹a báº¯t Ä‘áº§u tan rÃ£.",
-            "Äá»ƒ giá»¯ láº¡i má»™t tia sinh cÆ¡ cuá»‘i cÃ¹ng, ThiÃªn Äáº¡o Ä‘Ã£ cÆ°á»¡ng Ã©p thiÃªu Ä‘á»‘t báº£n nguyÃªn cá»§a chÃ­nh mÃ¬nh.\n\nSá»©c máº¡nh áº¥y Ä‘Ã¡nh lui ngoáº¡i Ä‘á»‹ch, phong báº¿ váº¿t ná»©t hÆ° khÃ´ng, cá»©u láº¥y pháº§n cÃ²n sÃ³t láº¡i cá»§a Hoang Cá»• Äáº¡i Lá»¥c.\n\nNhÆ°ng cÃ¡i giÃ¡ pháº£i tráº£ quÃ¡ lá»›n.\n\nBáº£n nguyÃªn ThiÃªn Äáº¡o vá»¡ nÃ¡t, quyá»n nÄƒng tháº¥t láº¡c kháº¯p nÆ¡i. Linh khÃ­ suy yáº¿u, phÃ¡p táº¯c há»—n loáº¡n, tháº¿ giá»›i chá»‰ cÃ²n láº¡i nhá»¯ng vÃ¹ng Ä‘áº¥t rá»i ráº¡c Ä‘ang tá»± chá»‘ng chá»i vá»›i thá»i gian.",
-            "Hiá»‡n táº¡i, má»™t tia tÃ n Ã½ cá»§a ThiÃªn Äáº¡o Ä‘Ã£ thá»©c tá»‰nh.\n\nÄÃ³ chÃ­nh lÃ  ngÆ°Æ¡i.\n\nNgÆ°Æ¡i chÆ°a thá»ƒ chÆ°á»Ÿng khá»‘ng toÃ n bá»™ tháº¿ giá»›i, chá»‰ cÃ³ thá»ƒ quan sÃ¡t má»™t vÃ¹ng Ä‘áº¥t nhá» bÃ© nÆ¡i rÃ¬a Hoang Cá»• Äáº¡i Lá»¥c.\n\nNhÆ°ng tá»« nÆ¡i nÃ y, ThiÃªn Äáº¡o cÃ³ thá»ƒ báº¯t Ä‘áº§u trÃ¹ng tu.\n\nHÃ£y dáº«n dáº¯t sinh linh, ban phÃ¡t cÆ¡ duyÃªn, thÃºc Ä‘áº©y tu luyá»‡n, má»Ÿ rá»™ng vÃ¹ng Ä‘áº¥t, khÃ´i phá»¥c linh khÃ­ vÃ  tá»«ng bÆ°á»›c thu há»“i báº£n nguyÃªn Ä‘Ã£ máº¥t.\n\nKhi ThiÃªn Äáº¡o Ä‘á»§ máº¡nh, Hoang Cá»• Äáº¡i Lá»¥c sáº½ má»™t láº§n ná»¯a nghÃªnh Ä‘Ã³n thá»i Ä‘áº¡i má»›i."
-          ]
-        },
-        {
-          "key": "defaultPageTitles",
-          "values": [
-            "Thi?n ??o Ho?n Ch?nh",
-            "H?o Ki?p Di?t Gi?i",
-            "B?n Nguy?n V? N?t",
-            "Tr?ng Tu Thi?n ??o"
-          ]
-        },
-        {
-          "key": "defaultPageBodies",
-          "values": [
-            "Thu? thi?n ??a c?n nguy?n v?n, Hoang C? ??i L?c t?ng l? m?t th? gi?i ph?n th?nh.\n\nThi?n ??o bao ph? v?n v?t, nh?t nguy?t v?n h?nh c? th? t?, linh kh? lu?n chuy?n kh?ng d?t.\n\nSinh linh sinh ra, tu luy?n, tranh ??u, truy?n th?a r?i h?a th?nh m?t ph?n c?a thi?n ??a.\n\nT?ng m?n h?ng th?nh, y?u th? tung ho?nh, linh th?o sinh tr??ng kh?p n?i s?ng. M?i sinh m?nh ??u c? qu? t?ch ri?ng, m?i c? duy?n ??u n?m trong ??i ??o tu?n ho?n.",
-            "Nh?ng v?o m?t k? nguy?n xa x?a, h? kh?ng b?ng r?n n?t.\n\nM?t th? l?c ??n t? ngo?i thi?n ??a x?m nh?p Hoang C? ??i L?c.\n\nCh?ng kh?ng tu?n theo Thi?n ??o, kh?ng nh?p lu?n h?i, ch? mu?n nu?t l?y linh kh?, b?n nguy?n v? sinh c? c?a c? th? gi?i.\n\nTr?n h?o ki?p ?y khi?n n?i s?ng s?p ??, t?ng m?n ti?u vong, v? s? sinh linh h?a th?nh tro b?i. Tr?t t? thi?n ??a b?t ??u tan r?.",
-            "?? gi? l?i m?t tia sinh c? cu?i c?ng, Thi?n ??o ?? c??ng ?p thi?u ??t b?n nguy?n c?a ch?nh m?nh.\n\nS?c m?nh ?y ??nh lui ngo?i ??ch, phong b? v?t n?t h? kh?ng, c?u l?y ph?n c?n s?t l?i c?a Hoang C? ??i L?c.\n\nNh?ng c?i gi? ph?i tr? qu? l?n.\n\nB?n nguy?n Thi?n ??o v? n?t, quy?n n?ng th?t l?c kh?p n?i. Linh kh? suy y?u, ph?p t?c h?n lo?n, th? gi?i ch? c?n l?i nh?ng v?ng ??t r?i r?c ?ang t? ch?ng ch?i v?i th?i gian.",
-            "Hi?n t?i, m?t tia t?n ? c?a Thi?n ??o ?? th?c t?nh.\n\n?? ch?nh l? ng??i.\n\nNg??i ch?a th? ch??ng kh?ng to?n b? th? gi?i, ch? c? th? quan s?t m?t v?ng ??t nh? b? n?i r?a Hoang C? ??i L?c.\n\nNh?ng t? n?i n?y, Thi?n ??o c? th? b?t ??u tr?ng tu.\n\nH?y d?n d?t sinh linh, ban ph?t c? duy?n, th?c ??y tu luy?n, m? r?ng v?ng ??t, kh?i ph?c linh kh? v? t?ng b??c thu h?i b?n nguy?n ?? m?t.\n\nKhi Thi?n ??o ?? m?nh, Hoang C? ??i L?c s? m?t l?n n?a ngh?nh ??n th?i ??i m?i."
+            "Thuở thiên địa còn nguyên vẹn, Hoang Cổ Đại Lục từng là một thế giới phồn thịnh.\n\nThiên Đạo bao phủ vạn vật, nhật nguyệt vận hành có thứ tự, linh khí luân chuyển không dứt.\n\nSinh linh sinh ra, tu luyện, tranh đấu, truyền thừa rồi hóa thành một phần của thiên địa.\n\nTông môn hưng thịnh, yêu thú tung hoành, linh thảo sinh trưởng khắp núi sông. Mỗi sinh mệnh đều có quỹ tích riêng, mỗi cơ duyên đều nằm trong đại đạo tuần hoàn.",
+            "Nhưng vào một kỷ nguyên xa xưa, hư không bỗng rạn nứt.\n\nMột thế lực đến từ ngoài thiên địa xâm nhập Hoang Cổ Đại Lục.\n\nChúng không tuân theo Thiên Đạo, không nhập luân hồi, chỉ muốn nuốt lấy linh khí, bản nguyên và sinh cơ của cả thế giới.\n\nTrận hạo kiếp ấy khiến núi sông sụp đổ, tông môn tiêu vong, vô số sinh linh hóa thành tro bụi. Trật tự thiên địa bắt đầu tan rã.",
+            "Để giữ lại một tia sinh cơ cuối cùng, Thiên Đạo đã cưỡng ép thiêu đốt bản nguyên của chính mình.\n\nSức mạnh ấy đánh lui ngoại địch, phong bế vết nứt hư không, cứu lấy phần còn sót lại của Hoang Cổ Đại Lục.\n\nNhưng cái giá phải trả quá lớn.\n\nBản nguyên Thiên Đạo vỡ nát, quyền năng thất lạc khắp nơi. Linh khí suy yếu, pháp tắc hỗn loạn, thế giới chỉ còn lại những vùng đất rời rạc đang tự chống chọi với thời gian.",
+            "Hiện tại, một tia tàn ý của Thiên Đạo đã thức tỉnh.\n\nĐó chính là ngươi.\n\nNgươi chưa thể chưởng khống toàn bộ thế giới, chỉ có thể quan sát một vùng đất nhỏ bé nơi rìa Hoang Cổ Đại Lục.\n\nNhưng từ nơi này, Thiên Đạo có thể bắt đầu trùng tu.\n\nHãy dẫn dắt sinh linh, ban phát cơ duyên, thúc đẩy tu luyện, mở rộng vùng đất, khôi phục linh khí và từng bước thu hồi bản nguyên đã mất.\n\nKhi Thiên Đạo đủ mạnh, Hoang Cổ Đại Lục sẽ một lần nữa nghênh đón thời đại mới."
           ]
         }
       ]
@@ -374,7 +356,7 @@
         },
         {
           "key": "damageRow",
-          "value": "DamageRow"
+          "value": "Sát thương"
         },
         {
           "key": "defenseRow",
@@ -390,55 +372,55 @@
         },
         {
           "key": "maritalStatusRow",
-          "value": "tinhtrang"
+          "value": "Tình trạng"
         },
         {
           "key": "statusRow",
-          "value": "Trạng Thái : "
+          "value": "Trạng thái: "
         },
         {
           "key": "statusRowAlt",
-          "value": "Trạng Thái:"
+          "value": "Trạng thái:"
         },
         {
           "key": "equipmentList",
-          "value": "EquipmentList"
+          "value": "Trang bị"
         },
         {
           "key": "skillList",
-          "value": "SkillList"
+          "value": "Kỹ năng"
         },
         {
           "key": "equipmentWeapon",
-          "value": "VÅ© KhÃ­"
+          "value": "Vũ Khí"
         },
         {
           "key": "equipmentArmor",
-          "value": "GiÃ¡p"
+          "value": "Giáp"
         },
         {
           "key": "equipmentAccessory",
-          "value": "PhÃ¡p Báº£o"
+          "value": "Pháp Bảo"
         },
         {
           "key": "actionFormat",
-          "value": "Äang {0}"
+          "value": "Đang {0}"
         },
         {
           "key": "monsterLootNone",
-          "value": "KhÃ´ng"
+          "value": "Không"
         },
         {
           "key": "monsterLootUnset",
-          "value": "ChÆ°a gáº¯n"
+          "value": "Chưa gắn"
         },
         {
           "key": "inventoryEmpty",
-          "value": "Trá»‘ng"
+          "value": "Trống"
         },
         {
           "key": "inventorySummaryFormat",
-          "value": "{0} loáº¡i / {1} mÃ³n"
+          "value": "{0} loại / {1} món"
         }
       ],
       "lists": []
@@ -448,31 +430,31 @@
       "entries": [
         {
           "key": "dayUnknown",
-          "value": "Ngay ?"
+          "value": "Ngày ?"
         },
         {
           "key": "dayOnlyFormat",
-          "value": "Ngay {0}"
+          "value": "Ngày {0}"
         },
         {
           "key": "monthDayFormat",
-          "value": "Thang {0} - Ngay {1}"
+          "value": "Tháng {0} - Ngày {1}"
         },
         {
           "key": "timeUnknown",
-          "value": "[Th?i Kh?ng]"
+          "value": "[Thời Không]"
         },
         {
           "key": "introLogWelcome",
-          "value": "Ch?o m?ng ??n v?i Hoang C? ??i L?c! Linh kh? an l?nh, tr?i quang m?y t?nh."
+          "value": "Chào mừng đến với Hoang Cổ Đại Lục! Linh khí an lành, trời quang mây tạnh."
         },
         {
           "key": "introLogSecretRealm",
-          "value": "D? ??ng t?i ph??ng ??ng! K?t gi?i Th??ng C? B? C?nh c? d?u hi?u suy y?u."
+          "value": "Dị động tại phương đông! Kết giới Thượng Cổ Bí Cảnh có dấu hiệu suy yếu."
         },
         {
           "key": "introLogBeastWave",
-          "value": "Y?u kh? ng?p tr?i! Th? Tri?u ?ang r?c r?ch chu?n b? t?n c?ng th?n l?ng!"
+          "value": "Yêu khí ngập trời! Thú Triều đang rục rịch chuẩn bị tấn công thôn làng!"
         }
       ],
       "lists": []
@@ -482,27 +464,27 @@
       "entries": [
         {
           "key": "anonymous",
-          "value": "Vo danh"
+          "value": "Vô danh"
         },
         {
           "key": "broken",
-          "value": "{0} cua {1} da hong."
+          "value": "{0} của {1} đã hỏng."
         },
         {
           "key": "refined",
-          "value": "{0} luyen hoa {1} thanh dan duoc."
+          "value": "{0} luyện hóa {1} thành đan dược."
         },
         {
           "key": "forged",
-          "value": "{0} ren {1}."
+          "value": "{0} rèn {1}."
         },
         {
           "key": "stolen",
-          "value": "{0} doat {1} tu {2}."
+          "value": "{0} đoạt {1} từ {2}."
         },
         {
           "key": "taught",
-          "value": "{0} truyen thu {1} cho {2}."
+          "value": "{0} truyền thụ {1} cho {2}."
         },
         {
           "key": "default",
@@ -516,15 +498,15 @@
       "entries": [
         {
           "key": "panelTitle",
-          "value": "THIEN DAO CHIEU CO"
+          "value": "THIÊN ĐẠO CHIẾU CỐ"
         },
         {
           "key": "listTitle",
-          "value": "Sinh linh duoc chu y"
+          "value": "Sinh linh được chú ý"
         },
         {
           "key": "listHeader",
-          "value": "danh sach"
+          "value": "Danh sách"
         },
         {
           "key": "countFormat",
@@ -532,87 +514,87 @@
         },
         {
           "key": "filterAll",
-          "value": "Tat Ca"
+          "value": "Tất Cả"
         },
         {
           "key": "filterCultivator",
-          "value": "Tu Si"
+          "value": "Tu Sĩ"
         },
         {
           "key": "filterMonster",
-          "value": "Yeu Thu"
+          "value": "Yêu Thú"
         },
         {
           "key": "searchPlaceholder",
-          "value": "Tim ten / canh gioi..."
+          "value": "Tìm tên / cảnh giới..."
         },
         {
           "key": "labelName",
-          "value": "Ten:"
+          "value": "Tên:"
         },
         {
           "key": "labelTitle",
-          "value": "Danh Hieu:"
+          "value": "Danh Hiệu:"
         },
         {
           "key": "labelRealm",
-          "value": "Canh Gioi:"
+          "value": "Cảnh Giới:"
         },
         {
           "key": "labelOrigin",
-          "value": "Xuat Than:"
+          "value": "Xuất Thân:"
         },
         {
           "key": "labelAptitude",
-          "value": "Tu Chat"
+          "value": "Tư Chất"
         },
         {
           "key": "labelFear",
-          "value": "Kinh So"
+          "value": "Kinh Sợ"
         },
         {
           "key": "labelFate",
-          "value": "Co Duyen"
+          "value": "Cơ Duyên"
         },
         {
           "key": "labelDescription",
-          "value": "Mo ta/Ghi chu"
+          "value": "Mô tả/Ghi chú"
         },
         {
           "key": "buttonGiveFate",
-          "value": "Ban Co Duyen"
+          "value": "Ban Cơ Duyên"
         },
         {
           "key": "buttonRemove",
-          "value": "Xoa"
+          "value": "Xóa"
         },
         {
           "key": "unknownName",
-          "value": "Vo danh"
+          "value": "Vô danh"
         },
         {
           "key": "unknownRealm",
-          "value": "Khong ro"
+          "value": "Không rõ"
         },
         {
           "key": "titleNone",
-          "value": "Khong"
+          "value": "Không"
         },
         {
           "key": "originNone",
-          "value": "Khong"
+          "value": "Không"
         },
         {
           "key": "originCultivator",
-          "value": "Tu si"
+          "value": "Tu sĩ"
         },
         {
           "key": "originCommoner",
-          "value": "Dan lang"
+          "value": "Dân làng"
         },
         {
           "key": "originMonster",
-          "value": "Yeu thu"
+          "value": "Yêu thú"
         },
         {
           "key": "sampleName",
@@ -624,15 +606,15 @@
         },
         {
           "key": "stateWatching",
-          "value": "Dang chu y"
+          "value": "Đang chú ý"
         },
         {
           "key": "stateBlessed",
-          "value": "Duoc ban duyen"
+          "value": "Được ban duyên"
         },
         {
           "key": "stateReceived",
-          "value": "Da nhan"
+          "value": "Đã nhận"
         },
         {
           "key": "detailEmpty",
@@ -640,11 +622,11 @@
         },
         {
           "key": "descriptionNone",
-          "value": "Khong co ghi chu"
+          "value": "Không có ghi chú"
         },
         {
           "key": "descriptionFallbackFormat",
-          "value": "{0} dang duoc Thien Dao chu y o canh gioi {1}."
+          "value": "{0} đang được Thiên Đạo chú ý ở cảnh giới {1}."
         },
         {
           "key": "aptitudeFormat",
@@ -652,19 +634,19 @@
         },
         {
           "key": "fearFormat",
-          "value": "Kinh so: {0}"
+          "value": "Kinh sợ: {0}"
         },
         {
           "key": "titleChildOfHeaven",
-          "value": "Chi Tu"
+          "value": "Chi Tử"
         },
         {
           "key": "titleSaintBody",
-          "value": "Thanh The"
+          "value": "Thánh Thể"
         },
         {
           "key": "titleSwordHeart",
-          "value": "Kiem Tam"
+          "value": "Kiếm Tâm"
         }
       ],
       "lists": []
@@ -674,27 +656,27 @@
       "entries": [
         {
           "key": "monster",
-          "value": "Y?u Th?"
+          "value": "Yêu Thú"
         },
         {
           "key": "npc",
-          "value": "Tu s?"
+          "value": "Tu sĩ"
         },
         {
           "key": "villager",
-          "value": "D?n l?ng"
+          "value": "Dân làng"
         },
         {
           "key": "commoner",
-          "value": "Ng??i d?n"
+          "value": "Người dân"
         },
         {
           "key": "cultivator",
-          "value": "Tu s?"
+          "value": "Tu sĩ"
         },
         {
           "key": "unknown",
-          "value": "Kh?ng r?"
+          "value": "Không rõ"
         }
       ],
       "lists": []

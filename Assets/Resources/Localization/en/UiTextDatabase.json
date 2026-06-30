@@ -1,0 +1,703 @@
+{
+  "categories": [
+    {
+      "name": "shop",
+      "entries": [
+        {
+          "key": "titleDanDuoc",
+          "value": "Spirit Medicine Hall"
+        },
+        {
+          "key": "titlePhapBao",
+          "value": "Divine Armory"
+        },
+        {
+          "key": "titleCongPhap",
+          "value": "Manual Archive"
+        },
+        {
+          "key": "titleVatLieu",
+          "value": "Heavenly Materials Hall"
+        },
+        {
+          "key": "titleThucPham",
+          "value": "Imperial Kitchen"
+        },
+        {
+          "key": "buyButtonBuy",
+          "value": "Buy"
+        },
+        {
+          "key": "buyButtonNotEnough",
+          "value": "Not enough LT"
+        },
+        {
+          "key": "buyButtonUnavailable",
+          "value": "Unavailable"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "heavenDao",
+      "entries": [
+        {
+          "key": "controlFormat",
+          "value": "Control: {0}%"
+        },
+        {
+          "key": "karmaFormat",
+          "value": "Karma: {0}"
+        },
+        {
+          "key": "devUnlockAll",
+          "value": "All permissions unlocked in dev mode"
+        },
+        {
+          "key": "nextUnlockFormat",
+          "value": "Next unlock at {0}%: {1}"
+        },
+        {
+          "key": "allUnlocked",
+          "value": "All current levels unlocked"
+        },
+        {
+          "key": "footerHint",
+          "value": "Origin recovers as the world develops."
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "rewardedAds",
+      "entries": [
+        {
+          "key": "loading",
+          "value": "Loading ad..."
+        },
+        {
+          "key": "missingAdUnit",
+          "value": "Missing Ad Unit ID."
+        },
+        {
+          "key": "notReady",
+          "value": "Ad is not ready."
+        },
+        {
+          "key": "opening",
+          "value": "Opening ad..."
+        },
+        {
+          "key": "readyRewardFormat",
+          "value": "Watch ad to receive +{0} LT"
+        },
+        {
+          "key": "loadFailed",
+          "value": "Failed to load ad."
+        },
+        {
+          "key": "watching",
+          "value": "Watching ad..."
+        },
+        {
+          "key": "showFailed",
+          "value": "Failed to open ad."
+        },
+        {
+          "key": "incomplete",
+          "value": "Reward not granted because the ad was not completed."
+        },
+        {
+          "key": "rewardGrantedFormat",
+          "value": "Received +{0} LT"
+        },
+        {
+          "key": "walletMissing",
+          "value": "Spirit Stone wallet not found."
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "population",
+      "entries": [
+        {
+          "key": "totalFormat",
+          "value": "Living beings: {0}"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "favorites",
+      "entries": [
+        {
+          "key": "countFormat",
+          "value": "{0}/{1}"
+        },
+        {
+          "key": "focusButton",
+          "value": "Go to Cultivator"
+        },
+        {
+          "key": "removeButton",
+          "value": "Remove Cultivator"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "npcInventory",
+      "entries": [
+        {
+          "key": "emptyText",
+          "value": "No items"
+        },
+        {
+          "key": "titleFormat",
+          "value": "{0} - Inventory"
+        },
+        {
+          "key": "compactInfoFormat",
+          "value": "Bag: {0} | Total: {1}"
+        },
+        {
+          "key": "walletLine",
+          "value": "Spirit Stones: {0}"
+        },
+        {
+          "key": "spiritStoneLine",
+          "value": "Cultivation Spirit Stones: {0}"
+        },
+        {
+          "key": "inventoryValueLine",
+          "value": "Inventory Value: {0}"
+        },
+        {
+          "key": "totalAssetsLine",
+          "value": "Total Assets: {0}"
+        },
+        {
+          "key": "itemCountsFormat",
+          "value": "Item Types: {0} / Total Items: {1}"
+        },
+        {
+          "key": "itemLineFormat",
+          "value": "{0} x{1} - {2}"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "worldClock",
+      "entries": [
+        {
+          "key": "prefix",
+          "value": ""
+        },
+        {
+          "key": "defaultWhenUnavailable",
+          "value": "Ancient Wild Continent - Year 1 Month 1 Day 1 - 06:00"
+        },
+        {
+          "key": "continentName",
+          "value": "Ancient Wild Continent"
+        },
+        {
+          "key": "dayFormat",
+          "value": "Day {0}"
+        },
+        {
+          "key": "monthFormat",
+          "value": "Month {0} - {1}"
+        },
+        {
+          "key": "yearFormat",
+          "value": "Year {0} - {1}"
+        },
+        {
+          "key": "clockFormat",
+          "value": "{0}\n{1}\n{2:00}h{3:00}"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "worldNotifications",
+      "entries": [
+        {
+          "key": "originPrefix",
+          "value": "Heavenly Dao"
+        },
+        {
+          "key": "normalPrefix",
+          "value": ""
+        },
+        {
+          "key": "normalPrefixFormat",
+          "value": "{0}: {1}"
+        },
+        {
+          "key": "originLabelFallback",
+          "value": "origin"
+        },
+        {
+          "key": "originRewardFormat",
+          "value": "{0} +{1} {2}\n{3}"
+        },
+        {
+          "key": "originPrefixFormat",
+          "value": "{0}\n{1}"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "mainMenu",
+      "entries": [
+        {
+          "key": "aboutLog",
+          "value": "Destined One of Heaven - Cultivation RPG"
+        },
+        {
+          "key": "settingsTitle",
+          "value": "Settings"
+        },
+        {
+          "key": "settingsVolume",
+          "value": "Volume"
+        },
+        {
+          "key": "settingsFullscreen",
+          "value": "Fullscreen"
+        },
+        {
+          "key": "settingsFps",
+          "value": "FPS"
+        },
+        {
+          "key": "settingsMute",
+          "value": "Mute"
+        },
+        {
+          "key": "settingsUnmute",
+          "value": "Unmute"
+        },
+        {
+          "key": "settingsSave",
+          "value": "Save"
+        },
+        {
+          "key": "settingsClose",
+          "value": "Close"
+        },
+        {
+          "key": "newGame",
+          "value": "New Game"
+        },
+        {
+          "key": "continueGame",
+          "value": "Continue"
+        },
+        {
+          "key": "settingsMenu",
+          "value": "Settings"
+        },
+        {
+          "key": "aboutMenu",
+          "value": "About"
+        },
+        {
+          "key": "exitGame",
+          "value": "Exit"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "intro",
+      "entries": [
+        {
+          "key": "fallbackTitle",
+          "value": "Reforging the Heavenly Dao"
+        },
+        {
+          "key": "pageIndicatorFormat",
+          "value": "{0} / {1}"
+        }
+      ],
+      "lists": [
+        {
+          "key": "pageTitles",
+          "values": [
+            "The Heavenly Dao Complete",
+            "Cataclysm That Shattered the World",
+            "The Origin Lies in Ruin",
+            "Reforging the Heavenly Dao"
+          ]
+        },
+        {
+          "key": "pageBodies",
+          "values": [
+            "When heaven and earth were still whole, the Ancient Wild Continent was once a flourishing world.\n\nThe Heavenly Dao embraced all things, the sun and moon moved in order, and spiritual energy flowed without end.\n\nAll beings were born, cultivated, fought, inherited, and eventually returned to the world itself.\n\nSects prospered, monsters roamed, and spirit herbs grew across rivers and mountains. Every life had its own path, and every fate moved within the great cycle of the Dao.",
+            "But in an age long past, the void suddenly cracked open.\n\nA force from beyond heaven and earth invaded the Ancient Wild Continent.\n\nThey did not follow the Heavenly Dao, did not enter reincarnation, and sought only to devour the world's spiritual energy, origin, and life itself.\n\nThat great calamity shattered mountains and rivers, destroyed sects, and turned countless lives to ash. The order of heaven and earth began to collapse.",
+            "To preserve one final spark of life, the Heavenly Dao burned its own origin by force.\n\nThat power drove back the invaders, sealed the rift in the void, and saved what little remained of the Ancient Wild Continent.\n\nBut the price was immense.\n\nThe origin of the Heavenly Dao was shattered, and its authority scattered everywhere. Spiritual energy weakened, the laws of the world fell into chaos, and only broken lands remained, struggling against time itself.",
+            "Now, a remnant will of the Heavenly Dao has awakened.\n\nThat will is you.\n\nYou cannot yet command the whole world. You can only watch over a small land at the edge of the Ancient Wild Continent.\n\nBut from this place, the Heavenly Dao can begin anew.\n\nGuide living beings, grant opportunities, encourage cultivation, expand the land, restore spiritual energy, and reclaim the lost origin step by step.\n\nWhen the Heavenly Dao grows strong enough, the Ancient Wild Continent will welcome a new era once more."
+          ]
+        },
+        {
+          "key": "defaultPageTitles",
+          "values": [
+            "The Heavenly Dao Complete",
+            "Cataclysm That Shattered the World",
+            "The Origin Lies in Ruin",
+            "Reforging the Heavenly Dao"
+          ]
+        },
+        {
+          "key": "defaultPageBodies",
+          "values": [
+            "When heaven and earth were still whole, the Ancient Wild Continent was once a flourishing world.\n\nThe Heavenly Dao embraced all things, the sun and moon moved in order, and spiritual energy flowed without end.\n\nAll beings were born, cultivated, fought, inherited, and eventually returned to the world itself.\n\nSects prospered, monsters roamed, and spirit herbs grew across rivers and mountains. Every life had its own path, and every fate moved within the great cycle of the Dao.",
+            "But in an age long past, the void suddenly cracked open.\n\nA force from beyond heaven and earth invaded the Ancient Wild Continent.\n\nThey did not follow the Heavenly Dao, did not enter reincarnation, and sought only to devour the world's spiritual energy, origin, and life itself.\n\nThat great calamity shattered mountains and rivers, destroyed sects, and turned countless lives to ash. The order of heaven and earth began to collapse.",
+            "To preserve one final spark of life, the Heavenly Dao burned its own origin by force.\n\nThat power drove back the invaders, sealed the rift in the void, and saved what little remained of the Ancient Wild Continent.\n\nBut the price was immense.\n\nThe origin of the Heavenly Dao was shattered, and its authority scattered everywhere. Spiritual energy weakened, the laws of the world fell into chaos, and only broken lands remained, struggling against time itself.",
+            "Now, a remnant will of the Heavenly Dao has awakened.\n\nThat will is you.\n\nYou cannot yet command the whole world. You can only watch over a small land at the edge of the Ancient Wild Continent.\n\nBut from this place, the Heavenly Dao can begin anew.\n\nGuide living beings, grant opportunities, encourage cultivation, expand the land, restore spiritual energy, and reclaim the lost origin step by step.\n\nWhen the Heavenly Dao grows strong enough, the Ancient Wild Continent will welcome a new era once more."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "touchSelect",
+      "entries": [
+        {
+          "key": "placeholder",
+          "value": "-"
+        },
+        {
+          "key": "damageRow",
+          "value": "Damage"
+        },
+        {
+          "key": "defenseRow",
+          "value": "Defense"
+        },
+        {
+          "key": "lifespanRow",
+          "value": "Lifespan"
+        },
+        {
+          "key": "jobRow",
+          "value": "Position"
+        },
+        {
+          "key": "maritalStatusRow",
+          "value": "Status"
+        },
+        {
+          "key": "statusRow",
+          "value": "Status: "
+        },
+        {
+          "key": "statusRowAlt",
+          "value": "Status:"
+        },
+        {
+          "key": "equipmentList",
+          "value": "Equipment"
+        },
+        {
+          "key": "skillList",
+          "value": "Skills"
+        },
+        {
+          "key": "equipmentWeapon",
+          "value": "Weapon"
+        },
+        {
+          "key": "equipmentArmor",
+          "value": "Armor"
+        },
+        {
+          "key": "equipmentAccessory",
+          "value": "Artifact"
+        },
+        {
+          "key": "actionFormat",
+          "value": "Doing {0}"
+        },
+        {
+          "key": "monsterLootNone",
+          "value": "None"
+        },
+        {
+          "key": "monsterLootUnset",
+          "value": "Not set"
+        },
+        {
+          "key": "inventoryEmpty",
+          "value": "Empty"
+        },
+        {
+          "key": "inventorySummaryFormat",
+          "value": "{0} types / {1} items"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "worldStory",
+      "entries": [
+        {
+          "key": "dayUnknown",
+          "value": "Day ?"
+        },
+        {
+          "key": "dayOnlyFormat",
+          "value": "Day {0}"
+        },
+        {
+          "key": "monthDayFormat",
+          "value": "Month {0} - Day {1}"
+        },
+        {
+          "key": "timeUnknown",
+          "value": "[Timeless]"
+        },
+        {
+          "key": "introLogWelcome",
+          "value": "Welcome to the Ancient Wild Continent! Spiritual energy is calm, and the skies are clear."
+        },
+        {
+          "key": "introLogSecretRealm",
+          "value": "A disturbance rises in the east! The barrier of the Ancient Secret Realm is weakening."
+        },
+        {
+          "key": "introLogBeastWave",
+          "value": "Demonic energy fills the sky! A beast tide is stirring and preparing to strike the village!"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "itemLifecycle",
+      "entries": [
+        {
+          "key": "anonymous",
+          "value": "Unnamed"
+        },
+        {
+          "key": "broken",
+          "value": "{0} of {1} has broken."
+        },
+        {
+          "key": "refined",
+          "value": "{0} refined {1} into pills."
+        },
+        {
+          "key": "forged",
+          "value": "{0} forged {1}."
+        },
+        {
+          "key": "stolen",
+          "value": "{0} seized {1} from {2}."
+        },
+        {
+          "key": "taught",
+          "value": "{0} taught {1} to {2}."
+        },
+        {
+          "key": "default",
+          "value": "{0} {1} {2}"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "heavenNurture",
+      "entries": [
+        {
+          "key": "panelTitle",
+          "value": "HEAVENLY DAO CARE"
+        },
+        {
+          "key": "listTitle",
+          "value": "Watched Beings"
+        },
+        {
+          "key": "listHeader",
+          "value": "List"
+        },
+        {
+          "key": "countFormat",
+          "value": "{0}/{1}"
+        },
+        {
+          "key": "filterAll",
+          "value": "All"
+        },
+        {
+          "key": "filterCultivator",
+          "value": "Cultivator"
+        },
+        {
+          "key": "filterMonster",
+          "value": "Monster"
+        },
+        {
+          "key": "searchPlaceholder",
+          "value": "Search name / realm..."
+        },
+        {
+          "key": "labelName",
+          "value": "Name:"
+        },
+        {
+          "key": "labelTitle",
+          "value": "Title:"
+        },
+        {
+          "key": "labelRealm",
+          "value": "Realm:"
+        },
+        {
+          "key": "labelOrigin",
+          "value": "Origin:"
+        },
+        {
+          "key": "labelAptitude",
+          "value": "Aptitude"
+        },
+        {
+          "key": "labelFear",
+          "value": "Fear"
+        },
+        {
+          "key": "labelFate",
+          "value": "Fate"
+        },
+        {
+          "key": "labelDescription",
+          "value": "Description / Notes"
+        },
+        {
+          "key": "buttonGiveFate",
+          "value": "Grant Fate"
+        },
+        {
+          "key": "buttonRemove",
+          "value": "Remove"
+        },
+        {
+          "key": "unknownName",
+          "value": "Unnamed"
+        },
+        {
+          "key": "unknownRealm",
+          "value": "Unknown"
+        },
+        {
+          "key": "titleNone",
+          "value": "None"
+        },
+        {
+          "key": "originNone",
+          "value": "None"
+        },
+        {
+          "key": "originCultivator",
+          "value": "Cultivator"
+        },
+        {
+          "key": "originCommoner",
+          "value": "Commoner"
+        },
+        {
+          "key": "originMonster",
+          "value": "Monster"
+        },
+        {
+          "key": "sampleName",
+          "value": "Nguyen Thanh"
+        },
+        {
+          "key": "sampleRealm",
+          "value": "Qi Refining"
+        },
+        {
+          "key": "stateWatching",
+          "value": "Watching"
+        },
+        {
+          "key": "stateBlessed",
+          "value": "Fate Granted"
+        },
+        {
+          "key": "stateReceived",
+          "value": "Received"
+        },
+        {
+          "key": "detailEmpty",
+          "value": "-"
+        },
+        {
+          "key": "descriptionNone",
+          "value": "No notes"
+        },
+        {
+          "key": "descriptionFallbackFormat",
+          "value": "{0} is being watched by the Heavenly Dao at realm {1}."
+        },
+        {
+          "key": "aptitudeFormat",
+          "value": "{0}/100"
+        },
+        {
+          "key": "fearFormat",
+          "value": "Fear: {0}"
+        },
+        {
+          "key": "titleChildOfHeaven",
+          "value": "Child of Heaven"
+        },
+        {
+          "key": "titleSaintBody",
+          "value": "Saint Body"
+        },
+        {
+          "key": "titleSwordHeart",
+          "value": "Sword Heart"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "entityTypes",
+      "entries": [
+        {
+          "key": "monster",
+          "value": "Monster"
+        },
+        {
+          "key": "npc",
+          "value": "Cultivator"
+        },
+        {
+          "key": "villager",
+          "value": "Villager"
+        },
+        {
+          "key": "commoner",
+          "value": "Commoner"
+        },
+        {
+          "key": "cultivator",
+          "value": "Cultivator"
+        },
+        {
+          "key": "unknown",
+          "value": "Unknown"
+        }
+      ],
+      "lists": []
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "targets": [
+    {
+      "id": "nguyen-thanh",
+      "displayName": "Nguyen Thanh",
+      "targetType": 0,
+      "realm": "Qi Refining",
+      "aptitude": 68,
+      "fear": 43,
+      "title": "",
+      "origin": "Cultivator",
+      "fateState": "Fate Granted",
+      "description": "A living being currently watched by the Heavenly Dao.",
+      "hasReceivedFate": true
+    }
+  ]
+}

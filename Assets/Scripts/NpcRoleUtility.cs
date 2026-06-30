@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public static class NpcRoleUtility
 {
@@ -440,9 +440,16 @@ public static class NpcRoleUtility
     static bool CanRouteActionReplaceCurrentAction(GameObject npc)
     {
         string action = GetCurrentAction(npc);
-        return string.IsNullOrEmpty(action) ||
-            action == NpcText.Action("idle") ||
+        if (string.IsNullOrEmpty(action))
+        {
+            return true;
+        }
+
+        string teleportPrefix =
+            NpcText.Action("teleportGateTo").Replace("{0}", "");
+        return action == NpcText.Action("idle") ||
             action == NpcText.Action("walkingRoad") ||
+            action.StartsWith(teleportPrefix) ||
             action.StartsWith("Đi cổng dịch chuyển");
     }
 
@@ -633,3 +640,4 @@ public static class NpcRoleUtility
         }
     }
 }
+

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public enum VillagerAgeGroup
@@ -4000,12 +4000,20 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
     bool CanRouteActionReplaceCurrentAction()
     {
-        return string.IsNullOrEmpty(currentAction) ||
-            currentAction == NpcText.Action("idle") ||
+        if (string.IsNullOrEmpty(currentAction))
+        {
+            return true;
+        }
+
+        string teleportPrefix =
+            NpcText.Action("teleportGateTo").Replace("{0}", "");
+        return currentAction == NpcText.Action("idle") ||
             currentAction == NpcText.Action("walkingRoad") ||
             IsTravelIntentAction(currentAction) ||
+            currentAction.StartsWith(teleportPrefix) ||
             currentAction.StartsWith("Đi cổng dịch chuyển");
     }
+
 
     bool TryForgePurchaseAtMarket()
     {
@@ -4489,9 +4497,9 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             action == NpcText.Action("goCultivatePoint") ||
             action.StartsWith(NpcText.Action("goGatherNamed")
                 .Replace("{0}", "")) ||
-            action.StartsWith("Äi cá»•ng dá»‹ch chuyá»ƒn");
+            action.StartsWith(NpcText.Action("teleportGateTo")
+                .Replace("{0}", ""));
     }
-
     void SetDirectMoveTarget(
         Vector3 position,
         bool preserveCurrentTarget = false,
@@ -7526,3 +7534,4 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         Gizmos.DrawWireSphere(transform.position, wanderRadius);
     }
 }
+

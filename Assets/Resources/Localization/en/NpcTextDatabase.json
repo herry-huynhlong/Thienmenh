@@ -1,0 +1,1771 @@
+{
+  "categories": [
+    {
+      "name": "labels",
+      "entries": [
+        {
+          "key": "name",
+          "value": "Name"
+        },
+        {
+          "key": "age",
+          "value": "Age"
+        },
+        {
+          "key": "lifespan",
+          "value": "Lifespan"
+        },
+        {
+          "key": "job",
+          "value": "Job"
+        },
+        {
+          "key": "maritalStatus",
+          "value": "Status"
+        },
+        {
+          "key": "realm",
+          "value": "Realm"
+        },
+        {
+          "key": "health",
+          "value": "HP"
+        },
+        {
+          "key": "manual",
+          "value": "Manual"
+        },
+        {
+          "key": "action",
+          "value": "Action"
+        },
+        {
+          "key": "damage",
+          "value": "Damage"
+        },
+        {
+          "key": "type",
+          "value": "Type"
+        },
+        {
+          "key": "grade",
+          "value": "Grade"
+        },
+        {
+          "key": "amount",
+          "value": "Amount"
+        },
+        {
+          "key": "loot",
+          "value": "Loot"
+        },
+        {
+          "key": "level",
+          "value": "Level"
+        },
+        {
+          "key": "item",
+          "value": "item"
+        },
+        {
+          "key": "realmStageFormat",
+          "value": "{0} Stage {1}"
+        }
+      ]
+    },
+    {
+      "name": "entityTypes",
+      "entries": [
+        {
+          "key": "monster",
+          "value": "Monster"
+        },
+        {
+          "key": "npc",
+          "value": "Cultivator"
+        },
+        {
+          "key": "villager",
+          "value": "Villager"
+        }
+      ]
+    },
+    {
+      "name": "maritalStatus",
+      "entries": [
+        {
+          "key": "single",
+          "value": "Single"
+        },
+        {
+          "key": "married",
+          "value": "Married"
+        }
+      ]
+    },
+    {
+      "name": "actions",
+      "entries": [
+        {
+          "key": "idle",
+          "value": "Idle"
+        },
+        {
+          "key": "wanderVillage",
+          "value": "Wandering in the village"
+        },
+        {
+          "key": "returnTerritory",
+          "value": "Returning to territory"
+        },
+        {
+          "key": "eat",
+          "value": "Going to eat"
+        },
+        {
+          "key": "sleep",
+          "value": "Resting"
+        },
+        {
+          "key": "cultivate",
+          "value": "Cultivating"
+        },
+        {
+          "key": "cultivateAbsorbQi",
+          "value": "Cultivating and absorbing spiritual energy"
+        },
+        {
+          "key": "goHomeCultivate",
+          "value": "Going home to cultivate"
+        },
+        {
+          "key": "goCultivatePoint",
+          "value": "Going to cultivation point"
+        },
+        {
+          "key": "teleportGateTo",
+          "value": "Using teleport gate to {0}"
+        },
+        {
+          "key": "breakthrough",
+          "value": "Breakthrough"
+        },
+        {
+          "key": "breakthroughTo",
+          "value": "Breaking through to {0}"
+        },
+        {
+          "key": "waitTribulation",
+          "value": "Waiting for heavenly tribulation"
+        },
+        {
+          "key": "goTavern",
+          "value": "Going to the tavern"
+        },
+        {
+          "key": "buyPill",
+          "value": "Buying pills"
+        },
+        {
+          "key": "fight",
+          "value": "Fighting"
+        },
+        {
+          "key": "huntMonster",
+          "value": "Hunting monsters"
+        },
+        {
+          "key": "huntMonsterNamed",
+          "value": "Hunting {0}"
+        },
+        {
+          "key": "attackMonsterNamed",
+          "value": "Attacking {0}"
+        },
+        {
+          "key": "takeTask",
+          "value": "Accepting task"
+        },
+        {
+          "key": "taskWorking",
+          "value": "Working on task"
+        },
+        {
+          "key": "injured",
+          "value": "Injured"
+        },
+        {
+          "key": "dead",
+          "value": "Dead"
+        },
+        {
+          "key": "oldAgeDeath",
+          "value": "Lifespan exhausted"
+        },
+        {
+          "key": "treasureHunt",
+          "value": "Contesting treasure"
+        },
+        {
+          "key": "treasureHuntNamed",
+          "value": "Contesting {0}"
+        },
+        {
+          "key": "waitLightning",
+          "value": "Waiting for heavenly lightning to fade"
+        },
+        {
+          "key": "waitLightningNamed",
+          "value": "Waiting for heavenly lightning to fade: {0}"
+        },
+        {
+          "key": "outerSkirmish",
+          "value": "Outer skirmish"
+        },
+        {
+          "key": "outerSkirmishNamed",
+          "value": "Outer skirmish: {0}"
+        },
+        {
+          "key": "calm",
+          "value": "Calming down"
+        },
+        {
+          "key": "makeFriend",
+          "value": "Making friends"
+        },
+        {
+          "key": "createSect",
+          "value": "Founding a sect"
+        },
+        {
+          "key": "talking",
+          "value": "Talking"
+        },
+        {
+          "key": "conversationLine",
+          "value": "Conversation: {0}"
+        },
+        {
+          "key": "talkingWith",
+          "value": "Talking with {0}"
+        },
+        {
+          "key": "happyTalkWith",
+          "value": "Happily talking with {0}"
+        },
+        {
+          "key": "sadTalkWith",
+          "value": "Confiding in {0}"
+        },
+        {
+          "key": "tiredTalkWith",
+          "value": "Checking on {0}"
+        },
+        {
+          "key": "meetKnown",
+          "value": "Met acquaintance: {0}"
+        },
+        {
+          "key": "rob",
+          "value": "Robbing"
+        },
+        {
+          "key": "revenge",
+          "value": "Seeking revenge"
+        },
+        {
+          "key": "rest",
+          "value": "Resting"
+        },
+        {
+          "key": "tradeSeek",
+          "value": "Looking for trade opportunities"
+        },
+        {
+          "key": "gatherResource",
+          "value": "Keeping an eye on spirit herbs"
+        },
+        {
+          "key": "closeShopGoHome",
+          "value": "Closing shop and going home"
+        },
+        {
+          "key": "noTrade",
+          "value": "No trade"
+        },
+        {
+          "key": "waiting",
+          "value": "waiting"
+        },
+        {
+          "key": "stayNearHome",
+          "value": "Staying near home"
+        },
+        {
+          "key": "restNearHome",
+          "value": "Resting near home"
+        },
+        {
+          "key": "restVillageNoon",
+          "value": "Noon rest in the village"
+        },
+        {
+          "key": "eveningWalkVillage",
+          "value": "Evening walk in the village"
+        },
+        {
+          "key": "huntForestResource",
+          "value": "Hunting monsters / searching forest resources"
+        },
+        {
+          "key": "gatherVillageResource",
+          "value": "Harvesting resources around the village"
+        },
+        {
+          "key": "goGatherNamed",
+          "value": "Going to gather {0}"
+        },
+        {
+          "key": "harvestResource",
+          "value": "Harvesting resources"
+        },
+        {
+          "key": "missingTaskItems",
+          "value": "Missing task items"
+        },
+        {
+          "key": "requestBuyTaskItem",
+          "value": "Requesting purchase of {0}"
+        },
+        {
+          "key": "notEnoughSpiritStoneWorkTask",
+          "value": "Not enough Spirit Stones, going to work on tasks"
+        },
+        {
+          "key": "goStoreBuyItem",
+          "value": "Going to the shop to buy {0}"
+        },
+        {
+          "key": "boughtTaskItem",
+          "value": "Bought task item: {0}"
+        },
+        {
+          "key": "storeMissingItem",
+          "value": "Shop does not have {0}"
+        },
+        {
+          "key": "goTaskProviderDaily",
+          "value": "Going to accept a task in the daily plan"
+        },
+        {
+          "key": "skipUnavailableTask",
+          "value": "Skipping unavailable task"
+        },
+        {
+          "key": "goVanBaoLauBroker",
+          "value": "Going to Van Bao Lau to meet the broker"
+        },
+        {
+          "key": "visitedTaskProvider",
+          "value": "Met the task-giving cultivator"
+        },
+        {
+          "key": "goVanBaoLauTask",
+          "value": "Going to Van Bao Lau to check tasks"
+        },
+        {
+          "key": "checkedVanBaoLau",
+          "value": "Checked Van Bao Lau"
+        },
+        {
+          "key": "goHomeRest",
+          "value": "Going home to rest"
+        },
+        {
+          "key": "eating",
+          "value": "Eating"
+        },
+        {
+          "key": "eatAtShop",
+          "value": "Eating at the shop"
+        },
+        {
+          "key": "goPlay",
+          "value": "Gathering to have fun"
+        },
+        {
+          "key": "playWithFriends",
+          "value": "Playing with friends"
+        },
+        {
+          "key": "goMarketTrade",
+          "value": "Going to the market to trade"
+        },
+        {
+          "key": "trading",
+          "value": "Trading"
+        },
+        {
+          "key": "bringGoodsToCounter",
+          "value": "Bringing goods to the counter"
+        },
+        {
+          "key": "soldGoods",
+          "value": "Sold goods"
+        },
+        {
+          "key": "waitTraderBuyGoods",
+          "value": "Waiting for merchant to buy goods"
+        },
+        {
+          "key": "paidWork",
+          "value": "Working for wages"
+        },
+        {
+          "key": "harvestItemAmount",
+          "value": "Harvested {0} x{1}"
+        },
+        {
+          "key": "farmerWaitHarvest",
+          "value": "Tending the field; not harvest time yet"
+        },
+        {
+          "key": "farmerHarvestedToday",
+          "value": "Harvested today"
+        },
+        {
+          "key": "noFishingSpotFarmFallback",
+          "value": "Fishing pond is crowded; switching to farming"
+        },
+        {
+          "key": "watchRoad",
+          "value": "Watching the road"
+        },
+        {
+          "key": "walkingRoad",
+          "value": "Walking on the road"
+        },
+        {
+          "key": "avoidObstacle",
+          "value": "Changing direction to avoid obstacle"
+        },
+        {
+          "key": "panicBurned",
+          "value": "Panicking and fleeing"
+        },
+        {
+          "key": "goFarmWork",
+          "value": "Going to farm work"
+        },
+        {
+          "key": "goWork",
+          "value": "Going to work"
+        },
+        {
+          "key": "goPatrol",
+          "value": "Going on patrol"
+        },
+        {
+          "key": "goHeal",
+          "value": "Going for treatment"
+        },
+        {
+          "key": "goFish",
+          "value": "Going fishing"
+        },
+        {
+          "key": "goHunt",
+          "value": "Going hunting"
+        },
+        {
+          "key": "workingFarm",
+          "value": "Farming"
+        },
+        {
+          "key": "working",
+          "value": "Working"
+        },
+        {
+          "key": "patrolling",
+          "value": "Patrolling"
+        },
+        {
+          "key": "healing",
+          "value": "Healing"
+        },
+        {
+          "key": "fishing",
+          "value": "Fishing"
+        },
+        {
+          "key": "hunting",
+          "value": "Hunting"
+        },
+        {
+          "key": "lawAttack",
+          "value": "Attacking lawbreaker {0}"
+        },
+        {
+          "key": "detectIntruder",
+          "value": "Detected an intruder"
+        },
+        {
+          "key": "retreat",
+          "value": "Retreating"
+        },
+        {
+          "key": "flee",
+          "value": "Fleeing"
+        },
+        {
+          "key": "restTerritory",
+          "value": "Resting in territory"
+        },
+        {
+          "key": "patrolTerritory",
+          "value": "Patrolling territory"
+        },
+        {
+          "key": "chaseIntruder",
+          "value": "Chasing intruder"
+        },
+        {
+          "key": "attackIntruder",
+          "value": "Attacking intruder"
+        },
+        {
+          "key": "choosePatrolPoint",
+          "value": "Choosing patrol point"
+        }
+      ]
+    },
+    {
+      "name": "dialogue",
+      "entries": [
+        {
+          "key": "genericGreeting",
+          "value": "How are you today, fellow Daoist?"
+        },
+        {
+          "key": "replyFallback",
+          "value": "I will remember this."
+        },
+        {
+          "key": "rumorFallback",
+          "value": "There seem to be spirit herbs near the stream."
+        },
+        {
+          "key": "hostileFallback",
+          "value": "I still remember what happened last time."
+        },
+        {
+          "key": "followUpTopic",
+          "value": "We talked about {0} yesterday. How is it today?"
+        },
+        {
+          "key": "robberyThreat",
+          "value": "Hand over your goods!"
+        },
+        {
+          "key": "revengeThreat",
+          "value": "This debt must be repaid!"
+        },
+        {
+          "key": "dailyFallback",
+          "value": "Fellow Daoist."
+        },
+        {
+          "key": "tradeMemoryTopic",
+          "value": "Traded {0} for {1} LT"
+        },
+        {
+          "key": "tradeRejectedMemoryTopic",
+          "value": "Low offer for {0}: {1} LT"
+        },
+        {
+          "key": "tradeBuyerFallback",
+          "value": "I will take {0}; here is {1} LT."
+        },
+        {
+          "key": "tradeSellerFallback",
+          "value": "Sold {0}, received {1} LT."
+        },
+        {
+          "key": "tradeRejectFallback",
+          "value": "{1} LT for {0} is too low."
+        },
+        {
+          "key": "forgeOrderDisabledBuyer",
+          "value": "Orders are not accepted for now"
+        },
+        {
+          "key": "forgeOrderDisabledSmith",
+          "value": "I only take regular forging work."
+        },
+        {
+          "key": "forgeOrderRejectInvalidBuyer",
+          "value": "Invalid order"
+        },
+        {
+          "key": "forgeOrderRejectInvalidSmith",
+          "value": "I will not take this order."
+        },
+        {
+          "key": "forgeOrderRejectTypeBuyer",
+          "value": "Only artifact orders are accepted"
+        },
+        {
+          "key": "forgeOrderRejectTypeSmith",
+          "value": "Only artifact items are accepted."
+        },
+        {
+          "key": "forgeOrderDuplicateBuyer",
+          "value": "This order already exists"
+        },
+        {
+          "key": "forgeOrderDuplicateSmith",
+          "value": "This order is already in progress."
+        },
+        {
+          "key": "forgeOrderRejectRecipeBuyer",
+          "value": "No suitable recipe available"
+        },
+        {
+          "key": "forgeOrderRejectRecipeSmith",
+          "value": "I cannot make this item yet."
+        },
+        {
+          "key": "forgeOrderRejectDepositBuyer",
+          "value": "Not enough deposit"
+        },
+        {
+          "key": "forgeOrderRejectDepositSmith",
+          "value": "Not enough deposit."
+        },
+        {
+          "key": "forgeOrderAcceptBuyer",
+          "value": "I want to order {0}, deposit {1}"
+        },
+        {
+          "key": "forgeOrderAcceptSmith",
+          "value": "Not in stock. Deposit accepted; ready in {0} days."
+        },
+        {
+          "key": "forgeOrderReadyBuyer",
+          "value": "Your item has arrived."
+        },
+        {
+          "key": "forgeOrderReadySmith",
+          "value": "Come take your item."
+        },
+        {
+          "key": "hostilityReasonFallback",
+          "value": "conflict"
+        },
+        {
+          "key": "attackReasonFallback",
+          "value": "attack"
+        },
+        {
+          "key": "robberyReason",
+          "value": "robbery"
+        },
+        {
+          "key": "revengeReason",
+          "value": "revenge"
+        },
+        {
+          "key": "combatMonsterReason",
+          "value": "fighting monsters"
+        },
+        {
+          "key": "combatBeastReason",
+          "value": "monster raid"
+        },
+        {
+          "key": "combatSpellReason",
+          "value": "spell attack"
+        },
+        {
+          "key": "combatAttackFallback",
+          "value": "Do not force me to risk my life!"
+        },
+        {
+          "key": "combatDefendFallback",
+          "value": "You dare attack me?"
+        },
+        {
+          "key": "combatLowHealthFallback",
+          "value": "Survival comes first!"
+        },
+        {
+          "key": "heavenDaoBasicLocked",
+          "value": "Heavenly Dao control is too low.\nRequires 5% to view cultivator information."
+        }
+      ],
+      "lists": [
+        {
+          "key": "greetings",
+          "values": [
+            "Clear skies today; travel should be easier.",
+            "You look rushed. Is there something you need to handle soon?",
+            "The village has been unusually peaceful lately. Rare, truly rare."
+          ]
+        },
+        {
+          "key": "replies",
+          "values": [
+            "I was about to rest for a bit before continuing.",
+            "Everything is fine, just a little busy.",
+            "Not bad. Nothing major has happened today."
+          ]
+        },
+        {
+          "key": "resourceRumors",
+          "values": [
+            "I heard a new stream of spiritual energy has gathered near the forest edge.",
+            "If you go early, you may find spirit herbs before others pick them clean.",
+            "Monster tracks have appeared near the mountain edge lately. Do not go alone."
+          ]
+        },
+        {
+          "key": "hostileLines",
+          "values": [
+            "I still remember what happened last time.",
+            "Do not think I have forgotten that debt.",
+            "Push me too far again and I will not endure it."
+          ]
+        },
+        {
+          "key": "friendlyFollowUps",
+          "values": [
+            "I still remember what you mentioned last time.",
+            "You seem less busy today than yesterday.",
+            "Tell me if you hear any new information later."
+          ]
+        },
+        {
+          "key": "farmerGreetings",
+          "values": [
+            "The fields are still damp today; starting early should be fine.",
+            "With weather like this, the spirit rice should grow well.",
+            "For farmers, timely rain matters more than anything."
+          ]
+        },
+        {
+          "key": "farmerReplies",
+          "values": [
+            "Yes, fieldwork cannot be rushed too much.",
+            "I still need to check a few things along the field ridge.",
+            "If I finish early today, I can still trade some goods."
+          ]
+        },
+        {
+          "key": "traderGreetings",
+          "values": [
+            "Ask directly if you want to see anything.",
+            "Goods are not lacking today; quick buyers are.",
+            "If you have something valuable, I am ready to trade."
+          ]
+        },
+        {
+          "key": "traderReplies",
+          "values": [
+            "This price is already fair; I cannot lower it much more.",
+            "A finished trade leaves both sides at ease.",
+            "Give and take; next time I will keep a better price for you."
+          ]
+        },
+        {
+          "key": "firstMeetingLines",
+          "values": [
+            "First time meeting you. I hope we can talk again later.",
+            "Passing through here is already a kind of fate. Let us at least remember each other.",
+            "I will remember your face. I should recognize you next time."
+          ]
+        },
+        {
+          "key": "firstMeetingReplies",
+          "values": [
+            "Yes, let us get acquainted slowly.",
+            "Rest assured, fellow Daoist. I am not hard to talk to.",
+            "Meeting here is also a kind of fate."
+          ]
+        },
+        {
+          "key": "namedFirstMeetingLines",
+          "values": [
+            "{1}, I have heard villagers mention you a few times. Now that we meet, your aura seems steadier than the rumors suggested. You are not merely someone who talks big.",
+            "{1}, this is our first meeting, but I noticed your steps from afar. Most people rush through here, while you keep a steady distance. You must be used to traveling outside.",
+            "{1}, if we pass the forest edge together in the future, call me. Staying alive alone is easy, but facing real danger with someone trustworthy is better."
+          ]
+        },
+        {
+          "key": "namedFirstMeetingReplies",
+          "values": [
+            "{1}, I will remember your words. Around here, knowing one more person who keeps faith is worth more than finding a few Spirit Stones.",
+            "{1}, if either of us hears news about spirit herbs, monsters, or strange mountain paths, we should tell each other first. Better to move slowly than rush into death.",
+            "{1}, I do not like shallow connections either. Today we remember each other; later, real events will show who is trustworthy."
+          ]
+        },
+        {
+          "key": "namedFriendlyFollowUps",
+          "values": [
+            "{1}, last time you mentioned spiritual energy gathering near the stream. I passed by and the soil really was softer than usual. Spirit herbs may grow there in a few days.",
+            "{1}, I am still thinking about what you said before. If that information is true, we should go early before too many people arrive.",
+            "{1}, you seem less hurried lately. Did your state of mind settle after the last battle?"
+          ]
+        },
+        {
+          "key": "longPersonalLines",
+          "values": [
+            "I once thought cultivation alone was enough. Later I learned that reading people also matters.",
+            "After traveling far, I realized that staying alive is also a skill.",
+            "Sometimes sitting quietly and observing for a day teaches more than running everywhere."
+          ]
+        },
+        {
+          "key": "longPersonalReplies",
+          "values": [
+            "That makes sense. Sometimes slowing down is how you see things clearly.",
+            "I understand. Some matters only become worse when rushed.",
+            "Talking with you is not bad. At least it does not waste time."
+          ]
+        },
+        {
+          "key": "monsterHuntInvites",
+          "values": [
+            "{1}, that level {3} {2} over there is looking at us like food. Shall we strike first and keep some dignity as cultivators?",
+            "{1}, that level {3} {2} just roared very rudely. I propose we act on behalf of heaven and see if it drops anything valuable.",
+            "{1}, if I say the plan is still fine later, it means you should run first. For now, shall we deal with this level {3} {2}?",
+            "{1}, that level {3} {2} has been standing there too long. It does not cultivate, pay taxes, or stop scaring travelers. I see plenty of reason to hit it.",
+            "{1}, that level {3} {2} has been lingering near the road. Charging alone is reckless, but if we pressure it from both sides, our chance to bring it down is much better.",
+            "{1}, I found traces of a level {3} {2}. We should not let it approach the village. If you still have spiritual power, we can call others and strike before dusk.",
+            "{1}, that level {3} {2} will not be easy. But if it learns the scent of people here, villagers gathering herbs will suffer. Will you try this fight with me?"
+          ]
+        },
+        {
+          "key": "monsterHuntReplies",
+          "values": [
+            "{1}, fine, but if that level {3} {2} opens its mouth too wide, I will prioritize my Dao heart and my legs.",
+            "{1}, I will come. If we win, we split the spoils. If we lose, we split directions and run.",
+            "{1}, sounds reasonable. I will handle attacking; you handle making sure I am not hit too much.",
+            "{1}, let us try. At worst, today we gain a deep understanding of the words know your limits.",
+            "{1}, I dislike meaningless risks, but that level {3} {2} is indeed a threat. Let us check the escape route first, then strike.",
+            "{1}, good. I will keep distance on the left. Do not chase too deep. If the level {3} {2} turns toward the village, stop it immediately.",
+            "{1}, calling one more person would be better. Fighting strong monsters is not about showing courage; it is about surviving to bring news back."
+          ]
+        },
+        {
+          "key": "monsterVictorySoloLines",
+          "values": [
+            "{0} watched the level {2} {1} fall and sighed in relief: \"Good. I almost had to use my secret art of running very fast.\"",
+            "{0} straightened their robe: \"This victory was pure skill. Any trembling hands were caused by spiritual energy fluctuations.\"",
+            "{0} looked around: \"Did anyone see that? If not, I can add some grandeur when I retell it later.\"",
+            "{0} muttered: \"After defeating a level {2} {1}, eating an extra bowl tonight is not too much.\"",
+            "{0} brought down the level {2} {1}. The fight looked short, but half a breath slower and its claws would have reached the heart.",
+            "{0} exhaled while looking at the fallen level {2} {1}: \"If this thing had entered the spirit rice fields, the whole village would lose sleep. Good thing it was stopped.\"",
+            "{0} wiped blood from their hand: \"A level {2} {1} is no weak foe. Next time we see tracks like that, we must warn everyone earlier.\""
+          ]
+        },
+        {
+          "key": "monsterVictoryAllyLines",
+          "values": [
+            "{1}, your timing was perfect. I was about to say save me, but you moved first and preserved my dignity.",
+            "{1}, good coordination. If anyone asks, say we planned it all from the start. Do not mention the part where I backed away a little too fast.",
+            "{1}, that level {3} {2} was strong. Luckily it never knew we were fighting while praying not to miss.",
+            "{1}, this battle is worth remembering. Keep the record short, though. Leave out the part where I almost fell.",
+            "{1}, your block just now was exactly right. Without that timing, the level {3} {2} would have escaped into the forest.",
+            "{1}, our coordination was not bad. The level {3} {2} was stronger than expected, but it could not withstand pressure from both sides.",
+            "{1}, remember the roar of that level {3} {2}. If you hear it from afar next time, do not stand alone on the mountain road."
+          ]
+        },
+        {
+          "key": "monsterVictoryAllyReplies",
+          "values": [
+            "{1}, do not worry. I will describe your three steps back as a tactic to lure the enemy.",
+            "{1}, victory is enough. The cultivation world remembers results, not running posture.",
+            "{1}, I will fight with you again next time, but eat first. I do not want your stomach to roar louder than {2}.",
+            "{1}, if the loot is small, we call it protecting the people. If it is large, we call it shared fate.",
+            "{1}, your contribution was not small. Without you drawing it aside, I would not have had space to strike.",
+            "{1}, I thought we might have to retreat. Now that the level {3} {2} is down, we should leave before the smell of blood draws more monsters.",
+            "{1}, coordination like that is trustworthy. If we meet stronger monsters later, at least I know whose back I can trust."
+          ]
+        },
+        {
+          "key": "smallTalkNeutralLines",
+          "values": [
+            "This morning I tried to comprehend the Dao under a tree. I realized I should have eaten breakfast first.",
+            "The village is so peaceful that I suspect some great event is being too lazy to happen.",
+            "I saw someone stare at the sky for three watch periods. They must have been waiting for fate to fall straight into their mouth.",
+            "Fellow Daoist, have you noticed? Every time I decide to cultivate diligently, the tavern smells dangerously persuasive.",
+            "The village is fairly peaceful today.",
+            "You looked busy when I passed by. Is everything fine?",
+            "Tell me if you hear any new news."
+          ]
+        },
+        {
+          "key": "tradeBuyerLines",
+          "values": [
+            "I will take {0}; here is {1} LT.",
+            "This is exactly what I needed. Thanks.",
+            "This price works. The trade is done."
+          ]
+        },
+        {
+          "key": "tradeSellerLines",
+          "values": [
+            "Sold {0}, received {1} LT.",
+            "Good item. Use it carefully.",
+            "Smooth trade. Come again next time."
+          ]
+        },
+        {
+          "key": "tradeRejectLines",
+          "values": [
+            "{1} LT for {0} is too low.",
+            "This item cannot be sold that cheaply.",
+            "If you are sincere, offer a little more."
+          ]
+        },
+        {
+          "key": "combatAttackLines",
+          "values": [
+            "Do not force me to risk my life!",
+            "Today I will fight you with everything I have!",
+            "If you want to live, move aside!",
+            "Since I have struck, do not blame me for being heavy-handed."
+          ]
+        },
+        {
+          "key": "combatDefendLines",
+          "values": [
+            "You dare attack me?",
+            "I will not endure this anymore!",
+            "Do not think I am easy to bully!",
+            "If you want a fight, I will see it through."
+          ]
+        },
+        {
+          "key": "bulliedLowRealmLines",
+          "values": [
+            "Thirty years east of the river, thirty years west; {1}, never look down on a poor youth!",
+            "{1}, today you rely on a higher realm to pressure me. When I break through, I will stand at your door and cough three times so you understand.",
+            "So what if my realm is low? So what if I have few Spirit Stones? My Dao heart may be poor, but it is very hard.",
+            "{1}, you hit me today. In my future memoir, your name will definitely appear in the villain chapter.",
+            "Do not think Qi Refining is easy to bully. I am merely collecting humiliation to give my future breakthrough more momentum!",
+            "A gentleman can wait ten years for revenge. A poor cultivator may need longer, but I am keeping records!",
+            "{1}, just wait. Today I step back half a pace not from fear, but to give the Great Dao more room to develop.",
+            "I swear to heaven, if I survive this, the first thing I do is cultivate. The second is avoid you for a few days.",
+            "You are several stages above me and still attack. Are you not ashamed? Ah, I forgot, powerful people often cultivate away their shame first.",
+            "Do not despise me for lacking fate now. Maybe tomorrow I find a manual, the next day a master, and the day after that I return to settle accounts!"
+          ]
+        },
+        {
+          "key": "combatLowHealthLines",
+          "values": [
+            "Not good. I must preserve my life first!",
+            "My HP is low. Retreat first!",
+            "Only the living have another chance!",
+            "This battle is too dangerous. I cannot keep risking it."
+          ]
+        },
+        {
+          "key": "weatherClearLines",
+          "values": [
+            "The weather is pleasant today.",
+            "A light breeze like this makes travel comfortable.",
+            "Stable weather makes work smoother."
+          ]
+        },
+        {
+          "key": "weatherClearReplies",
+          "values": [
+            "Yes, today is suitable for going out to work.",
+            "Clear skies like this rarely make anyone unhappy.",
+            "It would be nice if every day were this mild."
+          ]
+        },
+        {
+          "key": "weatherRainLines",
+          "values": [
+            "Rain is falling. The spirit rice fields should improve.",
+            "The road is slippery. Be careful if you travel far.",
+            "This rain softens the spiritual energy."
+          ]
+        },
+        {
+          "key": "weatherRainReplies",
+          "values": [
+            "Yes, today is better for work near the village.",
+            "Moderate rain is good. Let us hope it does not become a storm.",
+            "I also think the spirit fields needed this rain."
+          ]
+        },
+        {
+          "key": "weatherThunderLines",
+          "values": [
+            "The thunder is fierce. Do not go to the forest edge right now.",
+            "When thunder rises, monsters often become more violent.",
+            "The sound of thunder makes the heart uneasy."
+          ]
+        },
+        {
+          "key": "weatherThunderReplies",
+          "values": [
+            "I was planning to avoid the mountain road today as well.",
+            "Caution is better. Wait until the sky calms.",
+            "If there is something urgent, bring someone with you."
+          ]
+        },
+        {
+          "key": "weatherSnowLines",
+          "values": [
+            "Snow is falling. Walk slowly.",
+            "Snow days are rare. The village looks completely different.",
+            "It is cold. Keep your spiritual power stable."
+          ]
+        },
+        {
+          "key": "weatherSnowReplies",
+          "values": [
+            "Yes, the snow is beautiful, but travel is harder.",
+            "I will return early to avoid the cold qi.",
+            "A day like this suits rest more than errands."
+          ]
+        },
+        {
+          "key": "weatherQiLines",
+          "values": [
+            "Spiritual energy is thickening. Today is good for cultivation.",
+            "Can you feel it? The aura here is stronger.",
+            "If you want to break through, you should prepare today."
+          ]
+        },
+        {
+          "key": "weatherQiReplies",
+          "values": [
+            "I was also planning to find a quiet place to cultivate.",
+            "A good chance should not be wasted.",
+            "Spiritual energy like this is rare."
+          ]
+        },
+        {
+          "key": "hungryLines",
+          "values": [
+            "I am a little hungry. I should find something to eat later.",
+            "My stomach is growling. Even work feels slower.",
+            "Is there anywhere in the village still selling food?"
+          ]
+        },
+        {
+          "key": "hungryReplies",
+          "values": [
+            "Eat first. Work can wait.",
+            "I saw food near the market.",
+            "Do not get so hungry that you faint on the road."
+          ]
+        },
+        {
+          "key": "tiredLines",
+          "values": [
+            "I am truly tired today. I should rest early.",
+            "After working all day, my body feels heavy.",
+            "Perhaps I should go home and rest for a while."
+          ]
+        },
+        {
+          "key": "tiredReplies",
+          "values": [
+            "Rest. Forcing yourself too much ruins things.",
+            "Preserving strength is also a form of cultivation.",
+            "I am nearby. Call if you need anything."
+          ]
+        },
+        {
+          "key": "resourceNeedLines",
+          "values": [
+            "I am short on resources and need to find more.",
+            "Materials have been used up quickly lately.",
+            "If you see good spirit herbs, remember to tell me."
+          ]
+        },
+        {
+          "key": "resourceNeedReplies",
+          "values": [
+            "I heard spirit herbs sometimes appear near the stream.",
+            "If you search for resources, avoid monster areas.",
+            "If I have spare materials, I will keep you in mind."
+          ]
+        },
+        {
+          "key": "cultivationNeedLines",
+          "values": [
+            "My cultivation is too slow. I must train harder.",
+            "My state of mind has been stuck lately, making progress difficult.",
+            "If there is a suitable pill, I would like to try it once."
+          ]
+        },
+        {
+          "key": "cultivationNeedReplies",
+          "values": [
+            "Do not rush. A stable foundation lets you go farther.",
+            "When you have time, choose a place with steady spiritual energy.",
+            "I heard good pills must be used at the right moment."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "dialogueKeywords",
+      "entries": [
+        {
+          "key": "spiritHerb",
+          "value": "spirit herb"
+        },
+        {
+          "key": "spiritMedicine",
+          "value": "spirit medicine"
+        },
+        {
+          "key": "stream",
+          "value": "near the stream"
+        }
+      ]
+    },
+    {
+      "name": "taskNames",
+      "entries": [
+        {
+          "key": "gatherResource",
+          "value": "Gather Resources"
+        },
+        {
+          "key": "harvestLinhRice",
+          "value": "Harvest Spirit Rice"
+        },
+        {
+          "key": "gatherLowSpiritHerb",
+          "value": "Gather Low-grade Spirit Herbs"
+        },
+        {
+          "key": "patrolOutsideVillage",
+          "value": "Patrol Outside the Village"
+        },
+        {
+          "key": "huntDangerousMonster",
+          "value": "Hunt Dangerous Monsters"
+        },
+        {
+          "key": "gatherHerbsAroundForest",
+          "value": "Gather Spirit Herbs Around the Forest"
+        },
+        {
+          "key": "gatherLowHerbs",
+          "value": "Gather Low-grade Herbs"
+        },
+        {
+          "key": "gatherSpiritMaterialsNearMaThuSon",
+          "value": "Gather Spirit Materials Near Ma Thu Son"
+        },
+        {
+          "key": "gatherMidSpiritMedicine",
+          "value": "Gather Mid-grade Spirit Medicine"
+        },
+        {
+          "key": "findRareHerbDeepMountain",
+          "value": "Find Rare Spirit Medicine in the Deep Mountains"
+        },
+        {
+          "key": "huntBeastLv1ForDemonCore",
+          "value": "Slay Level 1 Monster for Demon Core"
+        },
+        {
+          "key": "clearBeastGroupLv1",
+          "value": "Eliminate Level 1 Monster Group"
+        },
+        {
+          "key": "huntBeastLv2ForDemonCore",
+          "value": "Hunt Level 2 Monster for Demon Core"
+        },
+        {
+          "key": "clearBeastDenLv2",
+          "value": "Clear Level 2 Monster Den"
+        },
+        {
+          "key": "huntBeastLv3ForInnerCore",
+          "value": "Hunt Level 3 Monster for Inner Core"
+        },
+        {
+          "key": "killGoldenCoreDangerousBeast",
+          "value": "Eliminate Dangerous Golden Core Monster"
+        },
+        {
+          "key": "pursueBeastLv4",
+          "value": "Pursue Level 4 Monster"
+        },
+        {
+          "key": "huntDeerAntler",
+          "value": "Hunt Deer for Antlers"
+        },
+        {
+          "key": "trapForestRabbit",
+          "value": "Trap Forest Rabbits"
+        },
+        {
+          "key": "patrolVillageEdge",
+          "value": "Patrol Village Edge"
+        },
+        {
+          "key": "patrolMaThuSonRoad",
+          "value": "Patrol the Road to Ma Thu Son"
+        },
+        {
+          "key": "suppressDemonicAura",
+          "value": "Suppress Demonic Aura"
+        },
+        {
+          "key": "escortCaravan",
+          "value": "Escort Caravan"
+        },
+        {
+          "key": "transportSpiritMaterial",
+          "value": "Transport Spirit Materials"
+        },
+        {
+          "key": "protectCultivation",
+          "value": "Guard Cultivation"
+        }
+      ]
+    },
+    {
+      "name": "taskRanks",
+      "entries": [
+        {
+          "key": "Ha",
+          "value": "Low"
+        },
+        {
+          "key": "Trung",
+          "value": "Mid"
+        },
+        {
+          "key": "Thuong",
+          "value": "High"
+        }
+      ]
+    },
+    {
+      "name": "taskTypes",
+      "entries": [
+        {
+          "key": "GatherResource",
+          "value": "Gather Resources"
+        },
+        {
+          "key": "HuntMonster",
+          "value": "Hunt Monsters"
+        },
+        {
+          "key": "Cultivate",
+          "value": "Cultivate"
+        },
+        {
+          "key": "Patrol",
+          "value": "Patrol"
+        },
+        {
+          "key": "Deliver",
+          "value": "Deliver"
+        },
+        {
+          "key": "HarvestAndDeliver",
+          "value": "Harvest and Deliver"
+        },
+        {
+          "key": "Escort",
+          "value": "Escort"
+        }
+      ]
+    },
+    {
+      "name": "taskBoard",
+      "entries": [
+        {
+          "key": "rankFormat",
+          "value": "[{0}]"
+        },
+        {
+          "key": "typeFormat",
+          "value": "Type: {0}"
+        },
+        {
+          "key": "requirePrefix",
+          "value": "Requirement: "
+        },
+        {
+          "key": "rewardPrefix",
+          "value": "Reward: "
+        },
+        {
+          "key": "separator",
+          "value": ", "
+        },
+        {
+          "key": "none",
+          "value": "None"
+        },
+        {
+          "key": "itemAmountFormat",
+          "value": "{0} x{1}"
+        },
+        {
+          "key": "beastLevelObjective",
+          "value": "Level {0} Monster x{1}"
+        },
+        {
+          "key": "huntObjective",
+          "value": "Slay Monsters x{0}"
+        },
+        {
+          "key": "escortObjective",
+          "value": "Escort Caravan"
+        },
+        {
+          "key": "spiritStoneReward",
+          "value": "{0} Spirit Stones"
+        },
+        {
+          "key": "expReward",
+          "value": "{0} EXP"
+        }
+      ]
+    },
+    {
+      "name": "professions",
+      "entries": [
+        {
+          "key": "none",
+          "value": "No Job"
+        },
+        {
+          "key": "farmer",
+          "value": "Farmer"
+        },
+        {
+          "key": "trader",
+          "value": "Trader"
+        },
+        {
+          "key": "worker",
+          "value": "Worker"
+        },
+        {
+          "key": "guard",
+          "value": "Guard"
+        },
+        {
+          "key": "healer",
+          "value": "Healer"
+        },
+        {
+          "key": "fisher",
+          "value": "Fisher"
+        },
+        {
+          "key": "hunter",
+          "value": "Hunter"
+        },
+        {
+          "key": "alchemist",
+          "value": "Alchemist"
+        },
+        {
+          "key": "blacksmith",
+          "value": "Blacksmith"
+        },
+        {
+          "key": "tavernManager",
+          "value": "Tavern Manager"
+        }
+      ]
+    },
+    {
+      "name": "taskDisplay",
+      "entries": [
+        {
+          "key": "rankedTask",
+          "value": "{0}: {1}"
+        },
+        {
+          "key": "itemObjective",
+          "value": " - {0} x{1}"
+        },
+        {
+          "key": "huntObjective",
+          "value": " - {0}{1} x{2}"
+        },
+        {
+          "key": "beast",
+          "value": "monster"
+        },
+        {
+          "key": "beastLevel",
+          "value": " level {0}"
+        },
+        {
+          "key": "reward",
+          "value": " - reward {0} LT"
+        },
+        {
+          "key": "linhRice",
+          "value": "spirit rice"
+        },
+        {
+          "key": "spiritHerb",
+          "value": "spirit herb"
+        }
+      ]
+    },
+    {
+      "name": "taskActions",
+      "entries": [
+        {
+          "key": "pausedTask",
+          "value": "Task paused"
+        },
+        {
+          "key": "pausedMeal",
+          "value": "Meal paused"
+        },
+        {
+          "key": "goMealPoint",
+          "value": "Going to dining area"
+        },
+        {
+          "key": "serveMeal",
+          "value": "Serving meal"
+        },
+        {
+          "key": "receiveTask",
+          "value": "Receiving task {0}"
+        },
+        {
+          "key": "askProviderFindTask",
+          "value": "Asking manager for a task"
+        },
+        {
+          "key": "assignedTask",
+          "value": "Assigned work received"
+        },
+        {
+          "key": "giveTask",
+          "value": "Giving task {0}: {1}"
+        },
+        {
+          "key": "showTaskBoard",
+          "value": "Showing task board to guest"
+        },
+        {
+          "key": "assignNpcWork",
+          "value": "Assigning work to cultivator"
+        },
+        {
+          "key": "goTavernMealPoint",
+          "value": "Going to tavern dining area"
+        },
+        {
+          "key": "eatingAtTavern",
+          "value": "Eating and drinking at the tavern"
+        },
+        {
+          "key": "goCounterTrade",
+          "value": "Going to counter to check trades"
+        },
+        {
+          "key": "checkingCounterTrade",
+          "value": "Checking trades at the counter"
+        },
+        {
+          "key": "viewTaskBoard",
+          "value": "Viewing task board {0}"
+        },
+        {
+          "key": "chooseTask",
+          "value": "Choosing task {0}"
+        },
+        {
+          "key": "returnProviderReceiveTask",
+          "value": "Returning to manager to receive task"
+        },
+        {
+          "key": "goWorkTask",
+          "value": "Going to do task {0}"
+        },
+        {
+          "key": "workingTask",
+          "value": "Working on task {0}"
+        },
+        {
+          "key": "waitHuntRespawn",
+          "value": "Resting, waiting for monster respawn {0}"
+        },
+        {
+          "key": "returnTurnInTask",
+          "value": "Returning results to turn in task {0}"
+        },
+        {
+          "key": "turnInTask",
+          "value": "Turning in task {0}"
+        },
+        {
+          "key": "searchGatherItem",
+          "value": "Entering gathering area to search for {0} {1}"
+        },
+        {
+          "key": "goGatherItem",
+          "value": "Going to gathering area for {0} {1}"
+        },
+        {
+          "key": "gatheringItem",
+          "value": "Gathering {0} {1}"
+        },
+        {
+          "key": "pickHuntEvidence",
+          "value": "Picking up monster hunt proof {0}"
+        },
+        {
+          "key": "huntSearch",
+          "value": "Searching for monsters in Ma Thu Mountain Range {0}"
+        },
+        {
+          "key": "huntFight",
+          "value": "Fighting monster {0}"
+        },
+        {
+          "key": "pickItem",
+          "value": "Going to pick up {0} {1}"
+        },
+        {
+          "key": "fleeMonsterArea",
+          "value": "Retreating from monster area"
+        },
+        {
+          "key": "guardSpiritHerbMonster",
+          "value": "Watching for monsters near spirit herbs"
+        },
+        {
+          "key": "fightBlockingMonster",
+          "value": "Switching to fight blocking monster"
+        },
+        {
+          "key": "clearHarvestMonster",
+          "value": "Eliminating monsters occupying gathering area"
+        },
+        {
+          "key": "tooStrongChangeHarvestArea",
+          "value": "Monster too strong; changing gathering area"
+        },
+        {
+          "key": "mealComplete",
+          "value": "Finished eating at the tavern"
+        },
+        {
+          "key": "missingTurnInItems",
+          "value": "Not enough items to turn in task {0}"
+        },
+        {
+          "key": "taskCompleted",
+          "value": "Completed task {0}: {1}"
+        },
+        {
+          "key": "counterTradeWithCustomer",
+          "value": "Trading with customer"
+        },
+        {
+          "key": "followTaskRoute",
+          "value": "Following task route"
+        }
+      ]
+    },
+    {
+      "name": "realms",
+      "entries": [
+        {
+          "key": "Mortal",
+          "value": "Mortal"
+        },
+        {
+          "key": "QiRefining",
+          "value": "Qi Refining"
+        },
+        {
+          "key": "Foundation",
+          "value": "Foundation Establishment"
+        },
+        {
+          "key": "GoldenCore",
+          "value": "Golden Core"
+        },
+        {
+          "key": "NascentSoul",
+          "value": "Nascent Soul"
+        },
+        {
+          "key": "SoulFormation",
+          "value": "Soul Formation"
+        },
+        {
+          "key": "Tribulation",
+          "value": "Tribulation"
+        }
+      ]
+    },
+    {
+      "name": "logs",
+      "entries": [
+        {
+          "key": "eat",
+          "value": "{0} is going to eat."
+        },
+        {
+          "key": "sleep",
+          "value": "{0} is resting."
+        },
+        {
+          "key": "absorbPill",
+          "value": "{0} absorbed a pill and gained {1} cultivation."
+        },
+        {
+          "key": "absorbSpiritStone",
+          "value": "{0} absorbed Spirit Stones and gained {1} cultivation."
+        },
+        {
+          "key": "tribulationReady",
+          "value": "{0} has reached Tribulation perfection."
+        },
+        {
+          "key": "breakthrough",
+          "value": "{0} broke through to {1} stage {2}."
+        },
+        {
+          "key": "buyPill",
+          "value": "{0} bought pills."
+        },
+        {
+          "key": "attackMonster",
+          "value": "{0} attacked {1} and dealt {2} damage."
+        },
+        {
+          "key": "makeFriend",
+          "value": "{0} is socializing."
+        },
+        {
+          "key": "createSect",
+          "value": "{0} can found a sect."
+        },
+        {
+          "key": "takeDamage",
+          "value": "{0} took {1} damage."
+        },
+        {
+          "key": "dead",
+          "value": "{0} has died."
+        },
+        {
+          "key": "taskCompletedWorld",
+          "value": "{0} completed task {1} and received {2} LT."
+        }
+      ]
+    },
+    {
+      "name": "workStatus",
+      "entries": [
+        {
+          "key": "noProductPaid",
+          "value": "No product; received wages"
+        },
+        {
+          "key": "addedItemAmountInventory",
+          "value": "Added {0} x{1}, in bag: {2}"
+        },
+        {
+          "key": "farmerWaitMorning",
+          "value": "Not harvested: not harvest time yet"
+        },
+        {
+          "key": "farmerHarvestedDay",
+          "value": "Not harvested: already received on day {0}"
+        }
+      ]
+    },
+    {
+      "name": "health",
+      "entries": [
+        {
+          "key": "healthy",
+          "value": "Healthy"
+        },
+        {
+          "key": "injured",
+          "value": "Injured"
+        },
+        {
+          "key": "critical",
+          "value": "Critical"
+        },
+        {
+          "key": "dead",
+          "value": "Dead"
+        }
+      ]
+    },
+    {
+      "name": "itemTypes",
+      "entries": [
+        {
+          "key": "DanDuoc",
+          "value": "Pill"
+        },
+        {
+          "key": "PhapBao",
+          "value": "Artifact"
+        },
+        {
+          "key": "VatLieu",
+          "value": "Material"
+        },
+        {
+          "key": "CongPhap",
+          "value": "Manual"
+        },
+        {
+          "key": "ThucPham",
+          "value": "Food"
+        }
+      ]
+    },
+    {
+      "name": "itemGrades",
+      "entries": [
+        {
+          "key": "Ha",
+          "value": "Low"
+        },
+        {
+          "key": "Trung",
+          "value": "Mid"
+        },
+        {
+          "key": "Thuong",
+          "value": "High"
+        },
+        {
+          "key": "Tien",
+          "value": "Immortal"
+        }
+      ]
+    }
+  ]
+}

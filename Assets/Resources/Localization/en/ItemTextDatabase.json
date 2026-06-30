@@ -1,0 +1,348 @@
+{
+  "categories": [
+    {
+      "name": "detail",
+      "entries": [
+        {
+          "key": "amountFormat",
+          "value": "Amount: x{0}"
+        },
+        {
+          "key": "typeFormat",
+          "value": "Type: {0}"
+        },
+        {
+          "key": "gradeFormat",
+          "value": "Grade: {0}"
+        },
+        {
+          "key": "targetsFormat",
+          "value": "Used for: {0}"
+        },
+        {
+          "key": "priceFormat",
+          "value": "Price: {0}"
+        }
+      ]
+    },
+    {
+      "name": "stats",
+      "entries": [
+        {
+          "key": "hpBonus",
+          "value": "HP +{0}"
+        },
+        {
+          "key": "cultivationBonus",
+          "value": "Cultivation +{0}"
+        },
+        {
+          "key": "breakthroughRealm",
+          "value": "Realm Breakthrough"
+        },
+        {
+          "key": "damageBonus",
+          "value": "Damage +{0}"
+        },
+        {
+          "key": "armorBonus",
+          "value": "Armor +{0}"
+        },
+        {
+          "key": "effectResistanceBonus",
+          "value": "Effect Resistance +{0}"
+        },
+        {
+          "key": "duration",
+          "value": "Duration: {0}s"
+        },
+        {
+          "key": "successChance",
+          "value": "Success Chance: {0}%"
+        },
+        {
+          "key": "durability",
+          "value": "Durability: {0}/{1}"
+        },
+        {
+          "key": "mastery",
+          "value": "Mastery: {0}"
+        },
+        {
+          "key": "useStyle",
+          "value": "Use Style: {0}"
+        },
+        {
+          "key": "rawUse",
+          "value": "Direct Use: {0}"
+        },
+        {
+          "key": "rawEfficiency",
+          "value": "Raw Use Efficiency: {0}%"
+        },
+        {
+          "key": "toxicity",
+          "value": "Toxicity: -{0} HP"
+        },
+        {
+          "key": "canRefinePill",
+          "value": "Can refine pills"
+        },
+        {
+          "key": "canForgeArtifact",
+          "value": "Can forge artifacts"
+        },
+        {
+          "key": "canStudy",
+          "value": "Can study"
+        },
+        {
+          "key": "cannotSell",
+          "value": "Cannot sell"
+        },
+        {
+          "key": "npcIntent",
+          "value": "Cultivator Priority: {0}"
+        }
+      ]
+    },
+    {
+      "name": "itemNames",
+      "entries": []
+    },
+    {
+      "name": "itemDescriptions",
+      "entries": []
+    },
+    {
+      "name": "itemTypes",
+      "entries": [
+        {
+          "key": "DanDuoc",
+          "value": "Pill"
+        },
+        {
+          "key": "PhapBao",
+          "value": "Artifact"
+        },
+        {
+          "key": "VatLieu",
+          "value": "Material"
+        },
+        {
+          "key": "CongPhap",
+          "value": "Manual"
+        },
+        {
+          "key": "ThucPham",
+          "value": "Food"
+        }
+      ]
+    },
+    {
+      "name": "itemGrades",
+      "entries": [
+        {
+          "key": "Ha",
+          "value": "Low"
+        },
+        {
+          "key": "Trung",
+          "value": "Mid"
+        },
+        {
+          "key": "Thuong",
+          "value": "High"
+        },
+        {
+          "key": "Tien",
+          "value": "Immortal"
+        }
+      ]
+    },
+    {
+      "name": "itemGradeLong",
+      "entries": [
+        {
+          "key": "Ha",
+          "value": "Low Grade"
+        },
+        {
+          "key": "Trung",
+          "value": "Mid Grade"
+        },
+        {
+          "key": "Thuong",
+          "value": "High Grade"
+        },
+        {
+          "key": "Tien",
+          "value": "Immortal Grade"
+        }
+      ]
+    },
+    {
+      "name": "itemTargets",
+      "entries": [
+        {
+          "key": "None",
+          "value": "None"
+        },
+        {
+          "key": "Player",
+          "value": "Player"
+        },
+        {
+          "key": "Npc",
+          "value": "Cultivator"
+        },
+        {
+          "key": "Monster",
+          "value": "Monster"
+        },
+        {
+          "key": "All",
+          "value": "All"
+        }
+      ]
+    },
+    {
+      "name": "itemUseStyles",
+      "entries": [
+        {
+          "key": "Auto",
+          "value": "Auto"
+        },
+        {
+          "key": "Consumable",
+          "value": "Consumable"
+        },
+        {
+          "key": "RawMaterial",
+          "value": "Raw Material"
+        },
+        {
+          "key": "DurableEquipment",
+          "value": "Durable Equipment"
+        },
+        {
+          "key": "StudyManual",
+          "value": "Study Manual"
+        }
+      ]
+    },
+    {
+      "name": "rawUsePolicies",
+      "entries": [
+        {
+          "key": "Allowed",
+          "value": "Allowed"
+        },
+        {
+          "key": "Risky",
+          "value": "Risky"
+        },
+        {
+          "key": "Forbidden",
+          "value": "Forbidden"
+        }
+      ]
+    },
+    {
+      "name": "npcItemIntents",
+      "entries": [
+        {
+          "key": "Auto",
+          "value": "Auto"
+        },
+        {
+          "key": "PreferUseRaw",
+          "value": "Use Raw"
+        },
+        {
+          "key": "PreferRefine",
+          "value": "Refine"
+        },
+        {
+          "key": "PreferSell",
+          "value": "Sell"
+        },
+        {
+          "key": "Keep",
+          "value": "Keep"
+        }
+      ]
+    },
+    {
+      "name": "manualMastery",
+      "entries": [
+        {
+          "key": "None",
+          "value": "Not Practiced"
+        },
+        {
+          "key": "TieuThanh",
+          "value": "Minor Mastery"
+        },
+        {
+          "key": "TrungThanh",
+          "value": "Intermediate Mastery"
+        },
+        {
+          "key": "DaiThanh",
+          "value": "Great Mastery"
+        }
+      ]
+    },
+    {
+      "name": "heavenGiftNames",
+      "entries": [
+        {
+          "key": "DanDuoc",
+          "value": "{0} Treasure Pill"
+        },
+        {
+          "key": "PhapBao",
+          "value": "{0} Artifact"
+        },
+        {
+          "key": "CongPhap",
+          "value": "{0} Manual"
+        },
+        {
+          "key": "VatLieu",
+          "value": "{0} Spirit Material"
+        },
+        {
+          "key": "ThucPham",
+          "value": "Spirit Food"
+        },
+        {
+          "key": "Default",
+          "value": "{0} Treasure"
+        }
+      ]
+    },
+    {
+      "name": "messages",
+      "entries": [
+        {
+          "key": "noValidTarget",
+          "value": "No valid target selected for this item."
+        },
+        {
+          "key": "needHeavenControlGift",
+          "value": "Heavenly Dao control is too low. Requires 10% to grant items directly."
+        },
+        {
+          "key": "noSelectedCultivator",
+          "value": "No cultivator selected to receive this item."
+        },
+        {
+          "key": "needHeavenControlDrop",
+          "value": "Heavenly Dao control is too low. Requires 20% to drop a fate opportunity in an area."
+        }
+      ]
+    }
+  ]
+}

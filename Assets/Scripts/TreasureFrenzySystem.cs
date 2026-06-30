@@ -238,6 +238,15 @@ public class TreasureFrenzySystem : MonoBehaviour
             return;
         }
 
+        if (kind == ActorKind.Monster)
+        {
+            MonsterAI monster = actor.GetComponent<MonsterAI>();
+            if (!CanMonsterJoinTreasureFrenzy(monster, frenzyEvent.item))
+            {
+                return;
+            }
+        }
+
         float distance = Vector2.Distance(actor.transform.position, frenzyEvent.origin);
         float desire = GetDesire(actor, kind, frenzyEvent, distance);
         float fear = GetFear(actor, kind, frenzyEvent, distance);
@@ -272,6 +281,45 @@ public class TreasureFrenzySystem : MonoBehaviour
             fear = fear,
             coward = false
         });
+    }
+
+    bool CanMonsterJoinTreasureFrenzy(
+        MonsterAI monster,
+        StatItemData item)
+    {
+        if (monster == null || item == null)
+        {
+            return false;
+        }
+
+        CultivationRealm requiredRealm =
+            GetMinimumMonsterRealmForTreasure(item.grade);
+
+        if (requiredRealm < 0)
+        {
+            return false;
+        }
+
+        return monster.realm >= requiredRealm;
+    }
+
+    CultivationRealm GetMinimumMonsterRealmForTreasure(
+        ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.Trung:
+                return CultivationRealm.Foundation;
+
+            case ItemGrade.Thuong:
+                return CultivationRealm.NascentSoul;
+
+            case ItemGrade.Tien:
+                return CultivationRealm.SoulFormation;
+
+            default:
+                return (CultivationRealm)(-1);
+        }
     }
 
     float GetDesire(

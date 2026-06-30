@@ -84,7 +84,13 @@ public static class UiText
             lists.TryGetValue(lookupKey, out string[] lines) &&
             lines != null)
         {
-            return lines;
+            string[] cleaned = new string[lines.Length];
+            for (int i = 0; i < lines.Length; i++)
+            {
+                cleaned[i] = NpcText.CleanDisplayText(lines[i]);
+            }
+
+            return cleaned;
         }
 
         string value = Get(category, key, "");

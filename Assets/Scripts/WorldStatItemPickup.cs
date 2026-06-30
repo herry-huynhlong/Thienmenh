@@ -19,6 +19,9 @@ public class WorldStatItemPickup : MonoBehaviour
     public bool RequiresNpcHarvestAction()
     {
         return requireNpcHarvestAction ||
+            (item != null &&
+            (item.materialKind == MaterialKind.Herb ||
+            ResourceNode.InferKindFromItem(item) == HarvestResourceKind.ThaoDuoc)) ||
             GetComponent<WorldResourceNode>() != null ||
             GetComponent<ResourceNode>() != null;
     }

@@ -593,13 +593,47 @@ public class NpcResourceGatherer : MonoBehaviour
 
         harvestingPickup = targetPickup;
         targetPickup = null;
-        harvestTimer = Mathf.Max(0.1f, harvestingPickup.harvestDuration);
+        harvestTimer =
+            Mathf.Max(
+                0.1f,
+                GetHarvestDurationForPickup(harvestingPickup));
         lastHarvestActionSeconds = -1;
         harvestingPickup.RefreshReservation(
             gameObject,
             Mathf.Max(reservationDuration, harvestTimer + 1f));
         StopNpcMovement();
         SetGatherAction();
+    }
+
+    float GetHarvestDurationForPickup(WorldStatItemPickup pickup)
+    {
+        if (pickup == null)
+        {
+            return 0.1f;
+        }
+
+        StatItemData item = pickup.item;
+        if (item == null)
+        {
+            return Mathf.Max(0.1f, pickup.harvestDuration);
+        }
+
+        if (item.materialKind == MaterialKind.Herb ||
+            ResourceNode.InferKindFromItem(item) == HarvestResourceKind.ThaoDuoc)
+        {
+            switch (item.grade)
+            {
+                case ItemGrade.Trung:
+                    return 10f;
+                case ItemGrade.Thuong:
+                case ItemGrade.Tien:
+                    return 15f;
+                default:
+                    return 5f;
+            }
+        }
+
+        return Mathf.Max(0.1f, pickup.harvestDuration);
     }
 
     void ContinueHarvest()

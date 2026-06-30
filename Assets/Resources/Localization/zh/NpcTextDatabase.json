@@ -1,0 +1,1771 @@
+{
+  "categories": [
+    {
+      "name": "labels",
+      "entries": [
+        {
+          "key": "name",
+          "value": "姓名"
+        },
+        {
+          "key": "age",
+          "value": "年龄"
+        },
+        {
+          "key": "lifespan",
+          "value": "寿元"
+        },
+        {
+          "key": "job",
+          "value": "职业"
+        },
+        {
+          "key": "maritalStatus",
+          "value": "状态"
+        },
+        {
+          "key": "realm",
+          "value": "境界"
+        },
+        {
+          "key": "health",
+          "value": "生命"
+        },
+        {
+          "key": "manual",
+          "value": "功法"
+        },
+        {
+          "key": "action",
+          "value": "行动"
+        },
+        {
+          "key": "damage",
+          "value": "伤害"
+        },
+        {
+          "key": "type",
+          "value": "类型"
+        },
+        {
+          "key": "grade",
+          "value": "品质"
+        },
+        {
+          "key": "amount",
+          "value": "数量"
+        },
+        {
+          "key": "loot",
+          "value": "掉落"
+        },
+        {
+          "key": "level",
+          "value": "等级"
+        },
+        {
+          "key": "item",
+          "value": "物品"
+        },
+        {
+          "key": "realmStageFormat",
+          "value": "{0} {1}层"
+        }
+      ]
+    },
+    {
+      "name": "entityTypes",
+      "entries": [
+        {
+          "key": "monster",
+          "value": "妖兽"
+        },
+        {
+          "key": "npc",
+          "value": "修士"
+        },
+        {
+          "key": "villager",
+          "value": "村民"
+        }
+      ]
+    },
+    {
+      "name": "maritalStatus",
+      "entries": [
+        {
+          "key": "single",
+          "value": "未婚"
+        },
+        {
+          "key": "married",
+          "value": "已婚"
+        }
+      ]
+    },
+    {
+      "name": "actions",
+      "entries": [
+        {
+          "key": "idle",
+          "value": "站立不动"
+        },
+        {
+          "key": "wanderVillage",
+          "value": "在村中闲逛"
+        },
+        {
+          "key": "returnTerritory",
+          "value": "返回领地"
+        },
+        {
+          "key": "eat",
+          "value": "去吃饭"
+        },
+        {
+          "key": "sleep",
+          "value": "休息"
+        },
+        {
+          "key": "cultivate",
+          "value": "修炼"
+        },
+        {
+          "key": "cultivateAbsorbQi",
+          "value": "修炼吸收灵气"
+        },
+        {
+          "key": "goHomeCultivate",
+          "value": "回家修炼"
+        },
+        {
+          "key": "goCultivatePoint",
+          "value": "前往修炼点"
+        },
+        {
+          "key": "teleportGateTo",
+          "value": "通过传送门前往{0}"
+        },
+        {
+          "key": "breakthrough",
+          "value": "突破"
+        },
+        {
+          "key": "breakthroughTo",
+          "value": "突破至{0}"
+        },
+        {
+          "key": "waitTribulation",
+          "value": "等待天劫"
+        },
+        {
+          "key": "goTavern",
+          "value": "前往酒楼"
+        },
+        {
+          "key": "buyPill",
+          "value": "购买丹药"
+        },
+        {
+          "key": "fight",
+          "value": "战斗"
+        },
+        {
+          "key": "huntMonster",
+          "value": "猎杀妖兽"
+        },
+        {
+          "key": "huntMonsterNamed",
+          "value": "猎杀{0}"
+        },
+        {
+          "key": "attackMonsterNamed",
+          "value": "攻击{0}"
+        },
+        {
+          "key": "takeTask",
+          "value": "领取任务"
+        },
+        {
+          "key": "taskWorking",
+          "value": "正在执行任务"
+        },
+        {
+          "key": "injured",
+          "value": "受伤"
+        },
+        {
+          "key": "dead",
+          "value": "已死亡"
+        },
+        {
+          "key": "oldAgeDeath",
+          "value": "寿元已尽"
+        },
+        {
+          "key": "treasureHunt",
+          "value": "争夺宝物"
+        },
+        {
+          "key": "treasureHuntNamed",
+          "value": "争夺{0}"
+        },
+        {
+          "key": "waitLightning",
+          "value": "等待天雷消散"
+        },
+        {
+          "key": "waitLightningNamed",
+          "value": "等待天雷消散：{0}"
+        },
+        {
+          "key": "outerSkirmish",
+          "value": "外围混战"
+        },
+        {
+          "key": "outerSkirmishNamed",
+          "value": "外围混战：{0}"
+        },
+        {
+          "key": "calm",
+          "value": "恢复冷静"
+        },
+        {
+          "key": "makeFriend",
+          "value": "结交朋友"
+        },
+        {
+          "key": "createSect",
+          "value": "创建宗门"
+        },
+        {
+          "key": "talking",
+          "value": "交谈中"
+        },
+        {
+          "key": "conversationLine",
+          "value": "交谈：{0}"
+        },
+        {
+          "key": "talkingWith",
+          "value": "与{0}交谈"
+        },
+        {
+          "key": "happyTalkWith",
+          "value": "愉快地与{0}交谈"
+        },
+        {
+          "key": "sadTalkWith",
+          "value": "向{0}倾诉"
+        },
+        {
+          "key": "tiredTalkWith",
+          "value": "问候{0}"
+        },
+        {
+          "key": "meetKnown",
+          "value": "遇见熟人：{0}"
+        },
+        {
+          "key": "rob",
+          "value": "正在抢夺"
+        },
+        {
+          "key": "revenge",
+          "value": "正在复仇"
+        },
+        {
+          "key": "rest",
+          "value": "正在休息"
+        },
+        {
+          "key": "tradeSeek",
+          "value": "寻找交易机会"
+        },
+        {
+          "key": "gatherResource",
+          "value": "留意灵草"
+        },
+        {
+          "key": "closeShopGoHome",
+          "value": "关店回家"
+        },
+        {
+          "key": "noTrade",
+          "value": "没有交易"
+        },
+        {
+          "key": "waiting",
+          "value": "等待"
+        },
+        {
+          "key": "stayNearHome",
+          "value": "待在家附近"
+        },
+        {
+          "key": "restNearHome",
+          "value": "在家附近休息"
+        },
+        {
+          "key": "restVillageNoon",
+          "value": "在村中午休"
+        },
+        {
+          "key": "eveningWalkVillage",
+          "value": "夜晚在村中散步"
+        },
+        {
+          "key": "huntForestResource",
+          "value": "猎杀妖兽 / 寻找森林资源"
+        },
+        {
+          "key": "gatherVillageResource",
+          "value": "采集村庄周边资源"
+        },
+        {
+          "key": "goGatherNamed",
+          "value": "去采集{0}"
+        },
+        {
+          "key": "harvestResource",
+          "value": "正在采集资源"
+        },
+        {
+          "key": "missingTaskItems",
+          "value": "缺少任务物品"
+        },
+        {
+          "key": "requestBuyTaskItem",
+          "value": "请求购买{0}"
+        },
+        {
+          "key": "notEnoughSpiritStoneWorkTask",
+          "value": "灵石不足，去做任务"
+        },
+        {
+          "key": "goStoreBuyItem",
+          "value": "前往商店购买{0}"
+        },
+        {
+          "key": "boughtTaskItem",
+          "value": "已购买任务物品：{0}"
+        },
+        {
+          "key": "storeMissingItem",
+          "value": "商店没有{0}"
+        },
+        {
+          "key": "goTaskProviderDaily",
+          "value": "按每日计划前往领取任务"
+        },
+        {
+          "key": "skipUnavailableTask",
+          "value": "跳过无法领取的任务"
+        },
+        {
+          "key": "goVanBaoLauBroker",
+          "value": "前往万宝楼见杂货商"
+        },
+        {
+          "key": "visitedTaskProvider",
+          "value": "已见到发布任务的修士"
+        },
+        {
+          "key": "goVanBaoLauTask",
+          "value": "前往万宝楼查看事务"
+        },
+        {
+          "key": "checkedVanBaoLau",
+          "value": "已检查万宝楼"
+        },
+        {
+          "key": "goHomeRest",
+          "value": "回家休息"
+        },
+        {
+          "key": "eating",
+          "value": "正在吃饭"
+        },
+        {
+          "key": "eatAtShop",
+          "value": "在店内用餐"
+        },
+        {
+          "key": "goPlay",
+          "value": "聚集游玩"
+        },
+        {
+          "key": "playWithFriends",
+          "value": "与朋友一起游玩"
+        },
+        {
+          "key": "goMarketTrade",
+          "value": "去集市交易"
+        },
+        {
+          "key": "trading",
+          "value": "正在交易"
+        },
+        {
+          "key": "bringGoodsToCounter",
+          "value": "把货物带到柜台"
+        },
+        {
+          "key": "soldGoods",
+          "value": "已卖出货物"
+        },
+        {
+          "key": "waitTraderBuyGoods",
+          "value": "等待商人购买货物"
+        },
+        {
+          "key": "paidWork",
+          "value": "做工领取工钱"
+        },
+        {
+          "key": "harvestItemAmount",
+          "value": "采获{0} x{1}"
+        },
+        {
+          "key": "farmerWaitHarvest",
+          "value": "照料田地，尚未到收获时间"
+        },
+        {
+          "key": "farmerHarvestedToday",
+          "value": "今日已收获"
+        },
+        {
+          "key": "noFishingSpotFarmFallback",
+          "value": "鱼塘人多，改去务农"
+        },
+        {
+          "key": "watchRoad",
+          "value": "观察道路"
+        },
+        {
+          "key": "walkingRoad",
+          "value": "正在路上行走"
+        },
+        {
+          "key": "avoidObstacle",
+          "value": "改变方向避开障碍"
+        },
+        {
+          "key": "panicBurned",
+          "value": "惊慌逃跑"
+        },
+        {
+          "key": "goFarmWork",
+          "value": "前往田地务农"
+        },
+        {
+          "key": "goWork",
+          "value": "去工作"
+        },
+        {
+          "key": "goPatrol",
+          "value": "去巡逻"
+        },
+        {
+          "key": "goHeal",
+          "value": "去治疗"
+        },
+        {
+          "key": "goFish",
+          "value": "去钓鱼"
+        },
+        {
+          "key": "goHunt",
+          "value": "去狩猎"
+        },
+        {
+          "key": "workingFarm",
+          "value": "正在务农"
+        },
+        {
+          "key": "working",
+          "value": "正在工作"
+        },
+        {
+          "key": "patrolling",
+          "value": "正在巡逻"
+        },
+        {
+          "key": "healing",
+          "value": "正在治疗"
+        },
+        {
+          "key": "fishing",
+          "value": "正在钓鱼"
+        },
+        {
+          "key": "hunting",
+          "value": "正在狩猎"
+        },
+        {
+          "key": "lawAttack",
+          "value": "攻击违反规则者{0}"
+        },
+        {
+          "key": "detectIntruder",
+          "value": "发现入侵者"
+        },
+        {
+          "key": "retreat",
+          "value": "撤退"
+        },
+        {
+          "key": "flee",
+          "value": "逃跑"
+        },
+        {
+          "key": "restTerritory",
+          "value": "在领地内休息"
+        },
+        {
+          "key": "patrolTerritory",
+          "value": "巡逻领地"
+        },
+        {
+          "key": "chaseIntruder",
+          "value": "追击入侵者"
+        },
+        {
+          "key": "attackIntruder",
+          "value": "攻击入侵者"
+        },
+        {
+          "key": "choosePatrolPoint",
+          "value": "选择巡逻点"
+        }
+      ]
+    },
+    {
+      "name": "dialogue",
+      "entries": [
+        {
+          "key": "genericGreeting",
+          "value": "今日道友可好？"
+        },
+        {
+          "key": "replyFallback",
+          "value": "此事我会记下。"
+        },
+        {
+          "key": "rumorFallback",
+          "value": "溪边似乎有灵草。"
+        },
+        {
+          "key": "hostileFallback",
+          "value": "上次的事我仍记得。"
+        },
+        {
+          "key": "followUpTopic",
+          "value": "昨日谈到{0}，今日如何了？"
+        },
+        {
+          "key": "robberyThreat",
+          "value": "把东西交出来！"
+        },
+        {
+          "key": "revengeThreat",
+          "value": "这笔债必须偿还！"
+        },
+        {
+          "key": "dailyFallback",
+          "value": "道友。"
+        },
+        {
+          "key": "tradeMemoryTopic",
+          "value": "交易{0}，价格{1}灵石"
+        },
+        {
+          "key": "tradeRejectedMemoryTopic",
+          "value": "压价购买{0}，报价{1}灵石"
+        },
+        {
+          "key": "tradeBuyerFallback",
+          "value": "我收下{0}，给你{1}灵石。"
+        },
+        {
+          "key": "tradeSellerFallback",
+          "value": "已售出{0}，获得{1}灵石。"
+        },
+        {
+          "key": "tradeRejectFallback",
+          "value": "{0}只给{1}灵石，太低了。"
+        },
+        {
+          "key": "forgeOrderDisabledBuyer",
+          "value": "暂时不接订单"
+        },
+        {
+          "key": "forgeOrderDisabledSmith",
+          "value": "我只接普通锻造。"
+        },
+        {
+          "key": "forgeOrderRejectInvalidBuyer",
+          "value": "订单无效"
+        },
+        {
+          "key": "forgeOrderRejectInvalidSmith",
+          "value": "这单我不接。"
+        },
+        {
+          "key": "forgeOrderRejectTypeBuyer",
+          "value": "只接受法宝订单"
+        },
+        {
+          "key": "forgeOrderRejectTypeSmith",
+          "value": "只接法宝类物品。"
+        },
+        {
+          "key": "forgeOrderDuplicateBuyer",
+          "value": "此订单已存在"
+        },
+        {
+          "key": "forgeOrderDuplicateSmith",
+          "value": "这单正在制作。"
+        },
+        {
+          "key": "forgeOrderRejectRecipeBuyer",
+          "value": "暂无合适配方"
+        },
+        {
+          "key": "forgeOrderRejectRecipeSmith",
+          "value": "此物目前还做不了。"
+        },
+        {
+          "key": "forgeOrderRejectDepositBuyer",
+          "value": "定金不足"
+        },
+        {
+          "key": "forgeOrderRejectDepositSmith",
+          "value": "定金不足。"
+        },
+        {
+          "key": "forgeOrderAcceptBuyer",
+          "value": "想订制{0}，定金{1}"
+        },
+        {
+          "key": "forgeOrderAcceptSmith",
+          "value": "库存暂无。已收定金，{0}日后取货。"
+        },
+        {
+          "key": "forgeOrderReadyBuyer",
+          "value": "你的货到了。"
+        },
+        {
+          "key": "forgeOrderReadySmith",
+          "value": "来取货吧。"
+        },
+        {
+          "key": "hostilityReasonFallback",
+          "value": "冲突"
+        },
+        {
+          "key": "attackReasonFallback",
+          "value": "攻击"
+        },
+        {
+          "key": "robberyReason",
+          "value": "抢夺"
+        },
+        {
+          "key": "revengeReason",
+          "value": "复仇"
+        },
+        {
+          "key": "combatMonsterReason",
+          "value": "攻击妖兽"
+        },
+        {
+          "key": "combatBeastReason",
+          "value": "妖兽袭击"
+        },
+        {
+          "key": "combatSpellReason",
+          "value": "法术攻击"
+        },
+        {
+          "key": "combatAttackFallback",
+          "value": "别逼我拼命！"
+        },
+        {
+          "key": "combatDefendFallback",
+          "value": "你敢对我出手？"
+        },
+        {
+          "key": "combatLowHealthFallback",
+          "value": "活着才有机会！"
+        },
+        {
+          "key": "heavenDaoBasicLocked",
+          "value": "天道掌控不足。\n需要5%才能查看修士信息。"
+        }
+      ],
+      "lists": [
+        {
+          "key": "greetings",
+          "values": [
+            "今日天色不错，赶路也顺些。",
+            "看你有些匆忙，是有什么急事吗？",
+            "村里近来难得安宁。"
+          ]
+        },
+        {
+          "key": "replies",
+          "values": [
+            "我正打算歇一会儿再继续。",
+            "一切还好，只是手上有些忙。",
+            "还算平稳，今日没什么大事。"
+          ]
+        },
+        {
+          "key": "resourceRumors",
+          "values": [
+            "听说林边又聚起一股灵气。",
+            "若去得早，或许还能遇见未被采走的灵草。",
+            "山脚最近常有妖兽痕迹，别独自前往。"
+          ]
+        },
+        {
+          "key": "hostileLines",
+          "values": [
+            "上次的事我还记得。",
+            "别以为我已经忘了那笔账。",
+            "若再咄咄逼人，我便不再忍让。"
+          ]
+        },
+        {
+          "key": "friendlyFollowUps",
+          "values": [
+            "上次你说的事，我还记着。",
+            "今日看你比昨日清闲些。",
+            "以后有新消息，记得告诉我一声。"
+          ]
+        },
+        {
+          "key": "farmerGreetings",
+          "values": [
+            "田地今日还带着湿气，早点做也好。",
+            "若天色一直这样，灵稻会长得快些。",
+            "种田只盼雨水来得正好。"
+          ]
+        },
+        {
+          "key": "farmerReplies",
+          "values": [
+            "嗯，田里的事急不得。",
+            "我还得去田埂边再看几眼。",
+            "今日若早些做完，还能把货带去换些东西。"
+          ]
+        },
+        {
+          "key": "traderGreetings",
+          "values": [
+            "想看什么货，直接问我。",
+            "今日货不缺，只缺爽快买家。",
+            "若你有好东西，我也愿意交换。"
+          ]
+        },
+        {
+          "key": "traderReplies",
+          "values": [
+            "这个价已经很实在了，很难再让。",
+            "交易成了，双方都舒坦。",
+            "有来有往，下次我给你留个好价。"
+          ]
+        },
+        {
+          "key": "firstMeetingLines",
+          "values": [
+            "初次相见，愿以后还有机会交谈。",
+            "路过此地便是缘分，先算认识一面。",
+            "我记住你的脸了，下次还能认出来。"
+          ]
+        },
+        {
+          "key": "firstMeetingReplies",
+          "values": [
+            "嗯，慢慢熟悉便好。",
+            "道友放心，我并不难相处。",
+            "能在此相遇，也算有缘。"
+          ]
+        },
+        {
+          "key": "namedFirstMeetingLines",
+          "values": [
+            "{1}，我听村里人提过你几次。今日相见，见你气息比传闻稳得多，看来不是只会空谈之人。",
+            "{1}，初次见面，但我远远便注意到你的步伐。常人路过这里多有急躁，而你距离把握得很稳，想必常在外历练。",
+            "{1}，若以后一起经过林边，喊我一声。独自保命不难，但遇上大事，有个可信之人总更稳妥。"
+          ]
+        },
+        {
+          "key": "namedFirstMeetingReplies",
+          "values": [
+            "{1}，你的话我记下了。在此地多认识一个守信之人，比捡几颗灵石还难得。",
+            "{1}，以后若有灵草、妖兽或山路异动的消息，我们先互相提醒。慢一步，总比快一步丢命好。",
+            "{1}，我也不喜欢泛泛结交。今日算认个脸，日后遇到真事，才知谁值得信。"
+          ]
+        },
+        {
+          "key": "namedFriendlyFollowUps",
+          "values": [
+            "{1}，上次你说溪边有灵气聚集。我路过看了看，泥土确实比平常松软，也许几日后会生出灵草。",
+            "{1}，你前日提的事我还在想。若消息属实，我们应早点去，免得人多起来。",
+            "{1}，我看你近来没那么急了。莫不是上次那一战后，心境稳了些？"
+          ]
+        },
+        {
+          "key": "longPersonalLines",
+          "values": [
+            "我曾以为只要修炼便够了，后来才懂还要会看人。",
+            "路走得远了才明白，能保住命也是一种本事。",
+            "有时静坐观望一日，比四处奔走学得更多。"
+          ]
+        },
+        {
+          "key": "longPersonalReplies",
+          "values": [
+            "听来有理，有时慢下来反而看得清。",
+            "我明白，有些事越急越坏。",
+            "与你说话倒也不差，至少不算浪费时间。"
+          ]
+        },
+        {
+          "key": "monsterHuntInvites",
+          "values": [
+            "{1}，我看那只{2}（{3}级）望着我们像在看菜单。不如先下手，给修士留点体面？",
+            "{1}，那只{2}（{3}级）刚才吼得很没礼貌。我建议我们替天行道，顺便看看它会掉什么好东西。",
+            "{1}，若待会我说“计划还稳”，意思就是你先跑。现在，要不要一起处理那只{2}（{3}级）？",
+            "{1}，{2}（{3}级）站在那里太久了。它不修炼、不交税，还吓唬路人，我觉得很有理由揍它。",
+            "{1}，最近{2}（{3}级）总在路边徘徊。单独冲上去太冒险，但若你我分两路逼它离开草丛，胜算会高得多。",
+            "{1}，我刚看见{2}（{3}级）的痕迹。不能让它靠近村子。若你灵力还够，我们可叫上人，在天黑前速战。",
+            "{1}，{2}（{3}级）不好对付。但若让它习惯此地人味，以后村民采药便会遭殃。你敢同我试一战吗？"
+          ]
+        },
+        {
+          "key": "monsterHuntReplies",
+          "values": [
+            "{1}，可以，但先说好：若{2}（{3}级）张嘴太大，我会优先保全道心和双腿。",
+            "{1}，我同去。若胜了分战利品，若败了就分头跑。",
+            "{1}，听着有理。我负责攻击，你负责别让我挨太多打。",
+            "{1}，试试也好。大不了今日深刻领悟“量力”二字。",
+            "{1}，我不喜无谓冒险，但那只{2}（{3}级）确是祸患。先看好退路，再动手。",
+            "{1}，好。我守左侧距离，你别追太深。若{2}（{3}级）转向村子，必须马上拦住。",
+            "{1}，再叫一人更稳。打强妖兽不是比胆量，是要活着把消息带回去。"
+          ]
+        },
+        {
+          "key": "monsterVictorySoloLines",
+          "values": [
+            "{0}看着{1}（{2}级）倒下，松了口气：“还好，刚才我差点要用‘跑得很快’这门绝技。”",
+            "{0}整了整衣袍：“此战全凭实力。手抖那部分，是灵气波动，别误会。”",
+            "{0}环顾四周：“有人看见吗？没有就算了，等会我讲起来可以添几分气势。”",
+            "{0}低声道：“能击败{1}（{2}级），今晚多吃一碗饭也不算过分。”",
+            "{0}击倒了{1}（{2}级）。此战看似短暂，但慢半息，利爪便会触到心口。",
+            "{0}望着倒下的{1}（{2}级）吐出一口气：“若让这东西闯进灵谷田，全村都睡不安稳。幸好拦住了。”",
+            "{0}擦去手上血迹：“{1}（{2}级）并不弱。下次见到这种足迹，要更早提醒大家。”"
+          ]
+        },
+        {
+          "key": "monsterVictoryAllyLines",
+          "values": [
+            "{1}，你刚才出手正是时候。我正想说“救我”，你先动手，替我保住了体面。",
+            "{1}，配合不错。若有人问，就说我们一开始便算好了，别提我退得稍快那段。",
+            "{1}，{2}（{3}级）确实强。幸好它不知道我们一边打，一边祈祷别打空。",
+            "{1}，此战值得记下。不过记短些，我差点摔倒那段就免了。",
+            "{1}，你刚才封路很准。若无那一下，{2}（{3}级）便逃进林中了。",
+            "{1}，此战配合不差。{2}（{3}级）比我想的强，但它顶不住两面夹击。",
+            "{1}，记住{2}（{3}级）的吼声。下次远远听见，就别独自站在山路上。"
+          ]
+        },
+        {
+          "key": "monsterVictoryAllyReplies",
+          "values": [
+            "{1}，放心，你退后三步那段我会说成诱敌之策。",
+            "{1}，赢了就好。修仙界只记结果，不该流传逃跑姿势。",
+            "{1}，下次还可并肩，但先吃饱。我不想听你的肚子叫得比{2}还响。",
+            "{1}，若战利品少，就说是为民除害；若多，就说是共同机缘。",
+            "{1}，你的功劳也不小。若不是你牵开它，我没有出手空间。",
+            "{1}，我还以为要撤了。既然{2}（{3}级）已倒，我们该在血腥味引来更多妖兽前离开。",
+            "{1}，能这样配合，便值得信任。以后遇上更强的妖兽，至少我知道背后能交给谁。"
+          ]
+        },
+        {
+          "key": "smallTalkNeutralLines",
+          "values": [
+            "今早我在树下悟道，结果悟出自己该先吃早饭。",
+            "村里太安稳了，让我怀疑大事只是懒得发生。",
+            "我刚见一人望天三更，怕是在等机缘直接掉进嘴里。",
+            "道友可有发现？每当我决定勤奋修炼，酒楼的香味就格外有魔力。",
+            "今日村里还算安宁。",
+            "路过见你忙碌，一切还好吗？",
+            "有新消息也说给我听。"
+          ]
+        },
+        {
+          "key": "tradeBuyerLines",
+          "values": [
+            "我收下{0}，给你{1}灵石。",
+            "此物正好需要，多谢。",
+            "这个价可以，交易成了。"
+          ]
+        },
+        {
+          "key": "tradeSellerLines",
+          "values": [
+            "已售出{0}，获得{1}灵石。",
+            "好货，使用时小心。",
+            "交易顺利，下次再来。"
+          ]
+        },
+        {
+          "key": "tradeRejectLines",
+          "values": [
+            "{0}只给{1}灵石，太低了。",
+            "此物不能卖得这么便宜。",
+            "若真心想买，再加一些。"
+          ]
+        },
+        {
+          "key": "combatAttackLines",
+          "values": [
+            "别逼我拼命！",
+            "今日我便与你拼个生死！",
+            "想活命就让开！",
+            "既已出手，就别怪我下手重。"
+          ]
+        },
+        {
+          "key": "combatDefendLines",
+          "values": [
+            "你敢对我出手？",
+            "我不再忍了！",
+            "别以为我好欺负！",
+            "想打，我奉陪到底。"
+          ]
+        },
+        {
+          "key": "bulliedLowRealmLines",
+          "values": [
+            "三十年河东，三十年河西，{1}，莫欺少年穷！",
+            "{1}，今日你仗着境界高压我。来日我若突破，定在你门前咳三声，让你自己明白。",
+            "境界低又如何？灵石少又如何？我的道心虽穷，但很硬！",
+            "{1}，你今日打我，将来我的回忆录里一定有你这个反派。",
+            "别以为炼气就好欺负。我只是在积攒屈辱，好让以后突破更有气势！",
+            "君子报仇十年不晚，穷修士报仇可能更久，但我记账！",
+            "{1}，你等着。今日我退半步不是怕，是给大道多留点发展空间。",
+            "我向天发誓，若这次活下来，第一件事是修炼，第二件事是多避你几日。",
+            "你高我数层还出手，不觉得羞愧吗？哦忘了，强者常常先把脸面修没了。",
+            "别嫌我现在没有机缘。说不定明天捡到功法，后天捡到师父，大后天就回来算账！"
+          ]
+        },
+        {
+          "key": "combatLowHealthLines",
+          "values": [
+            "不妙，先保命！",
+            "生命快见底了，先撤！",
+            "活着才有机会！",
+            "此战太险，不能再硬拼。"
+          ]
+        },
+        {
+          "key": "weatherClearLines",
+          "values": [
+            "今日天气很舒服。",
+            "这样的微风，赶路也轻松。",
+            "天气平稳，做事也顺。"
+          ]
+        },
+        {
+          "key": "weatherClearReplies",
+          "values": [
+            "嗯，今日适合外出做事。",
+            "天色如此清朗，难得让人不烦。",
+            "若日日都这样温和就好了。"
+          ]
+        },
+        {
+          "key": "weatherRainLines",
+          "values": [
+            "下雨了，灵谷田应会更好。",
+            "路滑，远行记得小心。",
+            "这场雨让灵气柔和了些。"
+          ]
+        },
+        {
+          "key": "weatherRainReplies",
+          "values": [
+            "嗯，今日适合在村附近做事。",
+            "雨适中便好，别成暴雨。",
+            "我也觉得灵田需要这场雨。"
+          ]
+        },
+        {
+          "key": "weatherThunderLines",
+          "values": [
+            "雷声太重，此时别去林边。",
+            "雷起之时，妖兽常更暴躁。",
+            "听雷声，总让人心神不宁。"
+          ]
+        },
+        {
+          "key": "weatherThunderReplies",
+          "values": [
+            "我今日也打算避开山路。",
+            "谨慎些总好，等天色稳了再去。",
+            "若有急事，记得叫人同行。"
+          ]
+        },
+        {
+          "key": "weatherSnowLines",
+          "values": [
+            "下雪了，走慢些。",
+            "雪日少见，村中景象都不同了。",
+            "这么冷，记得稳住灵力。"
+          ]
+        },
+        {
+          "key": "weatherSnowReplies",
+          "values": [
+            "嗯，雪虽好看，路却难走。",
+            "我会早些回去，免得受寒气。",
+            "这样的日子更适合休息，不适合奔波。"
+          ]
+        },
+        {
+          "key": "weatherQiLines",
+          "values": [
+            "灵气正在变浓，今日适合修炼。",
+            "你感受到了吗？此地气息更强了。",
+            "若想突破，今日该好好准备。"
+          ]
+        },
+        {
+          "key": "weatherQiReplies",
+          "values": [
+            "我也打算找个清静处修炼。",
+            "好机会，不该浪费。",
+            "这样的灵气并不常见。"
+          ]
+        },
+        {
+          "key": "hungryLines",
+          "values": [
+            "我有些饿了，待会找点吃的。",
+            "肚子叫得厉害，做事都慢了。",
+            "村里还有卖吃食的地方吗？"
+          ]
+        },
+        {
+          "key": "hungryReplies",
+          "values": [
+            "先吃吧，事情可以稍后。",
+            "我看见集市附近还有吃的。",
+            "别饿到在路上晕倒。"
+          ]
+        },
+        {
+          "key": "tiredLines",
+          "values": [
+            "今日真累，怕是要早些休息。",
+            "忙了一整天，身子有些沉。",
+            "也许我该回家歇一会儿。"
+          ]
+        },
+        {
+          "key": "tiredReplies",
+          "values": [
+            "歇歇吧，硬撑容易坏事。",
+            "保存体力也是修行。",
+            "我就在附近，有事叫我。"
+          ]
+        },
+        {
+          "key": "resourceNeedLines",
+          "values": [
+            "我缺些资源，得再去找找。",
+            "最近材料消耗太快。",
+            "若见到好灵草，记得告诉我。"
+          ]
+        },
+        {
+          "key": "resourceNeedReplies",
+          "values": [
+            "我听说溪边有时会有灵草。",
+            "找资源时记得避开妖兽区域。",
+            "若我有多余材料，会替你留意。"
+          ]
+        },
+        {
+          "key": "cultivationNeedLines",
+          "values": [
+            "修为进得太慢，我得更勤些。",
+            "近来心境有些卡住，难再前进。",
+            "若有合适丹药，我想试一次。"
+          ]
+        },
+        {
+          "key": "cultivationNeedReplies",
+          "values": [
+            "别急，根基稳才能走远。",
+            "有时间就找个灵气稳定的地方。",
+            "我听说好丹药也要用在合适时候。"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "dialogueKeywords",
+      "entries": [
+        {
+          "key": "spiritHerb",
+          "value": "灵草"
+        },
+        {
+          "key": "spiritMedicine",
+          "value": "灵药"
+        },
+        {
+          "key": "stream",
+          "value": "溪边"
+        }
+      ]
+    },
+    {
+      "name": "taskNames",
+      "entries": [
+        {
+          "key": "gatherResource",
+          "value": "收集资源"
+        },
+        {
+          "key": "harvestLinhRice",
+          "value": "收获灵米"
+        },
+        {
+          "key": "gatherLowSpiritHerb",
+          "value": "采集下品灵草"
+        },
+        {
+          "key": "patrolOutsideVillage",
+          "value": "巡逻村外"
+        },
+        {
+          "key": "huntDangerousMonster",
+          "value": "猎杀危险妖兽"
+        },
+        {
+          "key": "gatherHerbsAroundForest",
+          "value": "采集林边灵草"
+        },
+        {
+          "key": "gatherLowHerbs",
+          "value": "采集下品药草"
+        },
+        {
+          "key": "gatherSpiritMaterialsNearMaThuSon",
+          "value": "采集魔兽山附近灵材"
+        },
+        {
+          "key": "gatherMidSpiritMedicine",
+          "value": "采集中品灵药"
+        },
+        {
+          "key": "findRareHerbDeepMountain",
+          "value": "在深山寻找珍稀灵药"
+        },
+        {
+          "key": "huntBeastLv1ForDemonCore",
+          "value": "击杀1级妖兽取得妖丹"
+        },
+        {
+          "key": "clearBeastGroupLv1",
+          "value": "清除1级妖兽群"
+        },
+        {
+          "key": "huntBeastLv2ForDemonCore",
+          "value": "猎杀2级妖兽取得妖丹"
+        },
+        {
+          "key": "clearBeastDenLv2",
+          "value": "清理2级妖兽巢穴"
+        },
+        {
+          "key": "huntBeastLv3ForInnerCore",
+          "value": "猎杀3级妖兽取得内丹"
+        },
+        {
+          "key": "killGoldenCoreDangerousBeast",
+          "value": "消灭危险金丹妖兽"
+        },
+        {
+          "key": "pursueBeastLv4",
+          "value": "追杀4级妖兽"
+        },
+        {
+          "key": "huntDeerAntler",
+          "value": "猎鹿取角"
+        },
+        {
+          "key": "trapForestRabbit",
+          "value": "捕捉林兔"
+        },
+        {
+          "key": "patrolVillageEdge",
+          "value": "巡逻村边"
+        },
+        {
+          "key": "patrolMaThuSonRoad",
+          "value": "巡逻魔兽山道路"
+        },
+        {
+          "key": "suppressDemonicAura",
+          "value": "镇压妖气"
+        },
+        {
+          "key": "escortCaravan",
+          "value": "护送商队"
+        },
+        {
+          "key": "transportSpiritMaterial",
+          "value": "运输灵材"
+        },
+        {
+          "key": "protectCultivation",
+          "value": "护法修炼"
+        }
+      ]
+    },
+    {
+      "name": "taskRanks",
+      "entries": [
+        {
+          "key": "Ha",
+          "value": "下"
+        },
+        {
+          "key": "Trung",
+          "value": "中"
+        },
+        {
+          "key": "Thuong",
+          "value": "上"
+        }
+      ]
+    },
+    {
+      "name": "taskTypes",
+      "entries": [
+        {
+          "key": "GatherResource",
+          "value": "收集资源"
+        },
+        {
+          "key": "HuntMonster",
+          "value": "猎杀妖兽"
+        },
+        {
+          "key": "Cultivate",
+          "value": "修炼"
+        },
+        {
+          "key": "Patrol",
+          "value": "巡逻"
+        },
+        {
+          "key": "Deliver",
+          "value": "运送"
+        },
+        {
+          "key": "HarvestAndDeliver",
+          "value": "收获并交付"
+        },
+        {
+          "key": "Escort",
+          "value": "护送"
+        }
+      ]
+    },
+    {
+      "name": "taskBoard",
+      "entries": [
+        {
+          "key": "rankFormat",
+          "value": "【{0}】"
+        },
+        {
+          "key": "typeFormat",
+          "value": "类型：{0}"
+        },
+        {
+          "key": "requirePrefix",
+          "value": "要求："
+        },
+        {
+          "key": "rewardPrefix",
+          "value": "奖励："
+        },
+        {
+          "key": "separator",
+          "value": "，"
+        },
+        {
+          "key": "none",
+          "value": "无"
+        },
+        {
+          "key": "itemAmountFormat",
+          "value": "{0} x{1}"
+        },
+        {
+          "key": "beastLevelObjective",
+          "value": "{0}级妖兽 x{1}"
+        },
+        {
+          "key": "huntObjective",
+          "value": "击杀妖兽 x{0}"
+        },
+        {
+          "key": "escortObjective",
+          "value": "护送商队"
+        },
+        {
+          "key": "spiritStoneReward",
+          "value": "{0}灵石"
+        },
+        {
+          "key": "expReward",
+          "value": "{0}经验"
+        }
+      ]
+    },
+    {
+      "name": "professions",
+      "entries": [
+        {
+          "key": "none",
+          "value": "无职业"
+        },
+        {
+          "key": "farmer",
+          "value": "农夫"
+        },
+        {
+          "key": "trader",
+          "value": "商人"
+        },
+        {
+          "key": "worker",
+          "value": "工人"
+        },
+        {
+          "key": "guard",
+          "value": "护卫"
+        },
+        {
+          "key": "healer",
+          "value": "医师"
+        },
+        {
+          "key": "fisher",
+          "value": "渔夫"
+        },
+        {
+          "key": "hunter",
+          "value": "猎人"
+        },
+        {
+          "key": "alchemist",
+          "value": "炼丹师"
+        },
+        {
+          "key": "blacksmith",
+          "value": "铁匠"
+        },
+        {
+          "key": "tavernManager",
+          "value": "酒楼掌柜"
+        }
+      ]
+    },
+    {
+      "name": "taskDisplay",
+      "entries": [
+        {
+          "key": "rankedTask",
+          "value": "{0}：{1}"
+        },
+        {
+          "key": "itemObjective",
+          "value": " - {0} x{1}"
+        },
+        {
+          "key": "huntObjective",
+          "value": " - {0}{1} x{2}"
+        },
+        {
+          "key": "beast",
+          "value": "妖兽"
+        },
+        {
+          "key": "beastLevel",
+          "value": " {0}级"
+        },
+        {
+          "key": "reward",
+          "value": " - 奖励 {0}灵石"
+        },
+        {
+          "key": "linhRice",
+          "value": "灵米"
+        },
+        {
+          "key": "spiritHerb",
+          "value": "灵草"
+        }
+      ]
+    },
+    {
+      "name": "taskActions",
+      "entries": [
+        {
+          "key": "pausedTask",
+          "value": "任务暂停"
+        },
+        {
+          "key": "pausedMeal",
+          "value": "用餐暂停"
+        },
+        {
+          "key": "goMealPoint",
+          "value": "前往用餐区"
+        },
+        {
+          "key": "serveMeal",
+          "value": "上餐"
+        },
+        {
+          "key": "receiveTask",
+          "value": "领取任务{0}"
+        },
+        {
+          "key": "askProviderFindTask",
+          "value": "向管事询问任务"
+        },
+        {
+          "key": "assignedTask",
+          "value": "已接到分配工作"
+        },
+        {
+          "key": "giveTask",
+          "value": "发布任务{0}：{1}"
+        },
+        {
+          "key": "showTaskBoard",
+          "value": "向客人展示任务板"
+        },
+        {
+          "key": "assignNpcWork",
+          "value": "给修士分配工作"
+        },
+        {
+          "key": "goTavernMealPoint",
+          "value": "前往酒楼用餐区"
+        },
+        {
+          "key": "eatingAtTavern",
+          "value": "在酒楼吃喝"
+        },
+        {
+          "key": "goCounterTrade",
+          "value": "前往柜台查看交易"
+        },
+        {
+          "key": "checkingCounterTrade",
+          "value": "正在柜台查看交易"
+        },
+        {
+          "key": "viewTaskBoard",
+          "value": "查看任务板{0}"
+        },
+        {
+          "key": "chooseTask",
+          "value": "选择任务{0}"
+        },
+        {
+          "key": "returnProviderReceiveTask",
+          "value": "返回管事处领取任务"
+        },
+        {
+          "key": "goWorkTask",
+          "value": "前往执行任务{0}"
+        },
+        {
+          "key": "workingTask",
+          "value": "正在执行任务{0}"
+        },
+        {
+          "key": "waitHuntRespawn",
+          "value": "休息，等待妖兽刷新{0}"
+        },
+        {
+          "key": "returnTurnInTask",
+          "value": "返回交付任务结果{0}"
+        },
+        {
+          "key": "turnInTask",
+          "value": "提交任务{0}"
+        },
+        {
+          "key": "searchGatherItem",
+          "value": "进入采集区域寻找{0} {1}"
+        },
+        {
+          "key": "goGatherItem",
+          "value": "前往采集区域采集{0} {1}"
+        },
+        {
+          "key": "gatheringItem",
+          "value": "正在采集{0} {1}"
+        },
+        {
+          "key": "pickHuntEvidence",
+          "value": "拾取猎杀凭证{0}"
+        },
+        {
+          "key": "huntSearch",
+          "value": "在魔兽山脉寻找妖兽{0}"
+        },
+        {
+          "key": "huntFight",
+          "value": "与妖兽{0}战斗"
+        },
+        {
+          "key": "pickItem",
+          "value": "前往拾取{0} {1}"
+        },
+        {
+          "key": "fleeMonsterArea",
+          "value": "从妖兽区域撤离"
+        },
+        {
+          "key": "guardSpiritHerbMonster",
+          "value": "守望灵草附近妖兽"
+        },
+        {
+          "key": "fightBlockingMonster",
+          "value": "转为攻击拦路妖兽"
+        },
+        {
+          "key": "clearHarvestMonster",
+          "value": "清除占据采集区的妖兽"
+        },
+        {
+          "key": "tooStrongChangeHarvestArea",
+          "value": "妖兽太强，改换采集区域"
+        },
+        {
+          "key": "mealComplete",
+          "value": "已在酒楼用餐完毕"
+        },
+        {
+          "key": "missingTurnInItems",
+          "value": "交付任务{0}的物品不足"
+        },
+        {
+          "key": "taskCompleted",
+          "value": "完成任务{0}：{1}"
+        },
+        {
+          "key": "counterTradeWithCustomer",
+          "value": "与顾客交易"
+        },
+        {
+          "key": "followTaskRoute",
+          "value": "沿任务路线前进"
+        }
+      ]
+    },
+    {
+      "name": "realms",
+      "entries": [
+        {
+          "key": "Mortal",
+          "value": "凡人"
+        },
+        {
+          "key": "QiRefining",
+          "value": "炼气"
+        },
+        {
+          "key": "Foundation",
+          "value": "筑基"
+        },
+        {
+          "key": "GoldenCore",
+          "value": "金丹"
+        },
+        {
+          "key": "NascentSoul",
+          "value": "元婴"
+        },
+        {
+          "key": "SoulFormation",
+          "value": "化神"
+        },
+        {
+          "key": "Tribulation",
+          "value": "渡劫"
+        }
+      ]
+    },
+    {
+      "name": "logs",
+      "entries": [
+        {
+          "key": "eat",
+          "value": "{0}正在去吃饭。"
+        },
+        {
+          "key": "sleep",
+          "value": "{0}正在休息。"
+        },
+        {
+          "key": "absorbPill",
+          "value": "{0}吸收丹药，获得{1}修为。"
+        },
+        {
+          "key": "absorbSpiritStone",
+          "value": "{0}吸收灵石，获得{1}修为。"
+        },
+        {
+          "key": "tribulationReady",
+          "value": "{0}已达渡劫圆满。"
+        },
+        {
+          "key": "breakthrough",
+          "value": "{0}突破至{1}{2}层。"
+        },
+        {
+          "key": "buyPill",
+          "value": "{0}购买了丹药。"
+        },
+        {
+          "key": "attackMonster",
+          "value": "{0}攻击{1}，造成{2}伤害。"
+        },
+        {
+          "key": "makeFriend",
+          "value": "{0}正在社交。"
+        },
+        {
+          "key": "createSect",
+          "value": "{0}可以创建宗门。"
+        },
+        {
+          "key": "takeDamage",
+          "value": "{0}受到{1}伤害。"
+        },
+        {
+          "key": "dead",
+          "value": "{0}已经死亡。"
+        },
+        {
+          "key": "taskCompletedWorld",
+          "value": "{0}完成任务{1}，获得{2}灵石。"
+        }
+      ]
+    },
+    {
+      "name": "workStatus",
+      "entries": [
+        {
+          "key": "noProductPaid",
+          "value": "无产物，领取工钱"
+        },
+        {
+          "key": "addedItemAmountInventory",
+          "value": "加入{0} x{1}，背包内：{2}"
+        },
+        {
+          "key": "farmerWaitMorning",
+          "value": "未收获：尚未到收获时间"
+        },
+        {
+          "key": "farmerHarvestedDay",
+          "value": "未收获：第{0}天已领取"
+        }
+      ]
+    },
+    {
+      "name": "health",
+      "entries": [
+        {
+          "key": "healthy",
+          "value": "健康"
+        },
+        {
+          "key": "injured",
+          "value": "受伤"
+        },
+        {
+          "key": "critical",
+          "value": "危急"
+        },
+        {
+          "key": "dead",
+          "value": "死亡"
+        }
+      ]
+    },
+    {
+      "name": "itemTypes",
+      "entries": [
+        {
+          "key": "DanDuoc",
+          "value": "丹药"
+        },
+        {
+          "key": "PhapBao",
+          "value": "法宝"
+        },
+        {
+          "key": "VatLieu",
+          "value": "材料"
+        },
+        {
+          "key": "CongPhap",
+          "value": "功法"
+        },
+        {
+          "key": "ThucPham",
+          "value": "食物"
+        }
+      ]
+    },
+    {
+      "name": "itemGrades",
+      "entries": [
+        {
+          "key": "Ha",
+          "value": "下"
+        },
+        {
+          "key": "Trung",
+          "value": "中"
+        },
+        {
+          "key": "Thuong",
+          "value": "上"
+        },
+        {
+          "key": "Tien",
+          "value": "仙"
+        }
+      ]
+    }
+  ]
+}

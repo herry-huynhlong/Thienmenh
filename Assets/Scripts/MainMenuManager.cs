@@ -15,6 +15,7 @@ public class MainMenuManager : MonoBehaviour
 
     [Header("Settings")]
     public GameObject settingsPanel;
+    public TMP_Dropdown languageDropdown;
     public Slider masterVolumeSlider;
     public Toggle fullscreenToggle;
     public Dropdown targetFpsDropdown;
@@ -27,6 +28,7 @@ public class MainMenuManager : MonoBehaviour
     const string LastVolumePrefKey = "Settings_LastMasterVolume";
     const string FullscreenPrefKey = "Settings_Fullscreen";
     const string TargetFpsPrefKey = "Settings_TargetFps";
+    static readonly string[] SupportedLanguageCodes = { "vi", "zh", "en" };
     bool createdRuntimeSettingsPanel;
 
     void Awake()
@@ -42,6 +44,14 @@ public class MainMenuManager : MonoBehaviour
         {
             settingsPanel.SetActive(false);
         }
+
+        LocalizationSettings.LanguageChanged += HandleLanguageChanged;
+        RefreshLocalizedUi();
+    }
+
+    void OnDestroy()
+    {
+        LocalizationSettings.LanguageChanged -= HandleLanguageChanged;
     }
 
     public void NewGame()
@@ -428,6 +438,8 @@ public class MainMenuManager : MonoBehaviour
     public void OpenSettings()
     {
         EnsureSettingsPanel();
+        EnsureSettingsReferences();
+        RefreshSettingsPanelTexts();
         SyncSettingsControls();
 
         if (settingsPanel != null)
@@ -447,6 +459,7 @@ public class MainMenuManager : MonoBehaviour
     public void ToggleSettings()
     {
         EnsureSettingsPanel();
+        EnsureSettingsReferences();
 
         if (settingsPanel == null)
         {
@@ -458,6 +471,7 @@ public class MainMenuManager : MonoBehaviour
 
         if (nextActive)
         {
+            RefreshSettingsPanelTexts();
             SyncSettingsControls();
         }
     }
@@ -549,6 +563,12 @@ public class MainMenuManager : MonoBehaviour
 
     void HookSettingsControls()
     {
+        if (languageDropdown != null)
+        {
+            languageDropdown.onValueChanged.RemoveListener(HandleLanguageDropdownChanged);
+            languageDropdown.onValueChanged.AddListener(HandleLanguageDropdownChanged);
+        }
+
         if (masterVolumeSlider != null)
         {
             masterVolumeSlider.onValueChanged.RemoveListener(SetMasterVolume);
@@ -623,6 +643,13 @@ public class MainMenuManager : MonoBehaviour
 
     void SyncSettingsControls()
     {
+        if (languageDropdown != null)
+        {
+            languageDropdown.SetValueWithoutNotify(
+                LanguageCodeToDropdownIndex(
+                    LocalizationSettings.CurrentLanguageCode));
+        }
+
         if (masterVolumeSlider != null)
         {
             SetVolumeValue(
@@ -694,6 +721,7 @@ public class MainMenuManager : MonoBehaviour
     {
         if (settingsPanel != null)
         {
+            EnsureSettingsReferences();
             return;
         }
 
@@ -769,6 +797,206 @@ public class MainMenuManager : MonoBehaviour
 
         HookSettingsControls();
         settingsPanel.SetActive(false);
+    }
+
+    void EnsureSettingsReferences()
+    {
+        if (settingsPanel == null)
+        {
+            return;
+        }
+
+        if (languageDropdown == null)
+        {
+            languageDropdown = FindComponentInChildrenByName<TMP_Dropdown>(
+                settingsPanel.transform,
+                "LanguageDropdown");
+        }
+
+        if (masterVolumeSlider == null)
+        {
+            masterVolumeSlider = FindComponentInChildrenByName<Slider>(
+                settingsPanel.transform,
+                "MasterVolumeSlider");
+        }
+
+        if (applySettingsButton == null)
+        {
+            applySettingsButton = FindComponentInChildrenByName<Button>(
+                settingsPanel.transform,
+                "ApplyButton");
+        }
+
+        if (closeSettingsButton == null)
+        {
+            closeSettingsButton = FindComponentInChildrenByName<Button>(
+                settingsPanel.transform,
+                "CloseButton");
+        }
+
+        HookSettingsControls();
+    }
+
+    void HandleLanguageChanged()
+    {
+        RefreshLocalizedUi();
+    }
+
+    void RefreshLocalizedUi()
+    {
+        HookMainMenuButtonsByName();
+        EnsureSettingsReferences();
+        RefreshSettingsPanelTexts();
+        SyncSettingsControls();
+    }
+
+    void RefreshSettingsPanelTexts()
+    {
+        if (settingsPanel == null)
+        {
+            return;
+        }
+
+        SetChildTextIfPresent(
+            settingsPanel.transform,
+            "Cài Đặt",
+            UiText.Get("mainMenu", "settingsTitle"));
+        SetChildTextIfPresent(
+            settingsPanel.transform,
+            "AudioLabel",
+            UiText.Get("mainMenu", "settingsVolume"));
+        SetChildTextIfPresent(
+            settingsPanel.transform,
+            "CloseButton",
+            UiText.Get("mainMenu", "settingsClose"));
+        SetChildTextIfPresent(
+            settingsPanel.transform,
+            "ApplyButton",
+            UiText.Get("mainMenu", "settingsSave"));
+        SetChildTextIfPresent(
+            settingsPanel.transform,
+            "Label",
+            GetCurrentLanguageDisplayName());
+
+        if (languageDropdown != null)
+        {
+            languageDropdown.ClearOptions();
+            languageDropdown.AddOptions(new System.Collections.Generic.List<string>
+            {
+                "Tiếng Việt",
+                "中文",
+                "English"
+            });
+            languageDropdown.RefreshShownValue();
+        }
+    }
+
+    void HandleLanguageDropdownChanged(int index)
+    {
+        string languageCode = DropdownIndexToLanguageCode(index);
+        LocalizationSettings.SetLanguage(languageCode);
+    }
+
+    int LanguageCodeToDropdownIndex(string languageCode)
+    {
+        string normalized = string.IsNullOrWhiteSpace(languageCode)
+            ? "vi"
+            : languageCode.Trim().ToLowerInvariant();
+
+        for (int i = 0; i < SupportedLanguageCodes.Length; i++)
+        {
+            if (SupportedLanguageCodes[i] == normalized)
+            {
+                return i;
+            }
+        }
+
+        return 0;
+    }
+
+    string DropdownIndexToLanguageCode(int index)
+    {
+        if (index < 0 || index >= SupportedLanguageCodes.Length)
+        {
+            return "vi";
+        }
+
+        return SupportedLanguageCodes[index];
+    }
+
+    string GetCurrentLanguageDisplayName()
+    {
+        switch (LocalizationSettings.CurrentLanguageCode)
+        {
+            case "zh":
+                return "中文";
+            case "en":
+                return "English";
+            default:
+                return "Tiếng Việt";
+        }
+    }
+
+    void SetChildTextIfPresent(
+        Transform root,
+        string objectName,
+        string value)
+    {
+        if (root == null || string.IsNullOrEmpty(objectName) || string.IsNullOrEmpty(value))
+        {
+            return;
+        }
+
+        Transform target = FindChildRecursive(root, objectName);
+        if (target == null)
+        {
+            return;
+        }
+
+        TMP_Text tmpText = target.GetComponent<TMP_Text>();
+        if (tmpText != null)
+        {
+            tmpText.text = value;
+            return;
+        }
+
+        Text legacyText = target.GetComponent<Text>();
+        if (legacyText != null)
+        {
+            legacyText.text = value;
+        }
+    }
+
+    T FindComponentInChildrenByName<T>(
+        Transform root,
+        string objectName) where T : Component
+    {
+        Transform target = FindChildRecursive(root, objectName);
+        return target != null ? target.GetComponent<T>() : null;
+    }
+
+    Transform FindChildRecursive(Transform root, string objectName)
+    {
+        if (root == null)
+        {
+            return null;
+        }
+
+        if (root.name == objectName)
+        {
+            return root;
+        }
+
+        for (int i = 0; i < root.childCount; i++)
+        {
+            Transform result = FindChildRecursive(root.GetChild(i), objectName);
+            if (result != null)
+            {
+                return result;
+            }
+        }
+
+        return null;
     }
 
     GameObject CreatePanel(Transform parent)

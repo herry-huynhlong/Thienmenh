@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public enum CultivationRealm
 {
@@ -248,7 +248,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
     {
         "laoba1",
         "tusinu1",
-        "satthu1"
+        "satthu1",
+        "thusinh33"
     };
 
     public bool IsDead =>
@@ -780,6 +781,17 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         bool isIdle = animationVelocity.sqrMagnitude <= 0.0001f;
         Vector2 direction = isIdle ? Vector2.zero : animationVelocity.normalized;
+
+        if (IsTrackedDebugNpc())
+        {
+            DebugFlow(
+                "Anim",
+                "Update visual dir=" +
+                direction +
+                " idle=" + isIdle +
+                " vel=" + animationVelocity +
+                " visual=" + (visualAnimation != null));
+        }
 
         visualAnimation.UpdateNPCAnimation(direction, isIdle, currentAction);
     }
@@ -3714,7 +3726,14 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
     bool IsTeleportRouteAction(string action)
     {
-        return !string.IsNullOrEmpty(action) &&
+        if (string.IsNullOrEmpty(action))
+        {
+            return false;
+        }
+
+        string teleportPrefix =
+            NpcText.Action("teleportGateTo").Replace("{0}", "");
+        return action.StartsWith(teleportPrefix) ||
             action.StartsWith("Đi cổng dịch chuyển");
     }
 
@@ -4406,11 +4425,14 @@ void TryAttackMonster()
         return;
     }
 
-    currentAction =
-        NpcText.ActionFormat(
-            "attackMonsterNamed",
-            currentMonsterTarget.monsterName);
-    actionTimer = Mathf.Max(actionTimer, 0.22f);
+    NpcRoleUtility.SetCombatAttackAction(
+        gameObject,
+        currentMonsterTarget.gameObject);
+    actionTimer = Mathf.Max(actionTimer, 0.6f);
+    if (rb != null)
+    {
+        rb.linearVelocity = Vector2.zero;
+    }
 
     if (visualAnimation != null)
     {
@@ -4418,10 +4440,35 @@ void TryAttackMonster()
             currentMonsterTarget.transform.position);
     }
 
+    if (IsTrackedDebugNpc())
+    {
+        DebugFlow(
+            "Combat",
+            "Attack intent target=" +
+            currentMonsterTarget.monsterName +
+            " distance=" + distance.ToString("0.00") +
+            " attackTimer=" + attackTimer.ToString("0.00") +
+            " cooldown=" + attackCooldown.ToString("0.00") +
+            " facingTarget=" + (visualAnimation != null));
+    }
+
     // Hoi chieu tan cong.
     if (attackTimer < attackCooldown)
     {
         return;
+    }
+
+    if (visualAnimation != null)
+    {
+        visualAnimation.ReplayActionAnimation(currentAction);
+    }
+
+    if (IsTrackedDebugNpc())
+    {
+        DebugFlow(
+            "Combat",
+            "Replay attack action=" + currentAction +
+            " target=" + currentMonsterTarget.monsterName);
     }
 
     // reset cooldown
@@ -4434,11 +4481,6 @@ void TryAttackMonster()
             attack);
 
     // Gay damage.
-    if (visualAnimation != null)
-    {
-        visualAnimation.ReplayActionAnimation(currentAction);
-    }
-
     NpcSocialEventBus.PublishHostility(
         gameObject,
         currentMonsterTarget.gameObject,
@@ -4800,6 +4842,12 @@ bool ShouldSmartAutoHuntMonster(MonsterAI monster)
             characterStats.TakeDamage(damage);
             SyncFromCharacterStats();
 
+            if (!characterStats.IsDead)
+            {
+                InterruptGatheringForCombat();
+                TryReactToNearbyAttackingMonster();
+            }
+
             if (characterStats.IsDead)
             {
                 Die();
@@ -4822,6 +4870,9 @@ bool ShouldSmartAutoHuntMonster(MonsterAI monster)
 
         if (currentHP > 0)
         {
+            InterruptGatheringForCombat();
+            TryReactToNearbyAttackingMonster();
+
             if (currentHP <= Mathf.Max(1, maxHP / 3))
             {
                 RequestEmergencyTask(
@@ -4842,6 +4893,115 @@ bool ShouldSmartAutoHuntMonster(MonsterAI monster)
         {
             Die();
         }
+    }
+
+    void InterruptGatheringForCombat()
+    {
+        if (resourceGatherer == null)
+        {
+            resourceGatherer = GetComponent<NpcResourceGatherer>();
+        }
+
+        if (resourceGatherer != null &&
+            resourceGatherer.HasActiveGatheringFlow)
+        {
+            resourceGatherer.CancelGatheringNow();
+        }
+    }
+
+    void TryReactToNearbyAttackingMonster()
+    {
+        if (IsDead ||
+            isRetreatingFromMonster)
+        {
+            return;
+        }
+
+        if (currentMonsterTarget != null &&
+            currentMonsterTarget.currentHP > 0)
+        {
+            return;
+        }
+
+        MonsterAI[] monsters =
+            FindObjectsByType<MonsterAI>(FindObjectsInactive.Exclude);
+
+        MonsterAI bestTarget = null;
+        float bestDistance = float.MaxValue;
+
+        for (int i = 0; i < monsters.Length; i++)
+        {
+            MonsterAI monster = monsters[i];
+            if (monster == null ||
+                monster.currentHP <= 0 ||
+                !monster.attackSmartNpcs ||
+                !ShouldSmartAutoHuntMonster(monster))
+            {
+                continue;
+            }
+
+            float distance =
+                GetCombatSurfaceDistance(monster.transform);
+            if (distance > Mathf.Max(attackRange + 1f, 2.5f))
+            {
+                continue;
+            }
+
+            if (CombatPowerUtility.ShouldRetreat(
+                    gameObject,
+                    monster.gameObject))
+            {
+                RequestHelpForMonster(monster);
+                TryBeginMonsterRetreat(monster);
+                return;
+            }
+
+            if (!ShouldFightMonster(monster))
+            {
+                continue;
+            }
+
+            if (TargetReservationSystem.Instance.IsReservedByOther(
+                    monster.gameObject,
+                    gameObject))
+            {
+                continue;
+            }
+
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                bestTarget = monster;
+            }
+        }
+
+        if (bestTarget == null)
+        {
+            return;
+        }
+
+        if (!TryReserveMonsterTarget(
+                bestTarget,
+                Mathf.Max(4f, attackCooldown * 4f)))
+        {
+            return;
+        }
+
+        currentMonsterTarget = bestTarget;
+        currentTarget = bestTarget.transform;
+        hasWanderTarget = false;
+        hasEscapeTarget = false;
+        hasObstacleAvoidTarget = false;
+        actionTimer = 0f;
+        currentAction =
+            NpcText.ActionFormat(
+                "huntMonsterNamed",
+                bestTarget.monsterName);
+        TryIgnoreCombatTargetCollision(currentTarget);
+        DebugFlow(
+            "Combat",
+            "Interrupted gather to react to monster " +
+            bestTarget.monsterName);
     }
 
     public void ApplyItem(StatItemData item)
@@ -5124,6 +5284,7 @@ bool ShouldSmartAutoHuntMonster(MonsterAI monster)
     }
 
 }
+
 
 
 
