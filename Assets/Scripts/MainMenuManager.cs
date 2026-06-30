@@ -845,9 +845,105 @@ public class MainMenuManager : MonoBehaviour
     void RefreshLocalizedUi()
     {
         HookMainMenuButtonsByName();
+        RefreshMenuPanelTexts();
         EnsureSettingsReferences();
         RefreshSettingsPanelTexts();
         SyncSettingsControls();
+    }
+
+    void RefreshMenuPanelTexts()
+    {
+        Transform menuPanel = FindMenuPanelTransform();
+        if (menuPanel == null)
+        {
+            return;
+        }
+
+        RefreshMenuPanelButtonText(
+            menuPanel,
+            new[] { "map", "Map" },
+            UiText.Get("mainMenu", "menuMap", "Bản đồ"));
+        RefreshMenuPanelButtonText(
+            menuPanel,
+            new[] { "shop", "Shop" },
+            UiText.Get("mainMenu", "menuShop", "Cửa hàng"));
+        RefreshMenuPanelButtonText(
+            menuPanel,
+            new[] { "story", "Story" },
+            UiText.Get("mainMenu", "menuStory", "Cốt truyện"));
+        RefreshMenuPanelButtonText(
+            menuPanel,
+            new[] { "balo", "Balo", "inventory", "Inventory" },
+            UiText.Get("mainMenu", "menuInventory", "Trữ vật"));
+    }
+
+    Transform FindMenuPanelTransform()
+    {
+        if (settingsPanel != null)
+        {
+            Transform siblingMenuPanel =
+                FindChildRecursive(settingsPanel.transform.parent, "MenuPanel");
+            if (siblingMenuPanel != null)
+            {
+                return siblingMenuPanel;
+            }
+        }
+
+        Transform[] transforms =
+            FindObjectsByType<Transform>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+
+        foreach (Transform candidate in transforms)
+        {
+            if (candidate != null &&
+                candidate.name == "MenuPanel")
+            {
+                return candidate;
+            }
+        }
+
+        return null;
+    }
+
+    void RefreshMenuPanelButtonText(
+        Transform menuPanel,
+        string[] rootNames,
+        string value)
+    {
+        if (menuPanel == null ||
+            rootNames == null ||
+            rootNames.Length == 0 ||
+            string.IsNullOrWhiteSpace(value))
+        {
+            return;
+        }
+
+        Transform root = FindChildRecursive(menuPanel, rootNames);
+        if (root == null)
+        {
+            return;
+        }
+
+        Button button = root.GetComponentInChildren<Button>(true);
+        if (button != null)
+        {
+            SetButtonLabel(button, value);
+            return;
+        }
+
+        TMP_Text tmpText = root.GetComponentInChildren<TMP_Text>(true);
+        if (tmpText != null)
+        {
+            tmpText.text = value;
+            return;
+        }
+
+        Text legacyText = root.GetComponentInChildren<Text>(true);
+        if (legacyText != null)
+        {
+            legacyText.text = value;
+        }
     }
 
     void RefreshSettingsPanelTexts()
@@ -876,7 +972,7 @@ public class MainMenuManager : MonoBehaviour
         SetChildTextIfPresent(
             settingsPanel.transform,
             "Label",
-            GetCurrentLanguageDisplayName());
+            GetLocalizedLanguageDisplayName());
 
         if (languageDropdown != null)
         {
@@ -888,6 +984,17 @@ public class MainMenuManager : MonoBehaviour
                 "English"
             });
             languageDropdown.RefreshShownValue();
+
+            if (languageDropdown.options.Count >= 3)
+            {
+                languageDropdown.options[0].text =
+                    UiText.Get("mainMenu", "languageVietnamese", "Tiếng Việt");
+                languageDropdown.options[1].text =
+                    UiText.Get("mainMenu", "languageChinese", "中文");
+                languageDropdown.options[2].text =
+                    UiText.Get("mainMenu", "languageEnglish", "English");
+                languageDropdown.RefreshShownValue();
+            }
         }
     }
 
@@ -934,6 +1041,19 @@ public class MainMenuManager : MonoBehaviour
                 return "English";
             default:
                 return "Tiếng Việt";
+        }
+    }
+
+    string GetLocalizedLanguageDisplayName()
+    {
+        switch (LocalizationSettings.CurrentLanguageCode)
+        {
+            case "zh":
+                return UiText.Get("mainMenu", "languageChinese", "中文");
+            case "en":
+                return UiText.Get("mainMenu", "languageEnglish", "English");
+            default:
+                return UiText.Get("mainMenu", "languageVietnamese", "Tiếng Việt");
         }
     }
 
@@ -990,6 +1110,32 @@ public class MainMenuManager : MonoBehaviour
         for (int i = 0; i < root.childCount; i++)
         {
             Transform result = FindChildRecursive(root.GetChild(i), objectName);
+            if (result != null)
+            {
+                return result;
+            }
+        }
+
+        return null;
+    }
+
+    Transform FindChildRecursive(Transform root, string[] objectNames)
+    {
+        if (root == null ||
+            objectNames == null)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < objectNames.Length; i++)
+        {
+            string objectName = objectNames[i];
+            if (string.IsNullOrWhiteSpace(objectName))
+            {
+                continue;
+            }
+
+            Transform result = FindChildRecursive(root, objectName);
             if (result != null)
             {
                 return result;

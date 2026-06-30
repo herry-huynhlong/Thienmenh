@@ -98,6 +98,10 @@
           "value": "未婚"
         },
         {
+          "key": "daoCompanion",
+          "value": "已有道侣"
+        },
+        {
           "key": "married",
           "value": "已婚"
         }

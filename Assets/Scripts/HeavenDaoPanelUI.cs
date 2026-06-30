@@ -72,6 +72,8 @@ public class HeavenDaoPanelUI : MonoBehaviour
             system.OnChanged += Refresh;
         }
 
+        LocalizationSettings.LanguageChanged += HandleLanguageChanged;
+
         Refresh();
     }
 
@@ -81,6 +83,8 @@ public class HeavenDaoPanelUI : MonoBehaviour
         {
             system.OnChanged -= Refresh;
         }
+
+        LocalizationSettings.LanguageChanged -= HandleLanguageChanged;
     }
 
     public void TogglePanel()
@@ -296,6 +300,11 @@ public class HeavenDaoPanelUI : MonoBehaviour
             UiText.Get(
                 "heavenDao",
                 "footerHint");
+    }
+
+    void HandleLanguageChanged()
+    {
+        Refresh();
     }
 
     void AutoBind()

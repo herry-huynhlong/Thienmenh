@@ -310,6 +310,34 @@
         {
           "key": "exitGame",
           "value": "Thoát"
+        },
+        {
+          "key": "menuMap",
+          "value": "Bản đồ"
+        },
+        {
+          "key": "menuShop",
+          "value": "Cửa hàng"
+        },
+        {
+          "key": "menuStory",
+          "value": "Cốt truyện"
+        },
+        {
+          "key": "menuInventory",
+          "value": "Trữ vật"
+        },
+        {
+          "key": "languageVietnamese",
+          "value": "Tiếng Việt"
+        },
+        {
+          "key": "languageChinese",
+          "value": "中文"
+        },
+        {
+          "key": "languageEnglish",
+          "value": "English"
         }
       ],
       "lists": []
@@ -677,6 +705,56 @@
         {
           "key": "unknown",
           "value": "Không rõ"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "sceneUi",
+      "entries": [
+        {
+          "key": "settingsLanguage",
+          "value": "Ngôn ngữ"
+        },
+        {
+          "key": "gameTitle",
+          "value": "Phục Hưng Thiên Đạo"
+        },
+        {
+          "key": "listTitle",
+          "value": "Danh sách"
+        },
+        {
+          "key": "quantity",
+          "value": "Số lượng"
+        },
+        {
+          "key": "price",
+          "value": "Giá"
+        },
+        {
+          "key": "status",
+          "value": "Tình trạng"
+        },
+        {
+          "key": "spiritStoneAmountDefault",
+          "value": "0 LT"
+        },
+        {
+          "key": "amountZero",
+          "value": "x0"
+        },
+        {
+          "key": "watchAd",
+          "value": "Xem Video"
+        },
+        {
+          "key": "recentTitle",
+          "value": "Gần Đây"
+        },
+        {
+          "key": "heavenDaoTitle",
+          "value": "THIÊN ĐẠO CHƯỞNG KHỐNG"
         }
       ],
       "lists": []

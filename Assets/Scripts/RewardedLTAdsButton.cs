@@ -21,6 +21,8 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
 
     private string adUnitId;
     private bool adLoaded;
+    private string currentStatusKey = "loading";
+    private bool currentStatusUsesRewardFormat;
 
     private void Awake()
     {
@@ -52,14 +54,18 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
     private void OnEnable()
     {
         AdsInitializer.OnAdsInitialized += LoadAd;
+        LocalizationSettings.LanguageChanged += HandleLanguageChanged;
 
         if (AdsInitializer.IsInitialized)
             LoadAd();
+        else
+            RefreshStatusText();
     }
 
     private void OnDisable()
     {
         AdsInitializer.OnAdsInitialized -= LoadAd;
+        LocalizationSettings.LanguageChanged -= HandleLanguageChanged;
     }
 
     private void OnDestroy()
@@ -110,7 +116,7 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
         if (watchAdButton != null)
             watchAdButton.interactable = true;
 
-        SetStatus(UiText.Format("rewardedAds", "readyRewardFormat", rewardLinhThach));
+        SetRewardStatus();
         Debug.Log("Rewarded Ads đã tải xong: " + loadedAdUnitId);
     }
 
@@ -173,7 +179,7 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
         {
             playerWallet.AddRewardedVideoCurrency(rewardLinhThach);
 
-            SetStatus(UiText.Format("rewardedAds", "rewardGrantedFormat", rewardLinhThach));
+            SetRewardGrantedStatus();
             Debug.Log("Người chơi xem quảng cáo xong, nhận +" + rewardLinhThach + " LT.");
         }
         else
@@ -191,6 +197,38 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
 
     private void SetStatusByKey(string key)
     {
+        currentStatusKey = key;
+        currentStatusUsesRewardFormat = false;
         SetStatus(UiText.Get("rewardedAds", key));
+    }
+
+    private void SetRewardStatus()
+    {
+        currentStatusKey = "readyRewardFormat";
+        currentStatusUsesRewardFormat = true;
+        SetStatus(UiText.Format("rewardedAds", currentStatusKey, rewardLinhThach));
+    }
+
+    private void SetRewardGrantedStatus()
+    {
+        currentStatusKey = "rewardGrantedFormat";
+        currentStatusUsesRewardFormat = true;
+        SetStatus(UiText.Format("rewardedAds", currentStatusKey, rewardLinhThach));
+    }
+
+    private void HandleLanguageChanged()
+    {
+        RefreshStatusText();
+    }
+
+    private void RefreshStatusText()
+    {
+        if (currentStatusUsesRewardFormat)
+        {
+            SetStatus(UiText.Format("rewardedAds", currentStatusKey, rewardLinhThach));
+            return;
+        }
+
+        SetStatus(UiText.Get("rewardedAds", currentStatusKey));
     }
 }

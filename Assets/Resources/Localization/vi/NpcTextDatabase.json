@@ -98,6 +98,10 @@
           "value": "Độc thân"
         },
         {
+          "key": "daoCompanion",
+          "value": "Đã có đạo lữ"
+        },
+        {
           "key": "married",
           "value": "Đã có vợ chồng"
         }

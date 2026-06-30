@@ -98,6 +98,10 @@
           "value": "Single"
         },
         {
+          "key": "daoCompanion",
+          "value": "Dao Companion"
+        },
+        {
           "key": "married",
           "value": "Married"
         }

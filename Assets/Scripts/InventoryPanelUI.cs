@@ -136,7 +136,7 @@ public class InventoryPanelUI : MonoBehaviour
         hasStarted = true;
         AutoFindMissingReferences();
 
-        if (closeOnStart)
+        if (ShouldStartClosed())
         {
             Close();
             return;
@@ -198,7 +198,18 @@ public class InventoryPanelUI : MonoBehaviour
         {
             panelRoot.SetActive(true);
 
-            if (bringToFrontOnOpen)
+            CanvasGroup canvasGroup =
+                panelRoot.GetComponent<CanvasGroup>();
+
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 1f;
+                canvasGroup.interactable = true;
+                canvasGroup.blocksRaycasts = true;
+            }
+
+            if (bringToFrontOnOpen ||
+                IsPlayerInventoryPanel())
             {
                 panelRoot.transform.SetAsLastSibling();
             }
@@ -454,6 +465,51 @@ public class InventoryPanelUI : MonoBehaviour
         }
 
         return panelRoot.activeInHierarchy;
+    }
+
+    bool ShouldStartClosed()
+    {
+        if (alwaysVisible)
+        {
+            return false;
+        }
+
+        if (closeOnStart)
+        {
+            return true;
+        }
+
+        return IsPlayerInventoryPanel();
+    }
+
+    bool IsPlayerInventoryPanel()
+    {
+        if (readOnly)
+        {
+            return false;
+        }
+
+        if (GetComponent<PlayerWallet>() != null)
+        {
+            return true;
+        }
+
+        if (panelRoot != null &&
+            panelRoot.GetComponent<PlayerWallet>() != null)
+        {
+            return true;
+        }
+
+        string key =
+            (panelRoot != null
+                ? panelRoot.name
+                : name)
+            .Replace(" ", string.Empty)
+            .Replace("_", string.Empty)
+            .ToLowerInvariant();
+
+        return key == "balopanel" ||
+            key == "balo";
     }
 
     void TrySelectItemAtScreenPosition(Vector2 screenPosition)

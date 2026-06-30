@@ -310,6 +310,34 @@
         {
           "key": "exitGame",
           "value": "退出"
+        },
+        {
+          "key": "menuMap",
+          "value": "地图"
+        },
+        {
+          "key": "menuShop",
+          "value": "商店"
+        },
+        {
+          "key": "menuStory",
+          "value": "剧情"
+        },
+        {
+          "key": "menuInventory",
+          "value": "储物"
+        },
+        {
+          "key": "languageVietnamese",
+          "value": "Tiếng Việt"
+        },
+        {
+          "key": "languageChinese",
+          "value": "中文"
+        },
+        {
+          "key": "languageEnglish",
+          "value": "English"
         }
       ],
       "lists": []
@@ -695,6 +723,56 @@
         {
           "key": "unknown",
           "value": "未知"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "sceneUi",
+      "entries": [
+        {
+          "key": "settingsLanguage",
+          "value": "语言"
+        },
+        {
+          "key": "gameTitle",
+          "value": "重修天道"
+        },
+        {
+          "key": "listTitle",
+          "value": "列表"
+        },
+        {
+          "key": "quantity",
+          "value": "数量"
+        },
+        {
+          "key": "price",
+          "value": "价格"
+        },
+        {
+          "key": "status",
+          "value": "状态"
+        },
+        {
+          "key": "spiritStoneAmountDefault",
+          "value": "0 LT"
+        },
+        {
+          "key": "amountZero",
+          "value": "x0"
+        },
+        {
+          "key": "watchAd",
+          "value": "观看广告"
+        },
+        {
+          "key": "recentTitle",
+          "value": "最近"
+        },
+        {
+          "key": "heavenDaoTitle",
+          "value": "天道掌控"
         }
       ],
       "lists": []

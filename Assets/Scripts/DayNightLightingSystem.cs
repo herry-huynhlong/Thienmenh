@@ -12,24 +12,24 @@ public class DayNightLightingSystem : MonoBehaviour
     public Image darknessOverlay;
 
     [Header("Intensity")]
-    public float nightIntensity = 0.38f;
-    public float dawnIntensity = 0.65f;
+    public float nightIntensity = 0.56f;
+    public float dawnIntensity = 0.74f;
     public float dayIntensity = 1f;
-    public float eveningIntensity = 0.62f;
+    public float eveningIntensity = 0.72f;
     public float transitionSpeed = 2f;
 
     [Header("Color")]
-    public Color nightColor = new Color(0.20f, 0.26f, 0.55f);
+    public Color nightColor = new Color(0.28f, 0.33f, 0.60f);
     public Color dawnColor = new Color(1f, 0.72f, 0.50f);
     public Color dayColor = Color.white;
     public Color eveningColor = new Color(1f, 0.56f, 0.35f);
 
     [Header("Screen Darkness Overlay")]
     public bool useScreenOverlay = true;
-    public float nightOverlayAlpha = 0.28f;
-    public float dawnOverlayAlpha = 0.08f;
+    public float nightOverlayAlpha = 0.14f;
+    public float dawnOverlayAlpha = 0.04f;
     public float dayOverlayAlpha = 0f;
-    public float eveningOverlayAlpha = 0.12f;
+    public float eveningOverlayAlpha = 0.06f;
 
     void Awake()
     {

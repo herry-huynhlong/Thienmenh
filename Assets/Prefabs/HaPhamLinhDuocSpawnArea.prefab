@@ -65,6 +65,7 @@ MonoBehaviour:
     amount: 1
   naturalResourcesOnly: 1
   maxNaturalGrade: 0
+  useAreaDangerTierForNaturalGrade: 1
   allowMaterials: 1
   allowFood: 0
   allowMedicine: 1
@@ -79,6 +80,7 @@ MonoBehaviour:
   visualSize: 0.45
   requireNpcHarvestAction: 1
   harvestDuration: 8
+  showAutoItemVisual: 0
   rareEffectChildName: ItemAuraParticle
   respawnAmount: 1
   respawnDelay: 45
@@ -104,7 +106,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &671333496872711005
 Transform:
   m_ObjectHideFlags: 0
@@ -4869,7 +4871,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 8d70b8c3c5d77fe40adda715622d1254, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

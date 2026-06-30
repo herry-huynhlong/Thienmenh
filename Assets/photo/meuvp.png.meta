@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 94d70349d4cd0814aa0b630ff4117309
+guid: a50c90e905a917f4299d238d590d29c3
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4129980524320755810
-    second: menuvp_0
+      213: 7427476558390395195
+    second: meuvp_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,24 +109,11 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: Android
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: menuvp_0
+      name: meuvp_0
       rect:
         serializedVersion: 2
         x: 0
@@ -141,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2609b61c763a05930800000000000000
-      internalID: 4129980524320755810
+      spriteID: b318660d392b31760800000000000000
+      internalID: 7427476558390395195
       vertices: []
       indices: 
       edges: []
@@ -161,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      menuvp_0: 4129980524320755810
+      meuvp_0: 7427476558390395195
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

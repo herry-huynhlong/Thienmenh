@@ -82,6 +82,8 @@ public class InventoryToggleButton : MonoBehaviour, IPointerDownHandler
             FindObjectsByType<InventoryPanelUI>(
                 FindObjectsInactive.Include);
 
+        InventoryPanelUI playerWalletPanel = null;
+
         foreach (InventoryPanelUI panel in panels)
         {
             if (panel == null ||
@@ -91,12 +93,32 @@ public class InventoryToggleButton : MonoBehaviour, IPointerDownHandler
                 continue;
             }
 
+            bool hasPlayerWallet =
+                !panel.readOnly &&
+                (panel.GetComponent<PlayerWallet>() != null ||
+                (panel.panelRoot != null &&
+                panel.panelRoot.GetComponent<PlayerWallet>() != null));
+
+            if (hasPlayerWallet &&
+                playerWalletPanel == null)
+            {
+                playerWalletPanel = panel;
+            }
+
             if (panel.name == "BaloPanel" ||
                 panel.name == "Balo")
             {
-                inventoryPanel = panel;
+                inventoryPanel = playerWalletPanel != null
+                    ? playerWalletPanel
+                    : panel;
                 return;
             }
+        }
+
+        if (playerWalletPanel != null)
+        {
+            inventoryPanel = playerWalletPanel;
+            return;
         }
 
         foreach (InventoryPanelUI panel in panels)

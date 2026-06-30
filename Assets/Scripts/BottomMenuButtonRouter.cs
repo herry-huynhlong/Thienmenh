@@ -497,6 +497,7 @@ public class BottomMenuButtonRouter : MonoBehaviour
         InventoryPanelUI[] panels =
             FindObjectsByType<InventoryPanelUI>(FindObjectsInactive.Include);
 
+        InventoryPanelUI playerWalletPanel = null;
         InventoryPanelUI exactBaloPanel = null;
         InventoryPanelUI exactBalo = null;
         InventoryPanelUI nameMatch = null;
@@ -512,6 +513,18 @@ public class BottomMenuButtonRouter : MonoBehaviour
             }
 
             string nameKey = panel.name.ToLowerInvariant();
+            bool hasPlayerWallet =
+                panel.GetComponent<PlayerWallet>() != null ||
+                (panel.panelRoot != null &&
+                panel.panelRoot.GetComponent<PlayerWallet>() != null);
+
+            if (hasPlayerWallet &&
+                !panel.readOnly &&
+                playerWalletPanel == null)
+            {
+                playerWalletPanel = panel;
+            }
+
             if (nameKey == "balopanel")
             {
                 exactBaloPanel = panel;
@@ -530,6 +543,11 @@ public class BottomMenuButtonRouter : MonoBehaviour
             {
                 fallback = panel;
             }
+        }
+
+        if (playerWalletPanel != null)
+        {
+            return playerWalletPanel;
         }
 
         if (exactBaloPanel != null)

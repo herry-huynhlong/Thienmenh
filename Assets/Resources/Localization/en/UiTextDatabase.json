@@ -310,6 +310,34 @@
         {
           "key": "exitGame",
           "value": "Exit"
+        },
+        {
+          "key": "menuMap",
+          "value": "Map"
+        },
+        {
+          "key": "menuShop",
+          "value": "Shop"
+        },
+        {
+          "key": "menuStory",
+          "value": "Story"
+        },
+        {
+          "key": "menuInventory",
+          "value": "Inventory"
+        },
+        {
+          "key": "languageVietnamese",
+          "value": "Tiếng Việt"
+        },
+        {
+          "key": "languageChinese",
+          "value": "中文"
+        },
+        {
+          "key": "languageEnglish",
+          "value": "English"
         }
       ],
       "lists": []
@@ -695,6 +723,56 @@
         {
           "key": "unknown",
           "value": "Unknown"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "sceneUi",
+      "entries": [
+        {
+          "key": "settingsLanguage",
+          "value": "Language"
+        },
+        {
+          "key": "gameTitle",
+          "value": "Reforge the Heavenly Dao"
+        },
+        {
+          "key": "listTitle",
+          "value": "List"
+        },
+        {
+          "key": "quantity",
+          "value": "Quantity"
+        },
+        {
+          "key": "price",
+          "value": "Price"
+        },
+        {
+          "key": "status",
+          "value": "Status"
+        },
+        {
+          "key": "spiritStoneAmountDefault",
+          "value": "0 LT"
+        },
+        {
+          "key": "amountZero",
+          "value": "x0"
+        },
+        {
+          "key": "watchAd",
+          "value": "Watch Ad"
+        },
+        {
+          "key": "recentTitle",
+          "value": "Recent"
+        },
+        {
+          "key": "heavenDaoTitle",
+          "value": "HEAVENLY DAO CONTROL"
         }
       ],
       "lists": []

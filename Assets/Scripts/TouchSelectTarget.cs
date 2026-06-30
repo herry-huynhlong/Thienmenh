@@ -608,6 +608,25 @@ public class TouchSelectTarget : MonoBehaviour
             ? infoContentRoot.transform
             : infoPanel.transform;
 
+        Transform lowerInfoRoot =
+            FindChildByName(
+                detailRoot,
+                "LowerInfoContent");
+
+        Transform equipmentPanelRoot =
+            lowerInfoRoot != null
+            ? FindChildByName(
+                lowerInfoRoot,
+                "EquipmentPanel")
+            : null;
+
+        Transform skillPanelRoot =
+            lowerInfoRoot != null
+            ? FindChildByName(
+                lowerInfoRoot,
+                "SkillPanel")
+            : null;
+
         if (realmIcon == null)
         {
             Transform realmIconTransform =
@@ -805,7 +824,29 @@ public class TouchSelectTarget : MonoBehaviour
             {
                 maritalStatusText =
                     FindRowValueText(
+                    detailRoot,
+                    UiText.Get("touchSelect", "maritalStatusRowAlt"));
+            }
+
+            if (maritalStatusText == null)
+            {
+                Transform maritalStatusTransform =
+                    FindChildByName(detailRoot, "tinhtrang");
+
+                if (maritalStatusTransform != null)
+                {
+                    maritalStatusText =
+                        maritalStatusTransform.GetComponent<TMP_Text>();
+                }
+            }
+
+            if (maritalStatusText == null)
+            {
+                maritalStatusText =
+                    FindTextByDisplayedText(
                         detailRoot,
+                        "tinhtrang",
+                        UiText.Get("touchSelect", "maritalStatusRow"),
                         UiText.Get("touchSelect", "maritalStatusRowAlt"));
             }
         }
@@ -834,12 +875,27 @@ public class TouchSelectTarget : MonoBehaviour
             {
                 statusText = statusTransform.GetComponent<TMP_Text>();
             }
+
+            if (statusText == null)
+            {
+                statusText =
+                    FindTextByDisplayedText(
+                        detailRoot,
+                        UiText.Get("touchSelect", "statusRow"),
+                        UiText.Get("touchSelect", "statusRowAlt"),
+                        "trạng thái",
+                        "trang thai");
+            }
         }
 
         if (equipmentListRoot == null)
         {
             Transform equipmentTransform =
-                FindChildByName(
+                equipmentPanelRoot != null
+                ? FindChildByName(
+                    equipmentPanelRoot,
+                    "EquipmentList")
+                : FindChildByName(
                     detailRoot,
                     UiText.Get("touchSelect", "equipmentList"));
 
@@ -860,7 +916,11 @@ public class TouchSelectTarget : MonoBehaviour
         if (skillListRoot == null)
         {
             Transform skillTransform =
-                FindChildByName(
+                skillPanelRoot != null
+                ? FindChildByName(
+                    skillPanelRoot,
+                    "SkillList")
+                : FindChildByName(
                     detailRoot,
                     UiText.Get("touchSelect", "skillList"));
 
@@ -961,6 +1021,8 @@ public class TouchSelectTarget : MonoBehaviour
         SetValueText(statusText, "-");
         ClearSpawnedRows(spawnedEquipmentRows, equipmentListRoot);
         ClearSpawnedRows(spawnedSkillRows, skillListRoot);
+        SetSectionVisible(equipmentListRoot, false);
+        SetSectionVisible(skillListRoot, false);
     }
 
     bool RefreshEquipmentRows(Transform target)
@@ -974,6 +1036,7 @@ public class TouchSelectTarget : MonoBehaviour
             equipmentListRoot == null)
         {
             ClearSpawnedRows(spawnedEquipmentRows, equipmentListRoot);
+            SetSectionVisible(equipmentListRoot, false);
             return false;
         }
 
@@ -984,8 +1047,11 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (equipmentStacks.Count <= 0)
         {
+            SetSectionVisible(equipmentListRoot, false);
             return false;
         }
+
+        SetSectionVisible(equipmentListRoot, true);
 
         GameObject template =
             GetRowTemplate(equipmentListRoot, equipmentRowTemplate);
@@ -1027,6 +1093,7 @@ public class TouchSelectTarget : MonoBehaviour
             skillListRoot == null)
         {
             ClearSpawnedRows(spawnedSkillRows, skillListRoot);
+            SetSectionVisible(skillListRoot, false);
             return false;
         }
 
@@ -1037,6 +1104,7 @@ public class TouchSelectTarget : MonoBehaviour
             hideInfo.hideCultivationSkills)
         {
             ClearSpawnedRows(spawnedSkillRows, skillListRoot);
+            SetSectionVisible(skillListRoot, false);
             return false;
         }
 
@@ -1047,8 +1115,11 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (skillStacks.Count <= 0)
         {
+            SetSectionVisible(skillListRoot, false);
             return false;
         }
+
+        SetSectionVisible(skillListRoot, true);
 
         GameObject template =
             GetRowTemplate(skillListRoot, skillRowTemplate);
@@ -1104,6 +1175,62 @@ public class TouchSelectTarget : MonoBehaviour
 
             child.gameObject.SetActive(false);
         }
+    }
+
+    void SetSectionVisible(
+        Transform root,
+        bool visible)
+    {
+        if (root == null)
+        {
+            return;
+        }
+
+        GameObject sectionObject =
+            FindSectionContainer(root);
+
+        if (sectionObject == null)
+        {
+            sectionObject = root.gameObject;
+        }
+
+        sectionObject.SetActive(visible);
+    }
+
+    GameObject FindSectionContainer(Transform root)
+    {
+        if (root == null)
+        {
+            return null;
+        }
+
+        Transform current = root;
+        while (current != null)
+        {
+            string key = NormalizeSectionName(current.name);
+            if (key == "equipmentpanel" ||
+                key == "skillpanel")
+            {
+                return current.gameObject;
+            }
+
+            current = current.parent;
+        }
+
+        return root.gameObject;
+    }
+
+    string NormalizeSectionName(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return string.Empty;
+        }
+
+        return value
+            .Replace(" ", string.Empty)
+            .Replace("_", string.Empty)
+            .ToLowerInvariant();
     }
 
     GameObject GetRowTemplate(
@@ -1173,7 +1300,8 @@ public class TouchSelectTarget : MonoBehaviour
             if (stack == null ||
                 stack.item == null ||
                 stack.amount <= 0 ||
-                stack.item.itemType != ItemType.PhapBao)
+                stack.item.itemType != ItemType.PhapBao ||
+                !stack.applied)
             {
                 continue;
             }
@@ -1492,6 +1620,68 @@ public class TouchSelectTarget : MonoBehaviour
         }
 
         return value.GetComponent<TMP_Text>();
+    }
+
+    TMP_Text FindTextByDisplayedText(
+        Transform root,
+        params string[] candidates)
+    {
+        if (root == null ||
+            candidates == null ||
+            candidates.Length <= 0)
+        {
+            return null;
+        }
+
+        TMP_Text[] texts =
+            root.GetComponentsInChildren<TMP_Text>(true);
+
+        for (int i = 0; i < texts.Length; i++)
+        {
+            TMP_Text text = texts[i];
+            if (text == null)
+            {
+                continue;
+            }
+
+            string current =
+                NormalizeLookupText(text.text);
+            string objectName =
+                NormalizeLookupText(text.gameObject.name);
+
+            for (int j = 0; j < candidates.Length; j++)
+            {
+                string candidate =
+                    NormalizeLookupText(candidates[j]);
+
+                if (string.IsNullOrEmpty(candidate))
+                {
+                    continue;
+                }
+
+                if (current == candidate ||
+                    objectName == candidate)
+                {
+                    return text;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    string NormalizeLookupText(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+
+        return value
+            .Replace(" ", string.Empty)
+            .Replace("_", string.Empty)
+            .Replace(":", string.Empty)
+            .ToLowerInvariant();
     }
 
     string GetEquipmentSlotLabel(StatItemData item)
@@ -3803,6 +3993,15 @@ public class TouchSelectTarget : MonoBehaviour
             return UiText.Get("touchSelect", "placeholder");
         }
 
+        SmartNpcAI smartNpc =
+            target.GetComponent<SmartNpcAI>();
+
+        if (smartNpc == null)
+        {
+            smartNpc =
+                target.GetComponentInParent<SmartNpcAI>();
+        }
+
         NPCIdentity identity =
             target.GetComponent<NPCIdentity>();
 
@@ -3814,6 +4013,13 @@ public class TouchSelectTarget : MonoBehaviour
 
         if (identity != null)
         {
+            if (smartNpc != null)
+            {
+                return string.IsNullOrWhiteSpace(identity.spouseId)
+                    ? NpcText.Get("maritalStatus", "single")
+                    : NpcText.Get("maritalStatus", "daoCompanion");
+            }
+
             return string.IsNullOrWhiteSpace(identity.spouseId)
                 ? NpcText.Get("maritalStatus", "single")
                 : NpcText.Get("maritalStatus", "married");
