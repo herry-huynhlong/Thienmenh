@@ -16846,7 +16846,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -6092904913541596581, guid: 0bc4fed7a7c6e5e4ab843b6769092393, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.9528302, g: 0.8494571, b: 0.8494571, a: 0.87058824}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -16864,7 +16864,7 @@ Transform:
   m_GameObject: {fileID: 252927329}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 152.4, y: -43.315147, z: 0}
+  m_LocalPosition: {x: 152.4, y: -43.28, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -17314,7 +17314,7 @@ MonoBehaviour:
   thinkDelay: 2
   debugFlowLogs: 1
   runtimeTraceEnabled: 1
-  runtimeTraceTarget: ""
+  runtimeTraceTarget: 
   runtimeTraceEveryUpdate: 1
   runtimeTraceEveryThink: 1
   runtimeTraceScheduleChanges: 1
@@ -18150,6 +18150,11 @@ MonoBehaviour:
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
   debugFlowLogs: 0
+  runtimeTraceEnabled: 0
+  runtimeTraceTarget: 
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!114 &283373232
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19438,6 +19443,11 @@ MonoBehaviour:
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
   debugFlowLogs: 0
+  runtimeTraceEnabled: 0
+  runtimeTraceTarget: 
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!114 &309522944
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -41132,6 +41142,11 @@ MonoBehaviour:
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
   debugFlowLogs: 0
+  runtimeTraceEnabled: 0
+  runtimeTraceTarget: 
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!114 &754998919
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -48619,7 +48634,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 2
   m_MaskInteraction: 0
   m_Sprite: {fileID: 8329299710071688420, guid: 870319aeddff5a244b68ddd1647e0d5d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -49028,6 +49043,11 @@ MonoBehaviour:
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
   debugFlowLogs: 0
+  runtimeTraceEnabled: 0
+  runtimeTraceTarget: 
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!1 &966158763
 GameObject:
   m_ObjectHideFlags: 0
@@ -55181,6 +55201,11 @@ MonoBehaviour:
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
   debugFlowLogs: 0
+  runtimeTraceEnabled: 0
+  runtimeTraceTarget: 
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!114 &995969493
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -56857,7 +56882,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_MaskInteraction: 0
   m_Sprite: {fileID: 4771158726234447210, guid: d9627c7be5ac53f43b7be172af104d60, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -57114,6 +57139,11 @@ MonoBehaviour:
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
   debugFlowLogs: 0
+  runtimeTraceEnabled: 0
+  runtimeTraceTarget: 
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!114 &1044429983
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -58510,6 +58540,11 @@ MonoBehaviour:
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
   debugFlowLogs: 0
+  runtimeTraceEnabled: 0
+  runtimeTraceTarget: 
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!114 &1058458080
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -83503,6 +83538,11 @@ MonoBehaviour:
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
   debugFlowLogs: 0
+  runtimeTraceEnabled: 0
+  runtimeTraceTarget: 
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!114 &1282378967
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -84239,6 +84279,11 @@ MonoBehaviour:
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
   debugFlowLogs: 0
+  runtimeTraceEnabled: 0
+  runtimeTraceTarget: 
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!114 &1294589193
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -86140,6 +86185,11 @@ MonoBehaviour:
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
   debugFlowLogs: 0
+  runtimeTraceEnabled: 0
+  runtimeTraceTarget: 
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!4 &1348486205 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8002957989317268842, guid: 52234395ac81e954b8415221c10525ea, type: 3}
@@ -86904,6 +86954,11 @@ MonoBehaviour:
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
   debugFlowLogs: 1
+  runtimeTraceEnabled: 0
+  runtimeTraceTarget: 
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!114 &1356436473
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -87806,6 +87861,11 @@ MonoBehaviour:
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
   debugFlowLogs: 0
+  runtimeTraceEnabled: 0
+  runtimeTraceTarget: 
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!114 &1375171533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -97451,6 +97511,97 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &1617887143
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1617887145}
+  - component: {fileID: 1617887144}
+  m_Layer: 0
+  m_Name: map2_0
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!212 &1617887144
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1617887143}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: -1046444227985733684, guid: ab811cda0a5a8c54e827d00af29e23e7, type: 3}
+  m_Color: {r: 0.9245283, g: 0.75444996, b: 0.75444996, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 7.243535, y: 21.72}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
+--- !u!4 &1617887145
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1617887143}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 130.4, y: -43.27, z: 0}
+  m_LocalScale: {x: 1, y: 2.162996, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1618443979
 GameObject:
   m_ObjectHideFlags: 0
@@ -121972,6 +122123,11 @@ MonoBehaviour:
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
   debugFlowLogs: 0
+  runtimeTraceEnabled: 0
+  runtimeTraceTarget: 
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!114 &1776821969
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -122624,6 +122780,11 @@ MonoBehaviour:
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
   debugFlowLogs: 0
+  runtimeTraceEnabled: 0
+  runtimeTraceTarget: 
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!70 &1783360640
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -124159,6 +124320,11 @@ MonoBehaviour:
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
   debugFlowLogs: 0
+  runtimeTraceEnabled: 0
+  runtimeTraceTarget: 
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!114 &1824737303
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -138202,6 +138368,11 @@ MonoBehaviour:
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
   debugFlowLogs: 1
+  runtimeTraceEnabled: 0
+  runtimeTraceTarget: 
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!114 &2109649317
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -149162,11 +149333,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5940989503721107646, guid: 2c0d34cd5aa06714784e6b1a3c9358cb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 48
+      value: 39.1
       objectReference: {fileID: 0}
     - target: {fileID: 5940989503721107646, guid: 2c0d34cd5aa06714784e6b1a3c9358cb, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -5.43
+      value: -3.8
       objectReference: {fileID: 0}
     - target: {fileID: 5940989503721107646, guid: 2c0d34cd5aa06714784e6b1a3c9358cb, type: 3}
       propertyPath: m_LocalPosition.z
@@ -149770,3 +149941,4 @@ SceneRoots:
   - {fileID: 429325317}
   - {fileID: 2011371187}
   - {fileID: 252927331}
+  - {fileID: 1617887145}

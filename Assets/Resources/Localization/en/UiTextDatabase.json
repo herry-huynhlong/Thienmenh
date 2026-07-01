@@ -329,11 +329,11 @@
         },
         {
           "key": "languageVietnamese",
-          "value": "Tiếng Việt"
+          "value": "Tiáº¿ng Viá»‡t"
         },
         {
           "key": "languageChinese",
-          "value": "中文"
+          "value": "ä¸­æ–‡"
         },
         {
           "key": "languageEnglish",
@@ -666,7 +666,14 @@
           "key": "detailEmpty",
           "value": "-"
         },
+                {
+          "key": "emptyStateTitle",
+          "value": "No Child of Destiny yet"
+        },
         {
+          "key": "emptyStateDescription",
+          "value": "Grant fate to a suitable being to have them appear here."
+        },{
           "key": "descriptionNone",
           "value": "No notes"
         },

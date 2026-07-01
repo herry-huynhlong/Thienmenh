@@ -76,6 +76,7 @@ public static class NpcInventoryDropper
         pickup.amount = Mathf.Max(1, amount);
         pickup.allowNpcPickup = true;
         pickup.allowPlayerPickup = false;
+        pickup.ConfigureAsDroppedWorldItem();
 
         CircleCollider2D collider =
             itemObject.AddComponent<CircleCollider2D>();

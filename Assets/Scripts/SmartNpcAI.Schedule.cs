@@ -361,7 +361,8 @@ public partial class SmartNpcAI
                     return true;
                 }
 
-                if (money >= 50)
+                if (!HasAvailablePills() &&
+                    money >= 50)
                 {
                     TraceBranch("TryRunScheduledActivity", "trade-buy-pill", true);
                     if (!GoToTavernAndBuyPill())
@@ -377,7 +378,9 @@ public partial class SmartNpcAI
                 return true;
 
             case NpcScheduleActivity.BuyGoods:
-                if (canTrade && money >= 50)
+                if (canTrade &&
+                    !HasAvailablePills() &&
+                    money >= 50)
                 {
                     TraceBranch("TryRunScheduledActivity", "buy-goods", true);
                     if (!GoToTavernAndBuyPill())
@@ -658,7 +661,7 @@ public partial class SmartNpcAI
         }
 
         if (canTrade &&
-            (pill <= 0 || spiritStone <= 0) &&
+            (!HasAvailablePills() || spiritStone <= 0) &&
             money >= 50 &&
             Random.value < 0.35f)
         {
@@ -818,11 +821,15 @@ public partial class SmartNpcAI
     {
         if (!CanVisitTaskProviderToday())
         {
+            float currentHour = GetCurrentWorldHour();
             DebugFlow(
                 "TaskProvider",
                 "Visit blocked enabled=" + dailyTaskVisitEnabled +
                 " quota=" + GetDailyTaskQuotaDebugText() +
-                " window=" + IsTaskProviderWindow());
+                " window=" + IsTaskProviderWindow() +
+                " hour=" + currentHour.ToString("0.00") +
+                " start=" + taskProviderStartHour.ToString("0.00") +
+                " end=" + taskProviderEndHour.ToString("0.00"));
             return false;
         }
 
@@ -854,8 +861,23 @@ public partial class SmartNpcAI
                 0.45f,
                 targetClearRadius * 2f,
                 provider.providerTalkDistance * 0.9f);
+        float providerDistance =
+            Vector2.Distance(transform.position, providerPosition);
         bool inProviderRange =
             provider.IsNpcInProviderInteractionRange(gameObject);
+        bool allowBlockedCloseVisit =
+            !inProviderRange &&
+            provider.providerStandPoint == null &&
+            providerDistance <=
+            Mathf.Max(
+                provider.GetProviderInteractionDistance(),
+                providerArriveDistance) +
+            Mathf.Max(0.12f, targetClearRadius * 0.5f);
+
+        if (allowBlockedCloseVisit)
+        {
+            inProviderRange = true;
+        }
 
         DebugFlow(
             "TaskProvider",
@@ -869,10 +891,12 @@ public partial class SmartNpcAI
                 : "null") +
             " inRange=" +
             inProviderRange +
+            " closeVisit=" +
+            allowBlockedCloseVisit +
             " arrive=" +
             providerArriveDistance.ToString("0.00") +
             " dist=" +
-            Vector2.Distance(transform.position, providerPosition).ToString("0.00") +
+            providerDistance.ToString("0.00") +
             " pos=" +
             transform.position +
             " selfArea=" +
@@ -891,8 +915,7 @@ public partial class SmartNpcAI
         currentAction = NpcText.Action("goTaskProviderDaily");
 
         if (!inProviderRange &&
-            Vector2.Distance(transform.position, providerPosition) >
-            providerArriveDistance)
+            providerDistance > providerArriveDistance)
         {
             ClearTravelTargets();
             if (provider.providerStandPoint != null)

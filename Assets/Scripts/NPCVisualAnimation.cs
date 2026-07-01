@@ -51,6 +51,7 @@ public class NPCVisualAnimation : MonoBehaviour
     SpriteRenderer spriteRenderer;
     AnimatorOverrideController overrideController;
     string overrideClipName = "OverrideTargetState";
+    int overrideStateHash;
     Vector2 lastDirection = Vector2.down;
     AnimationClip currentClip;
 
@@ -138,6 +139,11 @@ public class NPCVisualAnimation : MonoBehaviour
 
         animator.Rebind();
         animator.Update(0f);
+        AnimatorStateInfo currentState =
+            animator.GetCurrentAnimatorStateInfo(0);
+        overrideStateHash = currentState.fullPathHash != 0
+            ? currentState.fullPathHash
+            : currentState.shortNameHash;
 
         if (IsTrackedVisual())
         {
@@ -147,6 +153,7 @@ public class NPCVisualAnimation : MonoBehaviour
                 " controller=" +
                 (controller != null ? controller.name : "null") +
                 " overrideClipName=" + overrideClipName +
+                " stateHash=" + overrideStateHash +
                 " attackDown=" + DescribeClip(attackDownClip) +
                 " attackUp=" + DescribeClip(attackUpClip) +
                 " attackSide=" + DescribeClip(attackSideClip) +
@@ -442,7 +449,11 @@ public class NPCVisualAnimation : MonoBehaviour
         }
 
         overrideController[overrideClipName] = clipToPlay;
-        animator.Play(overrideClipName, 0, 0f);
+        if (overrideStateHash != 0)
+        {
+            animator.Play(overrideStateHash, 0, 0f);
+        }
+        animator.Update(0f);
         currentClip = clipToPlay;
     }
 
@@ -793,24 +804,39 @@ public class NPCVisualAnimation : MonoBehaviour
             assignedFromAnimator |= visual.upWalkClip != null;
         }
 
+        if (visual.rightWalkClip == null)
+        {
+            visual.rightWalkClip = FindBestClip(clips, "walk", "right");
+        }
+
+        if (visual.leftWalkClip == null)
+        {
+            visual.leftWalkClip = FindBestClip(clips, "walk", "left");
+        }
+
         if (visual.sideWalkClip == null)
         {
-            AnimationClip rightWalk = FindBestClip(clips, "walk", "right");
-            AnimationClip leftWalk = FindBestClip(clips, "walk", "left");
             AnimationClip genericWalk = FindBestClip(clips, "walk", "side");
-            visual.rightWalkClip = rightWalk;
-            visual.leftWalkClip = leftWalk;
-            visual.sideWalkClip = rightWalk ?? leftWalk ?? genericWalk;
-            assignedFromAnimator |= visual.sideWalkClip != null;
+            visual.sideWalkClip =
+                visual.rightWalkClip ??
+                visual.leftWalkClip ??
+                genericWalk;
+        }
 
-            if (rightWalk != null && visual.sideWalkClip == rightWalk)
-            {
-                visual.sideSpriteFacesRight = true;
-            }
-            else if (leftWalk != null && visual.sideWalkClip == leftWalk)
-            {
-                visual.sideSpriteFacesRight = false;
-            }
+        assignedFromAnimator |=
+            visual.rightWalkClip != null ||
+            visual.leftWalkClip != null ||
+            visual.sideWalkClip != null;
+
+        if (visual.rightWalkClip != null &&
+            visual.sideWalkClip == visual.rightWalkClip)
+        {
+            visual.sideSpriteFacesRight = true;
+        }
+        else if (visual.leftWalkClip != null &&
+            visual.sideWalkClip == visual.leftWalkClip)
+        {
+            visual.sideSpriteFacesRight = false;
         }
 
         if (visual.downIdleClip == null)
@@ -829,28 +855,43 @@ public class NPCVisualAnimation : MonoBehaviour
             assignedFromAnimator |= visual.upIdleClip != null;
         }
 
-        if (visual.sideIdleClip == null)
+        if (visual.rightIdleClip == null)
         {
-            AnimationClip rightIdle =
+            visual.rightIdleClip =
                 FindBestClip(clips, "idle", "right") ??
                 FindBestClip(clips, "lie", "right");
-            AnimationClip leftIdle =
+        }
+
+        if (visual.leftIdleClip == null)
+        {
+            visual.leftIdleClip =
                 FindBestClip(clips, "idle", "left") ??
                 FindBestClip(clips, "lie", "left");
-            AnimationClip genericIdle = FindBestClip(clips, "idle", "side");
-            visual.rightIdleClip = rightIdle;
-            visual.leftIdleClip = leftIdle;
-            visual.sideIdleClip = rightIdle ?? leftIdle ?? genericIdle;
-            assignedFromAnimator |= visual.sideIdleClip != null;
+        }
 
-            if (rightIdle != null && visual.sideIdleClip == rightIdle)
-            {
-                visual.sideSpriteFacesRight = true;
-            }
-            else if (leftIdle != null && visual.sideIdleClip == leftIdle)
-            {
-                visual.sideSpriteFacesRight = false;
-            }
+        if (visual.sideIdleClip == null)
+        {
+            AnimationClip genericIdle = FindBestClip(clips, "idle", "side");
+            visual.sideIdleClip =
+                visual.rightIdleClip ??
+                visual.leftIdleClip ??
+                genericIdle;
+        }
+
+        assignedFromAnimator |=
+            visual.rightIdleClip != null ||
+            visual.leftIdleClip != null ||
+            visual.sideIdleClip != null;
+
+        if (visual.rightIdleClip != null &&
+            visual.sideIdleClip == visual.rightIdleClip)
+        {
+            visual.sideSpriteFacesRight = true;
+        }
+        else if (visual.leftIdleClip != null &&
+            visual.sideIdleClip == visual.leftIdleClip)
+        {
+            visual.sideSpriteFacesRight = false;
         }
 
         TryAssignActionClipsFromAnimator(visual, clips);
@@ -887,32 +928,40 @@ public class NPCVisualAnimation : MonoBehaviour
                 FindBestClip(clips, "hit", "up");
         }
 
-        if (visual.attackSideClip == null)
+        if (visual.rightAttackClip == null)
         {
             visual.rightAttackClip =
                 FindBestClip(clips, "attack", "right") ??
                 FindBestClip(clips, "fight", "right") ??
                 FindBestClip(clips, "hit", "right");
+        }
+
+        if (visual.leftAttackClip == null)
+        {
             visual.leftAttackClip =
                 FindBestClip(clips, "attack", "left") ??
                 FindBestClip(clips, "fight", "left") ??
                 FindBestClip(clips, "hit", "left");
+        }
+
+        if (visual.attackSideClip == null)
+        {
             visual.attackSideClip =
                 visual.rightAttackClip ??
                 visual.leftAttackClip ??
                 FindBestClip(clips, "attack", "side") ??
                 FindBestClip(clips, "fight", "side");
+        }
 
-            if (visual.rightAttackClip != null &&
-                visual.attackSideClip == visual.rightAttackClip)
-            {
-                visual.sideSpriteFacesRight = true;
-            }
-            else if (visual.leftAttackClip != null &&
-                visual.attackSideClip == visual.leftAttackClip)
-            {
-                visual.sideSpriteFacesRight = false;
-            }
+        if (visual.rightAttackClip != null &&
+            visual.attackSideClip == visual.rightAttackClip)
+        {
+            visual.sideSpriteFacesRight = true;
+        }
+        else if (visual.leftAttackClip != null &&
+            visual.attackSideClip == visual.leftAttackClip)
+        {
+            visual.sideSpriteFacesRight = false;
         }
 
         if (visual.cultivateDownClip == null)

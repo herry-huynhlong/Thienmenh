@@ -43,8 +43,10 @@ public class HeavenNurturePanelUI : MonoBehaviour
     [SerializeField] HeavenNurtureListItemUI itemPrefab;
 
     [Header("Detail")]
+    [SerializeField] GameObject rightDetailPanel;
     [SerializeField] Image portraitImage;
     [SerializeField] TMP_Text detailNameText;
+    [SerializeField] TMP_Text detailTypeText;
     [SerializeField] TMP_Text detailTitleText;
     [SerializeField] TMP_Text detailRealmText;
     [SerializeField] TMP_Text detailOriginText;
@@ -240,9 +242,12 @@ public class HeavenNurturePanelUI : MonoBehaviour
     {
         if (target == null)
         {
-            ClearDetail();
+            SetRightDetailVisible(true);
+            ClearDetail(false);
             return;
         }
+
+        SetRightDetailVisible(true);
 
         if (portraitImage != null)
         {
@@ -250,36 +255,60 @@ public class HeavenNurturePanelUI : MonoBehaviour
             portraitImage.enabled = portraitImage.sprite != null;
         }
 
-        SetText(detailNameText, target.displayName);
+        SetText(
+            detailNameText,
+            UiText.Get("heavenNurture", "labelName") + " " +
+            target.displayName);
         SetText(
             detailTitleText,
-            string.IsNullOrWhiteSpace(target.title)
+            UiText.Get("heavenNurture", "labelTitle") + " " +
+            (string.IsNullOrWhiteSpace(target.title)
                 ? UiText.Get("heavenNurture", "titleNone")
-                : target.title);
-        SetText(detailRealmText, target.realm);
+                : target.title));
+        SetText(
+            detailRealmText,
+            UiText.Get("heavenNurture", "labelRealm") + " " + target.realm);
         SetText(
             detailOriginText,
-            string.IsNullOrWhiteSpace(target.origin)
+            UiText.Get("heavenNurture", "labelOrigin") + " " +
+            (string.IsNullOrWhiteSpace(target.origin)
                 ? UiText.Get("heavenNurture", "originNone")
-                : target.origin);
+                : target.origin));
         SetText(
             detailAptitudeText,
+            UiText.Get("heavenNurture", "labelAptitude") + ": " +
             UiText.Format("heavenNurture", "aptitudeFormat", target.aptitude));
         SetText(
             detailFearText,
-            UiText.Format("heavenNurture", "fearFormat", target.fear));
-        SetText(detailFateText, target.fateState);
+            UiText.Get("heavenNurture", "labelFear") + ": " +
+            target.fear.ToString(CultureInfo.InvariantCulture));
+        SetText(
+            detailFateText,
+            UiText.Get("heavenNurture", "labelFate") + ": " +
+            target.fateState);
         SetText(
             detailDescriptionText,
-            string.IsNullOrWhiteSpace(target.description)
+            UiText.Get("heavenNurture", "labelDescription") + ": " +
+            (string.IsNullOrWhiteSpace(target.description)
                 ? UiText.Get("heavenNurture", "descriptionNone")
-                : target.description);
+                : target.description));
+        SetText(detailTypeText, string.Empty);
 
         SetButtonsInteractable(true);
     }
 
     public void ClearDetail()
     {
+        ClearDetail(false);
+    }
+
+    void ClearDetail(bool showEmptyState)
+    {
+        if (showEmptyState)
+        {
+            SetRightDetailVisible(true);
+        }
+
         if (portraitImage != null)
         {
             portraitImage.sprite = null;
@@ -287,8 +316,21 @@ public class HeavenNurturePanelUI : MonoBehaviour
         }
 
         string emptyText = UiText.Get("heavenNurture", "detailEmpty");
+        string emptyStateTitle = UiText.Get(
+            "heavenNurture",
+            "emptyStateTitle",
+            "Chưa có thiên mệnh chi tử");
+        string emptyStateDescription = UiText.Get(
+            "heavenNurture",
+            "emptyStateDescription",
+            "Hãy ban cơ duyên cho một sinh linh phù hợp để xuất hiện tại đây.");
 
-        SetText(detailNameText, emptyText);
+        SetText(
+            detailNameText,
+            showEmptyState
+                ? emptyStateTitle
+                : emptyText);
+        SetText(detailTypeText, emptyText);
         SetText(detailTitleText, emptyText);
         SetText(detailRealmText, emptyText);
         SetText(detailOriginText, emptyText);
@@ -297,7 +339,9 @@ public class HeavenNurturePanelUI : MonoBehaviour
         SetText(detailFateText, emptyText);
         SetText(
             detailDescriptionText,
-            UiText.Get("heavenNurture", "descriptionNone"));
+            showEmptyState
+                ? emptyStateDescription
+                : UiText.Get("heavenNurture", "descriptionNone"));
 
         SetButtonsInteractable(false);
     }
@@ -435,13 +479,113 @@ public class HeavenNurturePanelUI : MonoBehaviour
             Transform itemTransform = FindChildRecursive(root, "NPCListItem");
             if (itemTransform != null)
             {
-                itemPrefab = itemTransform.GetComponent<HeavenNurtureListItemUI>();
+                itemPrefab =
+                    itemTransform.GetComponent<HeavenNurtureListItemUI>();
+
+                if (itemPrefab == null)
+                {
+                    itemPrefab =
+                        itemTransform.gameObject.AddComponent<HeavenNurtureListItemUI>();
+                }
+            }
+        }
+
+        Transform panelRoot = heavenPanel != null
+            ? heavenPanel.transform
+            : root;
+
+        if (panelTitleText == null)
+        {
+            panelTitleText =
+                FindComponentInChildren<TMP_Text>(panelRoot, "Header");
+        }
+
+        if (listTitleText == null)
+        {
+            listTitleText =
+                FindComponentInChildren<TMP_Text>(panelRoot, "ListTitle");
+        }
+
+        if (listHeaderText == null)
+        {
+            listHeaderText =
+                FindComponentInChildren<TMP_Text>(panelRoot, "danhsach");
+        }
+
+        if (rightDetailPanel == null)
+        {
+            Transform detailPanelTransform =
+                FindChildRecursive(panelRoot, "RightDetailPanel");
+            if (detailPanelTransform != null)
+            {
+                rightDetailPanel = detailPanelTransform.gameObject;
             }
         }
 
         if (portraitImage == null)
         {
             portraitImage = FindComponentInChildren<Image>(root, "PortraitSlot");
+        }
+
+        Transform detailRoot =
+            rightDetailPanel != null
+                ? rightDetailPanel.transform
+                : panelRoot;
+
+        if (detailNameText == null)
+        {
+            detailNameText =
+                FindDetailText(detailRoot, "Tên:");
+        }
+
+        if (detailTitleText == null)
+        {
+            detailTitleText =
+                FindDetailText(detailRoot, "Danh Hiệu:");
+        }
+
+        if (detailTypeText == null)
+        {
+            detailTypeText =
+                FindComponentInChildren<TMP_Text>(
+                    detailRoot,
+                    "DetailTypeText");
+        }
+
+        if (detailRealmText == null)
+        {
+            detailRealmText =
+                FindDetailText(detailRoot, "Cảnh Giới:");
+        }
+
+        if (detailOriginText == null)
+        {
+            detailOriginText =
+                FindDetailText(detailRoot, "Xuất Thân:");
+        }
+
+        if (detailAptitudeText == null)
+        {
+            detailAptitudeText =
+                FindDetailText(detailRoot, "Tư Chất");
+        }
+
+        if (detailFearText == null)
+        {
+            detailFearText =
+                FindDetailText(detailRoot, "Kính Sợ");
+        }
+
+        if (detailFateText == null)
+        {
+            detailFateText =
+                FindDetailText(detailRoot, "Cơ Duyên");
+        }
+
+        if (detailDescriptionText == null)
+        {
+            detailDescriptionText =
+                FindDetailText(detailRoot, "Mô tả/Ghi chú");
         }
 
         if (giveFateButton == null)
@@ -525,6 +669,72 @@ public class HeavenNurturePanelUI : MonoBehaviour
     {
         Transform found = FindChildRecursive(root, objectName);
         return found != null ? found.GetComponent<T>() : null;
+    }
+
+    static TMP_Text FindDetailText(Transform root, string expectedText)
+    {
+        if (root == null || string.IsNullOrWhiteSpace(expectedText))
+        {
+            return null;
+        }
+
+        TMP_Text[] texts = root.GetComponentsInChildren<TMP_Text>(true);
+        string expectedRaw = expectedText.Trim();
+        string expectedKey = NormalizeForLookup(expectedText);
+
+        for (int i = 0; i < texts.Length; i++)
+        {
+            TMP_Text text = texts[i];
+            if (text == null)
+            {
+                continue;
+            }
+
+            if (string.Equals(
+                    text.text != null ? text.text.Trim() : string.Empty,
+                    expectedRaw,
+                    StringComparison.Ordinal))
+            {
+                return text;
+            }
+        }
+
+        for (int i = 0; i < texts.Length; i++)
+        {
+            TMP_Text text = texts[i];
+            if (text == null)
+            {
+                continue;
+            }
+
+            if (string.Equals(
+                    text.gameObject.name != null
+                        ? text.gameObject.name.Trim()
+                        : string.Empty,
+                    expectedRaw,
+                    StringComparison.Ordinal))
+            {
+                return text;
+            }
+        }
+
+        for (int i = 0; i < texts.Length; i++)
+        {
+            TMP_Text text = texts[i];
+            if (text == null)
+            {
+                continue;
+            }
+
+            string currentKey = NormalizeForLookup(text.text);
+            string nameKey = NormalizeForLookup(text.gameObject.name);
+            if (currentKey == expectedKey || nameKey == expectedKey)
+            {
+                return text;
+            }
+        }
+
+        return null;
     }
 
     static Transform FindChildRecursive(
@@ -645,6 +855,7 @@ public class HeavenNurturePanelUI : MonoBehaviour
         favoriteManager = NpcFavoriteManager.EnsureInstance();
         if (favoriteManager != null)
         {
+            favoriteManager.PruneInvalidFavorites();
             IReadOnlyList<NpcFavorite> favorites = favoriteManager.Favorites;
             for (int i = 0; i < favorites.Count; i++)
             {
@@ -677,33 +888,8 @@ public class HeavenNurturePanelUI : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < jsonTargets.Length; i++)
-        {
-            HeavenNurtureTargetData jsonData = jsonTargets[i];
-            if (jsonData == null || matchedJson.Contains(jsonData))
-            {
-                continue;
-            }
-
-            HeavenNurtureTargetData copy = CloneTargetData(jsonData);
-            copy.fromJsonOnly = true;
-            ApplyMissingFallbacks(copy);
-
-            if (!IsDismissed(copy))
-            {
-                allTargets.Add(copy);
-            }
-        }
-
-        if (allTargets.Count == 0)
-        {
-            HeavenNurtureTargetData sample =
-                BuildSampleTarget();
-            if (!IsDismissed(sample))
-            {
-                allTargets.Add(sample);
-            }
-        }
+        // Runtime favorites are the source of truth for the list.
+        // JSON only overrides metadata for matched runtime entries.
     }
 
     HeavenNurtureTargetData BuildRuntimeTargetData(NpcFavorite favorite)
@@ -720,7 +906,7 @@ public class HeavenNurturePanelUI : MonoBehaviour
         data.targetType = ResolveRuntimeTargetType(target);
         data.realm = ResolveRuntimeRealmText(favorite);
         data.aptitude = ResolveRuntimeAptitude(target);
-        data.fear = ResolveRuntimeFear(target);
+        data.fear = ResolveRuntimeFear(favorite, target);
         data.title = ResolveRuntimeTitle(target);
         data.origin = ResolveRuntimeOrigin(target);
         data.hasReceivedFate = false;
@@ -766,9 +952,11 @@ public class HeavenNurturePanelUI : MonoBehaviour
         HeavenNurtureTargetData jsonData)
     {
         HeavenNurtureTargetData merged =
-            runtimeData != null
-                ? CloneTargetData(runtimeData)
-                : new HeavenNurtureTargetData();
+            jsonData != null
+                ? CloneTargetData(jsonData)
+                : runtimeData != null
+                    ? CloneTargetData(runtimeData)
+                    : new HeavenNurtureTargetData();
 
         if (jsonData == null)
         {
@@ -776,54 +964,14 @@ public class HeavenNurturePanelUI : MonoBehaviour
             return merged;
         }
 
-        if (!string.IsNullOrWhiteSpace(jsonData.id))
+        if (runtimeData != null)
         {
-            merged.id = jsonData.id;
-        }
-
-        if (!string.IsNullOrWhiteSpace(jsonData.displayName))
-        {
-            merged.displayName = jsonData.displayName;
-        }
-
-        if (!string.IsNullOrWhiteSpace(jsonData.realm))
-        {
-            merged.realm = jsonData.realm;
-        }
-
-        if (jsonData.aptitude > 0)
-        {
-            merged.aptitude = jsonData.aptitude;
-        }
-
-        if (jsonData.fear > 0)
-        {
-            merged.fear = jsonData.fear;
-        }
-
-        if (!string.IsNullOrWhiteSpace(jsonData.title))
-        {
-            merged.title = jsonData.title;
-        }
-
-        if (!string.IsNullOrWhiteSpace(jsonData.origin))
-        {
-            merged.origin = jsonData.origin;
-        }
-
-        if (!string.IsNullOrWhiteSpace(jsonData.fateState))
-        {
-            merged.fateState = jsonData.fateState;
-        }
-
-        if (!string.IsNullOrWhiteSpace(jsonData.description))
-        {
-            merged.description = jsonData.description;
+            merged.favoriteComponent = runtimeData.favoriteComponent;
+            merged.runtimeObject = runtimeData.runtimeObject;
         }
 
         merged.hasReceivedFate =
             jsonData.hasReceivedFate || merged.hasReceivedFate;
-        merged.targetType = jsonData.targetType;
 
         if (jsonData.portrait != null)
         {
@@ -833,6 +981,10 @@ public class HeavenNurturePanelUI : MonoBehaviour
         {
             merged.portrait =
                 Resources.Load<Sprite>(jsonData.portraitResource);
+        }
+        else if (runtimeData != null)
+        {
+            merged.portrait = runtimeData.portrait;
         }
 
         ApplyMissingFallbacks(merged);
@@ -864,7 +1016,7 @@ public class HeavenNurturePanelUI : MonoBehaviour
         }
 
         data.aptitude = Mathf.Clamp(data.aptitude, 0, 100);
-        data.fear = Mathf.Clamp(data.fear, 0, 100);
+        data.fear = Mathf.Max(0, data.fear);
 
         if (string.IsNullOrWhiteSpace(data.title))
         {
@@ -893,31 +1045,6 @@ public class HeavenNurturePanelUI : MonoBehaviour
                 data.displayName,
                 data.realm);
         }
-    }
-
-    HeavenNurtureTargetData BuildSampleTarget()
-    {
-        HeavenNurtureTargetData sample =
-            new HeavenNurtureTargetData();
-        sample.id = "nguyen-thanh";
-        sample.displayName = UiText.Get("heavenNurture", "sampleName");
-        sample.targetType = HeavenTargetType.Cultivator;
-        sample.realm = UiText.Get("heavenNurture", "sampleRealm");
-        sample.aptitude = 68;
-        sample.fear = 43;
-        sample.fateState = UiText.Get(
-            "heavenNurture",
-            "stateBlessed",
-            "Duoc ban duyen");
-        sample.title = UiText.Get("heavenNurture", "titleNone");
-        sample.origin = UiText.Get("heavenNurture", "originCultivator");
-        sample.description = UiText.Format(
-            "heavenNurture",
-            "descriptionFallbackFormat",
-            sample.displayName,
-            sample.realm);
-        sample.fromJsonOnly = true;
-        return sample;
     }
 
     void RebuildVisibleTargets()
@@ -953,6 +1080,7 @@ public class HeavenNurturePanelUI : MonoBehaviour
     void RebuildItemViews()
     {
         ClearSpawnedItems();
+        HideTemplateItem();
 
         if (contentRoot == null || itemPrefab == null)
         {
@@ -991,7 +1119,7 @@ public class HeavenNurturePanelUI : MonoBehaviour
         {
             selectedTarget = null;
             selectedItem = null;
-            ClearDetail();
+            ClearDetail(true);
             return;
         }
 
@@ -1004,7 +1132,10 @@ public class HeavenNurturePanelUI : MonoBehaviour
             }
         }
 
-        SelectFirstVisibleItem();
+        selectedTarget = null;
+        selectedItem = null;
+        SetRightDetailVisible(false);
+        ClearDetail(false);
     }
 
     void RestoreSelection(string id, string displayName)
@@ -1047,11 +1178,14 @@ public class HeavenNurturePanelUI : MonoBehaviour
         {
             selectedTarget = null;
             selectedItem = null;
-            ClearDetail();
+            ClearDetail(true);
             return;
         }
 
-        SelectTarget(visibleTargets[0], spawnedItems[0]);
+        selectedTarget = null;
+        selectedItem = null;
+        SetRightDetailVisible(false);
+        ClearDetail(false);
     }
 
     void ApplyStaticTexts()
@@ -1116,6 +1250,59 @@ public class HeavenNurturePanelUI : MonoBehaviour
         }
     }
 
+    string BuildDetailedStatsText(HeavenNurtureTargetData target)
+    {
+        if (target == null)
+        {
+            return UiText.Get("heavenNurture", "descriptionNone");
+        }
+
+        string title = string.IsNullOrWhiteSpace(target.title)
+            ? UiText.Get("heavenNurture", "titleNone")
+            : target.title;
+        string realm = string.IsNullOrWhiteSpace(target.realm)
+            ? UiText.Get("heavenNurture", "unknownRealm")
+            : target.realm;
+        string origin = string.IsNullOrWhiteSpace(target.origin)
+            ? UiText.Get("heavenNurture", "originNone")
+            : target.origin;
+        string aptitude = UiText.Format(
+            "heavenNurture",
+            "aptitudeFormat",
+            target.aptitude);
+        string fear = target.fear.ToString(CultureInfo.InvariantCulture);
+        string fate = string.IsNullOrWhiteSpace(target.fateState)
+            ? UiText.Get("heavenNurture", "detailEmpty")
+            : target.fateState;
+        string description = string.IsNullOrWhiteSpace(target.description)
+            ? UiText.Get("heavenNurture", "descriptionNone")
+            : target.description;
+
+        StringBuilder builder = new StringBuilder(256);
+        builder.AppendLine(UiText.Get("heavenNurture", "labelName") + " " + target.displayName);
+        builder.AppendLine(UiText.Get("heavenNurture", "labelTitle") + " " + title);
+        builder.AppendLine(UiText.Get("heavenNurture", "labelRealm") + " " + realm);
+        builder.AppendLine(UiText.Get("heavenNurture", "labelOrigin") + " " + origin);
+        builder.AppendLine(UiText.Get("heavenNurture", "labelAptitude") + ": " + aptitude);
+        builder.AppendLine(UiText.Get("heavenNurture", "labelFear") + ": " + fear);
+        builder.AppendLine(UiText.Get("heavenNurture", "labelFate") + ": " + fate);
+        builder.AppendLine(UiText.Get("heavenNurture", "labelDescription") + ":");
+        builder.Append(description);
+        return builder.ToString().TrimEnd();
+    }
+
+    string GetTargetTypeText(HeavenNurtureTargetData target)
+    {
+        if (target == null)
+        {
+            return UiText.Get("heavenNurture", "detailEmpty");
+        }
+
+        return target.targetType == HeavenTargetType.Monster
+            ? UiText.Get("heavenNurture", "filterMonster")
+            : UiText.Get("heavenNurture", "filterCultivator");
+    }
+
     void TryApplyRuntimeFateEffects(HeavenNurtureTargetData target)
     {
         if (target == null || target.runtimeObject == null)
@@ -1154,6 +1341,12 @@ public class HeavenNurturePanelUI : MonoBehaviour
             return string.Empty;
         }
 
+        string npcId = ResolveRuntimeNpcId(favorite.gameObject);
+        if (!string.IsNullOrWhiteSpace(npcId))
+        {
+            return NormalizeForLookup(npcId);
+        }
+
         string explicitName = favorite.npcDisplayName;
         if (!string.IsNullOrWhiteSpace(explicitName))
         {
@@ -1161,6 +1354,26 @@ public class HeavenNurturePanelUI : MonoBehaviour
         }
 
         return NormalizeForLookup(favorite.GetDisplayName());
+    }
+
+    string ResolveRuntimeNpcId(GameObject target)
+    {
+        if (target == null)
+        {
+            return string.Empty;
+        }
+
+        NPCIdentity identity =
+            target.GetComponent<NPCIdentity>() ??
+            target.GetComponentInParent<NPCIdentity>(true) ??
+            target.GetComponentInChildren<NPCIdentity>(true);
+
+        if (identity == null)
+        {
+            return string.Empty;
+        }
+
+        return identity.npcId;
     }
 
     string ResolveRuntimeDisplayName(NpcFavorite favorite)
@@ -1237,8 +1450,13 @@ public class HeavenNurturePanelUI : MonoBehaviour
         return 0;
     }
 
-    int ResolveRuntimeFear(GameObject target)
+    int ResolveRuntimeFear(NpcFavorite favorite, GameObject target)
     {
+        if (favorite != null)
+        {
+            return favorite.GetHeavenFavorFear();
+        }
+
         if (target == null)
         {
             return 0;
@@ -1405,6 +1623,34 @@ public class HeavenNurturePanelUI : MonoBehaviour
 
     void ClearSpawnedItems()
     {
+        if (contentRoot != null)
+        {
+            for (int i = contentRoot.childCount - 1; i >= 0; i--)
+            {
+                Transform child = contentRoot.GetChild(i);
+                if (child == null)
+                {
+                    continue;
+                }
+
+                HeavenNurtureListItemUI item =
+                    child.GetComponent<HeavenNurtureListItemUI>();
+                if (item == null)
+                {
+                    continue;
+                }
+
+                if (itemPrefab != null &&
+                    child == itemPrefab.transform)
+                {
+                    child.gameObject.SetActive(false);
+                    continue;
+                }
+
+                Destroy(child.gameObject);
+            }
+        }
+
         for (int i = 0; i < spawnedItems.Count; i++)
         {
             HeavenNurtureListItemUI item = spawnedItems[i];
@@ -1415,6 +1661,32 @@ public class HeavenNurturePanelUI : MonoBehaviour
         }
 
         spawnedItems.Clear();
+    }
+
+    void HideTemplateItem()
+    {
+        if (itemPrefab == null)
+        {
+            return;
+        }
+
+        if (itemPrefab.gameObject.activeSelf)
+        {
+            itemPrefab.gameObject.SetActive(false);
+        }
+    }
+
+    void SetRightDetailVisible(bool visible)
+    {
+        if (rightDetailPanel == null)
+        {
+            return;
+        }
+
+        if (!rightDetailPanel.activeSelf)
+        {
+            rightDetailPanel.SetActive(true);
+        }
     }
 
     void BindButton(Button button, UnityEngine.Events.UnityAction action)

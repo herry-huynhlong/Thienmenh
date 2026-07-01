@@ -118,6 +118,19 @@ public partial class SmartNpcAI
             createdTime = Time.time
         };
 
+        if (currentSmartTask != null &&
+            currentSmartTask.IsValid &&
+            currentSmartTask.goal == nextTask.goal &&
+            currentSmartTask.priority == nextTask.priority &&
+            currentSmartTask.canBeInterrupted == nextTask.canBeInterrupted &&
+            string.Equals(
+                currentSmartTask.reason,
+                nextTask.reason,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
         if (isScheduleTask)
         {
             scheduleSmartTask = nextTask.Clone();
@@ -187,6 +200,12 @@ public partial class SmartNpcAI
                 return true;
 
             case SmartAITaskGoal.NeedPotion:
+                if (HasAvailablePills())
+                {
+                    ClearSmartTaskIfGoal(SmartAITaskGoal.NeedPotion);
+                    return false;
+                }
+
                 if (money >= 50)
                 {
                     if (!GoToTavernAndBuyPill())

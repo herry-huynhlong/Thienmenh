@@ -880,6 +880,27 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
+        bool holdStationaryAction =
+            actionTimer > 0f &&
+            IsStationaryAction(currentAction) &&
+            !HasLockedDirectedTarget() &&
+            !hasEscapeTarget &&
+            !hasObstacleAvoidTarget;
+
+        if (holdStationaryAction)
+        {
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+
+            stuckMoveTimer = 0f;
+            blockedMoveTimer = 0f;
+            lastUnstuckPosition = transform.position;
+            UpdateVisualAnimation();
+            return;
+        }
+
         UpdateMovement();
         UpdateVisualAnimation();
     }
@@ -916,8 +937,10 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             ? rb.linearVelocity
             : Vector2.zero;
 
-        bool isIdle = animationVelocity.sqrMagnitude <= 0.0001f;
+        bool isIdle = animationVelocity.sqrMagnitude <= 0.0025f;
         Vector2 direction = isIdle ? Vector2.zero : animationVelocity.normalized;
+        string animationAction =
+            ResolveAnimationActionForCurrentState(isIdle);
 
         if (IsTrackedDebugNpc())
         {
@@ -927,10 +950,500 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 direction +
                 " idle=" + isIdle +
                 " vel=" + animationVelocity +
-                " visual=" + (visualAnimation != null));
+                " visual=" + (visualAnimation != null) +
+                " animAction=" + animationAction);
         }
 
-        visualAnimation.UpdateNPCAnimation(direction, isIdle, currentAction);
+        visualAnimation.UpdateNPCAnimation(direction, isIdle, animationAction);
+    }
+
+    string ResolveAnimationActionForCurrentState(bool isIdle)
+    {
+        if (IsDead)
+        {
+            return string.IsNullOrWhiteSpace(currentAction)
+                ? NpcText.Action("dead")
+                : currentAction;
+        }
+
+        if (currentAction == NpcText.Action("dead") ||
+            currentAction == NpcText.Action("oldAgeDeath"))
+        {
+            return currentAction;
+        }
+
+        if (ShouldForceCombatAttackAnimation())
+        {
+            return currentAction;
+        }
+
+        if (!isIdle)
+        {
+            return string.Empty;
+        }
+
+        return currentAction;
+    }
+
+    bool ShouldForceCombatAttackAnimation()
+    {
+        if (currentMonsterTarget == null ||
+            isRetreatingFromMonster ||
+            currentMonsterTarget.currentHP <= 0)
+        {
+            return false;
+        }
+
+        if (!MatchesSmartAction("attackMonsterNamed", true) &&
+            !MatchesSmartAction("attackMonster", true) &&
+            !MatchesSmartAction("attack", true))
+        {
+            return false;
+        }
+
+        float distance =
+            GetCombatSurfaceDistance(
+                currentMonsterTarget.transform);
+
+        float forceRange =
+            Mathf.Max(
+                attackRange + 0.6f,
+                0.55f);
+
+        return distance <= forceRange;
+    }
+
+    bool ShouldBypassCrowdAvoidanceForMonsterCombat()
+    {
+        if (currentMonsterTarget == null ||
+            isRetreatingFromMonster ||
+            currentMonsterTarget.currentHP <= 0)
+        {
+            return false;
+        }
+
+        if (!IsMonsterCombatApproachActive() &&
+            !ShouldHoldCombatPosition() &&
+            !MatchesSmartAction("attackMonsterNamed", true) &&
+            !MatchesSmartAction("huntMonsterNamed", true) &&
+            currentAction != NpcText.Action("goHunt"))
+        {
+            return false;
+        }
+
+        float distance =
+            GetCombatSurfaceDistance(
+                currentMonsterTarget.transform);
+
+        return distance <= Mathf.Max(
+            attackRange + 1.2f,
+            1.6f);
+    }
+
+    string ResolvePostTeleportTravelAction()
+    {
+        if (currentMonsterTarget != null)
+        {
+            return NpcText.Action("goHunt");
+        }
+
+        if (ShouldResumeCultivationTravel())
+        {
+            return NpcText.Action("goCultivatePoint");
+        }
+
+        if (currentSmartTask != null &&
+            currentSmartTask.IsValid)
+        {
+            string taskAction =
+                GetRuntimeActionForSmartTask(currentSmartTask);
+            if (!string.IsNullOrWhiteSpace(taskAction) &&
+                !IsTeleportRouteAction(taskAction))
+            {
+                return taskAction;
+            }
+        }
+
+        if (scheduleSmartTask != null &&
+            scheduleSmartTask.IsValid)
+        {
+            string scheduleTaskAction =
+                GetRuntimeActionForSmartTask(scheduleSmartTask);
+            if (!string.IsNullOrWhiteSpace(scheduleTaskAction) &&
+                !IsTeleportRouteAction(scheduleTaskAction))
+            {
+                return scheduleTaskAction;
+            }
+        }
+
+        NpcScheduleController schedule =
+            GetComponent<NpcScheduleController>();
+        if (schedule != null &&
+            schedule.enforceSchedule)
+        {
+            string scheduleAction =
+                GetScheduleActionTextForDisplay(
+                    schedule.CurrentActivity);
+            if (!string.IsNullOrWhiteSpace(scheduleAction) &&
+                !IsTeleportRouteAction(scheduleAction))
+            {
+                return scheduleAction;
+            }
+        }
+
+        if (currentTarget != null ||
+            hasWanderTarget)
+        {
+            return NpcText.Action("walkingRoad");
+        }
+
+        return NpcText.Action("idle");
+    }
+
+    string GetRuntimeActionForSmartTask(SmartAITask task)
+    {
+        if (task == null ||
+            !task.IsValid)
+        {
+            return string.Empty;
+        }
+
+        if (task.goal == SmartAITaskGoal.NeedPotion)
+        {
+            NpcCounterBroker broker = NpcCounterBroker.Active;
+            return broker != null &&
+                broker.receiveAllNpcRequests
+                ? NpcText.Action("goVanBaoLauBroker")
+                : NpcText.Action("goTavern");
+        }
+
+        if (task.goal == SmartAITaskGoal.Cultivate &&
+            ShouldResumeCultivationTravel())
+        {
+            return NpcText.Action("goCultivatePoint");
+        }
+
+        return GetTaskActionTextForDisplay(task);
+    }
+
+    ItemInventory GetNpcItemInventory()
+    {
+        ItemInventory inventory = GetComponent<ItemInventory>();
+        if (inventory == null &&
+            tradeAgent != null)
+        {
+            inventory = tradeAgent.inventory;
+        }
+
+        return inventory;
+    }
+
+    bool IsCountedPillItem(StatItemData item)
+    {
+        return item != null &&
+            item.itemType == ItemType.DanDuoc &&
+            item.CanUseOn(gameObject);
+    }
+
+    int CountOwnedPillItems()
+    {
+        ItemInventory inventory = GetNpcItemInventory();
+        if (inventory == null ||
+            inventory.items == null)
+        {
+            return 0;
+        }
+
+        int total = 0;
+        for (int i = 0; i < inventory.items.Count; i++)
+        {
+            ItemStack stack = inventory.items[i];
+            if (stack == null ||
+                stack.item == null ||
+                stack.amount <= 0 ||
+                !IsCountedPillItem(stack.item))
+            {
+                continue;
+            }
+
+            total += stack.amount;
+        }
+
+        return total;
+    }
+
+    bool HasAvailablePills()
+    {
+        if (pill > 0)
+        {
+            return true;
+        }
+
+        int ownedPills = CountOwnedPillItems();
+        if (ownedPills > 0)
+        {
+            pill = Mathf.Max(pill, ownedPills);
+            return true;
+        }
+
+        return false;
+    }
+
+    bool TryConsumeAvailablePill()
+    {
+        if (!HasAvailablePills())
+        {
+            return false;
+        }
+
+        ItemInventory inventory = GetNpcItemInventory();
+        if (inventory != null &&
+            inventory.items != null)
+        {
+            for (int i = 0; i < inventory.items.Count; i++)
+            {
+                ItemStack stack = inventory.items[i];
+                if (stack == null ||
+                    stack.item == null ||
+                    stack.amount <= 0 ||
+                    !IsCountedPillItem(stack.item))
+                {
+                    continue;
+                }
+
+                inventory.RemoveItem(stack.item, 1);
+                break;
+            }
+        }
+
+        pill = Mathf.Max(0, pill - 1);
+        return true;
+    }
+
+    bool ShouldResumeCultivationTravel()
+    {
+        if (!canCultivate ||
+            IsInDungeonCombatSession())
+        {
+            return false;
+        }
+
+        bool hasCultivateIntent =
+            (currentSmartTask != null &&
+            currentSmartTask.IsValid &&
+            currentSmartTask.goal == SmartAITaskGoal.Cultivate) ||
+            (scheduleSmartTask != null &&
+            scheduleSmartTask.IsValid &&
+            scheduleSmartTask.goal == SmartAITaskGoal.Cultivate);
+
+        if (!hasCultivateIntent)
+        {
+            NpcScheduleController schedule =
+                GetComponent<NpcScheduleController>();
+            hasCultivateIntent =
+                schedule != null &&
+                schedule.enforceSchedule &&
+                schedule.CurrentActivity == NpcScheduleActivity.Cultivate;
+        }
+
+        if (!hasCultivateIntent)
+        {
+            return false;
+        }
+
+        return IsCultivationTravelPending();
+    }
+
+    bool IsCultivationTravelPending()
+    {
+        float cultivationArriveDistance =
+            Mathf.Max(
+                escapeTargetReachDistance,
+                targetClearRadius * 2f);
+
+        Vector3 targetPosition;
+        if (hasCultivationTarget &&
+            IsMoveTargetFeasible(cultivationTarget))
+        {
+            targetPosition = cultivationTarget;
+        }
+        else if (cultivationPoint != null)
+        {
+            targetPosition = cultivationPoint.position;
+        }
+        else if (!NpcLocationArea.TryGetPosition(
+                gameObject,
+                NpcScheduleActivity.Cultivate,
+                VillagerJob.None,
+                NpcLocationPurpose.Cultivation,
+                transform.position,
+                out targetPosition,
+                out _))
+        {
+            return false;
+        }
+
+        return Vector2.Distance(transform.position, targetPosition) >
+            cultivationArriveDistance;
+    }
+
+    bool EnsureTradeAgentReady()
+    {
+        if (tradeAgent == null)
+        {
+            tradeAgent = GetComponent<NpcTradeAgent>();
+        }
+
+        if (tradeAgent == null)
+        {
+            tradeAgent = gameObject.AddComponent<NpcTradeAgent>();
+        }
+
+        if (tradeAgent == null)
+        {
+            return false;
+        }
+
+        if (tradeAgent.inventory == null)
+        {
+            tradeAgent.inventory = GetComponent<ItemInventory>();
+        }
+
+        if (tradeAgent.inventory == null)
+        {
+            tradeAgent.inventory = gameObject.AddComponent<ItemInventory>();
+        }
+
+        return tradeAgent.inventory != null;
+    }
+
+    bool TryHandleBrokerPillPurchaseIfReady(
+        NpcCounterBroker broker,
+        Vector3 approachPosition,
+        float extraDistance = 0f)
+    {
+        if (broker == null ||
+            !broker.receiveAllNpcRequests)
+        {
+            return false;
+        }
+
+        float allowedDistance =
+            Mathf.Max(0.5f, broker.CustomerServiceRadius) +
+            Mathf.Max(0f, extraDistance);
+        bool atBroker =
+            broker.IsCustomerAtCounter(gameObject) ||
+            Vector2.Distance(transform.position, approachPosition) <=
+            allowedDistance;
+
+        if (!atBroker)
+        {
+            return false;
+        }
+
+        if (!EnsureTradeAgentReady())
+        {
+            return false;
+        }
+
+        int pillCountBefore = CountOwnedPillItems();
+        bool hadPillBefore = HasAvailablePills();
+
+        if (broker.TryTradeWithNpc(tradeAgent))
+        {
+            int pillCountAfter = CountOwnedPillItems();
+            if (pillCountAfter > pillCountBefore)
+            {
+                pill += pillCountAfter - pillCountBefore;
+            }
+
+            ClearTravelTargetsAndStop();
+            if (HasAvailablePills() || hadPillBefore)
+            {
+                ClearSmartTaskIfGoal(SmartAITaskGoal.NeedPotion);
+                actionTimer = Mathf.Max(0.05f, thinkDelay * 0.25f);
+                currentAction = NpcText.Action("idle");
+            }
+            else
+            {
+                actionTimer = Mathf.Max(thinkDelay, GameHoursToSeconds(0.15f));
+                currentAction = NpcText.Action("checkedVanBaoLau");
+            }
+            return true;
+        }
+
+        ClearTravelTargetsAndStop();
+        ClearSmartTaskIfGoal(SmartAITaskGoal.NeedPotion);
+        actionTimer = Mathf.Max(thinkDelay, GameHoursToSeconds(0.15f));
+        currentAction = NpcText.Action("checkedVanBaoLau");
+        return true;
+    }
+
+    Vector3 ResolveBrokerApproachPosition(NpcCounterBroker broker)
+    {
+        if (currentAction == NpcText.Action("goVanBaoLauBroker") &&
+            hasWanderTarget)
+        {
+            return wanderTarget;
+        }
+
+        return broker != null
+            ? broker.GetCustomerPositionFor(gameObject)
+            : transform.position;
+    }
+
+    bool TryHandleBrokerArrivalFromMovement(Vector3 desiredTarget)
+    {
+        if (currentAction != NpcText.Action("goVanBaoLauBroker"))
+        {
+            return false;
+        }
+
+        NpcCounterBroker broker = NpcCounterBroker.Active;
+        if (broker == null ||
+            !broker.receiveAllNpcRequests)
+        {
+            return false;
+        }
+
+        Vector3 brokerApproach =
+            ResolveBrokerApproachPosition(broker);
+        float approachDistance =
+            Vector2.Distance(
+                transform.position,
+                brokerApproach);
+        float desiredDistance =
+            Vector2.Distance(
+                transform.position,
+                desiredTarget);
+        float arriveDistance =
+            Mathf.Max(
+                escapeTargetReachDistance,
+                broker.CustomerServiceRadius);
+
+        if (approachDistance > arriveDistance &&
+            desiredDistance > arriveDistance)
+        {
+            return false;
+        }
+
+        if (TryHandleBrokerPillPurchaseIfReady(
+                broker,
+                brokerApproach,
+                0.15f))
+        {
+            DebugFlow(
+                "Trade",
+                "Handled broker arrival approachDist=" +
+                approachDistance.ToString("0.00") +
+                " desiredDist=" +
+                desiredDistance.ToString("0.00") +
+                " arrive=" +
+                arriveDistance.ToString("0.00"));
+            return true;
+        }
+
+        return false;
     }
 
     void UpdateMovement()
@@ -1001,7 +1514,12 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 "Move",
                 "Hold without target action=" + currentAction);
 
-            if (TryApplyNpcOverlapSeparation())
+            bool suppressStationarySeparation =
+                currentAction == NpcText.Action("buyPill") ||
+                currentAction == NpcText.Action("checkedVanBaoLau");
+
+            if (!suppressStationarySeparation &&
+                TryApplyNpcOverlapSeparation())
             {
                 return;
             }
@@ -1122,6 +1640,11 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (TryHandleBrokerArrivalFromMovement(desiredTarget))
+        {
+            return;
+        }
+
         if (hasObstacleAvoidTarget)
         {
             if (Time.time >= obstacleAvoidUntil ||
@@ -1196,10 +1719,15 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         }
         else if (IsTeleportRouteAction(currentAction))
         {
+            string restoredAction =
+                ResolvePostTeleportTravelAction();
+
             DebugFlow(
                 "MoveRoute",
                 "Teleport action without route currentAction=" +
                 currentAction +
+                " restoredAction=" +
+                restoredAction +
                 " currentZone=" +
                 (currentZone.HasValue ? currentZone.Value.ToString() : "None") +
                 " currentArea=" +
@@ -1216,6 +1744,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 (currentTarget != null ? currentTarget.name : "null") +
                 " wander=" +
                 hasWanderTarget);
+
+            currentAction = restoredAction;
         }
 
         if (usingTeleportRoute &&
@@ -1308,9 +1838,10 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 rb.linearVelocity = Vector2.zero;
             }
 
-            currentAction = NpcText.Action("idle");
             SyncCultivationEffect();
-            DebugFlow("Move", "Arrived at cultivate point, wait for cultivate action");
+            DebugFlow("Move", "Arrived at cultivate point, start cultivate immediately");
+
+            CultivateNaturally();
             return;
         }
 
@@ -1454,7 +1985,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         float holdRange =
             Mathf.Max(
-                attackRange + 0.35f,
+                attackRange + 0.55f,
                 0.45f);
 
         return distance <= holdRange;
@@ -1899,7 +2430,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (IsCurrentTargetCollider(collision.collider))
+        if (IsCurrentTargetCollider(collision.collider) ||
+            IsCurrentMonsterCollider(collision.collider))
         {
             return;
         }
@@ -1908,7 +2440,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             collision.collider != null &&
             (collision.collider.GetComponentInParent<VillagerAI>() != null ||
              collision.collider.GetComponentInParent<SmartNpcAI>() != null ||
-             collision.collider.GetComponentInParent<NpcMapMover2D>() != null))
+             collision.collider.GetComponentInParent<NpcMapMover2D>() != null ||
+             collision.collider.GetComponentInParent<MonsterAI>() != null))
         {
             return;
         }
@@ -1933,6 +2466,15 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         hasEscapeTarget = true;
         hasObstacleAvoidTarget = false;
         blockedMoveTimer = 0f;
+
+        DebugFlow(
+            "Escape",
+            "Commit collision escape collider=" +
+            (collision.collider != null
+                ? collision.collider.name
+                : "null") +
+            " point=" +
+            clearPoint);
 
         if (rb != null)
         {
@@ -2295,6 +2837,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             action == NpcText.Action("oldAgeDeath") ||
             action == NpcText.Action("outerSkirmishNamed") ||
             action == NpcText.Action("visitedTaskProvider") ||
+            action == NpcText.Action("checkedVanBaoLau") ||
+            action == NpcText.Action("buyPill") ||
             action == NpcText.Action("waitLightningNamed");
     }
 
@@ -2872,10 +3416,67 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         if (blockedMoveTimer < blockedTargetRetryDelay)
         {
+            if (currentAction == NpcText.Action("goVanBaoLauBroker"))
+            {
+                NpcCounterBroker broker = NpcCounterBroker.Active;
+                Vector3 brokerApproach =
+                    broker != null
+                        ? ResolveBrokerApproachPosition(broker)
+                        : finalTarget;
+                if (TryHandleBrokerPillPurchaseIfReady(
+                        broker,
+                        brokerApproach,
+                        0.2f))
+                {
+                    DebugFlow(
+                        "Move",
+                        "Blocked near broker, handled trade immediately");
+                    blockedMoveTimer = 0f;
+                    return;
+                }
+            }
+
+            if (currentAction == NpcText.Action("goTaskProviderDaily") &&
+                TryVisitTaskProvider())
+            {
+                DebugFlow(
+                    "Move",
+                    "Blocked near task provider, handled visit immediately");
+                blockedMoveTimer = 0f;
+            }
+
             return;
         }
 
         blockedMoveTimer = 0f;
+
+        if (currentAction == NpcText.Action("goVanBaoLauBroker"))
+        {
+            NpcCounterBroker broker = NpcCounterBroker.Active;
+            Vector3 brokerApproach =
+                broker != null
+                    ? ResolveBrokerApproachPosition(broker)
+                    : finalTarget;
+            if (TryHandleBrokerPillPurchaseIfReady(
+                    broker,
+                    brokerApproach,
+                    0.35f))
+            {
+                DebugFlow(
+                    "Move",
+                    "Blocked retry near broker, handled trade immediately");
+                return;
+            }
+        }
+
+        if (currentAction == NpcText.Action("goTaskProviderDaily") &&
+            TryVisitTaskProvider())
+        {
+            DebugFlow(
+                "Move",
+                "Blocked retry near task provider, handled visit immediately");
+            return;
+        }
 
         Vector2 escapeDirection =
             (Vector2)finalTarget - (Vector2)transform.position;
@@ -2931,14 +3532,16 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             return false;
         }
 
-        if (IsCurrentTargetCollider(hit))
+        if (IsCurrentTargetCollider(hit) ||
+            IsCurrentMonsterCollider(hit))
         {
             return false;
         }
 
         return hit.GetComponentInParent<VillagerAI>() == null &&
             hit.GetComponentInParent<SmartNpcAI>() == null &&
-            hit.GetComponentInParent<NpcMapMover2D>() == null;
+            hit.GetComponentInParent<NpcMapMover2D>() == null &&
+            hit.GetComponentInParent<MonsterAI>() == null;
     }
 
     bool IsCurrentTargetCollider(Collider2D hit)
@@ -2950,6 +3553,19 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         return hit.transform == currentTarget ||
             hit.transform.IsChildOf(currentTarget);
+    }
+
+    bool IsCurrentMonsterCollider(Collider2D hit)
+    {
+        if (hit == null || currentMonsterTarget == null)
+        {
+            return false;
+        }
+
+        Transform monsterTarget =
+            currentMonsterTarget.transform;
+        return hit.transform == monsterTarget ||
+            hit.transform.IsChildOf(monsterTarget);
     }
 
     float GetClearDistance(
@@ -3016,6 +3632,11 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         out Vector2 resolvedDirection)
     {
         resolvedDirection = desiredDirection;
+
+        if (ShouldBypassCrowdAvoidanceForMonsterCombat())
+        {
+            return true;
+        }
 
         if (ignoreNpcBodyCollisions)
         {
@@ -3100,6 +3721,11 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
     Vector2 ApplyCrowdAvoidance(Vector2 direction)
     {
+        if (ShouldBypassCrowdAvoidanceForMonsterCombat())
+        {
+            return direction;
+        }
+
         if (ignoreNpcBodyCollisions ||
             separationRadius <= 0f ||
             rb == null)
@@ -3144,6 +3770,11 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
     bool TryApplyNpcOverlapSeparation()
     {
+        if (ShouldBypassCrowdAvoidanceForMonsterCombat())
+        {
+            return false;
+        }
+
         if (ignoreNpcBodyCollisions ||
             rb == null ||
             separationRadius <= 0f)
@@ -3165,6 +3796,12 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             hasEscapeTarget = true;
             hasObstacleAvoidTarget = false;
             blockedMoveTimer = 0f;
+            DebugFlow(
+                "Escape",
+                "Commit overlap escape target=" +
+                escapeTarget +
+                " separation=" +
+                separation);
             if (rb != null)
             {
                 rb.linearVelocity = Vector2.zero;
@@ -3180,6 +3817,26 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         if (target == null)
         {
             return transform.position;
+        }
+
+        NpcInteractionPoint interactionPoint =
+            target.GetComponent<NpcInteractionPoint>();
+        if (interactionPoint != null)
+        {
+            Vector3 standPosition =
+                interactionPoint.GetStandPositionFor(gameObject);
+            standPosition.z = transform.position.z;
+            return standPosition;
+        }
+
+        NpcCounterBroker counterBroker =
+            target.GetComponentInParent<NpcCounterBroker>();
+        if (counterBroker != null)
+        {
+            Vector3 brokerPosition =
+                counterBroker.GetCustomerPositionFor(gameObject);
+            brokerPosition.z = transform.position.z;
+            return brokerPosition;
         }
 
         Vector3 targetPosition = target.position;
@@ -3598,10 +4255,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         actionTimer = Mathf.Max(actionTimer, cultivateSeconds);
 
-        if (pill > 0)
+        if (TryConsumeAvailablePill())
         {
-            pill -= 1;
-
             int gain =
                 Mathf.RoundToInt(
                     50f *
@@ -3702,10 +4357,16 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             return false;
         }
 
+        float cultivationArriveDistance =
+            Mathf.Max(
+                escapeTargetReachDistance,
+                targetClearRadius * 2f);
+
         if (currentAction == NpcText.Action("goCultivatePoint") &&
             hasWanderTarget)
         {
-            if (Vector2.Distance(transform.position, wanderTarget) <= escapeTargetReachDistance)
+            if (Vector2.Distance(transform.position, wanderTarget) <=
+                cultivationArriveDistance)
             {
                 return false;
             }
@@ -3717,7 +4378,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         if (hasCultivationTarget &&
             IsMoveTargetFeasible(cultivationTarget))
         {
-            if (Vector2.Distance(transform.position, cultivationTarget) <= escapeTargetReachDistance)
+            if (Vector2.Distance(transform.position, cultivationTarget) <=
+                cultivationArriveDistance)
             {
                 return false;
             }
@@ -3748,7 +4410,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             return false;
         }
 
-        if (Vector2.Distance(transform.position, cultivationPosition) <= escapeTargetReachDistance)
+        if (Vector2.Distance(transform.position, cultivationPosition) <=
+            cultivationArriveDistance)
         {
             return false;
         }
@@ -4073,6 +4736,14 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
     bool GoToTavernAndBuyPill()
     {
+        if (HasAvailablePills())
+        {
+            ClearSmartTaskIfGoal(SmartAITaskGoal.NeedPotion);
+            currentAction = NpcText.Action("idle");
+            actionTimer = Mathf.Max(0.05f, thinkDelay * 0.25f);
+            return true;
+        }
+
         RequestEmergencyTask(
             SmartAITaskGoal.NeedPotion,
             SmartAITaskPriority.Important,
@@ -4091,55 +4762,26 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             if (brokerTarget == null)
             {
                 ClearTravelTargetsAndStop();
+                ClearSmartTaskIfGoal(SmartAITaskGoal.NeedPotion);
                 currentAction = NpcText.Action("calm");
                 return false;
             }
 
             currentAction = NpcText.Action("goVanBaoLauBroker");
             ClearTravelTargets();
-            currentTarget = brokerTarget;
+            Vector3 brokerApproach =
+                ResolveBrokerApproachPosition(broker);
+            currentTarget = null;
+            wanderTarget = brokerApproach;
+            hasWanderTarget = true;
 
-            if (Vector2.Distance(transform.position, brokerTarget.position) >
-                Mathf.Max(0.5f, broker.CustomerServiceRadius))
+            if (TryHandleBrokerPillPurchaseIfReady(
+                    broker,
+                    brokerApproach))
             {
                 return true;
             }
 
-            if (tradeAgent == null)
-            {
-                tradeAgent = GetComponent<NpcTradeAgent>();
-            }
-
-            if (tradeAgent == null)
-            {
-                tradeAgent = gameObject.AddComponent<NpcTradeAgent>();
-            }
-
-            if (tradeAgent.inventory == null)
-            {
-                tradeAgent.inventory = GetComponent<ItemInventory>();
-            }
-
-            if (tradeAgent.inventory == null)
-            {
-                tradeAgent.inventory = gameObject.AddComponent<ItemInventory>();
-            }
-
-            if (broker.TryTradeWithNpc(tradeAgent))
-            {
-                ClearTravelTargetsAndStop();
-                actionTimer =
-                    GameHoursToSeconds(
-                        Random.Range(
-                            tradeSessionMinGameHours,
-                            tradeSessionMaxGameHours));
-                currentAction = NpcText.Action("checkedVanBaoLau");
-                return true;
-            }
-
-            ClearTravelTargetsAndStop();
-            actionTimer = Mathf.Max(thinkDelay, GameHoursToSeconds(0.15f));
-            currentAction = NpcText.Action("checkedVanBaoLau");
             return true;
         }
 
@@ -4156,6 +4798,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 out buyPosition))
         {
             ClearTravelTargetsAndStop();
+            ClearSmartTaskIfGoal(SmartAITaskGoal.NeedPotion);
             currentAction = NpcText.Action("idle");
             TraceRuntime(
                 "GoToTavernAndBuyPill",
@@ -4169,10 +4812,30 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         wanderTarget = buyPosition;
         hasWanderTarget = buyTarget == null;
 
+        Vector3 approachPosition =
+            buyTarget != null
+                ? GetApproachPosition(buyTarget)
+                : buyPosition;
         float distance =
             Vector2.Distance(
                 transform.position,
-                buyPosition);
+                approachPosition);
+
+        if (IsTrackedDebugNpc())
+        {
+            DebugFlow(
+                "Trade",
+                "NeedPotion target=" +
+                (buyTarget != null ? buyTarget.name : "wander") +
+                " buyPos=" +
+                buyPosition +
+                " approach=" +
+                approachPosition +
+                " distance=" +
+                distance.ToString("0.00") +
+                " action=" +
+                currentAction);
+        }
 
         if (distance < 1.5f)
         {
@@ -4183,7 +4846,10 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             pill += 1;
             ClearSmartTaskIfGoal(SmartAITaskGoal.NeedPotion);
 
-            ClearTravelTargets();
+            ClearTravelTargetsAndStop();
+            stuckMoveTimer = 0f;
+            blockedMoveTimer = 0f;
+            lastUnstuckPosition = transform.position;
             actionTimer =
                 GameHoursToSeconds(
                     Random.Range(

@@ -65,6 +65,8 @@ public class NpcFavoriteManager : MonoBehaviour
 
     public bool AddFavorite(NpcFavorite npc)
     {
+        PruneInvalidFavorites();
+
         if (npc == null)
         {
             return false;
@@ -100,6 +102,8 @@ public class NpcFavoriteManager : MonoBehaviour
 
     public void RemoveFavorite(NpcFavorite npc)
     {
+        PruneInvalidFavorites();
+
         if (npc == null)
         {
             return;
@@ -114,6 +118,8 @@ public class NpcFavoriteManager : MonoBehaviour
 
     public void ClearFavorites(bool clearNpcState = true)
     {
+        PruneInvalidFavorites();
+
         if (clearNpcState)
         {
             for (int i = 0; i < favorites.Count; i++)
@@ -131,6 +137,8 @@ public class NpcFavoriteManager : MonoBehaviour
 
     public NpcFavorite GetOrCreateFavorite(GameObject target)
     {
+        PruneInvalidFavorites();
+
         GameObject favoriteTarget =
             ResolveFavoriteTarget(target);
 
@@ -199,5 +207,25 @@ public class NpcFavoriteManager : MonoBehaviour
         }
 
         return null;
+    }
+
+    public void PruneInvalidFavorites()
+    {
+        for (int i = favorites.Count - 1; i >= 0; i--)
+        {
+            NpcFavorite favorite = favorites[i];
+            if (favorite != null)
+            {
+                continue;
+            }
+
+            favorites.RemoveAt(i);
+        }
+    }
+
+    public void NotifyFavoritesChanged()
+    {
+        PruneInvalidFavorites();
+        OnFavoritesChanged?.Invoke();
     }
 }

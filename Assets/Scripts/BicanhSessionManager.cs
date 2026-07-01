@@ -790,7 +790,7 @@ public class BicanhSessionManager : MonoBehaviour
 
         entity.SendMessage(
             "OnNpcMapTeleported",
-            entity,
+            null,
             SendMessageOptions.DontRequireReceiver);
     }
 

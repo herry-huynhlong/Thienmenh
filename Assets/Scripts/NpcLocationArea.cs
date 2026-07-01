@@ -399,7 +399,7 @@ public class NpcLocationArea : MonoBehaviour
             return point;
         }
 
-        return transform.position;
+        return FindFallbackPoint(npc);
     }
 
     void EnsureCollider()
@@ -432,6 +432,57 @@ public class NpcLocationArea : MonoBehaviour
                 Random.Range(-half.x, half.x),
                 Random.Range(-half.y, half.y),
                 0f);
+    }
+
+    Vector3 FindFallbackPoint(GameObject npc)
+    {
+        Vector3 center = areaBounds != null
+            ? areaBounds.bounds.center
+            : transform.position;
+        center.z = transform.position.z;
+
+        if ((areaBounds == null || areaBounds.OverlapPoint(center)) &&
+            !IsBlocked(center, npc))
+        {
+            return center;
+        }
+
+        float baseRadius = Mathf.Max(
+            blockedCheckRadius * 2f,
+            0.2f);
+        const int rings = 4;
+        const int samplesPerRing = 8;
+
+        for (int ring = 1; ring <= rings; ring++)
+        {
+            float radius = baseRadius * ring;
+            for (int sample = 0; sample < samplesPerRing; sample++)
+            {
+                float angle =
+                    (Mathf.PI * 2f * sample) / samplesPerRing;
+                Vector3 candidate =
+                    center +
+                    new Vector3(
+                        Mathf.Cos(angle),
+                        Mathf.Sin(angle),
+                        0f) * radius;
+
+                if (areaBounds != null &&
+                    !areaBounds.OverlapPoint(candidate))
+                {
+                    continue;
+                }
+
+                if (IsBlocked(candidate, npc))
+                {
+                    continue;
+                }
+
+                return candidate;
+            }
+        }
+
+        return center;
     }
 
     bool IsBlocked(Vector3 point, GameObject npc)

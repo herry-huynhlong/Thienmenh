@@ -116,6 +116,7 @@ public class HeavenSystem : MonoBehaviour
         pickup.amount = Mathf.Max(1, amount);
         pickup.allowNpcPickup = true;
         pickup.allowPlayerPickup = false;
+        pickup.ConfigureAsDroppedWorldItem();
         EnsurePickupCollider(pickup);
         return pickup;
     }

@@ -4,6 +4,14 @@ using UnityEngine;
 
 public class NpcItemCollector : MonoBehaviour
 {
+    static readonly string[] TrackedDebugNpcNames =
+    {
+        "laoba1",
+        "tusinu1",
+        "satthu1",
+        "thusinh33"
+    };
+
     [Header("Inventory")]
     public ItemInventory inventory;
     public CharacterStats characterStats;
@@ -95,19 +103,54 @@ public class NpcItemCollector : MonoBehaviour
                 return;
             }
         }
+
+        TryPickupNearestByDistance();
     }
 
     bool TryPickup(WorldStatItemPickup pickup)
     {
         AutoFindReferences();
 
-        if (pickup == null ||
-            !pickup.allowNpcPickup ||
-            pickup.RequiresNpcHarvestAction() ||
-            pickup.item == null ||
-            inventory == null ||
-            pickup.IsReservedByOther(gameObject))
+        if (pickup == null)
         {
+            return false;
+        }
+
+        if (pickup.amount <= 0)
+        {
+            return false;
+        }
+
+        if (!pickup.allowNpcPickup)
+        {
+            LogPickupSkip(pickup, "allowNpcPickup=False");
+            return false;
+        }
+
+        if (pickup.RequiresNpcHarvestAction())
+        {
+            LogPickupSkip(
+                pickup,
+                "requiresHarvest=True dropped=" +
+                pickup.treatAsDroppedWorldItem);
+            return false;
+        }
+
+        if (pickup.item == null)
+        {
+            LogPickupSkip(pickup, "item=null");
+            return false;
+        }
+
+        if (inventory == null)
+        {
+            LogPickupSkip(pickup, "inventory=null");
+            return false;
+        }
+
+        if (pickup.IsReservedByOther(gameObject))
+        {
+            LogPickupSkip(pickup, "reservedByOther=True");
             return false;
         }
 
@@ -115,6 +158,7 @@ public class NpcItemCollector : MonoBehaviour
 
         if (!pickup.TryTake(1))
         {
+            LogPickupSkip(pickup, "tryTake=False");
             return false;
         }
 
@@ -122,9 +166,80 @@ public class NpcItemCollector : MonoBehaviour
             pickedItem,
             ItemLifecycleEventType.Picked,
             false);
+
+        pickup.TrackReceiver(gameObject);
+
         pickup.ClearReservation(gameObject);
 
+        LogPickupSuccess(pickup, pickedItem);
+
         return true;
+    }
+
+    void TryPickupNearestByDistance()
+    {
+        WorldStatItemPickup[] pickups =
+            FindObjectsByType<WorldStatItemPickup>(
+                FindObjectsInactive.Exclude,
+                FindObjectsSortMode.None);
+
+        WorldStatItemPickup best = null;
+        float bestDistance = float.MaxValue;
+        Vector2 origin = transform.position;
+
+        foreach (WorldStatItemPickup pickup in pickups)
+        {
+            if (pickup == null ||
+                !pickup.gameObject.activeInHierarchy ||
+                pickup.amount <= 0 ||
+                pickup.item == null ||
+                !pickup.allowNpcPickup ||
+                pickup.RequiresNpcHarvestAction() ||
+                pickup.IsReservedByOther(gameObject))
+            {
+                continue;
+            }
+
+            float distance =
+                GetSurfaceDistance(origin, pickup);
+
+            if (distance > pickupRadius)
+            {
+                continue;
+            }
+
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                best = pickup;
+            }
+        }
+
+        if (best != null)
+        {
+            LogPickupProbe(best, "fallbackDistance=" + bestDistance.ToString("0.00"));
+            TryPickup(best);
+        }
+    }
+
+    float GetSurfaceDistance(Vector2 origin, WorldStatItemPickup pickup)
+    {
+        if (pickup == null)
+        {
+            return float.MaxValue;
+        }
+
+        Collider2D pickupCollider =
+            pickup.GetComponent<Collider2D>();
+
+        if (pickupCollider != null)
+        {
+            Vector2 closest =
+                pickupCollider.ClosestPoint(origin);
+            return Vector2.Distance(origin, closest);
+        }
+
+        return Vector2.Distance(origin, pickup.transform.position);
     }
 
     public void ReceiveItem(
@@ -784,5 +899,119 @@ public class NpcItemCollector : MonoBehaviour
     {
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, pickupRadius);
+    }
+
+    void LogPickupProbe(WorldStatItemPickup pickup, string detail)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (!IsTrackedDebugNpc())
+        {
+            return;
+        }
+
+        Debug.LogWarning(
+            "[NpcPickup] " + gameObject.name +
+            " probe=" + detail +
+            " pickup=" + DescribePickup(pickup) +
+            " pos=" + transform.position);
+#endif
+    }
+
+    void LogPickupSkip(WorldStatItemPickup pickup, string reason)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (!IsTrackedDebugNpc())
+        {
+            return;
+        }
+
+        Debug.LogWarning(
+            "[NpcPickup] " + gameObject.name +
+            " skip=" + reason +
+            " pickup=" + DescribePickup(pickup) +
+            " pos=" + transform.position);
+#endif
+    }
+
+    void LogPickupSuccess(WorldStatItemPickup pickup, StatItemData item)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (!IsTrackedDebugNpc())
+        {
+            return;
+        }
+
+        Debug.LogWarning(
+            "[NpcPickup] " + gameObject.name +
+            " success item=" +
+            (item != null ? ItemText.Name(item) : "null") +
+            " pickup=" + DescribePickup(pickup) +
+            " pos=" + transform.position);
+#endif
+    }
+
+    string DescribePickup(WorldStatItemPickup pickup)
+    {
+        if (pickup == null)
+        {
+            return "null";
+        }
+
+        string itemName =
+            pickup.item != null
+                ? ItemText.Name(pickup.item)
+                : "null";
+
+        return pickup.gameObject.name +
+            " item=" + itemName +
+            " amount=" + pickup.amount +
+            " dropped=" + pickup.treatAsDroppedWorldItem +
+            " harvest=" + pickup.requireNpcHarvestAction;
+    }
+
+    bool IsTrackedDebugNpc()
+    {
+        return IsTrackedDebugName(gameObject.name);
+    }
+
+    bool IsTrackedDebugName(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return false;
+        }
+
+        string normalized = NormalizeDebugName(value);
+        for (int i = 0; i < TrackedDebugNpcNames.Length; i++)
+        {
+            if (normalized == TrackedDebugNpcNames[i])
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    string NormalizeDebugName(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return string.Empty;
+        }
+
+        System.Text.StringBuilder builder =
+            new System.Text.StringBuilder(value.Length);
+
+        for (int i = 0; i < value.Length; i++)
+        {
+            char c = char.ToLowerInvariant(value[i]);
+            if (char.IsLetterOrDigit(c))
+            {
+                builder.Append(c);
+            }
+        }
+
+        return builder.ToString();
     }
 }

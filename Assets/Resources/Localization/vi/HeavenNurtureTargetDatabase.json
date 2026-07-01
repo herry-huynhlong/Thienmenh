@@ -1,17 +1,3 @@
 {
-  "targets": [
-    {
-      "id": "nguyen-thanh",
-      "displayName": "Nguyễn Thanh",
-      "targetType": 0,
-      "realm": "Luyện Khí",
-      "aptitude": 68,
-      "fear": 43,
-      "title": "",
-      "origin": "Tu sĩ",
-      "fateState": "Được ban duyên",
-      "description": "Sinh linh đang được Thiên Đạo lưu tâm.",
-      "hasReceivedFate": true
-    }
-  ]
+  "targets": []
 }

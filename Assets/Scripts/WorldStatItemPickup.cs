@@ -9,6 +9,7 @@ public class WorldStatItemPickup : MonoBehaviour
     public bool allowPlayerPickup = false;
     public bool destroyWhenEmpty = true;
     public bool requireNpcHarvestAction;
+    public bool treatAsDroppedWorldItem;
     public float harvestDuration = 8f;
     public bool trackReceiverInHeavenNurture;
     public event Action OnDepleted;
@@ -18,12 +19,23 @@ public class WorldStatItemPickup : MonoBehaviour
 
     public bool RequiresNpcHarvestAction()
     {
+        if (treatAsDroppedWorldItem)
+        {
+            return false;
+        }
+
         return requireNpcHarvestAction ||
             (item != null &&
             (item.materialKind == MaterialKind.Herb ||
             ResourceNode.InferKindFromItem(item) == HarvestResourceKind.ThaoDuoc)) ||
             GetComponent<WorldResourceNode>() != null ||
             GetComponent<ResourceNode>() != null;
+    }
+
+    public void ConfigureAsDroppedWorldItem()
+    {
+        treatAsDroppedWorldItem = true;
+        requireNpcHarvestAction = false;
     }
 
     public bool TryTake(int takeAmount)
@@ -246,7 +258,7 @@ public class WorldStatItemPickup : MonoBehaviour
                 pickedItem,
                 ItemLifecycleEventType.Picked,
                 false);
-            TryTrackReceiver(target.gameObject);
+            TrackReceiver(target.gameObject);
             ClearReservation(target.gameObject);
             return true;
         }
@@ -269,7 +281,7 @@ public class WorldStatItemPickup : MonoBehaviour
             pickedItem,
             target.gameObject);
         TreasureHeatSystem.NotifyNpcReceivedItem(target.gameObject, pickedItem);
-        TryTrackReceiver(target.gameObject);
+        TrackReceiver(target.gameObject);
         ClearReservation(target.gameObject);
         return true;
     }
@@ -372,7 +384,7 @@ public class WorldStatItemPickup : MonoBehaviour
         }
     }
 
-    void TryTrackReceiver(GameObject target)
+    public void TrackReceiver(GameObject target)
     {
         if (!trackReceiverInHeavenNurture ||
             target == null)
@@ -387,6 +399,87 @@ public class WorldStatItemPickup : MonoBehaviour
             return;
         }
 
-        manager.AddFavorite(target);
+        NpcFavorite favorite =
+            manager.GetOrCreateFavorite(target);
+        int fearGain =
+            GetHeavenFavorFearGain(item);
+        bool fearChanged =
+            favorite != null &&
+            favorite.AddHeavenFavorFear(fearGain);
+        bool added =
+            manager.AddFavorite(favorite);
+
+        if (fearChanged && !added)
+        {
+            manager.NotifyFavoritesChanged();
+        }
+
+        Debug.LogWarning(
+            "[HeavenNurtureTrack] target=" +
+            NpcRoleUtility.GetDisplayName(target) +
+            " favoriteTarget=" +
+            (favorite != null ? favorite.gameObject.name : "null") +
+            " favorites=" +
+            manager.Favorites.Count +
+            " added=" +
+            added +
+            " heavenFearGain=" +
+            fearGain +
+            " heavenFearTotal=" +
+            (favorite != null ? favorite.GetHeavenFavorFear() : 0));
+
+        if (added)
+        {
+            LogReceiverTracked(target);
+        }
+    }
+
+    void LogReceiverTracked(GameObject target)
+    {
+        if (target == null ||
+            item == null ||
+            WorldEventManager.Instance == null)
+        {
+            return;
+        }
+
+        string receiverName =
+            NpcRoleUtility.GetDisplayName(target);
+        string itemName =
+            ItemText.Name(item);
+
+        if (string.IsNullOrWhiteSpace(receiverName) ||
+            string.IsNullOrWhiteSpace(itemName))
+        {
+            return;
+        }
+
+        string message =
+            receiverName +
+            " nhận được " +
+            itemName +
+            " từ Thiên Đạo.";
+
+        WorldEventManager.Instance.AddLog(message, 1, true);
+    }
+
+    int GetHeavenFavorFearGain(StatItemData pickedItem)
+    {
+        if (pickedItem == null)
+        {
+            return 0;
+        }
+
+        switch (pickedItem.grade)
+        {
+            case ItemGrade.Trung:
+                return 3;
+            case ItemGrade.Thuong:
+                return 5;
+            case ItemGrade.Tien:
+                return 10;
+            default:
+                return 1;
+        }
     }
 }

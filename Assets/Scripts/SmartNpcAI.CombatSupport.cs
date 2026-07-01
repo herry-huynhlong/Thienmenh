@@ -279,6 +279,14 @@ public partial class SmartNpcAI
             "monster retreat");
         currentAction = NpcText.Action("fleeMonsterArea");
         StopNpcMovement();
+        DebugFlow(
+            "Retreat",
+            "Begin retreat target=" +
+            monster.monsterName +
+            " retreatTarget=" +
+            retreatTarget +
+            " matchup=" +
+            DescribeMonsterMatchup(monster));
         return true;
     }
 

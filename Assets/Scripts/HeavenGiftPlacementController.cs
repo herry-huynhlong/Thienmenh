@@ -865,6 +865,8 @@ public class HeavenGiftPlacementController : MonoBehaviour
 
         Collider2D[] hits =
             Physics2D.OverlapCircleAll(position, radius);
+        HashSet<GameObject> damagedTargets =
+            new HashSet<GameObject>();
 
         foreach (Collider2D hit in hits)
         {
@@ -873,17 +875,91 @@ public class HeavenGiftPlacementController : MonoBehaviour
                 continue;
             }
 
-            IDamageable damageable =
-                hit.GetComponentInParent<IDamageable>();
-
-            if (damageable == null ||
-                damageable.IsDead)
+            GameObject targetRoot =
+                ResolveLightningDamageTarget(hit);
+            if (targetRoot == null ||
+                damagedTargets.Contains(targetRoot) ||
+                NpcRoleUtility.IsDead(targetRoot))
             {
                 continue;
             }
 
-            damageable.TakeDamage(damage);
+            damagedTargets.Add(targetRoot);
+
+            int hpBefore = ReadCurrentHp(targetRoot);
+            NpcRoleUtility.Damage(
+                null,
+                targetRoot,
+                damage,
+                "Thiên kiếp giáng lôi");
+            int hpAfter = ReadCurrentHp(targetRoot);
+
+            Debug.LogWarning(
+                "[HeavenGiftLightning] target=" +
+                NpcRoleUtility.GetDisplayName(targetRoot) +
+                " damage=" +
+                damage +
+                " hp=" +
+                hpBefore +
+                "->" +
+                hpAfter +
+                " pos=" +
+                position);
         }
+    }
+
+    GameObject ResolveLightningDamageTarget(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return null;
+        }
+
+        Transform root =
+            hit.GetComponentInParent<SmartNpcAI>()?.transform ??
+            hit.GetComponentInParent<VillagerAI>()?.transform ??
+            hit.GetComponentInParent<MonsterAI>()?.transform ??
+            hit.GetComponentInParent<CharacterStats>()?.transform;
+
+        return root != null ? root.gameObject : null;
+    }
+
+    int ReadCurrentHp(GameObject target)
+    {
+        if (target == null)
+        {
+            return -1;
+        }
+
+        CharacterStats stats =
+            target.GetComponent<CharacterStats>();
+        if (stats != null)
+        {
+            return stats.currentHP;
+        }
+
+        SmartNpcAI smartNpc =
+            target.GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            return smartNpc.currentHP;
+        }
+
+        VillagerAI villager =
+            target.GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            return villager.currentHP;
+        }
+
+        MonsterAI monster =
+            target.GetComponent<MonsterAI>();
+        if (monster != null)
+        {
+            return monster.currentHP;
+        }
+
+        return -1;
     }
 
     IEnumerator PlayFallbackLightning(
@@ -1005,6 +1081,7 @@ public class HeavenGiftPlacementController : MonoBehaviour
         pickup.amount = 1;
         pickup.allowNpcPickup = true;
         pickup.allowPlayerPickup = false;
+        pickup.ConfigureAsDroppedWorldItem();
 
         return pickup;
     }

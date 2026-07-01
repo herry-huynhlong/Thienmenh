@@ -29,6 +29,9 @@ public class SavedFavoriteNpcData
     public string persistentId;
     public string displayName;
     public string realmText;
+    public int heavenFavorFear;
+    public bool unlockedGiftBackThreshold;
+    public bool unlockedWorshipThreshold;
 }
 
 public class FullGameSaveController : MonoBehaviour
@@ -320,7 +323,12 @@ public class FullGameSaveController : MonoBehaviour
             {
                 persistentId = actor != null ? actor.persistentId : "",
                 displayName = favorite.GetDisplayName(),
-                realmText = favorite.GetRealmText()
+                realmText = favorite.GetRealmText(),
+                heavenFavorFear = favorite.GetHeavenFavorFear(),
+                unlockedGiftBackThreshold =
+                    favorite.unlockedGiftBackThreshold,
+                unlockedWorshipThreshold =
+                    favorite.unlockedWorshipThreshold
             });
         }
     }
@@ -351,6 +359,13 @@ public class FullGameSaveController : MonoBehaviour
 
             favorite.npcDisplayName = saved.displayName;
             favorite.realmText = saved.realmText;
+            favorite.heavenFavorFear = Mathf.Max(0, saved.heavenFavorFear);
+            favorite.unlockedGiftBackThreshold =
+                saved.unlockedGiftBackThreshold ||
+                favorite.heavenFavorFear >= NpcFavorite.GiftBackThreshold;
+            favorite.unlockedWorshipThreshold =
+                saved.unlockedWorshipThreshold ||
+                favorite.heavenFavorFear >= NpcFavorite.WorshipThreshold;
             manager.AddFavorite(favorite);
         }
     }

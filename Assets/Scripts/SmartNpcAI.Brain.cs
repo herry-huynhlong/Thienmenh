@@ -156,7 +156,7 @@ public partial class SmartNpcAI
         }
 
         if (canCultivate &&
-            (pill > 0 || spiritStone > 0) &&
+            (HasAvailablePills() || spiritStone > 0) &&
             CanUseScheduledCultivation())
         {
             Cultivate();
@@ -176,7 +176,7 @@ public partial class SmartNpcAI
         if (autonomousActivitiesEnabled &&
             canTrade &&
             money >= 50 &&
-            pill <= 0)
+            !HasAvailablePills())
         {
             if (!GoToTavernAndBuyPill())
             {

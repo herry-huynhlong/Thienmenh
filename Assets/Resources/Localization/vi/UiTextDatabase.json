@@ -649,6 +649,14 @@
           "value": "-"
         },
         {
+          "key": "emptyStateTitle",
+          "value": "Ch?a c? thi?n m?nh chi t?"
+        },
+        {
+          "key": "emptyStateDescription",
+          "value": "H?y ban c? duy?n cho m?t sinh linh ph? h?p ?? xu?t hi?n t?i ??y."
+        },
+        {
           "key": "descriptionNone",
           "value": "Không có ghi chú"
         },

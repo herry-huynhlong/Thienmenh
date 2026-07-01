@@ -164,16 +164,31 @@ public partial class MonsterAI
             return;
         }
 
-        float distance =
+        float surfaceDistance =
+            GetCombatSurfaceDistance(currentTarget);
+        float centerDistance =
             Vector2.Distance(transform.position, currentTarget.position);
-        if (distance > attackRange + 0.25f)
+        if (surfaceDistance > attackRange + 0.25f)
         {
             DebugFlow(
                 "Combat",
                 "Attack damage skipped target=" +
                 currentTarget.name +
+                " surfaceDistance=" +
+                surfaceDistance.ToString("0.00") +
                 " centerDistance=" +
-                distance.ToString("0.00"));
+                centerDistance.ToString("0.00"));
+            return;
+        }
+
+        if (float.IsPositiveInfinity(surfaceDistance))
+        {
+            DebugFlow(
+                "Combat",
+                "Attack damage skipped target=" +
+                currentTarget.name +
+                " invalidSurfaceDistance centerDistance=" +
+                centerDistance.ToString("0.00"));
             return;
         }
 
@@ -201,8 +216,10 @@ public partial class MonsterAI
             (damagedTarget != null ? damagedTarget.name : "null") +
             " finalDamage=" +
             finalDamage +
+            " surfaceDistance=" +
+            surfaceDistance.ToString("0.00") +
             " centerDistance=" +
-            distance.ToString("0.00"));
+            centerDistance.ToString("0.00"));
 
         damagedTargetDamageable.TakeDamage(finalDamage);
 

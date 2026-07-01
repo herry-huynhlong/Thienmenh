@@ -3,9 +3,15 @@ using UnityEngine;
 
 public class NpcFavorite : MonoBehaviour
 {
+    public const int GiftBackThreshold = 20;
+    public const int WorshipThreshold = 50;
+
     [Header("Saved NPC info")]
     public string npcDisplayName = "";
     public string realmText = "";
+    public int heavenFavorFear;
+    public bool unlockedGiftBackThreshold;
+    public bool unlockedWorshipThreshold;
 
     [Header("Star mark above NPC")]
     public GameObject starMark;
@@ -39,6 +45,36 @@ public class NpcFavorite : MonoBehaviour
         return string.IsNullOrWhiteSpace(resolvedRealm)
             ? NpcText.Realm(CultivationRealm.Mortal)
             : resolvedRealm;
+    }
+
+    public int GetHeavenFavorFear()
+    {
+        return Mathf.Max(0, heavenFavorFear);
+    }
+
+    public bool AddHeavenFavorFear(int amount)
+    {
+        if (amount == 0)
+        {
+            return false;
+        }
+
+        int previousFear = Mathf.Max(0, heavenFavorFear);
+        heavenFavorFear = Mathf.Max(0, previousFear + amount);
+
+        if (!unlockedGiftBackThreshold &&
+            heavenFavorFear >= GiftBackThreshold)
+        {
+            unlockedGiftBackThreshold = true;
+        }
+
+        if (!unlockedWorshipThreshold &&
+            heavenFavorFear >= WorshipThreshold)
+        {
+            unlockedWorshipThreshold = true;
+        }
+
+        return heavenFavorFear != previousFear;
     }
 
     public void SetFavoriteState(bool value)
