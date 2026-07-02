@@ -332,6 +332,35 @@ public class NpcScheduleController : MonoBehaviour
         }
     }
 
+    public static string GetStableSlotKey(
+        NpcScheduleSlot slot,
+        NpcScheduleActivity activity)
+    {
+        if (slot == null)
+        {
+            return "none";
+        }
+
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        int day = timeSystem != null ? timeSystem.CurrentDay : 0;
+        float hour = timeSystem != null
+            ? timeSystem.CurrentHour
+            : Mathf.Repeat(Time.time * 24f / 900f, 24f);
+
+        float start = Mathf.Repeat(slot.startHour, 24f);
+        float end = Mathf.Repeat(slot.endHour, 24f);
+
+        if (start > end && hour < end)
+        {
+            day--;
+        }
+
+        return day + ":" +
+            activity + ":" +
+            Mathf.RoundToInt(start * 100f) + ":" +
+            Mathf.RoundToInt(end * 100f);
+    }
+
     public void AwakenCultivationPath(bool byMarrowCleansingPill)
     {
         canCultivate = true;
@@ -431,19 +460,6 @@ public class NpcScheduleController : MonoBehaviour
             return "";
         }
 
-        float hour = GetCurrentWorldHour();
-        int day = GetCurrentWorldDay();
-        float start = Mathf.Repeat(slot.startHour, 24f);
-        float end = Mathf.Repeat(slot.endHour, 24f);
-
-        if (start > end && hour < end)
-        {
-            day--;
-        }
-
-        return day + ":" +
-            activity + ":" +
-            Mathf.RoundToInt(start * 100f) + ":" +
-            Mathf.RoundToInt(end * 100f);
+        return GetStableSlotKey(slot, activity);
     }
 }

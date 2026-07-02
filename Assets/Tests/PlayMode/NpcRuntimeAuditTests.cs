@@ -26,6 +26,16 @@ public class NpcRuntimeAuditTests
     const float SuspiciousStationarySeconds = 12f;
     const float OutsideAreaSeconds = 3f;
     const float NpcOverlapSeconds = 4f;
+    const float ThreeDayAuditGameHours = 72f;
+    const float ThreeDayAuditRealSecondsPerGameDay = 180f;
+    const float ThreeDayAuditTimeScale = 10f;
+    const float ThreeDayWarmupRealSeconds = 2f;
+    const float ThreeDaySampleRealSeconds = 0.5f;
+    const float ThreeDayStationaryDistance = 0.05f;
+    const float ThreeDayNpcMovingStuckSeconds = 4f;
+    const float ThreeDayMonsterMovingStuckSeconds = 3f;
+    const float ThreeDayLoopStuckSeconds = 8f;
+    const float ThreeDayOutsideAreaSeconds = 4f;
 
     static readonly string[] MovingActionKeys =
     {
@@ -142,8 +152,81 @@ public class NpcRuntimeAuditTests
         "waitTribulation"
     };
 
+    static readonly string[] ThreeDayMovingActionKeys =
+    {
+        "wanderVillage",
+        "returnTerritory",
+        "goHomeCultivate",
+        "goTavern",
+        "huntMonster",
+        "huntMonsterNamed",
+        "attackMonsterNamed",
+        "treasureHunt",
+        "treasureHuntNamed",
+        "goStoreBuyItem",
+        "goTaskProviderDaily",
+        "goVanBaoLauBroker",
+        "goVanBaoLauTask",
+        "goHomeRest",
+        "goPlay",
+        "goMarketTrade",
+        "bringGoodsToCounter",
+        "walkingRoad",
+        "avoidObstacle",
+        "goFarmWork",
+        "goWork",
+        "goPatrol",
+        "goHeal",
+        "goFish",
+        "goHunt",
+        "goMealPoint",
+        "goTavernMealPoint",
+        "goCounterTrade",
+        "goWorkTask",
+        "goGatherItem",
+        "searchGatherItem",
+        "huntSearch",
+        "huntFight",
+        "returnProviderReceiveTask",
+        "returnTurnInTask",
+        "followTaskRoute",
+        "goGatherNamed",
+        "huntForestResource",
+        "gatherVillageResource",
+        "gatherHerbsAroundForest",
+        "trapForestRabbit",
+        "detectIntruder",
+        "retreat",
+        "flee",
+        "patrolTerritory",
+        "chaseIntruder",
+        "choosePatrolPoint"
+    };
+
+    static readonly string[] RequiredThreeDayVillagerObjectNames =
+    {
+        "fish",
+        "hunt",
+        "farm"
+    };
+
+    static readonly string[] RequiredThreeDaySmartNpcObjectNames =
+    {
+        "daocot",
+        "satthu (1)",
+        "tusinu (1)"
+    };
+
+    static readonly string[] RequiredThreeDayMonsterObjectNames =
+    {
+        "YeuThu_Cap1",
+        "cap2",
+        "cap3"
+    };
+
     static readonly Type VillagerType = GetGameType("VillagerAI");
     static readonly Type SmartNpcType = GetGameType("SmartNpcAI");
+    static readonly Type MonsterType = GetGameType("MonsterAI");
     static readonly Type NpcMapMoverType = GetGameType("NpcMapMover2D");
     static readonly Type NpcMapAreaType = GetGameType("NpcMapArea");
     static readonly Type NpcLocationAreaType = GetGameType("NpcLocationArea");
@@ -277,6 +360,111 @@ public class NpcRuntimeAuditTests
             if (timeSystem != null)
             {
                 SetFloatMember(timeSystem, "realSecondsPerGameDay", originalRealSecondsPerGameDay);
+            }
+
+            Time.timeScale = originalTimeScale;
+            Time.fixedDeltaTime = originalFixedDeltaTime;
+        }
+    }
+
+    [UnityTest]
+    [Timeout(600000)]
+    public IEnumerator AuditThreeDaysForSelectedActors()
+    {
+        float originalTimeScale = Time.timeScale;
+        float originalFixedDeltaTime = Time.fixedDeltaTime;
+        Component timeSystem = null;
+        float originalRealSecondsPerGameDay = 0f;
+        bool originalAutoSaveWorldTime = false;
+
+        try
+        {
+            yield return SceneManager.LoadSceneAsync(ScenePath, LoadSceneMode.Single);
+            EnsureAudioListener();
+            yield return new WaitForSecondsRealtime(ThreeDayWarmupRealSeconds);
+
+            timeSystem = EnsureWorldTimeSystem();
+            Assert.NotNull(timeSystem, "WorldTimeSystem was not found in " + ScenePath);
+
+            originalRealSecondsPerGameDay =
+                GetFloatMember(timeSystem, "realSecondsPerGameDay", 900f);
+            originalAutoSaveWorldTime =
+                Convert.ToBoolean(GetFieldValue(timeSystem, "autoSaveWorldTime"));
+
+            SetFieldValue(timeSystem, "autoSaveWorldTime", false);
+            SetFloatMember(
+                timeSystem,
+                "realSecondsPerGameDay",
+                ThreeDayAuditRealSecondsPerGameDay);
+            SetWorldTime(
+                timeSystem,
+                GetIntField(timeSystem, "currentYear", 1),
+                GetIntField(timeSystem, "currentMonth", 1),
+                GetIntField(timeSystem, "currentDay", 1),
+                0.5f);
+
+            Time.timeScale = ThreeDayAuditTimeScale;
+            Time.fixedDeltaTime = originalFixedDeltaTime;
+
+            List<ThreeDayActorState> actors = PickThreeDayAuditActors();
+            Assert.AreEqual(
+                9,
+                actors.Count,
+                "Expected 3 VillagerAI, 3 SmartNpcAI, and 3 MonsterAI samples in " + ScenePath);
+
+            EnableThreeDayDebugFlags(actors);
+
+            List<string> issues = new List<string>();
+            float startWorldHour =
+                GetFloatMember(timeSystem, "CurrentWorldHour", 0f);
+            float currentWorldHour = startWorldHour;
+
+            while (currentWorldHour - startWorldHour <
+                ThreeDayAuditGameHours)
+            {
+                yield return new WaitForSecondsRealtime(
+                    ThreeDaySampleRealSeconds);
+                currentWorldHour =
+                    GetFloatMember(timeSystem, "CurrentWorldHour", startWorldHour);
+                SampleThreeDayActors(
+                    actors,
+                    issues,
+                    currentWorldHour,
+                    ThreeDaySampleRealSeconds);
+            }
+
+            string reportPath =
+                WriteThreeDayReport(
+                    actors,
+                    issues,
+                    startWorldHour,
+                    currentWorldHour);
+            Debug.Log("NPC_THREE_DAY_AUDIT_REPORT: " + reportPath);
+            Debug.Log(
+                BuildThreeDaySummary(
+                    actors,
+                    issues,
+                    startWorldHour,
+                    currentWorldHour));
+
+            Assert.That(
+                issues,
+                Is.Empty,
+                "3-day actor audit found issues. See " + reportPath + Environment.NewLine +
+                string.Join(Environment.NewLine, issues));
+        }
+        finally
+        {
+            if (timeSystem != null)
+            {
+                SetFloatMember(
+                    timeSystem,
+                    "realSecondsPerGameDay",
+                    originalRealSecondsPerGameDay);
+                SetFieldValue(
+                    timeSystem,
+                    "autoSaveWorldTime",
+                    originalAutoSaveWorldTime);
             }
 
             Time.timeScale = originalTimeScale;
@@ -431,6 +619,61 @@ public class NpcRuntimeAuditTests
         Assert.IsFalse(
             visitAllowed,
             "SmartNpcAI should not revisit a task provider again on the same world day.");
+    }
+
+    [UnityTest]
+    [Timeout(120000)]
+    public IEnumerator MortalSmartNpcStillHandlesHungerAndFatigueWhileCultivationIsEnabled()
+    {
+        yield return LoadSceneAndWarmup(QuickWarmupSeconds);
+
+        Behaviour smart = FindFirstActiveBehaviour(SmartNpcType);
+        Assert.NotNull(smart, "No active SmartNpcAI was found in the loaded scene.");
+
+        FieldInfo realmField = smart.GetType().GetField(
+            "realm",
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        Assert.NotNull(realmField, "SmartNpcAI.realm field was not found.");
+
+        SetFieldValue(smart, "canLive", true);
+        SetFieldValue(smart, "canCultivate", true);
+        SetFieldValue(
+            smart,
+            "realm",
+            Enum.Parse(realmField.FieldType, "QiRefining"));
+        SetFieldValue(smart, "currentMonsterTarget", null);
+        SetFieldValue(smart, "currentTarget", null);
+        SetFieldValue(smart, "hunger", 95f);
+        SetFieldValue(smart, "fatigue", 0f);
+        SetFieldValue(smart, "currentAction", string.Empty);
+        SetFieldValue(smart, "actionTimer", 0f);
+
+        InvokePrivateMethod(smart, "ThinkBrainCore");
+
+        Assert.AreEqual(
+            GetNpcActionText("eating"),
+            Convert.ToString(GetFieldValue(smart, "currentAction"), CultureInfo.InvariantCulture),
+            "A mortal SmartNpcAI should still enter Eat() even when canCultivate is enabled.");
+        Assert.LessOrEqual(
+            GetFloatField(smart, "hunger"),
+            0.01f,
+            "Eat() should reset the hunger meter.");
+
+        SetFieldValue(smart, "hunger", 0f);
+        SetFieldValue(smart, "fatigue", 95f);
+        SetFieldValue(smart, "currentAction", string.Empty);
+        SetFieldValue(smart, "actionTimer", 0f);
+
+        InvokePrivateMethod(smart, "ThinkBrainCore");
+
+        Assert.AreEqual(
+            GetNpcActionText("rest"),
+            Convert.ToString(GetFieldValue(smart, "currentAction"), CultureInfo.InvariantCulture),
+            "A mortal SmartNpcAI should still enter Sleep() even when canCultivate is enabled.");
+        Assert.LessOrEqual(
+            GetFloatField(smart, "fatigue"),
+            0.01f,
+            "Sleep() should reset the fatigue meter.");
     }
 
     [UnityTest]
@@ -928,6 +1171,598 @@ public class NpcRuntimeAuditTests
                 .Append(" transitions=").Append(state.Transitions.Count);
         }
         return builder.ToString();
+    }
+
+    static List<ThreeDayActorState> PickThreeDayAuditActors()
+    {
+        List<ThreeDayActorState> actors = new List<ThreeDayActorState>();
+        List<Component> villagers =
+            FindSortedActiveComponents(
+                VillagerType,
+                component =>
+                    BuildThreeDayDisplayName(
+                        component,
+                        "VillagerAI"));
+        List<Component> smartNpcs =
+            FindSortedActiveComponents(
+                SmartNpcType,
+                component =>
+                    BuildThreeDayDisplayName(
+                        component,
+                        "SmartNpcAI"));
+        List<Component> monsters =
+            FindSortedActiveComponents(
+                MonsterType,
+                component =>
+                    BuildThreeDayDisplayName(
+                        component,
+                        "MonsterAI"));
+
+        HashSet<string> villagerJobs =
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        for (int i = 0; i < villagers.Count && CountThreeDayKind(actors, "VillagerAI") < 3; i++)
+        {
+            string job = Convert.ToString(
+                GetFieldValue(villagers[i], "job"),
+                CultureInfo.InvariantCulture);
+            if (villagerJobs.Add(job))
+            {
+                actors.Add(new ThreeDayActorState(villagers[i], "VillagerAI"));
+            }
+        }
+
+        for (int i = 0; i < villagers.Count && CountThreeDayKind(actors, "VillagerAI") < 3; i++)
+        {
+            if (!ContainsThreeDayActor(actors, villagers[i].gameObject))
+            {
+                actors.Add(new ThreeDayActorState(villagers[i], "VillagerAI"));
+            }
+        }
+
+        for (int i = 0; i < smartNpcs.Count && CountThreeDayKind(actors, "SmartNpcAI") < 3; i++)
+        {
+            actors.Add(new ThreeDayActorState(smartNpcs[i], "SmartNpcAI"));
+        }
+
+        for (int i = 0; i < monsters.Count && CountThreeDayKind(actors, "MonsterAI") < 3; i++)
+        {
+            object isDead = GetPropertyValue(monsters[i], "IsDead");
+            if (isDead is bool && (bool)isDead)
+            {
+                continue;
+            }
+
+            actors.Add(new ThreeDayActorState(monsters[i], "MonsterAI"));
+        }
+
+        return actors;
+    }
+
+    static List<ThreeDayActorState> PickThreeDayAuditActorsByExactNames()
+    {
+        List<ThreeDayActorState> actors = new List<ThreeDayActorState>();
+        AddNamedThreeDayActors(
+            actors,
+            VillagerType,
+            "VillagerAI",
+            RequiredThreeDayVillagerObjectNames,
+            component => GetStringField(component, "villagerName"));
+        AddNamedThreeDayActors(
+            actors,
+            SmartNpcType,
+            "SmartNpcAI",
+            RequiredThreeDaySmartNpcObjectNames,
+            component => GetStringField(component, "npcName"));
+        AddNamedThreeDayActors(
+            actors,
+            MonsterType,
+            "MonsterAI",
+            RequiredThreeDayMonsterObjectNames,
+            component => GetStringField(component, "monsterName"));
+        return actors;
+    }
+
+    static void AddNamedThreeDayActors(
+        List<ThreeDayActorState> actors,
+        Type type,
+        string typeName,
+        string[] requiredObjectNames,
+        Func<Component, string> displayNameSelector)
+    {
+        for (int i = 0; i < requiredObjectNames.Length; i++)
+        {
+            Component component = FindNamedActiveComponent(
+                type,
+                requiredObjectNames[i],
+                displayNameSelector);
+            if (component == null)
+            {
+                continue;
+            }
+
+            if (typeName == "MonsterAI")
+            {
+                object isDead = GetPropertyValue(component, "IsDead");
+                if (isDead is bool && (bool)isDead)
+                {
+                    continue;
+                }
+            }
+
+            actors.Add(new ThreeDayActorState(component, typeName));
+        }
+    }
+
+    static List<Component> FindSortedActiveComponents(
+        Type type,
+        Func<Component, string> labelSelector)
+    {
+        List<Component> results = new List<Component>();
+        if (type == null)
+        {
+            return results;
+        }
+
+        UnityEngine.Object[] found =
+            UnityEngine.Object.FindObjectsByType(type, FindObjectsSortMode.None);
+        for (int i = 0; i < found.Length; i++)
+        {
+            Component component = found[i] as Component;
+            if (component == null ||
+                component.gameObject == null ||
+                !component.gameObject.activeInHierarchy ||
+                (component is Behaviour && !((Behaviour)component).enabled))
+            {
+                continue;
+            }
+
+            results.Add(component);
+        }
+
+        results.Sort((a, b) => string.Compare(
+            labelSelector(a),
+            labelSelector(b),
+            StringComparison.OrdinalIgnoreCase));
+        return results;
+    }
+
+    static Component FindNamedActiveComponent(
+        Type type,
+        string requiredObjectName,
+        Func<Component, string> displayNameSelector)
+    {
+        if (type == null || string.IsNullOrWhiteSpace(requiredObjectName))
+        {
+            return null;
+        }
+
+        UnityEngine.Object[] found =
+            UnityEngine.Object.FindObjectsByType(
+                type,
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+        string requiredNormalized = NormalizeAuditActorName(requiredObjectName);
+        for (int i = 0; i < found.Length; i++)
+        {
+            Component component = found[i] as Component;
+            if (component == null ||
+                component.gameObject == null ||
+                !component.gameObject.activeInHierarchy ||
+                (component is Behaviour && !((Behaviour)component).enabled))
+            {
+                continue;
+            }
+
+            if (NamesMatchForAudit(component.gameObject.name, requiredNormalized))
+            {
+                return component;
+            }
+
+            if (displayNameSelector != null &&
+                NamesMatchForAudit(displayNameSelector(component), requiredNormalized))
+            {
+                return component;
+            }
+        }
+
+        return null;
+    }
+
+    static bool NamesMatchForAudit(string candidateName, string requiredNormalized)
+    {
+        if (string.IsNullOrWhiteSpace(candidateName) ||
+            string.IsNullOrWhiteSpace(requiredNormalized))
+        {
+            return false;
+        }
+
+        return string.Equals(
+            NormalizeAuditActorName(candidateName),
+            requiredNormalized,
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    static string NormalizeAuditActorName(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+
+        StringBuilder builder = new StringBuilder(value.Length);
+        for (int i = 0; i < value.Length; i++)
+        {
+            char current = value[i];
+            if (char.IsLetterOrDigit(current))
+            {
+                builder.Append(char.ToLowerInvariant(current));
+            }
+        }
+
+        return builder.ToString();
+    }
+
+    static string BuildThreeDayDisplayName(Component component, string typeName)
+    {
+        if (component == null || component.gameObject == null)
+        {
+            return "<missing>";
+        }
+
+        if (typeName == "VillagerAI")
+        {
+            string villagerName = GetStringField(component, "villagerName");
+            return string.IsNullOrWhiteSpace(villagerName)
+                ? component.gameObject.name
+                : component.gameObject.name + "/" + villagerName;
+        }
+
+        if (typeName == "SmartNpcAI")
+        {
+            string npcName = GetStringField(component, "npcName");
+            return string.IsNullOrWhiteSpace(npcName)
+                ? component.gameObject.name
+                : component.gameObject.name + "/" + npcName;
+        }
+
+        string monsterName = GetStringField(component, "monsterName");
+        return string.IsNullOrWhiteSpace(monsterName)
+            ? component.gameObject.name
+            : component.gameObject.name + "/" + monsterName;
+    }
+
+    static int CountThreeDayKind(
+        List<ThreeDayActorState> actors,
+        string typeName)
+    {
+        int count = 0;
+        for (int i = 0; i < actors.Count; i++)
+        {
+            if (actors[i].TypeName == typeName)
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    static bool ContainsThreeDayActor(
+        List<ThreeDayActorState> actors,
+        GameObject gameObject)
+    {
+        for (int i = 0; i < actors.Count; i++)
+        {
+            if (actors[i].GameObject == gameObject)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    static void EnableThreeDayDebugFlags(List<ThreeDayActorState> actors)
+    {
+        for (int i = 0; i < actors.Count; i++)
+        {
+            if (actors[i].TypeName == "SmartNpcAI" ||
+                actors[i].TypeName == "MonsterAI")
+            {
+                SetFieldValue(actors[i].Component, "debugFlowLogs", true);
+            }
+        }
+    }
+
+    static void SampleThreeDayActors(
+        List<ThreeDayActorState> actors,
+        List<string> issues,
+        float currentWorldHour,
+        float sampleDelta)
+    {
+        for (int i = 0; i < actors.Count; i++)
+        {
+            ThreeDayActorState actor = actors[i];
+            if (actor.GameObject == null || !actor.GameObject.activeInHierarchy)
+            {
+                continue;
+            }
+
+            Vector3 position = actor.GameObject.transform.position;
+            float moved = Vector2.Distance(actor.LastPosition, position);
+            string action = actor.Action;
+            string schedule = actor.ScheduleActivity;
+            string target = actor.TargetName;
+            bool stationary = moved <= ThreeDayStationaryDistance;
+            bool movingIntent = IsThreeDayMovingIntent(actor, action);
+            bool legitimateStationary =
+                IsLegitimateStationaryAction(action) ||
+                IsCultivationAction(action);
+
+            actor.TotalDistance += moved;
+            actor.MaxDistanceFromStart = Mathf.Max(
+                actor.MaxDistanceFromStart,
+                Vector2.Distance(actor.StartPosition, position));
+
+            if (!string.Equals(
+                    actor.LastAction,
+                    action,
+                    StringComparison.Ordinal) ||
+                !string.Equals(
+                    actor.LastTargetName,
+                    target,
+                    StringComparison.Ordinal) ||
+                !string.Equals(
+                    actor.LastScheduleActivity,
+                    schedule,
+                    StringComparison.Ordinal))
+            {
+                actor.Transitions.Add(
+                    "[" + currentWorldHour.ToString("0.00", CultureInfo.InvariantCulture) + "h] " +
+                    actor.TypeName + " " + actor.DisplayName +
+                    " action=" + Safe(action) +
+                    " schedule=" + Safe(schedule) +
+                    " target=" + Safe(target) +
+                    " hp=" + actor.HealthText +
+                    " pos=" + FormatVector(position));
+            }
+
+            if (stationary)
+            {
+                actor.StationarySeconds += sampleDelta;
+            }
+            else
+            {
+                actor.StationarySeconds = 0f;
+            }
+
+            if (stationary && movingIntent)
+            {
+                actor.MovingIntentStationarySeconds += sampleDelta;
+            }
+            else
+            {
+                actor.MovingIntentStationarySeconds = 0f;
+            }
+
+            if (stationary &&
+                !legitimateStationary &&
+                string.Equals(
+                    actor.LastAction,
+                    action,
+                    StringComparison.Ordinal) &&
+                string.Equals(
+                    actor.LastTargetName,
+                    target,
+                    StringComparison.Ordinal))
+            {
+                actor.SameStateSeconds += sampleDelta;
+            }
+            else
+            {
+                actor.SameStateSeconds = 0f;
+            }
+
+            if (actor.TypeName != "MonsterAI")
+            {
+                if (GetNpcMapAreaCount() > 0 && FindNpcMapArea(position) == null)
+                {
+                    actor.OutsideAreaSeconds += sampleDelta;
+                }
+                else
+                {
+                    actor.OutsideAreaSeconds = 0f;
+                }
+            }
+
+            float movingThreshold =
+                actor.TypeName == "MonsterAI"
+                    ? ThreeDayMonsterMovingStuckSeconds
+                    : ThreeDayNpcMovingStuckSeconds;
+
+            AddThreeDayIssueOnce(
+                issues,
+                actor,
+                "moving_stuck|" +
+                action + "|" +
+                target + "|" +
+                RoundedThreeDayPosition(position),
+                actor.MovingIntentStationarySeconds >= movingThreshold,
+                currentWorldHour,
+                "moving intent stuck for " +
+                JsonNumber(actor.MovingIntentStationarySeconds) +
+                "s action=" + Safe(action) +
+                " schedule=" + Safe(schedule) +
+                " target=" + Safe(target) +
+                " pos=" + FormatVector(position));
+
+            AddThreeDayIssueOnce(
+                issues,
+                actor,
+                "state_loop|" +
+                action + "|" +
+                target + "|" +
+                RoundedThreeDayPosition(position),
+                actor.SameStateSeconds >= ThreeDayLoopStuckSeconds,
+                currentWorldHour,
+                "same state loop for " +
+                JsonNumber(actor.SameStateSeconds) +
+                "s action=" + Safe(action) +
+                " schedule=" + Safe(schedule) +
+                " target=" + Safe(target) +
+                " pos=" + FormatVector(position));
+
+            if (actor.TypeName != "MonsterAI")
+            {
+                AddThreeDayIssueOnce(
+                    issues,
+                    actor,
+                    "outside_area|" + RoundedThreeDayPosition(position),
+                    actor.OutsideAreaSeconds >= ThreeDayOutsideAreaSeconds,
+                    currentWorldHour,
+                    "outside map area for " +
+                    JsonNumber(actor.OutsideAreaSeconds) +
+                    "s action=" + Safe(action) +
+                    " target=" + Safe(target) +
+                    " pos=" + FormatVector(position));
+            }
+
+            actor.LastPosition = position;
+            actor.LastAction = action;
+            actor.LastTargetName = target;
+            actor.LastScheduleActivity = schedule;
+        }
+    }
+
+    static bool IsThreeDayMovingIntent(
+        ThreeDayActorState actor,
+        string action)
+    {
+        if (string.IsNullOrWhiteSpace(action))
+        {
+            return actor.TargetTransform != null;
+        }
+
+        if (MatchesAnyAction(action, ThreeDayMovingActionKeys))
+        {
+            return true;
+        }
+
+        if (ContainsIgnoreCase(action, "go") ||
+            ContainsIgnoreCase(action, "walk") ||
+            ContainsIgnoreCase(action, "move") ||
+            ContainsIgnoreCase(action, "hunt") ||
+            ContainsIgnoreCase(action, "chase") ||
+            ContainsIgnoreCase(action, "patrol") ||
+            ContainsIgnoreCase(action, "return") ||
+            ContainsIgnoreCase(action, "flee") ||
+            ContainsIgnoreCase(action, "retreat"))
+        {
+            return true;
+        }
+
+        return actor.TargetTransform != null &&
+            !ContainsIgnoreCase(action, "idle") &&
+            !ContainsIgnoreCase(action, "rest") &&
+            !ContainsIgnoreCase(action, "sleep") &&
+            !ContainsIgnoreCase(action, "cultivate") &&
+            !ContainsIgnoreCase(action, "injured") &&
+            !ContainsIgnoreCase(action, "dead");
+    }
+
+    static void AddThreeDayIssueOnce(
+        List<string> issues,
+        ThreeDayActorState actor,
+        string issueKey,
+        bool condition,
+        float worldHour,
+        string detail)
+    {
+        if (!condition || actor.ReportedIssues.Contains(issueKey))
+        {
+            return;
+        }
+
+        actor.ReportedIssues.Add(issueKey);
+        string line =
+            "[" + worldHour.ToString("0.00", CultureInfo.InvariantCulture) + "h] " +
+            actor.TypeName + " " + actor.DisplayName + " " + detail;
+        actor.Issues.Add(line);
+        issues.Add(line);
+    }
+
+    static string RoundedThreeDayPosition(Vector3 position)
+    {
+        return Mathf.RoundToInt(position.x * 10f) + "," +
+            Mathf.RoundToInt(position.y * 10f);
+    }
+
+    static string WriteThreeDayReport(
+        List<ThreeDayActorState> actors,
+        List<string> issues,
+        float startWorldHour,
+        float endWorldHour)
+    {
+        string reportPath =
+            Path.Combine(Application.dataPath, "..", "NpcThreeDayAuditReport.txt");
+        StringBuilder builder = new StringBuilder();
+        builder.AppendLine("==== SUMMARY ====");
+        builder.AppendLine("scene=" + ScenePath);
+        builder.AppendLine(
+            "worldHourRange=" +
+            JsonNumber(startWorldHour) +
+            " -> " +
+            JsonNumber(endWorldHour));
+        builder.AppendLine("sampledActors=" + actors.Count);
+        builder.AppendLine("issues=" + issues.Count);
+        builder.AppendLine();
+        builder.AppendLine("==== ACTOR STATS ====");
+
+        for (int i = 0; i < actors.Count; i++)
+        {
+            ThreeDayActorState actor = actors[i];
+            builder.AppendLine(
+                actor.TypeName + " " + actor.DisplayName +
+                " job=" + actor.Job +
+                " totalDistance=" + JsonNumber(actor.TotalDistance) +
+                " maxDistanceFromStart=" + JsonNumber(actor.MaxDistanceFromStart) +
+                " issues=" + actor.Issues.Count +
+                " lastAction=" + Safe(actor.LastAction) +
+                " lastSchedule=" + Safe(actor.LastScheduleActivity) +
+                " lastTarget=" + Safe(actor.LastTargetName));
+
+            for (int t = 0; t < actor.Transitions.Count; t++)
+            {
+                builder.AppendLine("  TRANSITION " + actor.Transitions[t]);
+            }
+
+            for (int issueIndex = 0; issueIndex < actor.Issues.Count; issueIndex++)
+            {
+                builder.AppendLine("  ISSUE " + actor.Issues[issueIndex]);
+            }
+        }
+
+        builder.AppendLine();
+        builder.AppendLine("==== GLOBAL ISSUES ====");
+        for (int i = 0; i < issues.Count; i++)
+        {
+            builder.AppendLine(issues[i]);
+        }
+
+        File.WriteAllText(reportPath, builder.ToString());
+        return reportPath;
+    }
+
+    static string BuildThreeDaySummary(
+        List<ThreeDayActorState> actors,
+        List<string> issues,
+        float startWorldHour,
+        float endWorldHour)
+    {
+        return "NPC_THREE_DAY_AUDIT_SUMMARY actors=" + actors.Count +
+            " issues=" + issues.Count +
+            " worldHourStart=" + JsonNumber(startWorldHour) +
+            " worldHourEnd=" + JsonNumber(endWorldHour);
     }
 
     static void AddActorsOfType(
@@ -1455,6 +2290,35 @@ public class NpcRuntimeAuditTests
         catch (OverflowException)
         {
             return 0f;
+        }
+    }
+
+    static int GetIntField(
+        Component component,
+        string fieldName,
+        int fallback = 0)
+    {
+        object value = GetFieldValue(component, fieldName);
+        if (value == null)
+        {
+            return fallback;
+        }
+
+        try
+        {
+            return Convert.ToInt32(value, CultureInfo.InvariantCulture);
+        }
+        catch (InvalidCastException)
+        {
+            return fallback;
+        }
+        catch (FormatException)
+        {
+            return fallback;
+        }
+        catch (OverflowException)
+        {
+            return fallback;
         }
     }
 
@@ -2025,6 +2889,96 @@ public class NpcRuntimeAuditTests
                 return smartNpc != null
                     ? GetLongField(smartNpc, "cultivation")
                     : 0L;
+            }
+        }
+    }
+
+    sealed class ThreeDayActorState
+    {
+        public readonly Component Component;
+        public readonly GameObject GameObject;
+        public readonly string TypeName;
+        public readonly Vector3 StartPosition;
+        public readonly List<string> Transitions = new List<string>();
+        public readonly List<string> Issues = new List<string>();
+        public readonly HashSet<string> ReportedIssues =
+            new HashSet<string>(StringComparer.Ordinal);
+
+        public Vector3 LastPosition;
+        public string LastAction;
+        public string LastTargetName;
+        public string LastScheduleActivity;
+        public float StationarySeconds;
+        public float MovingIntentStationarySeconds;
+        public float SameStateSeconds;
+        public float OutsideAreaSeconds;
+        public float TotalDistance;
+        public float MaxDistanceFromStart;
+
+        public ThreeDayActorState(Component component, string typeName)
+        {
+            Component = component;
+            GameObject = component != null ? component.gameObject : null;
+            TypeName = typeName;
+            StartPosition = GameObject != null
+                ? GameObject.transform.position
+                : Vector3.zero;
+            LastPosition = StartPosition;
+            LastAction = Action;
+            LastTargetName = TargetName;
+            LastScheduleActivity = ScheduleActivity;
+        }
+
+        public string DisplayName =>
+            BuildThreeDayDisplayName(Component, TypeName);
+
+        public string Job
+        {
+            get
+            {
+                if (TypeName == "VillagerAI")
+                {
+                    object job = GetFieldValue(Component, "job");
+                    return job != null ? job.ToString() : string.Empty;
+                }
+
+                return TypeName;
+            }
+        }
+
+        public string Action =>
+            GetStringField(Component, "currentAction");
+
+        public string ScheduleActivity =>
+            TypeName == "MonsterAI"
+                ? string.Empty
+                : GetCurrentScheduleActivity(GameObject);
+
+        public Transform TargetTransform
+        {
+            get
+            {
+                object value = GetFieldValue(Component, "currentTarget");
+                return value as Transform;
+            }
+        }
+
+        public string TargetName
+        {
+            get
+            {
+                Transform target = TargetTransform;
+                return target != null ? target.name : string.Empty;
+            }
+        }
+
+        public string HealthText
+        {
+            get
+            {
+                return GetIntField(Component, "currentHP") +
+                    "/" +
+                    GetIntField(Component, "maxHP");
             }
         }
     }

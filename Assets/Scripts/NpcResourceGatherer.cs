@@ -45,6 +45,26 @@ public class NpcResourceGatherer : MonoBehaviour
         targetPickup != null ||
         harvestingPickup != null;
 
+    bool ShouldPauseForSmartNpcDamageRecovery()
+    {
+        if (smartNpc == null)
+        {
+            smartNpc = GetComponent<SmartNpcAI>();
+        }
+
+        return smartNpc != null &&
+            smartNpc.enabled &&
+            smartNpc.IsRecoveringFromDamage;
+    }
+
+    public void SuppressGatheringForSeconds(float durationSeconds)
+    {
+        ClearActiveGathering();
+        nextGatherAllowedTime = Mathf.Max(
+            nextGatherAllowedTime,
+            Time.time + Mathf.Max(0f, durationSeconds));
+    }
+
     void Awake()
     {
         mover = GetComponent<NpcMapMover2D>();
@@ -65,6 +85,12 @@ public class NpcResourceGatherer : MonoBehaviour
         if (gatherOnlyWhenInventoryExists &&
             GetComponent<ItemInventory>() == null)
         {
+            return;
+        }
+
+        if (ShouldPauseForSmartNpcDamageRecovery())
+        {
+            ClearActiveGathering();
             return;
         }
 
@@ -185,6 +211,11 @@ public class NpcResourceGatherer : MonoBehaviour
 
         RefreshScheduleSession();
 
+        if (ShouldPauseForSmartNpcDamageRecovery())
+        {
+            return false;
+        }
+
         if (!allowScheduledWorkHarvest &&
             ShouldBlockScheduledWorkGathering())
         {
@@ -250,6 +281,11 @@ public class NpcResourceGatherer : MonoBehaviour
         }
 
         RefreshScheduleSession();
+
+        if (ShouldPauseForSmartNpcDamageRecovery())
+        {
+            return false;
+        }
 
         if (!allowScheduledWorkHarvest &&
             ShouldBlockScheduledWorkGathering())
@@ -1041,11 +1077,6 @@ public class NpcResourceGatherer : MonoBehaviour
 
     string BuildScheduleSessionKey()
     {
-        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
-        int day = timeSystem != null
-            ? timeSystem.CurrentDay
-            : Mathf.FloorToInt(Time.time / 900f);
-
         NpcScheduleController schedule =
             NpcScheduleController.GetSchedule(gameObject);
 
@@ -1053,14 +1084,11 @@ public class NpcResourceGatherer : MonoBehaviour
             !schedule.enforceSchedule ||
             schedule.CurrentSlot == null)
         {
-            return day + ":free";
+            return "free";
         }
 
         NpcScheduleSlot slot = schedule.CurrentSlot;
-        return day + ":" +
-            slot.activity + ":" +
-            Mathf.RoundToInt(slot.startHour * 100f) + ":" +
-            Mathf.RoundToInt(slot.endHour * 100f);
+        return NpcScheduleController.GetStableSlotKey(slot, slot.activity);
     }
 
     bool IsScheduleHarvestLimitReached()

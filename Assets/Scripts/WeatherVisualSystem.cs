@@ -190,6 +190,7 @@ public class WeatherVisualSystem : MonoBehaviour
         velocity.enabled = true;
         velocity.x = new ParticleSystem.MinMaxCurve(-3.4f, -1.6f);
         velocity.y = new ParticleSystem.MinMaxCurve(-18f, -24f);
+        velocity.z = new ParticleSystem.MinMaxCurve(0f, 0f);
 
         ParticleSystemRenderer renderer = particles.GetComponent<ParticleSystemRenderer>();
         renderer.renderMode = ParticleSystemRenderMode.Stretch;
@@ -225,6 +226,7 @@ public class WeatherVisualSystem : MonoBehaviour
         velocity.enabled = true;
         velocity.x = new ParticleSystem.MinMaxCurve(-0.65f, 0.65f);
         velocity.y = new ParticleSystem.MinMaxCurve(-0.9f, -1.9f);
+        velocity.z = new ParticleSystem.MinMaxCurve(0f, 0f);
 
         ParticleSystem.NoiseModule noise = particles.noise;
         noise.enabled = true;
@@ -263,6 +265,7 @@ public class WeatherVisualSystem : MonoBehaviour
         velocity.enabled = true;
         velocity.x = new ParticleSystem.MinMaxCurve(-0.25f, 0.25f);
         velocity.y = new ParticleSystem.MinMaxCurve(0.25f, 0.9f);
+        velocity.z = new ParticleSystem.MinMaxCurve(0f, 0f);
 
         ParticleSystemRenderer renderer = particles.GetComponent<ParticleSystemRenderer>();
         renderer.renderMode = ParticleSystemRenderMode.Billboard;

@@ -17,7 +17,7 @@ public static class SmartAiPlayModeBatchRunner
 
     static readonly string[] TrackedNpcKeys =
     {
-        "laoba1",
+        "daocot",
         "tusinu1",
         "satthu1"
     };
@@ -27,8 +27,8 @@ public static class SmartAiPlayModeBatchRunner
         (0.5f, "00:30 Cultivate", SmartAITaskGoal.Cultivate),
         (7.5f, "07:30 DoMission", SmartAITaskGoal.DoMission),
         (13.5f, "13:30 FreeHuntAndGather", SmartAITaskGoal.FreeHuntAndGather),
-        (18.5f, "18:30 DoMission", SmartAITaskGoal.DoMission),
-        (22.5f, "22:30 TradeBuySell", SmartAITaskGoal.TradeBuySell)
+        (18.5f, "18:30 TradeBuySell", SmartAITaskGoal.TradeBuySell),
+        (22.5f, "22:30 Cultivate", SmartAITaskGoal.Cultivate)
     };
 
     static readonly FieldInfo HasWanderTargetField =
@@ -291,10 +291,12 @@ public static class SmartAiPlayModeBatchRunner
                 continue;
             }
 
-            string normalized = Normalize(npc.gameObject.name);
+            string normalizedObjectName = Normalize(npc.gameObject.name);
+            string normalizedNpcName = Normalize(npc.npcName);
             for (int i = 0; i < TrackedNpcKeys.Length; i++)
             {
-                if (normalized == TrackedNpcKeys[i])
+                if (normalizedObjectName == TrackedNpcKeys[i] ||
+                    normalizedNpcName == TrackedNpcKeys[i])
                 {
                     trackedNpcs[TrackedNpcKeys[i]] = npc;
                 }

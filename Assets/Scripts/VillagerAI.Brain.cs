@@ -236,16 +236,7 @@ public partial class VillagerAI
         NpcScheduleSlot slot,
         NpcScheduleActivity activity)
     {
-        if (slot == null)
-        {
-            return "none";
-        }
-
-        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
-        int day = timeSystem != null ? timeSystem.CurrentDay : 0;
-        return day + ":" + activity + ":" +
-            Mathf.RoundToInt(slot.startHour * 100f) + ":" +
-            Mathf.RoundToInt(slot.endHour * 100f);
+        return NpcScheduleController.GetStableSlotKey(slot, activity);
     }
 
     bool HasEnforcedSchedule()

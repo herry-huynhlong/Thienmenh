@@ -1,7 +1,9 @@
 {
   "name": "NpcRuntimeAudit.PlayMode",
   "rootNamespace": "",
-  "references": [],
+  "references": [
+    "Assembly-CSharp"
+  ],
   "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,

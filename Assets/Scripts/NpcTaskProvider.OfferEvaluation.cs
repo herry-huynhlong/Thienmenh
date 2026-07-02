@@ -149,8 +149,7 @@ public partial class NpcTaskProvider
                 return true;
             }
 
-            if (smartNpc.realm < CultivationRealm.Foundation &&
-                smartNpc.hunger >= maxTaskAcceptHunger)
+            if (smartNpc.hunger >= maxTaskAcceptHunger)
             {
                 return true;
             }

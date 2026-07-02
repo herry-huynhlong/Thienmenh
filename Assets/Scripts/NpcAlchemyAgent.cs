@@ -83,6 +83,7 @@ public class NpcAlchemyAgent : MonoBehaviour
     string currentAction = "";
     NPCVisualAnimation visualAnimation;
     bool workSpotInitialized;
+    bool movingToBroker;
 
     void Awake()
     {
@@ -145,6 +146,12 @@ public class NpcAlchemyAgent : MonoBehaviour
         }
 
         SnapToWorkSpotIfNeeded();
+
+        if (UpdateMoveToBroker())
+        {
+            UpdateVisualAnimation();
+            return;
+        }
 
         if (UpdateRefining())
         {
@@ -509,11 +516,13 @@ public class NpcAlchemyAgent : MonoBehaviour
             tradeAgent == null ||
             !broker.CanTradeWithNpc(tradeAgent))
         {
+            movingToBroker = false;
             return false;
         }
 
         if (broker.IsCustomerAtCounter(gameObject))
         {
+            movingToBroker = false;
             bool traded = broker.TryTradeWithNpc(tradeAgent);
             if (traded)
             {
@@ -524,10 +533,48 @@ public class NpcAlchemyAgent : MonoBehaviour
             return traded;
         }
 
+        movingToBroker = true;
+        currentAction = NpcText.Action("goVanBaoLauBroker");
         NpcRoleUtility.SetAction(
             gameObject,
-            NpcText.Action("goVanBaoLauBroker"));
+            currentAction);
         UpdateVisualAnimation();
+        return true;
+    }
+
+    bool UpdateMoveToBroker()
+    {
+        if (!movingToBroker)
+        {
+            return false;
+        }
+
+        NpcCounterBroker broker = NpcCounterBroker.Active;
+        if (broker == null ||
+            tradeAgent == null ||
+            !broker.CanTradeWithNpc(tradeAgent))
+        {
+            movingToBroker = false;
+            return false;
+        }
+
+        if (broker.IsCustomerAtCounter(gameObject))
+        {
+            movingToBroker = false;
+            if (broker.TryTradeWithNpc(tradeAgent))
+            {
+                SetIdleAction();
+            }
+
+            return true;
+        }
+
+        currentAction = NpcText.Action("goVanBaoLauBroker");
+        NpcRoleUtility.SetAction(gameObject, currentAction);
+        NpcRoleUtility.MoveTowards(
+            gameObject,
+            broker.GetCustomerPositionFor(gameObject),
+            2.25f);
         return true;
     }
 
@@ -1282,6 +1329,7 @@ public class NpcAlchemyAgent : MonoBehaviour
 
     void SetRefiningAction()
     {
+        movingToBroker = false;
         currentAction = NpcText.Action("attack");
         NpcRoleUtility.SetAction(
             gameObject,
@@ -1290,6 +1338,7 @@ public class NpcAlchemyAgent : MonoBehaviour
 
     void SetIdleAction()
     {
+        movingToBroker = false;
         currentAction =
             preferCultivateWhenIdle
                 ? NpcText.Action("cultivate")

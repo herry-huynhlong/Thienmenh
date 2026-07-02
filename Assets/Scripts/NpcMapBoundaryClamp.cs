@@ -123,13 +123,27 @@ public class NpcMapBoundaryClamp : MonoBehaviour
             area = NpcMapArea.FindArea(referencePosition);
         }
 
+        NpcMapZone? resolvedZone =
+            area != null
+                ? area.zone
+                : NpcMapNavigator.ResolveActorZone(gameObject);
+
         if (gate != null)
         {
-            NpcMapNavigator.ReportNpcZone(gameObject, gate.toZone);
+            if (resolvedZone.HasValue)
+            {
+                NpcMapNavigator.ReportNpcZone(gameObject, resolvedZone.Value);
+            }
+            else
+            {
+                NpcMapNavigator.ReportNpcZone(gameObject, gate.toZone);
+                resolvedZone = gate.toZone;
+            }
+
             NpcMapArea resolvedArea =
                 NpcMapNavigator.ResolveMapAreaAfterTeleport(
                     gameObject,
-                    gate.toZone,
+                    resolvedZone.Value,
                     referencePosition);
 
             if (resolvedArea != null)

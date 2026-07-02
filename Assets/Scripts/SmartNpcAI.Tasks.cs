@@ -498,7 +498,28 @@ public partial class SmartNpcAI
                 return NpcText.Action("treasureHunt");
 
             case SmartAITaskGoal.NeedPotion:
+            {
+                NpcCounterBroker broker = NpcCounterBroker.Active;
+                if (broker != null &&
+                    broker.receiveAllNpcRequests)
+                {
+                    NpcMapZone? currentZone =
+                        NpcMapNavigator.ResolveActorZone(gameObject);
+                    NpcMapZone? brokerZone =
+                        ResolveBrokerTargetZone(broker);
+
+                    if (currentZone.HasValue &&
+                        brokerZone.HasValue &&
+                        currentZone.Value == brokerZone.Value)
+                    {
+                        return NpcText.Action("tradeSeek");
+                    }
+
+                    return NpcText.Action("goVanBaoLauBroker");
+                }
+
                 return NpcText.Action("buyPill");
+            }
 
             case SmartAITaskGoal.CriticalBreakthrough:
                 return NpcText.Action("cultivateAbsorbQi");

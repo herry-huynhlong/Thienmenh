@@ -4,14 +4,6 @@ using UnityEngine;
 
 public class NpcItemCollector : MonoBehaviour
 {
-    static readonly string[] TrackedDebugNpcNames =
-    {
-        "laoba1",
-        "tusinu1",
-        "satthu1",
-        "thusinh33"
-    };
-
     [Header("Inventory")]
     public ItemInventory inventory;
     public CharacterStats characterStats;
@@ -26,6 +18,9 @@ public class NpcItemCollector : MonoBehaviour
     [Header("Manual Study")]
     public bool autoStudyManuals = true;
     public float manualStudyInterval = 120f;
+
+    [Header("Debug")]
+    public bool debugPickupLogs;
 
     readonly List<StatItemData> equippedItems =
         new List<StatItemData>();
@@ -904,12 +899,12 @@ public class NpcItemCollector : MonoBehaviour
     void LogPickupProbe(WorldStatItemPickup pickup, string detail)
     {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        if (!IsTrackedDebugNpc())
+        if (!debugPickupLogs)
         {
             return;
         }
 
-        Debug.LogWarning(
+        Debug.Log(
             "[NpcPickup] " + gameObject.name +
             " probe=" + detail +
             " pickup=" + DescribePickup(pickup) +
@@ -920,12 +915,12 @@ public class NpcItemCollector : MonoBehaviour
     void LogPickupSkip(WorldStatItemPickup pickup, string reason)
     {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        if (!IsTrackedDebugNpc())
+        if (!debugPickupLogs)
         {
             return;
         }
 
-        Debug.LogWarning(
+        Debug.Log(
             "[NpcPickup] " + gameObject.name +
             " skip=" + reason +
             " pickup=" + DescribePickup(pickup) +
@@ -936,12 +931,12 @@ public class NpcItemCollector : MonoBehaviour
     void LogPickupSuccess(WorldStatItemPickup pickup, StatItemData item)
     {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        if (!IsTrackedDebugNpc())
+        if (!debugPickupLogs)
         {
             return;
         }
 
-        Debug.LogWarning(
+        Debug.Log(
             "[NpcPickup] " + gameObject.name +
             " success item=" +
             (item != null ? ItemText.Name(item) : "null") +
@@ -969,49 +964,4 @@ public class NpcItemCollector : MonoBehaviour
             " harvest=" + pickup.requireNpcHarvestAction;
     }
 
-    bool IsTrackedDebugNpc()
-    {
-        return IsTrackedDebugName(gameObject.name);
-    }
-
-    bool IsTrackedDebugName(string value)
-    {
-        if (string.IsNullOrEmpty(value))
-        {
-            return false;
-        }
-
-        string normalized = NormalizeDebugName(value);
-        for (int i = 0; i < TrackedDebugNpcNames.Length; i++)
-        {
-            if (normalized == TrackedDebugNpcNames[i])
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    string NormalizeDebugName(string value)
-    {
-        if (string.IsNullOrEmpty(value))
-        {
-            return string.Empty;
-        }
-
-        System.Text.StringBuilder builder =
-            new System.Text.StringBuilder(value.Length);
-
-        for (int i = 0; i < value.Length; i++)
-        {
-            char c = char.ToLowerInvariant(value[i]);
-            if (char.IsLetterOrDigit(c))
-            {
-                builder.Append(c);
-            }
-        }
-
-        return builder.ToString();
-    }
 }

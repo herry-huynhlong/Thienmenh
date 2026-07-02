@@ -3,11 +3,6 @@ using UnityEngine;
 
 public class NPCVisualAnimation : MonoBehaviour
 {
-    static readonly string[] TrackedDebugVisualNames =
-    {
-        "thusinh33"
-    };
-
     [Header("Movement Clips")]
     public AnimationClip downWalkClip;
     public AnimationClip upWalkClip;
@@ -46,6 +41,9 @@ public class NPCVisualAnimation : MonoBehaviour
     [Header("Vertical Facing")]
     public bool invertVerticalFacing = false;
     public float directionDeadZone = 0.08f;
+
+    [Header("Debug")]
+    public bool debugVisualLogs;
 
     Animator animator;
     SpriteRenderer spriteRenderer;
@@ -145,9 +143,9 @@ public class NPCVisualAnimation : MonoBehaviour
             ? currentState.fullPathHash
             : currentState.shortNameHash;
 
-        if (IsTrackedVisual())
+        if (ShouldLogVisualDebug())
         {
-            Debug.LogWarning(
+            Debug.Log(
                 "[NPCVisualAnimation] Rebind object=" +
                 gameObject.name +
                 " controller=" +
@@ -184,9 +182,9 @@ public class NPCVisualAnimation : MonoBehaviour
         {
             clipToPlay = GetActionClip(actionCategory, lastDirection);
 
-            if (IsTrackedVisual())
+            if (ShouldLogVisualDebug())
             {
-                Debug.LogWarning(
+                Debug.Log(
                     "[NPCVisualAnimation] Action resolve object=" +
                     gameObject.name +
                     " action=" + currentAction +
@@ -255,9 +253,9 @@ public class NPCVisualAnimation : MonoBehaviour
 
         AnimationClip clipToPlay =
             GetActionClip(actionCategory, lastDirection);
-        if (IsTrackedVisual())
+        if (ShouldLogVisualDebug())
         {
-            Debug.LogWarning(
+            Debug.Log(
                 "[NPCVisualAnimation] Replay resolve object=" +
                 gameObject.name +
                 " action=" + currentAction +
@@ -438,9 +436,9 @@ public class NPCVisualAnimation : MonoBehaviour
             return;
         }
 
-        if (IsTrackedVisual())
+        if (ShouldLogVisualDebug())
         {
-            Debug.LogWarning(
+            Debug.Log(
                 "[NPCVisualAnimation] Play object=" +
                 gameObject.name +
                 " override=" + overrideClipName +
@@ -662,28 +660,9 @@ public class NPCVisualAnimation : MonoBehaviour
         return overrideController != null;
     }
 
-    bool IsTrackedVisual()
+    bool ShouldLogVisualDebug()
     {
-        return IsTrackedVisualName(gameObject.name);
-    }
-
-    static bool IsTrackedVisualName(string value)
-    {
-        if (string.IsNullOrEmpty(value))
-        {
-            return false;
-        }
-
-        string normalized = NormalizeClipName(value);
-        for (int i = 0; i < TrackedDebugVisualNames.Length; i++)
-        {
-            if (normalized == TrackedDebugVisualNames[i])
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return debugVisualLogs;
     }
 
     static string DescribeClip(AnimationClip clip)

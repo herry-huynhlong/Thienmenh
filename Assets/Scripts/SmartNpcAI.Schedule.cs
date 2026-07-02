@@ -106,11 +106,7 @@ public partial class SmartNpcAI
 
     string BuildScheduleSlotKey(NpcScheduleSlot slot, NpcScheduleActivity activity)
     {
-        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
-        int day = timeSystem != null ? timeSystem.CurrentDay : 0;
-        return day + ":" + activity + ":" +
-            Mathf.RoundToInt(slot.startHour * 100f) + ":" +
-            Mathf.RoundToInt(slot.endHour * 100f);
+        return NpcScheduleController.GetStableSlotKey(slot, activity);
     }
 
     void ClearTravelTargets(bool clearWanderTarget = true)
@@ -195,19 +191,8 @@ public partial class SmartNpcAI
             slot.allowFatigueInterrupt &&
             fatigue >= 90f)
         {
-            if (activity == NpcScheduleActivity.Cultivate &&
-                canCultivate)
-            {
-                TraceBranch("TryRunScheduledActivity", "fatigue-interrupt-cultivate", true);
-                CultivateNaturally();
-            }
-
-            else
-            {
-                TraceBranch("TryRunScheduledActivity", "fatigue-interrupt-wait", true);
-                WaitForScheduledActivity(activity);
-            }
-
+            TraceBranch("TryRunScheduledActivity", "fatigue-interrupt-sleep", true);
+            Sleep();
             return true;
         }
 
@@ -293,6 +278,23 @@ public partial class SmartNpcAI
                     "DoMission",
                     "Begin quota=" + GetDailyTaskQuotaDebugText() +
                     " canVisit=" + CanVisitTaskProviderToday());
+                if (schedule.HasStartedCurrentSlotActivity(
+                        NpcScheduleActivity.DoMission))
+                {
+                    if (currentAction == NpcText.Action("goTaskProviderDaily") ||
+                        currentAction == NpcText.Action("visitedTaskProvider") ||
+                        IsTeleportRouteAction(currentAction) ||
+                        currentTarget != null ||
+                        hasWanderTarget)
+                    {
+                        TraceBranch(
+                            "TryRunScheduledActivity",
+                            "mission-travel-continue",
+                            true);
+                        return true;
+                    }
+                }
+
                 if (!HasDailyTaskQuotaRemaining())
                 {
                     TraceBranch("TryRunScheduledActivity", "mission-quota-finished", true);
@@ -300,6 +302,17 @@ public partial class SmartNpcAI
                         "DoMission",
                         "Blocked by quota quota=" + GetDailyTaskQuotaDebugText());
                     WaitForScheduledActivity(NpcScheduleActivity.DoMission);
+                    return true;
+                }
+
+                if (!CanVisitTaskProviderToday())
+                {
+                    DebugFlow(
+                        "DoMission",
+                        "Provider unavailable, fallback non-mission window=" +
+                        IsTaskProviderWindow() +
+                        " quota=" + GetDailyTaskQuotaDebugText());
+                    TryStartScheduledNonCultivationActivity();
                     return true;
                 }
 
@@ -315,15 +328,45 @@ public partial class SmartNpcAI
                 }
                 else
                 {
+                    if (currentAction == NpcText.Action("goTaskProviderDaily") ||
+                        currentAction == NpcText.Action("visitedTaskProvider") ||
+                        IsTeleportRouteAction(currentAction) ||
+                        currentTarget != null ||
+                        hasWanderTarget)
+                    {
+                        schedule.MarkCurrentSlotActivityStarted(
+                            NpcScheduleActivity.DoMission);
+                    }
+
                     TraceBranch("TryRunScheduledActivity", "mission-visit-provider", true);
                 }
                 return true;
 
             case NpcScheduleActivity.FreeHuntAndGather:
+                if (schedule.HasStartedCurrentSlotActivity(
+                        NpcScheduleActivity.FreeHuntAndGather))
+                {
+                    if (currentAction == NpcText.Action("goHunt") ||
+                        currentAction == NpcText.Action("gatherResource") ||
+                        IsTeleportRouteAction(currentAction) ||
+                        currentTarget != null ||
+                        hasWanderTarget ||
+                        currentMonsterTarget != null)
+                    {
+                        TraceBranch(
+                            "TryRunScheduledActivity",
+                            "free-hunt-continue",
+                            true);
+                        return true;
+                    }
+                }
+
                 if (canFight && canCompeteResource)
                 {
                     TraceBranch("TryRunScheduledActivity", "free-hunt-search", true);
                     SearchMonster();
+                    schedule.MarkCurrentSlotActivityStarted(
+                        NpcScheduleActivity.FreeHuntAndGather);
                     return true;
                 }
 
@@ -337,6 +380,8 @@ public partial class SmartNpcAI
                     else
                     {
                         TraceBranch("TryRunScheduledActivity", "free-gather-start", true);
+                        schedule.MarkCurrentSlotActivityStarted(
+                            NpcScheduleActivity.FreeHuntAndGather);
                     }
 
                     return true;
@@ -347,6 +392,26 @@ public partial class SmartNpcAI
                 return true;
 
             case NpcScheduleActivity.TradeBuySell:
+                if (schedule.HasStartedCurrentSlotActivity(
+                        NpcScheduleActivity.TradeBuySell))
+                {
+                    if (currentAction == NpcText.Action("tradeSeek") ||
+                        currentAction == NpcText.Action("goTavern") ||
+                        currentAction == NpcText.Action("buyPill") ||
+                        currentAction == NpcText.Action("goVanBaoLauBroker") ||
+                        currentAction == NpcText.Action("goVanBaoLauTask") ||
+                        IsTeleportRouteAction(currentAction) ||
+                        currentTarget != null ||
+                        hasWanderTarget)
+                    {
+                        TraceBranch(
+                            "TryRunScheduledActivity",
+                            "trade-continue",
+                            true);
+                        return true;
+                    }
+                }
+
                 if (!canTrade)
                 {
                     TraceBranch("TryRunScheduledActivity", "trade-blocked", true);
@@ -358,6 +423,8 @@ public partial class SmartNpcAI
                     TryStartSellGoodsRoutine())
                 {
                     TraceBranch("TryRunScheduledActivity", "trade-sell-routine", true);
+                    schedule.MarkCurrentSlotActivityStarted(
+                        NpcScheduleActivity.TradeBuySell);
                     return true;
                 }
 
@@ -369,6 +436,11 @@ public partial class SmartNpcAI
                     {
                         TraceBranch("TryRunScheduledActivity", "trade-buy-pill-fallback-wander", true);
                         StartIdleWander();
+                    }
+                    else
+                    {
+                        schedule.MarkCurrentSlotActivityStarted(
+                            NpcScheduleActivity.TradeBuySell);
                     }
                     return true;
                 }
@@ -413,6 +485,17 @@ public partial class SmartNpcAI
                 {
                     TraceBranch("TryRunScheduledActivity", "take-task-quota-finished", false);
                     return false;
+                }
+
+                if (!CanVisitTaskProviderToday())
+                {
+                    DebugFlow(
+                        "TakeTask",
+                        "Provider unavailable, fallback non-task window=" +
+                        IsTaskProviderWindow() +
+                        " quota=" + GetDailyTaskQuotaDebugText());
+                    TryStartScheduledNonCultivationActivity();
+                    return true;
                 }
 
                 if (!TryVisitTaskProvider())
@@ -484,16 +567,19 @@ public partial class SmartNpcAI
                 return true;
 
             case NpcScheduleActivity.Sleep:
-                if (isCultivatorSchedule &&
-                    canCultivate)
+                if (IgnoresMortalNeeds())
                 {
-                    TraceBranch("TryRunScheduledActivity", "sleep-cultivate", true);
-                    CultivateNaturally();
-                }
-                else if (IgnoresMortalNeeds())
-                {
-                    TraceBranch("TryRunScheduledActivity", "sleep-wait-ignored-needs", true);
-                    WaitForScheduledActivity(NpcScheduleActivity.Sleep);
+                    if (isCultivatorSchedule &&
+                        canCultivate)
+                    {
+                        TraceBranch("TryRunScheduledActivity", "sleep-cultivate", true);
+                        CultivateNaturally();
+                    }
+                    else
+                    {
+                        TraceBranch("TryRunScheduledActivity", "sleep-wait-ignored-needs", true);
+                        WaitForScheduledActivity(NpcScheduleActivity.Sleep);
+                    }
                 }
                 else
                 {
@@ -640,6 +726,8 @@ public partial class SmartNpcAI
         {
             TraceRuntime("TryStartScheduledNonCultivationActivity", "enter");
         }
+
+        ClearCultivationTravelState();
 
         if (CanVisitTaskProviderToday() &&
             TryVisitTaskProvider())
@@ -819,6 +907,9 @@ public partial class SmartNpcAI
 
     bool TryVisitTaskProvider()
     {
+        NpcScheduleController schedule =
+            NpcScheduleController.GetSchedule(gameObject);
+
         if (!CanVisitTaskProviderToday())
         {
             float currentHour = GetCurrentWorldHour();
@@ -930,6 +1021,11 @@ public partial class SmartNpcAI
                 hasWanderTarget = true;
             }
             actionTimer = 0f;
+            if (schedule != null)
+            {
+                schedule.MarkCurrentSlotActivityStarted(
+                    NpcScheduleActivity.DoMission);
+            }
             DebugFlow(
                 "TaskProvider",
                 "Moving to provider " + provider.name +
@@ -961,6 +1057,11 @@ public partial class SmartNpcAI
                 hasWanderTarget = true;
             }
             actionTimer = 0f;
+            if (schedule != null)
+            {
+                schedule.MarkCurrentSlotActivityStarted(
+                    NpcScheduleActivity.DoMission);
+            }
             DebugFlow(
                 "TaskProvider",
                 "Adjusting to exact provider stand " + provider.name +
@@ -982,6 +1083,11 @@ public partial class SmartNpcAI
         if (provider.TryHandleVisitor(gameObject))
         {
             MarkDailyTaskAccepted();
+            if (schedule != null)
+            {
+                schedule.MarkCurrentSlotActivityStarted(
+                    NpcScheduleActivity.DoMission);
+            }
             ClearTravelTargetsAndStop();
             currentAction = NpcText.Action("visitedTaskProvider");
             actionTimer = GameHoursToSeconds(0.2f);

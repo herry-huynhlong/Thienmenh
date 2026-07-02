@@ -1404,16 +1404,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         NpcScheduleSlot slot,
         NpcScheduleActivity activity)
     {
-        if (slot == null)
-        {
-            return "none";
-        }
-
-        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
-        int day = timeSystem != null ? timeSystem.CurrentDay : 0;
-        return day + ":" + activity + ":" +
-            Mathf.RoundToInt(slot.startHour * 100f) + ":" +
-            Mathf.RoundToInt(slot.endHour * 100f);
+        return NpcScheduleController.GetStableSlotKey(slot, activity);
     }
 
     bool HasEnforcedSchedule()
@@ -4800,12 +4791,26 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             area = NpcMapArea.FindArea(referencePosition);
         }
 
+        NpcMapZone? resolvedZone =
+            area != null
+                ? area.zone
+                : NpcMapNavigator.ResolveActorZone(gameObject);
+
         if (gate != null)
         {
-            NpcMapNavigator.ReportNpcZone(gameObject, gate.toZone);
+            if (resolvedZone.HasValue)
+            {
+                NpcMapNavigator.ReportNpcZone(gameObject, resolvedZone.Value);
+            }
+            else
+            {
+                NpcMapNavigator.ReportNpcZone(gameObject, gate.toZone);
+                resolvedZone = gate.toZone;
+            }
+
             area = NpcMapNavigator.ResolveMapAreaAfterTeleport(
                 gameObject,
-                gate.toZone,
+                resolvedZone.Value,
                 referencePosition);
         }
         else if (area != null)

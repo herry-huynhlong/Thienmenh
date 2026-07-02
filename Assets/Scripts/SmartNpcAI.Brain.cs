@@ -114,8 +114,7 @@ public partial class SmartNpcAI
             return;
         }
 
-        if (!canCultivate &&
-            canLive &&
+        if (canLive &&
             NeedsFood() &&
             hunger >= 80)
         {
@@ -125,8 +124,7 @@ public partial class SmartNpcAI
             return;
         }
 
-        if (!canCultivate &&
-            canLive &&
+        if (canLive &&
             !IgnoresMortalNeeds() &&
             fatigue >= 85)
         {

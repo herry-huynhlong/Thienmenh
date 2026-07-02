@@ -672,6 +672,7 @@ MonoBehaviour:
   invertSideFlip: 0
   invertVerticalFacing: 0
   directionDeadZone: 0.08
+  debugVisualLogs: 0
 --- !u!70 &5880837379325097654
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
