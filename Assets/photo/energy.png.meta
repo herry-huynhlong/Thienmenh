@@ -1,16 +1,16 @@
 fileFormatVersion: 2
-guid: 2e2ef02430ac07c42bea64a9e7855b3a
+guid: c1ad7b75b3f3db94daecfd7c388cdadd
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7256732658493537236
-    second: vl_0
+      213: -5564248608999137188
+    second: energy_0
   - first:
-      213: 6409757144441510553
-    second: vl_1
+      213: 3119334169586225959
+    second: energy_1
   - first:
-      213: 3767536019223034959
-    second: vl_2
+      213: 4692399049022686247
+    second: energy_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -103,6 +103,19 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
     buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -119,13 +132,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: vl_0
+      name: energy_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1536
-        height: 1024
+        width: 1254
+        height: 1254
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -134,20 +147,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4dbbb73b7e715b460800000000000000
-      internalID: 7256732658493537236
+      spriteID: c5025aaee51d7c2b0800000000000000
+      internalID: -5564248608999137188
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: vl_1
+      name: energy_1
       rect:
         serializedVersion: 2
-        x: 810
-        y: 139
-        width: 7
-        height: 7
+        x: 61
+        y: 620
+        width: 31
+        height: 23
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -156,20 +169,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 99a55fa992804f850800000000000000
-      internalID: 6409757144441510553
+      spriteID: 723dce976e91a4b20800000000000000
+      internalID: 3119334169586225959
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: vl_2
+      name: energy_2
       rect:
         serializedVersion: 2
-        x: 902
-        y: 188
-        width: 16
-        height: 9
+        x: 1161
+        y: 617
+        width: 32
+        height: 25
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -178,8 +191,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f4c37485c0af84430800000000000000
-      internalID: 3767536019223034959
+      spriteID: 724c06dd210ce1140800000000000000
+      internalID: 4692399049022686247
       vertices: []
       indices: 
       edges: []
@@ -198,9 +211,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      vl_0: 7256732658493537236
-      vl_1: 6409757144441510553
-      vl_2: 3767536019223034959
+      energy_0: -5564248608999137188
+      energy_1: 3119334169586225959
+      energy_2: 4692399049022686247
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

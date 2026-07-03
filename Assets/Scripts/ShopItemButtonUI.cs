@@ -12,13 +12,23 @@ public class ShopItemButtonUI : MonoBehaviour, IPointerClickHandler, IPointerDow
     public Image iconImage;
     public Image iconBgImage;
     public Image gradeBorderImage;
+    public Image auraGlowImage;
+    public Image energyRingImage;
     public TMP_Text amountText;
     public TMP_Text nameText;
     public TMP_Text descText;
     public TMP_Text priceText;
     public Button buyButton;
     public TMP_Text buyButtonText;
-    public Color priceColor = new Color(1f, 0.82f, 0.18f, 1f);
+    public Color priceColor = new Color(0.76f, 0.50f, 0.10f, 1f);
+    Outline iconBgOutline;
+    Shadow iconBgShadow;
+    Outline gradeBorderOutline;
+    Vector3 auraGlowBaseScale = Vector3.one;
+    Vector3 energyRingBaseScale = Vector3.one;
+    Vector3 auraGlowBaseEuler = Vector3.zero;
+    Vector3 energyRingBaseEuler = Vector3.zero;
+    bool rarityBaseCaptured;
 
     int itemIndex;
     ShopPanelUI owner;
@@ -42,6 +52,7 @@ public class ShopItemButtonUI : MonoBehaviour, IPointerClickHandler, IPointerDow
         EnsureRootClickable();
         ConfigureRaycastTargets();
         NormalizeRootRect();
+        EnsureGradeEffects();
 
         if (iconImage != null)
         {
@@ -87,8 +98,7 @@ public class ShopItemButtonUI : MonoBehaviour, IPointerClickHandler, IPointerDow
                 : NpcEconomy.FormatTradePrice(
                     slot.item,
                     NpcTradeContext.MarketBuy);
-            priceText.color = priceColor;
-            priceText.fontStyle |= FontStyles.Bold;
+            ApplyPriceStyle();
         }
 
         ApplyGradeVisuals(slot.item.grade);
@@ -126,11 +136,30 @@ public class ShopItemButtonUI : MonoBehaviour, IPointerClickHandler, IPointerDow
         if (gradeBorderImage != null)
         {
             gradeBorderImage.color =
-                Color.Lerp(
-                    ShopPanelUI.GetGradeBaseColor(currentSlot.item.grade),
-                    ShopPanelUI.GetGradeAccentColor(currentSlot.item.grade),
-                    0.35f + pulse * 0.25f);
+                GetGradeBorderColor(
+                    currentSlot.item.grade,
+                    pulse);
         }
+
+        if (iconBgImage != null)
+        {
+            iconBgImage.color =
+                GetGradeBackgroundColor(
+                    currentSlot.item.grade,
+                    pulse);
+        }
+
+        ApplyRarityVisuals(
+            currentSlot.item.grade,
+            pulse);
+
+        ApplyGradeEffects(
+            currentSlot.item.grade,
+            pulse);
+
+        ApplyGradeNameStyle(
+            currentSlot.item.grade,
+            pulse);
     }
 
     public void RefreshAffordability()
@@ -218,21 +247,421 @@ public class ShopItemButtonUI : MonoBehaviour, IPointerClickHandler, IPointerDow
         if (iconBgImage != null)
         {
             iconBgImage.color =
-                new Color(1f, 1f, 1f, 0.96f);
+                GetGradeBackgroundColor(
+                    grade,
+                    0.72f);
         }
 
         if (gradeBorderImage != null)
         {
             gradeBorderImage.color =
-                ShopPanelUI.GetGradeBaseColor(grade);
+                GetGradeBorderColor(
+                    grade,
+                    0.72f);
             gradeBorderImage.raycastTarget = false;
         }
+
+        ApplyRarityVisuals(
+            grade,
+            0.72f);
+
+        ApplyGradeEffects(
+            grade,
+            0.72f);
+
+        ApplyGradeNameStyle(
+            grade,
+            0.72f);
 
         if (descText != null)
         {
             descText.enableVertexGradient = false;
             descText.color = new Color(0.36f, 0.28f, 0.18f, 1f);
         }
+    }
+
+    Color GetGradeBorderColor(
+        ItemGrade grade,
+        float pulse)
+    {
+        Color baseColor =
+            ShopPanelUI.GetGradeBaseColor(grade);
+        Color accentColor =
+            ShopPanelUI.GetGradeAccentColor(grade);
+        Color vivid =
+            Color.Lerp(
+                baseColor,
+                accentColor,
+                0.34f + Mathf.Clamp01(pulse) * 0.18f);
+        Color rim =
+            Color.Lerp(
+                vivid,
+                Color.white,
+                0.16f + Mathf.Clamp01(pulse) * 0.22f);
+        rim.a = 1f;
+        return rim;
+    }
+
+    Color GetGradeBackgroundColor(
+        ItemGrade grade,
+        float pulse)
+    {
+        Color baseColor =
+            ShopPanelUI.GetGradeBaseColor(grade);
+        Color accentColor =
+            ShopPanelUI.GetGradeAccentColor(grade);
+        Color mixed =
+            Color.Lerp(
+                baseColor,
+                accentColor,
+                0.58f + Mathf.Clamp01(pulse) * 0.16f);
+
+        Color.RGBToHSV(
+            mixed,
+            out float hue,
+            out float saturation,
+            out float value);
+
+        saturation = Mathf.Clamp01(saturation + 0.22f);
+        value = Mathf.Clamp01(value * 0.82f);
+
+        Color vivid =
+            Color.HSVToRGB(hue, saturation, value);
+        vivid.a = 0.97f;
+        return vivid;
+    }
+
+    Color GetRarityAuraColor(
+        ItemGrade grade,
+        float pulse)
+    {
+        Color baseColor =
+            ShopPanelUI.GetGradeBaseColor(grade);
+        Color accentColor =
+            ShopPanelUI.GetGradeAccentColor(grade);
+        Color mixed =
+            Color.Lerp(
+                baseColor,
+                accentColor,
+                0.40f + Mathf.Clamp01(pulse) * 0.22f);
+
+        Color.RGBToHSV(
+            mixed,
+            out float hue,
+            out float saturation,
+            out float value);
+
+        saturation = Mathf.Clamp01(saturation + 0.18f);
+        value = Mathf.Clamp01(value + 0.16f);
+
+        Color aura =
+            Color.HSVToRGB(hue, saturation, value);
+        aura.a = 0.22f + Mathf.Clamp01(pulse) * 0.18f;
+        return aura;
+    }
+
+    Color GetRarityEnergyColor(
+        ItemGrade grade,
+        float pulse)
+    {
+        Color baseColor =
+            ShopPanelUI.GetGradeBaseColor(grade);
+        Color accentColor =
+            ShopPanelUI.GetGradeAccentColor(grade);
+        Color mixed =
+            Color.Lerp(
+                baseColor,
+                accentColor,
+                0.68f + Mathf.Clamp01(pulse) * 0.14f);
+
+        Color.RGBToHSV(
+            mixed,
+            out float hue,
+            out float saturation,
+            out float value);
+
+        saturation = Mathf.Clamp01(saturation + 0.34f);
+        value = Mathf.Clamp01(value + 0.24f);
+
+        Color energy =
+            Color.HSVToRGB(hue, saturation, value);
+        energy.a = 0.38f + Mathf.Clamp01(pulse) * 0.22f;
+        return energy;
+    }
+
+    static float GetRarityStrength(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.Ha:
+                return 0.16f;
+            case ItemGrade.Trung:
+                return 0.30f;
+            case ItemGrade.Thuong:
+                return 0.52f;
+            case ItemGrade.Tien:
+                return 0.72f;
+            default:
+                return 0.2f;
+        }
+    }
+
+    static float GetRarityRotationAmplitude(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.Ha:
+                return 4.0f;
+            case ItemGrade.Trung:
+                return 9.0f;
+            case ItemGrade.Thuong:
+                return 15.0f;
+            case ItemGrade.Tien:
+                return 22.0f;
+            default:
+                return 6.0f;
+        }
+    }
+
+    static float GetRaritySpinSpeed(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.Ha:
+                return 0.90f;
+            case ItemGrade.Trung:
+                return 1.20f;
+            case ItemGrade.Thuong:
+                return 1.55f;
+            case ItemGrade.Tien:
+                return 1.95f;
+            default:
+                return 1.0f;
+        }
+    }
+
+    void CaptureRarityBaseState()
+    {
+        if (auraGlowImage != null)
+        {
+            auraGlowBaseScale = auraGlowImage.transform.localScale;
+            auraGlowBaseEuler = auraGlowImage.transform.localEulerAngles;
+            auraGlowImage.raycastTarget = false;
+        }
+
+        if (energyRingImage != null)
+        {
+            energyRingBaseScale = energyRingImage.transform.localScale;
+            energyRingBaseEuler = energyRingImage.transform.localEulerAngles;
+            energyRingImage.raycastTarget = false;
+        }
+
+        rarityBaseCaptured = true;
+    }
+
+    void EnsureGradeEffects()
+    {
+        if (iconBgImage != null)
+        {
+            iconBgOutline =
+                iconBgImage.GetComponent<Outline>();
+            if (iconBgOutline == null)
+            {
+                iconBgOutline =
+                    iconBgImage.gameObject.AddComponent<Outline>();
+            }
+
+            iconBgShadow =
+                iconBgImage.GetComponent<Shadow>();
+            if (iconBgShadow == null)
+            {
+                iconBgShadow =
+                    iconBgImage.gameObject.AddComponent<Shadow>();
+            }
+        }
+
+        if (gradeBorderImage != null)
+        {
+            gradeBorderOutline =
+                gradeBorderImage.GetComponent<Outline>();
+            if (gradeBorderOutline == null)
+            {
+                gradeBorderOutline =
+                    gradeBorderImage.gameObject.AddComponent<Outline>();
+            }
+        }
+
+        if (!rarityBaseCaptured &&
+            (auraGlowImage != null || energyRingImage != null))
+        {
+            CaptureRarityBaseState();
+        }
+    }
+
+    void ApplyGradeEffects(
+        ItemGrade grade,
+        float pulse)
+    {
+        Color baseColor =
+            ShopPanelUI.GetGradeBaseColor(grade);
+        Color accentColor =
+            ShopPanelUI.GetGradeAccentColor(grade);
+        float glow =
+            0.32f + Mathf.Clamp01(pulse) * 0.34f;
+
+        if (iconBgOutline != null)
+        {
+            Color outlineColor =
+                Color.Lerp(
+                    accentColor,
+                    Color.white,
+                    0.62f);
+            outlineColor =
+                Color.Lerp(
+                    outlineColor,
+                    baseColor,
+                    0.18f);
+            outlineColor.a = 0.94f;
+            iconBgOutline.effectColor = outlineColor;
+            iconBgOutline.effectDistance =
+                new Vector2(2.9f, 2.9f);
+            iconBgOutline.useGraphicAlpha = true;
+        }
+
+        if (iconBgShadow != null)
+        {
+            Color shadowColor =
+                Color.Lerp(
+                    new Color(0.10f, 0.07f, 0.04f, 1f),
+                    baseColor,
+                    0.22f);
+            shadowColor.a = 0.48f;
+            iconBgShadow.effectColor = shadowColor;
+            iconBgShadow.effectDistance =
+                new Vector2(2.2f, -2.0f);
+            iconBgShadow.useGraphicAlpha = true;
+        }
+
+        if (gradeBorderOutline != null)
+        {
+            Color borderGlow =
+                Color.Lerp(
+                    accentColor,
+                    Color.white,
+                    0.26f + glow * 0.18f);
+            borderGlow.a = 0.96f;
+            gradeBorderOutline.effectColor = borderGlow;
+            gradeBorderOutline.effectDistance =
+                new Vector2(1.8f, 1.8f);
+            gradeBorderOutline.useGraphicAlpha = true;
+        }
+    }
+
+    void ApplyRarityVisuals(
+        ItemGrade grade,
+        float pulse)
+    {
+        if (auraGlowImage == null &&
+            energyRingImage == null)
+        {
+            return;
+        }
+
+        if (!rarityBaseCaptured)
+        {
+            CaptureRarityBaseState();
+        }
+
+        float strength =
+            GetRarityStrength(grade);
+        float spinSpeed =
+            GetRaritySpinSpeed(grade);
+        float amplitude =
+            GetRarityRotationAmplitude(grade);
+        float time =
+            Time.unscaledTime + pulseSeed;
+
+        if (auraGlowImage != null)
+        {
+            auraGlowImage.color =
+                GetRarityAuraColor(grade, pulse);
+
+            float rotation =
+                Mathf.Sin(time * spinSpeed) *
+                amplitude;
+            float auraScale =
+                1f + strength * (0.03f + pulse * 0.04f);
+            auraGlowImage.transform.localRotation =
+                Quaternion.Euler(
+                    auraGlowBaseEuler.x,
+                    auraGlowBaseEuler.y,
+                    auraGlowBaseEuler.z + rotation);
+            auraGlowImage.transform.localScale =
+                new Vector3(
+                    auraGlowBaseScale.x * auraScale,
+                    auraGlowBaseScale.y * auraScale,
+                    auraGlowBaseScale.z);
+        }
+
+        if (energyRingImage != null)
+        {
+            energyRingImage.color =
+                GetRarityEnergyColor(grade, pulse);
+
+            float rotation =
+                Mathf.Sin(
+                    time * (spinSpeed * 1.18f) + 1.7f) *
+                amplitude *
+                1.08f;
+            float energyScale =
+                1f + strength * (0.02f + pulse * 0.03f);
+            energyRingImage.transform.localRotation =
+                Quaternion.Euler(
+                    energyRingBaseEuler.x,
+                    energyRingBaseEuler.y,
+                    energyRingBaseEuler.z - rotation);
+            energyRingImage.transform.localScale =
+                new Vector3(
+                    energyRingBaseScale.x * energyScale,
+                    energyRingBaseScale.y * energyScale,
+                    energyRingBaseScale.z);
+        }
+    }
+
+    void ApplyPriceStyle()
+    {
+        if (priceText == null)
+        {
+            return;
+        }
+
+        priceText.color = priceColor;
+        priceText.fontStyle |= FontStyles.Bold;
+        priceText.enableVertexGradient = true;
+        priceText.colorGradient =
+            new VertexGradient(
+                Color.Lerp(priceColor, Color.white, 0.14f),
+                Color.Lerp(priceColor, Color.white, 0.14f),
+                Color.Lerp(priceColor, new Color(0.34f, 0.20f, 0.05f, 1f), 0.24f),
+                Color.Lerp(priceColor, new Color(0.34f, 0.20f, 0.05f, 1f), 0.24f));
+        priceText.outlineWidth = 0.2f;
+        priceText.outlineColor =
+            new Color(0.28f, 0.14f, 0.03f, 0.82f);
+    }
+
+    void ApplyGradeNameStyle(
+        ItemGrade grade,
+        float pulse)
+    {
+        if (nameText == null)
+        {
+            return;
+        }
+
+        ShopPanelUI.ApplyGradeTextStyle(
+            nameText,
+            grade,
+            0.58f + Mathf.Clamp01(pulse) * 0.42f);
     }
 
     string BuildShortDescription(StatItemData item)
@@ -242,44 +671,7 @@ public class ShopItemButtonUI : MonoBehaviour, IPointerClickHandler, IPointerDow
             return string.Empty;
         }
 
-        string localizedDescription =
-            ItemText.Description(item);
-        if (!string.IsNullOrWhiteSpace(localizedDescription))
-        {
-            string compact =
-                localizedDescription
-                    .Replace("\r", " ")
-                    .Replace("\n", " ")
-                    .Trim();
-            int cutIndex = compact.IndexOf('.');
-            if (cutIndex > 0)
-            {
-                compact =
-                    compact.Substring(0, cutIndex + 1);
-            }
-
-            if (compact.Length > 42)
-            {
-                compact =
-                    compact.Substring(0, 39).TrimEnd() + "...";
-            }
-
-            return compact;
-        }
-
-        switch (item.GetResolvedUseStyle())
-        {
-            case ItemUseStyle.Consumable:
-                return ItemText.Get("shopCard", "useConsumable", "Vat pham tieu hao");
-            case ItemUseStyle.RawMaterial:
-                return ItemText.Get("shopCard", "useRawMaterial", "Nguyen lieu luyen che");
-            case ItemUseStyle.DurableEquipment:
-                return ItemText.Get("shopCard", "useEquipment", "Trang bi su dung lau dai");
-            case ItemUseStyle.StudyManual:
-                return ItemText.Get("shopCard", "useManual", "Cong phap de tham ngo");
-            default:
-                return ItemText.Type(item.itemType);
-        }
+        return ItemText.GradeLong(item.grade);
     }
 
     void AutoFindReferences()
@@ -311,6 +703,24 @@ public class ShopItemButtonUI : MonoBehaviour, IPointerClickHandler, IPointerDow
             iconBgImage =
                 FindImage("iconbg") ??
                 FindImage("IconBg");
+        }
+
+        if (auraGlowImage == null)
+        {
+            auraGlowImage =
+                FindImage("auraGlow") ??
+                FindImage("AuraGlow") ??
+                FindImage("RarityAura") ??
+                FindImage("Aura");
+        }
+
+        if (energyRingImage == null)
+        {
+            energyRingImage =
+                FindImage("energyRing") ??
+                FindImage("EnergyRing") ??
+                FindImage("RarityEnergy") ??
+                FindImage("Energy");
         }
 
         if (gradeBorderImage == null)

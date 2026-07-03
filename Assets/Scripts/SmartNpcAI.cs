@@ -256,7 +256,6 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
     static readonly string[] TrackedDebugNpcNames =
     {
         "laoba1",
-        "tusinu1",
         "satthu1",
         "thusinh33"
     };
@@ -2274,6 +2273,16 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             return false;
         }
 
+        // When the NPC has already committed to an attack state, freeze in
+        // place so the fight reads as a stand-and-swing interaction instead of
+        // orbiting around the monster collider.
+        if (MatchesSmartAction("attackMonsterNamed", true) ||
+            MatchesSmartAction("attackMonster", true) ||
+            MatchesSmartAction("attack", true))
+        {
+            return true;
+        }
+
         float distance =
             GetCombatSurfaceDistance(
                 currentMonsterTarget.transform);
@@ -2441,6 +2450,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             hasWanderTarget = false;
             currentTarget = null;
             currentMonsterTarget = null;
+            ClearMonsterCombatState();
             waitingOutsideTreasureLightning = false;
             hasTreasureWaitPosition = false;
             treasureWaitLowPowerSkirmish = false;
@@ -2931,6 +2941,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         treasureHuntTarget = null;
         treasureHuntItem = null;
         currentMonsterTarget = null;
+        ClearMonsterCombatState();
         hasCultivationTarget = false;
         hasHomeReturnTarget = false;
         hasEscapeTarget = false;
@@ -4233,36 +4244,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             selfColliders = GetComponentsInChildren<Collider2D>(true);
         }
 
-        Collider2D[] targetColliders =
-            target.GetComponentsInChildren<Collider2D>(true);
         Vector2 fromPosition = transform.position;
-        Vector2 bestPoint = target.position;
-        float bestDistance = float.PositiveInfinity;
-
-        for (int i = 0; i < targetColliders.Length; i++)
-        {
-            Collider2D other = targetColliders[i];
-            if (other == null || other.isTrigger || !other.enabled)
-            {
-                continue;
-            }
-
-            Vector2 candidate = other.ClosestPoint(fromPosition);
-            float distance =
-                Vector2.Distance(fromPosition, candidate);
-            if (distance < bestDistance)
-            {
-                bestDistance = distance;
-                bestPoint = candidate;
-            }
-        }
-
-        Vector2 away = fromPosition - bestPoint;
-        if (away.sqrMagnitude <= 0.0001f)
-        {
-            away = fromPosition - (Vector2)target.position;
-        }
-
+        Vector2 away = fromPosition - (Vector2)target.position;
         if (away.sqrMagnitude <= 0.0001f)
         {
             away = Vector2.right;
@@ -4275,7 +4258,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 attackRange * 0.3f);
 
         Vector3 approach =
-            (Vector3)(bestPoint + away.normalized * desiredGap);
+            target.position +
+            (Vector3)(away.normalized * desiredGap);
         approach.z = transform.position.z;
         return approach;
     }
@@ -5537,6 +5521,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 : spawnPosition;
 
         if (currentMonsterTarget != null &&
+            !isCounterAttackingMonster &&
             !ShouldSmartAutoHuntMonster(currentMonsterTarget))
         {
             ReleaseMonsterReservation(currentMonsterTarget);
@@ -5554,6 +5539,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 ReleaseMonsterReservation(currentMonsterTarget);
                 currentMonsterTarget = null;
                 currentTarget = null;
+                ClearMonsterCombatState();
                 DebugFlow("Hunt", "Current monster died");
                 return;
             }
@@ -5573,6 +5559,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 ReleaseMonsterReservation(currentMonsterTarget);
                 currentMonsterTarget = null;
                 currentTarget = null;
+                ClearMonsterCombatState();
                 DebugFlow("Hunt", "Monster left hunt area, drop target");
                 return;
             }
@@ -5594,6 +5581,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 ReleaseMonsterReservation(currentMonsterTarget);
                 currentMonsterTarget = null;
                 currentTarget = null;
+                ClearMonsterCombatState();
                 DebugFlow("Hunt", "Lost monster reservation");
                 return;
             }
@@ -5852,6 +5840,7 @@ void TryAttackMonster()
         currentMonsterTarget = null;
 
         currentTarget = null;
+        ClearMonsterCombatState();
 
         return;
     }
@@ -5864,6 +5853,7 @@ void TryAttackMonster()
         ReleaseMonsterReservation(currentMonsterTarget);
         currentMonsterTarget = null;
         currentTarget = null;
+        ClearMonsterCombatState();
         return;
     }
 
@@ -6319,6 +6309,11 @@ bool ShouldSmartAutoHuntMonster(MonsterAI monster)
 
     public void TakeDamage(int damage)
     {
+        TakeDamage(damage, null);
+    }
+
+    public void TakeDamage(int damage, GameObject attackerObject)
+    {
         if (IsDead)
         {
             return;
@@ -6332,7 +6327,7 @@ bool ShouldSmartAutoHuntMonster(MonsterAI monster)
             if (!characterStats.IsDead)
             {
                 InterruptGatheringForCombat();
-                TryReactToNearbyAttackingMonster();
+                TryCounterAttackFromDamage(attackerObject, damage);
             }
 
             if (characterStats.IsDead)
@@ -6358,7 +6353,7 @@ bool ShouldSmartAutoHuntMonster(MonsterAI monster)
         if (currentHP > 0)
         {
             InterruptGatheringForCombat();
-            TryReactToNearbyAttackingMonster();
+            TryCounterAttackFromDamage(attackerObject, damage);
 
             if (currentHP <= Mathf.Max(1, maxHP / 3))
             {
@@ -6736,6 +6731,7 @@ bool ShouldSmartAutoHuntMonster(MonsterAI monster)
 
         ClearTravelTargets();
         currentMonsterTarget = null;
+        ClearMonsterCombatState();
         waitingOutsideTreasureLightning = false;
         treasureHuntTarget = null;
         treasureHuntItem = null;

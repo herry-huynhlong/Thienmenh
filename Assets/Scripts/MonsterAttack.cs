@@ -60,7 +60,22 @@ public class MonsterAttack : MonoBehaviour
                 damageable.DamageTransform.position,
                 NpcText.Dialogue("combatBeastReason"));
 
+            SmartNpcAI smartNpc =
+                damageable as SmartNpcAI;
+            if (smartNpc != null)
+            {
+                smartNpc.TakeDamage(modifiedDamage, owner);
+                return;
+            }
+
             damageable.TakeDamage(modifiedDamage);
+            return;
+        }
+
+        SmartNpcAI fallbackSmartNpc = damageable as SmartNpcAI;
+        if (fallbackSmartNpc != null)
+        {
+            fallbackSmartNpc.TakeDamage(damage, owner);
             return;
         }
 

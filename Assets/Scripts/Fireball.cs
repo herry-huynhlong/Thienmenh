@@ -115,7 +115,22 @@ public class Fireball : MonoBehaviour
                     damageable.DamageTransform.position,
                     NpcText.Dialogue("combatSpellReason"));
 
+                SmartNpcAI smartNpc =
+                    damageable as SmartNpcAI;
+                if (smartNpc != null)
+                {
+                    smartNpc.TakeDamage(modifiedDamage, owner);
+                    continue;
+                }
+
                 damageable.TakeDamage(modifiedDamage);
+                continue;
+            }
+
+            SmartNpcAI fallbackSmartNpc = damageable as SmartNpcAI;
+            if (fallbackSmartNpc != null)
+            {
+                fallbackSmartNpc.TakeDamage(damage, owner);
                 continue;
             }
 

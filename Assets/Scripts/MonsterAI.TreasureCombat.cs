@@ -221,7 +221,16 @@ public partial class MonsterAI
             " centerDistance=" +
             centerDistance.ToString("0.00"));
 
-        damagedTargetDamageable.TakeDamage(finalDamage);
+        SmartNpcAI smartNpc =
+            damagedTargetDamageable as SmartNpcAI;
+        if (smartNpc != null)
+        {
+            smartNpc.TakeDamage(finalDamage, gameObject);
+        }
+        else
+        {
+            damagedTargetDamageable.TakeDamage(finalDamage);
+        }
 
         if (damagedTargetDamageable.IsDead)
         {

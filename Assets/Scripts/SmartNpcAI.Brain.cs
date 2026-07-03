@@ -38,7 +38,8 @@ public partial class SmartNpcAI
             return;
         }
 
-        if (!IsCurrentScheduleActivity(NpcScheduleActivity.Hunt))
+        if (!IsCurrentScheduleActivity(NpcScheduleActivity.Hunt) &&
+            !HasCombatSupportIntent())
         {
             ClearActiveHuntFlow();
         }
@@ -268,6 +269,7 @@ public partial class SmartNpcAI
     {
         ReleaseMonsterReservation();
         ClearHelpRequestState();
+        ClearMonsterCombatState();
         isRetreatingFromMonster = false;
         retreatUntilTime = 0f;
         retreatTarget = Vector3.zero;

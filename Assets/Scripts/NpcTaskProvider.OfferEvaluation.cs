@@ -53,8 +53,16 @@ public partial class NpcTaskProvider
 
     bool CanNpcAcceptOffer(GameObject npc, NpcTaskOffer offer)
     {
-        return GetOfferAcceptanceScore(npc, offer, false) >=
-            GetMinAcceptanceScore(false);
+        return CanNpcAcceptOffer(npc, offer, false);
+    }
+
+    bool CanNpcAcceptOffer(
+        GameObject npc,
+        NpcTaskOffer offer,
+        bool autoAssigned)
+    {
+        return GetOfferAcceptanceScore(npc, offer, autoAssigned) >=
+            GetMinAcceptanceScore(autoAssigned);
     }
 
     float GetOfferAcceptanceScore(
@@ -62,7 +70,7 @@ public partial class NpcTaskProvider
         NpcTaskOffer offer,
         bool autoAssigned)
     {
-        float score = GetOfferSuitabilityScore(npc, offer);
+        float score = GetOfferSuitabilityScore(npc, offer, autoAssigned);
         if (score <= 0f)
         {
             return 0f;
@@ -245,7 +253,27 @@ public partial class NpcTaskProvider
             CurrentActionContains(action, "goVanBaoLauTask") ||
             CurrentActionContains(action, "askProviderFindTask") ||
             CurrentActionContains(action, "returnProviderReceiveTask") ||
-            CurrentActionContains(action, "receiveTask");
+            CurrentActionContains(action, "receiveTask") ||
+            HasScheduledTaskIntent(npc);
+    }
+
+    bool HasScheduledTaskIntent(GameObject npc)
+    {
+        if (npc == null)
+        {
+            return false;
+        }
+
+        NpcScheduleController schedule = NpcScheduleController.GetSchedule(npc);
+        if (schedule == null ||
+            !schedule.enforceSchedule ||
+            schedule.CurrentSlot == null)
+        {
+            return false;
+        }
+
+        return schedule.CurrentActivity == NpcScheduleActivity.DoMission ||
+            schedule.CurrentActivity == NpcScheduleActivity.TakeTask;
     }
 
     bool CurrentActionContains(string action, string key)
@@ -312,7 +340,10 @@ public partial class NpcTaskProvider
         }
     }
 
-    float GetOfferSuitabilityScore(GameObject npc, NpcTaskOffer offer)
+    float GetOfferSuitabilityScore(
+        GameObject npc,
+        NpcTaskOffer offer,
+        bool autoAssigned)
     {
         if (npc == null ||
             offer == null ||
@@ -322,6 +353,12 @@ public partial class NpcTaskProvider
         }
 
         if (!IsOfferWorldAvailable(offer))
+        {
+            return 0f;
+        }
+
+        if (autoAssigned &&
+            !IsAutoAssignRankAllowed(npc, offer))
         {
             return 0f;
         }
@@ -427,6 +464,34 @@ public partial class NpcTaskProvider
         }
 
         return Mathf.Max(0f, score);
+    }
+
+    bool IsAutoAssignRankAllowed(GameObject npc, NpcTaskOffer offer)
+    {
+        if (!enforceAutoAssignRankGates ||
+            npc == null ||
+            offer == null)
+        {
+            return true;
+        }
+
+        switch (offer.rank)
+        {
+            case NpcTaskRank.Trung:
+                return NpcRoleUtility.MeetsRealm(
+                    npc,
+                    autoAssignTrungMinRealm,
+                    autoAssignTrungMinStage);
+
+            case NpcTaskRank.Thuong:
+                return NpcRoleUtility.MeetsRealm(
+                    npc,
+                    autoAssignThuongMinRealm,
+                    autoAssignThuongMinStage);
+
+            default:
+                return true;
+        }
     }
 
     bool IsOfferWorldAvailable(NpcTaskOffer offer)

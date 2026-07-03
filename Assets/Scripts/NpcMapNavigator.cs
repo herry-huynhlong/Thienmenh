@@ -82,18 +82,20 @@ public static class NpcMapNavigator
             return null;
         }
 
-        if (TryGetLockedNpcZone(npc, out NpcMapZone lockedZone))
-        {
-            return lockedZone;
-        }
-
         NpcMapArea areaAtPosition =
             NpcMapArea.FindArea(npc.transform.position);
 
         if (areaAtPosition != null)
         {
+            // Khi NPC đã đứng hẳn trong một vùng map, ưu tiên vùng thật
+            // hơn cache khóa zone từ teleport trước đó.
             ReportNpcZone(npc, areaAtPosition.zone);
             return areaAtPosition.zone;
+        }
+
+        if (TryGetLockedNpcZone(npc, out NpcMapZone lockedZone))
+        {
+            return lockedZone;
         }
 
         if (TryGetKnownNpcZone(npc, out NpcMapZone knownZone) &&

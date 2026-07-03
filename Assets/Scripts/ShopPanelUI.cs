@@ -21,6 +21,18 @@ public class ShopPanelUI : MonoBehaviour
 
     [Header("Shopkeeper")]
     public TMP_Text npcSpeechText;
+    public RectTransform npcSpeechBubbleRect;
+    public Vector2 speechBubblePadding =
+        new Vector2(56f, 34f);
+    public Vector2 speechBubbleMinSize =
+        new Vector2(260f, 95f);
+    public float speechBubbleMaxWidth = 430f;
+
+    [Header("Category Labels")]
+    public TMP_Text vatLieuCategoryText;
+    public TMP_Text congPhapCategoryText;
+    public TMP_Text danDuocCategoryText;
+    public TMP_Text phapBaoCategoryText;
 
     [Header("Items")]
     public Transform itemGridParent;
@@ -63,6 +75,8 @@ public class ShopPanelUI : MonoBehaviour
     Canvas rootCanvas;
     bool disabledBecauseAttachedToInventoryPanel;
     float detailGradePulseSeed;
+    Vector2 speechBubbleBaseSize;
+    bool hasSpeechBubbleBaseSize;
     bool IsAccidentalInventoryPanelAttachment()
     {
         InventoryPanelUI inventoryPanel = GetComponent<InventoryPanelUI>();
@@ -176,6 +190,7 @@ public class ShopPanelUI : MonoBehaviour
         }
 
         RefreshShopSource();
+        SyncCategoryLabels();
         ShowDanDuoc();
         ClearDetail();
         ApplyShopkeeperSpeechList(
@@ -210,22 +225,38 @@ public class ShopPanelUI : MonoBehaviour
 
     public void ShowDanDuoc()
     {
-        ShowCategory(ItemType.DanDuoc, UiText.Get("shop", "titleDanDuoc"));
+        ShowCategory(
+            ItemType.DanDuoc,
+            ResolveCategoryTitle(
+                ItemType.DanDuoc,
+                UiText.Get("shop", "titleDanDuoc")));
     }
 
     public void ShowPhapBao()
     {
-        ShowCategory(ItemType.PhapBao, UiText.Get("shop", "titlePhapBao"));
+        ShowCategory(
+            ItemType.PhapBao,
+            ResolveCategoryTitle(
+                ItemType.PhapBao,
+                UiText.Get("shop", "titlePhapBao")));
     }
 
     public void ShowCongPhap()
     {
-        ShowCategory(ItemType.CongPhap, UiText.Get("shop", "titleCongPhap"));
+        ShowCategory(
+            ItemType.CongPhap,
+            ResolveCategoryTitle(
+                ItemType.CongPhap,
+                UiText.Get("shop", "titleCongPhap")));
     }
 
     public void ShowVatLieu()
     {
-        ShowCategory(ItemType.VatLieu, UiText.Get("shop", "titleVatLieu"));
+        ShowCategory(
+            ItemType.VatLieu,
+            ResolveCategoryTitle(
+                ItemType.VatLieu,
+                UiText.Get("shop", "titleVatLieu")));
     }
 
     public void ShowCategory(
@@ -233,7 +264,7 @@ public class ShopPanelUI : MonoBehaviour
         string title)
     {
         currentType = itemType;
-        shopTitle = GetLocalizedCategoryTitle(itemType, title);
+        shopTitle = ResolveCategoryTitle(itemType, title);
         selectedItemIndex = -1;
 
         RefreshShopSource();
@@ -243,6 +274,7 @@ public class ShopPanelUI : MonoBehaviour
             shopTitleText.text = shopTitle;
         }
 
+        SyncCategoryLabels();
         RefreshMoney();
         ClearDetail();
         RebuildItemGrid();
@@ -449,6 +481,34 @@ public class ShopPanelUI : MonoBehaviour
         }
     }
 
+    string ResolveCategoryTitle(
+        ItemType itemType,
+        string fallbackTitle)
+    {
+        string fixedTitle =
+            GetFixedCategoryTitle(itemType);
+        return !string.IsNullOrEmpty(fixedTitle)
+            ? fixedTitle
+            : GetLocalizedCategoryTitle(itemType, fallbackTitle);
+    }
+
+    string GetFixedCategoryTitle(ItemType itemType)
+    {
+        switch (itemType)
+        {
+            case ItemType.VatLieu:
+                return "V\u1eadt Li\u1ec7u";
+            case ItemType.CongPhap:
+                return "C\u00f4ng Ph\u00e1p";
+            case ItemType.DanDuoc:
+                return "\u0110an D\u01b0\u1ee3c";
+            case ItemType.PhapBao:
+                return "Ph\u00e1p B\u1ea3o";
+            default:
+                return string.Empty;
+        }
+    }
+
     void ApplyLocalizedBuyButtonText()
     {
         if (buyButtonText == null ||
@@ -590,6 +650,39 @@ public class ShopPanelUI : MonoBehaviour
             npcSpeechText =
                 FindTextByName(transform, "SpeechText") ??
                 FindTextByName(transform, "NpcSpeechText");
+        }
+
+        if (npcSpeechBubbleRect == null)
+        {
+            Transform foundSpeechBubble =
+                FindChildByName(transform, "SpeechBubble");
+            if (foundSpeechBubble != null)
+            {
+                npcSpeechBubbleRect =
+                    foundSpeechBubble.GetComponent<RectTransform>();
+            }
+        }
+
+        CacheSpeechBubbleBaseSize();
+
+        if (vatLieuCategoryText == null)
+        {
+            vatLieuCategoryText = FindCategoryLabelText("VatLieu");
+        }
+
+        if (congPhapCategoryText == null)
+        {
+            congPhapCategoryText = FindCategoryLabelText("Congphap");
+        }
+
+        if (danDuocCategoryText == null)
+        {
+            danDuocCategoryText = FindCategoryLabelText("DanDuoc");
+        }
+
+        if (phapBaoCategoryText == null)
+        {
+            phapBaoCategoryText = FindCategoryLabelText("Phapbao");
         }
 
         if (detailPanel == null)
@@ -858,6 +951,25 @@ public class ShopPanelUI : MonoBehaviour
         }
 
         return child.GetComponent<TMP_Text>();
+    }
+
+    TMP_Text FindCategoryLabelText(string nodeName)
+    {
+        Transform node =
+            FindChildByName(transform, nodeName);
+        if (node == null)
+        {
+            return null;
+        }
+
+        TMP_Text direct =
+            node.GetComponent<TMP_Text>();
+        if (direct != null)
+        {
+            return direct;
+        }
+
+        return node.GetComponentInChildren<TMP_Text>(true);
     }
 
     void RebuildItemGrid()
@@ -1865,6 +1977,55 @@ public class ShopPanelUI : MonoBehaviour
             pulse);
     }
 
+    void SyncCategoryLabels()
+    {
+        ApplyCategoryLabel(
+            vatLieuCategoryText,
+            ItemType.VatLieu,
+            currentType == ItemType.VatLieu,
+            "VatLieu");
+        ApplyCategoryLabel(
+            congPhapCategoryText,
+            ItemType.CongPhap,
+            currentType == ItemType.CongPhap,
+            "Congphap");
+        ApplyCategoryLabel(
+            danDuocCategoryText,
+            ItemType.DanDuoc,
+            currentType == ItemType.DanDuoc,
+            "DanDuoc");
+        ApplyCategoryLabel(
+            phapBaoCategoryText,
+            ItemType.PhapBao,
+            currentType == ItemType.PhapBao,
+            "Phapbao");
+    }
+
+    void ApplyCategoryLabel(
+        TMP_Text label,
+        ItemType itemType,
+        bool selected,
+        string fallback)
+    {
+        if (label == null)
+        {
+            return;
+        }
+
+        label.text =
+            ResolveCategoryTitle(
+                itemType,
+                fallback);
+        label.fontStyle =
+            selected
+                ? FontStyles.Bold
+                : FontStyles.Normal;
+        label.color =
+            selected
+                ? new Color(0.20f, 0.14f, 0.08f, 1f)
+                : new Color(0.26f, 0.24f, 0.22f, 0.94f);
+    }
+
     void ApplyShopkeeperCategorySpeech(ItemType itemType)
     {
         string key = "speechGreetingLines";
@@ -1889,7 +2050,7 @@ public class ShopPanelUI : MonoBehaviour
 
         ApplyShopkeeperSpeechList(
             key,
-            "\u0110\u1ea1o h\u1eefu c\u1ee9 xem t\u1ef1 nhi\u00ean, c\u1eeda h\u00e0ng ta kh\u00f4ng thi\u1ebfu b\u1ea3o v\u1eadt.");
+            UiText.Get("shop", "speechCategoryFallback", ""));
     }
 
     void ApplyShopkeeperInspectSpeech(StatItemData item)
@@ -1899,16 +2060,155 @@ public class ShopPanelUI : MonoBehaviour
             return;
         }
 
-        string fallback =
-            NpcText.Format(
-                "\u00c1nh m\u1eaft c\u1ee7a ng\u00e0i qu\u1ea3 th\u1eadt tinh t\u01b0\u1eddng, {0} n\u00e0y l\u00e0 {1}.",
-                ItemText.Name(item),
-                ItemText.GradeLong(item.grade));
         ApplyShopkeeperSpeechList(
-            "speechInspect" + item.grade + "Lines",
-            fallback,
+            GetInspectSpeechKey(item),
+            UiText.Get("shop", "speechInspectFallback", ""),
             ItemText.Name(item),
             ItemText.GradeLong(item.grade));
+    }
+
+    string GetInspectSpeechKey(StatItemData item)
+    {
+        if (item == null)
+        {
+            return "speechInspectFallbackLines";
+        }
+
+        switch (item.itemType)
+        {
+            case ItemType.VatLieu:
+                return GetVatLieuInspectSpeechKey(item);
+            case ItemType.CongPhap:
+                return GetCongPhapInspectSpeechKey(item);
+            case ItemType.DanDuoc:
+                return GetDanDuocInspectSpeechKey(item);
+            case ItemType.PhapBao:
+                return GetPhapBaoInspectSpeechKey(item);
+            case ItemType.ThucPham:
+                return GetThucPhamInspectSpeechKey(item);
+            default:
+                return "speechInspectFallbackLines";
+        }
+    }
+
+    string GetVatLieuInspectSpeechKey(StatItemData item)
+    {
+        if (item.materialKind == MaterialKind.Herb)
+        {
+            return "speechInspectVatLieuHerbLines";
+        }
+
+        if (item.materialKind == MaterialKind.Ore)
+        {
+            return "speechInspectVatLieuOreLines";
+        }
+
+        if (item.materialKind == MaterialKind.SpiritStone)
+        {
+            return "speechInspectVatLieuSpiritStoneLines";
+        }
+
+        if (item.materialKind == MaterialKind.CraftingPart)
+        {
+            return "speechInspectVatLieuCraftingPartLines";
+        }
+
+        return "speechInspectVatLieuGeneralLines";
+    }
+
+    string GetCongPhapInspectSpeechKey(StatItemData item)
+    {
+        if (item.manualKind == ManualKind.Attack)
+        {
+            return "speechInspectCongPhapAttackLines";
+        }
+
+        if (item.manualKind == ManualKind.Defense)
+        {
+            return "speechInspectCongPhapDefenseLines";
+        }
+
+        if (item.manualKind == ManualKind.Movement)
+        {
+            return "speechInspectCongPhapMovementLines";
+        }
+
+        if (item.manualKind == ManualKind.Cultivation)
+        {
+            return "speechInspectCongPhapCultivationLines";
+        }
+
+        return "speechInspectCongPhapGeneralLines";
+    }
+
+    string GetDanDuocInspectSpeechKey(StatItemData item)
+    {
+        if (item.breakthroughRealm)
+        {
+            return "speechInspectDanDuocBreakthroughLines";
+        }
+
+        if (item.cultivationBonus > 0)
+        {
+            return "speechInspectDanDuocCultivationLines";
+        }
+
+        if (item.hpBonus > 0)
+        {
+            return "speechInspectDanDuocHpLines";
+        }
+
+        return "speechInspectDanDuocGeneralLines";
+    }
+
+    string GetPhapBaoInspectSpeechKey(StatItemData item)
+    {
+        bool isProtective =
+            item.armorBonus > 0 ||
+            item.effectResistanceBonus > 0;
+        bool isOffensive =
+            item.damageBonus > 0 &&
+            item.damageBonus >= item.armorBonus &&
+            item.damageBonus >= item.effectResistanceBonus;
+
+        if (isProtective)
+        {
+            if (item.effectResistanceBonus > item.armorBonus)
+            {
+                return "speechInspectPhapBaoResistanceLines";
+            }
+
+            return "speechInspectPhapBaoProtectLines";
+        }
+
+        if (isOffensive)
+        {
+            return "speechInspectPhapBaoOffenseLines";
+        }
+
+        return "speechInspectPhapBaoGeneralLines";
+    }
+
+    string GetThucPhamInspectSpeechKey(StatItemData item)
+    {
+        if (item.foodKind == FoodKind.Meal ||
+            item.foodKind == FoodKind.Meat ||
+            item.foodKind == FoodKind.Fish)
+        {
+            return "speechInspectThucPhamNourishLines";
+        }
+
+        if (item.foodKind == FoodKind.Grain)
+        {
+            return "speechInspectThucPhamGrainLines";
+        }
+
+        if (item.foodKind == FoodKind.SpiritFruit)
+        {
+            return "speechInspectThucPhamSpiritFruitLines";
+        }
+
+        return "speechInspectThucPhamGeneralLines";
     }
 
     void ApplyShopkeeperPurchaseSpeech(StatItemData item)
@@ -1920,23 +2220,20 @@ public class ShopPanelUI : MonoBehaviour
 
         string fallback =
             C(
-                "\u0110a t\u1ea1 qu\u00fd kh\u00e1ch, mong m\u00f3n {0} h\u1ee3p \u00fd ng\u00e0i.");
+                UiText.Get("shop", "speechBuyFallback", ""));
         switch (item.grade)
         {
             case ItemGrade.Trung:
                 fallback =
-                    C(
-                        "\u0110a t\u1ea1 ng\u00e0i \u0111\u00e3 chi\u1ebfu c\u1ed1, ch\u00fac ng\u00e0i ph\u00e1t t\u00e0i ph\u00e1t l\u1ed9c c\u00f9ng {0}.");
+                    UiText.Get("shop", "speechBuyFallbackTrung", fallback);
                 break;
             case ItemGrade.Thuong:
                 fallback =
-                    C(
-                        "Kh\u1ea9u kh\u00ed c\u1ee7a ng\u00e0i qu\u1ea3 nhi\u00ean phi ph\u00e0m, {0} v\u1ec1 tay minh ch\u1ee7 \u1eaft s\u1ebd r\u1ea1ng danh.");
+                    UiText.Get("shop", "speechBuyFallbackThuong", fallback);
                 break;
             case ItemGrade.Tien:
                 fallback =
-                    C(
-                        "Ti\u00ean nh\u00e3n nh\u01b0 ng\u00e0i th\u1eadt khi\u1ebfn k\u1ebb bu\u00f4n n\u00e0y kh\u00e2m ph\u1ee5c, {0} ch\u1ec9 c\u00f3 b\u1eadc th\u01b0\u1ee3ng kh\u00e1ch m\u1edbi x\u1ee9ng s\u1edf h\u1eefu.");
+                    UiText.Get("shop", "speechBuyFallbackTien", fallback);
                 break;
         }
 
@@ -1972,6 +2269,115 @@ public class ShopPanelUI : MonoBehaviour
             args != null && args.Length > 0
                 ? NpcText.Format(line, args)
                 : line;
+        RefreshSpeechBubbleLayout();
+    }
+
+    void CacheSpeechBubbleBaseSize()
+    {
+        if (hasSpeechBubbleBaseSize ||
+            npcSpeechBubbleRect == null)
+        {
+            return;
+        }
+
+        Vector2 rectSize =
+            npcSpeechBubbleRect.rect.size;
+        if (rectSize.x <= 0f ||
+            rectSize.y <= 0f)
+        {
+            return;
+        }
+
+        speechBubbleBaseSize = rectSize;
+        hasSpeechBubbleBaseSize = true;
+    }
+
+    void RefreshSpeechBubbleLayout()
+    {
+        if (npcSpeechText == null)
+        {
+            return;
+        }
+
+        if (npcSpeechBubbleRect == null)
+        {
+            Transform foundSpeechBubble =
+                FindChildByName(transform, "SpeechBubble");
+            if (foundSpeechBubble != null)
+            {
+                npcSpeechBubbleRect =
+                    foundSpeechBubble.GetComponent<RectTransform>();
+            }
+        }
+
+        if (npcSpeechBubbleRect == null)
+        {
+            return;
+        }
+
+        CacheSpeechBubbleBaseSize();
+
+        RectTransform textRect =
+            npcSpeechText.rectTransform;
+        if (textRect == null)
+        {
+            return;
+        }
+
+        Vector2 baseSize =
+            hasSpeechBubbleBaseSize
+                ? speechBubbleBaseSize
+                : speechBubbleMinSize;
+        float minBubbleWidth =
+            Mathf.Max(speechBubbleMinSize.x, baseSize.x * 0.76f);
+        float minBubbleHeight =
+            Mathf.Max(speechBubbleMinSize.y, baseSize.y);
+        float maxBubbleWidth =
+            Mathf.Max(minBubbleWidth, speechBubbleMaxWidth);
+        float maxTextWidth =
+            Mathf.Max(140f, maxBubbleWidth - speechBubblePadding.x);
+
+        npcSpeechText.ForceMeshUpdate();
+        Vector2 preferred =
+            npcSpeechText.GetPreferredValues(
+                npcSpeechText.text,
+                maxTextWidth,
+                0f);
+
+        float bubbleWidth =
+            Mathf.Clamp(
+                preferred.x + speechBubblePadding.x,
+                minBubbleWidth,
+                maxBubbleWidth);
+        float textWidth =
+            Mathf.Max(120f, bubbleWidth - speechBubblePadding.x);
+
+        preferred =
+            npcSpeechText.GetPreferredValues(
+                npcSpeechText.text,
+                textWidth,
+                0f);
+
+        float bubbleHeight =
+            Mathf.Max(
+                minBubbleHeight,
+                preferred.y + speechBubblePadding.y);
+
+        textRect.SetSizeWithCurrentAnchors(
+            RectTransform.Axis.Horizontal,
+            textWidth);
+        textRect.SetSizeWithCurrentAnchors(
+            RectTransform.Axis.Vertical,
+            preferred.y + 4f);
+        npcSpeechBubbleRect.SetSizeWithCurrentAnchors(
+            RectTransform.Axis.Horizontal,
+            bubbleWidth);
+        npcSpeechBubbleRect.SetSizeWithCurrentAnchors(
+            RectTransform.Axis.Vertical,
+            bubbleHeight);
+
+        LayoutRebuilder.MarkLayoutForRebuild(textRect);
+        LayoutRebuilder.MarkLayoutForRebuild(npcSpeechBubbleRect);
     }
 
     static string C(string value)

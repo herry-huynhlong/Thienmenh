@@ -1150,7 +1150,7 @@ public partial class SmartNpcAI
 
         ClearTravelTargets();
 
-        if (provider.TryHandleVisitor(gameObject))
+        if (provider.TryHandleVisitor(gameObject, true))
         {
             MarkDailyTaskAccepted();
             if (schedule != null)

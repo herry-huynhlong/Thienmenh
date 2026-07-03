@@ -17690,13 +17690,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
-    endHour: 22
+    endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 8
-    startHour: 22
+    startHour: 19
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -18180,6 +18180,11 @@ MonoBehaviour:
   minTaskWillingnessScore: 20
   minAutoAssignWillingnessScore: 45
   rejectNonAdultVillagerTasks: 1
+  enforceAutoAssignRankGates: 1
+  autoAssignTrungMinRealm: 2
+  autoAssignTrungMinStage: 1
+  autoAssignThuongMinRealm: 4
+  autoAssignThuongMinStage: 1
   keepProviderStationary: 1
   providerStandPoint: {fileID: 0}
   disableBaseAiWhileStationary: 1
@@ -18480,13 +18485,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
-    endHour: 22
+    endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 8
-    startHour: 22
+    startHour: 19
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -19405,7 +19410,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
       propertyPath: m_TagString
@@ -19825,13 +19830,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
-    endHour: 22
+    endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 8
-    startHour: 22
+    startHour: 19
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -28656,7 +28661,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5377248608933293969, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_Sprite
@@ -41400,7 +41405,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4661552873986713119, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
       propertyPath: mapBounds
@@ -41843,13 +41848,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
-    endHour: 22
+    endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 8
-    startHour: 22
+    startHour: 19
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -45672,7 +45677,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
       propertyPath: m_LocalPosition.x
@@ -49185,7 +49190,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!95 &962538898
 Animator:
   serializedVersion: 7
@@ -49512,13 +49517,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
-    endHour: 22
+    endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 8
-    startHour: 22
+    startHour: 19
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -50302,10 +50307,10 @@ RectTransform:
   - {fileID: 1106599787}
   m_Father: {fileID: 1061404681}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 840, y: -180}
-  m_SizeDelta: {x: 540, y: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &978658658
 MonoBehaviour:
@@ -55838,13 +55843,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
-    endHour: 22
+    endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 8
-    startHour: 22
+    startHour: 19
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -56590,10 +56595,10 @@ RectTransform:
   - {fileID: 2092972944}
   m_Father: {fileID: 1061404681}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1410, y: -180}
-  m_SizeDelta: {x: 540, y: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1016338230
 MonoBehaviour:
@@ -57427,7 +57432,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1044429975
 Transform:
   m_ObjectHideFlags: 0
@@ -57807,13 +57812,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
-    endHour: 22
+    endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 8
-    startHour: 22
+    startHour: 19
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -59262,13 +59267,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
-    endHour: 22
+    endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 8
-    startHour: 22
+    startHour: 19
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -59768,7 +59773,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_TagString
@@ -76919,6 +76924,9 @@ Tilemap:
   - serializedVersion: 2
     m_RefCount: 6
     m_Data: {fileID: -97196690, guid: e3046f4802b255e43bc09df30edadcc1, type: 3}
+  - serializedVersion: 2
+    m_RefCount: 0
+    m_Data: {fileID: 2034997697}
   m_TileMatrixArray:
   - serializedVersion: 2
     m_RefCount: 903
@@ -81917,7 +81925,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_TagString
@@ -84825,13 +84833,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
-    endHour: 22
+    endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 8
-    startHour: 22
+    startHour: 19
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -85598,13 +85606,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
-    endHour: 22
+    endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 8
-    startHour: 22
+    startHour: 19
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -87461,13 +87469,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
-    endHour: 22
+    endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 8
-    startHour: 22
+    startHour: 19
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -88182,8 +88190,8 @@ MonoBehaviour:
     createdTime: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
-  debugFlowLogs: 1
-  runtimeTraceEnabled: 1
+  debugFlowLogs: 0
+  runtimeTraceEnabled: 0
   runtimeTraceTarget: 
   runtimeTraceEveryUpdate: 1
   runtimeTraceEveryThink: 1
@@ -88262,13 +88270,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
-    endHour: 22
+    endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 8
-    startHour: 22
+    startHour: 19
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -89548,13 +89556,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
-    endHour: 22
+    endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 8
-    startHour: 22
+    startHour: 19
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -91956,9 +91964,7 @@ MonoBehaviour:
   skillListRoot: {fileID: 0}
   skillRowTemplate: {fileID: 0}
   worldItemInfoPanel: {fileID: 1847247870}
-  worldItemNameText: {fileID: 1416582730}
-  worldItemInfoText: {fileID: 1741088995}
-  worldItemPanelIcon: {fileID: 1511376341}
+  worldItemPanelUI: {fileID: 0}
   worldItemIconSize: {x: 72, y: 72}
   worldItemIconOffset: {x: 16, y: -16}
   worldItemTextLeftPadding: 88
@@ -92851,6 +92857,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7651569824044575715, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
+      propertyPath: m_UseFullKinematicContacts
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -99126,7 +99136,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
       propertyPath: m_LocalPosition.x
@@ -110009,7 +110019,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1670547731024783584, guid: d18c764f4f0b74240a7d4daeeaa89eb9, type: 3}
       propertyPath: m_TagString
@@ -122769,7 +122779,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6510684094960389824, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7648705555175374345, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
       propertyPath: m_LocalPosition.x
@@ -123593,13 +123603,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
-    endHour: 22
+    endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 8
-    startHour: 22
+    startHour: 19
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -124308,13 +124318,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
-    endHour: 22
+    endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 8
-    startHour: 22
+    startHour: 19
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -124731,7 +124741,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
       propertyPath: m_LocalPosition.x
@@ -125769,13 +125779,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
-    endHour: 22
+    endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 8
-    startHour: 22
+    startHour: 19
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -126899,7 +126909,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1847247871
 RectTransform:
   m_ObjectHideFlags: 0
@@ -127496,10 +127506,10 @@ RectTransform:
   - {fileID: 1362113360}
   m_Father: {fileID: 1061404681}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 270, y: -180}
-  m_SizeDelta: {x: 540, y: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1874410749
 MonoBehaviour:
@@ -140435,13 +140445,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
-    endHour: 22
+    endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 8
-    startHour: 22
+    startHour: 19
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -151670,7 +151680,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8596889031696047861, guid: afa77975feceb5d4da429fc22403760e, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

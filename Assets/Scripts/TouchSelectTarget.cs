@@ -70,11 +70,7 @@ public class TouchSelectTarget : MonoBehaviour
     [Header("World Item Panel")]
     public GameObject worldItemInfoPanel;
 
-    public TMP_Text worldItemNameText;
-
-    public TMP_Text worldItemInfoText;
-
-    public Image worldItemPanelIcon;
+    public WorldItemInfoPanelUI worldItemPanelUI;
 
     [Header("World Item Info")]
     public Vector2 worldItemIconSize =
@@ -1994,6 +1990,13 @@ public class TouchSelectTarget : MonoBehaviour
 
     void AutoFindWorldItemPanelReferences()
     {
+        if (worldItemPanelUI != null &&
+            worldItemPanelUI.panelRect != null)
+        {
+            worldItemPanelRect = worldItemPanelUI.panelRect;
+            return;
+        }
+
         if (worldItemInfoPanel == null)
         {
             RectTransform[] rects =
@@ -2016,87 +2019,39 @@ public class TouchSelectTarget : MonoBehaviour
             return;
         }
 
-        worldItemPanelRect =
-            worldItemInfoPanel.GetComponent<RectTransform>();
-
-        if (worldItemPanelIcon == null)
+        if (worldItemPanelUI == null)
         {
-            Transform iconTransform =
-                FindChildByName(worldItemInfoPanel.transform, "ItemIcon");
+            worldItemPanelUI =
+                worldItemInfoPanel.GetComponent<WorldItemInfoPanelUI>();
 
-            if (iconTransform == null)
+            if (worldItemPanelUI == null)
             {
-                iconTransform =
-                    FindChildByName(worldItemInfoPanel.transform, "InfoIcon");
-            }
-
-            if (iconTransform == null)
-            {
-                iconTransform =
-                    FindChildByName(worldItemInfoPanel.transform, "IconImage");
-            }
-
-            if (iconTransform != null)
-            {
-                worldItemPanelIcon = iconTransform.GetComponent<Image>();
+                worldItemPanelUI =
+                    worldItemInfoPanel.AddComponent<WorldItemInfoPanelUI>();
             }
         }
 
-        if (worldItemNameText == null)
-        {
-            Transform nameTransform =
-                FindChildByName(worldItemInfoPanel.transform, "ItemNameText");
-
-            if (nameTransform == null)
-            {
-                nameTransform =
-                    FindChildByName(worldItemInfoPanel.transform, "NameText");
-            }
-
-            if (nameTransform == null)
-            {
-                nameTransform =
-                    FindChildByName(worldItemInfoPanel.transform, "TitleText");
-            }
-
-            if (nameTransform != null)
-            {
-                worldItemNameText = nameTransform.GetComponent<TMP_Text>();
-            }
-        }
-
-        if (worldItemInfoText == null)
-        {
-            Transform infoTransform =
-                FindChildByName(worldItemInfoPanel.transform, "ItemInfoText");
-
-            if (infoTransform == null)
-            {
-                infoTransform =
-                    FindChildByName(worldItemInfoPanel.transform, "DescriptionText");
-            }
-
-            if (infoTransform == null)
-            {
-                infoTransform =
-                    FindChildByName(worldItemInfoPanel.transform, "InfoText");
-            }
-
-            if (infoTransform != null)
-            {
-                worldItemInfoText = infoTransform.GetComponent<TMP_Text>();
-            }
-        }
+        worldItemPanelUI.EnsureReferences();
+        worldItemPanelRect = worldItemPanelUI.panelRect;
     }
 
     void SetWorldItemPanelVisible(bool visible)
     {
-        if (worldItemInfoPanel == null)
+        AutoFindWorldItemPanelReferences();
+
+        if (worldItemPanelUI == null)
         {
             return;
         }
 
-        worldItemInfoPanel.SetActive(visible);
+        if (visible)
+        {
+            worldItemPanelUI.gameObject.SetActive(true);
+        }
+        else
+        {
+            worldItemPanelUI.Hide();
+        }
     }
 
     bool IsWorldItemTarget(Transform target)
@@ -2126,25 +2081,7 @@ public class TouchSelectTarget : MonoBehaviour
             return;
         }
 
-        SetWorldItemPanelVisible(true);
-
-        if (worldItemNameText != null)
-        {
-            worldItemNameText.text = ItemText.Name(pickup.item);
-        }
-
-        if (worldItemInfoText != null)
-        {
-            worldItemInfoText.text = BuildWorldItemBodyInfo(pickup);
-        }
-
-        if (worldItemPanelIcon != null)
-        {
-            Sprite icon = GetPickupIcon(pickup);
-            worldItemPanelIcon.sprite = icon;
-            worldItemPanelIcon.enabled = icon != null;
-            worldItemPanelIcon.preserveAspect = true;
-        }
+        worldItemPanelUI.Show(pickup);
     }
     void UpdateInfoIcon(Transform target)
     {
@@ -2163,7 +2100,7 @@ public class TouchSelectTarget : MonoBehaviour
 
         Sprite icon =
             isWorldItem
-            ? GetPickupIcon(pickup)
+            ? WorldItemInfoPanelUI.GetPickupIcon(pickup)
             : GetCharacterIcon(target, out mirrored);
 
         if (infoIcon == null ||
@@ -2186,27 +2123,6 @@ public class TouchSelectTarget : MonoBehaviour
                 ? worldItemTextLeftPadding
                 : characterTextLeftPadding);
         }
-    }
-
-    Sprite GetPickupIcon(WorldStatItemPickup pickup)
-    {
-        if (pickup == null ||
-            pickup.item == null)
-        {
-            return null;
-        }
-
-        if (pickup.item.icon != null)
-        {
-            return pickup.item.icon;
-        }
-
-        SpriteRenderer spriteRenderer =
-            pickup.GetComponentInChildren<SpriteRenderer>(true);
-
-        return spriteRenderer != null
-            ? spriteRenderer.sprite
-            : null;
     }
 
     Sprite GetCharacterIcon(Transform target, out bool mirrored)
@@ -3727,7 +3643,7 @@ public class TouchSelectTarget : MonoBehaviour
         if (pickup != null &&
             pickup.item != null)
         {
-            return BuildWorldItemInfo(pickup);
+            return WorldItemInfoPanelUI.BuildWorldItemInfo(pickup);
         }
 
         MonsterAI monster =
@@ -3847,67 +3763,6 @@ public class TouchSelectTarget : MonoBehaviour
         }
 
         return ItemText.Name(loot) + " x" + amount;
-    }
-
-    string BuildWorldItemInfo(WorldStatItemPickup pickup)
-    {
-        if (pickup == null ||
-            pickup.item == null)
-        {
-            return "";
-        }
-
-        StringBuilder builder =
-            new StringBuilder();
-
-        builder.AppendLine(NpcText.Label("name") + ": " + ItemText.Name(pickup.item));
-        builder.Append(BuildWorldItemBodyInfo(pickup));
-
-        return builder.ToString().TrimEnd();
-    }
-
-    string BuildWorldItemBodyInfo(WorldStatItemPickup pickup)
-    {
-        StatItemData item =
-            pickup.item;
-
-        StringBuilder builder =
-            new StringBuilder();
-
-        builder.AppendLine(
-            ItemText.Format(
-                "detail",
-                "typeFormat",
-                GetItemTypeText(item.itemType)));
-        builder.AppendLine(
-            ItemText.Format(
-                "detail",
-                "gradeFormat",
-                GetItemGradeText(item.grade)));
-        builder.AppendLine(
-            ItemText.Format(
-                "detail",
-                "amountFormat",
-                Mathf.Max(0, pickup.amount)));
-
-        string description = ItemText.Description(item);
-        if (!string.IsNullOrWhiteSpace(description))
-        {
-            builder.AppendLine();
-            builder.AppendLine(description);
-        }
-
-        return builder.ToString().TrimEnd();
-    }
-
-    string GetItemTypeText(ItemType itemType)
-    {
-        return ItemText.Type(itemType);
-    }
-
-    string GetItemGradeText(ItemGrade grade)
-    {
-        return ItemText.Grade(grade);
     }
 
     string GetTargetAge(Transform target)

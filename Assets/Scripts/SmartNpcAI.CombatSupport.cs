@@ -5,6 +5,7 @@ public partial class SmartNpcAI
     SmartNpcHelpRequestSystem.HelpRequest currentHelpRequest;
     float nextHelpRequestAllowedTime;
     bool isRetreatingFromMonster;
+    bool isCounterAttackingMonster;
     float retreatUntilTime;
     Vector3 retreatTarget;
 
@@ -417,9 +418,65 @@ public partial class SmartNpcAI
         ClearEmergencyTaskIfMatches(SmartAITaskGoal.SupportAlly);
     }
 
+    void ClearMonsterCombatState()
+    {
+        isCounterAttackingMonster = false;
+    }
+
+    void TryCounterAttackFromDamage(
+        GameObject attackerObject,
+        int incomingDamage)
+    {
+        if (attackerObject == null ||
+            IsDead)
+        {
+            return;
+        }
+
+        MonsterAI monster =
+            attackerObject.GetComponentInParent<MonsterAI>();
+        if (monster == null ||
+            monster.IsDead)
+        {
+            return;
+        }
+
+        if (currentMonsterTarget != null &&
+            currentMonsterTarget != monster)
+        {
+            ReleaseMonsterReservation(currentMonsterTarget);
+        }
+
+        ClearHelpRequestState();
+        StopMonsterRetreat();
+        isCounterAttackingMonster = true;
+
+        currentMonsterTarget = monster;
+        currentTarget = monster.transform;
+        hasWanderTarget = false;
+        hasEscapeTarget = false;
+        hasObstacleAvoidTarget = false;
+        actionTimer = 0f;
+        attackTimer = Mathf.Max(attackTimer, attackCooldown);
+        currentAction = NpcText.ActionFormat(
+            "attackMonsterNamed",
+            monster.monsterName);
+
+        TryIgnoreCombatTargetCollision(currentTarget);
+        StopNpcMovement();
+
+        DebugFlow(
+            "Combat",
+            "Counterattack after damage attacker=" +
+            monster.monsterName +
+            " damage=" +
+            incomingDamage);
+    }
+
     bool HasCombatSupportIntent()
     {
         return isRetreatingFromMonster ||
-            currentHelpRequest != null;
+            currentHelpRequest != null ||
+            isCounterAttackingMonster;
     }
 }

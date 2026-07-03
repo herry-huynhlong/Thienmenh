@@ -207,7 +207,7 @@ public partial class NpcTaskProvider : MonoBehaviour
             return false;
         }
 
-        return PickOfferFor(npc, false) != null;
+        return PickOfferFor(npc, true) != null;
     }
 
     public static bool IsNpcBusyWithAnyProvider(GameObject npc)
@@ -542,6 +542,15 @@ public partial class NpcTaskProvider : MonoBehaviour
     [Range(0f, 100f)]
     public float minAutoAssignWillingnessScore = 45f;
     public bool rejectNonAdultVillagerTasks = true;
+
+    [Header("Auto Assign Rank Gates")]
+    public bool enforceAutoAssignRankGates = true;
+    public CultivationRealm autoAssignTrungMinRealm = CultivationRealm.Foundation;
+    [Range(1, CultivationProgression.MaxStage)]
+    public int autoAssignTrungMinStage = 1;
+    public CultivationRealm autoAssignThuongMinRealm = CultivationRealm.NascentSoul;
+    [Range(1, CultivationProgression.MaxStage)]
+    public int autoAssignThuongMinStage = 1;
 
     [Header("Provider Placement")]
     public bool keepProviderStationary = true;
@@ -1005,7 +1014,7 @@ public partial class NpcTaskProvider : MonoBehaviour
         }
     }
 
-    public bool TryHandleVisitor(GameObject npc)
+    public bool TryHandleVisitor(GameObject npc, bool autoAssigned = false)
     {
         if (!IsNpcEligibleForProviderService(npc))
         {
@@ -1026,9 +1035,9 @@ public partial class NpcTaskProvider : MonoBehaviour
             offers != null &&
             offers.Length > 0)
         {
-            NpcTaskOffer offer = PickOfferFor(npc, false);
+            NpcTaskOffer offer = PickOfferFor(npc, autoAssigned);
             if (offer != null &&
-                StartTaskRequest(npc, offer))
+                StartTaskRequest(npc, offer, false, autoAssigned))
             {
                 return true;
             }
@@ -1044,12 +1053,12 @@ public partial class NpcTaskProvider : MonoBehaviour
         if (offer == null ||
             !IsNpcEligibleForProviderService(npc) ||
             !NpcScheduleController.AllowsTask(npc) ||
-            !CanNpcAcceptOffer(npc, offer))
+            !CanNpcAcceptOffer(npc, offer, true))
         {
             return false;
         }
 
-        return StartTaskRequest(npc, offer, true);
+        return StartTaskRequest(npc, offer, true, true);
     }
 
     public List<NpcTaskOffer> PickDailyOffersFor(
@@ -1079,7 +1088,7 @@ public partial class NpcTaskProvider : MonoBehaviour
         {
             if (offer == null ||
                 !IsOfferWorldAvailable(offer) ||
-                !CanNpcAcceptOffer(npc, offer))
+                !CanNpcAcceptOffer(npc, offer, true))
             {
                 continue;
             }
@@ -1103,7 +1112,7 @@ public partial class NpcTaskProvider : MonoBehaviour
 
             if (offer == null ||
                 !IsOfferWorldAvailable(offer) ||
-                !CanNpcAcceptOffer(npc, offer))
+                !CanNpcAcceptOffer(npc, offer, true))
             {
                 continue;
             }
@@ -1243,7 +1252,7 @@ public partial class NpcTaskProvider : MonoBehaviour
                 continue;
             }
 
-            if (StartTaskRequest(npc, offer))
+            if (StartTaskRequest(npc, offer, false, true))
             {
                 return;
             }
@@ -1344,7 +1353,8 @@ public partial class NpcTaskProvider : MonoBehaviour
     bool StartTaskRequest(
         GameObject npc,
         NpcTaskOffer offer,
-        bool startAtProvider)
+        bool startAtProvider = false,
+        bool autoAssigned = false)
     {
         if (npc == null ||
             offer == null ||
@@ -1352,7 +1362,7 @@ public partial class NpcTaskProvider : MonoBehaviour
             HasBusyNpc(npc) ||
             NpcRoleUtility.IsDead(npc) ||
             !NpcScheduleController.AllowsTask(npc) ||
-            !CanNpcAcceptOffer(npc, offer) ||
+            !CanNpcAcceptOffer(npc, offer, autoAssigned) ||
             !ClaimTaskOffer(offer))
         {
             return false;

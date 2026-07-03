@@ -1,10 +1,16 @@
 fileFormatVersion: 2
-guid: 880382e872cdfbd40b956d14b5b7e537
+guid: badcd37f633f8b546ba00485a4c3ff45
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2227294742669426013
-    second: download (1)_0
+      213: 8101814991177344531
+    second: aura_0
+  - first:
+      213: -1037195541978810413
+    second: aura_1
+  - first:
+      213: -9040564401775751873
+    second: aura_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +132,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: download (1)_0
+      name: aura_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 624
-        height: 395
+        width: 1254
+        height: 1254
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +147,52 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3a208157b3f0711e0800000000000000
-      internalID: -2227294742669426013
+      spriteID: 3166f092fcd6f6070800000000000000
+      internalID: 8101814991177344531
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: aura_1
+      rect:
+        serializedVersion: 2
+        x: 729
+        y: 1140
+        width: 20
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d7fbbd56242b91f0800000000000000
+      internalID: -1037195541978810413
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: aura_2
+      rect:
+        serializedVersion: 2
+        x: 1149
+        y: 534
+        width: 10
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f3d4d175396798280800000000000000
+      internalID: -9040564401775751873
       vertices: []
       indices: 
       edges: []
@@ -161,7 +211,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      download (1)_0: -2227294742669426013
+      aura_0: 8101814991177344531
+      aura_1: -1037195541978810413
+      aura_2: -9040564401775751873
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
