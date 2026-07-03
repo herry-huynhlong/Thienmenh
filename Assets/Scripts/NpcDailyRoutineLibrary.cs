@@ -110,12 +110,11 @@ public static class NpcDailyRoutineLibrary
     {
         Add(slots, NpcScheduleActivity.DoMission, 7f, 13f);
         Add(slots, NpcScheduleActivity.FreeHuntAndGather, 13f, 18f);
-        Add(slots, NpcScheduleActivity.TradeBuySell, 18f, 22f);
-        Add(slots, NpcScheduleActivity.Cultivate, 22f, 7f);
+        Add(slots, NpcScheduleActivity.TradeBuySell, 18f, 19f);
+        Add(slots, NpcScheduleActivity.Cultivate, 19f, 7f);
 
         // SmartAI dùng lịch gốc nhưng lệch giờ theo seed từng NPC
         // để tránh tất cả cùng dồn vào một hoạt động tại cùng thời điểm.
-        ApplySchedulePhaseOffset(slots, GetSmartCultivatorPhaseOffset(npc));
     }
 
     static NpcScheduleActivity PickCultivatorFieldActivity(

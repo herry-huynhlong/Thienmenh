@@ -196,6 +196,41 @@ public partial class SmartNpcAI
                     return false;
                 }
 
+                if (currentMonsterTarget != null &&
+                    currentMonsterTarget.currentHP > 0)
+                {
+                    if (CombatPowerUtility.ShouldRetreat(
+                            gameObject,
+                            currentMonsterTarget.gameObject))
+                    {
+                        RequestHelpForMonster(currentMonsterTarget);
+                        if (TryBeginMonsterRetreat(currentMonsterTarget))
+                        {
+                            return true;
+                        }
+                    }
+
+                    SearchMonster();
+                    return true;
+                }
+
+                if (IsRecoveringFromDamage)
+                {
+                    TryReactToNearbyAttackingMonster();
+                    if (currentMonsterTarget != null &&
+                        currentMonsterTarget.currentHP > 0)
+                    {
+                        SearchMonster();
+                        return true;
+                    }
+
+                    currentAction = NpcText.Action("injured");
+                    actionTimer = Mathf.Max(
+                        actionTimer,
+                        Mathf.Min(0.35f, thinkDelay));
+                    return true;
+                }
+
                 Sleep();
                 return true;
 
@@ -208,6 +243,11 @@ public partial class SmartNpcAI
 
                 if (money >= 50)
                 {
+                    if (IsNeedPotionRetryCoolingDown())
+                    {
+                        return false;
+                    }
+
                     if (!GoToTavernAndBuyPill())
                     {
                         StartIdleWander();

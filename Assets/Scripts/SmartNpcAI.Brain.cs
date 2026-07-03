@@ -135,6 +135,7 @@ public partial class SmartNpcAI
         }
 
         if (dailyRoutineEnabled &&
+            !HasActiveEnforcedScheduleSlot() &&
             CanVisitTaskProviderToday() &&
             TryVisitTaskProvider())
         {
@@ -144,6 +145,7 @@ public partial class SmartNpcAI
         }
 
         if (dailyRoutineEnabled &&
+            !HasActiveEnforcedScheduleSlot() &&
             canCultivate &&
             IsScheduledCultivationTime())
         {
@@ -164,6 +166,7 @@ public partial class SmartNpcAI
         }
 
         if (dailyRoutineEnabled &&
+            !HasActiveEnforcedScheduleSlot() &&
             TryStartScheduledNonCultivationActivity())
         {
             TraceBranch("ThinkBrainCore", "TryStartScheduledNonCultivationActivity", true);
@@ -213,7 +216,8 @@ public partial class SmartNpcAI
             return;
         }
 
-        if (TryStartScheduledNonCultivationActivity())
+        if (!HasActiveEnforcedScheduleSlot() &&
+            TryStartScheduledNonCultivationActivity())
         {
             TraceBranch("ThinkBrainCore", "TryStartScheduledNonCultivationActivityFallback", true);
             DebugFlow("ThinkFallback", "Fallback routine");

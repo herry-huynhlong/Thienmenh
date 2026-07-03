@@ -548,7 +548,7 @@ public class BicanhSessionManager : MonoBehaviour
             name == nameof(NpcTradeAgent) ||
             name == nameof(NpcItemCollector) ||
             name == nameof(NpcFavorite) ||
-            name == nameof(NpcIdentity) ||
+            name == nameof(NpcSocialIdentity) ||
             name == nameof(NpcNeeds) ||
             name == nameof(NpcPersonality) ||
             name == nameof(NpcRelationshipGraph) ||

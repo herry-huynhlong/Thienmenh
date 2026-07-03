@@ -234,6 +234,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
     int routinePlanDay = int.MinValue;
     float routineCultivationStartHour;
     float routineCultivationEndHour;
+    float nextNeedPotionRetryTime;
     int taskRoutineDay = int.MinValue;
     int taskRoutineTargetCount;
     int taskRoutineAcceptedCount;
@@ -1007,8 +1008,25 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         bool isIdle = animationVelocity.sqrMagnitude <= 0.0025f;
         Vector2 direction = isIdle ? Vector2.zero : animationVelocity.normalized;
+        string forcedCombatAnimationAction =
+            ResolveForcedCombatAnimationAction();
+        if (isIdle &&
+            !string.IsNullOrWhiteSpace(forcedCombatAnimationAction) &&
+            currentMonsterTarget != null)
+        {
+            Vector2 targetDirection =
+                currentMonsterTarget.transform.position -
+                transform.position;
+            if (targetDirection.sqrMagnitude > 0.0001f)
+            {
+                direction = targetDirection.normalized;
+            }
+        }
+
         string animationAction =
-            ResolveAnimationActionForCurrentState(isIdle);
+            ResolveAnimationActionForCurrentState(
+                isIdle,
+                forcedCombatAnimationAction);
 
         string animDebugSignature =
             currentAction + "|" +
@@ -1035,7 +1053,9 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         visualAnimation.UpdateNPCAnimation(direction, isIdle, animationAction);
     }
 
-    string ResolveAnimationActionForCurrentState(bool isIdle)
+    string ResolveAnimationActionForCurrentState(
+        bool isIdle,
+        string forcedCombatAnimationAction = null)
     {
         if (IsDead)
         {
@@ -1050,8 +1070,10 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             return currentAction;
         }
 
-        string forcedCombatAnimationAction =
-            ResolveForcedCombatAnimationAction();
+        forcedCombatAnimationAction =
+            string.IsNullOrWhiteSpace(forcedCombatAnimationAction)
+                ? ResolveForcedCombatAnimationAction()
+                : forcedCombatAnimationAction;
         if (!string.IsNullOrWhiteSpace(forcedCombatAnimationAction))
         {
             return forcedCombatAnimationAction;
@@ -1098,9 +1120,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             return false;
         }
 
-        if (!MatchesSmartAction("attackMonsterNamed", true) &&
-            !MatchesSmartAction("attackMonster", true) &&
-            !MatchesSmartAction("attack", true))
+        if (!IsMonsterCombatAnimationAction(currentAction))
         {
             return false;
         }
@@ -1115,6 +1135,18 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 0.55f);
 
         return distance <= forceRange;
+    }
+
+    bool IsMonsterCombatAnimationAction(string action)
+    {
+        return MatchesActionKey(action, "attackMonsterNamed", true) ||
+            MatchesActionKey(action, "attackMonster", true) ||
+            MatchesActionKey(action, "attack", true) ||
+            MatchesActionKey(action, "huntMonsterNamed", true) ||
+            action == NpcText.Action("goHunt") ||
+            action == NpcText.Action("fightBlockingMonster") ||
+            action == NpcText.Action("guardSpiritHerbMonster") ||
+            action == NpcText.Action("clearHarvestMonster");
     }
 
     bool ShouldBypassCrowdAvoidanceForMonsterCombat()
@@ -1516,21 +1548,20 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             if (HasAvailablePills() || hadPillBefore)
             {
                 ClearSmartTaskIfGoal(SmartAITaskGoal.NeedPotion);
+                nextNeedPotionRetryTime = 0f;
                 actionTimer = Mathf.Max(0.05f, thinkDelay * 0.25f);
                 currentAction = NpcText.Action("idle");
             }
             else
             {
-                actionTimer = Mathf.Max(thinkDelay, GameHoursToSeconds(0.15f));
-                currentAction = NpcText.Action("checkedVanBaoLau");
+                DeferNeedPotionRetry(
+                    NpcText.Action("checkedVanBaoLau"));
             }
             return true;
         }
 
-        ClearTravelTargetsAndStop();
-        ClearSmartTaskIfGoal(SmartAITaskGoal.NeedPotion);
-        actionTimer = Mathf.Max(thinkDelay, GameHoursToSeconds(0.15f));
-        currentAction = NpcText.Action("checkedVanBaoLau");
+        DeferNeedPotionRetry(
+            NpcText.Action("checkedVanBaoLau"));
         return true;
     }
 
@@ -4957,6 +4988,15 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             IsTaskProviderWindow();
     }
 
+    bool HasActiveEnforcedScheduleSlot()
+    {
+        NpcScheduleController schedule =
+            GetComponent<NpcScheduleController>();
+        return schedule != null &&
+            schedule.enforceSchedule &&
+            schedule.CurrentSlot != null;
+    }
+
     void MarkDailyTaskAccepted()
     {
         EnsureDailyTaskRoutine();
@@ -5214,9 +5254,15 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         if (HasAvailablePills())
         {
             ClearSmartTaskIfGoal(SmartAITaskGoal.NeedPotion);
+            nextNeedPotionRetryTime = 0f;
             currentAction = NpcText.Action("idle");
             actionTimer = Mathf.Max(0.05f, thinkDelay * 0.25f);
             return true;
+        }
+
+        if (IsNeedPotionRetryCoolingDown())
+        {
+            return false;
         }
 
         RequestEmergencyTask(
@@ -5320,6 +5366,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
             pill += 1;
             ClearSmartTaskIfGoal(SmartAITaskGoal.NeedPotion);
+            nextNeedPotionRetryTime = 0f;
 
             ClearTravelTargetsAndStop();
             stuckMoveTimer = 0f;
@@ -5335,6 +5382,24 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         }
 
         return true;
+    }
+
+    bool IsNeedPotionRetryCoolingDown()
+    {
+        return Time.time < nextNeedPotionRetryTime;
+    }
+
+    void DeferNeedPotionRetry(string action)
+    {
+        nextNeedPotionRetryTime =
+            Time.time +
+            Mathf.Max(
+                thinkDelay * 2f,
+                GameHoursToSeconds(0.5f));
+        ClearTravelTargetsAndStop();
+        ClearSmartTaskIfGoal(SmartAITaskGoal.NeedPotion);
+        actionTimer = Mathf.Max(thinkDelay, GameHoursToSeconds(0.15f));
+        currentAction = action;
     }
 
     bool TryResolveTradeFallbackPosition(
@@ -5372,6 +5437,54 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         position = transform.position;
         return false;
+    }
+
+    bool TryStartTradePresenceRoutine()
+    {
+        if (!canTrade)
+        {
+            return false;
+        }
+
+        if (!TryResolveTradeFallbackPosition(
+                NpcScheduleActivity.TradeBuySell,
+                NpcLocationPurpose.Market,
+                out Vector3 marketPosition) &&
+            !TryResolveTradeFallbackPosition(
+                NpcScheduleActivity.TradeBuySell,
+                NpcLocationPurpose.Any,
+                out marketPosition))
+        {
+            DebugFlow("Trade", "No fallback market area");
+            return false;
+        }
+
+        float arriveDistance =
+            Mathf.Max(
+                targetClearRadius * 2f,
+                0.45f);
+
+        if (Vector2.Distance(transform.position, marketPosition) <=
+            arriveDistance)
+        {
+            ClearTravelTargetsAndStop();
+            actionTimer = Mathf.Max(
+                actionTimer,
+                GameHoursToSeconds(0.25f));
+            currentAction = NpcText.Action("tradeSeek");
+            DebugFlow("Trade", "Waiting inside market area");
+            return true;
+        }
+
+        ClearTravelTargets();
+        currentTarget = null;
+        wanderTarget = marketPosition;
+        hasWanderTarget = true;
+        hasEscapeTarget = false;
+        hasObstacleAvoidTarget = false;
+        currentAction = NpcText.Action("goMarketTrade");
+        DebugFlow("Trade", "Moving to market fallback area");
+        return true;
     }
 
     bool IsPointInsideNpcLocationArea(
@@ -6378,6 +6491,7 @@ bool ShouldSmartAutoHuntMonster(MonsterAI monster)
         hasEscapeTarget = false;
         hasObstacleAvoidTarget = false;
         actionTimer = 0f;
+        attackTimer = Mathf.Max(attackTimer, attackCooldown);
         currentAction =
             NpcText.ActionFormat(
                 "huntMonsterNamed",

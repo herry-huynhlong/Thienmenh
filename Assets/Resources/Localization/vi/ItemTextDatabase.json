@@ -115,6 +115,27 @@
       "entries": []
     },
     {
+      "name": "shopCard",
+      "entries": [
+        {
+          "key": "useConsumable",
+          "value": "Vật phẩm tiêu hao"
+        },
+        {
+          "key": "useRawMaterial",
+          "value": "Nguyên liệu luyện chế"
+        },
+        {
+          "key": "useEquipment",
+          "value": "Trang bị sử dụng lâu dài"
+        },
+        {
+          "key": "useManual",
+          "value": "Công pháp để tham ngộ"
+        }
+      ]
+    },
+    {
       "name": "itemTypes",
       "entries": [
         {

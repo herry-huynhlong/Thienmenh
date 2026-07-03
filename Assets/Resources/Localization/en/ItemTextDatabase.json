@@ -115,6 +115,27 @@
       "entries": []
     },
     {
+      "name": "shopCard",
+      "entries": [
+        {
+          "key": "useConsumable",
+          "value": "Consumable item"
+        },
+        {
+          "key": "useRawMaterial",
+          "value": "Refining material"
+        },
+        {
+          "key": "useEquipment",
+          "value": "Long-term equipment"
+        },
+        {
+          "key": "useManual",
+          "value": "Manual for study"
+        }
+      ]
+    },
+    {
       "name": "itemTypes",
       "entries": [
         {

@@ -36,7 +36,107 @@
           "value": "Unavailable"
         }
       ],
-      "lists": []
+      "lists": [
+        {
+          "key": "speechGreetingLines",
+          "values": [
+            "Please take your time, honored guest. What treasure are you seeking today?",
+            "You came at a fine hour. Several good items have just arrived.",
+            "Feel free to browse. Destiny may be waiting on one of these shelves."
+          ]
+        },
+        {
+          "key": "speechDanDuocLines",
+          "values": [
+            "Spirit medicines to restore qi and mend the body. Please have a look.",
+            "From low grade to immortal grade, this hall keeps many useful pills."
+          ]
+        },
+        {
+          "key": "speechPhapBaoLines",
+          "values": [
+            "A spirit treasure shines brightest in the hands of the right master.",
+            "Choose carefully. The right artifact can raise your bearing at once."
+          ]
+        },
+        {
+          "key": "speechCongPhapLines",
+          "values": [
+            "Manuals value insight above all else. A sharp eye will know what fits.",
+            "This archive holds more than a few old inheritances. Browse in peace."
+          ]
+        },
+        {
+          "key": "speechVatLieuLines",
+          "values": [
+            "These heavenly materials are fit for alchemy and forging alike.",
+            "Materials with true spirit reveal themselves to those with discernment."
+          ]
+        },
+        {
+          "key": "speechThucPhamLines",
+          "values": [
+            "Nourishing spirit food can steady both body and mind.",
+            "Fine provisions, warm and fragrant. Please enjoy your selection."
+          ]
+        },
+        {
+          "key": "speechInspectHaLines",
+          "values": [
+            "{0} may be {1}, but it is still dependable when the moment calls for it.",
+            "A practical {1} piece. Modest, yet useful."
+          ]
+        },
+        {
+          "key": "speechInspectTrungLines",
+          "values": [
+            "{0} is already {1}. A respectable choice to carry at your side.",
+            "You have a good eye. A {1} item like this is worth a second look."
+          ]
+        },
+        {
+          "key": "speechInspectThuongLines",
+          "values": [
+            "Your judgment is keen. {0} truly is {1}.",
+            "A {1} treasure like {0} does not appear every day."
+          ]
+        },
+        {
+          "key": "speechInspectTienLines",
+          "values": [
+            "Only a truly distinguished guest would stop at {0}. It is indeed {1}.",
+            "Immortal-grade radiance hides itself from ordinary eyes. Yours noticed it at once."
+          ]
+        },
+        {
+          "key": "speechBuyHaLines",
+          "values": [
+            "Thank you for your patronage. I hope {0} serves you well.",
+            "Many thanks, honored guest. Even a {1} item can prove very handy."
+          ]
+        },
+        {
+          "key": "speechBuyTrungLines",
+          "values": [
+            "May wealth and fortune follow you. {0} should aid you nicely.",
+            "A fine purchase, honored one. This {1} piece has found the right owner."
+          ]
+        },
+        {
+          "key": "speechBuyThuongLines",
+          "values": [
+            "Your bearing is truly uncommon. {0} should shine brilliantly in your hands.",
+            "A superior guest chooses superior wares. A {1} treasure suits you well."
+          ]
+        },
+        {
+          "key": "speechBuyTienLines",
+          "values": [
+            "Such vision humbles even this merchant. {0} deserves a master of your stature.",
+            "An immortal-grade treasure meeting a patron like you must surely be destiny at work."
+          ]
+        }
+      ]
     },
     {
       "name": "heavenDao",

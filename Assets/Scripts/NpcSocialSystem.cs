@@ -460,7 +460,7 @@ public static class NpcMonsterCombatDialogue
     }
 }
 
-public class NpcIdentity : MonoBehaviour
+public class NpcSocialIdentity : MonoBehaviour
 {
     public string socialId;
     public string displayName;
@@ -593,8 +593,8 @@ public class NpcRelationshipGraph : MonoBehaviour
 
     public NpcSocialRelationship Get(GameObject target)
     {
-        NpcIdentity identity = target != null
-            ? target.GetComponent<NpcIdentity>()
+        NpcSocialIdentity identity = target != null
+            ? target.GetComponent<NpcSocialIdentity>()
             : null;
 
         return identity != null ? Get(identity.socialId) : null;
@@ -706,11 +706,11 @@ public class NpcMemory : MonoBehaviour
         float confidence,
         int durationDays)
     {
-        NpcIdentity subjectIdentity = subject != null
-            ? subject.GetComponent<NpcIdentity>()
+        NpcSocialIdentity subjectIdentity = subject != null
+            ? subject.GetComponent<NpcSocialIdentity>()
             : null;
-        NpcIdentity targetIdentity = target != null
-            ? target.GetComponent<NpcIdentity>()
+        NpcSocialIdentity targetIdentity = target != null
+            ? target.GetComponent<NpcSocialIdentity>()
             : null;
 
         memories.Add(
@@ -732,8 +732,8 @@ public class NpcMemory : MonoBehaviour
 
     public NpcMemoryRecord FindUnresolvedTopicWith(GameObject other)
     {
-        NpcIdentity identity = other != null
-            ? other.GetComponent<NpcIdentity>()
+        NpcSocialIdentity identity = other != null
+            ? other.GetComponent<NpcSocialIdentity>()
             : null;
 
         if (identity == null)
@@ -1271,7 +1271,7 @@ public class NpcConversationAgent : MonoBehaviour
     public float defaultLockStrength = 45f;
     public bool allowGroupConversation = true;
 
-    NpcIdentity identity;
+    NpcSocialIdentity identity;
     NpcMemory memory;
     NpcRelationshipGraph relationships;
     NpcOverheadDialogueUI overhead;
@@ -2135,10 +2135,10 @@ public class NpcConversationAgent : MonoBehaviour
 
     void EnsureReferences()
     {
-        identity = GetComponent<NpcIdentity>();
+        identity = GetComponent<NpcSocialIdentity>();
         if (identity == null)
         {
-            identity = gameObject.AddComponent<NpcIdentity>();
+            identity = gameObject.AddComponent<NpcSocialIdentity>();
         }
 
         identity.Refresh();
@@ -2396,8 +2396,8 @@ public class NpcDecisionBrain : MonoBehaviour
                 continue;
             }
 
-            NpcIdentity targetIdentity =
-                hit.GetComponentInParent<NpcIdentity>();
+            NpcSocialIdentity targetIdentity =
+                hit.GetComponentInParent<NpcSocialIdentity>();
 
             if (targetIdentity == null)
             {
@@ -2858,7 +2858,7 @@ public class NpcSocialWorldInstaller : MonoBehaviour
 
         installedNpcIds.Add(instanceId);
 
-        Ensure<NpcIdentity>(npc);
+        Ensure<NpcSocialIdentity>(npc);
         Ensure<NpcNeeds>(npc);
         Ensure<NpcPersonality>(npc);
         Ensure<NpcRelationshipGraph>(npc);

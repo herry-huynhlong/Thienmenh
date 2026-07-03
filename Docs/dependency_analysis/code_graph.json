@@ -1,0 +1,8237 @@
+{
+  "types": {
+    "ActionCategory": [
+      "NPCVisualAnimation.cs"
+    ],
+    "ActorKind": [
+      "TreasureFrenzySystem.cs"
+    ],
+    "AdsInitializer": [
+      "AdsInitializer.cs"
+    ],
+    "AlchemyCost": [
+      "NpcAlchemyAgent.cs"
+    ],
+    "AlchemyIngredient": [
+      "NpcAlchemyAgent.cs"
+    ],
+    "AlchemyRecipe": [
+      "NpcAlchemyAgent.cs"
+    ],
+    "ArtifactKind": [
+      "StatItemData.cs"
+    ],
+    "AutoDestroy": [
+      "AutoDestroy.cs"
+    ],
+    "AutoDestroyEffect": [
+      "Combat/AutoDestroyEffect.cs"
+    ],
+    "BehaviourState": [
+      "BicanhSessionManager.cs"
+    ],
+    "BicanhBoneMonsterAI": [
+      "BicanhBoneMonsterAI.cs"
+    ],
+    "BicanhDungeonResident": [
+      "BicanhDungeonResident.cs"
+    ],
+    "BicanhSessionManager": [
+      "BicanhSessionManager.cs"
+    ],
+    "BlockingTilemap2D": [
+      "BlockingTilemap2D.cs"
+    ],
+    "BoneSpiritAmbush": [
+      "BoneSpiritAmbush.cs"
+    ],
+    "BottomMenuButtonRouter": [
+      "BottomMenuButtonRouter.cs"
+    ],
+    "BuyerJob": [
+      "BuyerJob.cs"
+    ],
+    "CameraBounds": [
+      "CameraBounds.cs"
+    ],
+    "CharacterMovementAnimator": [
+      "Combat/CharacterMovementAnimator.cs"
+    ],
+    "CharacterStats": [
+      "CharacterStats.cs"
+    ],
+    "CloseMap": [
+      "CloseMap.cs"
+    ],
+    "CombatPowerUtility": [
+      "CombatPowerUtility.cs"
+    ],
+    "CombatRecord": [
+      "NpcSocialSystem.cs"
+    ],
+    "CombatStatCalculator": [
+      "CombatStatCalculator.cs"
+    ],
+    "CultivationManualMastery": [
+      "StatItemData.cs"
+    ],
+    "CultivationProgression": [
+      "CultivationProgression.cs"
+    ],
+    "CultivationRealm": [
+      "SmartNpcAI.cs"
+    ],
+    "DailyConversation": [
+      "DailyConversation.cs"
+    ],
+    "DailyTaskNeed": [
+      "VillagerAI.cs"
+    ],
+    "DayNightLightingSystem": [
+      "DayNightLightingSystem.cs"
+    ],
+    "DontDestroy": [
+      "DontDestroy.cs"
+    ],
+    "DoorTeleport": [
+      "DoorTeleport.cs"
+    ],
+    "DoorTeleportSameScene": [
+      "DoorTeleportSameScene.cs"
+    ],
+    "EntityEmotion": [
+      "EntityCore.cs"
+    ],
+    "EntityGender": [
+      "EntityCore.cs"
+    ],
+    "EntityGenerator": [
+      "EntityCore.cs"
+    ],
+    "EntityGoal": [
+      "EntityCore.cs"
+    ],
+    "EntityIdentity": [
+      "EntityCore.cs"
+    ],
+    "EntityKind": [
+      "EntityCore.cs"
+    ],
+    "EntityMemory": [
+      "EntityCore.cs"
+    ],
+    "EntityMood": [
+      "EntityCore.cs"
+    ],
+    "EntityNeeds": [
+      "EntityCore.cs"
+    ],
+    "EntityPersonality": [
+      "EntityCore.cs"
+    ],
+    "EntityProfile": [
+      "EntityCore.cs"
+    ],
+    "EntityRelationship": [
+      "EntityCore.cs"
+    ],
+    "EntityStats": [
+      "EntityCore.cs"
+    ],
+    "EntityTalent": [
+      "EntityCore.cs"
+    ],
+    "Entry": [
+      "NpcCollisionRegistry.cs"
+    ],
+    "EquipmentSlot": [
+      "StatItemData.cs"
+    ],
+    "FavoriteNpcListUI": [
+      "FavoriteNpcListUI.cs"
+    ],
+    "FavoriteNpcRowUI": [
+      "FavoriteNpcRowUI.cs"
+    ],
+    "Fireball": [
+      "Fireball.cs"
+    ],
+    "FoodKind": [
+      "StatItemData.cs"
+    ],
+    "ForgeCost": [
+      "NpcForgeAgent.cs"
+    ],
+    "ForgeCustomerOrder": [
+      "NpcForgeAgent.cs"
+    ],
+    "ForgeIngredient": [
+      "NpcForgeAgent.cs"
+    ],
+    "ForgeRecipe": [
+      "NpcForgeAgent.cs"
+    ],
+    "FullGameSaveController": [
+      "FullGameSaveController.cs"
+    ],
+    "FullGameSaveData": [
+      "FullGameSaveController.cs"
+    ],
+    "GamePerformanceSettings": [
+      "GamePerformanceSettings.cs"
+    ],
+    "GameSaveSystem": [
+      "GameSaveSystem.cs"
+    ],
+    "Gender": [
+      "NPCIdentity.cs"
+    ],
+    "GiveItemToNpcButton": [
+      "GiveItemToNpcButton.cs"
+    ],
+    "GoldenEnergyEffect": [
+      "GoldenEnergyEffect.cs"
+    ],
+    "GuardJob": [
+      "GuardJob.cs"
+    ],
+    "HarvestJob": [
+      "HarvestJob.cs"
+    ],
+    "HarvestResourceKind": [
+      "ResourceNode.cs"
+    ],
+    "HealerJob": [
+      "HealerJob.cs"
+    ],
+    "HeavenDaoPanelUI": [
+      "HeavenDaoPanelUI.cs"
+    ],
+    "HeavenDaoPower": [
+      "HeavenDaoSystem.cs"
+    ],
+    "HeavenDaoStoryReward": [
+      "HeavenDaoSystem.cs"
+    ],
+    "HeavenDaoSystem": [
+      "HeavenDaoSystem.cs"
+    ],
+    "HeavenDaoUnlock": [
+      "HeavenDaoSystem.cs"
+    ],
+    "HeavenGiftEffectSession": [
+      "HeavenGiftPlacementController.cs"
+    ],
+    "HeavenGiftPlacementController": [
+      "HeavenGiftPlacementController.cs"
+    ],
+    "HeavenNurtureListItemUI": [
+      "HeavenNurtureListItemUI.cs"
+    ],
+    "HeavenNurturePanelUI": [
+      "HeavenNurturePanelUI.cs"
+    ],
+    "HeavenNurtureTargetData": [
+      "HeavenNurtureTargetData.cs"
+    ],
+    "HeavenNurtureTargetDatabase": [
+      "HeavenNurtureTargetData.cs"
+    ],
+    "HeavenNurtureToggleButtonUI": [
+      "HeavenNurtureToggleButtonUI.cs"
+    ],
+    "HeavenSystem": [
+      "HeavenSystem.cs"
+    ],
+    "HeavenTargetType": [
+      "HeavenNurtureTargetData.cs"
+    ],
+    "HeavenlyTribulationSystem": [
+      "HeavenlyTribulationSystem.cs"
+    ],
+    "HelpRequest": [
+      "SmartNpcHelpRequestSystem.cs"
+    ],
+    "HuntTargetType": [
+      "MonsterAI.cs"
+    ],
+    "HunterJob": [
+      "HunterJob.cs"
+    ],
+    "IDamageable": [
+      "IDamageable.cs"
+    ],
+    "IntRange": [
+      "ItemStatBalanceUtility.cs"
+    ],
+    "InteriorCameraFocus": [
+      "InteriorCameraFocus.cs"
+    ],
+    "InventoryItemButtonUI": [
+      "InventoryItemButtonUI.cs"
+    ],
+    "InventoryPanelUI": [
+      "InventoryPanelUI.cs"
+    ],
+    "InventoryToggleButton": [
+      "InventoryToggleButton.cs"
+    ],
+    "ItemConversionType": [
+      "StatItemData.cs"
+    ],
+    "ItemEffectSpawner": [
+      "ItemEffectSpawner.cs"
+    ],
+    "ItemGrade": [
+      "StatItemData.cs"
+    ],
+    "ItemInventory": [
+      "ItemInventory.cs"
+    ],
+    "ItemLifecycleEventType": [
+      "ItemLifecycleSystem.cs"
+    ],
+    "ItemLifecycleSystem": [
+      "ItemLifecycleSystem.cs"
+    ],
+    "ItemPickup": [
+      "ItemPickup.cs"
+    ],
+    "ItemStack": [
+      "ItemInventory.cs"
+    ],
+    "ItemStatBalanceUtility": [
+      "ItemStatBalanceUtility.cs"
+    ],
+    "ItemTargetType": [
+      "StatItemData.cs"
+    ],
+    "ItemText": [
+      "ItemText.cs"
+    ],
+    "ItemTextCategory": [
+      "ItemText.cs"
+    ],
+    "ItemTextDatabase": [
+      "ItemText.cs"
+    ],
+    "ItemTextEntry": [
+      "ItemText.cs"
+    ],
+    "ItemType": [
+      "StatItemData.cs"
+    ],
+    "ItemUseStyle": [
+      "StatItemData.cs"
+    ],
+    "LifeStage": [
+      "NPCIdentity.cs"
+    ],
+    "LightningHitBurst": [
+      "LightnighHitBurst.cs"
+    ],
+    "LocalizationSettings": [
+      "LocalizationSettings.cs"
+    ],
+    "LogEntry": [
+      "WorldEventManager.cs"
+    ],
+    "MainMenuManager": [
+      "MainMenuManager.cs"
+    ],
+    "ManualKind": [
+      "StatItemData.cs"
+    ],
+    "MapToggleUI": [
+      "MapToggleUI.cs"
+    ],
+    "MaterialKind": [
+      "StatItemData.cs"
+    ],
+    "Menumap": [
+      "menumap.cs"
+    ],
+    "MobileCameraController": [
+      "MobileCameraController.cs"
+    ],
+    "MobileSafeAreaFitter": [
+      "MobileSafeAreaFitter.cs"
+    ],
+    "MonsterAI": [
+      "MonsterAI.AnimationDebug.cs",
+      "MonsterAI.DevourDeathLootRespawn.cs",
+      "MonsterAI.ItemEffects.cs",
+      "MonsterAI.NeedsCultivation.cs",
+      "MonsterAI.ProfileStats.cs",
+      "MonsterAI.Status.cs",
+      "MonsterAI.TargetingMovement.cs",
+      "MonsterAI.TreasureCombat.cs",
+      "MonsterAI.cs"
+    ],
+    "MonsterAttack": [
+      "MonsterAttack.cs"
+    ],
+    "MonsterDirectionalAnimator": [
+      "MonsterDirectionalAnimator.cs"
+    ],
+    "NPCIdentity": [
+      "NPCIdentity.cs"
+    ],
+    "NPCLifecycle": [
+      "NPCLifecycle.cs"
+    ],
+    "NPCVisualAnimation": [
+      "NPCVisualAnimation.cs"
+    ],
+    "NPCVisualProfile": [
+      "NPCVisualProfile.cs"
+    ],
+    "NPCVisualResolver": [
+      "NPCVisualResolver.cs"
+    ],
+    "NearbyTarget": [
+      "NpcRageNearbyAttack.cs"
+    ],
+    "NewGameIntroPanel": [
+      "NewGameIntroPanel.cs"
+    ],
+    "NoticeKind": [
+      "WorldScreenNotificationHub.cs"
+    ],
+    "NoticeRequest": [
+      "WorldScreenNotificationHub.cs"
+    ],
+    "NoticeView": [
+      "WorldScreenNotificationHub.cs"
+    ],
+    "NpcAlchemyAgent": [
+      "NpcAlchemyAgent.cs"
+    ],
+    "NpcAlchemyRole": [
+      "NpcAlchemyRole.cs"
+    ],
+    "NpcAreaUtility": [
+      "NpcAreaUtility.cs"
+    ],
+    "NpcCollisionRegistry": [
+      "NpcCollisionRegistry.cs"
+    ],
+    "NpcCombatHitbox2D": [
+      "NpcCombatHitbox2D.cs"
+    ],
+    "NpcCombatTechniqueBuff": [
+      "NpcCombatTechniqueSystem.cs"
+    ],
+    "NpcCombatTechniqueRuntime": [
+      "NpcCombatTechniqueSystem.cs"
+    ],
+    "NpcCombatTechniqueSystem": [
+      "NpcCombatTechniqueSystem.cs"
+    ],
+    "NpcConversationAgent": [
+      "NpcSocialSystem.cs"
+    ],
+    "NpcConversationSession": [
+      "NpcSocialSystem.cs"
+    ],
+    "NpcCounterBroker": [
+      "NpcCounterBroker.cs"
+    ],
+    "NpcCultivationAwakeningUtility": [
+      "NpcCultivationAwakeningUtility.cs"
+    ],
+    "NpcDailyRoutineLibrary": [
+      "NpcDailyRoutineLibrary.cs"
+    ],
+    "NpcDangerTier": [
+      "NpcLocationArea.cs"
+    ],
+    "NpcData": [
+      "NpcData.cs"
+    ],
+    "NpcDecisionBrain": [
+      "NpcSocialSystem.cs"
+    ],
+    "NpcDecisionKind": [
+      "NpcSocialSystem.cs"
+    ],
+    "NpcEconomy": [
+      "NpcEconomy.cs"
+    ],
+    "NpcEligibilitySnapshot": [
+      "NpcEscortTaskForceStarter.cs"
+    ],
+    "NpcEscortTaskForceStarter": [
+      "NpcEscortTaskForceStarter.cs"
+    ],
+    "NpcFavorite": [
+      "NpcFavorite.cs"
+    ],
+    "NpcFavoriteButtonUI": [
+      "NpcFavoriteButtonUI.cs"
+    ],
+    "NpcFavoriteClickBridge": [
+      "NpcFavoriteClickBridge.cs"
+    ],
+    "NpcFavoriteManager": [
+      "NpcFavoriteManager.cs"
+    ],
+    "NpcForgeAgent": [
+      "NpcForgeAgent.cs"
+    ],
+    "NpcForgeRole": [
+      "NpcForgeRole.cs"
+    ],
+    "NpcHideCultivationInfo": [
+      "NpcHideCultivationInfo.cs"
+    ],
+    "NpcInteractionPoint": [
+      "NpcInteractionPoint.cs"
+    ],
+    "NpcInventoryDropper": [
+      "NpcInventoryDropper.cs"
+    ],
+    "NpcInventoryPanelUI": [
+      "NpcInventoryPanelUI.cs"
+    ],
+    "NpcItemCollector": [
+      "NpcItemCollector.cs"
+    ],
+    "NpcItemIntent": [
+      "StatItemData.cs"
+    ],
+    "NpcJobState": [
+      "NpcJobState.cs"
+    ],
+    "NpcLawZone": [
+      "NpcLawZone.cs"
+    ],
+    "NpcLawZoneInternal": [
+      "NpcSocialSystem.cs"
+    ],
+    "NpcLifePath": [
+      "NpcScheduleController.cs"
+    ],
+    "NpcLocationArea": [
+      "NpcLocationArea.cs"
+    ],
+    "NpcLocationPurpose": [
+      "NpcLocationArea.cs"
+    ],
+    "NpcMapArea": [
+      "NpcMapArea.cs"
+    ],
+    "NpcMapBoundaryClamp": [
+      "NpcMapBoundaryClamp.cs"
+    ],
+    "NpcMapDestination": [
+      "NpcMapDestination.cs"
+    ],
+    "NpcMapMover2D": [
+      "NpcMapMover2D.cs"
+    ],
+    "NpcMapNavigator": [
+      "NpcMapNavigator.cs"
+    ],
+    "NpcMapZone": [
+      "NpcMapArea.cs"
+    ],
+    "NpcMemory": [
+      "NpcSocialSystem.cs"
+    ],
+    "NpcMemoryRecord": [
+      "NpcSocialSystem.cs"
+    ],
+    "NpcMemoryType": [
+      "NpcSocialSystem.cs"
+    ],
+    "NpcMerchantRole": [
+      "NpcMerchantRole.cs"
+    ],
+    "NpcMonsterCombatDialogue": [
+      "NpcSocialSystem.cs"
+    ],
+    "NpcNeeds": [
+      "NpcSocialSystem.cs"
+    ],
+    "NpcNegotiationAgent": [
+      "NpcSocialSystem.cs"
+    ],
+    "NpcOverheadDialogueUI": [
+      "NpcSocialSystem.cs"
+    ],
+    "NpcPathMemorySystem": [
+      "NpcPathMemorySystem.cs"
+    ],
+    "NpcPerformanceOverlay": [
+      "NpcPerformanceOverlay.cs"
+    ],
+    "NpcPersonality": [
+      "NpcSocialSystem.cs"
+    ],
+    "NpcPetCompanion": [
+      "NpcPetCompanion.cs"
+    ],
+    "NpcPortraitIcon": [
+      "NpcPortraitIcon.cs"
+    ],
+    "NpcRageNearbyAttack": [
+      "NpcRageNearbyAttack.cs"
+    ],
+    "NpcRangedSkill": [
+      "Combat/NpcRangedSkill.cs"
+    ],
+    "NpcRelationshipGraph": [
+      "NpcSocialSystem.cs"
+    ],
+    "NpcResourceGatherer": [
+      "NpcResourceGatherer.cs"
+    ],
+    "NpcRoleUtility": [
+      "NpcRoleUtility.cs"
+    ],
+    "NpcScheduleActivity": [
+      "NpcScheduleController.cs"
+    ],
+    "NpcScheduleController": [
+      "NpcScheduleController.cs"
+    ],
+    "NpcScheduleSlot": [
+      "NpcScheduleController.cs"
+    ],
+    "NpcSharedInventoryLink": [
+      "NpcSharedInventoryLink.cs"
+    ],
+    "NpcShopStockRefill": [
+      "NpcShopStockRefill.cs"
+    ],
+    "NpcSocialEventBus": [
+      "NpcSocialSystem.cs"
+    ],
+    "NpcSocialIdentity": [
+      "NpcSocialSystem.cs"
+    ],
+    "NpcSocialRelationship": [
+      "NpcSocialSystem.cs"
+    ],
+    "NpcSocialSystem": [
+      "NpcSocialSystem.cs"
+    ],
+    "NpcSocialTime": [
+      "NpcSocialSystem.cs"
+    ],
+    "NpcSocialWorldInstaller": [
+      "NpcSocialSystem.cs"
+    ],
+    "NpcSpecialProfession": [
+      "NpcSpecialProfession.cs"
+    ],
+    "NpcTaskOffer": [
+      "NpcTaskProvider.cs"
+    ],
+    "NpcTaskProvider": [
+      "NpcTaskProvider.OfferEvaluation.cs",
+      "NpcTaskProvider.cs"
+    ],
+    "NpcTaskRank": [
+      "NpcTaskProvider.cs"
+    ],
+    "NpcTaskType": [
+      "NpcTaskProvider.cs"
+    ],
+    "NpcTavernEntrance": [
+      "NpcTavernEntrance.cs"
+    ],
+    "NpcTavernVisit": [
+      "NpcTavernEntrance.cs"
+    ],
+    "NpcTeleportGate": [
+      "NpcTeleportGate.cs"
+    ],
+    "NpcText": [
+      "NpcText.cs"
+    ],
+    "NpcTextCategory": [
+      "NpcText.cs"
+    ],
+    "NpcTextDatabase": [
+      "NpcText.cs"
+    ],
+    "NpcTextEntry": [
+      "NpcText.cs"
+    ],
+    "NpcTextList": [
+      "NpcText.cs"
+    ],
+    "NpcTradeAgent": [
+      "NpcTradeAgent.cs"
+    ],
+    "NpcTradeContext": [
+      "NpcEconomy.cs"
+    ],
+    "NpcWorkArea": [
+      "NpcWorkArea.cs"
+    ],
+    "OpenMap": [
+      "OpenMap.cs"
+    ],
+    "OpenShopUI": [
+      "OpenShopUi.cs"
+    ],
+    "ParticipantSnapshot": [
+      "BicanhSessionManager.cs"
+    ],
+    "PathNode": [
+      "VillagerAI.cs"
+    ],
+    "PendingTaskGoods": [
+      "NpcTaskProvider.cs"
+    ],
+    "PhysiqueType": [
+      "SmartNpcAI.cs"
+    ],
+    "PickupVisualUtility": [
+      "PickupVisualUtility.cs"
+    ],
+    "PillKind": [
+      "StatItemData.cs"
+    ],
+    "PillProtectionState": [
+      "HeavenlyTribulationSystem.cs"
+    ],
+    "PlayerHealth": [
+      "PlayerHealth.cs"
+    ],
+    "PlayerWallet": [
+      "PlayerWallet.cs"
+    ],
+    "PlayerWalletGrantButton": [
+      "PlayerWalletGrantButton.cs"
+    ],
+    "PlayerWalletTextUI": [
+      "PlayerWalletTextUI.cs"
+    ],
+    "PopulationWidgetUI": [
+      "PopulationWidgetUI.cs"
+    ],
+    "RangedProjectile2D": [
+      "Combat/RangedProjectile2D.cs"
+    ],
+    "RawUsePolicy": [
+      "StatItemData.cs"
+    ],
+    "RememberedPath": [
+      "NpcPathMemorySystem.cs"
+    ],
+    "ResourceFieldItemEntry": [
+      "WorldResourceField.cs"
+    ],
+    "ResourceNode": [
+      "ResourceNode.cs"
+    ],
+    "ResourceRespawnMode": [
+      "WorldResourceNode.cs"
+    ],
+    "ResponsiveCanvasScaler": [
+      "ResponsiveCanvasScaler.cs"
+    ],
+    "ResponsivePanelFitter": [
+      "ResponsivePanelFitter.cs"
+    ],
+    "RewardedLTAdsButton": [
+      "RewardedLTAdsButton.cs"
+    ],
+    "RunningNpcTask": [
+      "NpcTaskProvider.cs"
+    ],
+    "RunningTavernMeal": [
+      "NpcTaskProvider.cs"
+    ],
+    "SavedFavoriteNpcData": [
+      "FullGameSaveController.cs"
+    ],
+    "SavedInventoryData": [
+      "GameSaveSystem.cs"
+    ],
+    "SavedItemStack": [
+      "GameSaveSystem.cs"
+    ],
+    "SavedShopData": [
+      "GameSaveSystem.cs"
+    ],
+    "SavedShopStock": [
+      "GameSaveSystem.cs"
+    ],
+    "SavedWorldResourceField": [
+      "WorldResourceField.cs"
+    ],
+    "SavedWorldResourceNode": [
+      "WorldResourceField.cs"
+    ],
+    "SceneLoader": [
+      "SceneLoader.cs"
+    ],
+    "SceneLocalizedTextBootstrap": [
+      "SceneLocalizedTextBootstrap.cs"
+    ],
+    "SceneTextEntry": [
+      "SceneLocalizedTextBootstrap.cs"
+    ],
+    "SellerJob": [
+      "SellerJob.cs"
+    ],
+    "ShopCardHoverEffect": [
+      "ShopCardHoverEffect.cs"
+    ],
+    "ShopItemAssetPostprocessor": [
+      "ShopItemAssetPostprocessor.cs"
+    ],
+    "ShopItemButtonUI": [
+      "ShopItemButtonUI.cs"
+    ],
+    "ShopItemSlot": [
+      "SimpleItemShop.cs"
+    ],
+    "ShopPanelUI": [
+      "ShopPanelUI.cs"
+    ],
+    "ShopToggleUI": [
+      "ShopToggleUI.cs"
+    ],
+    "SimpleItemShop": [
+      "SimpleItemShop.cs"
+    ],
+    "SkyDropToPosition": [
+      "SkyDropToPosition.cs"
+    ],
+    "SmartAITask": [
+      "SmartAITask.cs"
+    ],
+    "SmartAITaskGoal": [
+      "SmartAITask.cs"
+    ],
+    "SmartAITaskPriority": [
+      "SmartAITask.cs"
+    ],
+    "SmartNpcAI": [
+      "SmartNpcAI.Brain.cs",
+      "SmartNpcAI.CombatSupport.cs",
+      "SmartNpcAI.Needs.cs",
+      "SmartNpcAI.Schedule.cs",
+      "SmartNpcAI.Tasks.cs",
+      "SmartNpcAI.cs"
+    ],
+    "SmartNpcHelpRequestSystem": [
+      "SmartNpcHelpRequestSystem.cs"
+    ],
+    "SpawnRegion": [
+      "SpawnRegion.cs"
+    ],
+    "SpawnedWorldActor": [
+      "SpawnedWorldActor.cs"
+    ],
+    "SpriteDefaultDirection": [
+      "Combat/RangedProjectile2D.cs"
+    ],
+    "StandReservation": [
+      "NpcInteractionPoint.cs"
+    ],
+    "StatItemApplier": [
+      "StatItemApplier.cs"
+    ],
+    "StatItemData": [
+      "StatItemData.cs"
+    ],
+    "StatModifier": [
+      "StatItemData.cs"
+    ],
+    "StatType": [
+      "StatItemData.cs"
+    ],
+    "TalentGrade": [
+      "EntityCore.cs"
+    ],
+    "TargetReservation": [
+      "TargetReservationSystem.cs"
+    ],
+    "TargetReservationSystem": [
+      "TargetReservationSystem.cs"
+    ],
+    "TaskBoardInteract": [
+      "TaskBoardInteract.cs"
+    ],
+    "TaskBoardPanelUI": [
+      "TaskBoardPanelUI.cs"
+    ],
+    "TaskBoardRowUI": [
+      "TaskBoardRowUI.cs"
+    ],
+    "TavernMealStage": [
+      "NpcTaskProvider.cs"
+    ],
+    "TavernTaskStage": [
+      "NpcTaskProvider.cs"
+    ],
+    "ThienKiepStrikePrefab": [
+      "ThienKiepStrikePrefab.cs"
+    ],
+    "TilemapObstacle2D": [
+      "TilemapObstacle2D.cs"
+    ],
+    "TimedStatItemBuff": [
+      "TimedStatItemBuff.cs"
+    ],
+    "TouchSelectTarget": [
+      "TouchSelectTarget.cs"
+    ],
+    "TreasureFrenzyEvent": [
+      "TreasureFrenzySystem.cs"
+    ],
+    "TreasureFrenzySystem": [
+      "TreasureFrenzySystem.cs"
+    ],
+    "TreasureHeatSystem": [
+      "TreasureHeatSystem.cs"
+    ],
+    "TreasureParticipant": [
+      "TreasureFrenzySystem.cs"
+    ],
+    "TreasureThreat": [
+      "TreasureHeatSystem.cs"
+    ],
+    "TribulationRuntime": [
+      "HeavenlyTribulationSystem.cs"
+    ],
+    "TribulationTargetMotionMode": [
+      "HeavenlyTribulationSystem.cs"
+    ],
+    "UIBorderSparkEffect": [
+      "UIBorderSparkEffect.cs"
+    ],
+    "UIWorldStoryManager": [
+      "UIWorldStoryManager.cs"
+    ],
+    "UiText": [
+      "UiText.cs"
+    ],
+    "UiTextCategory": [
+      "UiText.cs"
+    ],
+    "UiTextDatabase": [
+      "UiText.cs"
+    ],
+    "UiTextEntry": [
+      "UiText.cs"
+    ],
+    "UiTextList": [
+      "UiText.cs"
+    ],
+    "VillageHomeManager": [
+      "VillageHomeManager.cs"
+    ],
+    "VillageNpcSetupTool": [
+      "VillageNpcSetupTool.cs"
+    ],
+    "VillageStorage": [
+      "VillageStorage.cs"
+    ],
+    "VillagerAI": [
+      "VillagerAI.Brain.cs",
+      "VillagerAI.LegacyCultivation.cs",
+      "VillagerAI.LegacyDailyTaskPlan.cs",
+      "VillagerAI.LegacyTreasure.cs",
+      "VillagerAI.ProfessionWork.cs",
+      "VillagerAI.Status.cs",
+      "VillagerAI.Trade.cs",
+      "VillagerAI.Work.cs",
+      "VillagerAI.cs"
+    ],
+    "VillagerAgeGroup": [
+      "VillagerAI.cs"
+    ],
+    "VillagerBirthManager": [
+      "VillagerBirthManager.cs"
+    ],
+    "VillagerJob": [
+      "VillagerAI.cs"
+    ],
+    "VillagerJobDispatcher": [
+      "VillagerJobDispatcher.cs"
+    ],
+    "VillagerRelationship": [
+      "VillagerRelationship.cs"
+    ],
+    "VillagerRelationshipManager": [
+      "VillagerRelationshipManager.cs"
+    ],
+    "VillagerRelationshipStatus": [
+      "VillagerRelationship.cs"
+    ],
+    "VisualEntry": [
+      "NPCVisualProfile.cs"
+    ],
+    "WalletGrantSource": [
+      "PlayerWallet.cs"
+    ],
+    "WeatherSystem": [
+      "WeatherSystem.cs"
+    ],
+    "WeatherVisualSystem": [
+      "WeatherVisualSystem.cs"
+    ],
+    "WorldClockTextUI": [
+      "WorldClockTextUI.cs"
+    ],
+    "WorldEventManager": [
+      "WorldEventManager.cs"
+    ],
+    "WorldEventSystem": [
+      "WorldEventSystem.cs"
+    ],
+    "WorldEventType": [
+      "WorldEventSystem.cs"
+    ],
+    "WorldResourceField": [
+      "WorldResourceField.cs"
+    ],
+    "WorldResourceNode": [
+      "WorldResourceNode.cs"
+    ],
+    "WorldScreenNotificationHub": [
+      "WorldScreenNotificationHub.cs"
+    ],
+    "WorldSimulationBootstrap": [
+      "WorldSimulationBootstrap.cs"
+    ],
+    "WorldStatItemPickup": [
+      "WorldStatItemPickup.cs"
+    ],
+    "WorldTilemapManager": [
+      "WorldTilemapManager.cs"
+    ],
+    "WorldTimePhase": [
+      "WorldTimeSystem.cs"
+    ],
+    "WorldTimeSystem": [
+      "WorldTimeSystem.cs"
+    ],
+    "WorldWeather": [
+      "WeatherSystem.cs"
+    ],
+    "ZoneLockState": [
+      "NpcMapNavigator.cs"
+    ],
+    "mau": [
+      "mau.cs"
+    ]
+  },
+  "deps": {
+    "AdsInitializer": [],
+    "AutoDestroy": [],
+    "BicanhBoneMonsterAI": [],
+    "BicanhDungeonResident": [
+      "BicanhSessionManager"
+    ],
+    "BicanhSessionManager": [
+      "BehaviourState",
+      "BicanhDungeonResident",
+      "CharacterStats",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityProfile",
+      "HeavenDaoPower",
+      "HeavenDaoSystem",
+      "ItemInventory",
+      "ItemStack",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcDecisionBrain",
+      "NpcFavorite",
+      "NpcFavoriteManager",
+      "NpcItemCollector",
+      "NpcMemory",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcResourceGatherer",
+      "NpcRoleUtility",
+      "NpcSocialIdentity",
+      "NpcSocialSystem",
+      "NpcTaskProvider",
+      "NpcText",
+      "NpcTradeAgent",
+      "ParticipantSnapshot",
+      "SmartNpcAI",
+      "VillagerAI",
+      "WorldEventSystem",
+      "WorldEventType"
+    ],
+    "BehaviourState": [
+      "BicanhDungeonResident",
+      "BicanhSessionManager",
+      "CharacterStats",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityProfile",
+      "HeavenDaoPower",
+      "HeavenDaoSystem",
+      "ItemInventory",
+      "ItemStack",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcDecisionBrain",
+      "NpcFavorite",
+      "NpcFavoriteManager",
+      "NpcItemCollector",
+      "NpcMemory",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcResourceGatherer",
+      "NpcRoleUtility",
+      "NpcSocialIdentity",
+      "NpcSocialSystem",
+      "NpcTaskProvider",
+      "NpcText",
+      "NpcTradeAgent",
+      "ParticipantSnapshot",
+      "SmartNpcAI",
+      "VillagerAI",
+      "WorldEventSystem",
+      "WorldEventType"
+    ],
+    "ParticipantSnapshot": [
+      "BehaviourState",
+      "BicanhDungeonResident",
+      "BicanhSessionManager",
+      "CharacterStats",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityProfile",
+      "HeavenDaoPower",
+      "HeavenDaoSystem",
+      "ItemInventory",
+      "ItemStack",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcDecisionBrain",
+      "NpcFavorite",
+      "NpcFavoriteManager",
+      "NpcItemCollector",
+      "NpcMemory",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcResourceGatherer",
+      "NpcRoleUtility",
+      "NpcSocialIdentity",
+      "NpcSocialSystem",
+      "NpcTaskProvider",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "VillagerAI",
+      "WorldEventSystem",
+      "WorldEventType"
+    ],
+    "BlockingTilemap2D": [],
+    "BoneSpiritAmbush": [
+      "MonsterAI"
+    ],
+    "BottomMenuButtonRouter": [
+      "InventoryPanelUI",
+      "OpenMap",
+      "OpenShopUI",
+      "PlayerWallet",
+      "ShopPanelUI",
+      "UIWorldStoryManager"
+    ],
+    "BuyerJob": [
+      "NpcJobState",
+      "NpcText",
+      "VillagerAI"
+    ],
+    "CameraBounds": [],
+    "CharacterStats": [
+      "CombatStatCalculator",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityGenerator",
+      "EntityKind",
+      "EntityProfile",
+      "HeavenlyTribulationSystem",
+      "IDamageable",
+      "NpcCombatTechniqueSystem",
+      "NpcText",
+      "StatItemData",
+      "StatModifier",
+      "StatType",
+      "mau"
+    ],
+    "CloseMap": [],
+    "AutoDestroyEffect": [],
+    "CharacterMovementAnimator": [
+      "NPCVisualAnimation"
+    ],
+    "NpcRangedSkill": [
+      "RangedProjectile2D"
+    ],
+    "RangedProjectile2D": [
+      "CharacterStats",
+      "IDamageable",
+      "SpriteDefaultDirection"
+    ],
+    "SpriteDefaultDirection": [],
+    "CombatPowerUtility": [
+      "CharacterStats",
+      "MonsterAI",
+      "NpcRoleUtility",
+      "SmartNpcAI",
+      "VillagerAI"
+    ],
+    "CombatStatCalculator": [],
+    "CultivationProgression": [
+      "CombatStatCalculator",
+      "CultivationRealm",
+      "EntityKind"
+    ],
+    "DailyConversation": [
+      "IDamageable",
+      "NpcRelationshipGraph",
+      "NpcRoleUtility",
+      "NpcScheduleController",
+      "NpcSocialRelationship",
+      "NpcText"
+    ],
+    "DayNightLightingSystem": [
+      "WorldTimeSystem"
+    ],
+    "DontDestroy": [],
+    "DoorTeleport": [
+      "FullGameSaveController",
+      "GameSaveSystem"
+    ],
+    "DoorTeleportSameScene": [
+      "CameraBounds",
+      "NpcMapMover2D",
+      "NpcTaskProvider",
+      "NpcTeleportGate",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "VillagerAI"
+    ],
+    "EntityKind": [],
+    "EntityGender": [],
+    "TalentGrade": [],
+    "EntityMood": [],
+    "EntityGoal": [],
+    "EntityIdentity": [
+      "CombatStatCalculator",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityEmotion",
+      "EntityGender",
+      "EntityGenerator",
+      "EntityGoal",
+      "EntityKind",
+      "EntityMemory",
+      "EntityMood",
+      "EntityNeeds",
+      "EntityPersonality",
+      "EntityProfile",
+      "EntityRelationship",
+      "EntityStats",
+      "EntityTalent",
+      "Gender",
+      "TalentGrade",
+      "WorldTimeSystem"
+    ],
+    "EntityStats": [
+      "CombatStatCalculator",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityEmotion",
+      "EntityGender",
+      "EntityGenerator",
+      "EntityGoal",
+      "EntityIdentity",
+      "EntityKind",
+      "EntityMemory",
+      "EntityMood",
+      "EntityNeeds",
+      "EntityPersonality",
+      "EntityProfile",
+      "EntityRelationship",
+      "EntityTalent",
+      "Gender",
+      "TalentGrade",
+      "WorldTimeSystem"
+    ],
+    "EntityTalent": [
+      "CombatStatCalculator",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityEmotion",
+      "EntityGender",
+      "EntityGenerator",
+      "EntityGoal",
+      "EntityIdentity",
+      "EntityKind",
+      "EntityMemory",
+      "EntityMood",
+      "EntityNeeds",
+      "EntityPersonality",
+      "EntityProfile",
+      "EntityRelationship",
+      "EntityStats",
+      "Gender",
+      "TalentGrade",
+      "WorldTimeSystem"
+    ],
+    "EntityPersonality": [
+      "CombatStatCalculator",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityEmotion",
+      "EntityGender",
+      "EntityGenerator",
+      "EntityGoal",
+      "EntityIdentity",
+      "EntityKind",
+      "EntityMemory",
+      "EntityMood",
+      "EntityNeeds",
+      "EntityProfile",
+      "EntityRelationship",
+      "EntityStats",
+      "EntityTalent",
+      "Gender",
+      "TalentGrade",
+      "WorldTimeSystem"
+    ],
+    "EntityEmotion": [
+      "CombatStatCalculator",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityGender",
+      "EntityGenerator",
+      "EntityGoal",
+      "EntityIdentity",
+      "EntityKind",
+      "EntityMemory",
+      "EntityMood",
+      "EntityNeeds",
+      "EntityPersonality",
+      "EntityProfile",
+      "EntityRelationship",
+      "EntityStats",
+      "EntityTalent",
+      "Gender",
+      "TalentGrade",
+      "WorldTimeSystem"
+    ],
+    "EntityNeeds": [
+      "CombatStatCalculator",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityEmotion",
+      "EntityGender",
+      "EntityGenerator",
+      "EntityGoal",
+      "EntityIdentity",
+      "EntityKind",
+      "EntityMemory",
+      "EntityMood",
+      "EntityPersonality",
+      "EntityProfile",
+      "EntityRelationship",
+      "EntityStats",
+      "EntityTalent",
+      "Gender",
+      "TalentGrade",
+      "WorldTimeSystem"
+    ],
+    "EntityMemory": [
+      "CombatStatCalculator",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityEmotion",
+      "EntityGender",
+      "EntityGenerator",
+      "EntityGoal",
+      "EntityIdentity",
+      "EntityKind",
+      "EntityMood",
+      "EntityNeeds",
+      "EntityPersonality",
+      "EntityProfile",
+      "EntityRelationship",
+      "EntityStats",
+      "EntityTalent",
+      "Gender",
+      "TalentGrade",
+      "WorldTimeSystem"
+    ],
+    "EntityRelationship": [
+      "CombatStatCalculator",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityEmotion",
+      "EntityGender",
+      "EntityGenerator",
+      "EntityGoal",
+      "EntityIdentity",
+      "EntityKind",
+      "EntityMemory",
+      "EntityMood",
+      "EntityNeeds",
+      "EntityPersonality",
+      "EntityProfile",
+      "EntityStats",
+      "EntityTalent",
+      "Gender",
+      "TalentGrade",
+      "WorldTimeSystem"
+    ],
+    "EntityProfile": [
+      "CombatStatCalculator",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityEmotion",
+      "EntityGender",
+      "EntityGenerator",
+      "EntityGoal",
+      "EntityIdentity",
+      "EntityKind",
+      "EntityMemory",
+      "EntityMood",
+      "EntityNeeds",
+      "EntityPersonality",
+      "EntityRelationship",
+      "EntityStats",
+      "EntityTalent",
+      "Gender",
+      "TalentGrade",
+      "WorldTimeSystem"
+    ],
+    "EntityGenerator": [
+      "CombatStatCalculator",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityEmotion",
+      "EntityGender",
+      "EntityGoal",
+      "EntityIdentity",
+      "EntityKind",
+      "EntityMemory",
+      "EntityMood",
+      "EntityNeeds",
+      "EntityPersonality",
+      "EntityProfile",
+      "EntityRelationship",
+      "EntityStats",
+      "EntityTalent",
+      "Gender",
+      "TalentGrade",
+      "WorldTimeSystem"
+    ],
+    "FavoriteNpcListUI": [
+      "FavoriteNpcRowUI",
+      "NpcFavorite",
+      "NpcFavoriteManager",
+      "UiText"
+    ],
+    "FavoriteNpcRowUI": [
+      "FavoriteNpcListUI",
+      "NpcFavorite",
+      "NpcFavoriteManager",
+      "UiText"
+    ],
+    "Fireball": [
+      "IDamageable",
+      "NpcCombatTechniqueSystem",
+      "NpcPetCompanion",
+      "NpcSocialEventBus",
+      "NpcText"
+    ],
+    "FullGameSaveData": [
+      "CharacterStats",
+      "CultivationRealm",
+      "FullGameSaveController",
+      "GameSaveSystem",
+      "MobileCameraController",
+      "NpcFavorite",
+      "NpcFavoriteManager",
+      "PlayerHealth",
+      "PlayerWallet",
+      "SavedFavoriteNpcData",
+      "SpawnedWorldActor",
+      "WorldTimeSystem"
+    ],
+    "SavedFavoriteNpcData": [
+      "CharacterStats",
+      "CultivationRealm",
+      "FullGameSaveController",
+      "FullGameSaveData",
+      "GameSaveSystem",
+      "MobileCameraController",
+      "NpcFavorite",
+      "NpcFavoriteManager",
+      "PlayerHealth",
+      "PlayerWallet",
+      "SpawnedWorldActor",
+      "WorldTimeSystem"
+    ],
+    "FullGameSaveController": [
+      "CharacterStats",
+      "CultivationRealm",
+      "FullGameSaveData",
+      "GameSaveSystem",
+      "MobileCameraController",
+      "NpcFavorite",
+      "NpcFavoriteManager",
+      "PlayerHealth",
+      "PlayerWallet",
+      "SavedFavoriteNpcData",
+      "SpawnedWorldActor",
+      "WorldTimeSystem"
+    ],
+    "GamePerformanceSettings": [],
+    "SavedItemStack": [
+      "CultivationManualMastery",
+      "ItemInventory",
+      "ItemStack",
+      "PlayerWallet",
+      "SavedInventoryData",
+      "SavedShopData",
+      "SavedShopStock",
+      "ShopItemSlot",
+      "SimpleItemShop",
+      "StatItemData"
+    ],
+    "SavedInventoryData": [
+      "CultivationManualMastery",
+      "ItemInventory",
+      "ItemStack",
+      "PlayerWallet",
+      "SavedItemStack",
+      "SavedShopData",
+      "SavedShopStock",
+      "ShopItemSlot",
+      "SimpleItemShop",
+      "StatItemData"
+    ],
+    "SavedShopStock": [
+      "CultivationManualMastery",
+      "ItemInventory",
+      "ItemStack",
+      "PlayerWallet",
+      "SavedInventoryData",
+      "SavedItemStack",
+      "SavedShopData",
+      "ShopItemSlot",
+      "SimpleItemShop",
+      "StatItemData"
+    ],
+    "SavedShopData": [
+      "CultivationManualMastery",
+      "ItemInventory",
+      "ItemStack",
+      "PlayerWallet",
+      "SavedInventoryData",
+      "SavedItemStack",
+      "SavedShopStock",
+      "ShopItemSlot",
+      "SimpleItemShop",
+      "StatItemData"
+    ],
+    "GameSaveSystem": [
+      "CultivationManualMastery",
+      "ItemInventory",
+      "ItemStack",
+      "PlayerWallet",
+      "SavedInventoryData",
+      "SavedItemStack",
+      "SavedShopData",
+      "SavedShopStock",
+      "ShopItemSlot",
+      "SimpleItemShop",
+      "StatItemData"
+    ],
+    "GiveItemToNpcButton": [
+      "InventoryPanelUI"
+    ],
+    "GoldenEnergyEffect": [],
+    "GuardJob": [
+      "NpcJobState",
+      "NpcText",
+      "VillagerAI"
+    ],
+    "HarvestJob": [
+      "HarvestResourceKind",
+      "HunterJob",
+      "ItemInventory",
+      "ItemText",
+      "NpcItemCollector",
+      "NpcJobState",
+      "NpcResourceGatherer",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcText",
+      "ResourceNode",
+      "StatItemData",
+      "VillageStorage",
+      "VillagerAI",
+      "VillagerJob",
+      "WorldStatItemPickup",
+      "WorldTimePhase",
+      "WorldTimeSystem"
+    ],
+    "HealerJob": [
+      "NpcJobState",
+      "NpcText",
+      "VillagerAI"
+    ],
+    "HeavenDaoPanelUI": [
+      "HeavenDaoSystem",
+      "HeavenDaoUnlock",
+      "LocalizationSettings",
+      "UiText"
+    ],
+    "HeavenDaoPower": [],
+    "HeavenDaoUnlock": [
+      "Entry",
+      "HeavenDaoPower",
+      "HeavenDaoStoryReward",
+      "HeavenDaoSystem",
+      "LogEntry",
+      "WorldEventManager",
+      "WorldScreenNotificationHub"
+    ],
+    "HeavenDaoStoryReward": [
+      "Entry",
+      "HeavenDaoPower",
+      "HeavenDaoSystem",
+      "HeavenDaoUnlock",
+      "LogEntry",
+      "WorldEventManager",
+      "WorldScreenNotificationHub"
+    ],
+    "HeavenDaoSystem": [
+      "Entry",
+      "HeavenDaoPower",
+      "HeavenDaoStoryReward",
+      "HeavenDaoUnlock",
+      "LogEntry",
+      "WorldEventManager",
+      "WorldScreenNotificationHub"
+    ],
+    "HeavenGiftPlacementController": [
+      "CharacterStats",
+      "CultivationProgression",
+      "CultivationRealm",
+      "DayNightLightingSystem",
+      "EntityGenerator",
+      "EntityKind",
+      "EntityProfile",
+      "HeavenGiftEffectSession",
+      "HeavenSystem",
+      "HuntTargetType",
+      "ItemGrade",
+      "ItemInventory",
+      "ItemText",
+      "MonsterAI",
+      "NpcRoleUtility",
+      "SkyDropToPosition",
+      "SmartNpcAI",
+      "StatItemData",
+      "TreasureFrenzySystem",
+      "VillagerAI",
+      "WorldEventManager",
+      "WorldStatItemPickup",
+      "WorldTimeSystem"
+    ],
+    "HeavenGiftEffectSession": [
+      "CharacterStats",
+      "CultivationProgression",
+      "CultivationRealm",
+      "DayNightLightingSystem",
+      "EntityGenerator",
+      "EntityKind",
+      "EntityProfile",
+      "HeavenGiftPlacementController",
+      "HeavenSystem",
+      "HuntTargetType",
+      "ItemGrade",
+      "ItemInventory",
+      "ItemText",
+      "MonsterAI",
+      "NpcRoleUtility",
+      "SkyDropToPosition",
+      "SmartNpcAI",
+      "StatItemData",
+      "TreasureFrenzySystem",
+      "VillagerAI",
+      "WorldEventManager",
+      "WorldStatItemPickup",
+      "WorldTimeSystem"
+    ],
+    "TribulationTargetMotionMode": [],
+    "HeavenlyTribulationSystem": [
+      "CultivationRealm",
+      "EntityProfile",
+      "HeavenSystem",
+      "IDamageable",
+      "ItemGrade",
+      "ItemType",
+      "MonsterAI",
+      "NpcText",
+      "PillKind",
+      "PillProtectionState",
+      "SmartNpcAI",
+      "StatItemData",
+      "ThienKiepStrikePrefab",
+      "TribulationRuntime",
+      "TribulationTargetMotionMode",
+      "WorldEventManager"
+    ],
+    "PillProtectionState": [],
+    "TribulationRuntime": [],
+    "HeavenNurtureListItemUI": [
+      "HeavenNurtureTargetData",
+      "UiText"
+    ],
+    "HeavenNurturePanelUI": [
+      "CharacterStats",
+      "EntityProfile",
+      "HeavenNurtureListItemUI",
+      "HeavenNurtureTargetData",
+      "HeavenNurtureTargetDatabase",
+      "HeavenTargetType",
+      "LocalizationSettings",
+      "MonsterAI",
+      "NPCIdentity",
+      "NpcFavorite",
+      "NpcFavoriteManager",
+      "NpcRoleUtility",
+      "NpcText",
+      "SmartNpcAI",
+      "TalentGrade",
+      "UiText",
+      "VillagerAI"
+    ],
+    "HeavenTargetType": [],
+    "HeavenNurtureTargetData": [
+      "HeavenTargetType",
+      "NpcFavorite"
+    ],
+    "HeavenNurtureTargetDatabase": [
+      "HeavenNurtureTargetData",
+      "HeavenTargetType",
+      "NpcFavorite"
+    ],
+    "HeavenNurtureToggleButtonUI": [],
+    "HeavenSystem": [
+      "EntityGoal",
+      "EntityProfile",
+      "IDamageable",
+      "PickupVisualUtility",
+      "StatItemData",
+      "WorldStatItemPickup"
+    ],
+    "HunterJob": [
+      "GameSaveSystem",
+      "HarvestJob",
+      "ItemLifecycleEventType",
+      "ItemText",
+      "MonsterAI",
+      "NpcItemCollector",
+      "NpcJobState",
+      "NpcLocationArea",
+      "NpcLocationPurpose",
+      "NpcMapArea",
+      "NpcMapNavigator",
+      "NpcMapZone",
+      "NpcResourceGatherer",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcTeleportGate",
+      "NpcText",
+      "PickupVisualUtility",
+      "StatItemData",
+      "TargetReservationSystem",
+      "VillagerAI",
+      "VillagerJob",
+      "WorldStatItemPickup",
+      "WorldTilemapManager",
+      "WorldTimeSystem"
+    ],
+    "IDamageable": [],
+    "InteriorCameraFocus": [
+      "MobileCameraController"
+    ],
+    "InventoryItemButtonUI": [
+      "InventoryPanelUI",
+      "ItemStack"
+    ],
+    "InventoryPanelUI": [
+      "HeavenDaoPower",
+      "HeavenDaoSystem",
+      "HeavenGiftPlacementController",
+      "InventoryItemButtonUI",
+      "ItemEffectSpawner",
+      "ItemInventory",
+      "ItemStack",
+      "ItemText",
+      "ItemType",
+      "MonsterAI",
+      "NpcEconomy",
+      "NpcFavoriteManager",
+      "PlayerWallet",
+      "RawUsePolicy",
+      "SmartNpcAI",
+      "StatItemData",
+      "TouchSelectTarget",
+      "VillagerAI"
+    ],
+    "InventoryToggleButton": [
+      "InventoryPanelUI",
+      "PlayerWallet"
+    ],
+    "ItemEffectSpawner": [
+      "StatItemData"
+    ],
+    "ItemStack": [
+      "CultivationManualMastery",
+      "Entry",
+      "GameSaveSystem",
+      "ItemEffectSpawner",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemType",
+      "NpcAlchemyAgent",
+      "NpcData",
+      "NpcForgeAgent",
+      "SmartNpcAI",
+      "SpawnedWorldActor",
+      "StatItemData",
+      "VillagerAI"
+    ],
+    "ItemInventory": [
+      "CultivationManualMastery",
+      "Entry",
+      "GameSaveSystem",
+      "ItemEffectSpawner",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemStack",
+      "ItemType",
+      "NpcAlchemyAgent",
+      "NpcData",
+      "NpcForgeAgent",
+      "SmartNpcAI",
+      "SpawnedWorldActor",
+      "StatItemData",
+      "VillagerAI"
+    ],
+    "ItemLifecycleEventType": [],
+    "ItemLifecycleSystem": [
+      "ItemGrade",
+      "ItemLifecycleEventType",
+      "ItemText",
+      "StatItemData",
+      "UiText"
+    ],
+    "ItemPickup": [
+      "ItemInventory",
+      "StatItemData"
+    ],
+    "ItemStatBalanceUtility": [
+      "ArtifactKind",
+      "EquipmentSlot",
+      "FoodKind",
+      "IntRange",
+      "ItemGrade",
+      "ItemType",
+      "ItemUseStyle",
+      "ManualKind",
+      "MaterialKind",
+      "NpcItemIntent",
+      "PillKind",
+      "RawUsePolicy",
+      "StatItemData",
+      "StatModifier",
+      "StatType"
+    ],
+    "IntRange": [],
+    "ItemTextDatabase": [
+      "CultivationManualMastery",
+      "Entry",
+      "ItemGrade",
+      "ItemTargetType",
+      "ItemTextCategory",
+      "ItemTextEntry",
+      "ItemType",
+      "ItemUseStyle",
+      "LocalizationSettings",
+      "NpcItemIntent",
+      "NpcText",
+      "RawUsePolicy",
+      "StatItemData"
+    ],
+    "ItemTextCategory": [
+      "CultivationManualMastery",
+      "Entry",
+      "ItemGrade",
+      "ItemTargetType",
+      "ItemTextDatabase",
+      "ItemTextEntry",
+      "ItemType",
+      "ItemUseStyle",
+      "LocalizationSettings",
+      "NpcItemIntent",
+      "NpcText",
+      "RawUsePolicy",
+      "StatItemData"
+    ],
+    "ItemTextEntry": [
+      "CultivationManualMastery",
+      "Entry",
+      "ItemGrade",
+      "ItemTargetType",
+      "ItemTextCategory",
+      "ItemTextDatabase",
+      "ItemType",
+      "ItemUseStyle",
+      "LocalizationSettings",
+      "NpcItemIntent",
+      "NpcText",
+      "RawUsePolicy",
+      "StatItemData"
+    ],
+    "ItemText": [
+      "CultivationManualMastery",
+      "Entry",
+      "ItemGrade",
+      "ItemTargetType",
+      "ItemTextCategory",
+      "ItemTextDatabase",
+      "ItemTextEntry",
+      "ItemType",
+      "ItemUseStyle",
+      "LocalizationSettings",
+      "NpcItemIntent",
+      "NpcText",
+      "RawUsePolicy",
+      "StatItemData"
+    ],
+    "LightningHitBurst": [],
+    "LocalizationSettings": [],
+    "MainMenuManager": [
+      "GamePerformanceSettings",
+      "GameSaveSystem",
+      "ItemInventory",
+      "LocalizationSettings",
+      "Menumap",
+      "NewGameIntroPanel",
+      "SimpleItemShop",
+      "UiText"
+    ],
+    "MapToggleUI": [
+      "CloseMap",
+      "OpenMap"
+    ],
+    "mau": [
+      "CharacterStats",
+      "MonsterAI"
+    ],
+    "Menumap": [
+      "InventoryPanelUI",
+      "ShopPanelUI"
+    ],
+    "MobileCameraController": [],
+    "MobileSafeAreaFitter": [],
+    "MonsterAI": [
+      "BicanhSessionManager",
+      "CharacterStats",
+      "CombatStatCalculator",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityGenerator",
+      "EntityKind",
+      "EntityProfile",
+      "Fireball",
+      "GameSaveSystem",
+      "HeavenlyTribulationSystem",
+      "HuntTargetType",
+      "IDamageable",
+      "ItemText",
+      "MonsterDirectionalAnimator",
+      "NpcCollisionRegistry",
+      "NpcCombatTechniqueSystem",
+      "NpcInventoryDropper",
+      "NpcPerformanceOverlay",
+      "NpcPetCompanion",
+      "NpcSocialEventBus",
+      "NpcText",
+      "PickupVisualUtility",
+      "PlayerHealth",
+      "SmartNpcAI",
+      "StatItemData",
+      "StatModifier",
+      "StatType",
+      "VillagerAI",
+      "WeatherSystem",
+      "WorldStatItemPickup",
+      "WorldTimeSystem",
+      "mau"
+    ],
+    "HuntTargetType": [],
+    "MonsterAttack": [
+      "IDamageable",
+      "MonsterAI",
+      "NpcCombatTechniqueSystem",
+      "NpcPetCompanion",
+      "NpcSocialEventBus",
+      "NpcText"
+    ],
+    "MonsterDirectionalAnimator": [],
+    "NewGameIntroPanel": [
+      "LocalizationSettings",
+      "MainMenuManager",
+      "UiText"
+    ],
+    "AlchemyIngredient": [
+      "AlchemyCost",
+      "AlchemyRecipe",
+      "ItemGrade",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemStack",
+      "ItemType",
+      "MaterialKind",
+      "NPCVisualAnimation",
+      "NpcCounterBroker",
+      "NpcEconomy",
+      "NpcLifePath",
+      "NpcRoleUtility",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcText",
+      "NpcTradeAgent",
+      "NpcTradeContext",
+      "PillKind",
+      "StatItemData",
+      "WorldTimeSystem"
+    ],
+    "AlchemyRecipe": [
+      "AlchemyCost",
+      "AlchemyIngredient",
+      "ItemGrade",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemStack",
+      "ItemType",
+      "MaterialKind",
+      "NPCVisualAnimation",
+      "NpcCounterBroker",
+      "NpcEconomy",
+      "NpcLifePath",
+      "NpcRoleUtility",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcText",
+      "NpcTradeAgent",
+      "NpcTradeContext",
+      "PillKind",
+      "StatItemData",
+      "WorldTimeSystem"
+    ],
+    "NpcAlchemyAgent": [
+      "AlchemyCost",
+      "AlchemyIngredient",
+      "AlchemyRecipe",
+      "ItemGrade",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemStack",
+      "ItemType",
+      "MaterialKind",
+      "NPCVisualAnimation",
+      "NpcCounterBroker",
+      "NpcEconomy",
+      "NpcLifePath",
+      "NpcRoleUtility",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcText",
+      "NpcTradeAgent",
+      "NpcTradeContext",
+      "PillKind",
+      "StatItemData",
+      "WorldTimeSystem"
+    ],
+    "AlchemyCost": [
+      "AlchemyIngredient",
+      "AlchemyRecipe",
+      "ItemGrade",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemStack",
+      "ItemType",
+      "MaterialKind",
+      "NPCVisualAnimation",
+      "NpcCounterBroker",
+      "NpcEconomy",
+      "NpcLifePath",
+      "NpcRoleUtility",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcText",
+      "NpcTradeAgent",
+      "NpcTradeContext",
+      "PillKind",
+      "StatItemData",
+      "WorldTimeSystem"
+    ],
+    "NpcAlchemyRole": [
+      "ItemInventory",
+      "NpcAlchemyAgent",
+      "NpcSpecialProfession",
+      "NpcTradeAgent",
+      "VillagerAI",
+      "VillagerJob"
+    ],
+    "NpcAreaUtility": [
+      "NpcLocationArea",
+      "NpcMapArea"
+    ],
+    "NpcCollisionRegistry": [
+      "Entry"
+    ],
+    "Entry": [],
+    "NpcCombatHitbox2D": [
+      "IDamageable",
+      "MonsterAI",
+      "NpcCombatTechniqueSystem",
+      "NpcSocialEventBus",
+      "NpcText",
+      "SmartNpcAI",
+      "VillagerAI"
+    ],
+    "NpcCombatTechniqueSystem": [
+      "CharacterStats",
+      "CultivationManualMastery",
+      "EntityProfile",
+      "ItemEffectSpawner",
+      "ItemInventory",
+      "ItemStack",
+      "ItemType",
+      "ManualKind",
+      "MonsterAI",
+      "NpcCombatTechniqueBuff",
+      "NpcCombatTechniqueRuntime",
+      "NpcRoleUtility",
+      "SmartNpcAI",
+      "StatItemData",
+      "StatModifier",
+      "StatType",
+      "VillagerAI"
+    ],
+    "NpcCombatTechniqueRuntime": [
+      "CharacterStats",
+      "CultivationManualMastery",
+      "EntityProfile",
+      "ItemEffectSpawner",
+      "ItemInventory",
+      "ItemStack",
+      "ItemType",
+      "ManualKind",
+      "MonsterAI",
+      "NpcCombatTechniqueBuff",
+      "NpcCombatTechniqueSystem",
+      "NpcRoleUtility",
+      "SmartNpcAI",
+      "StatItemData",
+      "StatModifier",
+      "StatType",
+      "VillagerAI"
+    ],
+    "NpcCombatTechniqueBuff": [
+      "CharacterStats",
+      "CultivationManualMastery",
+      "EntityProfile",
+      "ItemEffectSpawner",
+      "ItemInventory",
+      "ItemStack",
+      "ItemType",
+      "ManualKind",
+      "MonsterAI",
+      "NpcCombatTechniqueRuntime",
+      "NpcCombatTechniqueSystem",
+      "NpcRoleUtility",
+      "SmartNpcAI",
+      "StatItemData",
+      "StatModifier",
+      "StatType",
+      "VillagerAI"
+    ],
+    "NpcCounterBroker": [
+      "CharacterMovementAnimator",
+      "EntityProfile",
+      "ItemEffectSpawner",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemStack",
+      "ItemType",
+      "NpcEconomy",
+      "NpcInteractionPoint",
+      "NpcItemCollector",
+      "NpcMapBoundaryClamp",
+      "NpcMapMover2D",
+      "NpcRoleUtility",
+      "NpcSocialEventBus",
+      "NpcTradeAgent",
+      "NpcTradeContext",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI"
+    ],
+    "NpcCultivationAwakeningUtility": [
+      "CharacterStats",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityGoal",
+      "EntityIdentity",
+      "EntityKind",
+      "EntityNeeds",
+      "EntityPersonality",
+      "EntityProfile",
+      "EntityStats",
+      "EntityTalent",
+      "NpcLifePath",
+      "NpcScheduleController",
+      "NpcText",
+      "SmartAITaskGoal",
+      "SmartAITaskPriority",
+      "SmartNpcAI",
+      "VillagerAI"
+    ],
+    "NpcDailyRoutineLibrary": [
+      "EntityProfile",
+      "Gender",
+      "NPCIdentity",
+      "NpcAlchemyAgent",
+      "NpcForgeAgent",
+      "NpcLifePath",
+      "NpcScheduleActivity",
+      "NpcScheduleSlot",
+      "SmartNpcAI"
+    ],
+    "NpcData": [],
+    "NpcTradeContext": [],
+    "NpcEconomy": [
+      "CharacterStats",
+      "CultivationProgression",
+      "ItemGrade",
+      "ItemType",
+      "NpcTradeContext",
+      "PillKind",
+      "SmartNpcAI",
+      "StatItemData",
+      "StatModifier",
+      "VillagerAI"
+    ],
+    "NpcEscortTaskForceStarter": [
+      "NpcEligibilitySnapshot",
+      "NpcTaskOffer",
+      "NpcTaskProvider",
+      "NpcTaskType",
+      "SmartNpcAI",
+      "VillagerAI"
+    ],
+    "NpcEligibilitySnapshot": [],
+    "NpcFavorite": [
+      "CharacterStats",
+      "CultivationRealm",
+      "NPCIdentity",
+      "NpcData",
+      "NpcRoleUtility",
+      "NpcSocialIdentity",
+      "NpcText",
+      "SmartNpcAI",
+      "VillagerAI"
+    ],
+    "NpcFavoriteButtonUI": [
+      "FullGameSaveController",
+      "MonsterAI",
+      "NpcData",
+      "NpcFavorite",
+      "NpcFavoriteManager",
+      "SmartNpcAI",
+      "TouchSelectTarget",
+      "VillagerAI",
+      "WorldStatItemPickup"
+    ],
+    "NpcFavoriteClickBridge": [
+      "NpcData",
+      "NpcFavorite",
+      "NpcFavoriteButtonUI",
+      "SmartNpcAI",
+      "VillagerAI"
+    ],
+    "NpcFavoriteManager": [
+      "MonsterAI",
+      "NpcData",
+      "NpcFavorite",
+      "SmartNpcAI",
+      "VillagerAI",
+      "WorldStatItemPickup"
+    ],
+    "ForgeIngredient": [
+      "EquipmentSlot",
+      "ForgeCost",
+      "ForgeCustomerOrder",
+      "ForgeRecipe",
+      "ItemEffectSpawner",
+      "ItemGrade",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemStack",
+      "ItemText",
+      "ItemType",
+      "MaterialKind",
+      "NPCVisualAnimation",
+      "NpcCounterBroker",
+      "NpcEconomy",
+      "NpcForgeAgent",
+      "NpcLifePath",
+      "NpcOverheadDialogueUI",
+      "NpcRoleUtility",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcText",
+      "NpcTradeAgent",
+      "NpcTradeContext",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WorldTimeSystem"
+    ],
+    "ForgeRecipe": [
+      "EquipmentSlot",
+      "ForgeCost",
+      "ForgeCustomerOrder",
+      "ForgeIngredient",
+      "ItemEffectSpawner",
+      "ItemGrade",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemStack",
+      "ItemText",
+      "ItemType",
+      "MaterialKind",
+      "NPCVisualAnimation",
+      "NpcCounterBroker",
+      "NpcEconomy",
+      "NpcForgeAgent",
+      "NpcLifePath",
+      "NpcOverheadDialogueUI",
+      "NpcRoleUtility",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcText",
+      "NpcTradeAgent",
+      "NpcTradeContext",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WorldTimeSystem"
+    ],
+    "ForgeCustomerOrder": [
+      "EquipmentSlot",
+      "ForgeCost",
+      "ForgeIngredient",
+      "ForgeRecipe",
+      "ItemEffectSpawner",
+      "ItemGrade",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemStack",
+      "ItemText",
+      "ItemType",
+      "MaterialKind",
+      "NPCVisualAnimation",
+      "NpcCounterBroker",
+      "NpcEconomy",
+      "NpcForgeAgent",
+      "NpcLifePath",
+      "NpcOverheadDialogueUI",
+      "NpcRoleUtility",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcText",
+      "NpcTradeAgent",
+      "NpcTradeContext",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WorldTimeSystem"
+    ],
+    "NpcForgeAgent": [
+      "EquipmentSlot",
+      "ForgeCost",
+      "ForgeCustomerOrder",
+      "ForgeIngredient",
+      "ForgeRecipe",
+      "ItemEffectSpawner",
+      "ItemGrade",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemStack",
+      "ItemText",
+      "ItemType",
+      "MaterialKind",
+      "NPCVisualAnimation",
+      "NpcCounterBroker",
+      "NpcEconomy",
+      "NpcLifePath",
+      "NpcOverheadDialogueUI",
+      "NpcRoleUtility",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcText",
+      "NpcTradeAgent",
+      "NpcTradeContext",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WorldTimeSystem"
+    ],
+    "ForgeCost": [
+      "EquipmentSlot",
+      "ForgeCustomerOrder",
+      "ForgeIngredient",
+      "ForgeRecipe",
+      "ItemEffectSpawner",
+      "ItemGrade",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemStack",
+      "ItemText",
+      "ItemType",
+      "MaterialKind",
+      "NPCVisualAnimation",
+      "NpcCounterBroker",
+      "NpcEconomy",
+      "NpcForgeAgent",
+      "NpcLifePath",
+      "NpcOverheadDialogueUI",
+      "NpcRoleUtility",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcText",
+      "NpcTradeAgent",
+      "NpcTradeContext",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WorldTimeSystem"
+    ],
+    "NpcForgeRole": [
+      "ItemInventory",
+      "NpcForgeAgent",
+      "NpcSpecialProfession",
+      "NpcTradeAgent",
+      "VillagerAI",
+      "VillagerJob"
+    ],
+    "NpcHideCultivationInfo": [],
+    "Gender": [],
+    "LifeStage": [],
+    "NPCIdentity": [
+      "Gender",
+      "LifeStage",
+      "NPCVisualProfile"
+    ],
+    "NpcInteractionPoint": [
+      "NpcMapMover2D",
+      "SmartNpcAI",
+      "StandReservation",
+      "VillagerAI"
+    ],
+    "StandReservation": [
+      "NpcMapMover2D",
+      "SmartNpcAI",
+      "VillagerAI"
+    ],
+    "NpcInventoryDropper": [
+      "HeavenSystem",
+      "ItemInventory",
+      "ItemStack",
+      "PickupVisualUtility",
+      "StatItemData",
+      "WorldStatItemPickup"
+    ],
+    "NpcInventoryPanelUI": [
+      "HeavenDaoPower",
+      "HeavenDaoSystem",
+      "InventoryPanelUI",
+      "ItemInventory",
+      "ItemStack",
+      "ItemText",
+      "NpcCounterBroker",
+      "NpcData",
+      "NpcEconomy",
+      "NpcShopStockRefill",
+      "NpcText",
+      "PlayerWallet",
+      "ShopPanelUI",
+      "SmartNpcAI",
+      "UiText",
+      "VillagerAI"
+    ],
+    "NpcItemCollector": [
+      "CharacterStats",
+      "CultivationManualMastery",
+      "EquipmentSlot",
+      "GameSaveSystem",
+      "ItemEffectSpawner",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemStack",
+      "ItemText",
+      "ItemType",
+      "NpcDecisionBrain",
+      "NpcDecisionKind",
+      "StatItemData",
+      "TreasureHeatSystem",
+      "WorldStatItemPickup",
+      "WorldTimeSystem"
+    ],
+    "NpcJobState": [],
+    "NpcLawZone": [
+      "NpcLawZoneInternal"
+    ],
+    "NPCLifecycle": [
+      "LifeStage",
+      "NPCIdentity",
+      "NPCVisualResolver",
+      "VillagerAI"
+    ],
+    "NpcLocationPurpose": [],
+    "NpcDangerTier": [],
+    "NpcLocationArea": [
+      "NpcDangerTier",
+      "NpcLifePath",
+      "NpcLocationPurpose",
+      "NpcMapMover2D",
+      "NpcMapZone",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "SmartNpcAI",
+      "VillagerAI",
+      "VillagerJob"
+    ],
+    "NpcMapZone": [],
+    "NpcMapArea": [
+      "NpcMapZone"
+    ],
+    "NpcMapBoundaryClamp": [
+      "NpcMapArea",
+      "NpcMapNavigator",
+      "NpcMapZone",
+      "NpcTeleportGate"
+    ],
+    "NpcMapDestination": [
+      "NpcMapZone"
+    ],
+    "NpcMapMover2D": [
+      "NPCVisualAnimation",
+      "NpcCollisionRegistry",
+      "NpcMapArea",
+      "NpcMapNavigator",
+      "NpcMapZone",
+      "NpcTeleportGate",
+      "SmartNpcAI",
+      "VillagerAI"
+    ],
+    "NpcMapNavigator": [
+      "NpcMapArea",
+      "NpcMapDestination",
+      "NpcMapZone",
+      "NpcTeleportGate",
+      "NpcText",
+      "ZoneLockState"
+    ],
+    "ZoneLockState": [],
+    "NpcMerchantRole": [
+      "ItemInventory",
+      "NpcSpecialProfession",
+      "NpcTradeAgent",
+      "VillagerAI",
+      "VillagerJob"
+    ],
+    "NpcPathMemorySystem": [
+      "RememberedPath"
+    ],
+    "RememberedPath": [],
+    "NpcPerformanceOverlay": [
+      "MonsterAI",
+      "VillagerAI"
+    ],
+    "NpcPetCompanion": [],
+    "NpcPortraitIcon": [],
+    "NpcRageNearbyAttack": [
+      "IDamageable",
+      "MonsterAI",
+      "NPCVisualAnimation",
+      "NearbyTarget",
+      "NpcRoleUtility",
+      "NpcText",
+      "SmartAITaskGoal",
+      "SmartAITaskPriority",
+      "SmartNpcAI",
+      "VillagerAI"
+    ],
+    "NearbyTarget": [],
+    "NpcResourceGatherer": [
+      "FoodKind",
+      "HarvestJob",
+      "HarvestResourceKind",
+      "ItemGrade",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemText",
+      "ItemType",
+      "MaterialKind",
+      "NpcDangerTier",
+      "NpcItemCollector",
+      "NpcLocationArea",
+      "NpcMapArea",
+      "NpcMapMover2D",
+      "NpcMapZone",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcScheduleSlot",
+      "NpcText",
+      "ResourceNode",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WorldResourceField",
+      "WorldStatItemPickup"
+    ],
+    "NpcRoleUtility": [
+      "CharacterStats",
+      "CombatStatCalculator",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityKind",
+      "EntityProfile",
+      "MonsterAI",
+      "NpcCombatTechniqueSystem",
+      "NpcData",
+      "NpcMapMover2D",
+      "NpcMapNavigator",
+      "NpcPetCompanion",
+      "NpcSocialEventBus",
+      "NpcText",
+      "SmartNpcAI",
+      "VillagerAI"
+    ],
+    "NpcLifePath": [],
+    "NpcScheduleActivity": [],
+    "NpcScheduleSlot": [
+      "MonsterAI",
+      "NpcDailyRoutineLibrary",
+      "NpcLifePath",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "SmartNpcAI",
+      "VillagerAI",
+      "WorldTimeSystem"
+    ],
+    "NpcScheduleController": [
+      "MonsterAI",
+      "NpcDailyRoutineLibrary",
+      "NpcLifePath",
+      "NpcScheduleActivity",
+      "NpcScheduleSlot",
+      "SmartNpcAI",
+      "VillagerAI",
+      "WorldTimeSystem"
+    ],
+    "NpcSharedInventoryLink": [
+      "ItemInventory"
+    ],
+    "NpcShopStockRefill": [
+      "ItemGrade",
+      "ItemInventory",
+      "ItemStack",
+      "ItemType",
+      "ShopItemSlot",
+      "SimpleItemShop",
+      "StatItemData"
+    ],
+    "NpcSocialSystem": [
+      "CharacterStats",
+      "CombatRecord",
+      "DailyConversation",
+      "ItemText",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcConversationSession",
+      "NpcDecisionBrain",
+      "NpcDecisionKind",
+      "NpcMapArea",
+      "NpcMapZone",
+      "NpcMemory",
+      "NpcMemoryRecord",
+      "NpcMemoryType",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcSocialIdentity",
+      "NpcSocialRelationship",
+      "NpcSocialTime",
+      "NpcSocialWorldInstaller",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WeatherSystem",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather"
+    ],
+    "NpcMemoryType": [],
+    "NpcDecisionKind": [],
+    "NpcMemoryRecord": [
+      "CharacterStats",
+      "CombatRecord",
+      "DailyConversation",
+      "ItemText",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcConversationSession",
+      "NpcDecisionBrain",
+      "NpcDecisionKind",
+      "NpcMapArea",
+      "NpcMapZone",
+      "NpcMemory",
+      "NpcMemoryType",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcSocialIdentity",
+      "NpcSocialRelationship",
+      "NpcSocialTime",
+      "NpcSocialWorldInstaller",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WeatherSystem",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather"
+    ],
+    "NpcSocialRelationship": [
+      "CharacterStats",
+      "CombatRecord",
+      "DailyConversation",
+      "ItemText",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcConversationSession",
+      "NpcDecisionBrain",
+      "NpcDecisionKind",
+      "NpcMapArea",
+      "NpcMapZone",
+      "NpcMemory",
+      "NpcMemoryRecord",
+      "NpcMemoryType",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcSocialIdentity",
+      "NpcSocialTime",
+      "NpcSocialWorldInstaller",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WeatherSystem",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather"
+    ],
+    "NpcSocialEventBus": [
+      "CharacterStats",
+      "CombatRecord",
+      "DailyConversation",
+      "ItemText",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcConversationSession",
+      "NpcDecisionBrain",
+      "NpcDecisionKind",
+      "NpcMapArea",
+      "NpcMapZone",
+      "NpcMemory",
+      "NpcMemoryRecord",
+      "NpcMemoryType",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSocialIdentity",
+      "NpcSocialRelationship",
+      "NpcSocialTime",
+      "NpcSocialWorldInstaller",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WeatherSystem",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather"
+    ],
+    "NpcMonsterCombatDialogue": [
+      "CharacterStats",
+      "CombatRecord",
+      "DailyConversation",
+      "ItemText",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcConversationSession",
+      "NpcDecisionBrain",
+      "NpcDecisionKind",
+      "NpcMapArea",
+      "NpcMapZone",
+      "NpcMemory",
+      "NpcMemoryRecord",
+      "NpcMemoryType",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcSocialIdentity",
+      "NpcSocialRelationship",
+      "NpcSocialTime",
+      "NpcSocialWorldInstaller",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WeatherSystem",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather"
+    ],
+    "CombatRecord": [
+      "CharacterStats",
+      "DailyConversation",
+      "ItemText",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcConversationSession",
+      "NpcDecisionBrain",
+      "NpcDecisionKind",
+      "NpcMapArea",
+      "NpcMapZone",
+      "NpcMemory",
+      "NpcMemoryRecord",
+      "NpcMemoryType",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcSocialIdentity",
+      "NpcSocialRelationship",
+      "NpcSocialTime",
+      "NpcSocialWorldInstaller",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WeatherSystem",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather"
+    ],
+    "NpcSocialIdentity": [
+      "CharacterStats",
+      "CombatRecord",
+      "DailyConversation",
+      "ItemText",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcConversationSession",
+      "NpcDecisionBrain",
+      "NpcDecisionKind",
+      "NpcMapArea",
+      "NpcMapZone",
+      "NpcMemory",
+      "NpcMemoryRecord",
+      "NpcMemoryType",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcSocialRelationship",
+      "NpcSocialTime",
+      "NpcSocialWorldInstaller",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WeatherSystem",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather"
+    ],
+    "NpcNeeds": [
+      "CharacterStats",
+      "CombatRecord",
+      "DailyConversation",
+      "ItemText",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcConversationSession",
+      "NpcDecisionBrain",
+      "NpcDecisionKind",
+      "NpcMapArea",
+      "NpcMapZone",
+      "NpcMemory",
+      "NpcMemoryRecord",
+      "NpcMemoryType",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcSocialIdentity",
+      "NpcSocialRelationship",
+      "NpcSocialTime",
+      "NpcSocialWorldInstaller",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WeatherSystem",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather"
+    ],
+    "NpcPersonality": [
+      "CharacterStats",
+      "CombatRecord",
+      "DailyConversation",
+      "ItemText",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcConversationSession",
+      "NpcDecisionBrain",
+      "NpcDecisionKind",
+      "NpcMapArea",
+      "NpcMapZone",
+      "NpcMemory",
+      "NpcMemoryRecord",
+      "NpcMemoryType",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcRelationshipGraph",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcSocialIdentity",
+      "NpcSocialRelationship",
+      "NpcSocialTime",
+      "NpcSocialWorldInstaller",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WeatherSystem",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather"
+    ],
+    "NpcRelationshipGraph": [
+      "CharacterStats",
+      "CombatRecord",
+      "DailyConversation",
+      "ItemText",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcConversationSession",
+      "NpcDecisionBrain",
+      "NpcDecisionKind",
+      "NpcMapArea",
+      "NpcMapZone",
+      "NpcMemory",
+      "NpcMemoryRecord",
+      "NpcMemoryType",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPersonality",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcSocialIdentity",
+      "NpcSocialRelationship",
+      "NpcSocialTime",
+      "NpcSocialWorldInstaller",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WeatherSystem",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather"
+    ],
+    "NpcMemory": [
+      "CharacterStats",
+      "CombatRecord",
+      "DailyConversation",
+      "ItemText",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcConversationSession",
+      "NpcDecisionBrain",
+      "NpcDecisionKind",
+      "NpcMapArea",
+      "NpcMapZone",
+      "NpcMemoryRecord",
+      "NpcMemoryType",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcSocialIdentity",
+      "NpcSocialRelationship",
+      "NpcSocialTime",
+      "NpcSocialWorldInstaller",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WeatherSystem",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather"
+    ],
+    "NpcOverheadDialogueUI": [
+      "CharacterStats",
+      "CombatRecord",
+      "DailyConversation",
+      "ItemText",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcConversationSession",
+      "NpcDecisionBrain",
+      "NpcDecisionKind",
+      "NpcMapArea",
+      "NpcMapZone",
+      "NpcMemory",
+      "NpcMemoryRecord",
+      "NpcMemoryType",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcSocialIdentity",
+      "NpcSocialRelationship",
+      "NpcSocialTime",
+      "NpcSocialWorldInstaller",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WeatherSystem",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather"
+    ],
+    "NpcConversationSession": [
+      "CharacterStats",
+      "CombatRecord",
+      "DailyConversation",
+      "ItemText",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcDecisionBrain",
+      "NpcDecisionKind",
+      "NpcMapArea",
+      "NpcMapZone",
+      "NpcMemory",
+      "NpcMemoryRecord",
+      "NpcMemoryType",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcSocialIdentity",
+      "NpcSocialRelationship",
+      "NpcSocialTime",
+      "NpcSocialWorldInstaller",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WeatherSystem",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather"
+    ],
+    "NpcConversationAgent": [
+      "CharacterStats",
+      "CombatRecord",
+      "DailyConversation",
+      "ItemText",
+      "MonsterAI",
+      "NpcConversationSession",
+      "NpcDecisionBrain",
+      "NpcDecisionKind",
+      "NpcMapArea",
+      "NpcMapZone",
+      "NpcMemory",
+      "NpcMemoryRecord",
+      "NpcMemoryType",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcSocialIdentity",
+      "NpcSocialRelationship",
+      "NpcSocialTime",
+      "NpcSocialWorldInstaller",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WeatherSystem",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather"
+    ],
+    "NpcDecisionBrain": [
+      "CharacterStats",
+      "CombatRecord",
+      "DailyConversation",
+      "ItemText",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcConversationSession",
+      "NpcDecisionKind",
+      "NpcMapArea",
+      "NpcMapZone",
+      "NpcMemory",
+      "NpcMemoryRecord",
+      "NpcMemoryType",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcSocialIdentity",
+      "NpcSocialRelationship",
+      "NpcSocialTime",
+      "NpcSocialWorldInstaller",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WeatherSystem",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather"
+    ],
+    "NpcNegotiationAgent": [
+      "CharacterStats",
+      "CombatRecord",
+      "DailyConversation",
+      "ItemText",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcConversationSession",
+      "NpcDecisionBrain",
+      "NpcDecisionKind",
+      "NpcMapArea",
+      "NpcMapZone",
+      "NpcMemory",
+      "NpcMemoryRecord",
+      "NpcMemoryType",
+      "NpcNeeds",
+      "NpcOverheadDialogueUI",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcSocialIdentity",
+      "NpcSocialRelationship",
+      "NpcSocialTime",
+      "NpcSocialWorldInstaller",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WeatherSystem",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather"
+    ],
+    "NpcLawZoneInternal": [
+      "CharacterStats",
+      "CombatRecord",
+      "DailyConversation",
+      "ItemText",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcConversationSession",
+      "NpcDecisionBrain",
+      "NpcDecisionKind",
+      "NpcMapArea",
+      "NpcMapZone",
+      "NpcMemory",
+      "NpcMemoryRecord",
+      "NpcMemoryType",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcSocialIdentity",
+      "NpcSocialRelationship",
+      "NpcSocialTime",
+      "NpcSocialWorldInstaller",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WeatherSystem",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather"
+    ],
+    "NpcSocialWorldInstaller": [
+      "CharacterStats",
+      "CombatRecord",
+      "DailyConversation",
+      "ItemText",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcConversationSession",
+      "NpcDecisionBrain",
+      "NpcDecisionKind",
+      "NpcMapArea",
+      "NpcMapZone",
+      "NpcMemory",
+      "NpcMemoryRecord",
+      "NpcMemoryType",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcSocialIdentity",
+      "NpcSocialRelationship",
+      "NpcSocialTime",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WeatherSystem",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather"
+    ],
+    "NpcSocialTime": [
+      "CharacterStats",
+      "CombatRecord",
+      "DailyConversation",
+      "ItemText",
+      "MonsterAI",
+      "NpcConversationAgent",
+      "NpcConversationSession",
+      "NpcDecisionBrain",
+      "NpcDecisionKind",
+      "NpcMapArea",
+      "NpcMapZone",
+      "NpcMemory",
+      "NpcMemoryRecord",
+      "NpcMemoryType",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcSocialIdentity",
+      "NpcSocialRelationship",
+      "NpcSocialWorldInstaller",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob",
+      "WeatherSystem",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather"
+    ],
+    "NpcSpecialProfession": [
+      "VillagerAI",
+      "VillagerJob"
+    ],
+    "NpcTaskType": [],
+    "NpcTaskRank": [],
+    "TavernTaskStage": [],
+    "TavernMealStage": [],
+    "NpcTaskOffer": [
+      "CharacterStats",
+      "CultivationProgression",
+      "CultivationRealm",
+      "Entry",
+      "GameSaveSystem",
+      "HarvestJob",
+      "HuntTargetType",
+      "ItemEffectSpawner",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemText",
+      "MonsterAI",
+      "NpcCounterBroker",
+      "NpcEconomy",
+      "NpcInteractionPoint",
+      "NpcMapArea",
+      "NpcMapMover2D",
+      "NpcMapNavigator",
+      "NpcMapZone",
+      "NpcOverheadDialogueUI",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSpecialProfession",
+      "NpcTaskProvider",
+      "NpcTaskRank",
+      "NpcTaskType",
+      "NpcTeleportGate",
+      "NpcText",
+      "NpcTradeAgent",
+      "PendingTaskGoods",
+      "ResourceFieldItemEntry",
+      "RunningNpcTask",
+      "RunningTavernMeal",
+      "SmartNpcAI",
+      "StatItemData",
+      "TavernMealStage",
+      "TavernTaskStage",
+      "TreasureHeatSystem",
+      "VillagerAI",
+      "WorldEventManager",
+      "WorldResourceField",
+      "WorldStatItemPickup",
+      "WorldTimeSystem"
+    ],
+    "RunningNpcTask": [
+      "CharacterStats",
+      "CultivationProgression",
+      "CultivationRealm",
+      "Entry",
+      "GameSaveSystem",
+      "HarvestJob",
+      "HuntTargetType",
+      "ItemEffectSpawner",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemText",
+      "MonsterAI",
+      "NpcCounterBroker",
+      "NpcEconomy",
+      "NpcInteractionPoint",
+      "NpcMapArea",
+      "NpcMapMover2D",
+      "NpcMapNavigator",
+      "NpcMapZone",
+      "NpcOverheadDialogueUI",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSpecialProfession",
+      "NpcTaskOffer",
+      "NpcTaskProvider",
+      "NpcTaskRank",
+      "NpcTaskType",
+      "NpcTeleportGate",
+      "NpcText",
+      "NpcTradeAgent",
+      "PendingTaskGoods",
+      "ResourceFieldItemEntry",
+      "RunningTavernMeal",
+      "SmartNpcAI",
+      "StatItemData",
+      "TavernMealStage",
+      "TavernTaskStage",
+      "TreasureHeatSystem",
+      "VillagerAI",
+      "WorldEventManager",
+      "WorldResourceField",
+      "WorldStatItemPickup",
+      "WorldTimeSystem"
+    ],
+    "RunningTavernMeal": [
+      "CharacterStats",
+      "CultivationProgression",
+      "CultivationRealm",
+      "Entry",
+      "GameSaveSystem",
+      "HarvestJob",
+      "HuntTargetType",
+      "ItemEffectSpawner",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemText",
+      "MonsterAI",
+      "NpcCounterBroker",
+      "NpcEconomy",
+      "NpcInteractionPoint",
+      "NpcMapArea",
+      "NpcMapMover2D",
+      "NpcMapNavigator",
+      "NpcMapZone",
+      "NpcOverheadDialogueUI",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSpecialProfession",
+      "NpcTaskOffer",
+      "NpcTaskProvider",
+      "NpcTaskRank",
+      "NpcTaskType",
+      "NpcTeleportGate",
+      "NpcText",
+      "NpcTradeAgent",
+      "PendingTaskGoods",
+      "ResourceFieldItemEntry",
+      "RunningNpcTask",
+      "SmartNpcAI",
+      "StatItemData",
+      "TavernMealStage",
+      "TavernTaskStage",
+      "TreasureHeatSystem",
+      "VillagerAI",
+      "WorldEventManager",
+      "WorldResourceField",
+      "WorldStatItemPickup",
+      "WorldTimeSystem"
+    ],
+    "PendingTaskGoods": [
+      "CharacterStats",
+      "CultivationProgression",
+      "CultivationRealm",
+      "Entry",
+      "GameSaveSystem",
+      "HarvestJob",
+      "HuntTargetType",
+      "ItemEffectSpawner",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemText",
+      "MonsterAI",
+      "NpcCounterBroker",
+      "NpcEconomy",
+      "NpcInteractionPoint",
+      "NpcMapArea",
+      "NpcMapMover2D",
+      "NpcMapNavigator",
+      "NpcMapZone",
+      "NpcOverheadDialogueUI",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSpecialProfession",
+      "NpcTaskOffer",
+      "NpcTaskProvider",
+      "NpcTaskRank",
+      "NpcTaskType",
+      "NpcTeleportGate",
+      "NpcText",
+      "NpcTradeAgent",
+      "ResourceFieldItemEntry",
+      "RunningNpcTask",
+      "RunningTavernMeal",
+      "SmartNpcAI",
+      "StatItemData",
+      "TavernMealStage",
+      "TavernTaskStage",
+      "TreasureHeatSystem",
+      "VillagerAI",
+      "WorldEventManager",
+      "WorldResourceField",
+      "WorldStatItemPickup",
+      "WorldTimeSystem"
+    ],
+    "NpcTaskProvider": [
+      "CharacterStats",
+      "CultivationProgression",
+      "CultivationRealm",
+      "Entry",
+      "GameSaveSystem",
+      "HarvestJob",
+      "HuntTargetType",
+      "ItemEffectSpawner",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemText",
+      "MonsterAI",
+      "NpcCounterBroker",
+      "NpcEconomy",
+      "NpcInteractionPoint",
+      "NpcMapArea",
+      "NpcMapMover2D",
+      "NpcMapNavigator",
+      "NpcMapZone",
+      "NpcOverheadDialogueUI",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcSpecialProfession",
+      "NpcTaskOffer",
+      "NpcTaskRank",
+      "NpcTaskType",
+      "NpcTeleportGate",
+      "NpcText",
+      "NpcTradeAgent",
+      "PendingTaskGoods",
+      "ResourceFieldItemEntry",
+      "RunningNpcTask",
+      "RunningTavernMeal",
+      "SmartNpcAI",
+      "StatItemData",
+      "TavernMealStage",
+      "TavernTaskStage",
+      "TreasureHeatSystem",
+      "VillagerAI",
+      "VillagerAgeGroup",
+      "VillagerJob",
+      "WorldEventManager",
+      "WorldResourceField",
+      "WorldStatItemPickup",
+      "WorldTimeSystem"
+    ],
+    "NpcTavernEntrance": [
+      "NpcEconomy",
+      "NpcRoleUtility",
+      "NpcTaskOffer",
+      "NpcTaskProvider",
+      "NpcTavernVisit",
+      "SmartNpcAI",
+      "VillagerAI"
+    ],
+    "NpcTavernVisit": [
+      "NpcEconomy",
+      "NpcRoleUtility",
+      "NpcTaskOffer",
+      "NpcTaskProvider",
+      "SmartNpcAI",
+      "VillagerAI"
+    ],
+    "NpcTeleportGate": [
+      "CameraBounds",
+      "DoorTeleportSameScene",
+      "NpcMapMover2D",
+      "NpcMapNavigator",
+      "NpcMapZone",
+      "NpcTaskProvider",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "VillagerAI"
+    ],
+    "NpcTextDatabase": [
+      "CultivationRealm",
+      "Entry",
+      "ItemGrade",
+      "ItemText",
+      "ItemType",
+      "LocalizationSettings",
+      "NpcTextCategory",
+      "NpcTextEntry",
+      "NpcTextList"
+    ],
+    "NpcTextCategory": [
+      "CultivationRealm",
+      "Entry",
+      "ItemGrade",
+      "ItemText",
+      "ItemType",
+      "LocalizationSettings",
+      "NpcTextDatabase",
+      "NpcTextEntry",
+      "NpcTextList"
+    ],
+    "NpcTextEntry": [
+      "CultivationRealm",
+      "Entry",
+      "ItemGrade",
+      "ItemText",
+      "ItemType",
+      "LocalizationSettings",
+      "NpcTextCategory",
+      "NpcTextDatabase",
+      "NpcTextList"
+    ],
+    "NpcTextList": [
+      "CultivationRealm",
+      "Entry",
+      "ItemGrade",
+      "ItemText",
+      "ItemType",
+      "LocalizationSettings",
+      "NpcTextCategory",
+      "NpcTextDatabase",
+      "NpcTextEntry"
+    ],
+    "NpcText": [
+      "CultivationRealm",
+      "Entry",
+      "ItemGrade",
+      "ItemText",
+      "ItemType",
+      "LocalizationSettings",
+      "NpcTextCategory",
+      "NpcTextDatabase",
+      "NpcTextEntry",
+      "NpcTextList"
+    ],
+    "NpcTradeAgent": [
+      "EntityProfile",
+      "EquipmentSlot",
+      "ItemEffectSpawner",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemStack",
+      "ItemType",
+      "NpcCounterBroker",
+      "NpcEconomy",
+      "NpcItemCollector",
+      "NpcRoleUtility",
+      "NpcScheduleController",
+      "NpcSocialEventBus",
+      "NpcTradeContext",
+      "SmartNpcAI",
+      "StatItemData",
+      "VillagerAI",
+      "VillagerJob"
+    ],
+    "NPCVisualAnimation": [
+      "ActionCategory",
+      "NpcText"
+    ],
+    "ActionCategory": [],
+    "NPCVisualProfile": [
+      "Entry",
+      "Gender",
+      "LifeStage",
+      "VisualEntry"
+    ],
+    "VisualEntry": [
+      "Entry",
+      "Gender",
+      "LifeStage",
+      "NPCVisualProfile"
+    ],
+    "NPCVisualResolver": [
+      "Gender",
+      "LifeStage",
+      "NPCIdentity",
+      "NPCVisualAnimation"
+    ],
+    "NpcWorkArea": [
+      "VillagerJob"
+    ],
+    "OpenMap": [
+      "FullGameSaveController",
+      "InventoryPanelUI"
+    ],
+    "OpenShopUI": [],
+    "PickupVisualUtility": [],
+    "PlayerHealth": [
+      "CharacterStats",
+      "IDamageable",
+      "StatItemData",
+      "StatModifier",
+      "StatType"
+    ],
+    "WalletGrantSource": [],
+    "PlayerWallet": [
+      "GameSaveSystem",
+      "WalletGrantSource"
+    ],
+    "PlayerWalletGrantButton": [
+      "PlayerWallet",
+      "ShopPanelUI",
+      "WalletGrantSource"
+    ],
+    "PlayerWalletTextUI": [
+      "NpcEconomy",
+      "PlayerWallet"
+    ],
+    "PopulationWidgetUI": [
+      "MonsterAI",
+      "SmartNpcAI",
+      "UiText",
+      "VillagerAI"
+    ],
+    "HarvestResourceKind": [],
+    "ResourceNode": [
+      "HarvestResourceKind",
+      "StatItemData",
+      "WorldStatItemPickup"
+    ],
+    "ResponsiveCanvasScaler": [],
+    "ResponsivePanelFitter": [],
+    "RewardedLTAdsButton": [
+      "AdsInitializer",
+      "LocalizationSettings",
+      "PlayerWallet",
+      "UiText"
+    ],
+    "SceneLoader": [
+      "GameSaveSystem"
+    ],
+    "SceneLocalizedTextBootstrap": [
+      "Entry",
+      "LocalizationSettings",
+      "SceneTextEntry",
+      "UiText",
+      "WorldTimeSystem"
+    ],
+    "SceneTextEntry": [],
+    "SellerJob": [
+      "ItemInventory",
+      "NpcJobState",
+      "NpcText",
+      "VillageStorage",
+      "VillagerAI"
+    ],
+    "ShopCardHoverEffect": [],
+    "ShopItemAssetPostprocessor": [
+      "SimpleItemShop"
+    ],
+    "ShopItemButtonUI": [
+      "ItemText",
+      "NpcEconomy",
+      "NpcTradeContext",
+      "ShopItemSlot",
+      "ShopPanelUI"
+    ],
+    "ShopPanelUI": [
+      "InventoryPanelUI",
+      "InventoryToggleButton",
+      "ItemInventory",
+      "ItemText",
+      "ItemType",
+      "NpcEconomy",
+      "NpcTradeContext",
+      "PlayerWallet",
+      "PlayerWalletTextUI",
+      "RawUsePolicy",
+      "ShopItemButtonUI",
+      "ShopItemSlot",
+      "SimpleItemShop",
+      "StatItemData",
+      "UiText"
+    ],
+    "ShopToggleUI": [],
+    "ShopItemSlot": [
+      "GameSaveSystem",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemStack",
+      "ItemType",
+      "NpcCounterBroker",
+      "NpcEconomy",
+      "NpcItemCollector",
+      "NpcShopStockRefill",
+      "NpcTradeContext",
+      "PlayerWallet",
+      "SimpleItemShop",
+      "SmartNpcAI",
+      "StatItemData"
+    ],
+    "SimpleItemShop": [
+      "GameSaveSystem",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemStack",
+      "ItemType",
+      "NpcCounterBroker",
+      "NpcEconomy",
+      "NpcItemCollector",
+      "NpcShopStockRefill",
+      "NpcTradeContext",
+      "PlayerWallet",
+      "ShopItemSlot",
+      "SmartNpcAI",
+      "StatItemData"
+    ],
+    "SkyDropToPosition": [],
+    "SmartAITaskGoal": [],
+    "SmartAITaskPriority": [],
+    "SmartAITask": [
+      "SmartAITaskGoal",
+      "SmartAITaskPriority"
+    ],
+    "SmartNpcAI": [
+      "BicanhSessionManager",
+      "CharacterStats",
+      "CombatPowerUtility",
+      "CombatStatCalculator",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityGenerator",
+      "EntityKind",
+      "EntityProfile",
+      "Fireball",
+      "HeavenlyTribulationSystem",
+      "HelpRequest",
+      "HuntTargetType",
+      "IDamageable",
+      "ItemInventory",
+      "ItemStack",
+      "ItemText",
+      "ItemType",
+      "MonsterAI",
+      "NPCVisualAnimation",
+      "NpcAreaUtility",
+      "NpcCollisionRegistry",
+      "NpcCombatTechniqueSystem",
+      "NpcCounterBroker",
+      "NpcDangerTier",
+      "NpcEconomy",
+      "NpcForgeAgent",
+      "NpcInteractionPoint",
+      "NpcInventoryDropper",
+      "NpcItemCollector",
+      "NpcLifePath",
+      "NpcLocationArea",
+      "NpcLocationPurpose",
+      "NpcMapArea",
+      "NpcMapMover2D",
+      "NpcMapNavigator",
+      "NpcMapZone",
+      "NpcResourceGatherer",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcScheduleSlot",
+      "NpcSocialEventBus",
+      "NpcTaskProvider",
+      "NpcTeleportGate",
+      "NpcText",
+      "NpcTradeAgent",
+      "PhysiqueType",
+      "SmartAITask",
+      "SmartAITaskGoal",
+      "SmartAITaskPriority",
+      "SmartNpcHelpRequestSystem",
+      "StatItemData",
+      "StatModifier",
+      "StatType",
+      "TalentGrade",
+      "TargetReservationSystem",
+      "VillagerAI",
+      "VillagerJob",
+      "WeatherSystem",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather",
+      "mau"
+    ],
+    "CultivationRealm": [],
+    "PhysiqueType": [],
+    "SmartNpcHelpRequestSystem": [
+      "CombatPowerUtility",
+      "HelpRequest",
+      "MonsterAI",
+      "NpcAreaUtility",
+      "SmartNpcAI"
+    ],
+    "HelpRequest": [
+      "CombatPowerUtility",
+      "MonsterAI",
+      "NpcAreaUtility",
+      "SmartNpcAI",
+      "SmartNpcHelpRequestSystem"
+    ],
+    "SpawnedWorldActor": [],
+    "SpawnRegion": [],
+    "StatItemApplier": [
+      "StatItemData"
+    ],
+    "ItemType": [],
+    "ItemGrade": [],
+    "CultivationManualMastery": [],
+    "RawUsePolicy": [],
+    "NpcItemIntent": [],
+    "ItemUseStyle": [],
+    "EquipmentSlot": [],
+    "ArtifactKind": [],
+    "PillKind": [],
+    "ManualKind": [],
+    "MaterialKind": [],
+    "FoodKind": [],
+    "ItemConversionType": [],
+    "ItemTargetType": [],
+    "StatType": [],
+    "StatModifier": [
+      "ArtifactKind",
+      "CharacterStats",
+      "CultivationRealm",
+      "EquipmentSlot",
+      "FoodKind",
+      "GameSaveSystem",
+      "ItemConversionType",
+      "ItemGrade",
+      "ItemStack",
+      "ItemTargetType",
+      "ItemType",
+      "ItemUseStyle",
+      "ManualKind",
+      "MaterialKind",
+      "MonsterAI",
+      "NpcCultivationAwakeningUtility",
+      "NpcItemIntent",
+      "PillKind",
+      "PlayerHealth",
+      "RawUsePolicy",
+      "SmartNpcAI",
+      "StatType",
+      "TimedStatItemBuff",
+      "VillagerAI"
+    ],
+    "StatItemData": [
+      "ArtifactKind",
+      "CharacterStats",
+      "CultivationRealm",
+      "EquipmentSlot",
+      "FoodKind",
+      "GameSaveSystem",
+      "ItemConversionType",
+      "ItemGrade",
+      "ItemStack",
+      "ItemTargetType",
+      "ItemType",
+      "ItemUseStyle",
+      "ManualKind",
+      "MaterialKind",
+      "MonsterAI",
+      "NpcCultivationAwakeningUtility",
+      "NpcItemIntent",
+      "PillKind",
+      "PlayerHealth",
+      "RawUsePolicy",
+      "SmartNpcAI",
+      "StatModifier",
+      "StatType",
+      "TimedStatItemBuff",
+      "VillagerAI"
+    ],
+    "TargetReservationSystem": [
+      "TargetReservation"
+    ],
+    "TargetReservation": [
+      "TargetReservationSystem"
+    ],
+    "TaskBoardInteract": [
+      "NpcTaskProvider",
+      "TaskBoardPanelUI"
+    ],
+    "TaskBoardPanelUI": [
+      "NpcTaskOffer",
+      "NpcTaskProvider",
+      "TaskBoardRowUI"
+    ],
+    "TaskBoardRowUI": [
+      "ItemText",
+      "NpcTaskOffer",
+      "NpcTaskType",
+      "NpcText",
+      "StatItemData"
+    ],
+    "ThienKiepStrikePrefab": [],
+    "TilemapObstacle2D": [],
+    "TimedStatItemBuff": [
+      "StatItemData"
+    ],
+    "TouchSelectTarget": [
+      "BicanhBoneMonsterAI",
+      "CharacterStats",
+      "CultivationManualMastery",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityProfile",
+      "EquipmentSlot",
+      "HeavenDaoPower",
+      "HeavenDaoSystem",
+      "InventoryItemButtonUI",
+      "InventoryPanelUI",
+      "ItemGrade",
+      "ItemInventory",
+      "ItemStack",
+      "ItemText",
+      "ItemType",
+      "MobileCameraController",
+      "MonsterAI",
+      "NPCIdentity",
+      "NpcData",
+      "NpcEconomy",
+      "NpcHideCultivationInfo",
+      "NpcInventoryPanelUI",
+      "NpcMapMover2D",
+      "NpcPortraitIcon",
+      "NpcSpecialProfession",
+      "NpcText",
+      "PlayerHealth",
+      "SmartNpcAI",
+      "StatItemData",
+      "UiText",
+      "VillagerAI",
+      "VillagerJob",
+      "VillagerRelationship",
+      "WorldStatItemPickup"
+    ],
+    "TreasureFrenzySystem": [
+      "ActorKind",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityKind",
+      "HeavenGiftPlacementController",
+      "IDamageable",
+      "ItemGrade",
+      "ItemInventory",
+      "ItemText",
+      "MonsterAI",
+      "NpcCombatTechniqueSystem",
+      "NpcEconomy",
+      "NpcRoleUtility",
+      "SmartNpcAI",
+      "StatItemData",
+      "TreasureFrenzyEvent",
+      "TreasureParticipant",
+      "VillagerAI",
+      "WorldEventManager",
+      "WorldStatItemPickup",
+      "WorldTimeSystem"
+    ],
+    "ActorKind": [],
+    "TreasureParticipant": [
+      "ActorKind",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityKind",
+      "HeavenGiftPlacementController",
+      "IDamageable",
+      "ItemGrade",
+      "ItemInventory",
+      "ItemText",
+      "MonsterAI",
+      "NpcCombatTechniqueSystem",
+      "NpcEconomy",
+      "NpcRoleUtility",
+      "SmartNpcAI",
+      "StatItemData",
+      "TreasureFrenzyEvent",
+      "TreasureFrenzySystem",
+      "VillagerAI",
+      "WorldEventManager",
+      "WorldStatItemPickup",
+      "WorldTimeSystem"
+    ],
+    "TreasureFrenzyEvent": [
+      "ActorKind",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityKind",
+      "HeavenGiftPlacementController",
+      "IDamageable",
+      "ItemGrade",
+      "ItemInventory",
+      "ItemText",
+      "MonsterAI",
+      "NpcCombatTechniqueSystem",
+      "NpcEconomy",
+      "NpcRoleUtility",
+      "SmartNpcAI",
+      "StatItemData",
+      "TreasureFrenzySystem",
+      "TreasureParticipant",
+      "VillagerAI",
+      "WorldEventManager",
+      "WorldStatItemPickup",
+      "WorldTimeSystem"
+    ],
+    "TreasureHeatSystem": [
+      "CultivationProgression",
+      "EntityKind",
+      "ItemGrade",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemStack",
+      "ItemText",
+      "ItemType",
+      "NpcCombatTechniqueSystem",
+      "NpcEconomy",
+      "NpcItemCollector",
+      "NpcText",
+      "NpcTradeAgent",
+      "SmartNpcAI",
+      "StatItemData",
+      "TreasureThreat",
+      "VillagerAI",
+      "WorldEventManager"
+    ],
+    "TreasureThreat": [],
+    "UIBorderSparkEffect": [],
+    "UiTextDatabase": [
+      "Entry",
+      "LocalizationSettings",
+      "NpcText",
+      "UiTextCategory",
+      "UiTextEntry",
+      "UiTextList"
+    ],
+    "UiTextCategory": [
+      "Entry",
+      "LocalizationSettings",
+      "NpcText",
+      "UiTextDatabase",
+      "UiTextEntry",
+      "UiTextList"
+    ],
+    "UiTextEntry": [
+      "Entry",
+      "LocalizationSettings",
+      "NpcText",
+      "UiTextCategory",
+      "UiTextDatabase",
+      "UiTextList"
+    ],
+    "UiTextList": [
+      "Entry",
+      "LocalizationSettings",
+      "NpcText",
+      "UiTextCategory",
+      "UiTextDatabase",
+      "UiTextEntry"
+    ],
+    "UiText": [
+      "Entry",
+      "LocalizationSettings",
+      "NpcText",
+      "UiTextCategory",
+      "UiTextDatabase",
+      "UiTextEntry",
+      "UiTextList"
+    ],
+    "UIWorldStoryManager": [
+      "LogEntry",
+      "UiText",
+      "WorldEventManager"
+    ],
+    "VillageHomeManager": [
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "VillagerAI",
+      "WorldTimePhase",
+      "WorldTimeSystem"
+    ],
+    "VillageNpcSetupTool": [
+      "ItemInventory",
+      "SmartNpcAI",
+      "VillagerAI"
+    ],
+    "VillagerAI": [
+      "BicanhSessionManager",
+      "CharacterStats",
+      "CombatStatCalculator",
+      "CultivationProgression",
+      "CultivationRealm",
+      "DailyTaskNeed",
+      "EntityGender",
+      "EntityGenerator",
+      "EntityKind",
+      "EntityPersonality",
+      "EntityProfile",
+      "Gender",
+      "HarvestJob",
+      "HeavenlyTribulationSystem",
+      "HunterJob",
+      "IDamageable",
+      "ItemInventory",
+      "ItemStack",
+      "ItemText",
+      "ItemType",
+      "LifeStage",
+      "NPCIdentity",
+      "NPCVisualAnimation",
+      "NpcAlchemyAgent",
+      "NpcCollisionRegistry",
+      "NpcCombatTechniqueSystem",
+      "NpcCounterBroker",
+      "NpcEconomy",
+      "NpcForgeAgent",
+      "NpcInventoryDropper",
+      "NpcItemCollector",
+      "NpcLifePath",
+      "NpcLocationArea",
+      "NpcLocationPurpose",
+      "NpcMapArea",
+      "NpcMapMover2D",
+      "NpcMapNavigator",
+      "NpcMapZone",
+      "NpcPathMemorySystem",
+      "NpcPerformanceOverlay",
+      "NpcResourceGatherer",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcScheduleSlot",
+      "NpcTaskOffer",
+      "NpcTaskProvider",
+      "NpcTaskType",
+      "NpcTeleportGate",
+      "NpcText",
+      "NpcTradeAgent",
+      "NpcTradeContext",
+      "NpcWorkArea",
+      "PathNode",
+      "SmartNpcAI",
+      "SpawnedWorldActor",
+      "StatItemData",
+      "StatModifier",
+      "StatType",
+      "TargetReservationSystem",
+      "VillagerAgeGroup",
+      "VillagerJob",
+      "VillagerJobDispatcher",
+      "VillagerRelationshipManager",
+      "WorldTilemapManager",
+      "WorldTimePhase",
+      "WorldTimeSystem"
+    ],
+    "VillagerAgeGroup": [],
+    "VillagerJob": [],
+    "DailyTaskNeed": [
+      "BicanhSessionManager",
+      "CharacterStats",
+      "CombatStatCalculator",
+      "CultivationProgression",
+      "CultivationRealm",
+      "EntityGender",
+      "EntityGenerator",
+      "EntityKind",
+      "EntityPersonality",
+      "EntityProfile",
+      "Gender",
+      "HarvestJob",
+      "HeavenlyTribulationSystem",
+      "HunterJob",
+      "IDamageable",
+      "ItemInventory",
+      "ItemStack",
+      "ItemText",
+      "ItemType",
+      "LifeStage",
+      "NPCIdentity",
+      "NPCVisualAnimation",
+      "NpcCollisionRegistry",
+      "NpcCombatTechniqueSystem",
+      "NpcCounterBroker",
+      "NpcEconomy",
+      "NpcForgeAgent",
+      "NpcInventoryDropper",
+      "NpcItemCollector",
+      "NpcLifePath",
+      "NpcLocationArea",
+      "NpcLocationPurpose",
+      "NpcMapArea",
+      "NpcMapMover2D",
+      "NpcMapNavigator",
+      "NpcMapZone",
+      "NpcPathMemorySystem",
+      "NpcPerformanceOverlay",
+      "NpcResourceGatherer",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcScheduleSlot",
+      "NpcTaskOffer",
+      "NpcTaskProvider",
+      "NpcTeleportGate",
+      "NpcText",
+      "NpcTradeAgent",
+      "NpcTradeContext",
+      "NpcWorkArea",
+      "PathNode",
+      "SmartNpcAI",
+      "SpawnedWorldActor",
+      "StatItemData",
+      "StatModifier",
+      "StatType",
+      "TargetReservationSystem",
+      "VillagerAI",
+      "VillagerAgeGroup",
+      "VillagerJob",
+      "VillagerJobDispatcher",
+      "VillagerRelationshipManager",
+      "WorldTilemapManager",
+      "WorldTimePhase",
+      "WorldTimeSystem"
+    ],
+    "PathNode": [
+      "BicanhSessionManager",
+      "CharacterStats",
+      "CombatStatCalculator",
+      "CultivationProgression",
+      "CultivationRealm",
+      "DailyTaskNeed",
+      "EntityGender",
+      "EntityGenerator",
+      "EntityKind",
+      "EntityPersonality",
+      "EntityProfile",
+      "Gender",
+      "HarvestJob",
+      "HeavenlyTribulationSystem",
+      "HunterJob",
+      "IDamageable",
+      "ItemInventory",
+      "ItemStack",
+      "ItemText",
+      "ItemType",
+      "LifeStage",
+      "NPCIdentity",
+      "NPCVisualAnimation",
+      "NpcCollisionRegistry",
+      "NpcCombatTechniqueSystem",
+      "NpcCounterBroker",
+      "NpcEconomy",
+      "NpcForgeAgent",
+      "NpcInventoryDropper",
+      "NpcItemCollector",
+      "NpcLifePath",
+      "NpcLocationArea",
+      "NpcLocationPurpose",
+      "NpcMapArea",
+      "NpcMapMover2D",
+      "NpcMapNavigator",
+      "NpcMapZone",
+      "NpcPathMemorySystem",
+      "NpcPerformanceOverlay",
+      "NpcResourceGatherer",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcScheduleSlot",
+      "NpcTaskOffer",
+      "NpcTaskProvider",
+      "NpcTeleportGate",
+      "NpcText",
+      "NpcTradeAgent",
+      "NpcTradeContext",
+      "NpcWorkArea",
+      "SmartNpcAI",
+      "SpawnedWorldActor",
+      "StatItemData",
+      "StatModifier",
+      "StatType",
+      "TargetReservationSystem",
+      "VillagerAI",
+      "VillagerAgeGroup",
+      "VillagerJob",
+      "VillagerJobDispatcher",
+      "VillagerRelationshipManager",
+      "WorldTilemapManager",
+      "WorldTimePhase",
+      "WorldTimeSystem"
+    ],
+    "VillagerBirthManager": [
+      "CharacterStats",
+      "EntityKind",
+      "EntityProfile",
+      "Gender",
+      "LifeStage",
+      "NPCIdentity",
+      "NPCLifecycle",
+      "NPCVisualResolver",
+      "VillagerAI",
+      "VillagerRelationship",
+      "WorldEventManager",
+      "WorldTimeSystem"
+    ],
+    "VillagerJobDispatcher": [
+      "GuardJob",
+      "HarvestJob",
+      "HealerJob",
+      "HunterJob",
+      "NpcItemCollector",
+      "NpcResourceGatherer",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "VillagerAI",
+      "VillagerJob"
+    ],
+    "VillagerRelationshipStatus": [],
+    "VillagerRelationship": [
+      "NPCIdentity",
+      "VillagerRelationshipStatus"
+    ],
+    "VillagerRelationshipManager": [
+      "Gender",
+      "NPCIdentity",
+      "VillagerAI",
+      "VillagerRelationship",
+      "VillagerRelationshipStatus",
+      "WorldEventManager",
+      "WorldTimeSystem"
+    ],
+    "VillageStorage": [
+      "ItemInventory",
+      "ItemStack",
+      "StatItemData"
+    ],
+    "WorldWeather": [],
+    "WeatherSystem": [
+      "WorldTimeSystem",
+      "WorldWeather"
+    ],
+    "WeatherVisualSystem": [
+      "WeatherSystem",
+      "WorldWeather"
+    ],
+    "WorldClockTextUI": [
+      "UiText",
+      "WorldTimeSystem"
+    ],
+    "LogEntry": [
+      "Entry",
+      "UiText",
+      "WorldEventManager",
+      "WorldEventType",
+      "WorldTimeSystem"
+    ],
+    "WorldEventManager": [
+      "Entry",
+      "LogEntry",
+      "UiText",
+      "WorldEventType",
+      "WorldTimeSystem"
+    ],
+    "WorldEventType": [],
+    "WorldEventSystem": [
+      "CharacterStats",
+      "HeavenSystem",
+      "MonsterAI",
+      "WorldEventManager",
+      "WorldEventType",
+      "WorldTimeSystem"
+    ],
+    "ResourceFieldItemEntry": [
+      "Entry",
+      "GameSaveSystem",
+      "ItemGrade",
+      "ItemType",
+      "NpcDangerTier",
+      "NpcLocationArea",
+      "NpcMapArea",
+      "NpcMapZone",
+      "ResourceNode",
+      "ResourceRespawnMode",
+      "SavedWorldResourceField",
+      "SavedWorldResourceNode",
+      "SpawnRegion",
+      "StatItemData",
+      "WorldResourceField",
+      "WorldResourceNode",
+      "WorldStatItemPickup"
+    ],
+    "SavedWorldResourceNode": [
+      "Entry",
+      "GameSaveSystem",
+      "ItemGrade",
+      "ItemType",
+      "NpcDangerTier",
+      "NpcLocationArea",
+      "NpcMapArea",
+      "NpcMapZone",
+      "ResourceFieldItemEntry",
+      "ResourceNode",
+      "ResourceRespawnMode",
+      "SavedWorldResourceField",
+      "SpawnRegion",
+      "StatItemData",
+      "WorldResourceField",
+      "WorldResourceNode",
+      "WorldStatItemPickup"
+    ],
+    "SavedWorldResourceField": [
+      "Entry",
+      "GameSaveSystem",
+      "ItemGrade",
+      "ItemType",
+      "NpcDangerTier",
+      "NpcLocationArea",
+      "NpcMapArea",
+      "NpcMapZone",
+      "ResourceFieldItemEntry",
+      "ResourceNode",
+      "ResourceRespawnMode",
+      "SavedWorldResourceNode",
+      "SpawnRegion",
+      "StatItemData",
+      "WorldResourceField",
+      "WorldResourceNode",
+      "WorldStatItemPickup"
+    ],
+    "WorldResourceField": [
+      "Entry",
+      "GameSaveSystem",
+      "ItemGrade",
+      "ItemType",
+      "NpcDangerTier",
+      "NpcLocationArea",
+      "NpcMapArea",
+      "NpcMapZone",
+      "ResourceFieldItemEntry",
+      "ResourceNode",
+      "ResourceRespawnMode",
+      "SavedWorldResourceField",
+      "SavedWorldResourceNode",
+      "SpawnRegion",
+      "StatItemData",
+      "WorldResourceNode",
+      "WorldStatItemPickup"
+    ],
+    "ResourceRespawnMode": [],
+    "WorldResourceNode": [
+      "ItemGrade",
+      "ResourceRespawnMode",
+      "SpawnRegion",
+      "WorldStatItemPickup"
+    ],
+    "WorldScreenNotificationHub": [
+      "Entry",
+      "HeavenDaoStoryReward",
+      "HeavenDaoSystem",
+      "LogEntry",
+      "NoticeKind",
+      "NoticeRequest",
+      "NoticeView",
+      "UiText",
+      "WorldEventManager"
+    ],
+    "NoticeRequest": [],
+    "NoticeKind": [],
+    "NoticeView": [],
+    "WorldSimulationBootstrap": [
+      "DayNightLightingSystem",
+      "HeavenSystem",
+      "WeatherSystem",
+      "WeatherVisualSystem",
+      "WorldEventSystem"
+    ],
+    "WorldStatItemPickup": [
+      "CharacterStats",
+      "HarvestResourceKind",
+      "ItemEffectSpawner",
+      "ItemGrade",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemText",
+      "MaterialKind",
+      "MonsterAI",
+      "NpcFavorite",
+      "NpcFavoriteManager",
+      "NpcItemCollector",
+      "NpcRoleUtility",
+      "PlayerHealth",
+      "ResourceNode",
+      "SmartNpcAI",
+      "StatItemData",
+      "TargetReservationSystem",
+      "TreasureHeatSystem",
+      "VillagerAI",
+      "WorldEventManager",
+      "WorldResourceNode"
+    ],
+    "WorldTilemapManager": [
+      "NpcMapArea",
+      "NpcMapZone",
+      "VillagerAI"
+    ],
+    "WorldTimePhase": [],
+    "WorldTimeSystem": [
+      "GameSaveSystem",
+      "UiText",
+      "VillagerBirthManager",
+      "VillagerRelationshipManager",
+      "WorldTimePhase"
+    ]
+  },
+  "incoming": {
+    "BicanhSessionManager": 8,
+    "BehaviourState": 2,
+    "BicanhDungeonResident": 3,
+    "CharacterStats": 56,
+    "CultivationProgression": 34,
+    "CultivationRealm": 45,
+    "EntityProfile": 33,
+    "HeavenDaoPower": 9,
+    "HeavenDaoSystem": 10,
+    "ItemInventory": 58,
+    "ItemStack": 40,
+    "MonsterAI": 60,
+    "NpcConversationAgent": 21,
+    "NpcDecisionBrain": 22,
+    "NpcFavorite": 15,
+    "NpcFavoriteManager": 12,
+    "NpcItemCollector": 17,
+    "NpcMemory": 21,
+    "NpcNeeds": 21,
+    "NpcNegotiationAgent": 21,
+    "NpcOverheadDialogueUI": 31,
+    "NpcPersonality": 21,
+    "NpcRelationshipGraph": 22,
+    "NpcResourceGatherer": 10,
+    "NpcRoleUtility": 58,
+    "NpcSocialIdentity": 22,
+    "NpcSocialSystem": 3,
+    "NpcTaskProvider": 18,
+    "NpcText": 74,
+    "NpcTradeAgent": 47,
+    "ParticipantSnapshot": 2,
+    "SmartNpcAI": 86,
+    "VillagerAI": 97,
+    "WorldEventSystem": 4,
+    "WorldEventType": 6,
+    "InventoryPanelUI": 9,
+    "OpenMap": 2,
+    "OpenShopUI": 1,
+    "PlayerWallet": 18,
+    "ShopPanelUI": 5,
+    "UIWorldStoryManager": 1,
+    "NpcJobState": 6,
+    "CombatStatCalculator": 18,
+    "EntityGenerator": 17,
+    "EntityKind": 26,
+    "HeavenlyTribulationSystem": 6,
+    "IDamageable": 18,
+    "NpcCombatTechniqueSystem": 16,
+    "StatItemData": 90,
+    "StatModifier": 13,
+    "StatType": 13,
+    "mau": 3,
+    "NPCVisualAnimation": 17,
+    "RangedProjectile2D": 1,
+    "SpriteDefaultDirection": 1,
+    "NpcScheduleController": 47,
+    "NpcSocialRelationship": 19,
+    "WorldTimeSystem": 71,
+    "FullGameSaveController": 5,
+    "GameSaveSystem": 26,
+    "CameraBounds": 2,
+    "NpcMapMover2D": 18,
+    "NpcTeleportGate": 14,
+    "EntityEmotion": 9,
+    "EntityGender": 13,
+    "EntityGoal": 12,
+    "EntityMemory": 9,
+    "EntityMood": 10,
+    "EntityNeeds": 10,
+    "EntityPersonality": 13,
+    "EntityRelationship": 9,
+    "EntityStats": 10,
+    "EntityTalent": 10,
+    "Gender": 20,
+    "TalentGrade": 12,
+    "EntityIdentity": 10,
+    "FavoriteNpcRowUI": 1,
+    "UiText": 20,
+    "FavoriteNpcListUI": 1,
+    "NpcPetCompanion": 4,
+    "NpcSocialEventBus": 35,
+    "MobileCameraController": 5,
+    "PlayerHealth": 8,
+    "SavedFavoriteNpcData": 2,
+    "SpawnedWorldActor": 8,
+    "FullGameSaveData": 2,
+    "CultivationManualMastery": 16,
+    "SavedInventoryData": 4,
+    "SavedShopData": 4,
+    "SavedShopStock": 4,
+    "ShopItemSlot": 9,
+    "SimpleItemShop": 10,
+    "SavedItemStack": 4,
+    "HarvestResourceKind": 4,
+    "HunterJob": 5,
+    "ItemText": 57,
+    "NpcScheduleActivity": 37,
+    "ResourceNode": 7,
+    "VillageStorage": 2,
+    "VillagerJob": 41,
+    "WorldStatItemPickup": 26,
+    "WorldTimePhase": 26,
+    "HeavenDaoUnlock": 3,
+    "LocalizationSettings": 20,
+    "Entry": 35,
+    "HeavenDaoStoryReward": 3,
+    "LogEntry": 6,
+    "WorldEventManager": 22,
+    "WorldScreenNotificationHub": 3,
+    "DayNightLightingSystem": 3,
+    "HeavenGiftEffectSession": 1,
+    "HeavenSystem": 6,
+    "HuntTargetType": 9,
+    "ItemGrade": 39,
+    "SkyDropToPosition": 2,
+    "TreasureFrenzySystem": 4,
+    "HeavenGiftPlacementController": 5,
+    "ItemType": 47,
+    "PillKind": 9,
+    "PillProtectionState": 1,
+    "ThienKiepStrikePrefab": 1,
+    "TribulationRuntime": 1,
+    "TribulationTargetMotionMode": 1,
+    "HeavenNurtureTargetData": 3,
+    "HeavenNurtureListItemUI": 1,
+    "HeavenNurtureTargetDatabase": 1,
+    "HeavenTargetType": 3,
+    "NPCIdentity": 12,
+    "PickupVisualUtility": 4,
+    "HarvestJob": 11,
+    "ItemLifecycleEventType": 26,
+    "NpcLocationArea": 11,
+    "NpcLocationPurpose": 6,
+    "NpcMapArea": 39,
+    "NpcMapNavigator": 14,
+    "NpcMapZone": 42,
+    "TargetReservationSystem": 7,
+    "WorldTilemapManager": 4,
+    "InventoryItemButtonUI": 2,
+    "ItemEffectSpawner": 20,
+    "NpcEconomy": 34,
+    "RawUsePolicy": 9,
+    "TouchSelectTarget": 2,
+    "ItemLifecycleSystem": 20,
+    "NpcAlchemyAgent": 5,
+    "NpcData": 9,
+    "NpcForgeAgent": 12,
+    "ArtifactKind": 3,
+    "EquipmentSlot": 11,
+    "FoodKind": 4,
+    "IntRange": 1,
+    "ItemUseStyle": 7,
+    "ManualKind": 6,
+    "MaterialKind": 14,
+    "NpcItemIntent": 7,
+    "ItemTargetType": 6,
+    "ItemTextCategory": 3,
+    "ItemTextEntry": 3,
+    "ItemTextDatabase": 3,
+    "GamePerformanceSettings": 1,
+    "Menumap": 1,
+    "NewGameIntroPanel": 1,
+    "CloseMap": 1,
+    "Fireball": 2,
+    "MonsterDirectionalAnimator": 1,
+    "NpcCollisionRegistry": 6,
+    "NpcInventoryDropper": 5,
+    "NpcPerformanceOverlay": 4,
+    "WeatherSystem": 23,
+    "MainMenuManager": 1,
+    "AlchemyCost": 3,
+    "AlchemyRecipe": 3,
+    "NpcCounterBroker": 22,
+    "NpcLifePath": 18,
+    "NpcTradeContext": 19,
+    "AlchemyIngredient": 3,
+    "NpcSpecialProfession": 9,
+    "NpcCombatTechniqueBuff": 2,
+    "NpcCombatTechniqueRuntime": 2,
+    "CharacterMovementAnimator": 1,
+    "NpcInteractionPoint": 7,
+    "NpcMapBoundaryClamp": 1,
+    "SmartAITaskGoal": 4,
+    "SmartAITaskPriority": 4,
+    "NpcScheduleSlot": 7,
+    "NpcEligibilitySnapshot": 1,
+    "NpcTaskOffer": 12,
+    "NpcTaskType": 8,
+    "NpcFavoriteButtonUI": 1,
+    "ForgeCost": 4,
+    "ForgeCustomerOrder": 4,
+    "ForgeRecipe": 4,
+    "ForgeIngredient": 4,
+    "LifeStage": 9,
+    "NPCVisualProfile": 2,
+    "StandReservation": 1,
+    "NpcShopStockRefill": 3,
+    "NpcDecisionKind": 20,
+    "TreasureHeatSystem": 7,
+    "NpcLawZoneInternal": 1,
+    "NPCVisualResolver": 2,
+    "NpcDangerTier": 7,
+    "NpcMapDestination": 1,
+    "ZoneLockState": 1,
+    "RememberedPath": 1,
+    "NearbyTarget": 1,
+    "WorldResourceField": 9,
+    "NpcDailyRoutineLibrary": 2,
+    "CombatRecord": 18,
+    "DailyConversation": 19,
+    "NpcConversationSession": 18,
+    "NpcMemoryRecord": 18,
+    "NpcMemoryType": 19,
+    "NpcSocialTime": 18,
+    "NpcSocialWorldInstaller": 18,
+    "WorldWeather": 22,
+    "NpcTaskRank": 5,
+    "PendingTaskGoods": 4,
+    "ResourceFieldItemEntry": 8,
+    "RunningNpcTask": 4,
+    "RunningTavernMeal": 4,
+    "TavernMealStage": 5,
+    "TavernTaskStage": 5,
+    "VillagerAgeGroup": 4,
+    "NpcTavernVisit": 1,
+    "DoorTeleportSameScene": 1,
+    "NpcTextCategory": 4,
+    "NpcTextEntry": 4,
+    "NpcTextList": 4,
+    "NpcTextDatabase": 4,
+    "ActionCategory": 1,
+    "VisualEntry": 1,
+    "WalletGrantSource": 2,
+    "AdsInitializer": 1,
+    "SceneTextEntry": 1,
+    "InventoryToggleButton": 1,
+    "PlayerWalletTextUI": 1,
+    "ShopItemButtonUI": 1,
+    "CombatPowerUtility": 3,
+    "HelpRequest": 2,
+    "NpcAreaUtility": 3,
+    "PhysiqueType": 1,
+    "SmartAITask": 1,
+    "SmartNpcHelpRequestSystem": 2,
+    "ItemConversionType": 2,
+    "NpcCultivationAwakeningUtility": 2,
+    "TimedStatItemBuff": 2,
+    "TargetReservation": 1,
+    "TaskBoardPanelUI": 1,
+    "TaskBoardRowUI": 1,
+    "BicanhBoneMonsterAI": 1,
+    "NpcHideCultivationInfo": 1,
+    "NpcInventoryPanelUI": 1,
+    "NpcPortraitIcon": 1,
+    "VillagerRelationship": 3,
+    "ActorKind": 3,
+    "TreasureFrenzyEvent": 2,
+    "TreasureParticipant": 2,
+    "TreasureThreat": 1,
+    "UiTextCategory": 4,
+    "UiTextEntry": 4,
+    "UiTextList": 4,
+    "UiTextDatabase": 4,
+    "DailyTaskNeed": 2,
+    "NpcPathMemorySystem": 3,
+    "NpcWorkArea": 3,
+    "PathNode": 2,
+    "VillagerJobDispatcher": 3,
+    "VillagerRelationshipManager": 4,
+    "NPCLifecycle": 1,
+    "GuardJob": 1,
+    "HealerJob": 1,
+    "VillagerRelationshipStatus": 2,
+    "ResourceRespawnMode": 5,
+    "SavedWorldResourceField": 3,
+    "SavedWorldResourceNode": 3,
+    "SpawnRegion": 5,
+    "WorldResourceNode": 5,
+    "NoticeKind": 1,
+    "NoticeRequest": 1,
+    "NoticeView": 1,
+    "WeatherVisualSystem": 1,
+    "VillagerBirthManager": 1,
+    "AutoDestroy": 0,
+    "BlockingTilemap2D": 0,
+    "BoneSpiritAmbush": 0,
+    "BottomMenuButtonRouter": 0,
+    "BuyerJob": 0,
+    "AutoDestroyEffect": 0,
+    "NpcRangedSkill": 0,
+    "DontDestroy": 0,
+    "DoorTeleport": 0,
+    "GiveItemToNpcButton": 0,
+    "GoldenEnergyEffect": 0,
+    "HeavenDaoPanelUI": 0,
+    "HeavenNurturePanelUI": 0,
+    "HeavenNurtureToggleButtonUI": 0,
+    "InteriorCameraFocus": 0,
+    "ItemPickup": 0,
+    "ItemStatBalanceUtility": 0,
+    "LightningHitBurst": 0,
+    "MapToggleUI": 0,
+    "MobileSafeAreaFitter": 0,
+    "MonsterAttack": 0,
+    "NpcAlchemyRole": 0,
+    "NpcCombatHitbox2D": 0,
+    "NpcEscortTaskForceStarter": 0,
+    "NpcFavoriteClickBridge": 0,
+    "NpcForgeRole": 0,
+    "NpcLawZone": 0,
+    "NpcMerchantRole": 0,
+    "NpcRageNearbyAttack": 0,
+    "NpcSharedInventoryLink": 0,
+    "NpcMonsterCombatDialogue": 0,
+    "NpcTavernEntrance": 0,
+    "PlayerWalletGrantButton": 0,
+    "PopulationWidgetUI": 0,
+    "ResponsiveCanvasScaler": 0,
+    "ResponsivePanelFitter": 0,
+    "RewardedLTAdsButton": 0,
+    "SceneLoader": 0,
+    "SceneLocalizedTextBootstrap": 0,
+    "SellerJob": 0,
+    "ShopCardHoverEffect": 0,
+    "ShopItemAssetPostprocessor": 0,
+    "ShopToggleUI": 0,
+    "StatItemApplier": 0,
+    "TaskBoardInteract": 0,
+    "TilemapObstacle2D": 0,
+    "UIBorderSparkEffect": 0,
+    "VillageHomeManager": 0,
+    "VillageNpcSetupTool": 0,
+    "WorldClockTextUI": 0,
+    "WorldSimulationBootstrap": 0
+  },
+  "outgoing": {
+    "AdsInitializer": 0,
+    "AutoDestroy": 0,
+    "BicanhBoneMonsterAI": 0,
+    "BicanhDungeonResident": 1,
+    "BicanhSessionManager": 34,
+    "BehaviourState": 34,
+    "ParticipantSnapshot": 34,
+    "BlockingTilemap2D": 0,
+    "BoneSpiritAmbush": 1,
+    "BottomMenuButtonRouter": 6,
+    "BuyerJob": 3,
+    "CameraBounds": 0,
+    "CharacterStats": 14,
+    "CloseMap": 0,
+    "AutoDestroyEffect": 0,
+    "CharacterMovementAnimator": 1,
+    "NpcRangedSkill": 1,
+    "RangedProjectile2D": 3,
+    "SpriteDefaultDirection": 0,
+    "CombatPowerUtility": 5,
+    "CombatStatCalculator": 0,
+    "CultivationProgression": 3,
+    "DailyConversation": 6,
+    "DayNightLightingSystem": 1,
+    "DontDestroy": 0,
+    "DoorTeleport": 2,
+    "DoorTeleportSameScene": 7,
+    "EntityKind": 0,
+    "EntityGender": 0,
+    "TalentGrade": 0,
+    "EntityMood": 0,
+    "EntityGoal": 0,
+    "EntityIdentity": 19,
+    "EntityStats": 19,
+    "EntityTalent": 19,
+    "EntityPersonality": 19,
+    "EntityEmotion": 19,
+    "EntityNeeds": 19,
+    "EntityMemory": 19,
+    "EntityRelationship": 19,
+    "EntityProfile": 19,
+    "EntityGenerator": 19,
+    "FavoriteNpcListUI": 4,
+    "FavoriteNpcRowUI": 4,
+    "Fireball": 5,
+    "FullGameSaveData": 12,
+    "SavedFavoriteNpcData": 12,
+    "FullGameSaveController": 12,
+    "GamePerformanceSettings": 0,
+    "SavedItemStack": 10,
+    "SavedInventoryData": 10,
+    "SavedShopStock": 10,
+    "SavedShopData": 10,
+    "GameSaveSystem": 11,
+    "GiveItemToNpcButton": 1,
+    "GoldenEnergyEffect": 0,
+    "GuardJob": 3,
+    "HarvestJob": 18,
+    "HealerJob": 3,
+    "HeavenDaoPanelUI": 4,
+    "HeavenDaoPower": 0,
+    "HeavenDaoUnlock": 7,
+    "HeavenDaoStoryReward": 7,
+    "HeavenDaoSystem": 7,
+    "HeavenGiftPlacementController": 23,
+    "HeavenGiftEffectSession": 23,
+    "TribulationTargetMotionMode": 0,
+    "HeavenlyTribulationSystem": 16,
+    "PillProtectionState": 0,
+    "TribulationRuntime": 0,
+    "HeavenNurtureListItemUI": 2,
+    "HeavenNurturePanelUI": 17,
+    "HeavenTargetType": 0,
+    "HeavenNurtureTargetData": 2,
+    "HeavenNurtureTargetDatabase": 3,
+    "HeavenNurtureToggleButtonUI": 0,
+    "HeavenSystem": 6,
+    "HunterJob": 26,
+    "IDamageable": 0,
+    "InteriorCameraFocus": 1,
+    "InventoryItemButtonUI": 2,
+    "InventoryPanelUI": 18,
+    "InventoryToggleButton": 2,
+    "ItemEffectSpawner": 1,
+    "ItemStack": 14,
+    "ItemInventory": 15,
+    "ItemLifecycleEventType": 0,
+    "ItemLifecycleSystem": 5,
+    "ItemPickup": 2,
+    "ItemStatBalanceUtility": 15,
+    "IntRange": 0,
+    "ItemTextDatabase": 13,
+    "ItemTextCategory": 13,
+    "ItemTextEntry": 13,
+    "ItemText": 14,
+    "LightningHitBurst": 0,
+    "LocalizationSettings": 0,
+    "MainMenuManager": 8,
+    "MapToggleUI": 2,
+    "mau": 2,
+    "Menumap": 2,
+    "MobileCameraController": 0,
+    "MobileSafeAreaFitter": 0,
+    "MonsterAI": 33,
+    "HuntTargetType": 0,
+    "MonsterAttack": 6,
+    "MonsterDirectionalAnimator": 0,
+    "NewGameIntroPanel": 3,
+    "AlchemyIngredient": 22,
+    "AlchemyRecipe": 22,
+    "NpcAlchemyAgent": 23,
+    "AlchemyCost": 22,
+    "NpcAlchemyRole": 6,
+    "NpcAreaUtility": 2,
+    "NpcCollisionRegistry": 1,
+    "Entry": 0,
+    "NpcCombatHitbox2D": 7,
+    "NpcCombatTechniqueSystem": 17,
+    "NpcCombatTechniqueRuntime": 17,
+    "NpcCombatTechniqueBuff": 17,
+    "NpcCounterBroker": 20,
+    "NpcCultivationAwakeningUtility": 18,
+    "NpcDailyRoutineLibrary": 9,
+    "NpcData": 0,
+    "NpcTradeContext": 0,
+    "NpcEconomy": 10,
+    "NpcEscortTaskForceStarter": 6,
+    "NpcEligibilitySnapshot": 0,
+    "NpcFavorite": 9,
+    "NpcFavoriteButtonUI": 9,
+    "NpcFavoriteClickBridge": 5,
+    "NpcFavoriteManager": 6,
+    "ForgeIngredient": 30,
+    "ForgeRecipe": 30,
+    "ForgeCustomerOrder": 30,
+    "NpcForgeAgent": 30,
+    "ForgeCost": 30,
+    "NpcForgeRole": 6,
+    "NpcHideCultivationInfo": 0,
+    "Gender": 0,
+    "LifeStage": 0,
+    "NPCIdentity": 3,
+    "NpcInteractionPoint": 4,
+    "StandReservation": 3,
+    "NpcInventoryDropper": 6,
+    "NpcInventoryPanelUI": 16,
+    "NpcItemCollector": 17,
+    "NpcJobState": 0,
+    "NpcLawZone": 1,
+    "NPCLifecycle": 4,
+    "NpcLocationPurpose": 0,
+    "NpcDangerTier": 0,
+    "NpcLocationArea": 10,
+    "NpcMapZone": 0,
+    "NpcMapArea": 1,
+    "NpcMapBoundaryClamp": 4,
+    "NpcMapDestination": 1,
+    "NpcMapMover2D": 8,
+    "NpcMapNavigator": 6,
+    "ZoneLockState": 0,
+    "NpcMerchantRole": 5,
+    "NpcPathMemorySystem": 1,
+    "RememberedPath": 0,
+    "NpcPerformanceOverlay": 2,
+    "NpcPetCompanion": 0,
+    "NpcPortraitIcon": 0,
+    "NpcRageNearbyAttack": 10,
+    "NearbyTarget": 0,
+    "NpcResourceGatherer": 27,
+    "NpcRoleUtility": 16,
+    "NpcLifePath": 0,
+    "NpcScheduleActivity": 0,
+    "NpcScheduleSlot": 8,
+    "NpcScheduleController": 8,
+    "NpcSharedInventoryLink": 1,
+    "NpcShopStockRefill": 7,
+    "NpcSocialSystem": 37,
+    "NpcMemoryType": 0,
+    "NpcDecisionKind": 0,
+    "NpcMemoryRecord": 36,
+    "NpcSocialRelationship": 36,
+    "NpcSocialEventBus": 36,
+    "NpcMonsterCombatDialogue": 37,
+    "CombatRecord": 36,
+    "NpcSocialIdentity": 36,
+    "NpcNeeds": 36,
+    "NpcPersonality": 36,
+    "NpcRelationshipGraph": 36,
+    "NpcMemory": 36,
+    "NpcOverheadDialogueUI": 36,
+    "NpcConversationSession": 36,
+    "NpcConversationAgent": 36,
+    "NpcDecisionBrain": 36,
+    "NpcNegotiationAgent": 36,
+    "NpcLawZoneInternal": 37,
+    "NpcSocialWorldInstaller": 36,
+    "NpcSocialTime": 36,
+    "NpcSpecialProfession": 2,
+    "NpcTaskType": 0,
+    "NpcTaskRank": 0,
+    "TavernTaskStage": 0,
+    "TavernMealStage": 0,
+    "NpcTaskOffer": 45,
+    "RunningNpcTask": 45,
+    "RunningTavernMeal": 45,
+    "PendingTaskGoods": 45,
+    "NpcTaskProvider": 47,
+    "NpcTavernEntrance": 7,
+    "NpcTavernVisit": 6,
+    "NpcTeleportGate": 9,
+    "NpcTextDatabase": 9,
+    "NpcTextCategory": 9,
+    "NpcTextEntry": 9,
+    "NpcTextList": 9,
+    "NpcText": 10,
+    "NpcTradeAgent": 19,
+    "NPCVisualAnimation": 2,
+    "ActionCategory": 0,
+    "NPCVisualProfile": 4,
+    "VisualEntry": 4,
+    "NPCVisualResolver": 4,
+    "NpcWorkArea": 1,
+    "OpenMap": 2,
+    "OpenShopUI": 0,
+    "PickupVisualUtility": 0,
+    "PlayerHealth": 5,
+    "WalletGrantSource": 0,
+    "PlayerWallet": 2,
+    "PlayerWalletGrantButton": 3,
+    "PlayerWalletTextUI": 2,
+    "PopulationWidgetUI": 4,
+    "HarvestResourceKind": 0,
+    "ResourceNode": 3,
+    "ResponsiveCanvasScaler": 0,
+    "ResponsivePanelFitter": 0,
+    "RewardedLTAdsButton": 4,
+    "SceneLoader": 1,
+    "SceneLocalizedTextBootstrap": 5,
+    "SceneTextEntry": 0,
+    "SellerJob": 5,
+    "ShopCardHoverEffect": 0,
+    "ShopItemAssetPostprocessor": 1,
+    "ShopItemButtonUI": 5,
+    "ShopPanelUI": 15,
+    "ShopToggleUI": 0,
+    "ShopItemSlot": 14,
+    "SimpleItemShop": 14,
+    "SkyDropToPosition": 0,
+    "SmartAITaskGoal": 0,
+    "SmartAITaskPriority": 0,
+    "SmartAITask": 2,
+    "SmartNpcAI": 64,
+    "CultivationRealm": 0,
+    "PhysiqueType": 0,
+    "SmartNpcHelpRequestSystem": 5,
+    "HelpRequest": 5,
+    "SpawnedWorldActor": 0,
+    "SpawnRegion": 0,
+    "StatItemApplier": 1,
+    "ItemType": 0,
+    "ItemGrade": 0,
+    "CultivationManualMastery": 0,
+    "RawUsePolicy": 0,
+    "NpcItemIntent": 0,
+    "ItemUseStyle": 0,
+    "EquipmentSlot": 0,
+    "ArtifactKind": 0,
+    "PillKind": 0,
+    "ManualKind": 0,
+    "MaterialKind": 0,
+    "FoodKind": 0,
+    "ItemConversionType": 0,
+    "ItemTargetType": 0,
+    "StatType": 0,
+    "StatModifier": 24,
+    "StatItemData": 25,
+    "TargetReservationSystem": 1,
+    "TargetReservation": 1,
+    "TaskBoardInteract": 2,
+    "TaskBoardPanelUI": 3,
+    "TaskBoardRowUI": 5,
+    "ThienKiepStrikePrefab": 0,
+    "TilemapObstacle2D": 0,
+    "TimedStatItemBuff": 1,
+    "TouchSelectTarget": 35,
+    "TreasureFrenzySystem": 21,
+    "ActorKind": 0,
+    "TreasureParticipant": 21,
+    "TreasureFrenzyEvent": 21,
+    "TreasureHeatSystem": 18,
+    "TreasureThreat": 0,
+    "UIBorderSparkEffect": 0,
+    "UiTextDatabase": 6,
+    "UiTextCategory": 6,
+    "UiTextEntry": 6,
+    "UiTextList": 6,
+    "UiText": 7,
+    "UIWorldStoryManager": 3,
+    "VillageHomeManager": 5,
+    "VillageNpcSetupTool": 3,
+    "VillagerAI": 67,
+    "VillagerAgeGroup": 0,
+    "VillagerJob": 0,
+    "DailyTaskNeed": 64,
+    "PathNode": 64,
+    "VillagerBirthManager": 12,
+    "VillagerJobDispatcher": 10,
+    "VillagerRelationshipStatus": 0,
+    "VillagerRelationship": 2,
+    "VillagerRelationshipManager": 7,
+    "VillageStorage": 3,
+    "WorldWeather": 0,
+    "WeatherSystem": 2,
+    "WeatherVisualSystem": 2,
+    "WorldClockTextUI": 2,
+    "LogEntry": 5,
+    "WorldEventManager": 5,
+    "WorldEventType": 0,
+    "WorldEventSystem": 6,
+    "ResourceFieldItemEntry": 17,
+    "SavedWorldResourceNode": 17,
+    "SavedWorldResourceField": 17,
+    "WorldResourceField": 17,
+    "ResourceRespawnMode": 0,
+    "WorldResourceNode": 4,
+    "WorldScreenNotificationHub": 9,
+    "NoticeRequest": 0,
+    "NoticeKind": 0,
+    "NoticeView": 0,
+    "WorldSimulationBootstrap": 5,
+    "WorldStatItemPickup": 23,
+    "WorldTilemapManager": 3,
+    "WorldTimePhase": 0,
+    "WorldTimeSystem": 5
+  },
+  "components": [
+    [
+      "ActionCategory",
+      "ActorKind",
+      "AdsInitializer",
+      "AlchemyCost",
+      "AlchemyIngredient",
+      "AlchemyRecipe",
+      "ArtifactKind",
+      "BehaviourState",
+      "BicanhBoneMonsterAI",
+      "BicanhDungeonResident",
+      "BicanhSessionManager",
+      "BoneSpiritAmbush",
+      "BottomMenuButtonRouter",
+      "BuyerJob",
+      "CameraBounds",
+      "CharacterMovementAnimator",
+      "CharacterStats",
+      "CloseMap",
+      "CombatPowerUtility",
+      "CombatRecord",
+      "CombatStatCalculator",
+      "CultivationManualMastery",
+      "CultivationProgression",
+      "CultivationRealm",
+      "DailyConversation",
+      "DailyTaskNeed",
+      "DayNightLightingSystem",
+      "DoorTeleport",
+      "DoorTeleportSameScene",
+      "EntityEmotion",
+      "EntityGender",
+      "EntityGenerator",
+      "EntityGoal",
+      "EntityIdentity",
+      "EntityKind",
+      "EntityMemory",
+      "EntityMood",
+      "EntityNeeds",
+      "EntityPersonality",
+      "EntityProfile",
+      "EntityRelationship",
+      "EntityStats",
+      "EntityTalent",
+      "Entry",
+      "EquipmentSlot",
+      "FavoriteNpcListUI",
+      "FavoriteNpcRowUI",
+      "Fireball",
+      "FoodKind",
+      "ForgeCost",
+      "ForgeCustomerOrder",
+      "ForgeIngredient",
+      "ForgeRecipe",
+      "FullGameSaveController",
+      "FullGameSaveData",
+      "GamePerformanceSettings",
+      "GameSaveSystem",
+      "Gender",
+      "GiveItemToNpcButton",
+      "GuardJob",
+      "HarvestJob",
+      "HarvestResourceKind",
+      "HealerJob",
+      "HeavenDaoPanelUI",
+      "HeavenDaoPower",
+      "HeavenDaoStoryReward",
+      "HeavenDaoSystem",
+      "HeavenDaoUnlock",
+      "HeavenGiftEffectSession",
+      "HeavenGiftPlacementController",
+      "HeavenNurtureListItemUI",
+      "HeavenNurturePanelUI",
+      "HeavenNurtureTargetData",
+      "HeavenNurtureTargetDatabase",
+      "HeavenSystem",
+      "HeavenTargetType",
+      "HeavenlyTribulationSystem",
+      "HelpRequest",
+      "HuntTargetType",
+      "HunterJob",
+      "IDamageable",
+      "IntRange",
+      "InteriorCameraFocus",
+      "InventoryItemButtonUI",
+      "InventoryPanelUI",
+      "InventoryToggleButton",
+      "ItemConversionType",
+      "ItemEffectSpawner",
+      "ItemGrade",
+      "ItemInventory",
+      "ItemLifecycleEventType",
+      "ItemLifecycleSystem",
+      "ItemPickup",
+      "ItemStack",
+      "ItemStatBalanceUtility",
+      "ItemTargetType",
+      "ItemText",
+      "ItemTextCategory",
+      "ItemTextDatabase",
+      "ItemTextEntry",
+      "ItemType",
+      "ItemUseStyle",
+      "LifeStage",
+      "LocalizationSettings",
+      "LogEntry",
+      "MainMenuManager",
+      "ManualKind",
+      "MapToggleUI",
+      "MaterialKind",
+      "Menumap",
+      "MobileCameraController",
+      "MonsterAI",
+      "MonsterAttack",
+      "MonsterDirectionalAnimator",
+      "NPCIdentity",
+      "NPCLifecycle",
+      "NPCVisualAnimation",
+      "NPCVisualProfile",
+      "NPCVisualResolver",
+      "NearbyTarget",
+      "NewGameIntroPanel",
+      "NoticeKind",
+      "NoticeRequest",
+      "NoticeView",
+      "NpcAlchemyAgent",
+      "NpcAlchemyRole",
+      "NpcAreaUtility",
+      "NpcCollisionRegistry",
+      "NpcCombatHitbox2D",
+      "NpcCombatTechniqueBuff",
+      "NpcCombatTechniqueRuntime",
+      "NpcCombatTechniqueSystem",
+      "NpcConversationAgent",
+      "NpcConversationSession",
+      "NpcCounterBroker",
+      "NpcCultivationAwakeningUtility",
+      "NpcDailyRoutineLibrary",
+      "NpcDangerTier",
+      "NpcData",
+      "NpcDecisionBrain",
+      "NpcDecisionKind",
+      "NpcEconomy",
+      "NpcEligibilitySnapshot",
+      "NpcEscortTaskForceStarter",
+      "NpcFavorite",
+      "NpcFavoriteButtonUI",
+      "NpcFavoriteClickBridge",
+      "NpcFavoriteManager",
+      "NpcForgeAgent",
+      "NpcForgeRole",
+      "NpcHideCultivationInfo",
+      "NpcInteractionPoint",
+      "NpcInventoryDropper",
+      "NpcInventoryPanelUI",
+      "NpcItemCollector",
+      "NpcItemIntent",
+      "NpcJobState",
+      "NpcLawZone",
+      "NpcLawZoneInternal",
+      "NpcLifePath",
+      "NpcLocationArea",
+      "NpcLocationPurpose",
+      "NpcMapArea",
+      "NpcMapBoundaryClamp",
+      "NpcMapDestination",
+      "NpcMapMover2D",
+      "NpcMapNavigator",
+      "NpcMapZone",
+      "NpcMemory",
+      "NpcMemoryRecord",
+      "NpcMemoryType",
+      "NpcMerchantRole",
+      "NpcMonsterCombatDialogue",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPathMemorySystem",
+      "NpcPerformanceOverlay",
+      "NpcPersonality",
+      "NpcPetCompanion",
+      "NpcPortraitIcon",
+      "NpcRageNearbyAttack",
+      "NpcRangedSkill",
+      "NpcRelationshipGraph",
+      "NpcResourceGatherer",
+      "NpcRoleUtility",
+      "NpcScheduleActivity",
+      "NpcScheduleController",
+      "NpcScheduleSlot",
+      "NpcSharedInventoryLink",
+      "NpcShopStockRefill",
+      "NpcSocialEventBus",
+      "NpcSocialIdentity",
+      "NpcSocialRelationship",
+      "NpcSocialSystem",
+      "NpcSocialTime",
+      "NpcSocialWorldInstaller",
+      "NpcSpecialProfession",
+      "NpcTaskOffer",
+      "NpcTaskProvider",
+      "NpcTaskRank",
+      "NpcTaskType",
+      "NpcTavernEntrance",
+      "NpcTavernVisit",
+      "NpcTeleportGate",
+      "NpcText",
+      "NpcTextCategory",
+      "NpcTextDatabase",
+      "NpcTextEntry",
+      "NpcTextList",
+      "NpcTradeAgent",
+      "NpcTradeContext",
+      "NpcWorkArea",
+      "OpenMap",
+      "OpenShopUI",
+      "ParticipantSnapshot",
+      "PathNode",
+      "PendingTaskGoods",
+      "PhysiqueType",
+      "PickupVisualUtility",
+      "PillKind",
+      "PillProtectionState",
+      "PlayerHealth",
+      "PlayerWallet",
+      "PlayerWalletGrantButton",
+      "PlayerWalletTextUI",
+      "PopulationWidgetUI",
+      "RangedProjectile2D",
+      "RawUsePolicy",
+      "RememberedPath",
+      "ResourceFieldItemEntry",
+      "ResourceNode",
+      "ResourceRespawnMode",
+      "RewardedLTAdsButton",
+      "RunningNpcTask",
+      "RunningTavernMeal",
+      "SavedFavoriteNpcData",
+      "SavedInventoryData",
+      "SavedItemStack",
+      "SavedShopData",
+      "SavedShopStock",
+      "SavedWorldResourceField",
+      "SavedWorldResourceNode",
+      "SceneLoader",
+      "SceneLocalizedTextBootstrap",
+      "SceneTextEntry",
+      "SellerJob",
+      "ShopItemAssetPostprocessor",
+      "ShopItemButtonUI",
+      "ShopItemSlot",
+      "ShopPanelUI",
+      "SimpleItemShop",
+      "SkyDropToPosition",
+      "SmartAITask",
+      "SmartAITaskGoal",
+      "SmartAITaskPriority",
+      "SmartNpcAI",
+      "SmartNpcHelpRequestSystem",
+      "SpawnRegion",
+      "SpawnedWorldActor",
+      "SpriteDefaultDirection",
+      "StandReservation",
+      "StatItemApplier",
+      "StatItemData",
+      "StatModifier",
+      "StatType",
+      "TalentGrade",
+      "TargetReservation",
+      "TargetReservationSystem",
+      "TaskBoardInteract",
+      "TaskBoardPanelUI",
+      "TaskBoardRowUI",
+      "TavernMealStage",
+      "TavernTaskStage",
+      "ThienKiepStrikePrefab",
+      "TimedStatItemBuff",
+      "TouchSelectTarget",
+      "TreasureFrenzyEvent",
+      "TreasureFrenzySystem",
+      "TreasureHeatSystem",
+      "TreasureParticipant",
+      "TreasureThreat",
+      "TribulationRuntime",
+      "TribulationTargetMotionMode",
+      "UIWorldStoryManager",
+      "UiText",
+      "UiTextCategory",
+      "UiTextDatabase",
+      "UiTextEntry",
+      "UiTextList",
+      "VillageHomeManager",
+      "VillageNpcSetupTool",
+      "VillageStorage",
+      "VillagerAI",
+      "VillagerAgeGroup",
+      "VillagerBirthManager",
+      "VillagerJob",
+      "VillagerJobDispatcher",
+      "VillagerRelationship",
+      "VillagerRelationshipManager",
+      "VillagerRelationshipStatus",
+      "VisualEntry",
+      "WalletGrantSource",
+      "WeatherSystem",
+      "WeatherVisualSystem",
+      "WorldClockTextUI",
+      "WorldEventManager",
+      "WorldEventSystem",
+      "WorldEventType",
+      "WorldResourceField",
+      "WorldResourceNode",
+      "WorldScreenNotificationHub",
+      "WorldSimulationBootstrap",
+      "WorldStatItemPickup",
+      "WorldTilemapManager",
+      "WorldTimePhase",
+      "WorldTimeSystem",
+      "WorldWeather",
+      "ZoneLockState",
+      "mau"
+    ],
+    [
+      "AutoDestroy"
+    ],
+    [
+      "AutoDestroyEffect"
+    ],
+    [
+      "BlockingTilemap2D"
+    ],
+    [
+      "DontDestroy"
+    ],
+    [
+      "GoldenEnergyEffect"
+    ],
+    [
+      "HeavenNurtureToggleButtonUI"
+    ],
+    [
+      "LightningHitBurst"
+    ],
+    [
+      "MobileSafeAreaFitter"
+    ],
+    [
+      "ResponsiveCanvasScaler"
+    ],
+    [
+      "ResponsivePanelFitter"
+    ],
+    [
+      "ShopCardHoverEffect"
+    ],
+    [
+      "ShopToggleUI"
+    ],
+    [
+      "TilemapObstacle2D"
+    ],
+    [
+      "UIBorderSparkEffect"
+    ]
+  ],
+  "strongly_connected_components": [
+    [
+      "AlchemyCost",
+      "AlchemyIngredient",
+      "AlchemyRecipe",
+      "BehaviourState",
+      "BicanhDungeonResident",
+      "BicanhSessionManager",
+      "CharacterMovementAnimator",
+      "CharacterStats",
+      "CombatPowerUtility",
+      "CombatRecord",
+      "DailyConversation",
+      "DailyTaskNeed",
+      "DoorTeleportSameScene",
+      "EntityEmotion",
+      "EntityGenerator",
+      "EntityIdentity",
+      "EntityMemory",
+      "EntityNeeds",
+      "EntityPersonality",
+      "EntityProfile",
+      "EntityRelationship",
+      "EntityStats",
+      "EntityTalent",
+      "Fireball",
+      "ForgeCost",
+      "ForgeCustomerOrder",
+      "ForgeIngredient",
+      "ForgeRecipe",
+      "GameSaveSystem",
+      "GuardJob",
+      "HarvestJob",
+      "HealerJob",
+      "HeavenDaoStoryReward",
+      "HeavenDaoSystem",
+      "HeavenDaoUnlock",
+      "HeavenSystem",
+      "HeavenlyTribulationSystem",
+      "HelpRequest",
+      "HunterJob",
+      "ItemEffectSpawner",
+      "ItemInventory",
+      "ItemLifecycleSystem",
+      "ItemStack",
+      "ItemText",
+      "ItemTextCategory",
+      "ItemTextDatabase",
+      "ItemTextEntry",
+      "LogEntry",
+      "MonsterAI",
+      "NPCLifecycle",
+      "NPCVisualAnimation",
+      "NPCVisualResolver",
+      "NpcAlchemyAgent",
+      "NpcAreaUtility",
+      "NpcCombatTechniqueBuff",
+      "NpcCombatTechniqueRuntime",
+      "NpcCombatTechniqueSystem",
+      "NpcConversationAgent",
+      "NpcConversationSession",
+      "NpcCounterBroker",
+      "NpcCultivationAwakeningUtility",
+      "NpcDailyRoutineLibrary",
+      "NpcDecisionBrain",
+      "NpcEconomy",
+      "NpcFavorite",
+      "NpcFavoriteManager",
+      "NpcForgeAgent",
+      "NpcInteractionPoint",
+      "NpcInventoryDropper",
+      "NpcItemCollector",
+      "NpcLocationArea",
+      "NpcMapBoundaryClamp",
+      "NpcMapMover2D",
+      "NpcMapNavigator",
+      "NpcMemory",
+      "NpcMemoryRecord",
+      "NpcNeeds",
+      "NpcNegotiationAgent",
+      "NpcOverheadDialogueUI",
+      "NpcPerformanceOverlay",
+      "NpcPersonality",
+      "NpcRelationshipGraph",
+      "NpcResourceGatherer",
+      "NpcRoleUtility",
+      "NpcScheduleController",
+      "NpcScheduleSlot",
+      "NpcShopStockRefill",
+      "NpcSocialEventBus",
+      "NpcSocialIdentity",
+      "NpcSocialRelationship",
+      "NpcSocialSystem",
+      "NpcSocialTime",
+      "NpcSocialWorldInstaller",
+      "NpcSpecialProfession",
+      "NpcTaskOffer",
+      "NpcTaskProvider",
+      "NpcTeleportGate",
+      "NpcText",
+      "NpcTextCategory",
+      "NpcTextDatabase",
+      "NpcTextEntry",
+      "NpcTextList",
+      "NpcTradeAgent",
+      "ParticipantSnapshot",
+      "PathNode",
+      "PendingTaskGoods",
+      "PlayerHealth",
+      "PlayerWallet",
+      "ResourceFieldItemEntry",
+      "ResourceNode",
+      "RunningNpcTask",
+      "RunningTavernMeal",
+      "SavedInventoryData",
+      "SavedItemStack",
+      "SavedShopData",
+      "SavedShopStock",
+      "SavedWorldResourceField",
+      "SavedWorldResourceNode",
+      "ShopItemSlot",
+      "SimpleItemShop",
+      "SmartNpcAI",
+      "SmartNpcHelpRequestSystem",
+      "StandReservation",
+      "StatItemData",
+      "StatModifier",
+      "TimedStatItemBuff",
+      "TreasureHeatSystem",
+      "UiText",
+      "UiTextCategory",
+      "UiTextDatabase",
+      "UiTextEntry",
+      "UiTextList",
+      "VillageStorage",
+      "VillagerAI",
+      "VillagerBirthManager",
+      "VillagerJobDispatcher",
+      "VillagerRelationshipManager",
+      "WeatherSystem",
+      "WorldEventManager",
+      "WorldEventSystem",
+      "WorldResourceField",
+      "WorldResourceNode",
+      "WorldScreenNotificationHub",
+      "WorldStatItemPickup",
+      "WorldTilemapManager",
+      "WorldTimeSystem",
+      "mau"
+    ],
+    [
+      "InventoryItemButtonUI",
+      "InventoryPanelUI",
+      "InventoryToggleButton",
+      "NpcInventoryPanelUI",
+      "ShopItemButtonUI",
+      "ShopPanelUI",
+      "TouchSelectTarget"
+    ],
+    [
+      "HeavenGiftEffectSession",
+      "HeavenGiftPlacementController",
+      "TreasureFrenzyEvent",
+      "TreasureFrenzySystem",
+      "TreasureParticipant"
+    ],
+    [
+      "FullGameSaveController",
+      "FullGameSaveData",
+      "SavedFavoriteNpcData"
+    ],
+    [
+      "FavoriteNpcListUI",
+      "FavoriteNpcRowUI"
+    ],
+    [
+      "MainMenuManager",
+      "NewGameIntroPanel"
+    ],
+    [
+      "NPCVisualProfile",
+      "VisualEntry"
+    ],
+    [
+      "TargetReservation",
+      "TargetReservationSystem"
+    ],
+    [
+      "ActionCategory"
+    ],
+    [
+      "ActorKind"
+    ],
+    [
+      "AdsInitializer"
+    ],
+    [
+      "ArtifactKind"
+    ],
+    [
+      "AutoDestroy"
+    ],
+    [
+      "AutoDestroyEffect"
+    ],
+    [
+      "BicanhBoneMonsterAI"
+    ],
+    [
+      "BlockingTilemap2D"
+    ],
+    [
+      "BoneSpiritAmbush"
+    ],
+    [
+      "BottomMenuButtonRouter"
+    ],
+    [
+      "BuyerJob"
+    ],
+    [
+      "CameraBounds"
+    ],
+    [
+      "CloseMap"
+    ],
+    [
+      "CombatStatCalculator"
+    ],
+    [
+      "CultivationManualMastery"
+    ],
+    [
+      "CultivationProgression"
+    ],
+    [
+      "CultivationRealm"
+    ],
+    [
+      "DayNightLightingSystem"
+    ],
+    [
+      "DontDestroy"
+    ],
+    [
+      "DoorTeleport"
+    ],
+    [
+      "EntityGender"
+    ],
+    [
+      "EntityGoal"
+    ],
+    [
+      "EntityKind"
+    ],
+    [
+      "EntityMood"
+    ],
+    [
+      "Entry"
+    ],
+    [
+      "EquipmentSlot"
+    ],
+    [
+      "FoodKind"
+    ],
+    [
+      "GamePerformanceSettings"
+    ],
+    [
+      "Gender"
+    ],
+    [
+      "GiveItemToNpcButton"
+    ],
+    [
+      "GoldenEnergyEffect"
+    ],
+    [
+      "HarvestResourceKind"
+    ],
+    [
+      "HeavenDaoPanelUI"
+    ],
+    [
+      "HeavenDaoPower"
+    ],
+    [
+      "HeavenNurtureListItemUI"
+    ],
+    [
+      "HeavenNurturePanelUI"
+    ],
+    [
+      "HeavenNurtureTargetData"
+    ],
+    [
+      "HeavenNurtureTargetDatabase"
+    ],
+    [
+      "HeavenNurtureToggleButtonUI"
+    ],
+    [
+      "HeavenTargetType"
+    ],
+    [
+      "HuntTargetType"
+    ],
+    [
+      "IDamageable"
+    ],
+    [
+      "IntRange"
+    ],
+    [
+      "InteriorCameraFocus"
+    ],
+    [
+      "ItemConversionType"
+    ],
+    [
+      "ItemGrade"
+    ],
+    [
+      "ItemLifecycleEventType"
+    ],
+    [
+      "ItemPickup"
+    ],
+    [
+      "ItemStatBalanceUtility"
+    ],
+    [
+      "ItemTargetType"
+    ],
+    [
+      "ItemType"
+    ],
+    [
+      "ItemUseStyle"
+    ],
+    [
+      "LifeStage"
+    ],
+    [
+      "LightningHitBurst"
+    ],
+    [
+      "LocalizationSettings"
+    ],
+    [
+      "ManualKind"
+    ],
+    [
+      "MapToggleUI"
+    ],
+    [
+      "MaterialKind"
+    ],
+    [
+      "Menumap"
+    ],
+    [
+      "MobileCameraController"
+    ],
+    [
+      "MobileSafeAreaFitter"
+    ],
+    [
+      "MonsterAttack"
+    ],
+    [
+      "MonsterDirectionalAnimator"
+    ],
+    [
+      "NPCIdentity"
+    ],
+    [
+      "NearbyTarget"
+    ],
+    [
+      "NoticeKind"
+    ],
+    [
+      "NoticeRequest"
+    ],
+    [
+      "NoticeView"
+    ],
+    [
+      "NpcAlchemyRole"
+    ],
+    [
+      "NpcCollisionRegistry"
+    ],
+    [
+      "NpcCombatHitbox2D"
+    ],
+    [
+      "NpcDangerTier"
+    ],
+    [
+      "NpcData"
+    ],
+    [
+      "NpcDecisionKind"
+    ],
+    [
+      "NpcEligibilitySnapshot"
+    ],
+    [
+      "NpcEscortTaskForceStarter"
+    ],
+    [
+      "NpcFavoriteButtonUI"
+    ],
+    [
+      "NpcFavoriteClickBridge"
+    ],
+    [
+      "NpcForgeRole"
+    ],
+    [
+      "NpcHideCultivationInfo"
+    ],
+    [
+      "NpcItemIntent"
+    ],
+    [
+      "NpcJobState"
+    ],
+    [
+      "NpcLawZone"
+    ],
+    [
+      "NpcLawZoneInternal"
+    ],
+    [
+      "NpcLifePath"
+    ],
+    [
+      "NpcLocationPurpose"
+    ],
+    [
+      "NpcMapArea"
+    ],
+    [
+      "NpcMapDestination"
+    ],
+    [
+      "NpcMapZone"
+    ],
+    [
+      "NpcMemoryType"
+    ],
+    [
+      "NpcMerchantRole"
+    ],
+    [
+      "NpcMonsterCombatDialogue"
+    ],
+    [
+      "NpcPathMemorySystem"
+    ],
+    [
+      "NpcPetCompanion"
+    ],
+    [
+      "NpcPortraitIcon"
+    ],
+    [
+      "NpcRageNearbyAttack"
+    ],
+    [
+      "NpcRangedSkill"
+    ],
+    [
+      "NpcScheduleActivity"
+    ],
+    [
+      "NpcSharedInventoryLink"
+    ],
+    [
+      "NpcTaskRank"
+    ],
+    [
+      "NpcTaskType"
+    ],
+    [
+      "NpcTavernEntrance"
+    ],
+    [
+      "NpcTavernVisit"
+    ],
+    [
+      "NpcTradeContext"
+    ],
+    [
+      "NpcWorkArea"
+    ],
+    [
+      "OpenMap"
+    ],
+    [
+      "OpenShopUI"
+    ],
+    [
+      "PhysiqueType"
+    ],
+    [
+      "PickupVisualUtility"
+    ],
+    [
+      "PillKind"
+    ],
+    [
+      "PillProtectionState"
+    ],
+    [
+      "PlayerWalletGrantButton"
+    ],
+    [
+      "PlayerWalletTextUI"
+    ],
+    [
+      "PopulationWidgetUI"
+    ],
+    [
+      "RangedProjectile2D"
+    ],
+    [
+      "RawUsePolicy"
+    ],
+    [
+      "RememberedPath"
+    ],
+    [
+      "ResourceRespawnMode"
+    ],
+    [
+      "ResponsiveCanvasScaler"
+    ],
+    [
+      "ResponsivePanelFitter"
+    ],
+    [
+      "RewardedLTAdsButton"
+    ],
+    [
+      "SceneLoader"
+    ],
+    [
+      "SceneLocalizedTextBootstrap"
+    ],
+    [
+      "SceneTextEntry"
+    ],
+    [
+      "SellerJob"
+    ],
+    [
+      "ShopCardHoverEffect"
+    ],
+    [
+      "ShopItemAssetPostprocessor"
+    ],
+    [
+      "ShopToggleUI"
+    ],
+    [
+      "SkyDropToPosition"
+    ],
+    [
+      "SmartAITask"
+    ],
+    [
+      "SmartAITaskGoal"
+    ],
+    [
+      "SmartAITaskPriority"
+    ],
+    [
+      "SpawnRegion"
+    ],
+    [
+      "SpawnedWorldActor"
+    ],
+    [
+      "SpriteDefaultDirection"
+    ],
+    [
+      "StatItemApplier"
+    ],
+    [
+      "StatType"
+    ],
+    [
+      "TalentGrade"
+    ],
+    [
+      "TaskBoardInteract"
+    ],
+    [
+      "TaskBoardPanelUI"
+    ],
+    [
+      "TaskBoardRowUI"
+    ],
+    [
+      "TavernMealStage"
+    ],
+    [
+      "TavernTaskStage"
+    ],
+    [
+      "ThienKiepStrikePrefab"
+    ],
+    [
+      "TilemapObstacle2D"
+    ],
+    [
+      "TreasureThreat"
+    ],
+    [
+      "TribulationRuntime"
+    ],
+    [
+      "TribulationTargetMotionMode"
+    ],
+    [
+      "UIBorderSparkEffect"
+    ],
+    [
+      "UIWorldStoryManager"
+    ],
+    [
+      "VillageHomeManager"
+    ],
+    [
+      "VillageNpcSetupTool"
+    ],
+    [
+      "VillagerAgeGroup"
+    ],
+    [
+      "VillagerJob"
+    ],
+    [
+      "VillagerRelationship"
+    ],
+    [
+      "VillagerRelationshipStatus"
+    ],
+    [
+      "WalletGrantSource"
+    ],
+    [
+      "WeatherVisualSystem"
+    ],
+    [
+      "WorldClockTextUI"
+    ],
+    [
+      "WorldEventType"
+    ],
+    [
+      "WorldSimulationBootstrap"
+    ],
+    [
+      "WorldTimePhase"
+    ],
+    [
+      "WorldWeather"
+    ],
+    [
+      "ZoneLockState"
+    ]
+  ],
+  "no_incoming_groups": {
+    "data_like": [
+      "ItemStatBalanceUtility",
+      "NpcLawZone"
+    ],
+    "runtime_roots": [
+      "AutoDestroy",
+      "AutoDestroyEffect",
+      "BlockingTilemap2D",
+      "BoneSpiritAmbush",
+      "BottomMenuButtonRouter",
+      "BuyerJob",
+      "DontDestroy",
+      "DoorTeleport",
+      "GiveItemToNpcButton",
+      "GoldenEnergyEffect",
+      "HeavenDaoPanelUI",
+      "HeavenNurturePanelUI",
+      "HeavenNurtureToggleButtonUI",
+      "InteriorCameraFocus",
+      "ItemPickup",
+      "LightningHitBurst",
+      "MapToggleUI",
+      "MobileSafeAreaFitter",
+      "MonsterAttack",
+      "NpcAlchemyRole",
+      "NpcCombatHitbox2D",
+      "NpcEscortTaskForceStarter",
+      "NpcFavoriteClickBridge",
+      "NpcForgeRole",
+      "NpcMerchantRole",
+      "NpcMonsterCombatDialogue",
+      "NpcRageNearbyAttack",
+      "NpcRangedSkill",
+      "NpcSharedInventoryLink",
+      "NpcTavernEntrance",
+      "PlayerWalletGrantButton",
+      "PopulationWidgetUI",
+      "ResponsiveCanvasScaler",
+      "ResponsivePanelFitter",
+      "RewardedLTAdsButton",
+      "SceneLoader",
+      "SceneLocalizedTextBootstrap",
+      "SellerJob",
+      "ShopCardHoverEffect",
+      "ShopItemAssetPostprocessor",
+      "ShopToggleUI",
+      "StatItemApplier",
+      "TaskBoardInteract",
+      "TilemapObstacle2D",
+      "UIBorderSparkEffect",
+      "VillageHomeManager",
+      "VillageNpcSetupTool",
+      "WorldClockTextUI",
+      "WorldSimulationBootstrap"
+    ]
+  },
+  "naming_risks": {
+    "case_collisions": [],
+    "file_type_mismatches": [
+      {
+        "file": "BicanhSessionManager.cs",
+        "type": "BehaviourState",
+        "kind": "class",
+        "line": 956
+      },
+      {
+        "file": "BicanhSessionManager.cs",
+        "type": "ParticipantSnapshot",
+        "kind": "class",
+        "line": 968
+      },
+      {
+        "file": "Combat/RangedProjectile2D.cs",
+        "type": "SpriteDefaultDirection",
+        "kind": "enum",
+        "line": 6
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityKind",
+        "kind": "enum",
+        "line": 5
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityGender",
+        "kind": "enum",
+        "line": 13
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "TalentGrade",
+        "kind": "enum",
+        "line": 20
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityMood",
+        "kind": "enum",
+        "line": 30
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityGoal",
+        "kind": "enum",
+        "line": 41
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityIdentity",
+        "kind": "class",
+        "line": 56
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityStats",
+        "kind": "class",
+        "line": 65
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityTalent",
+        "kind": "class",
+        "line": 97
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityPersonality",
+        "kind": "class",
+        "line": 108
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityEmotion",
+        "kind": "class",
+        "line": 122
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityNeeds",
+        "kind": "class",
+        "line": 133
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityMemory",
+        "kind": "class",
+        "line": 142
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityRelationship",
+        "kind": "class",
+        "line": 152
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityProfile",
+        "kind": "class",
+        "line": 162
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityGenerator",
+        "kind": "class",
+        "line": 232
+      },
+      {
+        "file": "FullGameSaveController.cs",
+        "type": "FullGameSaveData",
+        "kind": "class",
+        "line": 8
+      },
+      {
+        "file": "FullGameSaveController.cs",
+        "type": "SavedFavoriteNpcData",
+        "kind": "class",
+        "line": 27
+      },
+      {
+        "file": "GameSaveSystem.cs",
+        "type": "SavedItemStack",
+        "kind": "class",
+        "line": 7
+      },
+      {
+        "file": "GameSaveSystem.cs",
+        "type": "SavedInventoryData",
+        "kind": "class",
+        "line": 20
+      },
+      {
+        "file": "GameSaveSystem.cs",
+        "type": "SavedShopStock",
+        "kind": "class",
+        "line": 27
+      },
+      {
+        "file": "GameSaveSystem.cs",
+        "type": "SavedShopData",
+        "kind": "class",
+        "line": 34
+      },
+      {
+        "file": "HeavenDaoSystem.cs",
+        "type": "HeavenDaoPower",
+        "kind": "enum",
+        "line": 5
+      },
+      {
+        "file": "HeavenDaoSystem.cs",
+        "type": "HeavenDaoUnlock",
+        "kind": "class",
+        "line": 20
+      },
+      {
+        "file": "HeavenDaoSystem.cs",
+        "type": "HeavenDaoStoryReward",
+        "kind": "class",
+        "line": 29
+      },
+      {
+        "file": "HeavenGiftPlacementController.cs",
+        "type": "HeavenGiftEffectSession",
+        "kind": "class",
+        "line": 1240
+      },
+      {
+        "file": "HeavenNurtureTargetData.cs",
+        "type": "HeavenTargetType",
+        "kind": "enum",
+        "line": 4
+      },
+      {
+        "file": "HeavenNurtureTargetData.cs",
+        "type": "HeavenNurtureTargetDatabase",
+        "kind": "class",
+        "line": 33
+      },
+      {
+        "file": "HeavenlyTribulationSystem.cs",
+        "type": "TribulationTargetMotionMode",
+        "kind": "enum",
+        "line": 6
+      },
+      {
+        "file": "HeavenlyTribulationSystem.cs",
+        "type": "PillProtectionState",
+        "kind": "struct",
+        "line": 16
+      },
+      {
+        "file": "HeavenlyTribulationSystem.cs",
+        "type": "TribulationRuntime",
+        "kind": "struct",
+        "line": 234
+      },
+      {
+        "file": "ItemInventory.cs",
+        "type": "ItemStack",
+        "kind": "class",
+        "line": 6
+      },
+      {
+        "file": "ItemLifecycleSystem.cs",
+        "type": "ItemLifecycleEventType",
+        "kind": "enum",
+        "line": 3
+      },
+      {
+        "file": "ItemStatBalanceUtility.cs",
+        "type": "IntRange",
+        "kind": "struct",
+        "line": 12
+      },
+      {
+        "file": "ItemText.cs",
+        "type": "ItemTextDatabase",
+        "kind": "class",
+        "line": 6
+      },
+      {
+        "file": "ItemText.cs",
+        "type": "ItemTextCategory",
+        "kind": "class",
+        "line": 12
+      },
+      {
+        "file": "ItemText.cs",
+        "type": "ItemTextEntry",
+        "kind": "class",
+        "line": 19
+      },
+      {
+        "file": "LightnighHitBurst.cs",
+        "type": "LightningHitBurst",
+        "kind": "class",
+        "line": 4
+      },
+      {
+        "file": "MonsterAI.AnimationDebug.cs",
+        "type": "MonsterAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "MonsterAI.DevourDeathLootRespawn.cs",
+        "type": "MonsterAI",
+        "kind": "class",
+        "line": 4
+      },
+      {
+        "file": "MonsterAI.ItemEffects.cs",
+        "type": "MonsterAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "MonsterAI.NeedsCultivation.cs",
+        "type": "MonsterAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "MonsterAI.ProfileStats.cs",
+        "type": "MonsterAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "MonsterAI.Status.cs",
+        "type": "MonsterAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "MonsterAI.TargetingMovement.cs",
+        "type": "MonsterAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "MonsterAI.TreasureCombat.cs",
+        "type": "MonsterAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "MonsterAI.cs",
+        "type": "HuntTargetType",
+        "kind": "enum",
+        "line": 3
+      },
+      {
+        "file": "NPCIdentity.cs",
+        "type": "Gender",
+        "kind": "enum",
+        "line": 3
+      },
+      {
+        "file": "NPCIdentity.cs",
+        "type": "LifeStage",
+        "kind": "enum",
+        "line": 9
+      },
+      {
+        "file": "NPCVisualAnimation.cs",
+        "type": "ActionCategory",
+        "kind": "enum",
+        "line": 56
+      },
+      {
+        "file": "NPCVisualProfile.cs",
+        "type": "VisualEntry",
+        "kind": "class",
+        "line": 11
+      },
+      {
+        "file": "NpcAlchemyAgent.cs",
+        "type": "AlchemyIngredient",
+        "kind": "class",
+        "line": 8
+      },
+      {
+        "file": "NpcAlchemyAgent.cs",
+        "type": "AlchemyRecipe",
+        "kind": "class",
+        "line": 17
+      },
+      {
+        "file": "NpcAlchemyAgent.cs",
+        "type": "AlchemyCost",
+        "kind": "class",
+        "line": 1432
+      },
+      {
+        "file": "NpcCollisionRegistry.cs",
+        "type": "Entry",
+        "kind": "class",
+        "line": 6
+      },
+      {
+        "file": "NpcCombatTechniqueSystem.cs",
+        "type": "NpcCombatTechniqueRuntime",
+        "kind": "class",
+        "line": 276
+      },
+      {
+        "file": "NpcCombatTechniqueSystem.cs",
+        "type": "NpcCombatTechniqueBuff",
+        "kind": "class",
+        "line": 511
+      },
+      {
+        "file": "NpcEconomy.cs",
+        "type": "NpcTradeContext",
+        "kind": "enum",
+        "line": 4
+      },
+      {
+        "file": "NpcEscortTaskForceStarter.cs",
+        "type": "NpcEligibilitySnapshot",
+        "kind": "struct",
+        "line": 157
+      },
+      {
+        "file": "NpcForgeAgent.cs",
+        "type": "ForgeIngredient",
+        "kind": "class",
+        "line": 8
+      },
+      {
+        "file": "NpcForgeAgent.cs",
+        "type": "ForgeRecipe",
+        "kind": "class",
+        "line": 17
+      },
+      {
+        "file": "NpcForgeAgent.cs",
+        "type": "ForgeCustomerOrder",
+        "kind": "class",
+        "line": 31
+      },
+      {
+        "file": "NpcForgeAgent.cs",
+        "type": "ForgeCost",
+        "kind": "class",
+        "line": 2369
+      },
+      {
+        "file": "NpcInteractionPoint.cs",
+        "type": "StandReservation",
+        "kind": "class",
+        "line": 6
+      },
+      {
+        "file": "NpcLocationArea.cs",
+        "type": "NpcLocationPurpose",
+        "kind": "enum",
+        "line": 4
+      },
+      {
+        "file": "NpcLocationArea.cs",
+        "type": "NpcDangerTier",
+        "kind": "enum",
+        "line": 23
+      },
+      {
+        "file": "NpcMapArea.cs",
+        "type": "NpcMapZone",
+        "kind": "enum",
+        "line": 4
+      },
+      {
+        "file": "NpcMapNavigator.cs",
+        "type": "ZoneLockState",
+        "kind": "struct",
+        "line": 12
+      },
+      {
+        "file": "NpcPathMemorySystem.cs",
+        "type": "RememberedPath",
+        "kind": "class",
+        "line": 186
+      },
+      {
+        "file": "NpcRageNearbyAttack.cs",
+        "type": "NearbyTarget",
+        "kind": "struct",
+        "line": 384
+      },
+      {
+        "file": "NpcScheduleController.cs",
+        "type": "NpcLifePath",
+        "kind": "enum",
+        "line": 4
+      },
+      {
+        "file": "NpcScheduleController.cs",
+        "type": "NpcScheduleActivity",
+        "kind": "enum",
+        "line": 12
+      },
+      {
+        "file": "NpcScheduleController.cs",
+        "type": "NpcScheduleSlot",
+        "kind": "class",
+        "line": 33
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcMemoryType",
+        "kind": "enum",
+        "line": 27
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcDecisionKind",
+        "kind": "enum",
+        "line": 42
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcMemoryRecord",
+        "kind": "class",
+        "line": 58
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcSocialRelationship",
+        "kind": "class",
+        "line": 75
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcSocialEventBus",
+        "kind": "class",
+        "line": 90
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcMonsterCombatDialogue",
+        "kind": "class",
+        "line": 204
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "CombatRecord",
+        "kind": "class",
+        "line": 206
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcSocialIdentity",
+        "kind": "class",
+        "line": 463
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcNeeds",
+        "kind": "class",
+        "line": 490
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcPersonality",
+        "kind": "class",
+        "line": 556
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcRelationshipGraph",
+        "kind": "class",
+        "line": 589
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcMemory",
+        "kind": "class",
+        "line": 677
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcOverheadDialogueUI",
+        "kind": "class",
+        "line": 1034
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcConversationSession",
+        "kind": "class",
+        "line": 1229
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcConversationAgent",
+        "kind": "class",
+        "line": 1244
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcDecisionBrain",
+        "kind": "class",
+        "line": 2192
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcNegotiationAgent",
+        "kind": "class",
+        "line": 2481
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcLawZoneInternal",
+        "kind": "class",
+        "line": 2564
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcSocialWorldInstaller",
+        "kind": "class",
+        "line": 2776
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcSocialTime",
+        "kind": "class",
+        "line": 2900
+      },
+      {
+        "file": "NpcTaskProvider.OfferEvaluation.cs",
+        "type": "NpcTaskProvider",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "NpcTaskProvider.cs",
+        "type": "NpcTaskType",
+        "kind": "enum",
+        "line": 6
+      },
+      {
+        "file": "NpcTaskProvider.cs",
+        "type": "NpcTaskRank",
+        "kind": "enum",
+        "line": 17
+      },
+      {
+        "file": "NpcTaskProvider.cs",
+        "type": "TavernTaskStage",
+        "kind": "enum",
+        "line": 24
+      },
+      {
+        "file": "NpcTaskProvider.cs",
+        "type": "TavernMealStage",
+        "kind": "enum",
+        "line": 39
+      },
+      {
+        "file": "NpcTaskProvider.cs",
+        "type": "NpcTaskOffer",
+        "kind": "class",
+        "line": 46
+      },
+      {
+        "file": "NpcTaskProvider.cs",
+        "type": "RunningNpcTask",
+        "kind": "class",
+        "line": 77
+      },
+      {
+        "file": "NpcTaskProvider.cs",
+        "type": "RunningTavernMeal",
+        "kind": "class",
+        "line": 120
+      },
+      {
+        "file": "NpcTaskProvider.cs",
+        "type": "PendingTaskGoods",
+        "kind": "class",
+        "line": 130
+      },
+      {
+        "file": "NpcTavernEntrance.cs",
+        "type": "NpcTavernVisit",
+        "kind": "class",
+        "line": 317
+      },
+      {
+        "file": "NpcText.cs",
+        "type": "NpcTextDatabase",
+        "kind": "class",
+        "line": 6
+      },
+      {
+        "file": "NpcText.cs",
+        "type": "NpcTextCategory",
+        "kind": "class",
+        "line": 12
+      },
+      {
+        "file": "NpcText.cs",
+        "type": "NpcTextEntry",
+        "kind": "class",
+        "line": 20
+      },
+      {
+        "file": "NpcText.cs",
+        "type": "NpcTextList",
+        "kind": "class",
+        "line": 27
+      },
+      {
+        "file": "PlayerWallet.cs",
+        "type": "WalletGrantSource",
+        "kind": "enum",
+        "line": 4
+      },
+      {
+        "file": "ResourceNode.cs",
+        "type": "HarvestResourceKind",
+        "kind": "enum",
+        "line": 3
+      },
+      {
+        "file": "SceneLocalizedTextBootstrap.cs",
+        "type": "SceneTextEntry",
+        "kind": "struct",
+        "line": 9
+      },
+      {
+        "file": "SimpleItemShop.cs",
+        "type": "ShopItemSlot",
+        "kind": "class",
+        "line": 8
+      },
+      {
+        "file": "SmartAITask.cs",
+        "type": "SmartAITaskGoal",
+        "kind": "enum",
+        "line": 4
+      },
+      {
+        "file": "SmartAITask.cs",
+        "type": "SmartAITaskPriority",
+        "kind": "enum",
+        "line": 21
+      },
+      {
+        "file": "SmartNpcAI.Brain.cs",
+        "type": "SmartNpcAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "SmartNpcAI.CombatSupport.cs",
+        "type": "SmartNpcAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "SmartNpcAI.Needs.cs",
+        "type": "SmartNpcAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "SmartNpcAI.Schedule.cs",
+        "type": "SmartNpcAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "SmartNpcAI.Tasks.cs",
+        "type": "SmartNpcAI",
+        "kind": "class",
+        "line": 4
+      },
+      {
+        "file": "SmartNpcAI.cs",
+        "type": "CultivationRealm",
+        "kind": "enum",
+        "line": 3
+      },
+      {
+        "file": "SmartNpcAI.cs",
+        "type": "PhysiqueType",
+        "kind": "enum",
+        "line": 14
+      },
+      {
+        "file": "SmartNpcHelpRequestSystem.cs",
+        "type": "HelpRequest",
+        "kind": "class",
+        "line": 8
+      },
+      {
+        "file": "StatItemData.cs",
+        "type": "ItemType",
+        "kind": "enum",
+        "line": 7
+      },
+      {
+        "file": "StatItemData.cs",
+        "type": "ItemGrade",
+        "kind": "enum",
+        "line": 16
+      },
+      {
+        "file": "StatItemData.cs",
+        "type": "CultivationManualMastery",
+        "kind": "enum",
+        "line": 24
+      },
+      {
+        "file": "StatItemData.cs",
+        "type": "RawUsePolicy",
+        "kind": "enum",
+        "line": 32
+      },
+      {
+        "file": "StatItemData.cs",
+        "type": "NpcItemIntent",
+        "kind": "enum",
+        "line": 39
+      },
+      {
+        "file": "StatItemData.cs",
+        "type": "ItemUseStyle",
+        "kind": "enum",
+        "line": 48
+      },
+      {
+        "file": "StatItemData.cs",
+        "type": "EquipmentSlot",
+        "kind": "enum",
+        "line": 57
+      },
+      {
+        "file": "StatItemData.cs",
+        "type": "ArtifactKind",
+        "kind": "enum",
+        "line": 65
+      },
+      {
+        "file": "StatItemData.cs",
+        "type": "PillKind",
+        "kind": "enum",
+        "line": 81
+      },
+      {
+        "file": "StatItemData.cs",
+        "type": "ManualKind",
+        "kind": "enum",
+        "line": 95
+      },
+      {
+        "file": "StatItemData.cs",
+        "type": "MaterialKind",
+        "kind": "enum",
+        "line": 105
+      },
+      {
+        "file": "StatItemData.cs",
+        "type": "FoodKind",
+        "kind": "enum",
+        "line": 116
+      },
+      {
+        "file": "StatItemData.cs",
+        "type": "ItemConversionType",
+        "kind": "enum",
+        "line": 125
+      },
+      {
+        "file": "StatItemData.cs",
+        "type": "ItemTargetType",
+        "kind": "enum",
+        "line": 135
+      },
+      {
+        "file": "StatItemData.cs",
+        "type": "StatType",
+        "kind": "enum",
+        "line": 144
+      },
+      {
+        "file": "StatItemData.cs",
+        "type": "StatModifier",
+        "kind": "class",
+        "line": 161
+      },
+      {
+        "file": "TargetReservationSystem.cs",
+        "type": "TargetReservation",
+        "kind": "class",
+        "line": 8
+      },
+      {
+        "file": "TreasureFrenzySystem.cs",
+        "type": "ActorKind",
+        "kind": "enum",
+        "line": 1019
+      },
+      {
+        "file": "TreasureFrenzySystem.cs",
+        "type": "TreasureParticipant",
+        "kind": "class",
+        "line": 1026
+      },
+      {
+        "file": "TreasureFrenzySystem.cs",
+        "type": "TreasureFrenzyEvent",
+        "kind": "class",
+        "line": 1035
+      },
+      {
+        "file": "TreasureHeatSystem.cs",
+        "type": "TreasureThreat",
+        "kind": "struct",
+        "line": 707
+      },
+      {
+        "file": "UiText.cs",
+        "type": "UiTextDatabase",
+        "kind": "class",
+        "line": 6
+      },
+      {
+        "file": "UiText.cs",
+        "type": "UiTextCategory",
+        "kind": "class",
+        "line": 12
+      },
+      {
+        "file": "UiText.cs",
+        "type": "UiTextEntry",
+        "kind": "class",
+        "line": 20
+      },
+      {
+        "file": "UiText.cs",
+        "type": "UiTextList",
+        "kind": "class",
+        "line": 27
+      },
+      {
+        "file": "VillagerAI.Brain.cs",
+        "type": "VillagerAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "VillagerAI.LegacyCultivation.cs",
+        "type": "VillagerAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "VillagerAI.LegacyDailyTaskPlan.cs",
+        "type": "VillagerAI",
+        "kind": "class",
+        "line": 4
+      },
+      {
+        "file": "VillagerAI.LegacyTreasure.cs",
+        "type": "VillagerAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "VillagerAI.ProfessionWork.cs",
+        "type": "VillagerAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "VillagerAI.Status.cs",
+        "type": "VillagerAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "VillagerAI.Trade.cs",
+        "type": "VillagerAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "VillagerAI.Work.cs",
+        "type": "VillagerAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "VillagerAI.cs",
+        "type": "VillagerAgeGroup",
+        "kind": "enum",
+        "line": 4
+      },
+      {
+        "file": "VillagerAI.cs",
+        "type": "VillagerJob",
+        "kind": "enum",
+        "line": 11
+      },
+      {
+        "file": "VillagerAI.cs",
+        "type": "DailyTaskNeed",
+        "kind": "class",
+        "line": 302
+      },
+      {
+        "file": "VillagerAI.cs",
+        "type": "PathNode",
+        "kind": "class",
+        "line": 7114
+      },
+      {
+        "file": "VillagerRelationship.cs",
+        "type": "VillagerRelationshipStatus",
+        "kind": "enum",
+        "line": 3
+      },
+      {
+        "file": "WeatherSystem.cs",
+        "type": "WorldWeather",
+        "kind": "enum",
+        "line": 4
+      },
+      {
+        "file": "WorldEventManager.cs",
+        "type": "LogEntry",
+        "kind": "class",
+        "line": 6
+      },
+      {
+        "file": "WorldEventSystem.cs",
+        "type": "WorldEventType",
+        "kind": "enum",
+        "line": 4
+      },
+      {
+        "file": "WorldResourceField.cs",
+        "type": "ResourceFieldItemEntry",
+        "kind": "class",
+        "line": 7
+      },
+      {
+        "file": "WorldResourceField.cs",
+        "type": "SavedWorldResourceNode",
+        "kind": "class",
+        "line": 15
+      },
+      {
+        "file": "WorldResourceField.cs",
+        "type": "SavedWorldResourceField",
+        "kind": "class",
+        "line": 24
+      },
+      {
+        "file": "WorldResourceNode.cs",
+        "type": "ResourceRespawnMode",
+        "kind": "enum",
+        "line": 4
+      },
+      {
+        "file": "WorldScreenNotificationHub.cs",
+        "type": "NoticeRequest",
+        "kind": "struct",
+        "line": 632
+      },
+      {
+        "file": "WorldScreenNotificationHub.cs",
+        "type": "NoticeKind",
+        "kind": "enum",
+        "line": 639
+      },
+      {
+        "file": "WorldScreenNotificationHub.cs",
+        "type": "NoticeView",
+        "kind": "struct",
+        "line": 645
+      },
+      {
+        "file": "WorldTimeSystem.cs",
+        "type": "WorldTimePhase",
+        "kind": "enum",
+        "line": 4
+      }
+    ],
+    "priority_file_type_mismatches": [
+      {
+        "file": "BicanhSessionManager.cs",
+        "type": "BehaviourState",
+        "kind": "class",
+        "line": 956
+      },
+      {
+        "file": "BicanhSessionManager.cs",
+        "type": "ParticipantSnapshot",
+        "kind": "class",
+        "line": 968
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityIdentity",
+        "kind": "class",
+        "line": 56
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityStats",
+        "kind": "class",
+        "line": 65
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityTalent",
+        "kind": "class",
+        "line": 97
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityPersonality",
+        "kind": "class",
+        "line": 108
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityEmotion",
+        "kind": "class",
+        "line": 122
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityNeeds",
+        "kind": "class",
+        "line": 133
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityMemory",
+        "kind": "class",
+        "line": 142
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityRelationship",
+        "kind": "class",
+        "line": 152
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityProfile",
+        "kind": "class",
+        "line": 162
+      },
+      {
+        "file": "EntityCore.cs",
+        "type": "EntityGenerator",
+        "kind": "class",
+        "line": 232
+      },
+      {
+        "file": "FullGameSaveController.cs",
+        "type": "FullGameSaveData",
+        "kind": "class",
+        "line": 8
+      },
+      {
+        "file": "FullGameSaveController.cs",
+        "type": "SavedFavoriteNpcData",
+        "kind": "class",
+        "line": 27
+      },
+      {
+        "file": "GameSaveSystem.cs",
+        "type": "SavedItemStack",
+        "kind": "class",
+        "line": 7
+      },
+      {
+        "file": "GameSaveSystem.cs",
+        "type": "SavedInventoryData",
+        "kind": "class",
+        "line": 20
+      },
+      {
+        "file": "GameSaveSystem.cs",
+        "type": "SavedShopStock",
+        "kind": "class",
+        "line": 27
+      },
+      {
+        "file": "GameSaveSystem.cs",
+        "type": "SavedShopData",
+        "kind": "class",
+        "line": 34
+      },
+      {
+        "file": "HeavenDaoSystem.cs",
+        "type": "HeavenDaoUnlock",
+        "kind": "class",
+        "line": 20
+      },
+      {
+        "file": "HeavenDaoSystem.cs",
+        "type": "HeavenDaoStoryReward",
+        "kind": "class",
+        "line": 29
+      },
+      {
+        "file": "HeavenGiftPlacementController.cs",
+        "type": "HeavenGiftEffectSession",
+        "kind": "class",
+        "line": 1240
+      },
+      {
+        "file": "HeavenNurtureTargetData.cs",
+        "type": "HeavenNurtureTargetDatabase",
+        "kind": "class",
+        "line": 33
+      },
+      {
+        "file": "ItemInventory.cs",
+        "type": "ItemStack",
+        "kind": "class",
+        "line": 6
+      },
+      {
+        "file": "ItemText.cs",
+        "type": "ItemTextDatabase",
+        "kind": "class",
+        "line": 6
+      },
+      {
+        "file": "ItemText.cs",
+        "type": "ItemTextCategory",
+        "kind": "class",
+        "line": 12
+      },
+      {
+        "file": "ItemText.cs",
+        "type": "ItemTextEntry",
+        "kind": "class",
+        "line": 19
+      },
+      {
+        "file": "LightnighHitBurst.cs",
+        "type": "LightningHitBurst",
+        "kind": "class",
+        "line": 4
+      },
+      {
+        "file": "MonsterAI.AnimationDebug.cs",
+        "type": "MonsterAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "MonsterAI.DevourDeathLootRespawn.cs",
+        "type": "MonsterAI",
+        "kind": "class",
+        "line": 4
+      },
+      {
+        "file": "MonsterAI.ItemEffects.cs",
+        "type": "MonsterAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "MonsterAI.NeedsCultivation.cs",
+        "type": "MonsterAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "MonsterAI.ProfileStats.cs",
+        "type": "MonsterAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "MonsterAI.Status.cs",
+        "type": "MonsterAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "MonsterAI.TargetingMovement.cs",
+        "type": "MonsterAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "MonsterAI.TreasureCombat.cs",
+        "type": "MonsterAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "NPCVisualProfile.cs",
+        "type": "VisualEntry",
+        "kind": "class",
+        "line": 11
+      },
+      {
+        "file": "NpcAlchemyAgent.cs",
+        "type": "AlchemyIngredient",
+        "kind": "class",
+        "line": 8
+      },
+      {
+        "file": "NpcAlchemyAgent.cs",
+        "type": "AlchemyRecipe",
+        "kind": "class",
+        "line": 17
+      },
+      {
+        "file": "NpcAlchemyAgent.cs",
+        "type": "AlchemyCost",
+        "kind": "class",
+        "line": 1432
+      },
+      {
+        "file": "NpcCollisionRegistry.cs",
+        "type": "Entry",
+        "kind": "class",
+        "line": 6
+      },
+      {
+        "file": "NpcCombatTechniqueSystem.cs",
+        "type": "NpcCombatTechniqueRuntime",
+        "kind": "class",
+        "line": 276
+      },
+      {
+        "file": "NpcCombatTechniqueSystem.cs",
+        "type": "NpcCombatTechniqueBuff",
+        "kind": "class",
+        "line": 511
+      },
+      {
+        "file": "NpcForgeAgent.cs",
+        "type": "ForgeIngredient",
+        "kind": "class",
+        "line": 8
+      },
+      {
+        "file": "NpcForgeAgent.cs",
+        "type": "ForgeRecipe",
+        "kind": "class",
+        "line": 17
+      },
+      {
+        "file": "NpcForgeAgent.cs",
+        "type": "ForgeCustomerOrder",
+        "kind": "class",
+        "line": 31
+      },
+      {
+        "file": "NpcForgeAgent.cs",
+        "type": "ForgeCost",
+        "kind": "class",
+        "line": 2369
+      },
+      {
+        "file": "NpcInteractionPoint.cs",
+        "type": "StandReservation",
+        "kind": "class",
+        "line": 6
+      },
+      {
+        "file": "NpcPathMemorySystem.cs",
+        "type": "RememberedPath",
+        "kind": "class",
+        "line": 186
+      },
+      {
+        "file": "NpcScheduleController.cs",
+        "type": "NpcScheduleSlot",
+        "kind": "class",
+        "line": 33
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcMemoryRecord",
+        "kind": "class",
+        "line": 58
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcSocialRelationship",
+        "kind": "class",
+        "line": 75
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcSocialEventBus",
+        "kind": "class",
+        "line": 90
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcMonsterCombatDialogue",
+        "kind": "class",
+        "line": 204
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "CombatRecord",
+        "kind": "class",
+        "line": 206
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcSocialIdentity",
+        "kind": "class",
+        "line": 463
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcNeeds",
+        "kind": "class",
+        "line": 490
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcPersonality",
+        "kind": "class",
+        "line": 556
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcRelationshipGraph",
+        "kind": "class",
+        "line": 589
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcMemory",
+        "kind": "class",
+        "line": 677
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcOverheadDialogueUI",
+        "kind": "class",
+        "line": 1034
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcConversationSession",
+        "kind": "class",
+        "line": 1229
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcConversationAgent",
+        "kind": "class",
+        "line": 1244
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcDecisionBrain",
+        "kind": "class",
+        "line": 2192
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcNegotiationAgent",
+        "kind": "class",
+        "line": 2481
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcLawZoneInternal",
+        "kind": "class",
+        "line": 2564
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcSocialWorldInstaller",
+        "kind": "class",
+        "line": 2776
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "type": "NpcSocialTime",
+        "kind": "class",
+        "line": 2900
+      },
+      {
+        "file": "NpcTaskProvider.OfferEvaluation.cs",
+        "type": "NpcTaskProvider",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "NpcTaskProvider.cs",
+        "type": "NpcTaskOffer",
+        "kind": "class",
+        "line": 46
+      },
+      {
+        "file": "NpcTaskProvider.cs",
+        "type": "RunningNpcTask",
+        "kind": "class",
+        "line": 77
+      },
+      {
+        "file": "NpcTaskProvider.cs",
+        "type": "RunningTavernMeal",
+        "kind": "class",
+        "line": 120
+      },
+      {
+        "file": "NpcTaskProvider.cs",
+        "type": "PendingTaskGoods",
+        "kind": "class",
+        "line": 130
+      },
+      {
+        "file": "NpcTavernEntrance.cs",
+        "type": "NpcTavernVisit",
+        "kind": "class",
+        "line": 317
+      },
+      {
+        "file": "NpcText.cs",
+        "type": "NpcTextDatabase",
+        "kind": "class",
+        "line": 6
+      },
+      {
+        "file": "NpcText.cs",
+        "type": "NpcTextCategory",
+        "kind": "class",
+        "line": 12
+      },
+      {
+        "file": "NpcText.cs",
+        "type": "NpcTextEntry",
+        "kind": "class",
+        "line": 20
+      },
+      {
+        "file": "NpcText.cs",
+        "type": "NpcTextList",
+        "kind": "class",
+        "line": 27
+      },
+      {
+        "file": "OpenShopUi.cs",
+        "type": "OpenShopUI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "SimpleItemShop.cs",
+        "type": "ShopItemSlot",
+        "kind": "class",
+        "line": 8
+      },
+      {
+        "file": "SmartNpcAI.Brain.cs",
+        "type": "SmartNpcAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "SmartNpcAI.CombatSupport.cs",
+        "type": "SmartNpcAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "SmartNpcAI.Needs.cs",
+        "type": "SmartNpcAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "SmartNpcAI.Schedule.cs",
+        "type": "SmartNpcAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "SmartNpcAI.Tasks.cs",
+        "type": "SmartNpcAI",
+        "kind": "class",
+        "line": 4
+      },
+      {
+        "file": "SmartNpcHelpRequestSystem.cs",
+        "type": "HelpRequest",
+        "kind": "class",
+        "line": 8
+      },
+      {
+        "file": "StatItemData.cs",
+        "type": "StatModifier",
+        "kind": "class",
+        "line": 161
+      },
+      {
+        "file": "TargetReservationSystem.cs",
+        "type": "TargetReservation",
+        "kind": "class",
+        "line": 8
+      },
+      {
+        "file": "TreasureFrenzySystem.cs",
+        "type": "TreasureParticipant",
+        "kind": "class",
+        "line": 1026
+      },
+      {
+        "file": "TreasureFrenzySystem.cs",
+        "type": "TreasureFrenzyEvent",
+        "kind": "class",
+        "line": 1035
+      },
+      {
+        "file": "UiText.cs",
+        "type": "UiTextDatabase",
+        "kind": "class",
+        "line": 6
+      },
+      {
+        "file": "UiText.cs",
+        "type": "UiTextCategory",
+        "kind": "class",
+        "line": 12
+      },
+      {
+        "file": "UiText.cs",
+        "type": "UiTextEntry",
+        "kind": "class",
+        "line": 20
+      },
+      {
+        "file": "UiText.cs",
+        "type": "UiTextList",
+        "kind": "class",
+        "line": 27
+      },
+      {
+        "file": "VillagerAI.Brain.cs",
+        "type": "VillagerAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "VillagerAI.LegacyCultivation.cs",
+        "type": "VillagerAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "VillagerAI.LegacyDailyTaskPlan.cs",
+        "type": "VillagerAI",
+        "kind": "class",
+        "line": 4
+      },
+      {
+        "file": "VillagerAI.LegacyTreasure.cs",
+        "type": "VillagerAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "VillagerAI.ProfessionWork.cs",
+        "type": "VillagerAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "VillagerAI.Status.cs",
+        "type": "VillagerAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "VillagerAI.Trade.cs",
+        "type": "VillagerAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "VillagerAI.Work.cs",
+        "type": "VillagerAI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "VillagerAI.cs",
+        "type": "DailyTaskNeed",
+        "kind": "class",
+        "line": 302
+      },
+      {
+        "file": "VillagerAI.cs",
+        "type": "PathNode",
+        "kind": "class",
+        "line": 7114
+      },
+      {
+        "file": "WorldEventManager.cs",
+        "type": "LogEntry",
+        "kind": "class",
+        "line": 6
+      },
+      {
+        "file": "WorldResourceField.cs",
+        "type": "ResourceFieldItemEntry",
+        "kind": "class",
+        "line": 7
+      },
+      {
+        "file": "WorldResourceField.cs",
+        "type": "SavedWorldResourceNode",
+        "kind": "class",
+        "line": 15
+      },
+      {
+        "file": "WorldResourceField.cs",
+        "type": "SavedWorldResourceField",
+        "kind": "class",
+        "line": 24
+      },
+      {
+        "file": "menumap.cs",
+        "type": "Menumap",
+        "kind": "class",
+        "line": 3
+      }
+    ],
+    "exact_case_mismatches": [
+      {
+        "file": "OpenShopUi.cs",
+        "type": "OpenShopUI",
+        "kind": "class",
+        "line": 3
+      },
+      {
+        "file": "menumap.cs",
+        "type": "Menumap",
+        "kind": "class",
+        "line": 3
+      }
+    ],
+    "multi_monobehaviour_files": [
+      {
+        "file": "NpcCombatTechniqueSystem.cs",
+        "types": [
+          "NpcCombatTechniqueRuntime",
+          "NpcCombatTechniqueBuff"
+        ]
+      },
+      {
+        "file": "NpcSocialSystem.cs",
+        "types": [
+          "NpcSocialSystem",
+          "NpcSocialIdentity",
+          "NpcNeeds",
+          "NpcPersonality",
+          "NpcRelationshipGraph",
+          "NpcMemory",
+          "NpcOverheadDialogueUI",
+          "NpcConversationAgent",
+          "NpcDecisionBrain",
+          "NpcNegotiationAgent",
+          "NpcLawZoneInternal",
+          "NpcSocialWorldInstaller"
+        ]
+      }
+    ]
+  },
+  "skipped_case_collisions": []
+}

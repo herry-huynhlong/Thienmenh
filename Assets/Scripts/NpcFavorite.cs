@@ -136,7 +136,12 @@ public class NpcFavorite : MonoBehaviour
             return npcData.npcName;
         }
 
-        Component identity = GetComponent("NpcIdentity");
+        Component identity = GetComponent("NPCIdentity");
+
+        if (identity == null)
+        {
+            identity = GetComponent("NpcSocialIdentity");
+        }
 
         if (identity != null)
         {

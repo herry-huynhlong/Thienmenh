@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using System.Collections.Generic;
 using TMPro;
@@ -17,6 +18,9 @@ public class ShopPanelUI : MonoBehaviour
     public TMP_Text shopTitleText;
     public string shopTitle = "";
     public bool closeWhenClickOutside = true;
+
+    [Header("Shopkeeper")]
+    public TMP_Text npcSpeechText;
 
     [Header("Items")]
     public Transform itemGridParent;
@@ -58,6 +62,7 @@ public class ShopPanelUI : MonoBehaviour
         new List<ShopItemButtonUI>();
     Canvas rootCanvas;
     bool disabledBecauseAttachedToInventoryPanel;
+    float detailGradePulseSeed;
     bool IsAccidentalInventoryPanelAttachment()
     {
         InventoryPanelUI inventoryPanel = GetComponent<InventoryPanelUI>();
@@ -97,6 +102,8 @@ public class ShopPanelUI : MonoBehaviour
 
         rootCanvas =
             GetComponentInParent<Canvas>();
+        detailGradePulseSeed =
+            Mathf.Abs(GetInstanceID() * 0.137f);
 
         ClearDetail();
     }
@@ -124,6 +131,8 @@ public class ShopPanelUI : MonoBehaviour
         {
             HandlePointerDown(Input.GetTouch(0).position);
         }
+
+        RefreshAnimatedGradeDetail();
     }
 
     void HandlePointerDown(Vector2 screenPosition)
@@ -169,6 +178,9 @@ public class ShopPanelUI : MonoBehaviour
         RefreshShopSource();
         ShowDanDuoc();
         ClearDetail();
+        ApplyShopkeeperSpeechList(
+            "speechGreetingLines",
+            "\u0110\u1ea1o h\u1eefu mu\u1ed1n t\u00ecm b\u1ea3o v\u1eadt g\u00ec h\u00f4m nay?");
     }
 
     public void Close()
@@ -234,6 +246,7 @@ public class ShopPanelUI : MonoBehaviour
         RefreshMoney();
         ClearDetail();
         RebuildItemGrid();
+        ApplyShopkeeperCategorySpeech(itemType);
     }
 
     public void SelectItem(int itemIndex)
@@ -258,7 +271,7 @@ public class ShopPanelUI : MonoBehaviour
         {
             detailPanel.SetActive(true);
         }
-        else
+        else if (!TemplateUsesInlineBuyButton())
         {
             Debug.LogWarning("ShopPanelUI missing DetailPanel reference.");
         }
@@ -270,7 +283,7 @@ public class ShopPanelUI : MonoBehaviour
             ConfigureBuyPanelLayout();
             EnsureBuyPanelVisible();
         }
-        else
+        else if (!TemplateUsesInlineBuyButton())
         {
             Debug.LogWarning("ShopPanelUI missing BuyPanel reference.");
         }
@@ -302,6 +315,10 @@ public class ShopPanelUI : MonoBehaviour
                     "detail",
                     "gradeFormat",
                     ItemText.Grade(slot.item.grade));
+            ApplyGradeTextStyle(
+                detailGradeText,
+                slot.item.grade,
+                1f);
         }
 
         if (detailTargetsText != null)
@@ -337,13 +354,19 @@ public class ShopPanelUI : MonoBehaviour
         EnsureBuyPanelVisible();
         RefreshBuyButton();
         ApplyLocalizedBuyButtonText();
+        ApplyShopkeeperInspectSpeech(slot.item);
     }
 
     public void BuySelectedItem()
     {
+        BuyItem(selectedItemIndex);
+    }
+
+    public void BuyItem(int itemIndex)
+    {
         AutoFindMissingReferences();
 
-        if (selectedItemIndex < 0 ||
+        if (itemIndex < 0 ||
             shop == null ||
             playerInventory == null)
         {
@@ -351,23 +374,38 @@ public class ShopPanelUI : MonoBehaviour
             return;
         }
 
+        ShopItemSlot selectedSlot =
+            shop.GetSlot(itemIndex);
+        StatItemData purchasedItem =
+            selectedSlot != null
+                ? selectedSlot.item
+                : null;
+
         bool bought =
             shop.BuyToInventory(
-                selectedItemIndex,
+                itemIndex,
                 playerWallet,
                 playerInventory);
 
         if (!bought)
         {
+            selectedItemIndex = itemIndex;
             RefreshBuyButton();
             ApplyLocalizedBuyButtonText();
+            RefreshSpawnedButtonStates();
             return;
         }
 
+        selectedItemIndex = itemIndex;
         RefreshMoney();
         RefreshInventoryPanel();
         RebuildItemGrid();
         SelectItem(selectedItemIndex);
+
+        if (purchasedItem != null)
+        {
+            ApplyShopkeeperPurchaseSpeech(purchasedItem);
+        }
     }
 
 
@@ -448,6 +486,18 @@ public class ShopPanelUI : MonoBehaviour
         }
     }
 
+    public bool CanAffordDisplayedPrice(StatItemData item)
+    {
+        return item != null &&
+            CanPay(GetDisplayPrice(item));
+    }
+
+    public void TryBuyItemFromInlineButton(int itemIndex)
+    {
+        SelectItem(itemIndex);
+        BuyItem(itemIndex);
+    }
+
     void RefreshShopSource()
     {
         if (shop != null &&
@@ -509,6 +559,37 @@ public class ShopPanelUI : MonoBehaviour
                 playerWallet =
                     inventoryPanelUI.gameObject.AddComponent<PlayerWallet>();
             }
+        }
+
+        if (itemGridParent == null)
+        {
+            Transform foundGridParent =
+                FindChildByName(transform, "Content");
+            if (foundGridParent != null)
+            {
+                itemGridParent = foundGridParent;
+            }
+        }
+
+        if (itemButtonPrefab == null &&
+            itemGridParent != null)
+        {
+            itemButtonPrefab =
+                itemGridParent.GetComponentInChildren<ShopItemButtonUI>(true);
+        }
+
+        if (shopTitleText == null)
+        {
+            shopTitleText =
+                FindTextByName(transform, "ShopTitleText") ??
+                FindTextByName(transform, "TitleText");
+        }
+
+        if (npcSpeechText == null)
+        {
+            npcSpeechText =
+                FindTextByName(transform, "SpeechText") ??
+                FindTextByName(transform, "NpcSpeechText");
         }
 
         if (detailPanel == null)
@@ -617,7 +698,8 @@ public class ShopPanelUI : MonoBehaviour
             }
         }
 
-        if (buyPanel == null)
+        if (buyPanel == null &&
+            !TemplateUsesInlineBuyButton())
         {
             CreateShopBuyPanel();
         }
@@ -695,9 +777,22 @@ public class ShopPanelUI : MonoBehaviour
         Transform parent,
         string childName)
     {
+        if (parent == null ||
+            string.IsNullOrWhiteSpace(childName))
+        {
+            return null;
+        }
+
+        string normalizedName =
+            NormalizeNodeName(childName);
+
         foreach (Transform child in parent)
         {
-            if (child.name == childName)
+            if (string.Equals(
+                    child.name,
+                    childName,
+                    StringComparison.OrdinalIgnoreCase) ||
+                NormalizeNodeName(child.name) == normalizedName)
             {
                 return child;
             }
@@ -712,6 +807,42 @@ public class ShopPanelUI : MonoBehaviour
         }
 
         return null;
+    }
+
+    static string NormalizeNodeName(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+
+        StringBuilder builder =
+            new StringBuilder(value.Length);
+        for (int i = 0; i < value.Length; i++)
+        {
+            char character = value[i];
+            if (char.IsLetterOrDigit(character))
+            {
+                builder.Append(char.ToLowerInvariant(character));
+            }
+        }
+
+        return builder.ToString();
+    }
+
+    bool TemplateUsesInlineBuyButton()
+    {
+        if (itemButtonPrefab == null)
+        {
+            return false;
+        }
+
+        return FindChildByName(
+                itemButtonPrefab.transform,
+                "Button Mua") != null ||
+            FindChildByName(
+                itemButtonPrefab.transform,
+                "BuyButton") != null;
     }
 
     TMP_Text FindTextByName(
@@ -1533,14 +1664,30 @@ public class ShopPanelUI : MonoBehaviour
                 itemGridParent.gameObject.AddComponent<GridLayoutGroup>();
         }
 
-        grid.cellSize = itemCellSize;
-        grid.spacing = itemSpacing;
+        if (grid.cellSize.x <= 0f ||
+            grid.cellSize.y <= 0f)
+        {
+            grid.cellSize = itemCellSize;
+        }
+
+        if (grid.spacing == Vector2.zero)
+        {
+            grid.spacing = itemSpacing;
+        }
+
         grid.startCorner = GridLayoutGroup.Corner.UpperLeft;
         grid.startAxis = GridLayoutGroup.Axis.Horizontal;
         grid.childAlignment = TextAnchor.UpperLeft;
-        grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        grid.constraintCount =
-            Mathf.Max(1, itemColumns);
+
+        if (grid.constraint ==
+                GridLayoutGroup.Constraint.Flexible ||
+            grid.constraintCount <= 0)
+        {
+            grid.constraint =
+                GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount =
+                Mathf.Max(1, itemColumns);
+        }
 
         ContentSizeFitter fitter =
             itemGridParent.GetComponent<ContentSizeFitter>();
@@ -1571,7 +1718,23 @@ public class ShopPanelUI : MonoBehaviour
         rect.localScale = Vector3.one;
         rect.localRotation = Quaternion.identity;
         rect.anchoredPosition3D = Vector3.zero;
-        rect.sizeDelta = itemCellSize;
+        rect.anchorMin = new Vector2(0f, 1f);
+        rect.anchorMax = new Vector2(0f, 1f);
+        rect.pivot = new Vector2(0f, 1f);
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+
+        LayoutElement element =
+            button.GetComponent<LayoutElement>();
+        if (element != null)
+        {
+            element.preferredWidth = -1f;
+            element.preferredHeight = -1f;
+            element.minWidth = -1f;
+            element.minHeight = -1f;
+            element.flexibleWidth = -1f;
+            element.flexibleHeight = -1f;
+        }
     }
 
     void ClearDetail()
@@ -1612,6 +1775,8 @@ public class ShopPanelUI : MonoBehaviour
                 walletText.Refresh();
             }
         }
+
+        RefreshSpawnedButtonStates();
     }
 
     void RefreshBuyButton()
@@ -1656,6 +1821,234 @@ public class ShopPanelUI : MonoBehaviour
 
         return playerWallet != null &&
             playerWallet.CanPay(price);
+    }
+
+    void RefreshSpawnedButtonStates()
+    {
+        for (int i = 0; i < spawnedButtons.Count; i++)
+        {
+            ShopItemButtonUI button = spawnedButtons[i];
+            if (button != null)
+            {
+                button.RefreshAffordability();
+            }
+        }
+    }
+
+    void RefreshAnimatedGradeDetail()
+    {
+        if (detailGradeText == null ||
+            detailPanel == null ||
+            !detailPanel.activeInHierarchy ||
+            selectedItemIndex < 0 ||
+            shop == null)
+        {
+            return;
+        }
+
+        ShopItemSlot slot =
+            shop.GetSlot(selectedItemIndex);
+        if (slot == null ||
+            slot.item == null)
+        {
+            return;
+        }
+
+        float pulse =
+            0.72f +
+            0.28f * Mathf.Sin(
+                Time.unscaledTime * 2.4f +
+                detailGradePulseSeed);
+        ApplyGradeTextStyle(
+            detailGradeText,
+            slot.item.grade,
+            pulse);
+    }
+
+    void ApplyShopkeeperCategorySpeech(ItemType itemType)
+    {
+        string key = "speechGreetingLines";
+        switch (itemType)
+        {
+            case ItemType.DanDuoc:
+                key = "speechDanDuocLines";
+                break;
+            case ItemType.PhapBao:
+                key = "speechPhapBaoLines";
+                break;
+            case ItemType.CongPhap:
+                key = "speechCongPhapLines";
+                break;
+            case ItemType.VatLieu:
+                key = "speechVatLieuLines";
+                break;
+            case ItemType.ThucPham:
+                key = "speechThucPhamLines";
+                break;
+        }
+
+        ApplyShopkeeperSpeechList(
+            key,
+            "\u0110\u1ea1o h\u1eefu c\u1ee9 xem t\u1ef1 nhi\u00ean, c\u1eeda h\u00e0ng ta kh\u00f4ng thi\u1ebfu b\u1ea3o v\u1eadt.");
+    }
+
+    void ApplyShopkeeperInspectSpeech(StatItemData item)
+    {
+        if (item == null)
+        {
+            return;
+        }
+
+        string fallback =
+            NpcText.Format(
+                "\u00c1nh m\u1eaft c\u1ee7a ng\u00e0i qu\u1ea3 th\u1eadt tinh t\u01b0\u1eddng, {0} n\u00e0y l\u00e0 {1}.",
+                ItemText.Name(item),
+                ItemText.GradeLong(item.grade));
+        ApplyShopkeeperSpeechList(
+            "speechInspect" + item.grade + "Lines",
+            fallback,
+            ItemText.Name(item),
+            ItemText.GradeLong(item.grade));
+    }
+
+    void ApplyShopkeeperPurchaseSpeech(StatItemData item)
+    {
+        if (item == null)
+        {
+            return;
+        }
+
+        string fallback =
+            C(
+                "\u0110a t\u1ea1 qu\u00fd kh\u00e1ch, mong m\u00f3n {0} h\u1ee3p \u00fd ng\u00e0i.");
+        switch (item.grade)
+        {
+            case ItemGrade.Trung:
+                fallback =
+                    C(
+                        "\u0110a t\u1ea1 ng\u00e0i \u0111\u00e3 chi\u1ebfu c\u1ed1, ch\u00fac ng\u00e0i ph\u00e1t t\u00e0i ph\u00e1t l\u1ed9c c\u00f9ng {0}.");
+                break;
+            case ItemGrade.Thuong:
+                fallback =
+                    C(
+                        "Kh\u1ea9u kh\u00ed c\u1ee7a ng\u00e0i qu\u1ea3 nhi\u00ean phi ph\u00e0m, {0} v\u1ec1 tay minh ch\u1ee7 \u1eaft s\u1ebd r\u1ea1ng danh.");
+                break;
+            case ItemGrade.Tien:
+                fallback =
+                    C(
+                        "Ti\u00ean nh\u00e3n nh\u01b0 ng\u00e0i th\u1eadt khi\u1ebfn k\u1ebb bu\u00f4n n\u00e0y kh\u00e2m ph\u1ee5c, {0} ch\u1ec9 c\u00f3 b\u1eadc th\u01b0\u1ee3ng kh\u00e1ch m\u1edbi x\u1ee9ng s\u1edf h\u1eefu.");
+                break;
+        }
+
+        ApplyShopkeeperSpeechList(
+            "speechBuy" + item.grade + "Lines",
+            fallback,
+            ItemText.Name(item),
+            ItemText.GradeLong(item.grade));
+    }
+
+    void ApplyShopkeeperSpeechList(
+        string key,
+        string fallback,
+        params object[] args)
+    {
+        if (npcSpeechText == null)
+        {
+            return;
+        }
+
+        string[] lines =
+            UiText.Lines("shop", key);
+        string line = fallback;
+        if (lines != null &&
+            lines.Length > 0)
+        {
+            line = lines[
+                Mathf.Abs(Time.frameCount + key.GetHashCode()) %
+                lines.Length];
+        }
+
+        npcSpeechText.text =
+            args != null && args.Length > 0
+                ? NpcText.Format(line, args)
+                : line;
+    }
+
+    static string C(string value)
+    {
+        return NpcText.CleanDisplayText(value);
+    }
+
+    public static Color GetGradeBaseColor(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.Ha:
+                return new Color(0.70f, 0.83f, 0.96f, 1f);
+            case ItemGrade.Trung:
+                return new Color(0.54f, 0.96f, 0.67f, 1f);
+            case ItemGrade.Thuong:
+                return new Color(1.00f, 0.78f, 0.33f, 1f);
+            case ItemGrade.Tien:
+                return new Color(0.93f, 0.48f, 0.94f, 1f);
+            default:
+                return Color.white;
+        }
+    }
+
+    public static Color GetGradeAccentColor(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.Ha:
+                return new Color(0.90f, 0.96f, 1f, 1f);
+            case ItemGrade.Trung:
+                return new Color(0.90f, 1f, 0.92f, 1f);
+            case ItemGrade.Thuong:
+                return new Color(1f, 0.94f, 0.62f, 1f);
+            case ItemGrade.Tien:
+                return new Color(1f, 0.82f, 0.98f, 1f);
+            default:
+                return Color.white;
+        }
+    }
+
+    public static void ApplyGradeTextStyle(
+        TMP_Text text,
+        ItemGrade grade,
+        float pulse)
+    {
+        if (text == null)
+        {
+            return;
+        }
+
+        Color baseColor =
+            GetGradeBaseColor(grade);
+        Color accentColor =
+            GetGradeAccentColor(grade);
+        float glowStrength =
+            Mathf.Clamp01(pulse);
+
+        text.enableVertexGradient = true;
+        text.fontStyle |= FontStyles.Bold;
+        text.color =
+            Color.Lerp(
+                baseColor,
+                accentColor,
+                0.18f + glowStrength * 0.38f);
+        text.colorGradient =
+            new VertexGradient(
+                Color.Lerp(accentColor, Color.white, 0.15f),
+                Color.Lerp(accentColor, Color.white, 0.10f),
+                Color.Lerp(baseColor, Color.black, 0.08f),
+                Color.Lerp(baseColor, Color.black, 0.12f));
+        text.outlineWidth = 0.18f;
+        text.outlineColor =
+            Color.Lerp(
+                new Color(0.15f, 0.09f, 0.03f, 0.9f),
+                baseColor,
+                0.25f);
     }
 
     string BuildStatsText(StatItemData item)

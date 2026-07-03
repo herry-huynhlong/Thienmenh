@@ -115,6 +115,27 @@
       "entries": []
     },
     {
+      "name": "shopCard",
+      "entries": [
+        {
+          "key": "useConsumable",
+          "value": "消耗类物品"
+        },
+        {
+          "key": "useRawMaterial",
+          "value": "炼制材料"
+        },
+        {
+          "key": "useEquipment",
+          "value": "可长期使用的装备"
+        },
+        {
+          "key": "useManual",
+          "value": "可参悟的功法"
+        }
+      ]
+    },
+    {
       "name": "itemTypes",
       "entries": [
         {
