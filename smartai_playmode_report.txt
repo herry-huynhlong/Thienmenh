@@ -1,1 +1,41 @@
-[22:35:09] Open scene: Assets/Lang.unity
+[12:39:36] Open scene: Assets/Lang.unity
+[12:39:46] Entered Play Mode
+[12:39:46] WorldTimeSystem created by EnsureInstance()
+[12:39:46] Tracked NPCs: daocot, tusinu1, satthu1
+[12:39:46] Sample monster: 
+[12:39:47] Set time -> 0.50
+[12:39:47] Schedule case start: 00:30 Cultivate
+[12:39:50] Schedule snapshot 00:30 Cultivate [daocot] -> PASS activity=Cultivate action=Đến điểm tu luyện taskGoal=Cultivate hp=31623/31623
+[12:39:50] Schedule snapshot 00:30 Cultivate [tusinu1] -> PASS activity=Cultivate action=Đến điểm tu luyện taskGoal=Cultivate hp=2512/2512
+[12:39:50] Schedule snapshot 00:30 Cultivate [satthu1] -> PASS activity=Cultivate action=Đến điểm tu luyện taskGoal=Cultivate hp=1995/1995
+[12:39:50] Set time -> 7.50
+[12:39:50] Schedule case start: 07:30 DoMission
+[12:39:54] Schedule snapshot 07:30 DoMission [daocot] -> PASS activity=DoMission action=Đến nhận nhiệm vụ trong kế hoạch ngày taskGoal=DoMission hp=31623/31623
+[12:39:54] Schedule snapshot 07:30 DoMission [tusinu1] -> PASS activity=DoMission action=Đến nhận nhiệm vụ trong kế hoạch ngày taskGoal=DoMission hp=2512/2512
+[12:39:54] Schedule snapshot 07:30 DoMission [satthu1] -> PASS activity=DoMission action=Đến nhận nhiệm vụ trong kế hoạch ngày taskGoal=DoMission hp=1995/1995
+[12:39:54] Set time -> 13.50
+[12:39:54] Schedule case start: 13:30 FreeHuntAndGather
+[12:39:58] Schedule snapshot 13:30 FreeHuntAndGather [daocot] -> PASS activity=FreeHuntAndGather action=Đi cổng dịch chuyển đến Ma Thú Sơn Mạch taskGoal=FreeHuntAndGather hp=31623/31623
+[12:39:58] Schedule snapshot 13:30 FreeHuntAndGather [tusinu1] -> PASS activity=FreeHuntAndGather action=Đi cổng dịch chuyển đến Ma Thú Sơn Mạch taskGoal=FreeHuntAndGather hp=2512/2512
+[12:39:58] Schedule snapshot 13:30 FreeHuntAndGather [satthu1] -> PASS activity=FreeHuntAndGather action=Đi cổng dịch chuyển đến Ma Thú Sơn Mạch taskGoal=FreeHuntAndGather hp=1995/1995
+[12:39:58] Set time -> 18.50
+[12:39:58] Schedule case start: 18:30 TradeBuySell
+[12:40:01] Schedule snapshot 18:30 TradeBuySell [daocot] -> WARN activity=TradeBuySell action=Đứng yên taskGoal=NeedPotion hp=31623/31623
+[12:40:01] Schedule snapshot 18:30 TradeBuySell [tusinu1] -> WARN activity=TradeBuySell action=Đi cổng dịch chuyển đến Vạn Bảo Lâu taskGoal=NeedPotion hp=2512/2512
+[12:40:01] Schedule snapshot 18:30 TradeBuySell [satthu1] -> WARN activity=TradeBuySell action=Đi cổng dịch chuyển đến Vạn Bảo Lâu taskGoal=NeedPotion hp=1995/1995
+[12:40:01] Set time -> 22.50
+[12:40:01] Schedule case start: 22:30 Cultivate
+[12:40:05] Schedule snapshot 22:30 Cultivate [daocot] -> PASS activity=Cultivate action=Đứng yên taskGoal=Cultivate hp=31623/31623
+[12:40:05] Schedule snapshot 22:30 Cultivate [tusinu1] -> PASS activity=Cultivate action=Tu luyện hấp thụ linh khí taskGoal=Cultivate hp=2512/2512
+[12:40:05] Schedule snapshot 22:30 Cultivate [satthu1] -> PASS activity=Cultivate action=Tu luyện hấp thụ linh khí taskGoal=Cultivate hp=1995/1995
+[12:40:05] Set time -> 0.50
+[12:40:05] Override case A start: cultivate -> flee/retreat
+[12:40:08] Override case A result -> PASS activity=Cultivate action=fleeMonsterArea taskGoal=Pursued hp=1995/1995
+[12:40:09] Set time -> 7.50
+[12:40:09] Override case B start: DoMission -> low HP emergency
+[12:40:12] Override case B result -> WARN activity=DoMission action=Bị thương taskGoal=LowHpRecovery hp=498/1995
+[12:40:14] Set time -> 6.83
+[12:40:14] Override case C start: 06:50 emergency then 07:30 schedule recovery
+[12:40:16] Set time -> 7.50
+[12:40:16] Override case C result -> WARN activity=DoMission action=fleeMonsterArea taskGoal=Pursued hp=1995/1995
+[12:40:21] PlayMode verification complete.

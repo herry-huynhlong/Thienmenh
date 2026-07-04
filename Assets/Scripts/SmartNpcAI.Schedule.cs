@@ -111,6 +111,13 @@ public partial class SmartNpcAI
 
     void ClearTravelTargets(bool clearWanderTarget = true)
     {
+        TraceRuntime(
+            "ClearTravelTargets",
+            "clearWanderTarget=" + clearWanderTarget +
+            " beforeTarget=" + (currentTarget != null ? currentTarget.name : "null") +
+            " beforeWander=" + hasWanderTarget +
+            " wanderTarget=" + wanderTarget +
+            " action=" + currentAction);
         currentTarget = null;
         if (clearWanderTarget)
         {
@@ -130,6 +137,12 @@ public partial class SmartNpcAI
 
     void ClearTravelTargetsAndStop(bool clearWanderTarget = true)
     {
+        TraceRuntime(
+            "ClearTravelTargetsAndStop",
+            "clearWanderTarget=" + clearWanderTarget +
+            " target=" + (currentTarget != null ? currentTarget.name : "null") +
+            " wander=" + hasWanderTarget +
+            " action=" + currentAction);
         ClearTravelTargets(clearWanderTarget);
         StopNpcMovement();
     }
@@ -274,6 +287,14 @@ public partial class SmartNpcAI
                 return true;
 
             case NpcScheduleActivity.DoMission:
+                if (schedule.HasCompletedCurrentSlotActivity(
+                        NpcScheduleActivity.DoMission))
+                {
+                    TraceBranch("TryRunScheduledActivity", "mission-completed", true);
+                    ClearCompletedMissionAction();
+                    return true;
+                }
+
                 DebugFlow(
                     "DoMission",
                     "Begin quota=" + GetDailyTaskQuotaDebugText() +
@@ -508,6 +529,14 @@ public partial class SmartNpcAI
                 return true;
 
             case NpcScheduleActivity.TakeTask:
+                if (schedule.HasCompletedCurrentSlotActivity(
+                        NpcScheduleActivity.TakeTask))
+                {
+                    TraceBranch("TryRunScheduledActivity", "take-task-completed", true);
+                    ClearCompletedMissionAction();
+                    return true;
+                }
+
                 if (!HasDailyTaskQuotaRemaining())
                 {
                     TraceBranch("TryRunScheduledActivity", "take-task-quota-finished", false);
@@ -632,20 +661,26 @@ public partial class SmartNpcAI
         }
 
         bool preserveDirectedWork =
-            HasLockedDirectedTarget() ||
+            activity != NpcScheduleActivity.Idle &&
+            (HasLockedDirectedTarget() ||
             currentTarget != null ||
             hasWanderTarget ||
             (resourceGatherer != null &&
             resourceGatherer.HasActiveGatheringFlow) ||
             (activity == NpcScheduleActivity.Hunt &&
-            HasActiveHuntTravelIntent());
+            HasActiveHuntTravelIntent()));
 
         if (!preserveDirectedWork)
         {
             ClearTravelTargetsAndStop();
         }
 
-        actionTimer = Mathf.Max(actionTimer, GameHoursToSeconds(0.15f));
+        actionTimer = Mathf.Max(
+            actionTimer,
+            GameHoursToSeconds(
+                activity == NpcScheduleActivity.Idle
+                    ? 5f / 60f
+                    : 0.15f));
 
         UpdateCultivationEffect(false);
         if (!preserveDirectedWork)
@@ -990,10 +1025,21 @@ public partial class SmartNpcAI
             return false;
         }
 
+        TraceRuntime(
+            "TryVisitTaskProvider",
+            "enter action=" + currentAction +
+            " target=" + (currentTarget != null ? currentTarget.name : "null") +
+            " wander=" + hasWanderTarget +
+            " quota=" + GetDailyTaskQuotaDebugText() +
+            " slot=" + (schedule != null && schedule.CurrentSlot != null
+                ? schedule.CurrentActivity.ToString()
+                : "none"));
+
         NpcTaskProvider provider =
             NpcTaskProvider.FindNearestProvider(
                 gameObject,
-                transform.position);
+                transform.position,
+                false);
 
         if (provider == null)
         {
@@ -1107,6 +1153,14 @@ public partial class SmartNpcAI
                 " providerZone=" +
                 (providerArea != null ? providerArea.zone.ToString() : "None") +
                 " quota=" + GetDailyTaskQuotaDebugText());
+            TraceRuntime(
+                "TryVisitTaskProvider",
+                "move provider=" + provider.name +
+                " inRange=" + inProviderRange +
+                " dist=" + providerDistance.ToString("0.00") +
+                " arrive=" + providerArriveDistance.ToString("0.00") +
+                " target=" + (currentTarget != null ? currentTarget.name : "null") +
+                " wander=" + hasWanderTarget);
             return true;
         }
 
@@ -1145,12 +1199,20 @@ public partial class SmartNpcAI
                 " providerZone=" +
                 (providerArea != null ? providerArea.zone.ToString() : "None") +
                 " quota=" + GetDailyTaskQuotaDebugText());
+            TraceRuntime(
+                "TryVisitTaskProvider",
+                "adjust provider=" + provider.name +
+                " inRange=" + inProviderRange +
+                " dist=" + providerDistance.ToString("0.00") +
+                " arrive=" + providerArriveDistance.ToString("0.00") +
+                " target=" + (currentTarget != null ? currentTarget.name : "null") +
+                " wander=" + hasWanderTarget);
             return true;
         }
 
         ClearTravelTargets();
 
-        if (provider.TryHandleVisitor(gameObject, true))
+        if (provider.TryHandleVisitor(gameObject, false))
         {
             MarkDailyTaskAccepted();
             if (schedule != null)
@@ -1167,6 +1229,12 @@ public partial class SmartNpcAI
                 "TaskProvider",
                 "Handled by provider " + provider.name +
                 " quota=" + GetDailyTaskQuotaDebugText());
+            TraceRuntime(
+                "TryVisitTaskProvider",
+                "handled provider=" + provider.name +
+                " inRange=" + inProviderRange +
+                " target=" + (currentTarget != null ? currentTarget.name : "null") +
+                " wander=" + hasWanderTarget);
             return true;
         }
 
@@ -1179,6 +1247,12 @@ public partial class SmartNpcAI
             " providerPos=" +
             providerPosition +
             " quota=" + GetDailyTaskQuotaDebugText());
+        TraceRuntime(
+            "TryVisitTaskProvider",
+            "visit-without-task provider=" + provider.name +
+            " inRange=" + inProviderRange +
+            " target=" + (currentTarget != null ? currentTarget.name : "null") +
+            " wander=" + hasWanderTarget);
         return true;
     }
 

@@ -799,7 +799,14 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         RefreshScheduledStateForCurrentFrame();
 
-        if (NpcTaskProvider.IsNpcBusyWithAnyProvider(gameObject))
+        bool busyWithProvider =
+            NpcTaskProvider.IsNpcBusyWithAnyProvider(gameObject);
+        if (busyWithProvider &&
+            !IsRecoveringFromDamage &&
+            !HasEmergencySmartTask &&
+            currentMonsterTarget == null &&
+            !MatchesSmartAction("attackMonsterNamed", true) &&
+            !MatchesSmartAction("attackMonster", true))
         {
             if (rb != null)
             {
@@ -866,9 +873,30 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
+        bool combatAttackActive =
+            currentMonsterTarget != null &&
+            (MatchesSmartAction("attackMonsterNamed", true) ||
+            MatchesSmartAction("attackMonster", true) ||
+            ShouldHoldCombatPosition());
+
+        if (combatAttackActive)
+        {
+            if (runtimeTraceEveryUpdate)
+            {
+                TraceRuntime("Update", "preserve-combat-attack");
+            }
+
+            TryAttackMonster();
+            if (canLive)
+            {
+                UpdateNeeds();
+            }
+
+            return;
+        }
+
         if (currentMonsterTarget != null ||
-            MatchesSmartAction("huntMonsterNamed", true) ||
-            MatchesSmartAction("attackMonsterNamed", true))
+            MatchesSmartAction("huntMonsterNamed", true))
         {
             if (runtimeTraceEveryUpdate)
             {
@@ -950,7 +978,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         bool holdStationaryAction =
             actionTimer > 0f &&
-            IsStationaryAction(currentAction) &&
+            (IsStationaryAction(currentAction) ||
+            ShouldHoldCombatPosition()) &&
             !HasLockedDirectedTarget() &&
             !hasEscapeTarget &&
             !hasObstacleAvoidTarget;
@@ -1021,6 +1050,17 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 direction = targetDirection.normalized;
             }
         }
+        else if (currentMonsterTarget != null &&
+            ShouldHoldCombatPosition())
+        {
+            Vector2 targetDirection =
+                currentMonsterTarget.transform.position -
+                transform.position;
+            if (targetDirection.sqrMagnitude > 0.0001f)
+            {
+                direction = targetDirection.normalized;
+            }
+        }
 
         string animationAction =
             ResolveAnimationActionForCurrentState(
@@ -1076,6 +1116,23 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         if (!string.IsNullOrWhiteSpace(forcedCombatAnimationAction))
         {
             return forcedCombatAnimationAction;
+        }
+
+        if (IsMonsterCombatAnimationAction(currentAction))
+        {
+            return currentAction;
+        }
+
+        if (currentMonsterTarget != null &&
+            ShouldHoldCombatPosition())
+        {
+            string targetName =
+                currentMonsterTarget != null
+                    ? currentMonsterTarget.monsterName
+                    : string.Empty;
+            return string.IsNullOrWhiteSpace(targetName)
+                ? NpcText.Action("attackMonsterNamed")
+                : NpcText.ActionFormat("attackMonsterNamed", targetName);
         }
 
         if (!isIdle)
@@ -2433,7 +2490,15 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
     void OnNpcMapTeleported(GameObject gateObject)
     {
         DebugFlow("Teleport", "Teleported gate=" +
-            (gateObject != null ? gateObject.name : "null"));
+            (gateObject != null ? gateObject.name : "null") +
+            " source=" +
+            (gateObject != null ? "gate" : "fallback") +
+            " pos=" +
+            transform.position +
+            " area=" +
+            (NpcMapArea.FindArea(transform.position) != null
+                ? NpcMapArea.FindArea(transform.position).name
+                : "null"));
 
         bool preserveTravelState =
             currentMonsterTarget != null ||
@@ -2882,6 +2947,12 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         treasureHuntItem = item;
         treasureWaitLowPowerSkirmish = lowPowerSkirmish;
         currentTarget = null;
+        TraceRuntime(
+            "ForceTreasureWait",
+            "origin=" + origin +
+            " safeRadius=" + safeRadius.ToString("0.00") +
+            " item=" + (item != null ? ItemText.Name(item) : "null") +
+            " lowPowerSkirmish=" + lowPowerSkirmish);
 
         Vector2 away = transform.position - origin;
         if (away.sqrMagnitude <= 0.01f)
@@ -2917,6 +2988,10 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         treasureHuntTarget = target;
         treasureHuntItem = item;
         currentTarget = target;
+        TraceRuntime(
+            "ForceTreasureHunt",
+            "target=" + (target != null ? target.name : "null") +
+            " item=" + (item != null ? ItemText.Name(item) : "null"));
         RequestEmergencyTask(
             SmartAITaskGoal.Treasure,
             SmartAITaskPriority.Emergency,
@@ -2957,6 +3032,10 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         currentTarget = target;
         hasWanderTarget = false;
         currentAction = NpcText.Action("gatherResource");
+        TraceRuntime(
+            "ForceGatherTarget",
+            "target=" + target.name +
+            " item=" + (item != null ? ItemText.Name(item) : "null"));
         DebugFlow(
             "Gather",
             "Force gather target " +
@@ -3044,6 +3123,10 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         hasEscapeTarget = false;
         hasObstacleAvoidTarget = false;
         currentAction = NpcText.Action("idle");
+        TraceRuntime(
+            "ReturnToSpawn",
+            "homeReturnTarget=" + homeReturnTarget +
+            " action=idle");
     }
 
     bool TryPickIdleWanderTarget(out Vector3 target)
@@ -3156,6 +3239,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             action == NpcText.Action("cultivate") ||
             action == NpcText.Action("cultivateAbsorbQi") ||
             action == NpcText.Action("waitTribulation") ||
+            IsMonsterCombatAnimationAction(action) ||
             ContainsIgnoreCase(action, "waitSchedule") ||
             action == NpcText.Action("breakthrough") ||
             action == NpcText.Action("injured") ||
@@ -3739,6 +3823,15 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             hasWanderTarget +
             " wanderTarget=" +
             wanderTarget);
+        TraceRuntime(
+            "HandleBlockedMovement",
+            "blockedTarget=" + blockedTarget +
+            " finalTarget=" + finalTarget +
+            " timer=" + blockedMoveTimer.ToString("0.00") +
+            " action=" + currentAction +
+            " target=" + (currentTarget != null ? currentTarget.name : "null") +
+            " wander=" + hasWanderTarget +
+            " wanderTarget=" + wanderTarget);
 
         if (blockedMoveTimer < blockedTargetRetryDelay)
         {
@@ -3768,6 +3861,11 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 DebugFlow(
                     "Move",
                     "Blocked near task provider, handled visit immediately");
+                TraceRuntime(
+                    "HandleBlockedMovement",
+                    "handled-near-provider action=" + currentAction +
+                    " target=" + (currentTarget != null ? currentTarget.name : "null") +
+                    " wander=" + hasWanderTarget);
                 blockedMoveTimer = 0f;
             }
 
@@ -3801,6 +3899,11 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             DebugFlow(
                 "Move",
                 "Blocked retry near task provider, handled visit immediately");
+            TraceRuntime(
+                "HandleBlockedMovement",
+                "retry-handled-provider action=" + currentAction +
+                " target=" + (currentTarget != null ? currentTarget.name : "null") +
+                " wander=" + hasWanderTarget);
             return;
         }
 
@@ -4659,6 +4762,21 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         StopNpcMovement();
     }
 
+    void ClearCompletedMissionAction()
+    {
+        if (actionTimer > 0f)
+        {
+            return;
+        }
+
+        ClearTravelTargetsAndStop();
+
+        if (!IsStationaryAction(currentAction))
+        {
+            currentAction = NpcText.Action("idle");
+        }
+    }
+
     void ClearCultivationTravelState()
     {
         bool wasCultivatingAction =
@@ -4789,6 +4907,14 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         cultivationTarget = cultivationPosition;
         hasCultivationTarget = true;
         currentAction = NpcText.Action("goCultivatePoint");
+        TraceRuntime(
+            "TryGoToCultivationPoint",
+            "set targetPoint=" +
+            (targetPoint != null ? targetPoint.name : "null") +
+            " cultivationPosition=" +
+            cultivationPosition +
+            " hasWander=" +
+            hasWanderTarget);
         return true;
     }
 
@@ -4808,6 +4934,18 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         {
             targetPoint = cultivationPoint;
             cultivationPosition = cultivationTarget;
+            DebugFlow(
+                "Cultivate",
+                "Use cached cultivation target targetPoint=" +
+                (targetPoint != null ? targetPoint.name : "null") +
+                " cultivationPosition=" +
+                cultivationPosition);
+            TraceRuntime(
+                "TryResolveCultivationTravelDestination",
+                "cached targetPoint=" +
+                (targetPoint != null ? targetPoint.name : "null") +
+                " cultivationPosition=" +
+                cultivationPosition);
             return true;
         }
 
@@ -4837,6 +4975,20 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                         out _))
                 {
                     targetPoint = null;
+                    DebugFlow(
+                        "Cultivate",
+                        "Fallback to configured cultivation area targetPoint=null destinationZone=" +
+                        destinationZone.Value +
+                        " cultivationPosition=" +
+                        cultivationPosition +
+                        " currentPos=" +
+                        transform.position);
+                    TraceRuntime(
+                        "TryResolveCultivationTravelDestination",
+                        "fallback-configured destinationZone=" +
+                        destinationZone.Value +
+                        " cultivationPosition=" +
+                        cultivationPosition);
                     return true;
                 }
 
@@ -4849,14 +5001,43 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                     cultivationPosition =
                         destinationArea.ClosestPoint(targetPoint.position);
                     targetPoint = null;
+                    DebugFlow(
+                        "Cultivate",
+                        "Fallback to nearest area destinationZone=" +
+                        destinationZone.Value +
+                        " area=" +
+                        destinationArea.name +
+                        " cultivationPosition=" +
+                        cultivationPosition +
+                        " currentPos=" +
+                        transform.position);
+                    TraceRuntime(
+                        "TryResolveCultivationTravelDestination",
+                        "fallback-nearest destinationZone=" +
+                        destinationZone.Value +
+                        " area=" +
+                        destinationArea.name +
+                        " cultivationPosition=" +
+                        cultivationPosition);
                     return true;
                 }
             }
 
+            DebugFlow(
+                "Cultivate",
+                "Use direct cultivation target targetPoint=" +
+                targetPoint.name +
+                " targetZone=" +
+                (destinationZone.HasValue
+                    ? destinationZone.Value.ToString()
+                    : "None") +
+                " cultivationPosition=" +
+                cultivationPosition);
             return true;
         }
 
-        return NpcLocationArea.TryGetPosition(
+        bool foundCultivationPosition =
+            NpcLocationArea.TryGetPosition(
             gameObject,
             NpcScheduleActivity.Cultivate,
             VillagerJob.None,
@@ -4864,6 +5045,18 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             transform.position,
             out cultivationPosition,
             out _);
+
+        DebugFlow(
+            "Cultivate",
+            foundCultivationPosition
+                ? "Use fallback cultivation area cultivationPosition=" +
+                    cultivationPosition +
+                    " currentPos=" +
+                    transform.position
+                : "No cultivation destination found currentPos=" +
+                    transform.position);
+
+        return foundCultivationPosition;
     }
 
     bool TryRefreshPendingCultivationTravelTarget()
@@ -4907,6 +5100,14 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         cultivationTarget = cultivationPosition;
         hasCultivationTarget = true;
         currentAction = NpcText.Action("goCultivatePoint");
+        TraceRuntime(
+            "TryRefreshPendingCultivationTravelTarget",
+            "refresh targetPoint=" +
+            (targetPoint != null ? targetPoint.name : "null") +
+            " cultivationPosition=" +
+            cultivationPosition +
+            " hasWander=" +
+            hasWanderTarget);
         return true;
     }
 
@@ -5554,7 +5755,14 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                         currentMonsterTarget.transform.position) <=
                         maxRoamDistance;
 
-            if (!targetStillInHuntArea)
+            bool preserveCombatTarget =
+                isCounterAttackingMonster ||
+                currentHelpRequest != null ||
+                MatchesSmartAction("attackMonsterNamed", true) ||
+                MatchesSmartAction("attackMonster", true);
+
+            if (!targetStillInHuntArea &&
+                !preserveCombatTarget)
             {
                 ReleaseMonsterReservation(currentMonsterTarget);
                 currentMonsterTarget = null;
@@ -5562,6 +5770,14 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 ClearMonsterCombatState();
                 DebugFlow("Hunt", "Monster left hunt area, drop target");
                 return;
+            }
+
+            if (!targetStillInHuntArea &&
+                preserveCombatTarget)
+            {
+                DebugFlow(
+                    "Hunt",
+                    "Keep combat target outside hunt area");
             }
 
             if (isRetreatingFromMonster)
@@ -5576,7 +5792,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             if (!TargetReservationSystem.Instance.IsReservedByOwner(
                     currentMonsterTarget.gameObject,
                     gameObject) &&
-                currentHelpRequest == null)
+                currentHelpRequest == null &&
+                !isCounterAttackingMonster)
             {
                 ReleaseMonsterReservation(currentMonsterTarget);
                 currentMonsterTarget = null;
@@ -5848,7 +6065,8 @@ void TryAttackMonster()
     if (!TargetReservationSystem.Instance.IsReservedByOwner(
             currentMonsterTarget.gameObject,
             gameObject) &&
-        currentHelpRequest == null)
+        currentHelpRequest == null &&
+        !isCounterAttackingMonster)
     {
         ReleaseMonsterReservation(currentMonsterTarget);
         currentMonsterTarget = null;
@@ -5985,89 +6203,39 @@ public void ShootFireball()
     }
 }
 
-bool ShouldFightMonster(
-    MonsterAI monster)
-{
-    if (!ShouldSmartAutoHuntMonster(monster))
+    bool ShouldFightMonster(
+        MonsterAI monster)
     {
-        return false;
-    }
-
-    // Bo qua quai da chet.
-    if (monster.currentHP <= 0)
-    {
-        return false;
-    }
-
-    if (CombatPowerUtility.ShouldRetreat(gameObject, monster.gameObject))
-    {
-        return false;
-    }
-
-    if (CombatPowerUtility.ShouldRequestHelp(gameObject, monster.gameObject))
-    {
-        RequestHelpForMonster(monster);
-        return true;
-    }
-
-    int myPower =
-        Mathf.Max(
-            1,
-            Mathf.RoundToInt(
-                CultivationProgression.GetStatPower(
-                    realm,
-                    realmStage,
-                    EntityKind.Cultivator)));
-
-    int monsterPower =
-        Mathf.Max(
-            1,
-            Mathf.RoundToInt(
-                CultivationProgression.GetStatPower(
-                    monster.realm,
-                    monster.realmStage,
-                    EntityKind.Beast) *
-                CultivationProgression.GetEntityStatMultiplier(
-                    EntityKind.Beast)));
-
-    int difference =
-        monsterPower - myPower;
-
-    float monsterHpPercent =
-        (float)monster.currentHP /
-        monster.maxHP;
-
-    float myHpPercent =
-        (float)currentHP / maxHP;
-
-    // Mau thap thi chay.
-    if (myHpPercent <= 0.3f)
-    {
-        currentAction = NpcText.Action("injured");
-
-        return false;
-    }
-
-    // Quai manh hon nhieu.
-    if (difference >= 2)
-    {
-        // Chi danh neu quai gan chet.
-        if (monsterHpPercent <= 0.3f)
+        if (!ShouldSmartAutoHuntMonster(monster))
         {
+            return false;
+        }
+
+        // Bo qua quai da chet.
+        if (monster.currentHP <= 0)
+        {
+            return false;
+        }
+
+        if (CombatPowerUtility.ShouldRetreat(gameObject, monster.gameObject))
+        {
+            return false;
+        }
+
+        if (CombatPowerUtility.ShouldRequestHelp(gameObject, monster.gameObject))
+        {
+            RequestHelpForMonster(monster);
             return true;
         }
 
-        return false;
+        return true;
     }
 
-    return true;
-}
-
-bool ShouldSmartAutoHuntMonster(MonsterAI monster)
-{
-    return monster != null &&
-        monster.huntTargetType == HuntTargetType.Beast;
-}
+    bool ShouldSmartAutoHuntMonster(MonsterAI monster)
+    {
+        return monster != null &&
+            monster.huntTargetType == HuntTargetType.Beast;
+    }
 
     void MakeFriend()
     {
@@ -6327,6 +6495,10 @@ bool ShouldSmartAutoHuntMonster(MonsterAI monster)
             if (!characterStats.IsDead)
             {
                 InterruptGatheringForCombat();
+                if (!enabled)
+                {
+                    enabled = true;
+                }
                 TryCounterAttackFromDamage(attackerObject, damage);
             }
 
@@ -6353,6 +6525,10 @@ bool ShouldSmartAutoHuntMonster(MonsterAI monster)
         if (currentHP > 0)
         {
             InterruptGatheringForCombat();
+            if (!enabled)
+            {
+                enabled = true;
+            }
             TryCounterAttackFromDamage(attackerObject, damage);
 
             if (currentHP <= Mathf.Max(1, maxHP / 3))
@@ -6489,12 +6665,12 @@ bool ShouldSmartAutoHuntMonster(MonsterAI monster)
         attackTimer = Mathf.Max(attackTimer, attackCooldown);
         currentAction =
             NpcText.ActionFormat(
-                "huntMonsterNamed",
+                "attackMonsterNamed",
                 bestTarget.monsterName);
         TryIgnoreCombatTargetCollision(currentTarget);
         DebugFlow(
             "Combat",
-            "Interrupted gather to react to monster " +
+            "Interrupted gather to attack monster " +
             bestTarget.monsterName);
     }
 

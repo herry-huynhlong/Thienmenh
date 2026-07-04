@@ -89,6 +89,16 @@ public static class ItemText
         return Get("itemDescriptions", item.name, item.description);
     }
 
+    public static string Lore(StatItemData item)
+    {
+        if (item == null)
+        {
+            return "";
+        }
+
+        return GetOptional("itemLores", item.name);
+    }
+
     public static string Grade(ItemGrade grade)
     {
         return Get("itemGrades", grade.ToString(), grade.ToString());
@@ -224,5 +234,25 @@ public static class ItemText
                 values[category.name + "." + entry.key] = entry.value;
             }
         }
+    }
+
+    static string GetOptional(string category, string key)
+    {
+        EnsureLoaded();
+
+        if (string.IsNullOrEmpty(category) ||
+            string.IsNullOrEmpty(key))
+        {
+            return "";
+        }
+
+        string lookupKey = category + "." + key;
+        if (values != null &&
+            values.TryGetValue(lookupKey, out string value))
+        {
+            return NpcText.CleanDisplayText(value);
+        }
+
+        return "";
     }
 }

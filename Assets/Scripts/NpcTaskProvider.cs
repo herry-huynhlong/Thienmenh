@@ -166,6 +166,14 @@ public partial class NpcTaskProvider : MonoBehaviour
         GameObject npc,
         Vector3 position)
     {
+        return FindNearestProvider(npc, position, true);
+    }
+
+    public static NpcTaskProvider FindNearestProvider(
+        GameObject npc,
+        Vector3 position,
+        bool autoAssigned)
+    {
         NpcTaskProvider best = null;
         float bestDistance = float.PositiveInfinity;
 
@@ -181,7 +189,7 @@ public partial class NpcTaskProvider : MonoBehaviour
             }
 
             if (npc != null &&
-                !provider.HasAnyOfferForNpc(npc))
+                !provider.HasAnyOfferForNpc(npc, autoAssigned))
             {
                 continue;
             }
@@ -199,6 +207,13 @@ public partial class NpcTaskProvider : MonoBehaviour
 
     public bool HasAnyOfferForNpc(GameObject npc)
     {
+        return HasAnyOfferForNpc(npc, true);
+    }
+
+    public bool HasAnyOfferForNpc(
+        GameObject npc,
+        bool autoAssigned)
+    {
         if (npc == null ||
             !provideTasks ||
             offers == null ||
@@ -207,7 +222,7 @@ public partial class NpcTaskProvider : MonoBehaviour
             return false;
         }
 
-        return PickOfferFor(npc, true) != null;
+        return PickOfferFor(npc, autoAssigned) != null;
     }
 
     public static bool IsNpcBusyWithAnyProvider(GameObject npc)
@@ -1457,6 +1472,12 @@ public partial class NpcTaskProvider : MonoBehaviour
                 continue;
             }
 
+            if (IsNpcRecoveringFromDamage(meal.npc))
+            {
+                HoldNpcForDamage(meal.npc);
+                continue;
+            }
+
             if (meal.stage == TavernMealStage.GoingToMealPoint)
             {
                 MoveNpc(meal.npc, meal.mealPosition);
@@ -1496,6 +1517,12 @@ public partial class NpcTaskProvider : MonoBehaviour
                 NpcRoleUtility.IsDead(task.npc))
             {
                 FinishTask(i, false);
+                continue;
+            }
+
+            if (IsNpcRecoveringFromDamage(task.npc))
+            {
+                HoldNpcForDamage(task.npc);
                 continue;
             }
 
@@ -1917,6 +1944,7 @@ public partial class NpcTaskProvider : MonoBehaviour
             requiredItem,
             GetGatherRequiredZone(offer),
             null,
+            false,
             null) != null;
     }
 
@@ -2447,6 +2475,15 @@ public partial class NpcTaskProvider : MonoBehaviour
 
         task.escortThreatMonster = threat;
 
+        LogThreatDecision(
+            task,
+            threat,
+            "EscortThreat",
+            GetNpcCombatPower(task.npc),
+            GetMonsterCombatPower(threat),
+            0.05f,
+            Mathf.Max(0.1f, escortThreatFightPowerRatio));
+
         if (ShouldFleeEscortThreat(task, threat))
         {
             FleeEscortThreat(task, threat);
@@ -2524,8 +2561,39 @@ public partial class NpcTaskProvider : MonoBehaviour
 
     bool ShouldFleeEscortThreat(RunningNpcTask task, MonsterAI threat)
     {
-        return GetNpcCombatPower(task.npc) <=
-            GetMonsterCombatPower(threat) * Mathf.Max(0.1f, escortThreatFleePowerRatio);
+        return CombatPowerUtility.ShouldRetreat(
+            task.npc,
+            threat != null ? threat.gameObject : null);
+    }
+
+    void LogThreatDecision(
+        RunningNpcTask task,
+        MonsterAI threat,
+        string kind,
+        int npcPower,
+        int monsterPower,
+        float fleeThreshold,
+        float fightThreshold)
+    {
+        if (task == null ||
+            task.npc == null ||
+            threat == null)
+        {
+            return;
+        }
+
+        Debug.LogWarning(
+            "[NpcTaskProvider] kind=" + kind +
+            " npc=" + task.npc.name +
+            " task=" + GetTaskDisplayText(task) +
+            " npcPower=" + npcPower +
+            " monster=" + threat.monsterName +
+            " monsterPower=" + monsterPower +
+            " fleeThreshold=" + fleeThreshold.ToString("0.00") +
+            " fightThreshold=" + fightThreshold.ToString("0.00") +
+            " npcHp=" + CombatPowerUtility.GetCurrentHpRatio(task.npc).ToString("0.00") +
+            " npcPos=" + task.npc.transform.position +
+            " threatPos=" + threat.transform.position);
     }
 
     void FightEscortThreat(RunningNpcTask task, MonsterAI threat)
@@ -2971,6 +3039,15 @@ public partial class NpcTaskProvider : MonoBehaviour
 
         task.threatMonster = threat;
 
+        LogThreatDecision(
+            task,
+            threat,
+            "GatherThreat",
+            GetNpcCombatPower(task.npc),
+            GetMonsterCombatPower(threat),
+            0.05f,
+            Mathf.Max(0.1f, gatherThreatFightPowerRatio));
+
         if (ShouldFleeGatherThreat(task, threat))
         {
             FleeGatherThreat(task, threat);
@@ -3043,8 +3120,9 @@ public partial class NpcTaskProvider : MonoBehaviour
 
     bool ShouldFleeGatherThreat(RunningNpcTask task, MonsterAI threat)
     {
-        return GetNpcCombatPower(task.npc) <=
-            GetMonsterCombatPower(threat) * Mathf.Max(0.1f, gatherThreatFleePowerRatio);
+        return CombatPowerUtility.ShouldRetreat(
+            task.npc,
+            threat != null ? threat.gameObject : null);
     }
 
     void FightGatherThreat(RunningNpcTask task, MonsterAI threat)
@@ -3246,6 +3324,7 @@ public partial class NpcTaskProvider : MonoBehaviour
             GetTaskRequiredItem(task),
             GetGatherRequiredZone(task.offer),
             null,
+            false,
             task.npc);
     }
 
@@ -3847,6 +3926,18 @@ public partial class NpcTaskProvider : MonoBehaviour
         RecordCompletedOffer(task.npc, task.offer);
         MoveOfferToEnd(task.offer);
         RewardNpc(task);
+
+        NpcScheduleController schedule =
+            task.npc != null
+                ? NpcScheduleController.GetSchedule(task.npc)
+                : null;
+        if (schedule != null &&
+            schedule.enforceSchedule &&
+            (schedule.CurrentActivity == NpcScheduleActivity.DoMission ||
+            schedule.CurrentActivity == NpcScheduleActivity.TakeTask))
+        {
+            schedule.MarkCurrentSlotActivityCompleted(schedule.CurrentActivity);
+        }
     }
 
     GameObject GetNpcFromHit(Collider2D hit)
@@ -5399,6 +5490,29 @@ public partial class NpcTaskProvider : MonoBehaviour
                 return;
             }
         }
+    }
+
+    bool IsNpcRecoveringFromDamage(GameObject npc)
+    {
+        if (npc == null)
+        {
+            return false;
+        }
+
+        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
+        return smartNpc != null &&
+            smartNpc.IsRecoveringFromDamage;
+    }
+
+    void HoldNpcForDamage(GameObject npc)
+    {
+        if (npc == null)
+        {
+            return;
+        }
+
+        NpcRoleUtility.StopForConversation(npc);
+        NpcRoleUtility.SetAction(npc, TaskAction("injured"));
     }
 
     Vector2 RotateDirection(Vector2 direction, float degrees)

@@ -256,6 +256,300 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5219939}
   m_CullTransparentMesh: 1
+--- !u!1 &6651242
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6651249}
+  - component: {fileID: 6651248}
+  - component: {fileID: 6651247}
+  - component: {fileID: 6651246}
+  - component: {fileID: 6651245}
+  - component: {fileID: 6651244}
+  - component: {fileID: 6651243}
+  m_Layer: 0
+  m_Name: ga_0
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!70 &6651243
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6651242}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Size: {x: 0.992, y: 0.872}
+  m_Direction: 0
+--- !u!50 &6651244
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6651242}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
+--- !u!114 &6651245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6651242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a790614e013438a896b8213555146c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterDirectionalAnimator
+  animator: {fileID: 0}
+  spriteRenderer: {fileID: 0}
+  prefix: yeuthu
+  autoDetectPrefix: 1
+  playLieWhenIdle: 1
+  attackLockTime: 0.45
+--- !u!114 &6651246
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6651242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11f70ac958cc4a349b1bcd3767aef3fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterAI
+  generateFromEntityProfile: 1
+  entityProfile: {fileID: 0}
+  monsterName: 
+  maxHP: 1500
+  currentHP: 1500
+  beastLevel: 1
+  huntTargetType: 1
+  autoStatsFromRealm: 1
+  syncBeastLevelFromRealm: 1
+  realm: 1
+  realmStage: 1
+  cultivationExp: 0
+  baseExpToNextRealm: 100
+  waitingForHeavenlyTribulation: 0
+  baseMaxHP: 150
+  baseDamage: 15
+  baseDefense: 8
+  baseEffectResistance: 0
+  baseMoveSpeed: 2
+  naturalCultivationExpPerSecond: 0.35
+  hungryCultivationEfficiency: 0.45
+  npcDevourExpMultiplier: 0.35
+  minNpcDevourExp: 20
+  healAfterDevouringNpc: 1
+  damage: 150
+  defense: 80
+  effectResistance: 2
+  beastInstinct: 60
+  aggression: 50
+  fear: 20
+  hunger: 40
+  retreatChanceWhenSuppressed: 0.2
+  retreatDuration: 1.25
+  retreatRetryDelay: 0.75
+  territorial: 50
+  bloodlust: 20
+  survivalInstinct: 50
+  moveSpeed: 2.12
+  roamRadius: 3
+  waitTime: 2
+  autoConfigureRigidbody: 1
+  fallbackTransformMove: 1
+  useCameraDistanceThrottle: 1
+  fullUpdateDistanceFromCamera: 14
+  reducedFixedUpdateInterval: 0.25
+  guardTerritory: 1
+  territoryRadius: 5
+  returnHomeDistance: 7
+  intruderLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  attackPlayer: 1
+  attackVillagers: 1
+  attackSmartNpcs: 1
+  attackOtherMonsters: 0
+  debugFlowLogs: 0
+  currentAction: Idle
+  currentMoveVelocity: {x: 0, y: 0}
+  usePerformanceThrottle: 1
+  thinkInterval: 0.2
+  detectInterval: 0.35
+  performanceJitter: 0.12
+  detectRange: 6
+  attackRange: 1.5
+  forgetTargetRange: 8
+  attackCooldown: 2
+  attackDamageDelay: 0.35
+  attackEndDelay: 1
+  directDamageOnAttack: 1
+  respawnAfterDeath: 1
+  respawnAfterDays: 1
+  corpseVisibleSeconds: 2
+  dropLootOnDeath: 1
+  lootDropChance: 1
+  lootAmount: 1
+  lootByBeastLevel: []
+  allowPlayerLootPickup: 1
+  allowNpcLootPickup: 1
+  lootDropOffsetRadius: 0.2
+  fireballPrefab: {fileID: 0}
+  firePoint: {fileID: 0}
+  useAnimation: 1
+--- !u!95 &6651247
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6651242}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 3e8429cd741bcd2478212a36f33298ea, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!212 &6651248
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6651242}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 2
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: -222713599671890319, guid: a642941a7191f104daf547660f1d1f1d, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 2.48, y: 2.18}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
+--- !u!4 &6651249
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6651242}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 63.511517, y: -56.38992, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7061095
 GameObject:
   m_ObjectHideFlags: 0
@@ -9136,9 +9430,6 @@ Tilemap:
   - serializedVersion: 2
     m_RefCount: 699
     m_Data: {fileID: 152954984, guid: e3046f4802b255e43bc09df30edadcc1, type: 3}
-  - serializedVersion: 2
-    m_RefCount: 0
-    m_Data: {fileID: 1210273113}
   m_TileMatrixArray:
   - serializedVersion: 2
     m_RefCount: 832
@@ -9798,13 +10089,14 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 486128207}
   - {fileID: 1276864346}
   m_Father: {fileID: 2067902450}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 264, y: -99}
-  m_SizeDelta: {x: 450, y: 88}
+  m_AnchoredPosition: {x: 271.57, y: -192}
+  m_SizeDelta: {x: 543.14, y: 106.214}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &37317934
 GameObject:
@@ -11139,7 +11431,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -120, y: -120}
+  m_AnchoredPosition: {x: -159, y: -206}
   m_SizeDelta: {x: 140, y: 140}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &81592447
@@ -12453,6 +12745,143 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &119476770
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 119476771}
+  - component: {fileID: 119476773}
+  - component: {fileID: 119476772}
+  m_Layer: 5
+  m_Name: tuongtruyen
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &119476771
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 119476770}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 326023769}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 6.925, y: -5.192}
+  m_SizeDelta: {x: 1656.842, y: 165.776}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &119476772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 119476770}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: New Text
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
+  m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 45
+  m_fontSizeBase: 45
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 0
+  m_HorizontalAlignment: 1
+  m_VerticalAlignment: 512
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_characterHorizontalScale: 1
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 3.4619868, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &119476773
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 119476770}
+  m_CullTransparentMesh: 1
 --- !u!1 &120888572
 GameObject:
   m_ObjectHideFlags: 0
@@ -14418,8 +14847,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 45
+  m_fontSizeBase: 45
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -17676,6 +18105,13 @@ MonoBehaviour:
   slots:
   - activity: 13
     startHour: 7
+    endHour: 12.916667
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 12.916667
     endHour: 13
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -17683,6 +18119,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 14
     startHour: 13
+    endHour: 17.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 17.916666
     endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -17690,6 +18133,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
+    endHour: 18.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 18.916666
     endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -17697,6 +18147,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 8
     startHour: 19
+    endHour: 6.9166665
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 6.9166665
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -17708,6 +18165,38 @@ MonoBehaviour:
   debugCurrentHour: 0
   debugCurrentActivity: 0
   debugCurrentSlot: 
+--- !u!114 &263152481
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 263152461}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdcab76f81f40ee41bb9e80c881d1c75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcTradeAgent
+  inventory: {fileID: 0}
+  npcLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  tradeRadius: 1.2
+  tradeInterval: 5
+  tradeChance: 25
+  buyUsefulItemsFromMarketTrader: 1
+  counterTradeCooldown: 45
+  useSpiritStoneCurrency: 1
+  spiritStone: 0
+  maxMoneySpendRatio: 0.65
+  maxOwnedConsumableBeforeBuying: 3
+  riskyItemValueMultiplier: 120
+  isMarketTrader: 0
+  buyProduceFromVillagers: 1
+  acceptAllMaterials: 1
+  acceptedProduce: []
+  maxProduceUnitsPerTrade: 4
+  buyPricePercent: 70
 --- !u!1 &267913402
 GameObject:
   m_ObjectHideFlags: 0
@@ -18471,6 +18960,13 @@ MonoBehaviour:
   slots:
   - activity: 13
     startHour: 7
+    endHour: 12.916667
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 12.916667
     endHour: 13
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -18478,6 +18974,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 14
     startHour: 13
+    endHour: 17.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 17.916666
     endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -18485,6 +18988,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
+    endHour: 18.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 18.916666
     endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -18492,6 +19002,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 8
     startHour: 19
+    endHour: 6.9166665
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 6.9166665
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -19392,462 +19909,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!1001 &309522933
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 1304320904}
-    m_Modifications:
-    - target: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_Name
-      value: satthu (2)
-      objectReference: {fileID: 0}
-    - target: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_Layer
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_TagString
-      value: NPC
-      objectReference: {fileID: 0}
-    - target: {fileID: 4661552873986713119, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: mapBounds
-      value: 
-      objectReference: {fileID: 1889999621}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 125.68
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 2.65
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7736707609684258997, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_SortingOrder
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8815674642892252926, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_BodyType
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 4661552873986713119, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 309522939}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 309522944}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 309522943}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 309522942}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 309522941}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 309522940}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 309522948}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 309522952}
-  m_SourcePrefab: {fileID: 100100000, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
---- !u!4 &309522934 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-  m_PrefabInstance: {fileID: 309522933}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &309522935 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-  m_PrefabInstance: {fileID: 309522933}
-  m_PrefabAsset: {fileID: 0}
---- !u!70 &309522939
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 309522935}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 2.0624998, y: 3.4687498}
-  m_Direction: 0
---- !u!114 &309522940
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 309522935}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfbab0629b004768a5f0d842ff9aafc4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcResourceGatherer
-  canGather: 1
-  scanInterval: 2
-  maxSearchDistance: 12
-  arriveDistance: 0.35
-  retargetDistance: 0.75
-  reservationDuration: 3
-  harvestBreakDistance: 2
-  harvestCooldownAfterSuccess: 45
-  harvestCooldownWhenNoTarget: 8
-  limitHarvestsPerScheduleSlot: 1
-  maxHarvestsPerScheduleSlot: 1
-  gatherChancePerScan: 0.35
-  gatherOnlyWhenInventoryExists: 0
-  useVillagerPreferredZone: 1
---- !u!114 &309522941
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 309522935}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f04ee078acf6f5348a56c0dd4f443cd0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcSocialSystem
---- !u!114 &309522942
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 309522935}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc4bf883290daa74499e6dfdae005003, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcItemCollector
-  inventory: {fileID: 0}
-  characterStats: {fileID: 0}
-  canPickupItems: 1
-  autoUsePickedItems: 1
-  pickupLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  pickupRadius: 0.45
-  scanInterval: 0.5
-  autoStudyManuals: 1
-  manualStudyInterval: 120
-  debugPickupLogs: 0
---- !u!114 &309522943
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 309522935}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0b281d7812be4154f9595571919a4202, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SmartNpcAI
-  generateFromEntityProfile: 1
-  entityProfile: {fileID: 0}
-  npcName: "Tu s\u0129"
-  canLive: 1
-  canCultivate: 1
-  canFight: 1
-  canTrade: 1
-  canGather: 1
-  canSellGoods: 1
-  canMakeFriends: 1
-  canKillOthers: 1
-  canCompeteResource: 1
-  canCreateSect: 1
-  autonomousActivitiesEnabled: 0
-  realm: 1
-  realmStage: 1
-  comprehension: 10
-  physique: 0
-  maxHP: 100
-  currentHP: 100
-  attack: 10
-  defense: 5
-  baseMaxHP: 100
-  baseAttack: 10
-  baseDefense: 5
-  effectResistance: 0
-  characterStats: {fileID: 0}
-  lifespan: 80
-  dieWhenLifespanEnds: 1
-  cultivation: 0
-  breakthroughNeed: 100
-  readyForHeavenlyTribulation: 0
-  waitingForHeavenlyTribulation: 0
-  money: 100
-  spiritStone: 0
-  pill: 0
-  bravery: 50
-  greed: 50
-  kindness: 50
-  hunger: 0
-  fatigue: 0
-  moveSpeed: 2
-  useKinematicNpcMovement: 1
-  crowdLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  obstacleLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  separationRadius: 0.55
-  separationStrength: 1.5
-  crowdLookAheadDistance: 0.7
-  crowdDetourDistance: 0.6
-  crowdYieldDuration: 0.22
-  unstuckCheckDelay: 1.1
-  unstuckMinMoveDistance: 0.03
-  unstuckOffsetRadius: 0.9
-  escapeTargetReachDistance: 0.18
-  obstacleCheckDistance: 0.35
-  obstacleDetourLookAhead: 0.65
-  targetClearRadius: 0.25
-  navigationClearancePadding: 0.16
-  blockedTargetRetryDelay: 0.8
-  useObstacleAvoidance: 1
-  ignoreNpcBodyCollisions: 1
-  sharedTargetSpacingRadius: 0.55
-  sharedTargetOccupancyRadius: 0.3
-  currentTarget: {fileID: 0}
-  attackRange: 1.5
-  attackCooldown: 1
-  deathDestroyDelay: 2
-  fireballPrefab: {fileID: 0}
-  firePoint: {fileID: 0}
-  maxRoamDistance: 10
-  idleWanderRadius: 3.5
-  idleWanderMinDistance: 1.2
-  idleWanderArriveDistance: 0.45
-  idleWanderPickAttempts: 12
-  refreshGeneratedProfileOnStart: 1
-  dailyRoutineEnabled: 1
-  dailyCultivationMinHours: 4
-  dailyCultivationMaxHours: 8
-  earliestCultivationHour: 5
-  latestCultivationStartHour: 20
-  dailyTaskVisitEnabled: 1
-  dailyTaskMinCount: 5
-  dailyTaskMaxCount: 7
-  taskProviderStartHour: 6
-  taskProviderEndHour: 17
-  cultivationSessionMinGameHours: 1
-  cultivationSessionMaxGameHours: 2
-  tradeSessionMinGameHours: 0.5
-  tradeSessionMaxGameHours: 1.5
-  socialSessionMinGameHours: 0.5
-  socialSessionMaxGameHours: 1.5
-  homePoint: {fileID: 0}
-  cultivationPoint: {fileID: 0}
-  tavernPoint: {fileID: 0}
-  forestPoint: {fileID: 0}
-  farmPoint: {fileID: 0}
-  currentAction: idle
-  currentSmartTask:
-    goal: 0
-    priority: 10
-    canBeInterrupted: 1
-    reason: 
-    createdTime: 0
-  scheduleSmartTask:
-    goal: 0
-    priority: 10
-    canBeInterrupted: 1
-    reason: 
-    createdTime: 0
-  cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
-  thinkDelay: 2
-  debugFlowLogs: 0
-  runtimeTraceEnabled: 0
-  runtimeTraceTarget: 
-  runtimeTraceEveryUpdate: 0
-  runtimeTraceEveryThink: 1
-  runtimeTraceScheduleChanges: 1
---- !u!114 &309522944
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 309522935}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b75b03d92ec088d4688820efbcd11d02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ItemInventory
-  shareRuntimeItems: 1
-  keepInspectorItemsWhenLoadingSave: 1
-  runtimeKey: 
-  items: []
---- !u!114 &309522948
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 309522935}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d14b4510bc9b8114c9fd7e33da6b676c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NPCVisualAnimation
-  downWalkClip: {fileID: 0}
-  upWalkClip: {fileID: 0}
-  sideWalkClip: {fileID: 0}
-  rightWalkClip: {fileID: 0}
-  leftWalkClip: {fileID: 0}
-  downIdleClip: {fileID: 0}
-  upIdleClip: {fileID: 0}
-  sideIdleClip: {fileID: 0}
-  rightIdleClip: {fileID: 0}
-  leftIdleClip: {fileID: 0}
-  attackDownClip: {fileID: 0}
-  attackUpClip: {fileID: 0}
-  attackSideClip: {fileID: 0}
-  rightAttackClip: {fileID: 0}
-  leftAttackClip: {fileID: 0}
-  cultivateDownClip: {fileID: 0}
-  cultivateUpClip: {fileID: 0}
-  cultivateSideClip: {fileID: 0}
-  rightCultivateClip: {fileID: 0}
-  leftCultivateClip: {fileID: 0}
-  dieDownClip: {fileID: 0}
-  dieUpClip: {fileID: 0}
-  dieSideClip: {fileID: 0}
-  rightDieClip: {fileID: 0}
-  leftDieClip: {fileID: 0}
-  sideSpriteFacesRight: 0
-  invertSideFlip: 0
-  invertVerticalFacing: 1
-  directionDeadZone: 0.08
-  debugVisualLogs: 0
---- !u!114 &309522952
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 309522935}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
-  enforceSchedule: 1
-  autoBuildDefaultSchedule: 1
-  lifePath: 2
-  slots:
-  - activity: 13
-    startHour: 7
-    endHour: 13
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 14
-    startHour: 13
-    endHour: 18
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 15
-    startHour: 18
-    endHour: 19
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 19
-    endHour: 7
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  canCultivate: 1
-  awakenedCultivation: 0
-  awakenedByMarrowCleansingPill: 0
-  debugCurrentHour: 0
-  debugCurrentActivity: 0
-  debugCurrentSlot: 
 --- !u!1 &310305319
 GameObject:
   m_ObjectHideFlags: 0
@@ -20696,13 +20757,14 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 119476771}
   m_Father: {fileID: 1847247871}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 478}
-  m_SizeDelta: {x: -300, y: 100}
+  m_AnchoredPosition: {x: 0, y: 424.34106}
+  m_SizeDelta: {x: -300, y: 207.318}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &332672088
 GameObject:
@@ -22490,8 +22552,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 45
+  m_fontSizeBase: 45
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -26311,6 +26373,81 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 12.010355, y: 29.807922}
   m_EdgeRadius: 0
+--- !u!1 &486128206
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 486128207}
+  - component: {fileID: 486128209}
+  - component: {fileID: 486128208}
+  m_Layer: 5
+  m_Name: Image
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &486128207
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486128206}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 36826972}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &486128208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486128206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: -8263712201719779594, guid: 518914ab81e06ee4091c839d06707d3e, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &486128209
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486128206}
+  m_CullTransparentMesh: 1
 --- !u!1 &491907891
 GameObject:
   m_ObjectHideFlags: 0
@@ -29653,6 +29790,81 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &558062680
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 558062681}
+  - component: {fileID: 558062683}
+  - component: {fileID: 558062682}
+  m_Layer: 5
+  m_Name: Image
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &558062681
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 558062680}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1416582728}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &558062682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 558062680}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 836738448785619463, guid: 4773927235cebf0449294e66a32a5e34, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &558062683
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 558062680}
+  m_CullTransparentMesh: 1
 --- !u!1 &560928458
 GameObject:
   m_ObjectHideFlags: 0
@@ -38370,7 +38582,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 327.51996, y: 168}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &644131633
 MonoBehaviour:
@@ -38392,7 +38604,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -901187590174343476, guid: eef3749700b356149a448ff06e404ce2, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -41391,481 +41603,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!1001 &754998904
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 1304320904}
-    m_Modifications:
-    - target: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_Name
-      value: satthu (3)
-      objectReference: {fileID: 0}
-    - target: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4661552873986713119, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: mapBounds
-      value: 
-      objectReference: {fileID: 1237257573}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -1.8700104
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 4.73
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7736707609684258997, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_SortingOrder
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8815674642892252926, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_BodyType
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 4661552873986713119, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 754998911}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 754998909}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 754998908}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 754998915}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 754998914}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 754998913}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 754998912}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 754998919}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 754998923}
-  m_SourcePrefab: {fileID: 100100000, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
---- !u!4 &754998905 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-  m_PrefabInstance: {fileID: 754998904}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &754998906 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-  m_PrefabInstance: {fileID: 754998904}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &754998908
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 754998906}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc4bf883290daa74499e6dfdae005003, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcItemCollector
-  inventory: {fileID: 0}
-  characterStats: {fileID: 0}
-  canPickupItems: 1
-  autoUsePickedItems: 1
-  pickupLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  pickupRadius: 0.45
-  scanInterval: 0.5
-  autoStudyManuals: 1
-  manualStudyInterval: 120
-  debugPickupLogs: 0
---- !u!114 &754998909
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 754998906}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b75b03d92ec088d4688820efbcd11d02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ItemInventory
-  shareRuntimeItems: 0
-  keepInspectorItemsWhenLoadingSave: 1
-  runtimeKey: 
-  items: []
---- !u!70 &754998911
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 754998906}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: -0.68772316}
-  m_Size: {x: 2.0624998, y: 2.093304}
-  m_Direction: 0
---- !u!114 &754998912
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 754998906}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfbab0629b004768a5f0d842ff9aafc4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcResourceGatherer
-  canGather: 0
-  scanInterval: 2
-  maxSearchDistance: 12
-  arriveDistance: 0.35
-  retargetDistance: 0.75
-  reservationDuration: 3
-  harvestBreakDistance: 2
-  harvestCooldownAfterSuccess: 45
-  harvestCooldownWhenNoTarget: 8
-  limitHarvestsPerScheduleSlot: 1
-  maxHarvestsPerScheduleSlot: 1
-  gatherChancePerScan: 0.35
-  gatherOnlyWhenInventoryExists: 0
-  useVillagerPreferredZone: 1
---- !u!114 &754998913
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 754998906}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f04ee078acf6f5348a56c0dd4f443cd0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcSocialSystem
---- !u!114 &754998914
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 754998906}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc4bf883290daa74499e6dfdae005003, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcItemCollector
-  inventory: {fileID: 0}
-  characterStats: {fileID: 0}
-  canPickupItems: 1
-  autoUsePickedItems: 1
-  pickupLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  pickupRadius: 0.45
-  scanInterval: 0.5
-  autoStudyManuals: 1
-  manualStudyInterval: 120
-  debugPickupLogs: 0
---- !u!114 &754998915
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 754998906}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0b281d7812be4154f9595571919a4202, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SmartNpcAI
-  generateFromEntityProfile: 1
-  entityProfile: {fileID: 0}
-  npcName: "Tu s\u0129"
-  canLive: 1
-  canCultivate: 1
-  canFight: 1
-  canTrade: 1
-  canGather: 1
-  canSellGoods: 1
-  canMakeFriends: 1
-  canKillOthers: 1
-  canCompeteResource: 1
-  canCreateSect: 1
-  autonomousActivitiesEnabled: 0
-  realm: 2
-  realmStage: 1
-  comprehension: 10
-  physique: 0
-  maxHP: 100
-  currentHP: 100
-  attack: 10
-  defense: 5
-  baseMaxHP: 100
-  baseAttack: 10
-  baseDefense: 5
-  effectResistance: 0
-  characterStats: {fileID: 0}
-  lifespan: 80
-  dieWhenLifespanEnds: 1
-  cultivation: 0
-  breakthroughNeed: 100
-  readyForHeavenlyTribulation: 0
-  waitingForHeavenlyTribulation: 0
-  money: 100
-  spiritStone: 0
-  pill: 0
-  bravery: 50
-  greed: 50
-  kindness: 50
-  hunger: 0
-  fatigue: 0
-  moveSpeed: 2
-  useKinematicNpcMovement: 1
-  crowdLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  obstacleLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  separationRadius: 0.55
-  separationStrength: 1.5
-  crowdLookAheadDistance: 0.7
-  crowdDetourDistance: 0.6
-  crowdYieldDuration: 0.22
-  unstuckCheckDelay: 1.1
-  unstuckMinMoveDistance: 0.03
-  unstuckOffsetRadius: 0.9
-  escapeTargetReachDistance: 0.18
-  obstacleCheckDistance: 0.35
-  obstacleDetourLookAhead: 0.65
-  targetClearRadius: 0.25
-  navigationClearancePadding: 0.16
-  blockedTargetRetryDelay: 0.8
-  useObstacleAvoidance: 1
-  ignoreNpcBodyCollisions: 1
-  sharedTargetSpacingRadius: 0.55
-  sharedTargetOccupancyRadius: 0.3
-  currentTarget: {fileID: 0}
-  attackRange: 1.5
-  attackCooldown: 1
-  deathDestroyDelay: 2
-  fireballPrefab: {fileID: 0}
-  firePoint: {fileID: 0}
-  maxRoamDistance: 10
-  idleWanderRadius: 3.5
-  idleWanderMinDistance: 1.2
-  idleWanderArriveDistance: 0.45
-  idleWanderPickAttempts: 12
-  refreshGeneratedProfileOnStart: 1
-  dailyRoutineEnabled: 1
-  dailyCultivationMinHours: 4
-  dailyCultivationMaxHours: 8
-  earliestCultivationHour: 5
-  latestCultivationStartHour: 20
-  dailyTaskVisitEnabled: 1
-  dailyTaskMinCount: 5
-  dailyTaskMaxCount: 7
-  taskProviderStartHour: 6
-  taskProviderEndHour: 17
-  cultivationSessionMinGameHours: 1
-  cultivationSessionMaxGameHours: 2
-  tradeSessionMinGameHours: 0.5
-  tradeSessionMaxGameHours: 1.5
-  socialSessionMinGameHours: 0.5
-  socialSessionMaxGameHours: 1.5
-  homePoint: {fileID: 0}
-  cultivationPoint: {fileID: 0}
-  tavernPoint: {fileID: 0}
-  forestPoint: {fileID: 0}
-  farmPoint: {fileID: 0}
-  currentAction: idle
-  currentSmartTask:
-    goal: 0
-    priority: 10
-    canBeInterrupted: 1
-    reason: 
-    createdTime: 0
-  scheduleSmartTask:
-    goal: 0
-    priority: 10
-    canBeInterrupted: 1
-    reason: 
-    createdTime: 0
-  cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
-  thinkDelay: 2
-  debugFlowLogs: 0
-  runtimeTraceEnabled: 0
-  runtimeTraceTarget: 
-  runtimeTraceEveryUpdate: 0
-  runtimeTraceEveryThink: 1
-  runtimeTraceScheduleChanges: 1
---- !u!114 &754998919
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 754998906}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d14b4510bc9b8114c9fd7e33da6b676c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NPCVisualAnimation
-  downWalkClip: {fileID: 0}
-  upWalkClip: {fileID: 0}
-  sideWalkClip: {fileID: 0}
-  rightWalkClip: {fileID: 0}
-  leftWalkClip: {fileID: 0}
-  downIdleClip: {fileID: 0}
-  upIdleClip: {fileID: 0}
-  sideIdleClip: {fileID: 0}
-  rightIdleClip: {fileID: 0}
-  leftIdleClip: {fileID: 0}
-  attackDownClip: {fileID: 0}
-  attackUpClip: {fileID: 0}
-  attackSideClip: {fileID: 0}
-  rightAttackClip: {fileID: 0}
-  leftAttackClip: {fileID: 0}
-  cultivateDownClip: {fileID: 0}
-  cultivateUpClip: {fileID: 0}
-  cultivateSideClip: {fileID: 0}
-  rightCultivateClip: {fileID: 0}
-  leftCultivateClip: {fileID: 0}
-  dieDownClip: {fileID: 0}
-  dieUpClip: {fileID: 0}
-  dieSideClip: {fileID: 0}
-  rightDieClip: {fileID: 0}
-  leftDieClip: {fileID: 0}
-  sideSpriteFacesRight: 0
-  invertSideFlip: 0
-  invertVerticalFacing: 1
-  directionDeadZone: 0.08
-  debugVisualLogs: 0
---- !u!114 &754998923
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 754998906}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
-  enforceSchedule: 1
-  autoBuildDefaultSchedule: 1
-  lifePath: 2
-  slots:
-  - activity: 13
-    startHour: 7
-    endHour: 13
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 14
-    startHour: 13
-    endHour: 18
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 15
-    startHour: 18
-    endHour: 19
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 19
-    endHour: 7
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  canCultivate: 1
-  awakenedCultivation: 0
-  awakenedByMarrowCleansingPill: 0
-  debugCurrentHour: 0
-  debugCurrentActivity: 0
-  debugCurrentSlot: 
 --- !u!1 &758398949
 GameObject:
   m_ObjectHideFlags: 0
@@ -43739,7 +43476,7 @@ SpriteRenderer:
   m_SortingOrder: 2
   m_MaskInteraction: 0
   m_Sprite: {fileID: -3805377776694353001, guid: 8090262379ba5524cbdb0c8c7dbd8fd4, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.7372549}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -45659,99 +45396,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.3755055, y: 6.1737795}
   m_EdgeRadius: 0
---- !u!1001 &855516468
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 1304320904}
-    m_Modifications:
-    - target: {fileID: 2229023895812471610, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_SortingOrder
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_Name
-      value: daocot (1)
-      objectReference: {fileID: 0}
-    - target: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 125.32
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 5.63
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 6246953884098109330, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1058458064}
-    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1058458072}
-    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1058458076}
-    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1058458075}
-    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1058458074}
-    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1058458073}
-    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1058458080}
-    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1058458081}
-    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1058458085}
-  m_SourcePrefab: {fileID: 100100000, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
 --- !u!1 &856479176
 GameObject:
   m_ObjectHideFlags: 0
@@ -49184,6 +48828,7 @@ GameObject:
   - component: {fileID: 962538903}
   - component: {fileID: 962538902}
   - component: {fileID: 962538901}
+  - component: {fileID: 962538910}
   m_Layer: 3
   m_Name: tu_si_nam_1
   m_TagString: Untagged
@@ -49281,7 +48926,7 @@ Transform:
   m_GameObject: {fileID: 962538897}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 101.32, y: -33.83, z: 0}
+  m_LocalPosition: {x: 80.6, y: -33.83, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -49503,6 +49148,13 @@ MonoBehaviour:
   slots:
   - activity: 13
     startHour: 7
+    endHour: 12.916667
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 12.916667
     endHour: 13
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -49510,6 +49162,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 14
     startHour: 13
+    endHour: 17.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 17.916666
     endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -49517,6 +49176,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
+    endHour: 18.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 18.916666
     endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -49524,6 +49190,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 8
     startHour: 19
+    endHour: 6.9166665
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 6.9166665
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -49668,6 +49341,18 @@ MonoBehaviour:
   runtimeTraceEveryUpdate: 1
   runtimeTraceEveryThink: 1
   runtimeTraceScheduleChanges: 1
+--- !u!114 &962538910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 962538897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f04ee078acf6f5348a56c0dd4f443cd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcSocialSystem
 --- !u!1 &966158763
 GameObject:
   m_ObjectHideFlags: 0
@@ -50307,10 +49992,10 @@ RectTransform:
   - {fileID: 1106599787}
   m_Father: {fileID: 1061404681}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 840, y: -180}
+  m_SizeDelta: {x: 540, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &978658658
 MonoBehaviour:
@@ -55461,406 +55146,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!1 &995969475 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-  m_PrefabInstance: {fileID: 1799153284}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &995969481 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-  m_PrefabInstance: {fileID: 1799153284}
-  m_PrefabAsset: {fileID: 0}
---- !u!70 &995969482
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 995969475}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: -0.12031555, y: -0.7933352}
-  m_Size: {x: 1.3094584, y: 1.8508143}
-  m_Direction: 0
---- !u!114 &995969483
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 995969475}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfbab0629b004768a5f0d842ff9aafc4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcResourceGatherer
-  canGather: 1
-  scanInterval: 2
-  maxSearchDistance: 12
-  arriveDistance: 0.35
-  retargetDistance: 0.75
-  reservationDuration: 3
-  harvestBreakDistance: 2
-  harvestCooldownAfterSuccess: 45
-  harvestCooldownWhenNoTarget: 8
-  limitHarvestsPerScheduleSlot: 1
-  maxHarvestsPerScheduleSlot: 1
-  gatherChancePerScan: 0.35
-  gatherOnlyWhenInventoryExists: 0
-  useVillagerPreferredZone: 1
---- !u!114 &995969484
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 995969475}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc4bf883290daa74499e6dfdae005003, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcItemCollector
-  inventory: {fileID: 0}
-  characterStats: {fileID: 0}
-  canPickupItems: 1
-  autoUsePickedItems: 1
-  pickupLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  pickupRadius: 0.45
-  scanInterval: 0.5
-  autoStudyManuals: 1
-  manualStudyInterval: 120
-  debugPickupLogs: 0
---- !u!114 &995969485
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 995969475}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b75b03d92ec088d4688820efbcd11d02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ItemInventory
-  shareRuntimeItems: 0
-  keepInspectorItemsWhenLoadingSave: 1
-  runtimeKey: 
-  items: []
---- !u!114 &995969486
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 995969475}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfbab0629b004768a5f0d842ff9aafc4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcResourceGatherer
-  canGather: 1
-  scanInterval: 2
-  maxSearchDistance: 12
-  arriveDistance: 0.35
-  retargetDistance: 0.75
-  reservationDuration: 3
-  harvestBreakDistance: 2
-  harvestCooldownAfterSuccess: 45
-  harvestCooldownWhenNoTarget: 8
-  limitHarvestsPerScheduleSlot: 1
-  maxHarvestsPerScheduleSlot: 1
-  gatherChancePerScan: 0.35
-  gatherOnlyWhenInventoryExists: 0
-  useVillagerPreferredZone: 1
---- !u!114 &995969487
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 995969475}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f04ee078acf6f5348a56c0dd4f443cd0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcSocialSystem
---- !u!114 &995969488
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 995969475}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc4bf883290daa74499e6dfdae005003, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcItemCollector
-  inventory: {fileID: 0}
-  characterStats: {fileID: 0}
-  canPickupItems: 1
-  autoUsePickedItems: 1
-  pickupLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  pickupRadius: 0.45
-  scanInterval: 0.5
-  autoStudyManuals: 1
-  manualStudyInterval: 120
-  debugPickupLogs: 0
---- !u!114 &995969489
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 995969475}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0b281d7812be4154f9595571919a4202, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SmartNpcAI
-  generateFromEntityProfile: 1
-  entityProfile: {fileID: 0}
-  npcName: "Tu s\u0129"
-  canLive: 1
-  canCultivate: 1
-  canFight: 1
-  canTrade: 1
-  canGather: 1
-  canSellGoods: 1
-  canMakeFriends: 1
-  canKillOthers: 1
-  canCompeteResource: 1
-  canCreateSect: 1
-  autonomousActivitiesEnabled: 0
-  realm: 1
-  realmStage: 1
-  comprehension: 10
-  physique: 0
-  maxHP: 100
-  currentHP: 100
-  attack: 10
-  defense: 5
-  baseMaxHP: 100
-  baseAttack: 10
-  baseDefense: 5
-  effectResistance: 0
-  characterStats: {fileID: 0}
-  lifespan: 80
-  dieWhenLifespanEnds: 1
-  cultivation: 0
-  breakthroughNeed: 100
-  readyForHeavenlyTribulation: 0
-  waitingForHeavenlyTribulation: 0
-  money: 100
-  spiritStone: 0
-  pill: 0
-  bravery: 50
-  greed: 50
-  kindness: 50
-  hunger: 0
-  fatigue: 0
-  moveSpeed: 2
-  useKinematicNpcMovement: 1
-  crowdLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  obstacleLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  separationRadius: 0.55
-  separationStrength: 1.5
-  crowdLookAheadDistance: 0.7
-  crowdDetourDistance: 0.6
-  crowdYieldDuration: 0.22
-  unstuckCheckDelay: 1.1
-  unstuckMinMoveDistance: 0.03
-  unstuckOffsetRadius: 0.9
-  escapeTargetReachDistance: 0.18
-  obstacleCheckDistance: 0.35
-  obstacleDetourLookAhead: 0.65
-  targetClearRadius: 0.25
-  navigationClearancePadding: 0.16
-  blockedTargetRetryDelay: 0.8
-  useObstacleAvoidance: 1
-  ignoreNpcBodyCollisions: 1
-  sharedTargetSpacingRadius: 0.55
-  sharedTargetOccupancyRadius: 0.3
-  currentTarget: {fileID: 0}
-  attackRange: 1.5
-  attackCooldown: 1
-  deathDestroyDelay: 2
-  fireballPrefab: {fileID: 0}
-  firePoint: {fileID: 0}
-  maxRoamDistance: 10
-  idleWanderRadius: 3.5
-  idleWanderMinDistance: 1.2
-  idleWanderArriveDistance: 0.45
-  idleWanderPickAttempts: 12
-  refreshGeneratedProfileOnStart: 1
-  dailyRoutineEnabled: 1
-  dailyCultivationMinHours: 4
-  dailyCultivationMaxHours: 8
-  earliestCultivationHour: 5
-  latestCultivationStartHour: 20
-  dailyTaskVisitEnabled: 1
-  dailyTaskMinCount: 5
-  dailyTaskMaxCount: 7
-  taskProviderStartHour: 6
-  taskProviderEndHour: 17
-  cultivationSessionMinGameHours: 1
-  cultivationSessionMaxGameHours: 2
-  tradeSessionMinGameHours: 0.5
-  tradeSessionMaxGameHours: 1.5
-  socialSessionMinGameHours: 0.5
-  socialSessionMaxGameHours: 1.5
-  homePoint: {fileID: 0}
-  cultivationPoint: {fileID: 0}
-  tavernPoint: {fileID: 0}
-  forestPoint: {fileID: 0}
-  farmPoint: {fileID: 0}
-  currentAction: idle
-  currentSmartTask:
-    goal: 0
-    priority: 10
-    canBeInterrupted: 1
-    reason: 
-    createdTime: 0
-  scheduleSmartTask:
-    goal: 0
-    priority: 10
-    canBeInterrupted: 1
-    reason: 
-    createdTime: 0
-  cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
-  thinkDelay: 2
-  debugFlowLogs: 0
-  runtimeTraceEnabled: 0
-  runtimeTraceTarget: 
-  runtimeTraceEveryUpdate: 0
-  runtimeTraceEveryThink: 1
-  runtimeTraceScheduleChanges: 1
---- !u!114 &995969493
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 995969475}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d14b4510bc9b8114c9fd7e33da6b676c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NPCVisualAnimation
-  downWalkClip: {fileID: 0}
-  upWalkClip: {fileID: 0}
-  sideWalkClip: {fileID: 0}
-  rightWalkClip: {fileID: 0}
-  leftWalkClip: {fileID: 0}
-  downIdleClip: {fileID: 0}
-  upIdleClip: {fileID: 0}
-  sideIdleClip: {fileID: 0}
-  rightIdleClip: {fileID: 0}
-  leftIdleClip: {fileID: 0}
-  attackDownClip: {fileID: 0}
-  attackUpClip: {fileID: 0}
-  attackSideClip: {fileID: 0}
-  rightAttackClip: {fileID: 0}
-  leftAttackClip: {fileID: 0}
-  cultivateDownClip: {fileID: 0}
-  cultivateUpClip: {fileID: 0}
-  cultivateSideClip: {fileID: 0}
-  rightCultivateClip: {fileID: 0}
-  leftCultivateClip: {fileID: 0}
-  dieDownClip: {fileID: 0}
-  dieUpClip: {fileID: 0}
-  dieSideClip: {fileID: 0}
-  rightDieClip: {fileID: 0}
-  leftDieClip: {fileID: 0}
-  sideSpriteFacesRight: 0
-  invertSideFlip: 0
-  invertVerticalFacing: 1
-  directionDeadZone: 0.08
-  debugVisualLogs: 0
---- !u!114 &995969497
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 995969475}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
-  enforceSchedule: 1
-  autoBuildDefaultSchedule: 1
-  lifePath: 2
-  slots:
-  - activity: 13
-    startHour: 7
-    endHour: 13
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 14
-    startHour: 13
-    endHour: 18
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 15
-    startHour: 18
-    endHour: 19
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 19
-    endHour: 7
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  canCultivate: 1
-  awakenedCultivation: 0
-  awakenedByMarrowCleansingPill: 0
-  debugCurrentHour: 0
-  debugCurrentActivity: 0
-  debugCurrentSlot: 
 --- !u!1 &998121181
 GameObject:
   m_ObjectHideFlags: 0
@@ -56595,10 +55880,10 @@ RectTransform:
   - {fileID: 2092972944}
   m_Father: {fileID: 1061404681}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 1410, y: -180}
+  m_SizeDelta: {x: 540, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1016338230
 MonoBehaviour:
@@ -57417,15 +56702,17 @@ GameObject:
   - component: {fileID: 1044429975}
   - component: {fileID: 1044429977}
   - component: {fileID: 1044429976}
-  - component: {fileID: 1044429986}
   - component: {fileID: 1044429985}
   - component: {fileID: 1044429984}
+  - component: {fileID: 1044429986}
   - component: {fileID: 1044429983}
   - component: {fileID: 1044429982}
   - component: {fileID: 1044429981}
   - component: {fileID: 1044429980}
   - component: {fileID: 1044429979}
   - component: {fileID: 1044429978}
+  - component: {fileID: 1044429988}
+  - component: {fileID: 1044429987}
   m_Layer: 3
   m_Name: tieu_tho_1
   m_TagString: Untagged
@@ -57798,6 +57085,13 @@ MonoBehaviour:
   slots:
   - activity: 13
     startHour: 7
+    endHour: 12.916667
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 12.916667
     endHour: 13
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -57805,6 +57099,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 14
     startHour: 13
+    endHour: 17.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 17.916666
     endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -57812,6 +57113,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
+    endHour: 18.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 18.916666
     endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -57819,6 +57127,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 8
     startHour: 19
+    endHour: 6.9166665
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 6.9166665
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -57910,6 +57225,60 @@ MonoBehaviour:
   keepInspectorItemsWhenLoadingSave: 1
   runtimeKey: 
   items: []
+--- !u!114 &1044429987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1044429974}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d14b4510bc9b8114c9fd7e33da6b676c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCVisualAnimation
+  downWalkClip: {fileID: 0}
+  upWalkClip: {fileID: 0}
+  sideWalkClip: {fileID: 0}
+  rightWalkClip: {fileID: 0}
+  leftWalkClip: {fileID: 0}
+  downIdleClip: {fileID: 0}
+  upIdleClip: {fileID: 0}
+  sideIdleClip: {fileID: 0}
+  rightIdleClip: {fileID: 0}
+  leftIdleClip: {fileID: 0}
+  attackDownClip: {fileID: 0}
+  attackUpClip: {fileID: 0}
+  attackSideClip: {fileID: 0}
+  rightAttackClip: {fileID: 0}
+  leftAttackClip: {fileID: 0}
+  cultivateDownClip: {fileID: 0}
+  cultivateUpClip: {fileID: 0}
+  cultivateSideClip: {fileID: 0}
+  rightCultivateClip: {fileID: 0}
+  leftCultivateClip: {fileID: 0}
+  dieDownClip: {fileID: 0}
+  dieUpClip: {fileID: 0}
+  dieSideClip: {fileID: 0}
+  rightDieClip: {fileID: 0}
+  leftDieClip: {fileID: 0}
+  sideSpriteFacesRight: 0
+  invertSideFlip: 0
+  invertVerticalFacing: 0
+  directionDeadZone: 0.08
+  debugVisualLogs: 0
+--- !u!114 &1044429988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1044429974}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f04ee078acf6f5348a56c0dd4f443cd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcSocialSystem
 --- !u!1 &1048320679
 GameObject:
   m_ObjectHideFlags: 0
@@ -58916,375 +58285,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 263152477}
+    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 263152481}
   m_SourcePrefab: {fileID: 100100000, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
---- !u!1 &1058458062 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-  m_PrefabInstance: {fileID: 855516468}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &1058458063 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-  m_PrefabInstance: {fileID: 855516468}
-  m_PrefabAsset: {fileID: 0}
---- !u!70 &1058458064
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1058458062}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: -0.25955203, y: -0.67100203}
-  m_Size: {x: 1.5121461, y: 2.0954807}
-  m_Direction: 0
---- !u!114 &1058458072
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1058458062}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b75b03d92ec088d4688820efbcd11d02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ItemInventory
-  shareRuntimeItems: 0
-  keepInspectorItemsWhenLoadingSave: 1
-  runtimeKey: 
-  items: []
---- !u!114 &1058458073
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1058458062}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfbab0629b004768a5f0d842ff9aafc4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcResourceGatherer
-  canGather: 1
-  scanInterval: 2
-  maxSearchDistance: 12
-  arriveDistance: 0.35
-  retargetDistance: 0.75
-  reservationDuration: 3
-  harvestBreakDistance: 2
-  harvestCooldownAfterSuccess: 45
-  harvestCooldownWhenNoTarget: 8
-  limitHarvestsPerScheduleSlot: 1
-  maxHarvestsPerScheduleSlot: 1
-  gatherChancePerScan: 0.35
-  gatherOnlyWhenInventoryExists: 0
-  useVillagerPreferredZone: 1
---- !u!114 &1058458074
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1058458062}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f04ee078acf6f5348a56c0dd4f443cd0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcSocialSystem
---- !u!114 &1058458075
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1058458062}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc4bf883290daa74499e6dfdae005003, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcItemCollector
-  inventory: {fileID: 0}
-  characterStats: {fileID: 0}
-  canPickupItems: 1
-  autoUsePickedItems: 1
-  pickupLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  pickupRadius: 0.45
-  scanInterval: 0.5
-  autoStudyManuals: 1
-  manualStudyInterval: 120
-  debugPickupLogs: 0
---- !u!114 &1058458076
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1058458062}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0b281d7812be4154f9595571919a4202, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SmartNpcAI
-  generateFromEntityProfile: 1
-  entityProfile: {fileID: 0}
-  npcName: "Tu s\u0129"
-  canLive: 1
-  canCultivate: 1
-  canFight: 1
-  canTrade: 1
-  canGather: 1
-  canSellGoods: 1
-  canMakeFriends: 1
-  canKillOthers: 1
-  canCompeteResource: 1
-  canCreateSect: 1
-  autonomousActivitiesEnabled: 0
-  realm: 1
-  realmStage: 1
-  comprehension: 10
-  physique: 0
-  maxHP: 100
-  currentHP: 100
-  attack: 10
-  defense: 5
-  baseMaxHP: 100
-  baseAttack: 10
-  baseDefense: 5
-  effectResistance: 0
-  characterStats: {fileID: 0}
-  lifespan: 80
-  dieWhenLifespanEnds: 1
-  cultivation: 0
-  breakthroughNeed: 100
-  readyForHeavenlyTribulation: 0
-  waitingForHeavenlyTribulation: 0
-  money: 100
-  spiritStone: 0
-  pill: 0
-  bravery: 50
-  greed: 50
-  kindness: 50
-  hunger: 0
-  fatigue: 0
-  moveSpeed: 2
-  useKinematicNpcMovement: 1
-  crowdLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  obstacleLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  separationRadius: 0.55
-  separationStrength: 1.5
-  crowdLookAheadDistance: 0.7
-  crowdDetourDistance: 0.6
-  crowdYieldDuration: 0.22
-  unstuckCheckDelay: 1.1
-  unstuckMinMoveDistance: 0.03
-  unstuckOffsetRadius: 0.9
-  escapeTargetReachDistance: 0.18
-  obstacleCheckDistance: 0.35
-  obstacleDetourLookAhead: 0.65
-  targetClearRadius: 0.25
-  navigationClearancePadding: 0.16
-  blockedTargetRetryDelay: 0.8
-  useObstacleAvoidance: 1
-  ignoreNpcBodyCollisions: 1
-  sharedTargetSpacingRadius: 0.55
-  sharedTargetOccupancyRadius: 0.3
-  currentTarget: {fileID: 0}
-  attackRange: 1.5
-  attackCooldown: 1
-  deathDestroyDelay: 2
-  fireballPrefab: {fileID: 0}
-  firePoint: {fileID: 0}
-  maxRoamDistance: 10
-  idleWanderRadius: 3.5
-  idleWanderMinDistance: 1.2
-  idleWanderArriveDistance: 0.45
-  idleWanderPickAttempts: 12
-  refreshGeneratedProfileOnStart: 1
-  dailyRoutineEnabled: 1
-  dailyCultivationMinHours: 4
-  dailyCultivationMaxHours: 8
-  earliestCultivationHour: 5
-  latestCultivationStartHour: 20
-  dailyTaskVisitEnabled: 1
-  dailyTaskMinCount: 5
-  dailyTaskMaxCount: 7
-  taskProviderStartHour: 6
-  taskProviderEndHour: 17
-  cultivationSessionMinGameHours: 1
-  cultivationSessionMaxGameHours: 2
-  tradeSessionMinGameHours: 0.5
-  tradeSessionMaxGameHours: 1.5
-  socialSessionMinGameHours: 0.5
-  socialSessionMaxGameHours: 1.5
-  homePoint: {fileID: 0}
-  cultivationPoint: {fileID: 0}
-  tavernPoint: {fileID: 0}
-  forestPoint: {fileID: 236824679}
-  farmPoint: {fileID: 258502344}
-  currentAction: idle
-  currentSmartTask:
-    goal: 0
-    priority: 10
-    canBeInterrupted: 1
-    reason: 
-    createdTime: 0
-  scheduleSmartTask:
-    goal: 0
-    priority: 10
-    canBeInterrupted: 1
-    reason: 
-    createdTime: 0
-  cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
-  thinkDelay: 2
-  debugFlowLogs: 0
-  runtimeTraceEnabled: 0
-  runtimeTraceTarget: 
-  runtimeTraceEveryUpdate: 0
-  runtimeTraceEveryThink: 1
-  runtimeTraceScheduleChanges: 1
---- !u!114 &1058458080
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1058458062}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d14b4510bc9b8114c9fd7e33da6b676c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NPCVisualAnimation
-  downWalkClip: {fileID: 0}
-  upWalkClip: {fileID: 0}
-  sideWalkClip: {fileID: 0}
-  rightWalkClip: {fileID: 0}
-  leftWalkClip: {fileID: 0}
-  downIdleClip: {fileID: 0}
-  upIdleClip: {fileID: 0}
-  sideIdleClip: {fileID: 0}
-  rightIdleClip: {fileID: 0}
-  leftIdleClip: {fileID: 0}
-  attackDownClip: {fileID: 0}
-  attackUpClip: {fileID: 0}
-  attackSideClip: {fileID: 0}
-  rightAttackClip: {fileID: 0}
-  leftAttackClip: {fileID: 0}
-  cultivateDownClip: {fileID: 0}
-  cultivateUpClip: {fileID: 0}
-  cultivateSideClip: {fileID: 0}
-  rightCultivateClip: {fileID: 0}
-  leftCultivateClip: {fileID: 0}
-  dieDownClip: {fileID: 0}
-  dieUpClip: {fileID: 0}
-  dieSideClip: {fileID: 0}
-  rightDieClip: {fileID: 0}
-  leftDieClip: {fileID: 0}
-  sideSpriteFacesRight: 0
-  invertSideFlip: 0
-  invertVerticalFacing: 1
-  directionDeadZone: 0.08
-  debugVisualLogs: 0
---- !u!114 &1058458081
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1058458062}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5faa728768081c549b611e9f2518413f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcEscortTaskForceStarter
-  targetNpc: {fileID: 1058458062}
-  provider: {fileID: 283373225}
-  autoFindNearestProvider: 1
-  autoFindNearestNpc: 1
-  temporarilyBoostEligibility: 1
-  restoreEligibilityAfterStart: 1
---- !u!114 &1058458085
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1058458062}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
-  enforceSchedule: 1
-  autoBuildDefaultSchedule: 1
-  lifePath: 2
-  slots:
-  - activity: 13
-    startHour: 7
-    endHour: 13
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 14
-    startHour: 13
-    endHour: 18
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 15
-    startHour: 18
-    endHour: 19
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 19
-    endHour: 7
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  canCultivate: 1
-  awakenedCultivation: 0
-  awakenedByMarrowCleansingPill: 0
-  debugCurrentHour: 0
-  debugCurrentActivity: 0
-  debugCurrentSlot: 
 --- !u!1 &1061404680
 GameObject:
   m_ObjectHideFlags: 0
@@ -76924,9 +75928,6 @@ Tilemap:
   - serializedVersion: 2
     m_RefCount: 6
     m_Data: {fileID: -97196690, guid: e3046f4802b255e43bc09df30edadcc1, type: 3}
-  - serializedVersion: 2
-    m_RefCount: 0
-    m_Data: {fileID: 2034997697}
   m_TileMatrixArray:
   - serializedVersion: 2
     m_RefCount: 903
@@ -77433,8 +76434,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 45
+  m_fontSizeBase: 45
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -78111,7 +77112,7 @@ SpriteRenderer:
   m_SortingOrder: 2
   m_MaskInteraction: 0
   m_Sprite: {fileID: -3805377776694353001, guid: 8090262379ba5524cbdb0c8c7dbd8fd4, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.7607843}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -83479,8 +82480,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 28, y: 497}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 58, y: 516}
+  m_SizeDelta: {x: 566.795, y: 122.492}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1266752003
 MonoBehaviour:
@@ -83529,15 +82530,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 50
+  m_fontSizeBase: 50
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -84187,8 +83188,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 13.571, y: -6.169}
+  m_SizeDelta: {x: 404.818, y: 72.209}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1276864347
 MonoBehaviour:
@@ -84237,8 +83238,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 45
+  m_fontSizeBase: 45
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -84501,356 +83502,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1054948020}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1282378949 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6510684094960389824, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-  m_PrefabInstance: {fileID: 1760342705}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &1282378950 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7648705555175374345, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-  m_PrefabInstance: {fileID: 1760342705}
-  m_PrefabAsset: {fileID: 0}
---- !u!70 &1282378951
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1282378949}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: -0.10382334, y: -0.7786206}
-  m_Size: {x: 1.6069285, y: 2.067743}
-  m_Direction: 0
---- !u!114 &1282378959
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1282378949}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b75b03d92ec088d4688820efbcd11d02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ItemInventory
-  shareRuntimeItems: 0
-  keepInspectorItemsWhenLoadingSave: 1
-  runtimeKey: 
-  items: []
---- !u!114 &1282378960
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1282378949}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfbab0629b004768a5f0d842ff9aafc4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcResourceGatherer
-  canGather: 1
-  scanInterval: 2
-  maxSearchDistance: 12
-  arriveDistance: 0.35
-  retargetDistance: 0.75
-  reservationDuration: 3
-  harvestBreakDistance: 2
-  harvestCooldownAfterSuccess: 45
-  harvestCooldownWhenNoTarget: 8
-  limitHarvestsPerScheduleSlot: 1
-  maxHarvestsPerScheduleSlot: 1
-  gatherChancePerScan: 0.35
-  gatherOnlyWhenInventoryExists: 0
-  useVillagerPreferredZone: 1
---- !u!114 &1282378961
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1282378949}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f04ee078acf6f5348a56c0dd4f443cd0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcSocialSystem
---- !u!114 &1282378962
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1282378949}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc4bf883290daa74499e6dfdae005003, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcItemCollector
-  inventory: {fileID: 0}
-  characterStats: {fileID: 0}
-  canPickupItems: 1
-  autoUsePickedItems: 1
-  pickupLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  pickupRadius: 0.45
-  scanInterval: 0.5
-  autoStudyManuals: 1
-  manualStudyInterval: 120
-  debugPickupLogs: 0
---- !u!114 &1282378963
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1282378949}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0b281d7812be4154f9595571919a4202, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SmartNpcAI
-  generateFromEntityProfile: 1
-  entityProfile: {fileID: 0}
-  npcName: "Tu s\u0129"
-  canLive: 1
-  canCultivate: 1
-  canFight: 1
-  canTrade: 1
-  canGather: 1
-  canSellGoods: 1
-  canMakeFriends: 1
-  canKillOthers: 1
-  canCompeteResource: 1
-  canCreateSect: 1
-  autonomousActivitiesEnabled: 0
-  realm: 1
-  realmStage: 5
-  comprehension: 10
-  physique: 0
-  maxHP: 100
-  currentHP: 100
-  attack: 10
-  defense: 5
-  baseMaxHP: 100
-  baseAttack: 10
-  baseDefense: 5
-  effectResistance: 0
-  characterStats: {fileID: 0}
-  lifespan: 80
-  dieWhenLifespanEnds: 1
-  cultivation: 0
-  breakthroughNeed: 100
-  readyForHeavenlyTribulation: 0
-  waitingForHeavenlyTribulation: 0
-  money: 100
-  spiritStone: 0
-  pill: 0
-  bravery: 50
-  greed: 50
-  kindness: 50
-  hunger: 0
-  fatigue: 0
-  moveSpeed: 2
-  useKinematicNpcMovement: 1
-  crowdLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  obstacleLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  separationRadius: 0.55
-  separationStrength: 1.5
-  crowdLookAheadDistance: 0.7
-  crowdDetourDistance: 0.6
-  crowdYieldDuration: 0.22
-  unstuckCheckDelay: 1.1
-  unstuckMinMoveDistance: 0.03
-  unstuckOffsetRadius: 0.9
-  escapeTargetReachDistance: 0.18
-  obstacleCheckDistance: 0.35
-  obstacleDetourLookAhead: 0.65
-  targetClearRadius: 0.25
-  navigationClearancePadding: 0.16
-  blockedTargetRetryDelay: 0.8
-  useObstacleAvoidance: 1
-  ignoreNpcBodyCollisions: 1
-  sharedTargetSpacingRadius: 0.55
-  sharedTargetOccupancyRadius: 0.3
-  currentTarget: {fileID: 0}
-  attackRange: 1.5
-  attackCooldown: 1
-  deathDestroyDelay: 2
-  fireballPrefab: {fileID: 0}
-  firePoint: {fileID: 0}
-  maxRoamDistance: 10
-  idleWanderRadius: 3.5
-  idleWanderMinDistance: 1.2
-  idleWanderArriveDistance: 0.45
-  idleWanderPickAttempts: 12
-  refreshGeneratedProfileOnStart: 1
-  dailyRoutineEnabled: 1
-  dailyCultivationMinHours: 4
-  dailyCultivationMaxHours: 8
-  earliestCultivationHour: 5
-  latestCultivationStartHour: 20
-  dailyTaskVisitEnabled: 1
-  dailyTaskMinCount: 5
-  dailyTaskMaxCount: 7
-  taskProviderStartHour: 6
-  taskProviderEndHour: 17
-  cultivationSessionMinGameHours: 1
-  cultivationSessionMaxGameHours: 2
-  tradeSessionMinGameHours: 0.5
-  tradeSessionMaxGameHours: 1.5
-  socialSessionMinGameHours: 0.5
-  socialSessionMaxGameHours: 1.5
-  homePoint: {fileID: 0}
-  cultivationPoint: {fileID: 0}
-  tavernPoint: {fileID: 0}
-  forestPoint: {fileID: 0}
-  farmPoint: {fileID: 0}
-  currentAction: idle
-  currentSmartTask:
-    goal: 0
-    priority: 10
-    canBeInterrupted: 1
-    reason: 
-    createdTime: 0
-  scheduleSmartTask:
-    goal: 0
-    priority: 10
-    canBeInterrupted: 1
-    reason: 
-    createdTime: 0
-  cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
-  thinkDelay: 2
-  debugFlowLogs: 0
-  runtimeTraceEnabled: 0
-  runtimeTraceTarget: 
-  runtimeTraceEveryUpdate: 0
-  runtimeTraceEveryThink: 1
-  runtimeTraceScheduleChanges: 1
---- !u!114 &1282378967
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1282378949}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d14b4510bc9b8114c9fd7e33da6b676c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NPCVisualAnimation
-  downWalkClip: {fileID: 0}
-  upWalkClip: {fileID: 0}
-  sideWalkClip: {fileID: 0}
-  rightWalkClip: {fileID: 0}
-  leftWalkClip: {fileID: 0}
-  downIdleClip: {fileID: 0}
-  upIdleClip: {fileID: 0}
-  sideIdleClip: {fileID: 0}
-  rightIdleClip: {fileID: 0}
-  leftIdleClip: {fileID: 0}
-  attackDownClip: {fileID: 0}
-  attackUpClip: {fileID: 0}
-  attackSideClip: {fileID: 0}
-  rightAttackClip: {fileID: 0}
-  leftAttackClip: {fileID: 0}
-  cultivateDownClip: {fileID: 0}
-  cultivateUpClip: {fileID: 0}
-  cultivateSideClip: {fileID: 0}
-  rightCultivateClip: {fileID: 0}
-  leftCultivateClip: {fileID: 0}
-  dieDownClip: {fileID: 0}
-  dieUpClip: {fileID: 0}
-  dieSideClip: {fileID: 0}
-  rightDieClip: {fileID: 0}
-  leftDieClip: {fileID: 0}
-  sideSpriteFacesRight: 0
-  invertSideFlip: 0
-  invertVerticalFacing: 1
-  directionDeadZone: 0.08
-  debugVisualLogs: 0
---- !u!114 &1282378971
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1282378949}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
-  enforceSchedule: 1
-  autoBuildDefaultSchedule: 1
-  lifePath: 2
-  slots:
-  - activity: 13
-    startHour: 7
-    endHour: 13
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 14
-    startHour: 13
-    endHour: 18
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 15
-    startHour: 18
-    endHour: 19
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 19
-    endHour: 7
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  canCultivate: 1
-  awakenedCultivation: 0
-  awakenedByMarrowCleansingPill: 0
-  debugCurrentHour: 0
-  debugCurrentActivity: 0
-  debugCurrentSlot: 
 --- !u!1 &1282949514
 GameObject:
   m_ObjectHideFlags: 0
@@ -85250,380 +83901,6 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
---- !u!1 &1294589174 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-  m_PrefabInstance: {fileID: 1622770686}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &1294589180 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-  m_PrefabInstance: {fileID: 1622770686}
-  m_PrefabAsset: {fileID: 0}
---- !u!70 &1294589182
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1294589174}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: -0.000012715657, y: -1.0145798}
-  m_Size: {x: 1.4395906, y: 1.4395906}
-  m_Direction: 0
---- !u!114 &1294589184
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1294589174}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc4bf883290daa74499e6dfdae005003, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcItemCollector
-  inventory: {fileID: 0}
-  characterStats: {fileID: 0}
-  canPickupItems: 1
-  autoUsePickedItems: 1
-  pickupLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  pickupRadius: 0.45
-  scanInterval: 0.5
-  autoStudyManuals: 1
-  manualStudyInterval: 120
-  debugPickupLogs: 0
---- !u!114 &1294589185
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1294589174}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b75b03d92ec088d4688820efbcd11d02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ItemInventory
-  shareRuntimeItems: 0
-  keepInspectorItemsWhenLoadingSave: 1
-  runtimeKey: 
-  items: []
---- !u!114 &1294589186
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1294589174}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfbab0629b004768a5f0d842ff9aafc4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcResourceGatherer
-  canGather: 0
-  scanInterval: 2
-  maxSearchDistance: 12
-  arriveDistance: 0.35
-  retargetDistance: 0.75
-  reservationDuration: 3
-  harvestBreakDistance: 2
-  harvestCooldownAfterSuccess: 45
-  harvestCooldownWhenNoTarget: 8
-  limitHarvestsPerScheduleSlot: 1
-  maxHarvestsPerScheduleSlot: 1
-  gatherChancePerScan: 0.35
-  gatherOnlyWhenInventoryExists: 0
-  useVillagerPreferredZone: 1
---- !u!114 &1294589187
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1294589174}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f04ee078acf6f5348a56c0dd4f443cd0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcSocialSystem
---- !u!114 &1294589188
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1294589174}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc4bf883290daa74499e6dfdae005003, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcItemCollector
-  inventory: {fileID: 0}
-  characterStats: {fileID: 0}
-  canPickupItems: 1
-  autoUsePickedItems: 1
-  pickupLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  pickupRadius: 0.45
-  scanInterval: 0.5
-  autoStudyManuals: 1
-  manualStudyInterval: 120
-  debugPickupLogs: 0
---- !u!114 &1294589189
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1294589174}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0b281d7812be4154f9595571919a4202, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SmartNpcAI
-  generateFromEntityProfile: 1
-  entityProfile: {fileID: 0}
-  npcName: "Tu s\u0129"
-  canLive: 1
-  canCultivate: 1
-  canFight: 1
-  canTrade: 1
-  canGather: 1
-  canSellGoods: 1
-  canMakeFriends: 1
-  canKillOthers: 1
-  canCompeteResource: 1
-  canCreateSect: 1
-  autonomousActivitiesEnabled: 0
-  realm: 3
-  realmStage: 1
-  comprehension: 10
-  physique: 0
-  maxHP: 100
-  currentHP: 100
-  attack: 10
-  defense: 5
-  baseMaxHP: 100
-  baseAttack: 10
-  baseDefense: 5
-  effectResistance: 0
-  characterStats: {fileID: 0}
-  lifespan: 80
-  dieWhenLifespanEnds: 1
-  cultivation: 0
-  breakthroughNeed: 100
-  readyForHeavenlyTribulation: 0
-  waitingForHeavenlyTribulation: 0
-  money: 100
-  spiritStone: 0
-  pill: 0
-  bravery: 50
-  greed: 50
-  kindness: 50
-  hunger: 0
-  fatigue: 0
-  moveSpeed: 2
-  useKinematicNpcMovement: 1
-  crowdLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  obstacleLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  separationRadius: 0.55
-  separationStrength: 1.5
-  crowdLookAheadDistance: 0.7
-  crowdDetourDistance: 0.6
-  crowdYieldDuration: 0.22
-  unstuckCheckDelay: 1.1
-  unstuckMinMoveDistance: 0.03
-  unstuckOffsetRadius: 0.9
-  escapeTargetReachDistance: 0.18
-  obstacleCheckDistance: 0.35
-  obstacleDetourLookAhead: 0.65
-  targetClearRadius: 0.25
-  navigationClearancePadding: 0.16
-  blockedTargetRetryDelay: 0.8
-  useObstacleAvoidance: 1
-  ignoreNpcBodyCollisions: 1
-  sharedTargetSpacingRadius: 0.55
-  sharedTargetOccupancyRadius: 0.3
-  currentTarget: {fileID: 0}
-  attackRange: 1.5
-  attackCooldown: 1
-  deathDestroyDelay: 2
-  fireballPrefab: {fileID: 0}
-  firePoint: {fileID: 0}
-  maxRoamDistance: 10
-  idleWanderRadius: 3.5
-  idleWanderMinDistance: 1.2
-  idleWanderArriveDistance: 0.45
-  idleWanderPickAttempts: 12
-  refreshGeneratedProfileOnStart: 1
-  dailyRoutineEnabled: 1
-  dailyCultivationMinHours: 4
-  dailyCultivationMaxHours: 8
-  earliestCultivationHour: 5
-  latestCultivationStartHour: 20
-  dailyTaskVisitEnabled: 1
-  dailyTaskMinCount: 5
-  dailyTaskMaxCount: 7
-  taskProviderStartHour: 6
-  taskProviderEndHour: 17
-  cultivationSessionMinGameHours: 1
-  cultivationSessionMaxGameHours: 2
-  tradeSessionMinGameHours: 0.5
-  tradeSessionMaxGameHours: 1.5
-  socialSessionMinGameHours: 0.5
-  socialSessionMaxGameHours: 1.5
-  homePoint: {fileID: 0}
-  cultivationPoint: {fileID: 0}
-  tavernPoint: {fileID: 0}
-  forestPoint: {fileID: 0}
-  farmPoint: {fileID: 0}
-  currentAction: idle
-  currentSmartTask:
-    goal: 0
-    priority: 10
-    canBeInterrupted: 1
-    reason: 
-    createdTime: 0
-  scheduleSmartTask:
-    goal: 0
-    priority: 10
-    canBeInterrupted: 1
-    reason: 
-    createdTime: 0
-  cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
-  thinkDelay: 2
-  debugFlowLogs: 0
-  runtimeTraceEnabled: 0
-  runtimeTraceTarget: 
-  runtimeTraceEveryUpdate: 0
-  runtimeTraceEveryThink: 1
-  runtimeTraceScheduleChanges: 1
---- !u!114 &1294589193
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1294589174}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d14b4510bc9b8114c9fd7e33da6b676c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NPCVisualAnimation
-  downWalkClip: {fileID: 0}
-  upWalkClip: {fileID: 0}
-  sideWalkClip: {fileID: 0}
-  rightWalkClip: {fileID: 0}
-  leftWalkClip: {fileID: 0}
-  downIdleClip: {fileID: 0}
-  upIdleClip: {fileID: 0}
-  sideIdleClip: {fileID: 0}
-  rightIdleClip: {fileID: 0}
-  leftIdleClip: {fileID: 0}
-  attackDownClip: {fileID: 0}
-  attackUpClip: {fileID: 0}
-  attackSideClip: {fileID: 0}
-  rightAttackClip: {fileID: 0}
-  leftAttackClip: {fileID: 0}
-  cultivateDownClip: {fileID: 0}
-  cultivateUpClip: {fileID: 0}
-  cultivateSideClip: {fileID: 0}
-  rightCultivateClip: {fileID: 0}
-  leftCultivateClip: {fileID: 0}
-  dieDownClip: {fileID: 0}
-  dieUpClip: {fileID: 0}
-  dieSideClip: {fileID: 0}
-  rightDieClip: {fileID: 0}
-  leftDieClip: {fileID: 0}
-  sideSpriteFacesRight: 0
-  invertSideFlip: 0
-  invertVerticalFacing: 1
-  directionDeadZone: 0.08
-  debugVisualLogs: 0
---- !u!114 &1294589197
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1294589174}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a28b9a6939e64bc1a63d13b99e77be64, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
-  enforceSchedule: 1
-  autoBuildDefaultSchedule: 1
-  lifePath: 2
-  slots:
-  - activity: 13
-    startHour: 7
-    endHour: 13
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 14
-    startHour: 13
-    endHour: 18
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 15
-    startHour: 18
-    endHour: 19
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 8
-    startHour: 19
-    endHour: 7
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  canCultivate: 1
-  awakenedCultivation: 0
-  awakenedByMarrowCleansingPill: 0
-  debugCurrentHour: 0
-  debugCurrentActivity: 0
-  debugCurrentSlot: 
 --- !u!1 &1294737422
 GameObject:
   m_ObjectHideFlags: 0
@@ -85909,12 +84186,6 @@ Transform:
   m_Children:
   - {fileID: 1473426759}
   - {fileID: 263152462}
-  - {fileID: 309522934}
-  - {fileID: 1058458063}
-  - {fileID: 1282378950}
-  - {fileID: 1294589180}
-  - {fileID: 754998905}
-  - {fileID: 995969481}
   - {fileID: 1356436458}
   - {fileID: 1212993392}
   - {fileID: 680489344}
@@ -87455,6 +85726,13 @@ MonoBehaviour:
   slots:
   - activity: 13
     startHour: 7
+    endHour: 12.916667
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 12.916667
     endHour: 13
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -87462,6 +85740,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 14
     startHour: 13
+    endHour: 17.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 17.916666
     endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -87469,6 +85754,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
+    endHour: 18.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 18.916666
     endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -87476,6 +85768,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 8
     startHour: 19
+    endHour: 6.9166665
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 6.9166665
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -87887,6 +86186,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5511893061176817771, guid: 52234395ac81e954b8415221c10525ea, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1356436477}
+    - targetCorrespondingSourceObject: {fileID: 5511893061176817771, guid: 52234395ac81e954b8415221c10525ea, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1356436481}
   m_SourcePrefab: {fileID: 100100000, guid: 52234395ac81e954b8415221c10525ea, type: 3}
 --- !u!4 &1356436458 stripped
 Transform:
@@ -88256,6 +86558,13 @@ MonoBehaviour:
   slots:
   - activity: 13
     startHour: 7
+    endHour: 12.916667
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 12.916667
     endHour: 13
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -88263,6 +86572,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 14
     startHour: 13
+    endHour: 17.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 17.916666
     endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -88270,6 +86586,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
+    endHour: 18.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 18.916666
     endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -88277,6 +86600,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 8
     startHour: 19
+    endHour: 6.9166665
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 6.9166665
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -88288,6 +86618,38 @@ MonoBehaviour:
   debugCurrentHour: 0
   debugCurrentActivity: 0
   debugCurrentSlot: 
+--- !u!114 &1356436481
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1356436459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdcab76f81f40ee41bb9e80c881d1c75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcTradeAgent
+  inventory: {fileID: 0}
+  npcLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  tradeRadius: 1.2
+  tradeInterval: 5
+  tradeChance: 25
+  buyUsefulItemsFromMarketTrader: 1
+  counterTradeCooldown: 45
+  useSpiritStoneCurrency: 1
+  spiritStone: 0
+  maxMoneySpendRatio: 0.65
+  maxOwnedConsumableBeforeBuying: 3
+  riskyItemValueMultiplier: 120
+  isMarketTrader: 0
+  buyProduceFromVillagers: 1
+  acceptAllMaterials: 1
+  acceptedProduce: []
+  maxProduceUnitsPerTrade: 4
+  buyPricePercent: 70
 --- !u!1001 &1361991803
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -88479,8 +86841,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -83}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: -10.76, y: -86.074}
+  m_SizeDelta: {x: 455.167, y: 86.891}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1362113361
 MonoBehaviour:
@@ -88568,7 +86930,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: -109.948586, y: 0, z: -153.14249, w: 0}
+  m_margin: {x: 0.72649384, y: 0, z: -2.5015335, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -89542,6 +87904,13 @@ MonoBehaviour:
   slots:
   - activity: 13
     startHour: 7
+    endHour: 12.916667
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 12.916667
     endHour: 13
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -89549,6 +87918,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 14
     startHour: 13
+    endHour: 17.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 17.916666
     endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -89556,6 +87932,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
+    endHour: 18.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 18.916666
     endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -89563,6 +87946,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 8
     startHour: 19
+    endHour: 6.9166665
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 6.9166665
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -91543,7 +89933,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1416582728}
   - component: {fileID: 1416582729}
-  - component: {fileID: 1416582730}
   m_Layer: 5
   m_Name: NameText
   m_TagString: Untagged
@@ -91562,13 +89951,15 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 558062681}
+  - {fileID: 1885463667}
   m_Father: {fileID: 2067902450}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1135, y: -263}
-  m_SizeDelta: {x: 1000, y: 140}
+  m_AnchoredPosition: {x: 1104, y: -320}
+  m_SizeDelta: {x: 1147.77, y: 160.688}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1416582729
 CanvasRenderer:
@@ -91578,98 +89969,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1416582727}
   m_CullTransparentMesh: 1
---- !u!114 &1416582730
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1416582727}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_text: "T\xEAn v\u1EADt ph\u1EA9m"
-  m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
-  m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
-  m_fontSharedMaterials: []
-  m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
-  m_fontColor32:
-    serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
-  m_enableVertexGradient: 0
-  m_colorMode: 3
-  m_fontColorGradient:
-    topLeft: {r: 1, g: 1, b: 1, a: 1}
-    topRight: {r: 1, g: 1, b: 1, a: 1}
-    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
-    bottomRight: {r: 1, g: 1, b: 1, a: 1}
-  m_fontColorGradientPreset: {fileID: 0}
-  m_spriteAsset: {fileID: 0}
-  m_tintAllSprites: 0
-  m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: -1183493901
-  m_overrideHtmlColors: 0
-  m_faceColor:
-    serializedVersion: 2
-    rgba: 4294967295
-  m_fontSize: 100
-  m_fontSizeBase: 100
-  m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
-  m_fontStyle: 0
-  m_HorizontalAlignment: 2
-  m_VerticalAlignment: 512
-  m_textAlignment: 65535
-  m_characterSpacing: 0
-  m_characterHorizontalScale: 1
-  m_wordSpacing: 0
-  m_lineSpacing: 0
-  m_lineSpacingMax: 0
-  m_paragraphSpacing: 0
-  m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
-  m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
-  m_linkedTextComponent: {fileID: 0}
-  parentLinkedComponent: {fileID: 0}
-  m_enableKerning: 0
-  m_ActiveFontFeatures: 6e72656b
-  m_enableExtraPadding: 0
-  checkPaddingRequired: 0
-  m_isRichText: 1
-  m_EmojiFallbackSupport: 1
-  m_parseCtrlCharacters: 1
-  m_isOrthographic: 1
-  m_isCullingEnabled: 0
-  m_horizontalMapping: 0
-  m_verticalMapping: 0
-  m_uvLineOffset: 0
-  m_geometrySortingOrder: 0
-  m_IsTextObjectScaleStatic: 0
-  m_VertexBufferAutoSizeReduction: 0
-  m_useMaxVisibleDescender: 1
-  m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
-  m_isUsingLegacyAnimationComponent: 0
-  m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
-  m_baseMaterial: {fileID: 0}
-  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &1419453056
 GameObject:
   m_ObjectHideFlags: 0
@@ -92821,11 +91120,11 @@ PrefabInstance:
       objectReference: {fileID: 1237257573}
     - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.8
+      value: 93.6
       objectReference: {fileID: 0}
     - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 7.76
+      value: -33.9
       objectReference: {fileID: 0}
     - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
       propertyPath: m_LocalPosition.z
@@ -92891,6 +91190,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2109649327}
+    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2109649331}
   m_SourcePrefab: {fileID: 100100000, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
 --- !u!4 &1473426759 stripped
 Transform:
@@ -94436,7 +92738,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 278, y: -369}
+  m_AnchoredPosition: {x: 303, y: -478}
   m_SizeDelta: {x: 420, y: 420}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1514105539
@@ -94565,7 +92867,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 327.51993, y: 168}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1515113057
 MonoBehaviour:
@@ -94587,7 +92889,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 3421277014343288231, guid: 5eaa1baa94cd0b04b9c13a66a38c0273, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -99122,103 +97424,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!1001 &1622770686
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 1304320904}
-    m_Modifications:
-    - target: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_Name
-      value: satthu
-      objectReference: {fileID: 0}
-    - target: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 133.06
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.11
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7094740321919765056, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7736707609684258997, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_SortingOrder
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8815674642892252926, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      propertyPath: m_BodyType
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 4661552873986713119, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1294589182}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1294589185}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1294589184}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1294589189}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1294589188}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1294589187}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1294589186}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1294589193}
-    - targetCorrespondingSourceObject: {fileID: 3394443516018511175, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1294589197}
-  m_SourcePrefab: {fileID: 100100000, guid: 7a2cbc1f27866fd46922debbbe64579a, type: 3}
 --- !u!1 &1624202764
 GameObject:
   m_ObjectHideFlags: 0
@@ -122610,7 +120815,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8158635649870703653, guid: 66f1b50efe9d25a4fa660215353a3fd1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.7854767
+      value: -9.39
       objectReference: {fileID: 0}
     - target: {fileID: 8158635649870703653, guid: 66f1b50efe9d25a4fa660215353a3fd1, type: 3}
       propertyPath: m_LocalPosition.y
@@ -122749,107 +120954,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!1001 &1760342705
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 1304320904}
-    m_Modifications:
-    - target: {fileID: 586614608116882779, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      propertyPath: m_SortingOrder
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 760332842974042451, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      propertyPath: m_BodyType
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 760332842974042451, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      propertyPath: m_Constraints
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 760332842974042451, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      propertyPath: m_GravityScale
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6510684094960389824, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      propertyPath: m_Name
-      value: tusi (1)
-      objectReference: {fileID: 0}
-    - target: {fileID: 6510684094960389824, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7648705555175374345, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 122.46
-      objectReference: {fileID: 0}
-    - target: {fileID: 7648705555175374345, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 6.35
-      objectReference: {fileID: 0}
-    - target: {fileID: 7648705555175374345, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7648705555175374345, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7648705555175374345, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7648705555175374345, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7648705555175374345, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7648705555175374345, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7648705555175374345, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7648705555175374345, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 6510684094960389824, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1282378951}
-    - targetCorrespondingSourceObject: {fileID: 6510684094960389824, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1282378959}
-    - targetCorrespondingSourceObject: {fileID: 6510684094960389824, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1282378963}
-    - targetCorrespondingSourceObject: {fileID: 6510684094960389824, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1282378962}
-    - targetCorrespondingSourceObject: {fileID: 6510684094960389824, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1282378961}
-    - targetCorrespondingSourceObject: {fileID: 6510684094960389824, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1282378960}
-    - targetCorrespondingSourceObject: {fileID: 6510684094960389824, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1282378967}
-    - targetCorrespondingSourceObject: {fileID: 6510684094960389824, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1282378971}
-  m_SourcePrefab: {fileID: 100100000, guid: e1b922a383babcf47b7483b7fc0c4c66, type: 3}
 --- !u!1 &1762819095
 GameObject:
   m_ObjectHideFlags: 0
@@ -123589,6 +121693,13 @@ MonoBehaviour:
   slots:
   - activity: 13
     startHour: 7
+    endHour: 12.916667
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 12.916667
     endHour: 13
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -123596,6 +121707,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 14
     startHour: 13
+    endHour: 17.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 17.916666
     endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -123603,6 +121721,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
+    endHour: 18.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 18.916666
     endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -123610,6 +121735,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 8
     startHour: 19
+    endHour: 6.9166665
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 6.9166665
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -124304,6 +122436,13 @@ MonoBehaviour:
   slots:
   - activity: 13
     startHour: 7
+    endHour: 12.916667
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 12.916667
     endHour: 13
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -124311,6 +122450,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 14
     startHour: 13
+    endHour: 17.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 17.916666
     endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -124318,6 +122464,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
+    endHour: 18.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 18.916666
     endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -124325,6 +122478,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 8
     startHour: 19
+    endHour: 6.9166665
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 6.9166665
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -124723,102 +122883,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!1001 &1799153284
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 1304320904}
-    m_Modifications:
-    - target: {fileID: 2229023895812471610, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_SortingOrder
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_Name
-      value: daocot
-      objectReference: {fileID: 0}
-    - target: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 135.3173
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 4.26
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359926433143543488, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 6246953884098109330, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 995969482}
-    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 995969485}
-    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 995969484}
-    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 995969483}
-    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 995969489}
-    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 995969488}
-    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 995969487}
-    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 995969486}
-    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 995969493}
-    - targetCorrespondingSourceObject: {fileID: 5386037629474021300, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 995969497}
-  m_SourcePrefab: {fileID: 100100000, guid: 6b24a8ecca299fa42bde68d9ce3a3f45, type: 3}
 --- !u!1 &1806600113
 GameObject:
   m_ObjectHideFlags: 0
@@ -125765,6 +123829,13 @@ MonoBehaviour:
   slots:
   - activity: 13
     startHour: 7
+    endHour: 12.916667
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 12.916667
     endHour: 13
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -125772,6 +123843,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 14
     startHour: 13
+    endHour: 17.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 17.916666
     endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -125779,6 +123857,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
+    endHour: 18.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 18.916666
     endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -125786,6 +123871,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 8
     startHour: 19
+    endHour: 6.9166665
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 6.9166665
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -126909,7 +125001,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1847247871
 RectTransform:
   m_ObjectHideFlags: 0
@@ -127506,10 +125598,10 @@ RectTransform:
   - {fileID: 1362113360}
   m_Father: {fileID: 1061404681}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 270, y: -180}
+  m_SizeDelta: {x: 540, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1874410749
 MonoBehaviour:
@@ -127682,6 +125774,143 @@ RectTransform:
   m_AnchoredPosition: {x: 447, y: -604}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1885463666
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1885463667}
+  - component: {fileID: 1885463669}
+  - component: {fileID: 1885463668}
+  m_Layer: 5
+  m_Name: "T\xEAn v\u1EADt ph\u1EA9m"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1885463667
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1885463666}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1416582728}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 11.905, y: 0}
+  m_SizeDelta: {x: 779.349, y: 87.036}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1885463668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1885463666}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: "T\xEAn v\u1EADt ph\u1EA9m"
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
+  m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 50
+  m_fontSizeBase: 50
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 0
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_characterHorizontalScale: 1
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &1885463669
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1885463666}
+  m_CullTransparentMesh: 1
 --- !u!1 &1888627282
 GameObject:
   m_ObjectHideFlags: 0
@@ -128649,14 +126878,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.043137256, g: 0.14901961, b: 0.14117648, a: 1}
+  m_Color: {r: 0.29783732, g: 0.6509434, b: 0.6247874, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -3584033253584602997, guid: cd6a561f0e6c81a4e8963c163ae0972e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -139180,7 +137409,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 168}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2094299174
 MonoBehaviour:
@@ -139202,7 +137431,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 7868075369870832807, guid: cfe26b6486302954e93fbe21cc6890ff, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -140431,6 +138660,13 @@ MonoBehaviour:
   slots:
   - activity: 13
     startHour: 7
+    endHour: 12.916667
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 12.916667
     endHour: 13
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -140438,6 +138674,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 14
     startHour: 13
+    endHour: 17.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 17.916666
     endHour: 18
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -140445,6 +138688,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 15
     startHour: 18
+    endHour: 18.916666
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 18.916666
     endHour: 19
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -140452,6 +138702,13 @@ MonoBehaviour:
     allowSocialInterrupt: 0
   - activity: 8
     startHour: 19
+    endHour: 6.9166665
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 0
+    startHour: 6.9166665
     endHour: 7
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
@@ -140463,6 +138720,38 @@ MonoBehaviour:
   debugCurrentHour: 0
   debugCurrentActivity: 0
   debugCurrentSlot: 
+--- !u!114 &2109649331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2109649308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdcab76f81f40ee41bb9e80c881d1c75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcTradeAgent
+  inventory: {fileID: 0}
+  npcLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  tradeRadius: 1.2
+  tradeInterval: 5
+  tradeChance: 25
+  buyUsefulItemsFromMarketTrader: 1
+  counterTradeCooldown: 45
+  useSpiritStoneCurrency: 1
+  spiritStone: 0
+  maxMoneySpendRatio: 0.65
+  maxOwnedConsumableBeforeBuying: 3
+  riskyItemValueMultiplier: 120
+  isMarketTrader: 0
+  buyProduceFromVillagers: 1
+  acceptAllMaterials: 1
+  acceptedProduce: []
+  maxProduceUnitsPerTrade: 4
+  buyPricePercent: 70
 --- !u!1 &2109812965
 GameObject:
   m_ObjectHideFlags: 0
@@ -151119,8 +149408,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 58}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: -4.611, y: 46.5}
+  m_SizeDelta: {x: 442.871, y: 93}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2137692471
 MonoBehaviour:
@@ -151169,8 +149458,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 45
+  m_fontSizeBase: 45
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -151208,7 +149497,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: -90.314995, y: 0, z: -129.58205, w: 0}
+  m_margin: {x: -1.1600113, y: 0, z: 5.6873016, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -151680,7 +149969,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8596889031696047861, guid: afa77975feceb5d4da429fc22403760e, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -152010,3 +150299,4 @@ SceneRoots:
   - {fileID: 2011371187}
   - {fileID: 252927331}
   - {fileID: 1617887145}
+  - {fileID: 6651249}

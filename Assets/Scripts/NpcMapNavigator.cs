@@ -203,6 +203,23 @@ public static class NpcMapNavigator
 
         if (gate == null)
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.LogWarning(
+                "[NpcMapNavigator] npc=" +
+                npc.name +
+                " stage=RouteCheck detail=noGate currentZone=" +
+                currentZone.Value +
+                " targetZone=" +
+                targetZone.Value +
+                " forcedTargetZone=" +
+                (forcedTargetZone.HasValue
+                    ? forcedTargetZone.Value.ToString()
+                    : "None") +
+                " finalTarget=" +
+                finalTarget +
+                " actorPos=" +
+                npc.transform.position);
+#endif
             return finalTarget;
         }
 
@@ -212,6 +229,21 @@ public static class NpcMapNavigator
                 out _,
                 out NpcMapZone destinationZone))
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.LogWarning(
+                "[NpcMapNavigator] npc=" +
+                npc.name +
+                " stage=RouteCheck detail=gateMismatch gate=" +
+                gate.name +
+                " currentZone=" +
+                currentZone.Value +
+                " targetZone=" +
+                targetZone.Value +
+                " finalTarget=" +
+                finalTarget +
+                " actorPos=" +
+                npc.transform.position);
+#endif
             return finalTarget;
         }
 

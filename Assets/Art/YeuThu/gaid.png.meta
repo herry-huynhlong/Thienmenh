@@ -1,0 +1,491 @@
+fileFormatVersion: 2
+guid: 87eab2e674bd9d34a8f87bf6fa08b75f
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -6895133529593259435
+    second: gaid_0
+  - first:
+      213: 1323329386640318940
+    second: gaid_1
+  - first:
+      213: 640704589660576229
+    second: gaid_2
+  - first:
+      213: -1343433155732086181
+    second: gaid_3
+  - first:
+      213: 7068902917246788869
+    second: gaid_4
+  - first:
+      213: -8975000611623517557
+    second: gaid_5
+  - first:
+      213: 4472284377479182361
+    second: gaid_6
+  - first:
+      213: 1587917750353750290
+    second: gaid_7
+  - first:
+      213: 961004873475990901
+    second: gaid_8
+  - first:
+      213: 4691085823632146358
+    second: gaid_9
+  - first:
+      213: -5146888262261070857
+    second: gaid_10
+  - first:
+      213: -8784762368123421014
+    second: gaid_11
+  - first:
+      213: -6804000915985672168
+    second: gaid_12
+  - first:
+      213: 5332826309918656514
+    second: gaid_13
+  - first:
+      213: -8811882287082045576
+    second: gaid_14
+  - first:
+      213: 5357740932405070006
+    second: gaid_15
+  - first:
+      213: 2605420928994791818
+    second: gaid_16
+  - first:
+      213: 6954407750444841107
+    second: gaid_17
+  - first:
+      213: -2985218391840692154
+    second: gaid_18
+  - first:
+      213: -2887615182472731405
+    second: gaid_19
+  - first:
+      213: 2431654775917451236
+    second: gaid_20
+  - first:
+      213: 322316578670249909
+    second: gaid_21
+  - first:
+      213: -4217377403841260852
+    second: gaid_22
+  - first:
+      213: -6469813891691985314
+    second: gaid_23
+  - first:
+      213: 6284186797300554913
+    second: gaid_24
+  - first:
+      213: 917994442077092400
+    second: gaid_25
+  - first:
+      213: -3328951935385126089
+    second: gaid_26
+  - first:
+      213: 5754624704910402876
+    second: gaid_27
+  - first:
+      213: -1299159482899179023
+    second: gaid_28
+  - first:
+      213: 8934537829569178506
+    second: gaid_29
+  - first:
+      213: -7438096640633618602
+    second: gaid_30
+  - first:
+      213: 5809758984798740808
+    second: gaid_31
+  - first:
+      213: 4917153592996235780
+    second: gaid_32
+  - first:
+      213: -2458322272328889367
+    second: gaid_33
+  - first:
+      213: -7780699520881285012
+    second: gaid_34
+  - first:
+      213: -3869117970184853237
+    second: gaid_35
+  - first:
+      213: -525802904776962831
+    second: gaid_36
+  - first:
+      213: -2871613031169452503
+    second: gaid_37
+  - first:
+      213: 7739771923384746901
+    second: gaid_38
+  - first:
+      213: 2052685666259859932
+    second: gaid_39
+  - first:
+      213: -63952422671310095
+    second: gaid_40
+  - first:
+      213: -3607151187173026772
+    second: gaid_41
+  - first:
+      213: 8156618601214433137
+    second: gaid_42
+  - first:
+      213: -5203621564691565223
+    second: gaid_43
+  - first:
+      213: 8447315565517489411
+    second: gaid_44
+  - first:
+      213: 7325741272475650441
+    second: gaid_45
+  - first:
+      213: -3741674968261454514
+    second: gaid_46
+  - first:
+      213: -2352336192213238676
+    second: gaid_47
+  - first:
+      213: -7801525013664949064
+    second: gaid_48
+  - first:
+      213: -7731891410128873137
+    second: gaid_49
+  - first:
+      213: -2431755421103126247
+    second: gaid_50
+  - first:
+      213: 769133549182312694
+    second: gaid_51
+  - first:
+      213: 1266461193544788810
+    second: gaid_52
+  - first:
+      213: 5901036560813308488
+    second: gaid_53
+  - first:
+      213: 3033393163035112561
+    second: gaid_54
+  - first:
+      213: -3318326485318624782
+    second: gaid_55
+  - first:
+      213: -1498366691411568130
+    second: gaid_56
+  - first:
+      213: 5714763344508507613
+    second: gaid_57
+  - first:
+      213: -5636112619452499574
+    second: gaid_58
+  - first:
+      213: -5080769319457940343
+    second: gaid_59
+  - first:
+      213: 1487956294042957576
+    second: gaid_60
+  - first:
+      213: 8215320357663579178
+    second: gaid_61
+  - first:
+      213: -357839785039291911
+    second: gaid_62
+  - first:
+      213: 3124692963551581409
+    second: gaid_63
+  - first:
+      213: -1867141014267411700
+    second: gaid_64
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 300
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: gaid_0
+      rect:
+        serializedVersion: 2
+        x: 435
+        y: 96
+        width: 154
+        height: 300
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 55a55b936909f40a0800000000000000
+      internalID: -6895133529593259435
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: gaid_1
+      rect:
+        serializedVersion: 2
+        x: 688
+        y: 102
+        width: 303
+        height: 275
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd1288bd0196d5210800000000000000
+      internalID: 1323329386640318940
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: gaid_2
+      rect:
+        serializedVersion: 2
+        x: 1071
+        y: 103
+        width: 323
+        height: 293
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e95ea00e6d34e800800000000000000
+      internalID: 640704589660576229
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: gaid_7
+      rect:
+        serializedVersion: 2
+        x: 818
+        y: 987
+        width: 65
+        height: 25
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2196f52e7ca690610800000000000000
+      internalID: 1587917750353750290
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 6cf06a87478d9d64f8655b06b09789c2
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      gaid_0: -6895133529593259435
+      gaid_1: 1323329386640318940
+      gaid_10: -5146888262261070857
+      gaid_11: -8784762368123421014
+      gaid_12: -6804000915985672168
+      gaid_13: 5332826309918656514
+      gaid_14: -8811882287082045576
+      gaid_15: 5357740932405070006
+      gaid_16: 2605420928994791818
+      gaid_17: 6954407750444841107
+      gaid_18: -2985218391840692154
+      gaid_19: -2887615182472731405
+      gaid_2: 640704589660576229
+      gaid_20: 2431654775917451236
+      gaid_21: 322316578670249909
+      gaid_22: -4217377403841260852
+      gaid_23: -6469813891691985314
+      gaid_24: 6284186797300554913
+      gaid_25: 917994442077092400
+      gaid_26: -3328951935385126089
+      gaid_27: 5754624704910402876
+      gaid_28: -1299159482899179023
+      gaid_29: 8934537829569178506
+      gaid_3: -1343433155732086181
+      gaid_30: -7438096640633618602
+      gaid_31: 5809758984798740808
+      gaid_32: 4917153592996235780
+      gaid_33: -2458322272328889367
+      gaid_34: -7780699520881285012
+      gaid_35: -3869117970184853237
+      gaid_36: -525802904776962831
+      gaid_37: -2871613031169452503
+      gaid_38: 7739771923384746901
+      gaid_39: 2052685666259859932
+      gaid_4: 7068902917246788869
+      gaid_40: -63952422671310095
+      gaid_41: -3607151187173026772
+      gaid_42: 8156618601214433137
+      gaid_43: -5203621564691565223
+      gaid_44: 8447315565517489411
+      gaid_45: 7325741272475650441
+      gaid_46: -3741674968261454514
+      gaid_47: -2352336192213238676
+      gaid_48: -7801525013664949064
+      gaid_49: -7731891410128873137
+      gaid_5: -8975000611623517557
+      gaid_50: -2431755421103126247
+      gaid_51: 769133549182312694
+      gaid_52: 1266461193544788810
+      gaid_53: 5901036560813308488
+      gaid_54: 3033393163035112561
+      gaid_55: -3318326485318624782
+      gaid_56: -1498366691411568130
+      gaid_57: 5714763344508507613
+      gaid_58: -5636112619452499574
+      gaid_59: -5080769319457940343
+      gaid_6: 4472284377479182361
+      gaid_60: 1487956294042957576
+      gaid_61: 8215320357663579178
+      gaid_62: -357839785039291911
+      gaid_63: 3124692963551581409
+      gaid_64: -1867141014267411700
+      gaid_7: 1587917750353750290
+      gaid_8: 961004873475990901
+      gaid_9: 4691085823632146358
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -451,6 +451,10 @@ public partial class SmartNpcAI
         StopMonsterRetreat();
         isCounterAttackingMonster = true;
 
+        TryReserveMonsterTarget(
+            monster,
+            Mathf.Max(4f, attackCooldown * 4f));
+
         currentMonsterTarget = monster;
         currentTarget = monster.transform;
         hasWanderTarget = false;

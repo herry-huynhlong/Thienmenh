@@ -73,7 +73,7 @@ public class WorldItemInfoPanelUI : MonoBehaviour
 
         if (panelIcon == null)
         {
-            panelIcon = FindImage(
+            panelIcon = FindDeepestImage(
                 panelRoot.transform,
                 "ItemIcon",
                 "InfoIcon",
@@ -118,6 +118,8 @@ public class WorldItemInfoPanelUI : MonoBehaviour
         loreQuoteText = EnsureText(
             loreQuoteText,
             panelRoot.transform,
+            "tuongtruyen",
+            "TuongTruyen",
             "LoreQuote");
 
         EnsureCardReferences(ref valueCard, panelRoot.transform, "ValueCard");
@@ -314,14 +316,14 @@ public class WorldItemInfoPanelUI : MonoBehaviour
             return "";
         }
 
-        string description = ItemText.Description(item);
-        if (string.IsNullOrWhiteSpace(description))
+        string lore = ItemText.Lore(item);
+        if (string.IsNullOrWhiteSpace(lore))
         {
             return "";
         }
 
-        string[] lines = description.Split('\n');
-        string firstLine = lines.Length > 0 ? lines[0].Trim() : description.Trim();
+        string[] lines = lore.Split('\n');
+        string firstLine = lines.Length > 0 ? lines[0].Trim() : lore.Trim();
 
         return firstLine.Length > 140
             ? firstLine.Substring(0, 137).TrimEnd() + "..."
@@ -684,6 +686,71 @@ public class WorldItemInfoPanelUI : MonoBehaviour
         }
 
         return null;
+    }
+
+    static Image FindDeepestImage(
+        Transform root,
+        params string[] names)
+    {
+        if (root == null ||
+            names == null)
+        {
+            return null;
+        }
+
+        Image bestImage = null;
+        int bestDepth = -1;
+
+        foreach (string name in names)
+        {
+            FindDeepestImageRecursive(root, name, 0, ref bestImage, ref bestDepth);
+            if (bestImage != null)
+            {
+                return bestImage;
+            }
+        }
+
+        return null;
+    }
+
+    static void FindDeepestImageRecursive(
+        Transform parent,
+        string childName,
+        int depth,
+        ref Image bestImage,
+        ref int bestDepth)
+    {
+        if (parent == null ||
+            string.IsNullOrEmpty(childName))
+        {
+            return;
+        }
+
+        foreach (Transform child in parent)
+        {
+            if (child.name == childName)
+            {
+                Image image = child.GetComponent<Image>();
+                if (image == null)
+                {
+                    image = child.GetComponentInChildren<Image>(true);
+                }
+
+                if (image != null &&
+                    depth >= bestDepth)
+                {
+                    bestImage = image;
+                    bestDepth = depth;
+                }
+            }
+
+            FindDeepestImageRecursive(
+                child,
+                childName,
+                depth + 1,
+                ref bestImage,
+                ref bestDepth);
+        }
     }
 
     public static string BuildWorldItemInfo(WorldStatItemPickup pickup)

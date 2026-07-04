@@ -108,10 +108,16 @@ public static class NpcDailyRoutineLibrary
         GameObject npc,
         List<NpcScheduleSlot> slots)
     {
-        Add(slots, NpcScheduleActivity.DoMission, 7f, 13f);
-        Add(slots, NpcScheduleActivity.FreeHuntAndGather, 13f, 18f);
-        Add(slots, NpcScheduleActivity.TradeBuySell, 18f, 19f);
-        Add(slots, NpcScheduleActivity.Cultivate, 19f, 7f);
+        const float restGapHours = 5f / 60f;
+
+        Add(slots, NpcScheduleActivity.DoMission, 7f, 13f - restGapHours);
+        Add(slots, NpcScheduleActivity.Idle, 13f - restGapHours, 13f);
+        Add(slots, NpcScheduleActivity.FreeHuntAndGather, 13f, 18f - restGapHours);
+        Add(slots, NpcScheduleActivity.Idle, 18f - restGapHours, 18f);
+        Add(slots, NpcScheduleActivity.TradeBuySell, 18f, 19f - restGapHours);
+        Add(slots, NpcScheduleActivity.Idle, 19f - restGapHours, 19f);
+        Add(slots, NpcScheduleActivity.Cultivate, 19f, 7f - restGapHours);
+        Add(slots, NpcScheduleActivity.Idle, 7f - restGapHours, 7f);
 
         // SmartAI dùng lịch gốc nhưng lệch giờ theo seed từng NPC
         // để tránh tất cả cùng dồn vào một hoạt động tại cùng thời điểm.

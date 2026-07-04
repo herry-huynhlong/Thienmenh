@@ -138,53 +138,35 @@ public static class NpcRoleUtility
         CharacterStats stats = npc.GetComponent<CharacterStats>();
         if (stats != null)
         {
-            return CombatStatCalculator.ClampToInt(
-                CombatStatCalculator.GetRealmMultiplier(
-                    Mathf.Max(0, (int)stats.realm),
-                    Mathf.Clamp(
-                        stats.realmStage,
-                        1,
-                        CultivationProgression.MaxStage) - 1));
+            return CultivationProgression.GetRealmPower(
+                stats.realm,
+                stats.realmStage);
         }
 
         VillagerAI villager = GetActiveVillagerAI(npc) ??
             GetVillagerAI(npc);
         if (villager != null)
         {
-            return CombatStatCalculator.ClampToInt(
-                CombatStatCalculator.GetRealmMultiplier(
-                    Mathf.Max(0, (int)villager.realm),
-                    Mathf.Clamp(
-                        villager.realmStage,
-                        1,
-                        CultivationProgression.MaxStage) - 1));
+            return CultivationProgression.GetRealmPower(
+                villager.realm,
+                villager.realmStage);
         }
 
         SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc) ??
             GetSmartNpcAI(npc);
         if (smartNpc != null)
         {
-            return CombatStatCalculator.ClampToInt(
-                CombatStatCalculator.GetRealmMultiplier(
-                    Mathf.Max(0, (int)smartNpc.realm),
-                    Mathf.Clamp(
-                        smartNpc.realmStage,
-                        1,
-                        CultivationProgression.MaxStage) - 1));
+            return CultivationProgression.GetRealmPower(
+                smartNpc.realm,
+                smartNpc.realmStage);
         }
 
         MonsterAI monster = npc.GetComponent<MonsterAI>();
         if (monster != null)
         {
-            return CombatStatCalculator.ClampToInt(
-                CombatStatCalculator.GetRealmMultiplier(
-                    Mathf.Max(0, (int)monster.realm),
-                    Mathf.Clamp(
-                        monster.realmStage,
-                        1,
-                        CultivationProgression.MaxStage) - 1) *
-                CultivationProgression.GetEntityStatMultiplier(
-                    EntityKind.Beast));
+            return CultivationProgression.GetRealmPower(
+                monster.realm,
+                monster.realmStage);
         }
 
         return 0;

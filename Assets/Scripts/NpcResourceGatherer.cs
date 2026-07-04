@@ -350,6 +350,7 @@ public class NpcResourceGatherer : MonoBehaviour
                     requiredItem,
                     preferredZone,
                     preferredDangerTier,
+                    smartNpc != null,
                     gameObject);
 
         if (candidate == null && requiredItem != null)
@@ -417,6 +418,11 @@ public class NpcResourceGatherer : MonoBehaviour
                 continue;
             }
 
+            if (!IsConfiguredResourcePickup(pickup))
+            {
+                continue;
+            }
+
             if (!MatchesPreferredGatherArea(
                     pickup,
                     preferredZone,
@@ -459,6 +465,11 @@ public class NpcResourceGatherer : MonoBehaviour
             }
         }
 
+        if (!IsConfiguredResourcePickup(pickup))
+        {
+            return false;
+        }
+
         if (!preferredDangerTier.HasValue ||
             pickupLocationArea == null ||
             pickupLocationArea.dangerTier == NpcDangerTier.Any)
@@ -485,6 +496,7 @@ public class NpcResourceGatherer : MonoBehaviour
         {
             if (!IsPickupAvailable(pickup, ignorePreferredZone) ||
                 !MatchesRequiredItem(pickup, requiredItem) ||
+                !IsConfiguredResourcePickup(pickup) ||
                 (!ignorePreferredZone && !MatchesPreferredZone(pickup)))
             {
                 continue;
@@ -532,6 +544,18 @@ public class NpcResourceGatherer : MonoBehaviour
         }
 
         return false;
+    }
+
+    bool IsConfiguredResourcePickup(WorldStatItemPickup pickup)
+    {
+        if (pickup == null)
+        {
+            return false;
+        }
+
+        NpcLocationArea area = NpcLocationArea.FindArea(pickup.transform.position);
+        return area != null &&
+            area.purpose == NpcLocationPurpose.Resource;
     }
 
     Vector3 GetSearchPosition()
@@ -864,6 +888,12 @@ public class NpcResourceGatherer : MonoBehaviour
             !pickup.allowNpcPickup ||
             pickup.IsReservedByOther(gameObject) ||
             !pickup.gameObject.activeInHierarchy)
+        {
+            return false;
+        }
+
+        if (smartNpc != null &&
+            !IsConfiguredResourcePickup(pickup))
         {
             return false;
         }

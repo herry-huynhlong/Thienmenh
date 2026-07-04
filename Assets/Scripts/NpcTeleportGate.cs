@@ -10,6 +10,10 @@ public class NpcTeleportGate : MonoBehaviour
         new Dictionary<int, float>();
     static readonly Dictionary<int, float> npcTeleportReentryLocks =
         new Dictionary<int, float>();
+    static readonly Dictionary<int, float> npcGateDebugTimes =
+        new Dictionary<int, float>();
+    static readonly Dictionary<int, string> npcGateDebugSignatures =
+        new Dictionary<int, string>();
 
     public NpcMapZone fromZone = NpcMapZone.Lang;
     public NpcMapZone toZone = NpcMapZone.VanBaoLau;
@@ -222,14 +226,69 @@ public class NpcTeleportGate : MonoBehaviour
             return;
         }
 
+        NpcMapZone? actorZone = NpcMapNavigator.ResolveActorZone(actor);
+        if (!actorZone.HasValue)
+        {
+            LogGateDebug(actor, "GateCheck", "actorZone=None");
+            return;
+        }
+
+        if (!TryGetTeleportRouteForZone(
+                actorZone.Value,
+                out Vector3 entryPosition,
+                out Vector3 exitPosition,
+                out NpcMapZone destinationZone))
+        {
+            LogGateDebug(
+                actor,
+                "GateCheck",
+                "noRoute actorZone=" +
+                actorZone.Value +
+                " from=" +
+                fromZone +
+                " to=" +
+                toZone +
+                " bidirectional=" +
+                bidirectional +
+                " gatePos=" +
+                transform.position +
+                " entry=" +
+                entryPosition +
+                " exit=" +
+                exitPosition);
+            return;
+        }
+
         if (!CanNpcUseGate(actor))
         {
+            LogGateDebug(
+                actor,
+                "GateCheck",
+                "canUse=false actorZone=" +
+                actorZone.Value +
+                " routeTo=" +
+                destinationZone +
+                " gatePos=" +
+                transform.position +
+                " entry=" +
+                entryPosition +
+                " exit=" +
+                exitPosition);
             return;
         }
 
         int cooldownKey = GetNpcCooldownKey(actor);
         if (IsNpcReentryLocked(cooldownKey))
         {
+            LogGateDebug(
+                actor,
+                "GateCheck",
+                "reentryLocked actorZone=" +
+                actorZone.Value +
+                " routeTo=" +
+                destinationZone +
+                " gatePos=" +
+                transform.position);
             return;
         }
 
@@ -238,15 +297,53 @@ public class NpcTeleportGate : MonoBehaviour
                 out float nextAllowedTeleport) &&
             Time.time < nextAllowedTeleport)
         {
+            LogGateDebug(
+                actor,
+                "GateCheck",
+                "cooldown actorZone=" +
+                actorZone.Value +
+                " routeTo=" +
+                destinationZone +
+                " nextAllowed=" +
+                nextAllowedTeleport.ToString("0.00") +
+                " now=" +
+                Time.time.ToString("0.00") +
+                " gatePos=" +
+                transform.position);
             return;
         }
 
         if (TryTeleportNpc(actor))
         {
+            LogGateDebug(
+                actor,
+                "GateTeleport",
+                "success actorZone=" +
+                actorZone.Value +
+                " routeTo=" +
+                destinationZone +
+                " gatePos=" +
+                transform.position +
+                " exit=" +
+                exitPosition);
             npcTeleportCooldowns[cooldownKey] =
                 Time.time + Mathf.Max(0.1f, npcGlobalTeleportCooldown);
             npcTeleportReentryLocks[cooldownKey] =
                 Time.time + Mathf.Max(0.1f, npcReentryLockDuration);
+        }
+        else
+        {
+            LogGateDebug(
+                actor,
+                "GateTeleport",
+                "failed actorZone=" +
+                actorZone.Value +
+                " routeTo=" +
+                destinationZone +
+                " gatePos=" +
+                transform.position +
+                " exit=" +
+                exitPosition);
         }
     }
 
@@ -355,6 +452,7 @@ public class NpcTeleportGate : MonoBehaviour
         NpcMapZone? actorZone = NpcMapNavigator.ResolveActorZone(actor);
         if (!actorZone.HasValue)
         {
+            LogGateDebug(actor, "TeleportStart", "actorZone=None");
             return false;
         }
 
@@ -364,10 +462,32 @@ public class NpcTeleportGate : MonoBehaviour
                 out Vector3 exitPosition,
                 out NpcMapZone destinationZone))
         {
+            LogGateDebug(
+                actor,
+                "TeleportStart",
+                "noRoute actorZone=" +
+                actorZone.Value +
+                " from=" +
+                fromZone +
+                " to=" +
+                toZone +
+                " bidirectional=" +
+                bidirectional);
             return false;
         }
 
         Vector3 targetPosition = exitPosition;
+        LogGateDebug(
+            actor,
+            "TeleportStart",
+            "actorZone=" +
+            actorZone.Value +
+            " destinationZone=" +
+            destinationZone +
+            " target=" +
+            targetPosition +
+            " gatePos=" +
+            transform.position);
         Rigidbody2D rb = actor.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
@@ -390,6 +510,37 @@ public class NpcTeleportGate : MonoBehaviour
             SendMessageOptions.DontRequireReceiver);
 
         return true;
+    }
+
+    void LogGateDebug(GameObject actor, string stage, string detail)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (actor == null)
+        {
+            return;
+        }
+
+        int actorKey = actor.GetInstanceID();
+        string signature = stage + "|" + detail;
+        if (npcGateDebugSignatures.TryGetValue(actorKey, out string lastSignature) &&
+            string.Equals(lastSignature, signature, System.StringComparison.Ordinal) &&
+            npcGateDebugTimes.TryGetValue(actorKey, out float lastTime) &&
+            Time.time - lastTime < 1.5f)
+        {
+            return;
+        }
+
+        npcGateDebugSignatures[actorKey] = signature;
+        npcGateDebugTimes[actorKey] = Time.time;
+
+        Debug.LogWarning(
+            "[NpcTeleportGate] gate=" + name +
+            " stage=" + stage +
+            " actor=" + actor.name +
+            " from=" + fromZone +
+            " to=" + toZone +
+            " detail=" + detail);
+#endif
     }
 
     void RefreshCameraBounds()

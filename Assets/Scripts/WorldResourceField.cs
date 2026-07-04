@@ -611,6 +611,7 @@ public class WorldResourceField : MonoBehaviour
         StatItemData requiredItem = null,
         NpcMapZone? requiredZone = null,
         NpcDangerTier? requiredDangerTier = null,
+        bool requireResourceLocationArea = false,
         GameObject requester = null)
     {
         WorldStatItemPickup[] pickups = GetComponentsInChildren<WorldStatItemPickup>(true);
@@ -624,7 +625,10 @@ public class WorldResourceField : MonoBehaviour
                 pickup.IsReservedByOther(requester) ||
                 !MatchesRequiredItem(pickup, requiredItem) ||
                 !MatchesRequiredZone(pickup, requiredZone) ||
-                !MatchesRequiredDangerTier(pickup, requiredDangerTier))
+                !MatchesRequiredDangerTier(pickup, requiredDangerTier) ||
+                !MatchesRequiredResourceLocationArea(
+                    pickup,
+                    requireResourceLocationArea))
                 continue;
 
             float distance = Vector2.Distance(position, pickup.transform.position);
@@ -644,6 +648,7 @@ public class WorldResourceField : MonoBehaviour
         StatItemData requiredItem = null,
         NpcMapZone? requiredZone = null,
         NpcDangerTier? requiredDangerTier = null,
+        bool requireResourceLocationArea = false,
         GameObject requester = null)
     {
         WorldStatItemPickup best = null;
@@ -660,6 +665,7 @@ public class WorldResourceField : MonoBehaviour
                     requiredItem,
                     requiredZone,
                     requiredDangerTier,
+                    requireResourceLocationArea,
                     requester);
 
             if (candidate == null)
@@ -710,6 +716,26 @@ public class WorldResourceField : MonoBehaviour
         }
 
         return area.dangerTier == requiredDangerTier.Value;
+    }
+
+    bool MatchesRequiredResourceLocationArea(
+        WorldStatItemPickup pickup,
+        bool requireResourceLocationArea)
+    {
+        if (!requireResourceLocationArea)
+        {
+            return true;
+        }
+
+        if (pickup == null)
+        {
+            return false;
+        }
+
+        NpcLocationArea area =
+            NpcLocationArea.FindArea(pickup.transform.position);
+        return area != null &&
+            area.purpose == NpcLocationPurpose.Resource;
     }
 
     bool MatchesRequiredItem(WorldStatItemPickup pickup, StatItemData requiredItem)
