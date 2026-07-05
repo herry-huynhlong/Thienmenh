@@ -135,6 +135,7 @@ public class NpcRuntimeAuditTests
         "waitLightning",
         "waitLightningNamed",
         "idle",
+        "restTerritory",
         "restNearHome",
         "restVillageNoon",
         "stayNearHome",
@@ -1278,15 +1279,6 @@ public class NpcRuntimeAuditTests
             if (component == null)
             {
                 continue;
-            }
-
-            if (typeName == "MonsterAI")
-            {
-                object isDead = GetPropertyValue(component, "IsDead");
-                if (isDead is bool && (bool)isDead)
-                {
-                    continue;
-                }
             }
 
             actors.Add(new ThreeDayActorState(component, typeName));

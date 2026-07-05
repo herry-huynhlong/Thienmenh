@@ -368,8 +368,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: giatien
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
-  m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: d4e57a0ea7eee694b81bfb9537844152, type: 2}
+  m_sharedMaterial: {fileID: -7910371076681416529, guid: d4e57a0ea7eee694b81bfb9537844152, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -505,8 +505,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: phamchat
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
-  m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: d4e57a0ea7eee694b81bfb9537844152, type: 2}
+  m_sharedMaterial: {fileID: -7910371076681416529, guid: d4e57a0ea7eee694b81bfb9537844152, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -913,8 +913,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Mua
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
-  m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: d4e57a0ea7eee694b81bfb9537844152, type: 2}
+  m_sharedMaterial: {fileID: -7910371076681416529, guid: d4e57a0ea7eee694b81bfb9537844152, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1050,8 +1050,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "Tr\u1EE9ng Uy\xEAn \u01AF\u01A1ng"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
-  m_sharedMaterial: {fileID: -6569074286966700124, guid: f68ee49dc6778f14092959deb002b6ef, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: d4e57a0ea7eee694b81bfb9537844152, type: 2}
+  m_sharedMaterial: {fileID: -7910371076681416529, guid: d4e57a0ea7eee694b81bfb9537844152, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

@@ -1,4 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<test-run result="Failed" total="1" passed="0" failed="1" skipped="0">
-  <test-case name="NpcThreeDayAuditBatchRunner" result="Failed" message="NPC_THREE_DAY_AUDIT_SUMMARY actors=9 issues=19 worldHourStart=720.5 worldHourEnd=792.515" />
-</test-run>

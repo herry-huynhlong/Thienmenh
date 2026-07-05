@@ -29,6 +29,7 @@ public class ShopItemButtonUI : MonoBehaviour, IPointerClickHandler, IPointerDow
     Vector3 auraGlowBaseEuler = Vector3.zero;
     Vector3 energyRingBaseEuler = Vector3.zero;
     bool rarityBaseCaptured;
+    bool hasCustomGradeFrame;
 
     int itemIndex;
     ShopPanelUI owner;
@@ -101,6 +102,8 @@ public class ShopItemButtonUI : MonoBehaviour, IPointerClickHandler, IPointerDow
             ApplyPriceStyle();
         }
 
+        ApplyGradeFrame(
+            slot.item.grade);
         ApplyGradeVisuals(slot.item.grade);
 
         if (button != null)
@@ -136,9 +139,11 @@ public class ShopItemButtonUI : MonoBehaviour, IPointerClickHandler, IPointerDow
         if (gradeBorderImage != null)
         {
             gradeBorderImage.color =
-                GetGradeBorderColor(
-                    currentSlot.item.grade,
-                    pulse);
+                hasCustomGradeFrame
+                    ? Color.white
+                    : GetGradeBorderColor(
+                        currentSlot.item.grade,
+                        pulse);
         }
 
         if (iconBgImage != null)
@@ -255,9 +260,11 @@ public class ShopItemButtonUI : MonoBehaviour, IPointerClickHandler, IPointerDow
         if (gradeBorderImage != null)
         {
             gradeBorderImage.color =
-                GetGradeBorderColor(
-                    grade,
-                    0.72f);
+                hasCustomGradeFrame
+                    ? Color.white
+                    : GetGradeBorderColor(
+                        grade,
+                        0.72f);
             gradeBorderImage.raycastTarget = false;
         }
 
@@ -662,6 +669,32 @@ public class ShopItemButtonUI : MonoBehaviour, IPointerClickHandler, IPointerDow
             nameText,
             grade,
             0.58f + Mathf.Clamp01(pulse) * 0.42f);
+    }
+
+    void ApplyGradeFrame(
+        ItemGrade grade)
+    {
+        if (gradeBorderImage == null)
+        {
+            hasCustomGradeFrame = false;
+            return;
+        }
+
+        Sprite frame =
+            ItemGradeFrameLibrary.GetFrame(grade);
+        hasCustomGradeFrame =
+            frame != null;
+
+        if (!hasCustomGradeFrame)
+        {
+            return;
+        }
+
+        gradeBorderImage.sprite = frame;
+        gradeBorderImage.enabled = true;
+        gradeBorderImage.color = Color.white;
+        gradeBorderImage.preserveAspect = false;
+        gradeBorderImage.raycastTarget = false;
     }
 
     string BuildShortDescription(StatItemData item)

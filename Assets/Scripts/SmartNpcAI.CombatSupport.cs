@@ -428,7 +428,8 @@ public partial class SmartNpcAI
         int incomingDamage)
     {
         if (attackerObject == null ||
-            IsDead)
+            IsDead ||
+            NpcTaskProvider.IsNpcBusyWithAnyProvider(gameObject))
         {
             return;
         }

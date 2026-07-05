@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: c416f5428ff759f44afb6233cd0a6e0f
+guid: 68eb6d27393856642b6b88f0df17ad3b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5076654566143327635
-    second: nutbam-removebg-preview_0
+      213: -4101304737966481049
+    second: dep_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -97,7 +97,7 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
-    buildTarget: WebGL
+    buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -110,7 +110,7 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
-    buildTarget: Android
+    buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: nutbam-removebg-preview_0
+      name: dep_0
       rect:
         serializedVersion: 2
-        x: 38
-        y: 38
-        width: 424
-        height: 424
+        x: 64
+        y: 239
+        width: 1901
+        height: 338
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 39d765e3e66e37640800000000000000
-      internalID: 5076654566143327635
+      spriteID: 761a1e9021d3517c0800000000000000
+      internalID: -4101304737966481049
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      nutbam-removebg-preview_0: 5076654566143327635
+      dep_0: -4101304737966481049
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

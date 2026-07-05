@@ -29,21 +29,13 @@ public partial class SmartNpcAI
             "-" + slot.endHour.ToString("0.##"));
 
         bool preserveActiveFlow =
-            HasLockedDirectedTarget() ||
             (currentSmartTask != null &&
             currentSmartTask.priority > SmartAITaskPriority.Normal) ||
             HasCombatSupportIntent() ||
-            (NpcScheduleController.IsMatchingActivity(
-                schedule.CurrentActivity,
-                NpcScheduleActivity.Hunt) &&
-            (currentMonsterTarget != null ||
-            currentAction == NpcText.Action("goHunt") ||
-            MatchesSmartAction("huntMonsterNamed", true) ||
-            MatchesSmartAction("attackMonsterNamed", true))) ||
+            IsDirectedWorkCompatibleWithSchedule(schedule.CurrentActivity) ||
             waitingOutsideTreasureLightning ||
             treasureHuntTarget != null ||
-            hasTreasureWaitPosition ||
-            IsTeleportRouteAction(currentAction);
+            hasTreasureWaitPosition;
 
         currentScheduleSlotKey = key;
         if (runtimeTraceScheduleChanges)
@@ -302,11 +294,9 @@ public partial class SmartNpcAI
                 if (schedule.HasStartedCurrentSlotActivity(
                         NpcScheduleActivity.DoMission))
                 {
-                    if (currentAction == NpcText.Action("goTaskProviderDaily") ||
-                        currentAction == NpcText.Action("visitedTaskProvider") ||
-                        IsTeleportRouteAction(currentAction) ||
-                        currentTarget != null ||
-                        hasWanderTarget)
+                    if (currentAction == NpcText.Action("visitedTaskProvider") ||
+                        IsDirectedWorkCompatibleWithSchedule(
+                            NpcScheduleActivity.DoMission))
                     {
                         TraceBranch(
                             "TryRunScheduledActivity",
@@ -349,11 +339,9 @@ public partial class SmartNpcAI
                 }
                 else
                 {
-                    if (currentAction == NpcText.Action("goTaskProviderDaily") ||
-                        currentAction == NpcText.Action("visitedTaskProvider") ||
-                        IsTeleportRouteAction(currentAction) ||
-                        currentTarget != null ||
-                        hasWanderTarget)
+                    if (currentAction == NpcText.Action("visitedTaskProvider") ||
+                        IsDirectedWorkCompatibleWithSchedule(
+                            NpcScheduleActivity.DoMission))
                     {
                         schedule.MarkCurrentSlotActivityStarted(
                             NpcScheduleActivity.DoMission);
@@ -367,12 +355,8 @@ public partial class SmartNpcAI
                 if (schedule.HasStartedCurrentSlotActivity(
                         NpcScheduleActivity.FreeHuntAndGather))
                 {
-                    if (currentAction == NpcText.Action("goHunt") ||
-                        currentAction == NpcText.Action("gatherResource") ||
-                        IsTeleportRouteAction(currentAction) ||
-                        currentTarget != null ||
-                        hasWanderTarget ||
-                        currentMonsterTarget != null)
+                    if (IsDirectedWorkCompatibleWithSchedule(
+                            NpcScheduleActivity.FreeHuntAndGather))
                     {
                         TraceBranch(
                             "TryRunScheduledActivity",
@@ -416,14 +400,8 @@ public partial class SmartNpcAI
                 if (schedule.HasStartedCurrentSlotActivity(
                         NpcScheduleActivity.TradeBuySell))
                 {
-                    if (currentAction == NpcText.Action("tradeSeek") ||
-                        currentAction == NpcText.Action("goTavern") ||
-                        currentAction == NpcText.Action("buyPill") ||
-                        currentAction == NpcText.Action("goVanBaoLauBroker") ||
-                        currentAction == NpcText.Action("goVanBaoLauTask") ||
-                        IsTeleportRouteAction(currentAction) ||
-                        currentTarget != null ||
-                        hasWanderTarget)
+                    if (IsDirectedWorkCompatibleWithSchedule(
+                            NpcScheduleActivity.TradeBuySell))
                     {
                         TraceBranch(
                             "TryRunScheduledActivity",
@@ -662,13 +640,7 @@ public partial class SmartNpcAI
 
         bool preserveDirectedWork =
             activity != NpcScheduleActivity.Idle &&
-            (HasLockedDirectedTarget() ||
-            currentTarget != null ||
-            hasWanderTarget ||
-            (resourceGatherer != null &&
-            resourceGatherer.HasActiveGatheringFlow) ||
-            (activity == NpcScheduleActivity.Hunt &&
-            HasActiveHuntTravelIntent()));
+            IsDirectedWorkCompatibleWithSchedule(activity);
 
         if (!preserveDirectedWork)
         {
@@ -698,6 +670,219 @@ public partial class SmartNpcAI
             "ScheduleWait",
             (preserveDirectedWork ? "Preserve target " : "Waiting ") +
             activity);
+    }
+
+    bool IsDirectedWorkCompatibleWithSchedule(
+        NpcScheduleActivity activity)
+    {
+        switch (activity)
+        {
+            case NpcScheduleActivity.Cultivate:
+                return hasCultivationTarget ||
+                    currentAction == NpcText.Action("goCultivatePoint");
+
+            case NpcScheduleActivity.DoMission:
+            case NpcScheduleActivity.TakeTask:
+                return IsMissionDirectedWorkActive();
+
+            case NpcScheduleActivity.FreeHuntAndGather:
+            case NpcScheduleActivity.Hunt:
+            case NpcScheduleActivity.Gather:
+                return IsHuntOrGatherDirectedWorkActive();
+
+            case NpcScheduleActivity.TradeBuySell:
+            case NpcScheduleActivity.BuyGoods:
+            case NpcScheduleActivity.SellGoods:
+                return IsTradeDirectedWorkActive();
+
+            default:
+                return false;
+        }
+    }
+
+    bool IsMissionDirectedWorkActive()
+    {
+        return currentAction == NpcText.Action("goTaskProviderDaily") ||
+            currentAction == NpcText.Action("visitedTaskProvider") ||
+            currentAction == NpcText.Action("goWorkTask") ||
+            currentAction == NpcText.Action("pickHuntEvidence") ||
+            currentAction == NpcText.Action("pickItem") ||
+            currentAction == NpcText.Action("gatherResource") ||
+            currentAction == NpcText.Action("goHunt") ||
+            MatchesSmartAction("huntMonsterNamed", true) ||
+            MatchesSmartAction("attackMonsterNamed", true) ||
+            currentMonsterTarget != null ||
+            HasDirectedTravelContext() ||
+            (resourceGatherer != null &&
+            resourceGatherer.HasActiveGatheringFlow);
+    }
+
+    bool IsHuntOrGatherDirectedWorkActive()
+    {
+        return currentAction == NpcText.Action("goHunt") ||
+            currentAction == NpcText.Action("gatherResource") ||
+            currentAction == NpcText.Action("pickItem") ||
+            currentAction == NpcText.Action("pickHuntEvidence") ||
+            MatchesSmartAction("huntMonsterNamed", true) ||
+            MatchesSmartAction("attackMonsterNamed", true) ||
+            HasActiveHuntTravelIntent() ||
+            HasDirectedTravelContext() ||
+            (resourceGatherer != null &&
+            resourceGatherer.HasActiveGatheringFlow);
+    }
+
+    bool IsTradeDirectedWorkActive()
+    {
+        return currentAction == NpcText.Action("tradeSeek") ||
+            currentAction == NpcText.Action("goTavern") ||
+            currentAction == NpcText.Action("goMarketTrade") ||
+            currentAction == NpcText.Action("goVanBaoLauBroker") ||
+            currentAction == NpcText.Action("goVanBaoLauTask") ||
+            currentAction == NpcText.Action("buyPill") ||
+            currentAction == NpcText.Action("checkedVanBaoLau");
+    }
+
+    bool TryAbortIncompatibleHuntFlowForSchedule()
+    {
+        NpcScheduleController schedule =
+            GetComponent<NpcScheduleController>();
+        if (schedule == null ||
+            !schedule.enforceSchedule)
+        {
+            return false;
+        }
+
+        NpcScheduleActivity activity = schedule.CurrentActivity;
+        if (activity == NpcScheduleActivity.DoMission ||
+            activity == NpcScheduleActivity.TakeTask ||
+            activity == NpcScheduleActivity.FreeHuntAndGather ||
+            activity == NpcScheduleActivity.Hunt ||
+            activity == NpcScheduleActivity.Gather)
+        {
+            return false;
+        }
+
+        if (currentMonsterTarget != null ||
+            isRetreatingFromMonster ||
+            HasCombatSupportIntent() ||
+            !IsHuntDisplayAction(currentAction))
+        {
+            return false;
+        }
+
+        ResetDirectedWorkStateForSchedule(activity);
+
+        if (ShouldTraceRuntime())
+        {
+            TraceRuntime(
+                "TryAbortIncompatibleHuntFlowForSchedule",
+                "activity=" + activity +
+                " action=" + currentAction);
+        }
+
+        return true;
+    }
+
+    bool TryClearStaleScheduledDirectedState()
+    {
+        NpcScheduleController schedule =
+            GetComponent<NpcScheduleController>();
+        if (schedule == null ||
+            !schedule.enforceSchedule)
+        {
+            return false;
+        }
+
+        NpcScheduleActivity activity = schedule.CurrentActivity;
+        bool hasGatherFlow =
+            resourceGatherer != null &&
+            resourceGatherer.HasActiveGatheringFlow;
+        bool hasCombatOrSupportIntent =
+            currentMonsterTarget != null ||
+            HasCombatSupportIntent();
+        bool hasDirectedContext = HasDirectedTravelContext();
+        bool hasStaleDirectedActionOnly =
+            IsDirectedScheduleAction(currentAction) &&
+            !hasGatherFlow &&
+            !hasCombatOrSupportIntent &&
+            !hasDirectedContext;
+
+        if (!hasStaleDirectedActionOnly &&
+            IsDirectedWorkCompatibleWithSchedule(activity))
+        {
+            return false;
+        }
+
+        bool shouldResetForSchedule =
+            activity == NpcScheduleActivity.Idle ||
+            activity == NpcScheduleActivity.Work ||
+            activity == NpcScheduleActivity.Cultivate ||
+            activity == NpcScheduleActivity.TradeBuySell ||
+            activity == NpcScheduleActivity.BuyGoods ||
+            activity == NpcScheduleActivity.SellGoods ||
+            activity == NpcScheduleActivity.Eat ||
+            activity == NpcScheduleActivity.Sleep ||
+            activity == NpcScheduleActivity.ReturnHome ||
+            activity == NpcScheduleActivity.Alchemy ||
+            activity == NpcScheduleActivity.Forge;
+
+        if (!shouldResetForSchedule &&
+            !hasStaleDirectedActionOnly)
+        {
+            return false;
+        }
+
+        ResetDirectedWorkStateForSchedule(activity);
+        return true;
+    }
+
+    void ResetDirectedWorkStateForSchedule(NpcScheduleActivity activity)
+    {
+        ReleaseMonsterReservation();
+        ClearActiveHuntFlow();
+        ClearHelpRequestState();
+        StopMonsterRetreat();
+        currentMonsterTarget = null;
+
+        if (resourceGatherer != null)
+        {
+            resourceGatherer.CancelGatheringNow();
+        }
+
+        hasHomeReturnTarget = false;
+        ClearCultivationTravelState();
+        ClearTravelTargetsAndStop();
+        actionTimer = 0f;
+        currentAction = string.Empty;
+
+        if (ShouldTraceRuntime())
+        {
+            TraceRuntime(
+                "ResetDirectedWorkStateForSchedule",
+                "activity=" + activity);
+        }
+    }
+
+    bool IsDirectedScheduleAction(string action)
+    {
+        return !string.IsNullOrWhiteSpace(action) &&
+            (IsTravelIntentAction(action) ||
+            IsGatherDisplayAction(action) ||
+            IsHuntDisplayAction(action) ||
+            action == NpcText.Action("tradeSeek") ||
+            action == NpcText.Action("visitedTaskProvider") ||
+            action == NpcText.Action("checkedVanBaoLau"));
+    }
+
+    bool HasDirectedTravelContext()
+    {
+        return currentTarget != null ||
+            hasWanderTarget ||
+            hasEscapeTarget ||
+            hasObstacleAvoidTarget ||
+            (HasLockedDirectedTarget() &&
+            (currentAction == NpcText.Action("walkingRoad") ||
+            IsTeleportRouteAction(currentAction)));
     }
 
     bool IsCultivatorSchedule()

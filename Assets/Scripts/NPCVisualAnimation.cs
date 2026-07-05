@@ -216,6 +216,17 @@ public class NPCVisualAnimation : MonoBehaviour
             clipToPlay = isIdling
                 ? GetIdleClip(lastDirection)
                 : GetWalkClip(lastDirection);
+
+            if (clipToPlay == null &&
+                ShouldLogVisualDebug())
+            {
+                Debug.LogWarning(
+                    "[NPCVisualAnimation] Missing movement clip object=" +
+                    gameObject.name +
+                    " idle=" + isIdling +
+                    " direction=" + lastDirection +
+                    " action=" + currentAction);
+            }
         }
 
         PlayClip(clipToPlay);
@@ -635,6 +646,12 @@ public class NPCVisualAnimation : MonoBehaviour
 
         if (animator == null)
         {
+            if (ShouldLogVisualDebug())
+            {
+                Debug.LogWarning(
+                    "[NPCVisualAnimation] Missing Animator on object=" +
+                    gameObject.name);
+            }
             return false;
         }
 
@@ -642,6 +659,12 @@ public class NPCVisualAnimation : MonoBehaviour
             animator.runtimeAnimatorController;
         if (controller == null)
         {
+            if (ShouldLogVisualDebug())
+            {
+                Debug.LogWarning(
+                    "[NPCVisualAnimation] Missing RuntimeAnimatorController object=" +
+                    gameObject.name);
+            }
             overrideController = null;
             return false;
         }
@@ -655,6 +678,15 @@ public class NPCVisualAnimation : MonoBehaviour
             TryAssignActionClipsFromAnimator(
                 this,
                 controller.animationClips);
+        }
+
+        if (overrideController == null &&
+            ShouldLogVisualDebug())
+        {
+            Debug.LogWarning(
+                "[NPCVisualAnimation] Failed to create AnimatorOverrideController object=" +
+                gameObject.name +
+                " controller=" + controller.name);
         }
 
         return overrideController != null;

@@ -256,6 +256,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
     float crowdBlockedTimer;
     float nextReducedMovementUpdateTime;
     int lastHomeTravelFrame = -1;
+    float lastHomeTravelIssueTime = float.NegativeInfinity;
     Collider2D[] ownColliders;
     Renderer[] ownRenderers;
     NpcMapArea currentMapArea;
@@ -1977,12 +1978,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (isReturningHome &&
-            !IsAtHomePosition(GetHomePosition()) &&
-            (currentTarget != null ||
-            hasDirectMoveTarget ||
-            hasWanderTarget ||
-            hasObstacleAvoidTarget))
+        if (ShouldContinueExistingHomeReturn())
         {
             return;
         }
@@ -2024,6 +2020,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         CancelScheduledWorkState();
         isReturningHome = true;
         lastHomeTravelFrame = Time.frameCount;
+        lastHomeTravelIssueTime = Time.time;
         actionTimer = 0f;
 
         Vector3 homePosition = GetHomePosition();
@@ -2042,15 +2039,37 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                     : "null"));
         }
 #endif
-        homePosition = travelTarget;
-        SetDirectMoveTarget(homePosition, false, GetHomeZone());
-        MoveUsingRoad(homePosition, GetHomeZone());
+        SetDirectMoveTarget(travelTarget, false, GetHomeZone());
+        MoveUsingRoad(travelTarget, GetHomeZone());
         currentAction = NpcText.Action("goHomeRest");
 
         if (IsAtHomePosition(homePosition))
         {
             CompleteHomeArrival();
         }
+    }
+
+    bool ShouldContinueExistingHomeReturn()
+    {
+        if (!isReturningHome ||
+            IsAtHomePosition(GetHomePosition()))
+        {
+            return false;
+        }
+
+        float retryDelay =
+            Mathf.Max(
+                0.75f,
+                unstuckCheckDelay);
+        if (Time.time - lastHomeTravelIssueTime < retryDelay)
+        {
+            return true;
+        }
+
+        return currentTarget != null ||
+            hasDirectMoveTarget ||
+            hasWanderTarget ||
+            hasObstacleAvoidTarget;
     }
 
     void CompleteHomeArrival()
@@ -2559,9 +2578,8 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                     : "null"));
         }
 #endif
-        homePosition = travelTarget;
-        SetDirectMoveTarget(homePosition, false, GetHomeZone());
-        MoveUsingRoad(homePosition, GetHomeZone());
+        SetDirectMoveTarget(travelTarget, false, GetHomeZone());
+        MoveUsingRoad(travelTarget, GetHomeZone());
         currentAction = action;
 
         if (IsAtHomePosition(homePosition))
@@ -4776,6 +4794,9 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         NpcTeleportGate gate = gateObject != null
             ? gateObject.GetComponent<NpcTeleportGate>()
             : null;
+        bool shouldResumeHomeReturn =
+            isReturningHome ||
+            currentAction == NpcText.Action("goHomeRest");
         bool hadActiveMoveTarget =
             currentTarget != null ||
             hasDirectMoveTarget ||
@@ -4842,7 +4863,23 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         ClearActivePath();
         UpdateCultivationEffect(false);
 
-        if (!hadActiveMoveTarget && gate != null)
+        if (shouldResumeHomeReturn && !hiddenAtHome)
+        {
+            Vector3 homePosition = GetHomePosition();
+            Vector3 travelTarget = homePosition;
+            TryResolveHomeTravelTarget(ref travelTarget);
+
+            isReturningHome = true;
+            currentAction = NpcText.Action("goHomeRest");
+            SetDirectMoveTarget(travelTarget, false, GetHomeZone());
+            MoveUsingRoad(travelTarget, GetHomeZone());
+
+            if (IsAtHomePosition(homePosition))
+            {
+                CompleteHomeArrival();
+            }
+        }
+        else if (!hadActiveMoveTarget && gate != null)
         {
             Vector2 awayFromGate =
                 ((Vector2)gate.ExitPosition - (Vector2)gate.EntryPosition);
@@ -4915,10 +4952,18 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                 ClampToCurrentMapArea(transform.position + (Vector3)offset);
         }
 
+        Vector2 toEscapeTarget =
+            (Vector2)escapeTarget - (Vector2)transform.position;
+
         ClearActivePath();
-        hasObstacleAvoidTarget = false;
         hasRoadPreference = false;
-        SetDirectMoveTarget(escapeTarget);
+        obstacleAvoidTarget = escapeTarget;
+        obstacleAvoidUntil = Time.time + Mathf.Max(0.8f, unstuckCheckDelay);
+        hasObstacleAvoidTarget = true;
+        desiredVelocity =
+            toEscapeTarget.sqrMagnitude > 0.0001f
+            ? toEscapeTarget.normalized * moveSpeed
+            : escapeDirection * moveSpeed;
         stuckMoveTimer = 0f;
         lastUnstuckPosition = transform.position;
     }

@@ -152,6 +152,24 @@ public partial class MonsterAI
         currentTarget = null;
         currentTargetDamageable = null;
         StopRetreating();
+        isAttacking = false;
+        desiredVelocity = Vector2.zero;
+        CancelInvoke(nameof(ApplyAttackDamage));
+        CancelInvoke(nameof(EndAttack));
+
+        if (IsCombatStateAction(currentAction))
+        {
+            currentAction = NpcText.Action("restTerritory");
+            SetMovingAnimation(false);
+        }
+    }
+
+    bool IsCombatStateAction(string action)
+    {
+        return action == NpcText.Action("detectIntruder") ||
+            action == NpcText.Action("chaseIntruder") ||
+            action == NpcText.Action("attackIntruder") ||
+            action == NpcText.Action("flee");
     }
 
     bool ShouldAttackTarget(Transform target)
@@ -356,6 +374,7 @@ public partial class MonsterAI
         {
             desiredVelocity = Vector2.zero;
             currentAction = NpcText.Action("restTerritory");
+            patrolRecoveryAttempts = 0;
             waitTimer -= Time.deltaTime;
             SetMovingAnimation(false);
 
@@ -376,6 +395,7 @@ public partial class MonsterAI
             waitTimer = waitTime;
             desiredVelocity = Vector2.zero;
             currentAction = NpcText.Action("restTerritory");
+            patrolRecoveryAttempts = 0;
             SetMovingAnimation(false);
             return;
         }
@@ -430,11 +450,274 @@ public partial class MonsterAI
         }
     }
 
+    void UpdateMovementRecovery()
+    {
+        if (desiredVelocity.sqrMagnitude <= 0.0001f)
+        {
+            stuckMoveTimer = 0f;
+            lastUnstuckPosition = transform.position;
+            if (!hasTarget)
+            {
+                patrolRecoveryAttempts = 0;
+            }
+            return;
+        }
+
+        float moved =
+            Vector2.Distance(
+                transform.position,
+                lastUnstuckPosition);
+        if (moved <= unstuckMinMoveDistance)
+        {
+            stuckMoveTimer += Time.fixedDeltaTime;
+        }
+        else
+        {
+            stuckMoveTimer = 0f;
+            lastUnstuckPosition = transform.position;
+        }
+
+        if (stuckMoveTimer < unstuckCheckDelay)
+        {
+            return;
+        }
+
+        DebugFlow(
+            "Unstuck",
+            "Recover from stall action=" + currentAction +
+            " hasTarget=" + hasTarget +
+            " combat=" + (currentTarget != null));
+
+        if (HasValidTarget())
+        {
+            patrolRecoveryAttempts = 0;
+            ClearCurrentTarget();
+        }
+        else
+        {
+            patrolRecoveryAttempts += 1;
+            if (patrolRecoveryAttempts >=
+                Mathf.Max(1, maxPatrolRecoveriesBeforeReset))
+            {
+                ResetPatrolToAnchor();
+                return;
+            }
+        }
+
+        ChooseNewPoint(Mathf.Max(0.75f, unstuckRepathRadius));
+        desiredVelocity = Vector2.zero;
+        SetMovingAnimation(false);
+        stuckMoveTimer = 0f;
+        lastUnstuckPosition = transform.position;
+    }
+
+    void ResetPatrolToAnchor()
+    {
+        Vector2 anchorPosition = startPosition;
+        hasTarget = false;
+        waitTimer = Mathf.Max(0.35f, waitTime * 0.5f);
+        desiredVelocity = Vector2.zero;
+        currentAction = NpcText.Action("restTerritory");
+        patrolRecoveryAttempts = 0;
+        stuckMoveTimer = 0f;
+        lastUnstuckPosition = anchorPosition;
+
+        if (rb != null)
+        {
+            rb.position = anchorPosition;
+            rb.linearVelocity = Vector2.zero;
+        }
+        else
+        {
+            transform.position = anchorPosition;
+        }
+
+        SetMovingAnimation(false);
+        DebugFlow(
+            "Unstuck",
+            "Reset patrol anchor pos=" + anchorPosition);
+    }
+
     void ChooseNewPoint()
     {
-        Vector2 randomPoint = Random.insideUnitCircle * roamRadius;
-        targetPosition = startPosition + randomPoint;
+        ChooseNewPoint(
+            Mathf.Max(
+                0.75f,
+                Mathf.Min(
+                    Mathf.Max(0.75f, roamRadius * 0.2f),
+                    Mathf.Max(0.75f, territoryRadius * 0.2f))));
+    }
+
+    void ChooseNewPoint(float minDistanceFromCurrentPosition)
+    {
+        float patrolRadius =
+            Mathf.Max(
+                roamRadius,
+                Mathf.Min(
+                    territoryRadius > 0f ? territoryRadius : roamRadius,
+                    unstuckRepathRadius));
+        Vector2 bestPoint = startPosition;
+        float bestDistance = float.NegativeInfinity;
+        bool found = false;
+
+        for (int i = 0; i < 12; i++)
+        {
+            Vector2 randomPoint = Random.insideUnitCircle * patrolRadius;
+            Vector2 candidate = startPosition + randomPoint;
+            float candidateDistance =
+                Vector2.Distance(
+                    transform.position,
+                    candidate);
+            if (candidateDistance <
+                minDistanceFromCurrentPosition)
+            {
+                continue;
+            }
+
+            if (!IsPatrolPointReachable(candidate))
+            {
+                continue;
+            }
+
+            if (candidateDistance <= bestDistance)
+            {
+                continue;
+            }
+
+            bestPoint = candidate;
+            bestDistance = candidateDistance;
+            found = true;
+        }
+
+        if (!found)
+        {
+            hasTarget = false;
+            waitTimer = Mathf.Max(0.35f, waitTime * 0.5f);
+            desiredVelocity = Vector2.zero;
+            currentAction = NpcText.Action("restTerritory");
+            patrolRecoveryAttempts = 0;
+            SetMovingAnimation(false);
+            return;
+        }
+
+        targetPosition = bestPoint;
         hasTarget = true;
+        waitTimer = 0f;
+        patrolRecoveryAttempts = 0;
         currentAction = NpcText.Action("choosePatrolPoint");
+    }
+
+    bool IsPatrolPointReachable(Vector2 candidate)
+    {
+        float collisionRadius = GetPatrolCollisionRadius();
+        if (!IsPatrolSpaceClear(candidate, collisionRadius))
+        {
+            return false;
+        }
+
+        Vector2 delta = candidate - (Vector2)transform.position;
+        float distance = delta.magnitude;
+        if (distance <= 0.05f)
+        {
+            return true;
+        }
+
+        RaycastHit2D[] hits =
+            Physics2D.CircleCastAll(
+                transform.position,
+                collisionRadius,
+                delta / distance,
+                distance);
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Collider2D collider = hits[i].collider;
+            if (IsPatrolBlockingCollider(collider))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    float GetPatrolCollisionRadius()
+    {
+        if (cachedColliders == null ||
+            cachedColliders.Length == 0)
+        {
+            cachedColliders = GetComponentsInChildren<Collider2D>(true);
+        }
+
+        float radius = 0.12f;
+
+        for (int i = 0; i < cachedColliders.Length; i++)
+        {
+            Collider2D collider = cachedColliders[i];
+            if (collider == null ||
+                collider.isTrigger ||
+                !collider.enabled)
+            {
+                continue;
+            }
+
+            Bounds bounds = collider.bounds;
+            radius = Mathf.Max(
+                radius,
+                Mathf.Max(
+                    bounds.extents.x,
+                    bounds.extents.y));
+        }
+
+        return radius;
+    }
+
+    bool IsPatrolSpaceClear(Vector2 candidate, float collisionRadius)
+    {
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(
+                candidate,
+                collisionRadius);
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            if (IsPatrolBlockingCollider(hits[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool IsPatrolBlockingCollider(Collider2D collider)
+    {
+        if (collider == null ||
+            collider.isTrigger)
+        {
+            return false;
+        }
+
+        if (collider.transform == transform ||
+            collider.transform.IsChildOf(transform))
+        {
+            return false;
+        }
+
+        if (collider.attachedRigidbody != null &&
+            collider.attachedRigidbody.gameObject == gameObject)
+        {
+            return false;
+        }
+
+        if (collider.GetComponentInParent<MonsterAI>() != null ||
+            collider.GetComponentInParent<VillagerAI>() != null ||
+            collider.GetComponentInParent<SmartNpcAI>() != null ||
+            collider.GetComponentInParent<PlayerHealth>() != null)
+        {
+            return false;
+        }
+
+        return true;
     }
 }

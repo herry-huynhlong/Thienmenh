@@ -3060,10 +3060,7 @@ public partial class NpcTaskProvider : MonoBehaviour
             return true;
         }
 
-        MoveNpcToWork(task, GetRetreatPosition(task.npc.transform.position, threat.transform.position));
-        NpcRoleUtility.SetAction(
-            task.npc,
-            TaskAction("guardSpiritHerbMonster"));
+        FleeGatherThreat(task, threat);
         return true;
     }
 
@@ -3165,6 +3162,7 @@ public partial class NpcTaskProvider : MonoBehaviour
         task.threatMonster = threat;
         task.avoidPosition =
             GetRetreatPosition(task.npc.transform.position, threat.transform.position);
+        task.workPosition = task.avoidPosition;
         task.avoidUntilTime =
             Time.time + Mathf.Max(1f, gatherThreatAvoidDuration);
 

@@ -200,6 +200,8 @@ public class ShopPanelUI : MonoBehaviour
 
     public void Close()
     {
+        ResetItemGridScrollPosition();
+
         if (panelRoot != null)
         {
             panelRoot.SetActive(false);
@@ -277,7 +279,7 @@ public class ShopPanelUI : MonoBehaviour
         SyncCategoryLabels();
         RefreshMoney();
         ClearDetail();
-        RebuildItemGrid();
+        RebuildItemGrid(true);
         ApplyShopkeeperCategorySpeech(itemType);
     }
 
@@ -431,7 +433,7 @@ public class ShopPanelUI : MonoBehaviour
         selectedItemIndex = itemIndex;
         RefreshMoney();
         RefreshInventoryPanel();
-        RebuildItemGrid();
+        RebuildItemGrid(false);
         SelectItem(selectedItemIndex);
 
         if (purchasedItem != null)
@@ -972,7 +974,7 @@ public class ShopPanelUI : MonoBehaviour
         return node.GetComponentInChildren<TMP_Text>(true);
     }
 
-    void RebuildItemGrid()
+    void RebuildItemGrid(bool resetScrollPosition = true)
     {
         RefreshShopSource();
 
@@ -983,9 +985,16 @@ public class ShopPanelUI : MonoBehaviour
             return;
         }
 
+        RectTransform contentRect =
+            itemGridParent as RectTransform;
+        Vector2 preservedContentPosition =
+            contentRect != null
+                ? contentRect.anchoredPosition
+                : Vector2.zero;
+
         if (autoConfigureGrid)
         {
-            ConfigureItemGrid();
+            ConfigureItemGrid(resetScrollPosition);
         }
 
         spawnedButtons.Clear();
@@ -1027,6 +1036,20 @@ public class ShopPanelUI : MonoBehaviour
             ResetItemButtonTransform(button);
             button.Setup(this, i, slot);
             spawnedButtons.Add(button);
+        }
+
+        Canvas.ForceUpdateCanvases();
+
+        if (resetScrollPosition)
+        {
+            ResetItemGridScrollPosition();
+            return;
+        }
+
+        if (contentRect != null)
+        {
+            contentRect.anchoredPosition =
+                preservedContentPosition;
         }
     }
 
@@ -1745,7 +1768,7 @@ public class ShopPanelUI : MonoBehaviour
             preferredHeight;
     }
 
-    void ConfigureItemGrid()
+    void ConfigureItemGrid(bool resetScrollPosition)
     {
         RectTransform contentRect =
             itemGridParent as RectTransform;
@@ -1764,8 +1787,11 @@ public class ShopPanelUI : MonoBehaviour
         contentRect.pivot =
             new Vector2(0f, 1f);
 
-        contentRect.anchoredPosition =
-            Vector2.zero;
+        if (resetScrollPosition)
+        {
+            contentRect.anchoredPosition =
+                Vector2.zero;
+        }
 
         GridLayoutGroup grid =
             itemGridParent.GetComponent<GridLayoutGroup>();
@@ -1815,6 +1841,28 @@ public class ShopPanelUI : MonoBehaviour
 
         fitter.verticalFit =
             ContentSizeFitter.FitMode.PreferredSize;
+    }
+
+    void ResetItemGridScrollPosition()
+    {
+        RectTransform contentRect =
+            itemGridParent as RectTransform;
+
+        if (contentRect == null)
+        {
+            return;
+        }
+
+        contentRect.anchoredPosition =
+            Vector2.zero;
+
+        ScrollRect scrollRect =
+            itemGridParent.GetComponentInParent<ScrollRect>();
+
+        if (scrollRect != null)
+        {
+            scrollRect.verticalNormalizedPosition = 1f;
+        }
     }
 
     void ResetItemButtonTransform(ShopItemButtonUI button)

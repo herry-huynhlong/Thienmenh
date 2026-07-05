@@ -111,16 +111,129 @@ public class NpcTeleportGate : MonoBehaviour
 
     public Vector3 GetApproachPosition(Vector3 actorPosition)
     {
-        if (useEntryPointForNpcRoute)
+        Transform routeEntry = GetRouteEntryTransform();
+        if (routeEntry != null)
         {
-            return EntryPosition;
+            return routeEntry.position;
         }
 
         return EntryPosition;
     }
 
+    public bool TryForceNpcUse(GameObject actor)
+    {
+        if (actor == null)
+        {
+            return false;
+        }
+
+        NpcMapZone? actorZone = NpcMapNavigator.ResolveActorZone(actor);
+        if (!actorZone.HasValue)
+        {
+            LogGateDebug(actor, "ForceTeleport", "actorZone=None");
+            return false;
+        }
+
+        if (!TryGetTeleportRouteForZone(
+                actorZone.Value,
+                out _,
+                out Vector3 exitPosition,
+                out NpcMapZone destinationZone))
+        {
+            LogGateDebug(
+                actor,
+                "ForceTeleport",
+                "noRoute actorZone=" +
+                actorZone.Value +
+                " from=" +
+                fromZone +
+                " to=" +
+                toZone);
+            return false;
+        }
+
+        if (!CanNpcUseGate(actor))
+        {
+            LogGateDebug(
+                actor,
+                "ForceTeleport",
+                "canUse=false actorZone=" +
+                actorZone.Value +
+                " routeTo=" +
+                destinationZone);
+            return false;
+        }
+
+        int cooldownKey = GetNpcCooldownKey(actor);
+        if (IsNpcReentryLocked(cooldownKey))
+        {
+            LogGateDebug(
+                actor,
+                "ForceTeleport",
+                "reentryLocked actorZone=" +
+                actorZone.Value +
+                " routeTo=" +
+                destinationZone);
+            return false;
+        }
+
+        if (npcTeleportCooldowns.TryGetValue(
+                cooldownKey,
+                out float nextAllowedTeleport) &&
+            Time.time < nextAllowedTeleport)
+        {
+            LogGateDebug(
+                actor,
+                "ForceTeleport",
+                "cooldown actorZone=" +
+                actorZone.Value +
+                " routeTo=" +
+                destinationZone +
+                " nextAllowed=" +
+                nextAllowedTeleport.ToString("0.00") +
+                " now=" +
+                Time.time.ToString("0.00"));
+            return false;
+        }
+
+        if (!TryTeleportNpc(actor))
+        {
+            LogGateDebug(
+                actor,
+                "ForceTeleport",
+                "failed actorZone=" +
+                actorZone.Value +
+                " routeTo=" +
+                destinationZone +
+                " exit=" +
+                exitPosition);
+            return false;
+        }
+
+        npcTeleportCooldowns[cooldownKey] =
+            Time.time + Mathf.Max(0.1f, npcGlobalTeleportCooldown);
+        npcTeleportReentryLocks[cooldownKey] =
+            Time.time + Mathf.Max(0.1f, npcReentryLockDuration);
+        LogGateDebug(
+            actor,
+            "ForceTeleport",
+            "success actorZone=" +
+            actorZone.Value +
+            " routeTo=" +
+            destinationZone +
+            " exit=" +
+            exitPosition);
+        return true;
+    }
+
     Vector3 GetResolvedEntryPosition()
     {
+        Transform routeEntry = GetRouteEntryTransform();
+        if (routeEntry != null)
+        {
+            return routeEntry.position;
+        }
+
         if (!useEntryPointForNpcRoute)
         {
             Collider2D gateCollider = GetComponent<Collider2D>();
@@ -132,10 +245,24 @@ public class NpcTeleportGate : MonoBehaviour
             }
         }
 
-        Transform resolved = GetResolvedEntryTransform();
-        return resolved != null
-            ? resolved.position
-            : transform.position;
+        return transform.position;
+    }
+
+    Transform GetRouteEntryTransform()
+    {
+        if (entryPoint == null)
+        {
+            return null;
+        }
+
+        if (preferOwnTransformWhenEntryIsParent &&
+            transform.parent != null &&
+            entryPoint == transform.parent)
+        {
+            return transform;
+        }
+
+        return entryPoint;
     }
 
     Transform GetResolvedEntryTransform()
@@ -280,15 +407,6 @@ public class NpcTeleportGate : MonoBehaviour
         int cooldownKey = GetNpcCooldownKey(actor);
         if (IsNpcReentryLocked(cooldownKey))
         {
-            LogGateDebug(
-                actor,
-                "GateCheck",
-                "reentryLocked actorZone=" +
-                actorZone.Value +
-                " routeTo=" +
-                destinationZone +
-                " gatePos=" +
-                transform.position);
             return;
         }
 

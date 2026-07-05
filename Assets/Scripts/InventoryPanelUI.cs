@@ -6,6 +6,16 @@ using UnityEngine.UI;
 
 public class InventoryPanelUI : MonoBehaviour
 {
+    enum InventoryCategoryFilter
+    {
+        All,
+        TrangBi,
+        DanDuoc,
+        PhapBao,
+        CongPhap,
+        VatLieu
+    }
+
     [Header("Data")]
     public ItemInventory inventory;
     public bool autoFindReferences = true;
@@ -51,6 +61,25 @@ public class InventoryPanelUI : MonoBehaviour
     public Button useButton;
     public Button giveToSelectedNpcButton;
     public Button heavenGiftButton;
+    Transform rightPanelTransform;
+    Transform previewPanelTransform;
+    Image previewBackgroundImage;
+    Image previewGradeFrameImage;
+    Image previewItemIcon;
+    Image previewBigIcon;
+    Image previewMagicCircle;
+    TMP_Text attackValueText;
+    TMP_Text defenseValueText;
+    TMP_Text hpValueText;
+    TMP_Text speedValueText;
+    Button tabAllButton;
+    Button tabTrangBiButton;
+    Button tabDanDuocButton;
+    Button tabPhapBaoButton;
+    Button tabCongPhapButton;
+    Button tabVatLieuButton;
+    InventoryCategoryFilter currentCategoryFilter =
+        InventoryCategoryFilter.All;
 
     readonly List<InventoryItemButtonUI> spawnedButtons =
         new List<InventoryItemButtonUI>();
@@ -100,6 +129,7 @@ public class InventoryPanelUI : MonoBehaviour
 
         AutoFindMissingReferences();
         BindActionButtons();
+        BindCategoryTabButtons();
 
         CacheTemplateTransform();
     }
@@ -135,6 +165,7 @@ public class InventoryPanelUI : MonoBehaviour
 
         hasStarted = true;
         AutoFindMissingReferences();
+        BindCategoryTabButtons();
 
         if (ShouldStartClosed())
         {
@@ -193,6 +224,7 @@ public class InventoryPanelUI : MonoBehaviour
     public void Open()
     {
         AutoFindMissingReferences();
+        BindCategoryTabButtons();
 
         if (panelRoot != null)
         {
@@ -321,7 +353,8 @@ public class InventoryPanelUI : MonoBehaviour
 
         if (previousStack != null &&
             previousStack.item == previousItem &&
-            previousStack.amount > 0)
+            previousStack.amount > 0 &&
+            MatchesCurrentFilter(previousItem))
         {
             return previousIndex;
         }
@@ -331,7 +364,8 @@ public class InventoryPanelUI : MonoBehaviour
             ItemStack stack = inventory.items[i];
             if (stack != null &&
                 stack.item == previousItem &&
-                stack.amount > 0)
+                stack.amount > 0 &&
+                MatchesCurrentFilter(stack.item))
             {
                 return i;
             }
@@ -359,6 +393,8 @@ public class InventoryPanelUI : MonoBehaviour
         }
 
         selectedItem = stack.item;
+        bool usesRightPanelLayout =
+            UsesRightPanelLayout();
 
         if (detailPanel != null)
         {
@@ -385,7 +421,10 @@ public class InventoryPanelUI : MonoBehaviour
         if (detailTypeText != null)
         {
             detailTypeText.text =
-                ItemText.Format(
+                usesRightPanelLayout &&
+                IsDescendantOf(detailTypeText.transform, rightPanelTransform)
+                ? ItemText.Type(stack.item.itemType)
+                : ItemText.Format(
                     "detail",
                     "typeFormat",
                     ItemText.Type(stack.item.itemType));
@@ -394,10 +433,17 @@ public class InventoryPanelUI : MonoBehaviour
         if (detailGradeText != null)
         {
             detailGradeText.text =
-                ItemText.Format(
+                usesRightPanelLayout &&
+                IsDescendantOf(detailGradeText.transform, rightPanelTransform)
+                ? ItemText.Grade(stack.item.grade)
+                : ItemText.Format(
                     "detail",
                     "gradeFormat",
                     ItemText.Grade(stack.item.grade));
+            ShopPanelUI.ApplyGradeTextStyle(
+                detailGradeText,
+                stack.item.grade,
+                1f);
         }
 
         if (detailTargetsText != null)
@@ -428,6 +474,10 @@ public class InventoryPanelUI : MonoBehaviour
             detailStatsText.text =
                 BuildStatsText(stack);
         }
+
+        ApplyPreviewIcon(stack.item);
+        ApplyPreviewGradeFrame(stack.item);
+        ApplyAttributeValues(stack.item);
 
         if (useButton != null)
         {
@@ -1008,7 +1058,8 @@ public class InventoryPanelUI : MonoBehaviour
 
             if (stack == null ||
                 stack.item == null ||
-                stack.amount <= 0)
+                stack.amount <= 0 ||
+                !MatchesCurrentFilter(stack.item))
             {
                 continue;
             }
@@ -1026,6 +1077,45 @@ public class InventoryPanelUI : MonoBehaviour
             button.Setup(this, i, stack);
             spawnedButtons.Add(button);
         }
+    }
+
+    bool MatchesCurrentFilter(
+        StatItemData item)
+    {
+        if (item == null)
+        {
+            return false;
+        }
+
+        switch (currentCategoryFilter)
+        {
+            case InventoryCategoryFilter.TrangBi:
+                return IsEquipmentItem(item);
+            case InventoryCategoryFilter.DanDuoc:
+                return item.itemType == ItemType.DanDuoc;
+            case InventoryCategoryFilter.PhapBao:
+                return item.itemType == ItemType.PhapBao;
+            case InventoryCategoryFilter.CongPhap:
+                return item.itemType == ItemType.CongPhap;
+            case InventoryCategoryFilter.VatLieu:
+                return item.itemType == ItemType.VatLieu;
+            default:
+                return true;
+        }
+    }
+
+    bool IsEquipmentItem(
+        StatItemData item)
+    {
+        if (item == null)
+        {
+            return false;
+        }
+
+        return item.GetResolvedUseStyle() ==
+                ItemUseStyle.DurableEquipment ||
+            item.GetResolvedEquipmentSlot() !=
+                EquipmentSlot.None;
     }
 
     void ConfigureItemGrid()
@@ -1062,20 +1152,59 @@ public class InventoryPanelUI : MonoBehaviour
                 itemGridParent.gameObject.AddComponent<GridLayoutGroup>();
         }
 
-        grid.cellSize = itemCellSize;
-        grid.spacing = itemSpacing;
-        grid.padding =
-            new RectOffset(
-                Mathf.RoundToInt(itemGridPadding.x),
-                Mathf.RoundToInt(itemGridPadding.x),
-                Mathf.RoundToInt(itemGridPadding.y),
-                Mathf.RoundToInt(itemGridPadding.y));
+        if (HasConfiguredCellSize(grid))
+        {
+            itemCellSize = grid.cellSize;
+        }
+        else
+        {
+            grid.cellSize = itemCellSize;
+        }
+
+        if (HasConfiguredSpacing(grid))
+        {
+            itemSpacing = grid.spacing;
+        }
+        else
+        {
+            grid.spacing = itemSpacing;
+        }
+
+        if (HasConfiguredPadding(grid))
+        {
+            itemGridPadding =
+                new Vector2(
+                    grid.padding.left,
+                    grid.padding.top);
+        }
+        else
+        {
+            grid.padding =
+                new RectOffset(
+                    Mathf.RoundToInt(itemGridPadding.x),
+                    Mathf.RoundToInt(itemGridPadding.x),
+                    Mathf.RoundToInt(itemGridPadding.y),
+                    Mathf.RoundToInt(itemGridPadding.y));
+        }
+
         grid.startCorner = GridLayoutGroup.Corner.UpperLeft;
         grid.startAxis = GridLayoutGroup.Axis.Horizontal;
         grid.childAlignment = TextAnchor.UpperLeft;
-        grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        grid.constraintCount =
-            Mathf.Max(1, itemColumns);
+
+        if (grid.constraint !=
+                GridLayoutGroup.Constraint.Flexible &&
+            grid.constraintCount > 0)
+        {
+            itemColumns =
+                Mathf.Max(1, grid.constraintCount);
+        }
+        else
+        {
+            grid.constraint =
+                GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount =
+                Mathf.Max(1, itemColumns);
+        }
 
         ContentSizeFitter fitter =
             itemGridParent.GetComponent<ContentSizeFitter>();
@@ -1114,20 +1243,64 @@ public class InventoryPanelUI : MonoBehaviour
             return;
         }
 
+        Vector2 effectiveCellSize =
+            GetEffectiveItemCellSize();
+
         rect.localScale = Vector3.one;
         rect.localRotation = Quaternion.identity;
         rect.anchorMin = new Vector2(0f, 1f);
         rect.anchorMax = new Vector2(0f, 1f);
         rect.pivot = new Vector2(0.5f, 0.5f);
         rect.anchoredPosition3D = Vector3.zero;
-        rect.sizeDelta = itemCellSize;
+        rect.sizeDelta = effectiveCellSize;
         rect.SetSizeWithCurrentAnchors(
             RectTransform.Axis.Horizontal,
-            itemCellSize.x);
+            effectiveCellSize.x);
 
         rect.SetSizeWithCurrentAnchors(
             RectTransform.Axis.Vertical,
-            itemCellSize.y);
+            effectiveCellSize.y);
+    }
+
+    Vector2 GetEffectiveItemCellSize()
+    {
+        if (itemGridParent != null)
+        {
+            GridLayoutGroup grid =
+                itemGridParent.GetComponent<GridLayoutGroup>();
+
+            if (HasConfiguredCellSize(grid))
+            {
+                return grid.cellSize;
+            }
+        }
+
+        return itemCellSize;
+    }
+
+    static bool HasConfiguredCellSize(
+        GridLayoutGroup grid)
+    {
+        return grid != null &&
+            grid.cellSize.x > 0f &&
+            grid.cellSize.y > 0f;
+    }
+
+    static bool HasConfiguredSpacing(
+        GridLayoutGroup grid)
+    {
+        return grid != null &&
+            grid.spacing != Vector2.zero;
+    }
+
+    static bool HasConfiguredPadding(
+        GridLayoutGroup grid)
+    {
+        return grid != null &&
+            (grid.padding.left != 0 ||
+                grid.padding.right != 0 ||
+                grid.padding.top != 0 ||
+                grid.padding.bottom != 0);
     }
 
     void CacheTemplateTransform()
@@ -1202,6 +1375,26 @@ public class InventoryPanelUI : MonoBehaviour
         SetText(detailPriceText, "");
         SetText(detailDescriptionText, "");
         SetText(detailStatsText, "");
+        ClearPreviewIcon(previewItemIcon);
+        ClearPreviewIcon(previewBigIcon);
+        SetImageVisible(
+            previewMagicCircle,
+            false);
+        SetImageVisible(
+            previewGradeFrameImage,
+            false);
+        SetAttributeValue(
+            attackValueText,
+            null);
+        SetAttributeValue(
+            defenseValueText,
+            null);
+        SetAttributeValue(
+            hpValueText,
+            null);
+        SetAttributeValue(
+            speedValueText,
+            null);
 
         if (useButton != null)
         {
@@ -1351,6 +1544,47 @@ public class InventoryPanelUI : MonoBehaviour
             }
         }
 
+        BindRightPanelReferences(
+            panelRoot != null
+                ? panelRoot.transform
+                : transform);
+
+        if (tabAllButton == null)
+        {
+            tabAllButton =
+                FindButtonByName(transform, "Tab_All");
+        }
+
+        if (tabTrangBiButton == null)
+        {
+            tabTrangBiButton =
+                FindButtonByName(transform, "Tab_TrangBi");
+        }
+
+        if (tabDanDuocButton == null)
+        {
+            tabDanDuocButton =
+                FindButtonByName(transform, "Tab_DanDuoc");
+        }
+
+        if (tabPhapBaoButton == null)
+        {
+            tabPhapBaoButton =
+                FindButtonByName(transform, "Tab_PhapBao");
+        }
+
+        if (tabCongPhapButton == null)
+        {
+            tabCongPhapButton =
+                FindButtonByName(transform, "Tab_CongPhap");
+        }
+
+        if (tabVatLieuButton == null)
+        {
+            tabVatLieuButton =
+                FindButtonByName(transform, "Tab_VatLieu");
+        }
+
         if (giveToSelectedNpcButton == null)
         {
             giveToSelectedNpcButton =
@@ -1427,6 +1661,88 @@ public class InventoryPanelUI : MonoBehaviour
         }
     }
 
+    void BindCategoryTabButtons()
+    {
+        BindCategoryButton(
+            tabAllButton,
+            ShowAllItems);
+        BindCategoryButton(
+            tabTrangBiButton,
+            ShowTrangBiItems);
+        BindCategoryButton(
+            tabDanDuocButton,
+            ShowDanDuocItems);
+        BindCategoryButton(
+            tabPhapBaoButton,
+            ShowPhapBaoItems);
+        BindCategoryButton(
+            tabCongPhapButton,
+            ShowCongPhapItems);
+        BindCategoryButton(
+            tabVatLieuButton,
+            ShowVatLieuItems);
+    }
+
+    void BindCategoryButton(
+        Button button,
+        UnityEngine.Events.UnityAction action)
+    {
+        if (button == null ||
+            action == null)
+        {
+            return;
+        }
+
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(action);
+    }
+
+    public void ShowAllItems()
+    {
+        SetCategoryFilter(
+            InventoryCategoryFilter.All);
+    }
+
+    public void ShowTrangBiItems()
+    {
+        SetCategoryFilter(
+            InventoryCategoryFilter.TrangBi);
+    }
+
+    public void ShowDanDuocItems()
+    {
+        SetCategoryFilter(
+            InventoryCategoryFilter.DanDuoc);
+    }
+
+    public void ShowPhapBaoItems()
+    {
+        SetCategoryFilter(
+            InventoryCategoryFilter.PhapBao);
+    }
+
+    public void ShowCongPhapItems()
+    {
+        SetCategoryFilter(
+            InventoryCategoryFilter.CongPhap);
+    }
+
+    public void ShowVatLieuItems()
+    {
+        SetCategoryFilter(
+            InventoryCategoryFilter.VatLieu);
+    }
+
+    void SetCategoryFilter(
+        InventoryCategoryFilter filter)
+    {
+        currentCategoryFilter = filter;
+        selectedItemIndex = -1;
+        selectedItem = null;
+        ClearDetail();
+        RebuildItemGrid();
+    }
+
     void ResolveItemButtonTemplate()
     {
         if (itemGridParent == null ||
@@ -1489,6 +1805,11 @@ public class InventoryPanelUI : MonoBehaviour
         Transform parent,
         string childName)
     {
+        if (parent == null)
+        {
+            return null;
+        }
+
         foreach (Transform child in parent)
         {
             if (child.name == childName)
@@ -1512,6 +1833,11 @@ public class InventoryPanelUI : MonoBehaviour
         Transform parent,
         string childName)
     {
+        if (parent == null)
+        {
+            return null;
+        }
+
         Transform child =
             FindChildByName(parent, childName);
 
@@ -1686,6 +2012,593 @@ public class InventoryPanelUI : MonoBehaviour
                 "stats",
                 "npcIntent",
                 ItemText.NpcIntent(item.npcIntent)));
+    }
+
+    void BindRightPanelReferences(
+        Transform searchRoot)
+    {
+        rightPanelTransform =
+            FindRightPanelTransform(searchRoot);
+
+        if (rightPanelTransform == null)
+        {
+            previewPanelTransform = null;
+            previewBackgroundImage = null;
+            previewGradeFrameImage = null;
+            previewItemIcon = null;
+            previewBigIcon = null;
+            previewMagicCircle = null;
+            attackValueText = null;
+            defenseValueText = null;
+            hpValueText = null;
+            speedValueText = null;
+            return;
+        }
+
+        Transform infoPanel =
+            FindDirectOrNestedChild(
+                rightPanelTransform,
+                "InfoPanel");
+        previewPanelTransform =
+            FindDirectOrNestedChild(
+                rightPanelTransform,
+                "PreviewPanel");
+        previewBackgroundImage =
+            FindImageByName(
+                previewPanelTransform,
+                "PreviewBG");
+
+        if (detailPanel == null ||
+            !IsDescendantOf(
+                detailPanel.transform,
+                rightPanelTransform))
+        {
+            detailPanel =
+                infoPanel != null
+                    ? infoPanel.gameObject
+                    : detailPanel;
+        }
+
+        previewItemIcon =
+            FindImageByName(
+                previewPanelTransform,
+                "ItemIcon");
+        previewBigIcon =
+            FindImageByName(
+                previewPanelTransform,
+                "ItemBigIcon");
+        previewMagicCircle =
+            FindImageByName(
+                previewPanelTransform,
+                "MagicCircle");
+        previewGradeFrameImage =
+            EnsurePreviewGradeFrameImage();
+
+        if (detailIcon == null ||
+            !IsDescendantOf(
+                detailIcon.transform,
+                rightPanelTransform))
+        {
+            detailIcon =
+                previewItemIcon != null
+                    ? previewItemIcon
+                    : previewBigIcon;
+        }
+
+        if (detailAmountText != null &&
+            !IsDescendantOf(
+                detailAmountText.transform,
+                rightPanelTransform))
+        {
+            detailAmountText = null;
+        }
+
+        if (detailTargetsText != null &&
+            !IsDescendantOf(
+                detailTargetsText.transform,
+                rightPanelTransform))
+        {
+            detailTargetsText = null;
+        }
+
+        if (detailPriceText != null &&
+            !IsDescendantOf(
+                detailPriceText.transform,
+                rightPanelTransform))
+        {
+            detailPriceText = null;
+        }
+
+        if (detailStatsText != null &&
+            !IsDescendantOf(
+                detailStatsText.transform,
+                rightPanelTransform))
+        {
+            detailStatsText = null;
+        }
+
+        if (detailNameText == null ||
+            !IsDescendantOf(
+                detailNameText.transform,
+                rightPanelTransform))
+        {
+            detailNameText =
+                FindTextByName(
+                    infoPanel,
+                    "ItemNameText");
+        }
+
+        Transform qualityBadge =
+            FindDirectOrNestedChild(
+                infoPanel,
+                "QualityBadge");
+
+        if (detailTypeText == null ||
+            !IsDescendantOf(
+                detailTypeText.transform,
+                rightPanelTransform))
+        {
+            detailTypeText =
+                FindRightPanelTypeText(
+                    qualityBadge);
+        }
+
+        if (detailGradeText == null ||
+            !IsDescendantOf(
+                detailGradeText.transform,
+                rightPanelTransform))
+        {
+            detailGradeText =
+                FindTextByName(
+                    qualityBadge,
+                    "QualityText");
+        }
+
+        if (detailDescriptionText == null ||
+            !IsDescendantOf(
+                detailDescriptionText.transform,
+                rightPanelTransform))
+        {
+            detailDescriptionText =
+                FindRightPanelDescriptionText(
+                    infoPanel);
+        }
+
+        attackValueText =
+            FindAttributeValueText(
+                infoPanel,
+                "Attr_Attack");
+        defenseValueText =
+            FindAttributeValueText(
+                infoPanel,
+                "Attr_Defense");
+        hpValueText =
+            FindAttributeValueText(
+                infoPanel,
+                "Attr_HP");
+        speedValueText =
+            FindAttributeValueText(
+                infoPanel,
+                "Attr_Speed");
+    }
+
+    Transform FindRightPanelTransform(
+        Transform searchRoot)
+    {
+        if (searchRoot == null)
+        {
+            return null;
+        }
+
+        Transform rightPanel =
+            searchRoot.Find("ContentRoot/RightPanel");
+
+        if (rightPanel != null)
+        {
+            return rightPanel;
+        }
+
+        return FindChildByName(
+            searchRoot,
+            "RightPanel");
+    }
+
+    Transform FindDirectOrNestedChild(
+        Transform parent,
+        string childName)
+    {
+        if (parent == null)
+        {
+            return null;
+        }
+
+        Transform child =
+            parent.Find(childName);
+
+        if (child != null)
+        {
+            return child;
+        }
+
+        return FindChildByName(
+            parent,
+            childName);
+    }
+
+    Image FindImageByName(
+        Transform parent,
+        string childName)
+    {
+        Transform child =
+            FindDirectOrNestedChild(
+                parent,
+                childName);
+
+        if (child == null)
+        {
+            return null;
+        }
+
+        return child.GetComponent<Image>();
+    }
+
+    TMP_Text FindAttributeValueText(
+        Transform parent,
+        string rowName)
+    {
+        Transform row =
+            FindDirectOrNestedChild(
+                parent,
+                rowName);
+
+        return FindTextByName(
+            row,
+            "ValueText");
+    }
+
+    TMP_Text FindRightPanelTypeText(
+        Transform qualityBadge)
+    {
+        if (qualityBadge == null)
+        {
+            return null;
+        }
+
+        TMP_Text fallback = null;
+        float bestY = float.MinValue;
+        TMP_Text[] texts =
+            qualityBadge.GetComponentsInChildren<TMP_Text>(true);
+
+        foreach (TMP_Text text in texts)
+        {
+            if (text == null ||
+                text.name != "TypeText")
+            {
+                continue;
+            }
+
+            if (fallback == null)
+            {
+                fallback = text;
+                bestY =
+                    text.rectTransform.anchoredPosition.y;
+            }
+
+            string currentText =
+                text.text != null
+                    ? text.text.ToLowerInvariant()
+                    : "";
+
+            if (!currentText.Contains("thu") &&
+                !currentText.Contains("tinh"))
+            {
+                float currentY =
+                    text.rectTransform.anchoredPosition.y;
+
+                if (currentY > bestY)
+                {
+                    fallback = text;
+                    bestY = currentY;
+                }
+            }
+        }
+
+        return fallback;
+    }
+
+    TMP_Text FindRightPanelDescriptionText(
+        Transform infoPanel)
+    {
+        if (infoPanel == null)
+        {
+            return null;
+        }
+
+        TMP_Text[] texts =
+            infoPanel.GetComponentsInChildren<TMP_Text>(true);
+        TMP_Text bestMatch = null;
+        float bestScore = float.MinValue;
+
+        foreach (TMP_Text text in texts)
+        {
+            if (text == null ||
+                text == detailNameText ||
+                text == detailTypeText ||
+                text == detailGradeText ||
+                text == attackValueText ||
+                text == defenseValueText ||
+                text == hpValueText ||
+                text == speedValueText)
+            {
+                continue;
+            }
+
+            string currentText =
+                text.text != null
+                    ? text.text.Trim().ToLowerInvariant()
+                    : "";
+
+            if (currentText == "lo\u1EA1i" ||
+                currentText == "ph\u1EA9m ch\u1EA5t" ||
+                currentText == "th\u00F4ng tin" ||
+                currentText == "thu\u1ED9c t\u00EDnh" ||
+                currentText == "t\u1EA5n c\u00F4ng" ||
+                currentText == "defense" ||
+                currentText == "hp" ||
+                currentText == "speed")
+            {
+                continue;
+            }
+
+            RectTransform rect =
+                text.rectTransform;
+            float score =
+                rect.rect.width * rect.rect.height;
+
+            if (text.name.Contains("Description"))
+            {
+                score += 100000f;
+            }
+
+            if (currentText.Length > 20)
+            {
+                score += currentText.Length * 10f;
+            }
+
+            if (bestMatch == null ||
+                score > bestScore)
+            {
+                bestMatch = text;
+                bestScore = score;
+            }
+        }
+
+        return bestMatch;
+    }
+
+    bool UsesRightPanelLayout()
+    {
+        return rightPanelTransform != null &&
+            (previewPanelTransform != null ||
+                attackValueText != null ||
+                IsDescendantOf(
+                    detailNameText != null
+                        ? detailNameText.transform
+                        : null,
+                    rightPanelTransform));
+    }
+
+    bool IsDescendantOf(
+        Transform child,
+        Transform ancestor)
+    {
+        if (child == null ||
+            ancestor == null)
+        {
+            return false;
+        }
+
+        Transform current = child;
+
+        while (current != null)
+        {
+            if (current == ancestor)
+            {
+                return true;
+            }
+
+            current = current.parent;
+        }
+
+        return false;
+    }
+
+    void ApplyPreviewIcon(
+        StatItemData item)
+    {
+        Sprite icon =
+            item != null
+                ? item.icon
+                : null;
+        bool hasIcon = icon != null;
+
+        SetImageSprite(
+            previewItemIcon,
+            icon);
+        SetImageSprite(
+            previewBigIcon,
+            icon);
+        SetImageVisible(
+            previewMagicCircle,
+            hasIcon &&
+                previewMagicCircle != null &&
+                previewMagicCircle.sprite != null);
+    }
+
+    void ApplyPreviewGradeFrame(
+        StatItemData item)
+    {
+        if (previewGradeFrameImage == null)
+        {
+            return;
+        }
+
+        Sprite frame =
+            item != null
+                ? ItemGradeFrameLibrary.GetFrame(item.grade)
+                : null;
+        previewGradeFrameImage.sprite = frame;
+        SetImageVisible(
+            previewGradeFrameImage,
+            frame != null);
+        previewGradeFrameImage.color = Color.white;
+        previewGradeFrameImage.raycastTarget = false;
+        previewGradeFrameImage.preserveAspect = false;
+    }
+
+    void ClearPreviewIcon(
+        Image image)
+    {
+        if (image == null)
+        {
+            return;
+        }
+
+        image.sprite = null;
+        SetImageVisible(
+            image,
+            false);
+    }
+
+    void SetImageSprite(
+        Image image,
+        Sprite sprite)
+    {
+        if (image == null)
+        {
+            return;
+        }
+
+        image.sprite = sprite;
+        SetImageVisible(
+            image,
+            sprite != null);
+    }
+
+    void SetImageVisible(
+        Image image,
+        bool visible)
+    {
+        if (image == null)
+        {
+            return;
+        }
+
+        image.enabled = visible;
+        image.gameObject.SetActive(visible);
+    }
+
+    Image EnsurePreviewGradeFrameImage()
+    {
+        if (previewPanelTransform == null)
+        {
+            return null;
+        }
+
+        Image existing =
+            FindImageByName(
+                previewPanelTransform,
+                "PreviewGradeFrame");
+
+        if (existing != null)
+        {
+            return existing;
+        }
+
+        if (previewBackgroundImage == null)
+        {
+            return null;
+        }
+
+        GameObject frameObject =
+            new GameObject(
+                "PreviewGradeFrame",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image));
+        frameObject.transform.SetParent(
+            previewPanelTransform,
+            false);
+
+        RectTransform sourceRect =
+            previewBackgroundImage.rectTransform;
+        RectTransform frameRect =
+            frameObject.GetComponent<RectTransform>();
+        frameRect.anchorMin = sourceRect.anchorMin;
+        frameRect.anchorMax = sourceRect.anchorMax;
+        frameRect.pivot = sourceRect.pivot;
+        frameRect.anchoredPosition = sourceRect.anchoredPosition;
+        frameRect.sizeDelta = sourceRect.sizeDelta;
+        frameRect.localScale = Vector3.one;
+        frameRect.localRotation = Quaternion.identity;
+        frameObject.transform.SetSiblingIndex(
+            previewBackgroundImage.transform.GetSiblingIndex() + 1);
+
+        Image frameImage =
+            frameObject.GetComponent<Image>();
+        frameImage.enabled = false;
+        frameImage.raycastTarget = false;
+        frameImage.preserveAspect = false;
+        frameImage.color = Color.white;
+        return frameImage;
+    }
+
+    void ApplyAttributeValues(
+        StatItemData item)
+    {
+        SetAttributeValue(
+            attackValueText,
+            item != null
+                ? item.damageBonus
+                : (int?)null);
+        SetAttributeValue(
+            defenseValueText,
+            item != null
+                ? item.armorBonus
+                : (int?)null);
+        SetAttributeValue(
+            hpValueText,
+            item != null
+                ? item.hpBonus
+                : (int?)null);
+        SetAttributeValue(
+            speedValueText,
+            null);
+    }
+
+    void SetAttributeValue(
+        TMP_Text text,
+        int? value)
+    {
+        if (text == null)
+        {
+            return;
+        }
+
+        text.text =
+            value.HasValue
+                ? FormatSignedValue(value.Value)
+                : "-";
+    }
+
+    string FormatSignedValue(int value)
+    {
+        if (value > 0)
+        {
+            return "+" + value;
+        }
+
+        return value.ToString();
     }
 
     void BindInventoryEvents()

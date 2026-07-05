@@ -10,6 +10,7 @@ public class InventoryItemButtonUI :
 {
     public Button button;
     public Image backgroundImage;
+    public Image qualityBorderImage;
     public Image iconImage;
     public TMP_Text amountText;
     public TMP_Text nameText;
@@ -92,13 +93,16 @@ public class InventoryItemButtonUI :
             iconImage.raycastTarget = false;
         }
 
+        ApplyGradeFrame(
+            stack.item.grade);
+
         if (amountText != null)
         {
             amountText.gameObject.SetActive(true);
             amountText.text =
                 stack.amount > 99
                 ? "99+"
-                : "x" + stack.amount;
+                : stack.amount.ToString();
 
             amountText.alignment =
                 TextAlignmentOptions.TopRight;
@@ -153,6 +157,10 @@ public class InventoryItemButtonUI :
             iconImage.gameObject.SetActive(false);
             iconImage.raycastTarget = false;
         }
+
+        ApplyGradeFrame(
+            ItemGrade.Ha,
+            false);
 
         if (amountText != null)
         {
@@ -215,6 +223,14 @@ public class InventoryItemButtonUI :
             backgroundImage = GetComponent<Image>();
         }
 
+        if (qualityBorderImage == null)
+        {
+            qualityBorderImage =
+                FindImage("QualityBorder") ??
+                FindImage("gradeborder") ??
+                FindImage("GradeBorder");
+        }
+
         if (iconImage == null)
         {
             Transform icon =
@@ -245,6 +261,31 @@ public class InventoryItemButtonUI :
         {
             priceText = FindText("PriceText");
         }
+    }
+
+    Image FindImage(string childName)
+    {
+        Transform child =
+            transform.Find(childName);
+
+        if (child != null)
+        {
+            return child.GetComponent<Image>();
+        }
+
+        Image[] images =
+            GetComponentsInChildren<Image>(true);
+
+        foreach (Image image in images)
+        {
+            if (image != null &&
+                image.name == childName)
+            {
+                return image;
+            }
+        }
+
+        return null;
     }
 
     TMP_Text FindText(string childName)
@@ -359,15 +400,20 @@ public class InventoryItemButtonUI :
             return;
         }
 
+        if (!autoScaleIcon)
+        {
+            rect.localScale = Vector3.one;
+            rect.localRotation = Quaternion.identity;
+            return;
+        }
+
         rect.anchorMin = new Vector2(0.5f, 1f);
         rect.anchorMax = new Vector2(0.5f, 1f);
         rect.pivot = iconPivot;
         rect.anchoredPosition = iconOffset;
 
         Vector2 resolvedIconSize =
-            autoScaleIcon
-            ? Vector2.one * GetIconSize(itemRect)
-            : iconSize;
+            Vector2.one * GetIconSize(itemRect);
 
         rect.sizeDelta = resolvedIconSize;
 
@@ -393,6 +439,13 @@ public class InventoryItemButtonUI :
             return;
         }
 
+        if (!autoScaleNameFont)
+        {
+            rect.localScale = Vector3.one;
+            rect.localRotation = Quaternion.identity;
+            return;
+        }
+
         rect.anchorMin = new Vector2(0f, 0f);
         rect.anchorMax = new Vector2(1f, 0f);
         rect.pivot = new Vector2(0.5f, 0f);
@@ -401,18 +454,14 @@ public class InventoryItemButtonUI :
         rect.sizeDelta =
             new Vector2(
                 -GetPadding(itemRect) * 2f,
-                autoScaleNameFont
-                ? GetNameHeight(itemRect)
-                : nameHeight);
+                GetNameHeight(itemRect));
 
         rect.localScale = Vector3.one;
         rect.localRotation = Quaternion.identity;
         nameText.alignment = TextAlignmentOptions.Bottom;
         nameText.textWrappingMode = TMPro.TextWrappingModes.Normal;
         nameText.fontSize =
-            autoScaleNameFont
-            ? GetNameFontSize(itemRect)
-            : nameFontSize;
+            GetNameFontSize(itemRect);
     }
 
     void ConfigureAmountLayout()
@@ -433,25 +482,28 @@ public class InventoryItemButtonUI :
             return;
         }
 
+        if (!autoScaleAmountFont)
+        {
+            rect.localScale = Vector3.one;
+            rect.localRotation = Quaternion.identity;
+            return;
+        }
+
         rect.anchorMin = new Vector2(1f, 1f);
         rect.anchorMax = new Vector2(1f, 1f);
         rect.pivot = new Vector2(1f, 1f);
         rect.anchoredPosition = amountOffset;
 
         rect.sizeDelta =
-            autoScaleAmountFont
-            ? new Vector2(
+            new Vector2(
                 GetAmountWidth(itemRect),
-                GetAmountHeight(itemRect))
-            : amountSize;
+                GetAmountHeight(itemRect));
 
         rect.localScale = Vector3.one;
         rect.localRotation = Quaternion.identity;
         amountText.alignment = TextAlignmentOptions.TopRight;
         amountText.fontSize =
-            autoScaleAmountFont
-            ? GetAmountFontSize(itemRect)
-            : amountFontSize;
+            GetAmountFontSize(itemRect);
     }
 
     float GetPadding(RectTransform itemRect)
@@ -560,6 +612,26 @@ public class InventoryItemButtonUI :
 
             graphic.raycastTarget = false;
         }
+    }
+
+    void ApplyGradeFrame(
+        ItemGrade grade,
+        bool visible = true)
+    {
+        if (qualityBorderImage == null)
+        {
+            return;
+        }
+
+        Sprite frame =
+            visible
+                ? ItemGradeFrameLibrary.GetFrame(grade)
+                : null;
+        qualityBorderImage.sprite = frame;
+        qualityBorderImage.enabled =
+            visible && frame != null;
+        qualityBorderImage.raycastTarget = false;
+        qualityBorderImage.preserveAspect = false;
     }
 
 #if UNITY_EDITOR

@@ -96,6 +96,26 @@ public class NpcResourceGatherer : MonoBehaviour
 
         RefreshScheduleSession();
 
+        if (ShouldCancelSmartNpcGatheringForSchedule())
+        {
+            ClearActiveGathering();
+            nextGatherAllowedTime =
+                Mathf.Max(
+                    nextGatherAllowedTime,
+                    Time.time + Mathf.Max(0f, harvestCooldownWhenNoTarget));
+            return;
+        }
+
+        if (ShouldCancelSmartNpcGatheringForCombat())
+        {
+            ClearActiveGathering();
+            nextGatherAllowedTime =
+                Mathf.Max(
+                    nextGatherAllowedTime,
+                    Time.time + Mathf.Max(0f, harvestCooldownWhenNoTarget));
+            return;
+        }
+
         if (ShouldBlockScheduledWorkGathering())
         {
             CancelScheduledWorkGathering();
@@ -267,6 +287,42 @@ public class NpcResourceGatherer : MonoBehaviour
     public bool TryStartGatheringNow()
     {
         return TryStartGatheringNowInternal(false);
+    }
+
+    public bool TryHandleSmartNpcBlockedArrival(float extraDistance = 0.2f)
+    {
+        if (!canGather ||
+            collector == null ||
+            !collector.canPickupItems)
+        {
+            return false;
+        }
+
+        if (harvestingPickup != null)
+        {
+            StopNpcMovement();
+            SetGatherAction();
+            return true;
+        }
+
+        if (targetPickup == null ||
+            !IsPickupAvailable(targetPickup))
+        {
+            return false;
+        }
+
+        float allowedDistance =
+            Mathf.Max(0.01f, GetApproachDistance()) +
+            Mathf.Max(0f, extraDistance);
+        if (Vector2.Distance(
+                transform.position,
+                targetPickup.transform.position) > allowedDistance)
+        {
+            return false;
+        }
+
+        StartHarvest();
+        return harvestingPickup != null;
     }
 
     bool TryStartGatheringNowInternal(bool allowScheduledWorkHarvest)
@@ -1010,6 +1066,84 @@ public class NpcResourceGatherer : MonoBehaviour
     void CancelScheduledWorkGathering()
     {
         ClearActiveGathering();
+    }
+
+    bool ShouldCancelSmartNpcGatheringForSchedule()
+    {
+        if (smartNpc == null ||
+            !smartNpc.enabled ||
+            (targetPickup == null && harvestingPickup == null))
+        {
+            return false;
+        }
+
+        NpcScheduleController schedule =
+            NpcScheduleController.GetSchedule(gameObject);
+        if (schedule == null ||
+            !schedule.enforceSchedule)
+        {
+            return false;
+        }
+
+        switch (schedule.CurrentActivity)
+        {
+            case NpcScheduleActivity.Gather:
+            case NpcScheduleActivity.Hunt:
+            case NpcScheduleActivity.FreeHuntAndGather:
+            case NpcScheduleActivity.TakeTask:
+            case NpcScheduleActivity.DoMission:
+                return false;
+
+            default:
+                return true;
+        }
+    }
+
+    bool ShouldCancelSmartNpcGatheringForCombat()
+    {
+        if (smartNpc == null ||
+            !smartNpc.enabled ||
+            (targetPickup == null && harvestingPickup == null))
+        {
+            return false;
+        }
+
+        SmartAITask task = smartNpc.CurrentSmartTask;
+        if (task != null &&
+            task.IsValid &&
+            (task.goal == SmartAITaskGoal.Combat ||
+            task.goal == SmartAITaskGoal.Pursued ||
+            task.goal == SmartAITaskGoal.SupportAlly))
+        {
+            return true;
+        }
+
+        return IsSmartNpcCombatAction(smartNpc.currentAction);
+    }
+
+    bool IsSmartNpcCombatAction(string action)
+    {
+        if (string.IsNullOrWhiteSpace(action))
+        {
+            return false;
+        }
+
+        return action == NpcText.Action("goHunt") ||
+            action == NpcText.Action("fleeMonsterArea") ||
+            action == NpcText.Action("fightBlockingMonster") ||
+            action == NpcText.Action("guardSpiritHerbMonster") ||
+            action == NpcText.Action("clearHarvestMonster") ||
+            ActionStartsWith(action, NpcText.Action("huntMonsterNamed")) ||
+            ActionStartsWith(action, NpcText.Action("attackMonsterNamed"));
+    }
+
+    static bool ActionStartsWith(string action, string prefix)
+    {
+        return !string.IsNullOrWhiteSpace(action) &&
+            !string.IsNullOrWhiteSpace(prefix) &&
+            action.StartsWith(
+                prefix,
+                System.StringComparison.OrdinalIgnoreCase);
     }
 
     void ClearPickupReservation(WorldStatItemPickup pickup)

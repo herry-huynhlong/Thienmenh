@@ -66,6 +66,10 @@ public partial class MonsterAI : MonoBehaviour, IDamageable
     public float waitTime = 2f;
     public bool autoConfigureRigidbody = true;
     public bool fallbackTransformMove = true;
+    [Min(0.2f)] public float unstuckCheckDelay = 1.1f;
+    [Min(0.01f)] public float unstuckMinMoveDistance = 0.03f;
+    [Min(0.5f)] public float unstuckRepathRadius = 1.5f;
+    [Min(1)] public int maxPatrolRecoveriesBeforeReset = 2;
 
     [Header("===== CAMERA DISTANCE THROTTLE =====")]
     public bool useCameraDistanceThrottle = true;
@@ -151,6 +155,9 @@ public partial class MonsterAI : MonoBehaviour, IDamageable
     StatItemData treasureHuntItem;
     bool waitingOutsideTreasureLightning;
     Vector3 treasureWaitPosition;
+    Vector2 lastUnstuckPosition;
+    float stuckMoveTimer;
+    int patrolRecoveryAttempts;
 
     float naturalCultivationRemainder;
 
@@ -285,6 +292,7 @@ public partial class MonsterAI : MonoBehaviour, IDamageable
         }
 
         startPosition = transform.position;
+        lastUnstuckPosition = transform.position;
         waitTimer = waitTime;
         nextThinkTime = Time.time + Random.Range(0f, GetThinkDelay());
         nextDetectTime = Time.time + Random.Range(0f, GetDetectDelay());
@@ -431,6 +439,7 @@ public partial class MonsterAI : MonoBehaviour, IDamageable
         }
 
         NpcPerformanceOverlay.RecordMonsterFixedUpdate();
+        UpdateMovementRecovery();
 
         rb.linearVelocity = desiredVelocity;
         currentMoveVelocity = rb.linearVelocity;
