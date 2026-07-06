@@ -69,6 +69,26 @@ public partial class VillagerAI
         if (job == VillagerJob.Farmer ||
             job == VillagerJob.Fisher)
         {
+            if (job == VillagerJob.Farmer)
+            {
+                VillagerFarmJob farmJob =
+                    GetComponent<VillagerFarmJob>();
+                if (farmJob == null)
+                {
+                    farmJob = gameObject.AddComponent<VillagerFarmJob>();
+                }
+
+                if (farmJob.TryRun())
+                {
+                    LogWorkDebug(
+                        "Delegate",
+                        "reason=villagerFarmJob",
+                        ref lastWorkMoveLogTime,
+                        0.25f);
+                    return;
+                }
+            }
+
             HarvestJob harvestJob = EnsureHarvestJob();
             if (harvestJob != null &&
                 harvestJob.TryRun())

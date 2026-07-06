@@ -12,11 +12,9 @@ GameObject:
   - component: {fileID: 4185366332498665280}
   - component: {fileID: 7244997612633463948}
   - component: {fileID: 8814142739700771914}
-  - component: {fileID: 7525713692923372357}
   - component: {fileID: 8702128748568086803}
-  - component: {fileID: 6747842253424447933}
   - component: {fileID: 8826507661961283257}
-  - component: {fileID: 5913454657302191592}
+  - component: {fileID: 3201119476251412231}
   - component: {fileID: 1836311742786125013}
   - component: {fileID: 5880837379325097654}
   - component: {fileID: 477681590454896501}
@@ -151,389 +149,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &7525713692923372357
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8596889031696047861}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 03a13211cc18b6a4cad47575141029dc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcForgeAgent
-  inventory: {fileID: 0}
-  tradeAgent: {fileID: 0}
-  autoForge: 1
-  preferCultivateWhenIdle: 1
-  checkInterval: 1
-  forgeDurationMinGameHours: 2
-  forgeDurationMaxGameHours: 3
-  genericMaterialUnits: 3
-  genericOutputSlot: 1
-  allowGenericArmorFallback: 1
-  forgeStandPoint: {fileID: 0}
-  forgeFacingPoint: {fileID: 0}
-  defaultFacingDirection: {x: 0, y: -1}
-  snapToForgeStandPoint: 1
-  keepAtForgeStandPoint: 1
-  lockFacingToForgePoint: 1
-  autoBuyMaterialsFromMarketTraders: 1
-  acceptAllForgeMaterials: 1
-  acceptDanDuocAsForgeMaterial: 1
-  acceptVatLieuAsForgeMaterial: 1
-  acceptPhapBaoAsForgeMaterial: 0
-  acceptThucPhamAsForgeMaterial: 0
-  excludeImmortalGrade: 1
-  autoSellFinishedGoods: 1
-  sellToNearbyNpcBuyers: 1
-  sellToVanBaoLau: 1
-  preferDirectSaleWhenPriceHigher: 1
-  sellSearchRadius: 2.25
-  npcLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  autoLoadForgeCatalogFromAssets: 1
-  itemFolders:
-  - Assets/Item/PhapBao
-  forgeCatalogItems:
-  - {fileID: 11400000, guid: 00d6947b52de2a04d888fa221e40ffb8, type: 2}
-  - {fileID: 11400000, guid: b0a6286f1a1e4f947922f28da87e62d7, type: 2}
-  - {fileID: 11400000, guid: c69d9aee44b466748ba9e72f3c7342e4, type: 2}
-  - {fileID: 11400000, guid: 59f8c3041614c2547bdfe8f115c2f857, type: 2}
-  - {fileID: 11400000, guid: 35d7527e314ee8545966518affbe7c1a, type: 2}
-  - {fileID: 11400000, guid: 23b7998e199275b4785bfdfe5f9f6a88, type: 2}
-  - {fileID: 11400000, guid: 4059871339ba3b045a808926ce868f41, type: 2}
-  - {fileID: 11400000, guid: 3188e2d82ac96ea4b941fe6db7686f93, type: 2}
-  - {fileID: 11400000, guid: ef6d3efb4a678b44891fd1203935f2ee, type: 2}
-  - {fileID: 11400000, guid: eb15d49ebe7aaa445b3893a5ee64c8b4, type: 2}
-  - {fileID: 11400000, guid: 10958e7a76a462d41a230e77e4094b0d, type: 2}
-  - {fileID: 11400000, guid: 93176f919896ca44191c88d36732a379, type: 2}
-  - {fileID: 11400000, guid: 2eaf720d430c7544695372c744da8950, type: 2}
-  - {fileID: 11400000, guid: 477e693ecb7af0b48a7f7aa119d4f934, type: 2}
-  - {fileID: 11400000, guid: 6a610b00e42af984aa623d22b8d0d9ba, type: 2}
-  recipes:
-  - recipeName: "H\u1EAFc Thi\u1EBFt \u0110ao Recipe"
-    ingredients:
-    - item: {fileID: 0}
-      materialKind: 2
-      allowAnyMaterialFallback: 1
-      amount: 2
-    - item: {fileID: 0}
-      materialKind: 3
-      allowAnyMaterialFallback: 1
-      amount: 1
-    - item: {fileID: 0}
-      materialKind: 5
-      allowAnyMaterialFallback: 1
-      amount: 1
-    genericMaterialUnits: 3
-    outputSlot: 1
-    preferredResult: {fileID: 11400000, guid: 00d6947b52de2a04d888fa221e40ffb8, type: 2}
-    resultAmount: 1
-    allowCustomOrders: 1
-    defaultLeadTimeGameDays: 2
-    depositFraction: 0.3
-  - recipeName: "M\u1ED9c Linh Cung Recipe"
-    ingredients:
-    - item: {fileID: 0}
-      materialKind: 2
-      allowAnyMaterialFallback: 1
-      amount: 2
-    - item: {fileID: 0}
-      materialKind: 3
-      allowAnyMaterialFallback: 1
-      amount: 1
-    - item: {fileID: 0}
-      materialKind: 5
-      allowAnyMaterialFallback: 1
-      amount: 1
-    genericMaterialUnits: 3
-    outputSlot: 1
-    preferredResult: {fileID: 11400000, guid: b0a6286f1a1e4f947922f28da87e62d7, type: 2}
-    resultAmount: 1
-    allowCustomOrders: 1
-    defaultLeadTimeGameDays: 2
-    depositFraction: 0.3
-  - recipeName: "Thanh Phong Ki\u1EBFm Recipe"
-    ingredients:
-    - item: {fileID: 0}
-      materialKind: 2
-      allowAnyMaterialFallback: 1
-      amount: 2
-    - item: {fileID: 0}
-      materialKind: 3
-      allowAnyMaterialFallback: 1
-      amount: 1
-    - item: {fileID: 0}
-      materialKind: 5
-      allowAnyMaterialFallback: 1
-      amount: 1
-    genericMaterialUnits: 3
-    outputSlot: 1
-    preferredResult: {fileID: 11400000, guid: c69d9aee44b466748ba9e72f3c7342e4, type: 2}
-    resultAmount: 1
-    allowCustomOrders: 1
-    defaultLeadTimeGameDays: 2
-    depositFraction: 0.3
-  - recipeName: "Thi\u1EBFt B\xEC Gi\xE1p Recipe"
-    ingredients:
-    - item: {fileID: 0}
-      materialKind: 4
-      allowAnyMaterialFallback: 1
-      amount: 2
-    - item: {fileID: 0}
-      materialKind: 1
-      allowAnyMaterialFallback: 1
-      amount: 1
-    - item: {fileID: 0}
-      materialKind: 5
-      allowAnyMaterialFallback: 1
-      amount: 1
-    genericMaterialUnits: 3
-    outputSlot: 2
-    preferredResult: {fileID: 11400000, guid: 59f8c3041614c2547bdfe8f115c2f857, type: 2}
-    resultAmount: 1
-    allowCustomOrders: 1
-    defaultLeadTimeGameDays: 2
-    depositFraction: 0.3
-  - recipeName: "V\u1EA3i H\u1ED9 Th\xE2n Recipe"
-    ingredients:
-    - item: {fileID: 0}
-      materialKind: 4
-      allowAnyMaterialFallback: 1
-      amount: 2
-    - item: {fileID: 0}
-      materialKind: 1
-      allowAnyMaterialFallback: 1
-      amount: 1
-    - item: {fileID: 0}
-      materialKind: 5
-      allowAnyMaterialFallback: 1
-      amount: 1
-    genericMaterialUnits: 3
-    outputSlot: 2
-    preferredResult: {fileID: 11400000, guid: 35d7527e314ee8545966518affbe7c1a, type: 2}
-    resultAmount: 1
-    allowCustomOrders: 1
-    defaultLeadTimeGameDays: 2
-    depositFraction: 0.3
-  - recipeName: "M\u1ED9c Linh H\u1ED9 Ph\xF9 Recipe"
-    ingredients:
-    - item: {fileID: 0}
-      materialKind: 6
-      allowAnyMaterialFallback: 1
-      amount: 2
-    - item: {fileID: 0}
-      materialKind: 5
-      allowAnyMaterialFallback: 1
-      amount: 1
-    - item: {fileID: 0}
-      materialKind: 1
-      allowAnyMaterialFallback: 1
-      amount: 1
-    genericMaterialUnits: 3
-    outputSlot: 3
-    preferredResult: {fileID: 11400000, guid: 23b7998e199275b4785bfdfe5f9f6a88, type: 2}
-    resultAmount: 1
-    allowCustomOrders: 1
-    defaultLeadTimeGameDays: 2
-    depositFraction: 0.3
-  - recipeName: "Huy\u1EBFt S\xE1t \u0110ao Recipe"
-    ingredients:
-    - item: {fileID: 0}
-      materialKind: 2
-      allowAnyMaterialFallback: 1
-      amount: 4
-    - item: {fileID: 0}
-      materialKind: 3
-      allowAnyMaterialFallback: 1
-      amount: 1
-    - item: {fileID: 0}
-      materialKind: 5
-      allowAnyMaterialFallback: 1
-      amount: 1
-    genericMaterialUnits: 3
-    outputSlot: 1
-    preferredResult: {fileID: 11400000, guid: 4059871339ba3b045a808926ce868f41, type: 2}
-    resultAmount: 1
-    allowCustomOrders: 1
-    defaultLeadTimeGameDays: 3
-    depositFraction: 0.3
-  - recipeName: "L\u01B0u Quang Ki\u1EBFm Recipe"
-    ingredients:
-    - item: {fileID: 0}
-      materialKind: 2
-      allowAnyMaterialFallback: 1
-      amount: 4
-    - item: {fileID: 0}
-      materialKind: 3
-      allowAnyMaterialFallback: 1
-      amount: 1
-    - item: {fileID: 0}
-      materialKind: 5
-      allowAnyMaterialFallback: 1
-      amount: 1
-    genericMaterialUnits: 3
-    outputSlot: 1
-    preferredResult: {fileID: 11400000, guid: 3188e2d82ac96ea4b941fe6db7686f93, type: 2}
-    resultAmount: 1
-    allowCustomOrders: 1
-    defaultLeadTimeGameDays: 3
-    depositFraction: 0.3
-  - recipeName: "Xuy\xEAn V\xE2n Cung Recipe"
-    ingredients:
-    - item: {fileID: 0}
-      materialKind: 2
-      allowAnyMaterialFallback: 1
-      amount: 4
-    - item: {fileID: 0}
-      materialKind: 3
-      allowAnyMaterialFallback: 1
-      amount: 1
-    - item: {fileID: 0}
-      materialKind: 5
-      allowAnyMaterialFallback: 1
-      amount: 1
-    genericMaterialUnits: 3
-    outputSlot: 1
-    preferredResult: {fileID: 11400000, guid: ef6d3efb4a678b44891fd1203935f2ee, type: 2}
-    resultAmount: 1
-    allowCustomOrders: 1
-    defaultLeadTimeGameDays: 3
-    depositFraction: 0.3
-  - recipeName: "Kim C\u01B0\u01A1ng Gi\xE1p Recipe"
-    ingredients:
-    - item: {fileID: 0}
-      materialKind: 4
-      allowAnyMaterialFallback: 1
-      amount: 4
-    - item: {fileID: 0}
-      materialKind: 1
-      allowAnyMaterialFallback: 1
-      amount: 1
-    - item: {fileID: 0}
-      materialKind: 5
-      allowAnyMaterialFallback: 1
-      amount: 1
-    genericMaterialUnits: 3
-    outputSlot: 2
-    preferredResult: {fileID: 11400000, guid: eb15d49ebe7aaa445b3893a5ee64c8b4, type: 2}
-    resultAmount: 1
-    allowCustomOrders: 1
-    defaultLeadTimeGameDays: 3
-    depositFraction: 0.3
-  - recipeName: "Huy\u1EC1n Th\u1EE7y Thu\u1EABn Recipe"
-    ingredients:
-    - item: {fileID: 0}
-      materialKind: 6
-      allowAnyMaterialFallback: 1
-      amount: 4
-    - item: {fileID: 0}
-      materialKind: 5
-      allowAnyMaterialFallback: 1
-      amount: 1
-    - item: {fileID: 0}
-      materialKind: 1
-      allowAnyMaterialFallback: 1
-      amount: 1
-    genericMaterialUnits: 3
-    outputSlot: 3
-    preferredResult: {fileID: 11400000, guid: 10958e7a76a462d41a230e77e4094b0d, type: 2}
-    resultAmount: 1
-    allowCustomOrders: 1
-    defaultLeadTimeGameDays: 3
-    depositFraction: 0.3
-  - recipeName: "Thi\xEAn C\u01B0\u01A1ng Ki\u1EBFm Recipe"
-    ingredients:
-    - item: {fileID: 0}
-      materialKind: 2
-      allowAnyMaterialFallback: 1
-      amount: 6
-    - item: {fileID: 0}
-      materialKind: 3
-      allowAnyMaterialFallback: 1
-      amount: 2
-    - item: {fileID: 0}
-      materialKind: 5
-      allowAnyMaterialFallback: 1
-      amount: 2
-    genericMaterialUnits: 3
-    outputSlot: 1
-    preferredResult: {fileID: 11400000, guid: 93176f919896ca44191c88d36732a379, type: 2}
-    resultAmount: 1
-    allowCustomOrders: 1
-    defaultLeadTimeGameDays: 4
-    depositFraction: 0.3
-  - recipeName: "Thi\xEAn L\xF4i Ph\xE1p Tr\u01B0\u1EE3ng Recipe"
-    ingredients:
-    - item: {fileID: 0}
-      materialKind: 2
-      allowAnyMaterialFallback: 1
-      amount: 6
-    - item: {fileID: 0}
-      materialKind: 3
-      allowAnyMaterialFallback: 1
-      amount: 2
-    - item: {fileID: 0}
-      materialKind: 5
-      allowAnyMaterialFallback: 1
-      amount: 2
-    genericMaterialUnits: 3
-    outputSlot: 1
-    preferredResult: {fileID: 11400000, guid: 2eaf720d430c7544695372c744da8950, type: 2}
-    resultAmount: 1
-    allowCustomOrders: 1
-    defaultLeadTimeGameDays: 4
-    depositFraction: 0.3
-  - recipeName: "Tr\u1EA3m Y\xEAu \u0110ao Recipe"
-    ingredients:
-    - item: {fileID: 0}
-      materialKind: 2
-      allowAnyMaterialFallback: 1
-      amount: 6
-    - item: {fileID: 0}
-      materialKind: 3
-      allowAnyMaterialFallback: 1
-      amount: 2
-    - item: {fileID: 0}
-      materialKind: 5
-      allowAnyMaterialFallback: 1
-      amount: 2
-    genericMaterialUnits: 3
-    outputSlot: 1
-    preferredResult: {fileID: 11400000, guid: 477e693ecb7af0b48a7f7aa119d4f934, type: 2}
-    resultAmount: 1
-    allowCustomOrders: 1
-    defaultLeadTimeGameDays: 4
-    depositFraction: 0.3
-  - recipeName: "Huy\u1EC1n V\u0169 Linh Gi\xE1p Recipe"
-    ingredients:
-    - item: {fileID: 0}
-      materialKind: 4
-      allowAnyMaterialFallback: 1
-      amount: 6
-    - item: {fileID: 0}
-      materialKind: 1
-      allowAnyMaterialFallback: 1
-      amount: 2
-    - item: {fileID: 0}
-      materialKind: 5
-      allowAnyMaterialFallback: 1
-      amount: 2
-    genericMaterialUnits: 3
-    outputSlot: 2
-    preferredResult: {fileID: 11400000, guid: 6a610b00e42af984aa623d22b8d0d9ba, type: 2}
-    resultAmount: 1
-    allowCustomOrders: 1
-    defaultLeadTimeGameDays: 4
-    depositFraction: 0.3
-  autoAcceptCustomOrders: 0
-  customOrderDepositFraction: 0.3
-  customOrderDefaultLeadTimeGameDays: 3
-  autoBuildDefaultRecipesFromCatalog: 1
-  pendingOrders: []
 --- !u!114 &8702128748568086803
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -550,38 +165,6 @@ MonoBehaviour:
   keepInspectorItemsWhenLoadingSave: 1
   runtimeKey: 
   items: []
---- !u!114 &6747842253424447933
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8596889031696047861}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cdcab76f81f40ee41bb9e80c881d1c75, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcTradeAgent
-  inventory: {fileID: 0}
-  npcLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  tradeRadius: 1.2
-  tradeInterval: 5
-  tradeChance: 32
-  buyUsefulItemsFromMarketTrader: 1
-  counterTradeCooldown: 45
-  useSpiritStoneCurrency: 1
-  spiritStone: 0
-  maxMoneySpendRatio: 0.625
-  maxOwnedConsumableBeforeBuying: 3
-  riskyItemValueMultiplier: 120
-  isMarketTrader: 0
-  buyProduceFromVillagers: 1
-  acceptAllMaterials: 1
-  acceptedProduce: []
-  maxProduceUnitsPerTrade: 4
-  buyPricePercent: 70
 --- !u!114 &8826507661961283257
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -594,10 +177,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 578d9e49b531f2e448f84deeef186c5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NpcSpecialProfession
-  professionName: "Ng\u01B0\u1EDDi \u0111\u1EB7c bi\u1EC7t"
-  lockVillagerJob: 0
-  villagerJob: 0
---- !u!114 &5913454657302191592
+  professionName: Lo Ren
+  lockVillagerJob: 1
+  villagerJob: 9
+--- !u!114 &3201119476251412231
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -606,31 +189,41 @@ MonoBehaviour:
   m_GameObject: {fileID: 8596889031696047861}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7eaa75587e35437499d2dba492d9fd69, type: 3}
+  m_Script: {fileID: 11500000, guid: 4a9fae70dc27414598346704a76aaf10, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcForgeRole
-  configureTradeAgent: 1
-  configureForgeAgent: 1
-  autoBuyMaterialsFromMarketTraders: 1
-  autoForge: 1
-  preferCultivateWhenIdle: 1
-  sellToNearbyNpcBuyers: 1
-  sellToVanBaoLau: 1
-  forgeDailyHours: 6
-  cultivateDailyHours: 10
-  forgeStandPoint: {fileID: 0}
-  marketPoint: {fileID: 0}
-  forgeFacingPoint: {fileID: 0}
-  defaultFacingDirection: {x: 0, y: -1}
-  snapToForgeStandPoint: 1
-  keepAtForgeStandPoint: 1
-  lockFacingToForgePoint: 1
-  tradeChance: 51
-  tradeRadius: 1.6
-  tradeInterval: 4
-  maxMoneySpendRatio: 0.8
-  forceVillagerJobProfession: 1
+  m_EditorClassIdentifier: Assembly-CSharp::NpcFixedBlacksmithController
+  autoConfigureVillager: 1
+  disableLegacyForgeComponents: 1
   professionName: Lo Ren
+  startingMoney: 100000
+  grantStartingMoneyOnStart: 1
+  forgedItem: {fileID: 11400000, guid: 00d6947b52de2a04d888fa221e40ffb8, type: 2}
+  materialCost: 100000
+  salePrice: 200000
+  craftDays: 3
+  workHoursPerDay: 8
+  buyDurationSeconds: 5
+  sellDurationSeconds: 10
+  sleepStart: 20
+  sleepEnd: 6
+  morningWorkStart: 8
+  morningWorkEnd: 12
+  afternoonWorkStart: 13
+  afternoonWorkEnd: 17
+  forgePointOverride: {fileID: 0}
+  marketPointOverride: {fileID: 0}
+  buyAction: Di mua nguyen lieu ren
+  forgeAction: Dang ren phap bao
+  sellAction: Di ban phap bao
+  waitAction: Cho ca ren tiep theo
+  state: 0
+  forgedWorkHours: 0
+  completedCycles: 0
+  lastProgressWorldHour: -1
+  stateStartedAtRealtime: -1
+  lastPurchaseDay: -1
+  lastSaleDay: -1
+  debugLogs: 0
 --- !u!114 &1836311742786125013
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -726,11 +319,11 @@ MonoBehaviour:
   entityProfile: {fileID: 0}
   villagerName: "L\xE3o H\u1EA1c"
   ageGroup: 1
-  job: 1
+  job: 9
   keepInspectorJob: 1
   maxHP: 100
   currentHP: 100
-  money: 20
+  money: 100000
   spiritStone: 0
   moveSpeed: 1.6
   characterStats: {fileID: 0}
@@ -828,11 +421,11 @@ MonoBehaviour:
   autonomousWorkEnabled: 1
   autonomousResourceWorkEnabled: 0
   autonomousDangerousWorkEnabled: 0
-  dailyTaskPlanEnabled: 1
+  dailyTaskPlanEnabled: 0
   dailyTaskPlanStartupDelay: 2
   dailyTaskPlanMinTasks: 3
   dailyTaskPlanMaxTasks: 5
-  dailyRoutineEnabled: 1
+  dailyRoutineEnabled: 0
   dailyCultivationMinHours: 4
   dailyCultivationMaxHours: 8
   earliestCultivationHour: 5
@@ -886,25 +479,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NpcScheduleController
   enforceSchedule: 1
-  autoBuildDefaultSchedule: 1
+  autoBuildDefaultSchedule: 0
   lifePath: 0
   slots:
   - activity: 1
     startHour: 20
-    endHour: 5
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 3
-    startHour: 5
-    endHour: 11
+    endHour: 6
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 12
-    startHour: 11
+    startHour: 6
+    endHour: 8
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 3
+    startHour: 8
+    endHour: 12
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 12
+    startHour: 12
     endHour: 13
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1

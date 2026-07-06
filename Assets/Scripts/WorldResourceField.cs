@@ -460,7 +460,7 @@ public class WorldResourceField : MonoBehaviour
 
         PlayerPrefs.SetString(saveKey, JsonUtility.ToJson(data));
         GameSaveSystem.MarkSaveExists();
-        PlayerPrefs.Save();
+        GameSaveSystem.QueuePendingCommit();
     }
 
     bool TryLoadResourceState()

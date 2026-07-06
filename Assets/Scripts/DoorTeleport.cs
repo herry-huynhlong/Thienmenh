@@ -33,8 +33,9 @@ public class DoorTeleport : MonoBehaviour
     {
         isLoading = true;
 
-        FullGameSaveController.EnsureInstance().SaveFullGame();
+        FullGameSaveController.EnsureInstance().SaveFullGame(true);
         GameSaveSystem.SaveCurrentScene(targetScene);
+        GameSaveSystem.FlushPendingCommit();
 
         Scene currentScene =
             SceneManager.GetActiveScene();
@@ -61,7 +62,7 @@ public class DoorTeleport : MonoBehaviour
 
         yield return null;
 
-        FullGameSaveController.EnsureInstance().SaveFullGame();
+        FullGameSaveController.EnsureInstance().SaveFullGame(true);
 
         SceneManager.UnloadSceneAsync(
             currentScene);
