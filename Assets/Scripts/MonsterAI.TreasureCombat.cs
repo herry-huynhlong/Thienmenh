@@ -123,6 +123,7 @@ public partial class MonsterAI
     {
         attackTimer = attackCooldown;
         isAttacking = true;
+        attackSequence++;
 
         DebugFlow(
             "Combat",
@@ -140,12 +141,32 @@ public partial class MonsterAI
                 Vector2 attackDirection = currentTarget != null
                     ? (Vector2)(currentTarget.position - transform.position)
                     : Vector2.zero;
+                DebugFlow(
+                    "Combat",
+                    "Attack animation via directionalAnimator=" +
+                    directionalAnimator.GetType().Name +
+                    " direction=" +
+                    attackDirection.ToString("F2"));
                 directionalAnimator.PlayAttack(attackDirection);
             }
             else if (animator != null)
             {
+                DebugFlow(
+                    "Combat",
+                    "Attack animation via Animator trigger controller=" +
+                    (animator.runtimeAnimatorController != null
+                        ? animator.runtimeAnimatorController.name
+                        : "null"));
                 SetAnimatorTriggerIfExists("attack");
             }
+            else
+            {
+                DebugFlow("Combat", "Attack animation missing animator components");
+            }
+        }
+        else
+        {
+            DebugFlow("Combat", "Attack animation disabled useAnimation=false");
         }
 
         if (directDamageOnAttack)

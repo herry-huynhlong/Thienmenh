@@ -28,6 +28,36 @@ public class HarvestJob : MonoBehaviour
     public int RetrySecondsRemaining =>
         Mathf.CeilToInt(Mathf.Max(0f, retryTimer));
 
+    void LogHarvestDebug(string stage, string detail, float intervalSeconds = 0.5f)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (villager == null || !villager.debugWorkLogs)
+        {
+            return;
+        }
+
+        Debug.LogWarning(
+            "[HarvestJob] " +
+            stage +
+            " -> " +
+            gameObject.name +
+            " action=" +
+            (villager != null ? villager.currentAction : "null") +
+            " job=" +
+            (villager != null ? villager.job.ToString() : "None") +
+            " state=" +
+            currentState +
+            " waiting=" +
+            waitingForRetry +
+            " detail=" +
+            detail +
+            " hour=" +
+            (WorldTimeSystem.Instance != null
+                ? WorldTimeSystem.Instance.CurrentHour.ToString("0.##")
+                : "null"));
+#endif
+    }
+
     public void CancelHarvestNow()
     {
         waitingForRetry = false;
@@ -155,6 +185,9 @@ public class HarvestJob : MonoBehaviour
         if (TryStartHarvestNow(targetItem))
         {
             currentState = NpcJobState.Working;
+            LogHarvestDebug(
+                "Start",
+                "item=" + ItemText.Name(targetItem));
             return true;
         }
 
@@ -173,6 +206,9 @@ public class HarvestJob : MonoBehaviour
         waitingForRetry = false;
         retryTimer = 0f;
         lastRetrySeconds = -1;
+        LogHarvestDebug(
+            "NoTarget",
+            "item=" + ItemText.Name(targetItem));
         return false;
     }
 
@@ -405,6 +441,9 @@ public class HarvestJob : MonoBehaviour
 
         if (!gatherer.TryStartScheduledHarvestItemNow(targetItem))
         {
+            LogHarvestDebug(
+                "GatherFail",
+                "item=" + ItemText.Name(targetItem));
             BeginWaitingCycle();
             return false;
         }
@@ -413,6 +452,9 @@ public class HarvestJob : MonoBehaviour
         waitingForRetry = false;
         retryTimer = 0f;
         lastRetrySeconds = -1;
+        LogHarvestDebug(
+            "GatherOk",
+            "item=" + ItemText.Name(targetItem));
         return true;
     }
 

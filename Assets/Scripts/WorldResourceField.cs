@@ -156,6 +156,7 @@ public class WorldResourceField : MonoBehaviour
             pickup.allowNpcPickup = allowNpcPickup;
             pickup.allowPlayerPickup = allowPlayerPickup;
             pickup.requireNpcHarvestAction = requireNpcHarvestAction;
+            pickup.treatAsDroppedWorldItem = false;
             pickup.harvestDuration = Mathf.Max(0.1f, harvestDuration);
             pickup.destroyWhenEmpty = false;
             pickup.OnDepleted -= SaveResourceState;
@@ -234,6 +235,7 @@ public class WorldResourceField : MonoBehaviour
         pickup.allowNpcPickup = allowNpcPickup;
         pickup.allowPlayerPickup = allowPlayerPickup;
         pickup.requireNpcHarvestAction = requireNpcHarvestAction;
+        pickup.treatAsDroppedWorldItem = false;
         pickup.harvestDuration = Mathf.Max(0.1f, harvestDuration);
         pickup.destroyWhenEmpty = false;
 

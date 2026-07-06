@@ -160,11 +160,6 @@ public class NpcMapMover2D : MonoBehaviour
         }
     }
 
-    void OnNpcMapTeleported()
-    {
-        OnNpcMapTeleported(null);
-    }
-
     void OnNpcMapTeleported(GameObject gateObject)
     {
         NpcTeleportGate gate = gateObject != null

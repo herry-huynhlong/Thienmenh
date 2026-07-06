@@ -27,6 +27,9 @@ public class FullGameSaveData
 public class SavedFavoriteNpcData
 {
     public string persistentId;
+    public string worldActorPersistentId;
+    public string npcId;
+    public string npcDataPersistentId;
     public string displayName;
     public string realmText;
     public int heavenFavorFear;
@@ -318,10 +321,31 @@ public class FullGameSaveController : MonoBehaviour
                 continue;
             }
 
-            SpawnedWorldActor actor = favorite.GetComponent<SpawnedWorldActor>();
+            GameObject target =
+                favorite.gameObject;
+            SpawnedWorldActor actor =
+                ResolveComponent<SpawnedWorldActor>(target);
+            NPCIdentity identity =
+                ResolveComponent<NPCIdentity>(target);
+            NpcData npcData =
+                ResolveComponent<NpcData>(target);
+
+            if (actor != null)
+            {
+                actor.EnsurePersistentId();
+            }
+
+            if (npcData != null)
+            {
+                npcData.EnsurePersistentId();
+            }
+
             data.favoriteNpcs.Add(new SavedFavoriteNpcData
             {
                 persistentId = actor != null ? actor.persistentId : "",
+                worldActorPersistentId = actor != null ? actor.persistentId : "",
+                npcId = identity != null ? identity.npcId : "",
+                npcDataPersistentId = npcData != null ? npcData.persistentId : "",
                 displayName = favorite.GetDisplayName(),
                 realmText = favorite.GetRealmText(),
                 heavenFavorFear = favorite.GetHeavenFavorFear(),
@@ -377,22 +401,65 @@ public class FullGameSaveController : MonoBehaviour
             return null;
         }
 
-        if (!string.IsNullOrEmpty(saved.persistentId))
+        string worldActorPersistentId =
+            !string.IsNullOrWhiteSpace(saved.worldActorPersistentId)
+            ? saved.worldActorPersistentId
+            : saved.persistentId;
+
+        if (!string.IsNullOrWhiteSpace(worldActorPersistentId))
         {
             foreach (SpawnedWorldActor actor in FindObjectsByType<SpawnedWorldActor>(FindObjectsInactive.Include))
             {
-                if (actor != null && actor.persistentId == saved.persistentId)
+                if (actor != null &&
+                    string.Equals(
+                        actor.persistentId,
+                        worldActorPersistentId,
+                        StringComparison.OrdinalIgnoreCase))
                 {
                     return actor.gameObject;
                 }
             }
         }
 
-        if (!string.IsNullOrEmpty(saved.displayName))
+        if (!string.IsNullOrWhiteSpace(saved.npcId))
+        {
+            foreach (NPCIdentity identity in FindObjectsByType<NPCIdentity>(FindObjectsInactive.Include))
+            {
+                if (identity != null &&
+                    string.Equals(
+                        identity.npcId,
+                        saved.npcId,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return identity.gameObject;
+                }
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(saved.npcDataPersistentId))
+        {
+            foreach (NpcData npcData in FindObjectsByType<NpcData>(FindObjectsInactive.Include))
+            {
+                if (npcData != null &&
+                    string.Equals(
+                        npcData.persistentId,
+                        saved.npcDataPersistentId,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return npcData.gameObject;
+                }
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(saved.displayName))
         {
             foreach (NpcFavorite favorite in FindObjectsByType<NpcFavorite>(FindObjectsInactive.Include))
             {
-                if (favorite != null && favorite.GetDisplayName() == saved.displayName)
+                if (favorite != null &&
+                    string.Equals(
+                        favorite.GetDisplayName(),
+                        saved.displayName,
+                        StringComparison.Ordinal))
                 {
                     return favorite.gameObject;
                 }
@@ -400,6 +467,18 @@ public class FullGameSaveController : MonoBehaviour
         }
 
         return null;
+    }
+
+    T ResolveComponent<T>(GameObject target) where T : Component
+    {
+        if (target == null)
+        {
+            return null;
+        }
+
+        return target.GetComponent<T>() ??
+            target.GetComponentInParent<T>(true) ??
+            target.GetComponentInChildren<T>(true);
     }
 
     void SaveWorldTime()

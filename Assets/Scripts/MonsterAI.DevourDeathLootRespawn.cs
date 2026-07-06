@@ -296,6 +296,7 @@ public partial class MonsterAI
         pickup.allowPlayerPickup = allowPlayerLootPickup;
         pickup.allowNpcPickup = allowNpcLootPickup;
         pickup.destroyWhenEmpty = true;
+        pickup.ConfigureAsDroppedWorldItem();
 
         CircleCollider2D collider = lootObject.AddComponent<CircleCollider2D>();
         collider.isTrigger = true;

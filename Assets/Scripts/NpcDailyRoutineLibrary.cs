@@ -304,7 +304,6 @@ public static class NpcDailyRoutineLibrary
             smartNpc.dailyTaskVisitEnabled)
         {
             options.Add(NpcScheduleActivity.TakeTask);
-            options.Add(NpcScheduleActivity.TakeTask);
         }
 
         if (options.Count == 0)

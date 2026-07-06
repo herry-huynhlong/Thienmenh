@@ -102,11 +102,6 @@ public class NpcMapBoundaryClamp : MonoBehaviour
             transform.position.z);
     }
 
-    void OnNpcMapTeleported()
-    {
-        OnNpcMapTeleported(null);
-    }
-
     void OnNpcMapTeleported(GameObject gateObject)
     {
         NpcTeleportGate gate = gateObject != null

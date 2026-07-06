@@ -1,32 +1,65 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class MonsterAttack : MonoBehaviour
 {
     public int damage = 10;
     public GameObject owner;
+    MonsterAI ownerMonster;
+    readonly Dictionary<IDamageable, int> lastHitAttackSequence =
+        new Dictionary<IDamageable, int>();
 
     void Awake()
     {
         if (owner == null)
         {
-            MonsterAI monster = GetComponentInParent<MonsterAI>();
-            if (monster != null)
+            ownerMonster = GetComponentInParent<MonsterAI>();
+            if (ownerMonster != null)
             {
-                owner = monster.gameObject;
-                damage = monster.damage;
+                owner = ownerMonster.gameObject;
+                damage = ownerMonster.damage;
             }
+        }
+        else
+        {
+            ownerMonster = owner.GetComponentInParent<MonsterAI>();
         }
     }
 
     void OnTriggerEnter2D(Collider2D other)
+    {
+        TryApplyDamage(other);
+    }
+
+    void OnTriggerStay2D(Collider2D other)
+    {
+        TryApplyDamage(other);
+    }
+
+    void OnDisable()
+    {
+        lastHitAttackSequence.Clear();
+    }
+
+    void TryApplyDamage(Collider2D other)
     {
         if (other == null || IsOwner(other.transform))
         {
             return;
         }
 
+        if (!CanDealTriggerDamage())
+        {
+            return;
+        }
+
         IDamageable damageable = other.GetComponentInParent<IDamageable>();
         if (damageable == null || damageable.IsDead)
+        {
+            return;
+        }
+
+        if (HasAlreadyHitThisAttack(damageable))
         {
             return;
         }
@@ -45,9 +78,10 @@ public class MonsterAttack : MonoBehaviour
             return;
         }
 
+        int appliedDamage = damage;
         if (owner != null && damageable.DamageTransform != null)
         {
-            int modifiedDamage =
+            appliedDamage =
                 NpcCombatTechniqueSystem.ModifyOutgoingDamage(
                     owner,
                     damageable.DamageTransform.gameObject,
@@ -56,30 +90,66 @@ public class MonsterAttack : MonoBehaviour
             NpcSocialEventBus.PublishHostility(
                 owner,
                 damageable.DamageTransform.gameObject,
-                Mathf.Clamp(modifiedDamage, 1, 100),
+                Mathf.Clamp(appliedDamage, 1, 100),
                 damageable.DamageTransform.position,
                 NpcText.Dialogue("combatBeastReason"));
-
-            SmartNpcAI smartNpc =
-                damageable as SmartNpcAI;
-            if (smartNpc != null)
-            {
-                smartNpc.TakeDamage(modifiedDamage, owner);
-                return;
-            }
-
-            damageable.TakeDamage(modifiedDamage);
-            return;
         }
 
-        SmartNpcAI fallbackSmartNpc = damageable as SmartNpcAI;
-        if (fallbackSmartNpc != null)
+        MarkHitForCurrentAttack(damageable);
+
+        SmartNpcAI smartNpc =
+            damageable as SmartNpcAI;
+        if (smartNpc != null)
         {
-            fallbackSmartNpc.TakeDamage(damage, owner);
+            smartNpc.TakeDamage(appliedDamage, owner);
             return;
         }
 
-        damageable.TakeDamage(damage);
+        damageable.TakeDamage(appliedDamage);
+    }
+
+    bool CanDealTriggerDamage()
+    {
+        if (ownerMonster == null && owner != null)
+        {
+            ownerMonster = owner.GetComponentInParent<MonsterAI>();
+        }
+
+        if (ownerMonster == null)
+        {
+            return true;
+        }
+
+        if (ownerMonster.UsesDirectAttackDamage)
+        {
+            return false;
+        }
+
+        return ownerMonster.IsAttackActive;
+    }
+
+    bool HasAlreadyHitThisAttack(IDamageable damageable)
+    {
+        if (damageable == null || ownerMonster == null)
+        {
+            return false;
+        }
+
+        return lastHitAttackSequence.TryGetValue(
+            damageable,
+            out int lastSequence) &&
+            lastSequence == ownerMonster.AttackSequence;
+    }
+
+    void MarkHitForCurrentAttack(IDamageable damageable)
+    {
+        if (damageable == null || ownerMonster == null)
+        {
+            return;
+        }
+
+        lastHitAttackSequence[damageable] =
+            ownerMonster.AttackSequence;
     }
 
     bool IsOwner(Transform target)

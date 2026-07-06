@@ -1556,6 +1556,15 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
     {
         float cultivationArriveDistance =
             GetCultivationArriveDistance();
+
+        if (hasCultivationTarget)
+        {
+            return Vector2.Distance(
+                       transform.position,
+                       cultivationTarget) >
+                cultivationArriveDistance;
+        }
+
         if (!TryResolveCultivationTravelDestination(
                 out _,
                 out Vector3 targetPosition))
@@ -2740,11 +2749,6 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         TargetReservationSystem.TryGetExistingInstance()?.ReleaseAllByOwner(gameObject);
         NpcCollisionRegistry.Unregister(this);
         NpcMapNavigator.ClearNpcState(gameObject);
-    }
-
-    void OnNpcMapTeleported()
-    {
-        OnNpcMapTeleported(null);
     }
 
     void OnNpcMapTeleported(GameObject gateObject)
@@ -5169,6 +5173,15 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         float cultivationArriveDistance =
             GetCultivationArriveDistance();
+
+        if (hasCultivationTarget &&
+            Vector2.Distance(
+                transform.position,
+                cultivationTarget) <=
+            cultivationArriveDistance)
+        {
+            return false;
+        }
 
         if (currentAction == NpcText.Action("goCultivatePoint") &&
             hasWanderTarget)

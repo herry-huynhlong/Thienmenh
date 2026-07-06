@@ -27,6 +27,13 @@ public class MonsterDirectionalAnimator : MonoBehaviour
     bool isAttacking;
     bool isDead;
 
+    bool ShouldLogAnimationDebug()
+    {
+        MonsterAI monster = GetComponent<MonsterAI>();
+        return monster != null &&
+            (monster.debugFlowLogs || monster.name.IndexOf("YeuThu", System.StringComparison.OrdinalIgnoreCase) >= 0);
+    }
+
     void Awake()
     {
         if (animator == null)
@@ -76,10 +83,32 @@ public class MonsterDirectionalAnimator : MonoBehaviour
     {
         if (isDead || isAttacking)
         {
+            if (ShouldLogAnimationDebug())
+            {
+                Debug.LogWarning(
+                    "[MonsterDirectionalAnimator] Skip PlayAttack object=" +
+                    gameObject.name +
+                    " isDead=" + isDead +
+                    " isAttacking=" + isAttacking +
+                    " currentState=" + currentState);
+            }
             return;
         }
 
         SetMoveDirection(direction);
+        if (ShouldLogAnimationDebug())
+        {
+            Debug.LogWarning(
+                "[MonsterDirectionalAnimator] PlayAttack object=" +
+                gameObject.name +
+                " direction=" + direction.ToString("F2") +
+                " resolvedDirection=" + lastDirection +
+                " attackState=" + BuildStateName("attack") +
+                " controller=" +
+                (animator != null && animator.runtimeAnimatorController != null
+                    ? animator.runtimeAnimatorController.name
+                    : "null"));
+        }
         StartCoroutine(AttackRoutine());
     }
 
@@ -111,9 +140,26 @@ public class MonsterDirectionalAnimator : MonoBehaviour
     IEnumerator AttackRoutine()
     {
         isAttacking = true;
-        PlayState(BuildStateName("attack"));
+        string attackState = BuildStateName("attack");
+        if (ShouldLogAnimationDebug())
+        {
+            Debug.LogWarning(
+                "[MonsterDirectionalAnimator] AttackRoutine start object=" +
+                gameObject.name +
+                " state=" + attackState +
+                " attackLockTime=" + attackLockTime.ToString("0.00"));
+        }
+
+        PlayState(attackState);
         yield return new WaitForSeconds(Mathf.Max(0f, attackLockTime));
         isAttacking = false;
+        if (ShouldLogAnimationDebug())
+        {
+            Debug.LogWarning(
+                "[MonsterDirectionalAnimator] AttackRoutine end object=" +
+                gameObject.name +
+                " nextState=" + (isMoving ? BuildStateName("walk") : BuildStateName("lie")));
+        }
         RefreshMovementState();
     }
 
@@ -257,9 +303,47 @@ public class MonsterDirectionalAnimator : MonoBehaviour
 
     void PlayState(string stateName)
     {
-        if (animator == null || currentState == stateName)
+        if (animator == null)
         {
+            if (ShouldLogAnimationDebug())
+            {
+                Debug.LogWarning(
+                    "[MonsterDirectionalAnimator] Missing Animator object=" +
+                    gameObject.name +
+                    " requestedState=" + stateName);
+            }
             return;
+        }
+
+        if (currentState == stateName)
+        {
+            if (ShouldLogAnimationDebug())
+            {
+                Debug.LogWarning(
+                    "[MonsterDirectionalAnimator] Skip same state object=" +
+                    gameObject.name +
+                    " state=" + stateName);
+            }
+            return;
+        }
+
+        int stateHash = Animator.StringToHash(stateName);
+        bool hasState =
+            animator.runtimeAnimatorController != null &&
+            animator.HasState(0, stateHash);
+
+        if (ShouldLogAnimationDebug())
+        {
+            Debug.LogWarning(
+                "[MonsterDirectionalAnimator] PlayState object=" +
+                gameObject.name +
+                " state=" + stateName +
+                " hasState=" + hasState +
+                " currentState=" + currentState +
+                " controller=" +
+                (animator.runtimeAnimatorController != null
+                    ? animator.runtimeAnimatorController.name
+                    : "null"));
         }
 
         currentState = stateName;

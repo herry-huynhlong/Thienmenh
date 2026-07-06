@@ -140,6 +140,7 @@ public partial class MonsterAI : MonoBehaviour, IDamageable
     float waitTimer;
     float attackTimer;
     bool isAttacking;
+    int attackSequence;
     bool isDead;
     bool isRespawning;
     Renderer[] cachedRenderers;
@@ -171,6 +172,9 @@ public partial class MonsterAI : MonoBehaviour, IDamageable
     public bool IsDead => isDead;
     public Transform DamageTransform => transform;
     public Transform CurrentCombatTarget => currentTarget;
+    public bool IsAttackActive => isAttacking;
+    public int AttackSequence => attackSequence;
+    public bool UsesDirectAttackDamage => directDamageOnAttack;
 
     void DebugFlow(string stage, string detail)
     {

@@ -371,7 +371,9 @@ public static class NpcText
             value.IndexOf('Æ') >= 0 ||
             value.IndexOf('á') >= 0 ||
             value.IndexOf('º') >= 0 ||
-            value.IndexOf('»') >= 0;
+            value.IndexOf('»') >= 0 ||
+            (CountSuspiciousMojibakeChars(value) >= 2 &&
+                !ContainsCjk(value));
     }
 
     static int GetDisplayQualityScore(string value)
@@ -388,6 +390,18 @@ public static class NpcText
             if (IsReadableVietnameseChar(c))
             {
                 score += 3;
+                continue;
+            }
+
+            if (IsCjkChar(c))
+            {
+                score += 4;
+                continue;
+            }
+
+            if (IsLatinSupplementChar(c))
+            {
+                score -= 3;
                 continue;
             }
 
@@ -425,19 +439,101 @@ public static class NpcText
         int count = 0;
         for (int i = 0; i < value.Length; i++)
         {
-            switch (value[i])
+            if (IsSuspiciousMojibakeChar(value[i]))
             {
-                case 'Ã':
-                case 'Â':
-                case 'Ä':
-                case 'Æ':
-                case 'º':
-                case '»':
-                    count++;
-                    break;
+                count++;
             }
         }
 
         return count;
+    }
+
+    static int CountSuspiciousMojibakeChars(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return 0;
+        }
+
+        int count = 0;
+        for (int i = 0; i < value.Length; i++)
+        {
+            if (IsSuspiciousMojibakeChar(value[i]))
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    static bool ContainsCjk(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return false;
+        }
+
+        for (int i = 0; i < value.Length; i++)
+        {
+            if (IsCjkChar(value[i]))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    static bool IsCjkChar(char c)
+    {
+        return (c >= 0x3400 && c <= 0x4DBF) ||
+            (c >= 0x4E00 && c <= 0x9FFF) ||
+            (c >= 0xF900 && c <= 0xFAFF);
+    }
+
+    static bool IsLatinSupplementChar(char c)
+    {
+        return c >= 0x00C0 &&
+            c <= 0x00FF &&
+            !IsReadableVietnameseChar(c);
+    }
+
+    static bool IsSuspiciousMojibakeChar(char c)
+    {
+        switch (c)
+        {
+            case 'Ã':
+            case 'Â':
+            case 'Ä':
+            case 'Æ':
+            case 'º':
+            case '»':
+            case 'å':
+            case 'æ':
+            case 'ç':
+            case 'è':
+            case 'é':
+            case 'ê':
+            case 'ë':
+            case 'ì':
+            case 'í':
+            case 'î':
+            case 'ï':
+            case 'ð':
+            case 'ñ':
+            case 'ò':
+            case 'ó':
+            case 'ô':
+            case 'õ':
+            case 'ö':
+            case 'ù':
+            case 'ú':
+            case 'û':
+            case 'ü':
+                return true;
+            default:
+                return false;
+        }
     }
 }

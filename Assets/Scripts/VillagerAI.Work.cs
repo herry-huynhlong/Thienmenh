@@ -6,6 +6,11 @@ public partial class VillagerAI
     {
         if (IsInDungeonCombatSession())
         {
+            LogWorkDebug(
+                "Skip",
+                "reason=dungeonCombat",
+                ref lastWorkMoveLogTime,
+                0.25f);
             StopMoving();
             ClearMovementTargets();
             currentAction = NpcText.Action("idle");
@@ -14,6 +19,11 @@ public partial class VillagerAI
 
         if (ShouldGoHomeForRest())
         {
+            LogWorkDebug(
+                "Skip",
+                "reason=goHomeForRest",
+                ref lastWorkMoveLogTime,
+                0.25f);
             GoHomeToRest();
             return;
         }
@@ -28,6 +38,11 @@ public partial class VillagerAI
         {
             if (gatherer.TryStartGatheringNow())
             {
+                LogWorkDebug(
+                    "Delegate",
+                    "reason=resourceGatherer",
+                    ref lastWorkMoveLogTime,
+                    0.25f);
                 return;
             }
         }
@@ -42,6 +57,11 @@ public partial class VillagerAI
 
             if (hunterJob.TryRun())
             {
+                LogWorkDebug(
+                    "Delegate",
+                    "reason=hunterJob",
+                    ref lastWorkMoveLogTime,
+                    0.25f);
                 return;
             }
         }
@@ -53,6 +73,11 @@ public partial class VillagerAI
             if (harvestJob != null &&
                 harvestJob.TryRun())
             {
+                LogWorkDebug(
+                    "Delegate",
+                    "reason=harvestJob",
+                    ref lastWorkMoveLogTime,
+                    0.25f);
                 return;
             }
         }
@@ -64,6 +89,10 @@ public partial class VillagerAI
             hasWorkTarget = false;
             currentWorkTargetZone = null;
             currentWorkTargetKey = desiredWorkTargetKey;
+            LogWorkDebug(
+                "Retarget",
+                "reason=keyChanged newKey=" + desiredWorkTargetKey,
+                ref lastWorkTargetLogTime);
         }
 
         if (!hasWorkTarget)
@@ -146,21 +175,50 @@ public partial class VillagerAI
                     ? currentWorkTargetZone.Value.ToString()
                     : "none") +
                 " purpose=" + GetWorkLocationPurpose(job);
+            LogWorkDebug(
+                "Target",
+                "key=" + currentWorkTargetKey +
+                " workPoint=" + (workPoint != null ? workPoint.name : "null") +
+                " debug=" + debugWorkTarget,
+                ref lastWorkTargetLogTime,
+                0.25f);
         }
 
         float distance =
             Vector2.Distance(
                 transform.position,
                 currentWorkTarget);
+        bool targetOccupied =
+            IsSharedTargetOccupied(currentWorkTarget);
 
         if (distance >= 0.5f)
         {
+            if (targetOccupied)
+            {
+                LogWorkDebug(
+                    "Occupied",
+                    "distance=" + distance.ToString("0.00") +
+                    " occupants=" + DescribeSharedTargetOccupants(currentWorkTarget),
+                    ref lastWorkOccupancyLogTime,
+                    0.75f);
+            }
+
             currentAction = GetWorkAction();
             SetDirectMoveTarget(
                 currentWorkTarget,
                 false,
                 currentWorkTargetZone);
             MoveUsingRoad(currentWorkTarget, currentWorkTargetZone);
+            LogWorkDebug(
+                "Move",
+                "distance=" + distance.ToString("0.00") +
+                " direct=" + hasDirectMoveTarget +
+                " currentTarget=" + (currentTarget != null
+                    ? currentTarget.name
+                    : "null") +
+                " occupied=" + targetOccupied,
+                ref lastWorkMoveLogTime,
+                0.75f);
             return;
         }
 
@@ -176,6 +234,14 @@ public partial class VillagerAI
                     workSessionMinGameHours,
                     workSessionMaxGameHours))
             : Mathf.Max(thinkInterval, 2f);
+        LogWorkDebug(
+            "Arrive",
+            "distance=" + distance.ToString("0.00") +
+            " produced=" + produced +
+            " actionTimer=" + actionTimer.ToString("0.00") +
+            " occupied=" + targetOccupied,
+            ref lastWorkArrivalLogTime,
+            0.5f);
 
     }
 

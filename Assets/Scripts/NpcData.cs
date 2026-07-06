@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class NpcData : MonoBehaviour
 {
-    static readonly HashSet<string> assignedPersistentIds =
-        new HashSet<string>();
+    static readonly Dictionary<string, NpcData> assignedPersistentIds =
+        new Dictionary<string, NpcData>();
 
     public string npcName = "Nguoi dan";
     public string persistentId = "";
@@ -17,6 +17,7 @@ public class NpcData : MonoBehaviour
     public int maxHp = 100;
 
     public string currentAction = "";
+    string registeredPersistentId = "";
 
     void Awake()
     {
@@ -30,20 +31,71 @@ public class NpcData : MonoBehaviour
 
     void OnDestroy()
     {
-        if (!string.IsNullOrWhiteSpace(persistentId))
-        {
-            assignedPersistentIds.Remove(persistentId);
-        }
+        UnregisterPersistentId();
     }
 
     public void EnsurePersistentId()
     {
-        if (string.IsNullOrWhiteSpace(persistentId) ||
-            assignedPersistentIds.Contains(persistentId))
+        if (!string.IsNullOrWhiteSpace(registeredPersistentId) &&
+            registeredPersistentId != persistentId &&
+            assignedPersistentIds.TryGetValue(
+                registeredPersistentId,
+                out NpcData previousOwner) &&
+            previousOwner == this)
         {
-            persistentId = Guid.NewGuid().ToString("N");
+            assignedPersistentIds.Remove(registeredPersistentId);
+            registeredPersistentId = "";
         }
 
-        assignedPersistentIds.Add(persistentId);
+        if (string.IsNullOrWhiteSpace(persistentId))
+        {
+            persistentId = CreatePersistentId();
+        }
+        else if (assignedPersistentIds.TryGetValue(
+                     persistentId,
+                     out NpcData owner) &&
+                 owner != null &&
+                 owner != this)
+        {
+            persistentId = CreatePersistentId();
+        }
+
+        assignedPersistentIds[persistentId] = this;
+        registeredPersistentId = persistentId;
+    }
+
+    void UnregisterPersistentId()
+    {
+        if (string.IsNullOrWhiteSpace(registeredPersistentId))
+        {
+            return;
+        }
+
+        if (assignedPersistentIds.TryGetValue(
+                registeredPersistentId,
+                out NpcData owner) &&
+            owner == this)
+        {
+            assignedPersistentIds.Remove(registeredPersistentId);
+        }
+
+        registeredPersistentId = "";
+    }
+
+    string CreatePersistentId()
+    {
+        string candidate;
+
+        do
+        {
+            candidate = Guid.NewGuid().ToString("N");
+        }
+        while (assignedPersistentIds.TryGetValue(
+                   candidate,
+                   out NpcData owner) &&
+               owner != null &&
+               owner != this);
+
+        return candidate;
     }
 }

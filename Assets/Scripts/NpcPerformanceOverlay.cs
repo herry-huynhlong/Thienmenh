@@ -91,6 +91,11 @@ public class NpcPerformanceOverlay : MonoBehaviour
             visible = !visible;
         }
 
+        if (!visible)
+        {
+            return;
+        }
+
         if (Time.unscaledTime < nextRefreshTime)
         {
             return;

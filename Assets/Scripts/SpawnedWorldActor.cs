@@ -5,11 +5,12 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class SpawnedWorldActor : MonoBehaviour
 {
-    static readonly HashSet<string> assignedPersistentIds =
-        new HashSet<string>();
+    static readonly Dictionary<string, SpawnedWorldActor> assignedPersistentIds =
+        new Dictionary<string, SpawnedWorldActor>();
 
     public string persistentId = "";
     public bool isHiddenAtHome;
+    string registeredPersistentId = "";
 
     void Awake()
     {
@@ -23,20 +24,71 @@ public class SpawnedWorldActor : MonoBehaviour
 
     void OnDestroy()
     {
-        if (!string.IsNullOrWhiteSpace(persistentId))
-        {
-            assignedPersistentIds.Remove(persistentId);
-        }
+        UnregisterPersistentId();
     }
 
     public void EnsurePersistentId()
     {
-        if (string.IsNullOrWhiteSpace(persistentId) ||
-            assignedPersistentIds.Contains(persistentId))
+        if (!string.IsNullOrWhiteSpace(registeredPersistentId) &&
+            registeredPersistentId != persistentId &&
+            assignedPersistentIds.TryGetValue(
+                registeredPersistentId,
+                out SpawnedWorldActor previousOwner) &&
+            previousOwner == this)
         {
-            persistentId = Guid.NewGuid().ToString("N");
+            assignedPersistentIds.Remove(registeredPersistentId);
+            registeredPersistentId = "";
         }
 
-        assignedPersistentIds.Add(persistentId);
+        if (string.IsNullOrWhiteSpace(persistentId))
+        {
+            persistentId = CreatePersistentId();
+        }
+        else if (assignedPersistentIds.TryGetValue(
+                     persistentId,
+                     out SpawnedWorldActor owner) &&
+                 owner != null &&
+                 owner != this)
+        {
+            persistentId = CreatePersistentId();
+        }
+
+        assignedPersistentIds[persistentId] = this;
+        registeredPersistentId = persistentId;
+    }
+
+    void UnregisterPersistentId()
+    {
+        if (string.IsNullOrWhiteSpace(registeredPersistentId))
+        {
+            return;
+        }
+
+        if (assignedPersistentIds.TryGetValue(
+                registeredPersistentId,
+                out SpawnedWorldActor owner) &&
+            owner == this)
+        {
+            assignedPersistentIds.Remove(registeredPersistentId);
+        }
+
+        registeredPersistentId = "";
+    }
+
+    string CreatePersistentId()
+    {
+        string candidate;
+
+        do
+        {
+            candidate = Guid.NewGuid().ToString("N");
+        }
+        while (assignedPersistentIds.TryGetValue(
+                   candidate,
+                   out SpawnedWorldActor owner) &&
+               owner != null &&
+               owner != this);
+
+        return candidate;
     }
 }

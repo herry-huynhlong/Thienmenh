@@ -30,15 +30,94 @@ public class NpcResourceGatherer : MonoBehaviour
     VillagerAI villager;
     SmartNpcAI smartNpc;
     NpcItemCollector collector;
+    ItemInventory inventory;
     float scanTimer;
     float nextGatherAllowedTime;
+    float nextInventoryLookupTime;
     string scheduleSessionKey;
     int harvestsThisScheduleSession;
     StatItemData scheduledRequiredItem;
+    float lastApproachLogTime = float.NegativeInfinity;
+    float lastStartHarvestLogTime = float.NegativeInfinity;
+    float lastContinueHarvestLogTime = float.NegativeInfinity;
+    float lastCompleteHarvestLogTime = float.NegativeInfinity;
+
+    void LogScheduledGatherDebug(string stage, string detail)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (villager == null || !villager.debugWorkLogs)
+        {
+            return;
+        }
+
+        Debug.LogWarning(
+            "[NpcResourceGatherer] " +
+            stage +
+            " -> " +
+            gameObject.name +
+            " action=" +
+            (villager != null ? villager.currentAction : "null") +
+            " job=" +
+            (villager != null ? villager.job.ToString() : "None") +
+            " targetPickup=" +
+            (targetPickup != null && targetPickup.item != null
+                ? ItemText.Name(targetPickup.item) + "@" + targetPickup.transform.position
+                : "null") +
+            " harvestingPickup=" +
+            (harvestingPickup != null && harvestingPickup.item != null
+                ? ItemText.Name(harvestingPickup.item) + "@" + harvestingPickup.transform.position
+                : "null") +
+            " detail=" +
+            detail +
+            " hour=" +
+            (WorldTimeSystem.Instance != null
+                ? WorldTimeSystem.Instance.CurrentHour.ToString("0.##")
+                : "null"));
+#endif
+    }
 
     float GetApproachDistance()
     {
-        return Mathf.Min(arriveDistance, 0.16f);
+        return Mathf.Max(0.22f, arriveDistance);
+    }
+
+    float GetPickupSurfaceDistance(WorldStatItemPickup pickup)
+    {
+        if (pickup == null)
+        {
+            return float.MaxValue;
+        }
+
+        Collider2D pickupCollider =
+            pickup.GetComponent<Collider2D>();
+        if (pickupCollider != null)
+        {
+            Vector2 closest =
+                pickupCollider.ClosestPoint(transform.position);
+            return Vector2.Distance(transform.position, closest);
+        }
+
+        return Vector2.Distance(
+            transform.position,
+            pickup.transform.position);
+    }
+
+    bool HasInventory()
+    {
+        if (inventory != null)
+        {
+            return true;
+        }
+
+        if (Time.time < nextInventoryLookupTime)
+        {
+            return false;
+        }
+
+        nextInventoryLookupTime =
+            Time.time + 1f;
+        inventory = GetComponent<ItemInventory>();
+        return inventory != null;
     }
 
     public bool HasActiveGatheringFlow =>
@@ -71,6 +150,7 @@ public class NpcResourceGatherer : MonoBehaviour
         villager = GetComponent<VillagerAI>();
         smartNpc = GetComponent<SmartNpcAI>();
         collector = GetComponent<NpcItemCollector>();
+        inventory = GetComponent<ItemInventory>();
     }
 
     void Update()
@@ -83,7 +163,7 @@ public class NpcResourceGatherer : MonoBehaviour
         }
 
         if (gatherOnlyWhenInventoryExists &&
-            GetComponent<ItemInventory>() == null)
+            !HasInventory())
         {
             return;
         }
@@ -226,6 +306,12 @@ public class NpcResourceGatherer : MonoBehaviour
             (!allowScheduledWorkHarvest &&
             !NpcScheduleController.AllowsGather(gameObject)))
         {
+            LogScheduledGatherDebug(
+                "Reject",
+                "reason=precheck canGather=" + canGather +
+                " collector=" + (collector != null) +
+                " canPickup=" + (collector != null && collector.canPickupItems) +
+                " scheduled=" + allowScheduledWorkHarvest);
             return false;
         }
 
@@ -233,6 +319,7 @@ public class NpcResourceGatherer : MonoBehaviour
 
         if (ShouldPauseForSmartNpcDamageRecovery())
         {
+            LogScheduledGatherDebug("Reject", "reason=damageRecovery");
             return false;
         }
 
@@ -248,6 +335,7 @@ public class NpcResourceGatherer : MonoBehaviour
         if (IsScheduleHarvestLimitReached())
         {
             ClearActiveGathering();
+            LogScheduledGatherDebug("Reject", "reason=scheduleLimit");
             return false;
         }
 
@@ -255,10 +343,16 @@ public class NpcResourceGatherer : MonoBehaviour
         {
             if (MatchesRequiredItem(harvestingPickup, requiredItem))
             {
+                LogScheduledGatherDebug(
+                    "ReuseHarvest",
+                    "required=" + ItemText.Name(requiredItem));
                 return true;
             }
 
             ClearActiveGathering();
+            LogScheduledGatherDebug(
+                "ClearHarvest",
+                "reason=requiredMismatch required=" + ItemText.Name(requiredItem));
         }
 
         if (targetPickup != null)
@@ -267,20 +361,32 @@ public class NpcResourceGatherer : MonoBehaviour
                 IsPickupAvailable(targetPickup))
             {
                 MoveToTarget();
+                LogScheduledGatherDebug(
+                    "ReuseTarget",
+                    "required=" + ItemText.Name(requiredItem));
                 return true;
             }
 
             ClearTargetReservation();
+            LogScheduledGatherDebug(
+                "ClearTarget",
+                "reason=invalidOrMismatch required=" + ItemText.Name(requiredItem));
         }
 
         FindTarget(requiredItem, true);
         if (targetPickup != null)
         {
+            LogScheduledGatherDebug(
+                "FoundTarget",
+                "required=" + ItemText.Name(requiredItem));
             return true;
         }
 
         nextGatherAllowedTime =
             Time.time + Mathf.Max(0f, harvestCooldownWhenNoTarget);
+        LogScheduledGatherDebug(
+            "NoTarget",
+            "required=" + ItemText.Name(requiredItem));
         return false;
     }
 
@@ -423,6 +529,10 @@ public class NpcResourceGatherer : MonoBehaviour
                 nextGatherAllowedTime =
                     Time.time + Mathf.Max(0f, harvestCooldownWhenNoTarget);
             }
+            LogScheduledGatherDebug(
+                "FindTarget",
+                "result=null required=" +
+                (requiredItem != null ? ItemText.Name(requiredItem) : "null"));
             return false;
         }
 
@@ -440,12 +550,22 @@ public class NpcResourceGatherer : MonoBehaviour
 
         if (!candidate.TryReserve(gameObject, reservationDuration))
         {
+            LogScheduledGatherDebug(
+                "FindTarget",
+                "reserveFailed pickup=" +
+                (candidate.item != null ? ItemText.Name(candidate.item) : "null") +
+                " pos=" + candidate.transform.position);
             return false;
         }
 
         targetPickup = candidate;
         MarkCurrentGatherSlotStarted();
         MoveToTarget();
+        LogScheduledGatherDebug(
+            "FindTarget",
+            "reserved pickup=" +
+            (candidate.item != null ? ItemText.Name(candidate.item) : "null") +
+            " pos=" + candidate.transform.position);
         return true;
     }
 
@@ -661,12 +781,33 @@ public class NpcResourceGatherer : MonoBehaviour
         targetPickup.RefreshReservation(gameObject, reservationDuration);
 
         float distance =
-            Vector2.Distance(transform.position, targetPickup.transform.position);
+            GetPickupSurfaceDistance(targetPickup);
 
         if (distance <= GetApproachDistance())
         {
+            if (Time.time - lastApproachLogTime >= 0.5f)
+            {
+                LogScheduledGatherDebug(
+                    "Approach",
+                    "distance=" + distance.ToString("0.00") +
+                    " threshold=" + GetApproachDistance().ToString("0.00") +
+                    " result=startHarvest");
+                lastApproachLogTime = Time.time;
+            }
             StartHarvest();
             return;
+        }
+
+        if (Time.time - lastApproachLogTime >= 0.75f)
+        {
+            LogScheduledGatherDebug(
+                "Approach",
+                "distance=" + distance.ToString("0.00") +
+                " threshold=" + GetApproachDistance().ToString("0.00") +
+                " mover=" + (mover != null && mover.enabled) +
+                " villager=" + (villager != null && villager.enabled) +
+                " smart=" + (smartNpc != null && smartNpc.enabled));
+            lastApproachLogTime = Time.time;
         }
 
         if (villager != null &&
@@ -702,6 +843,14 @@ public class NpcResourceGatherer : MonoBehaviour
         {
             StatItemData desiredItem = GetPickupItem(targetPickup);
             ClearTargetReservation();
+            if (Time.time - lastStartHarvestLogTime >= 0.5f)
+            {
+                LogScheduledGatherDebug(
+                    "StartHarvest",
+                    "result=pickupInvalid desired=" +
+                    (desiredItem != null ? ItemText.Name(desiredItem) : "null"));
+                lastStartHarvestLogTime = Time.time;
+            }
 
             FindTarget(desiredItem, true);
             return;
@@ -719,6 +868,13 @@ public class NpcResourceGatherer : MonoBehaviour
             Mathf.Max(reservationDuration, harvestTimer + 1f));
         StopNpcMovement();
         SetGatherAction();
+        if (Time.time - lastStartHarvestLogTime >= 0.25f)
+        {
+            LogScheduledGatherDebug(
+                "StartHarvest",
+                "result=ok timer=" + harvestTimer.ToString("0.00"));
+            lastStartHarvestLogTime = Time.time;
+        }
     }
 
     float GetHarvestDurationForPickup(WorldStatItemPickup pickup)
@@ -762,6 +918,14 @@ public class NpcResourceGatherer : MonoBehaviour
             targetPickup = null;
             harvestTimer = 0f;
             lastHarvestActionSeconds = -1;
+            if (Time.time - lastContinueHarvestLogTime >= 0.5f)
+            {
+                LogScheduledGatherDebug(
+                    "Continue",
+                    "result=pickupInvalid desired=" +
+                    (desiredItem != null ? ItemText.Name(desiredItem) : "null"));
+                lastContinueHarvestLogTime = Time.time;
+            }
             FindTarget(desiredItem, true);
             return;
         }
@@ -771,7 +935,7 @@ public class NpcResourceGatherer : MonoBehaviour
             Mathf.Max(reservationDuration, harvestTimer + 1f));
 
         float distance =
-            Vector2.Distance(transform.position, harvestingPickup.transform.position);
+            GetPickupSurfaceDistance(harvestingPickup);
 
         if (distance > Mathf.Max(GetApproachDistance() + retargetDistance, harvestBreakDistance))
         {
@@ -780,6 +944,17 @@ public class NpcResourceGatherer : MonoBehaviour
             harvestingPickup = null;
             harvestTimer = 0f;
             lastHarvestActionSeconds = -1;
+            if (Time.time - lastContinueHarvestLogTime >= 0.5f)
+            {
+                LogScheduledGatherDebug(
+                    "Continue",
+                    "result=tooFar distance=" + distance.ToString("0.00") +
+                    " break=" +
+                    Mathf.Max(
+                        GetApproachDistance() + retargetDistance,
+                        harvestBreakDistance).ToString("0.00"));
+                lastContinueHarvestLogTime = Time.time;
+            }
             MoveToTarget();
             return;
         }
@@ -787,6 +962,15 @@ public class NpcResourceGatherer : MonoBehaviour
         StopNpcMovement();
         harvestTimer -= Time.deltaTime;
         RefreshGatherActionCountdown();
+
+        if (Time.time - lastContinueHarvestLogTime >= 1f)
+        {
+            LogScheduledGatherDebug(
+                "Continue",
+                "result=harvesting distance=" + distance.ToString("0.00") +
+                " timer=" + harvestTimer.ToString("0.00"));
+            lastContinueHarvestLogTime = Time.time;
+        }
 
         if (harvestTimer > 0f)
         {
@@ -810,6 +994,11 @@ public class NpcResourceGatherer : MonoBehaviour
             {
                 pickup.ClearReservation(gameObject);
             }
+            if (Time.time - lastCompleteHarvestLogTime >= 0.5f)
+            {
+                LogScheduledGatherDebug("Complete", "result=pickupInvalid");
+                lastCompleteHarvestLogTime = Time.time;
+            }
             return;
         }
 
@@ -818,6 +1007,14 @@ public class NpcResourceGatherer : MonoBehaviour
             !pickup.TryTake(1))
         {
             pickup.ClearReservation(gameObject);
+            if (Time.time - lastCompleteHarvestLogTime >= 0.5f)
+            {
+                LogScheduledGatherDebug(
+                    "Complete",
+                    "result=takeFailed item=" +
+                    (item != null ? ItemText.Name(item) : "null"));
+                lastCompleteHarvestLogTime = Time.time;
+            }
             FindTarget(item, true);
             return;
         }
@@ -827,6 +1024,13 @@ public class NpcResourceGatherer : MonoBehaviour
         collector.ReceiveItemWithoutUse(
             item,
             ItemLifecycleEventType.Picked);
+        if (Time.time - lastCompleteHarvestLogTime >= 0.25f)
+        {
+            LogScheduledGatherDebug(
+                "Complete",
+                "result=ok item=" + ItemText.Name(item));
+            lastCompleteHarvestLogTime = Time.time;
+        }
 
         harvestsThisScheduleSession++;
         if (limitHarvestsPerScheduleSlot &&

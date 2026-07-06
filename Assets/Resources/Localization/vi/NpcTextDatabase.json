@@ -70,6 +70,18 @@
         {
           "key": "realmStageFormat",
           "value": "{0} tầng {1}"
+        },
+        {
+          "key": "attack",
+          "value": "Tấn công"
+        },
+        {
+          "key": "defense",
+          "value": "Phòng thủ"
+        },
+        {
+          "key": "speed",
+          "value": "Tốc độ"
         }
       ]
     },
@@ -87,6 +99,18 @@
         {
           "key": "villager",
           "value": "Dân làng"
+        },
+        {
+          "key": "commoner",
+          "value": "Người dân"
+        },
+        {
+          "key": "cultivator",
+          "value": "Tu sĩ"
+        },
+        {
+          "key": "unknown",
+          "value": "Không rõ"
         }
       ]
     },
@@ -541,6 +565,86 @@
         {
           "key": "choosePatrolPoint",
           "value": "Chọn điểm tuần tra"
+        },
+        {
+          "key": "alchemy",
+          "value": "Đang luyện đan"
+        },
+        {
+          "key": "attack",
+          "value": "Đang tấn công"
+        },
+        {
+          "key": "boughtGoods",
+          "value": "Đã mua hàng"
+        },
+        {
+          "key": "clearHarvestMonster",
+          "value": "Dọn yêu thú gần điểm thu hoạch"
+        },
+        {
+          "key": "fightBlockingMonster",
+          "value": "Chiến đấu với yêu thú cản đường"
+        },
+        {
+          "key": "fleeMonsterArea",
+          "value": "Rời khỏi khu vực yêu thú"
+        },
+        {
+          "key": "forging",
+          "value": "Đang luyện khí"
+        },
+        {
+          "key": "goAlchemy",
+          "value": "Đi luyện đan"
+        },
+        {
+          "key": "goBuyGoods",
+          "value": "Đi mua hàng"
+        },
+        {
+          "key": "goForge",
+          "value": "Đi luyện khí"
+        },
+        {
+          "key": "goSellGoods",
+          "value": "Đi bán hàng"
+        },
+        {
+          "key": "goWorkTask",
+          "value": "Đi làm nhiệm vụ"
+        },
+        {
+          "key": "guardSpiritHerbMonster",
+          "value": "Đối phó yêu thú canh giữ linh thảo"
+        },
+        {
+          "key": "moveToTask",
+          "value": "Di chuyển đến điểm nhiệm vụ"
+        },
+        {
+          "key": "pickHuntEvidence",
+          "value": "Thu thập dấu vết săn bắn"
+        },
+        {
+          "key": "pickItem",
+          "value": "Nhặt vật phẩm"
+        },
+        {
+          "key": "receiveTask",
+          "value": "Nhận nhiệm vụ"
+        },
+        {
+          "key": "returnStorage",
+          "value": "Mang hàng về kho"
+        },
+        {
+          "key": "sellGoods",
+          "value": "Đang bán hàng"
+        },
+        {
+          "key": "workingTask",
+          "value": "Đang làm nhiệm vụ"
         }
       ]
     },

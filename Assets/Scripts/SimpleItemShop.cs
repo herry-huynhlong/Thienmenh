@@ -426,7 +426,8 @@ public class SimpleItemShop : MonoBehaviour
             return runtimeStockKey;
         }
 
-        return gameObject.name;
+        return gameObject.scene.name + ":" +
+            gameObject.name;
     }
 
     string GetItemKey(StatItemData item)

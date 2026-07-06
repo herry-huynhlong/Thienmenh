@@ -14,6 +14,8 @@ public class DoorTeleportSameScene : MonoBehaviour
 
     static readonly Dictionary<GameObject, float> teleportCooldowns =
         new Dictionary<GameObject, float>();
+    static readonly List<GameObject> staleCooldownActors =
+        new List<GameObject>();
 
     void OnTriggerEnter2D(Collider2D other)
     {
@@ -43,6 +45,7 @@ public class DoorTeleportSameScene : MonoBehaviour
     public bool TryTeleport(GameObject actor, bool allowNpcFromGate)
     {
         actor = ResolveActorRoot(actor);
+        CleanupTeleportCooldowns();
 
         if (targetPoint == null ||
             actor == null)
@@ -102,6 +105,24 @@ public class DoorTeleportSameScene : MonoBehaviour
             Time.time + teleportCooldown;
 
         return true;
+    }
+
+    static void CleanupTeleportCooldowns()
+    {
+        staleCooldownActors.Clear();
+
+        foreach (KeyValuePair<GameObject, float> entry in teleportCooldowns)
+        {
+            if (entry.Key == null)
+            {
+                staleCooldownActors.Add(entry.Key);
+            }
+        }
+
+        for (int i = 0; i < staleCooldownActors.Count; i++)
+        {
+            teleportCooldowns.Remove(staleCooldownActors[i]);
+        }
     }
 
     bool IsTeleportActor(GameObject actor)

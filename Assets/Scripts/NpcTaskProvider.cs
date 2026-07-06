@@ -239,6 +239,34 @@ public partial class NpcTaskProvider : MonoBehaviour
             count > 0;
     }
 
+    public static bool ReleaseNpcFromProviderTasksForCombat(GameObject npc)
+    {
+        if (npc == null)
+        {
+            return false;
+        }
+
+        bool releasedAny = false;
+        NpcTaskProvider[] providers =
+            FindObjectsByType<NpcTaskProvider>(FindObjectsInactive.Exclude);
+
+        for (int i = 0; i < providers.Length; i++)
+        {
+            NpcTaskProvider provider = providers[i];
+            if (provider == null)
+            {
+                continue;
+            }
+
+            if (provider.ReleaseNpcForCombatInternal(npc))
+            {
+                releasedAny = true;
+            }
+        }
+
+        return releasedAny;
+    }
+
     static void MarkNpcBusyWithProvider(GameObject npc)
     {
         if (npc == null)
@@ -292,6 +320,39 @@ public partial class NpcTaskProvider : MonoBehaviour
         {
             busyNpcCounts.Remove(npc);
         }
+    }
+
+    bool ReleaseNpcForCombatInternal(GameObject npc)
+    {
+        bool released = false;
+
+        for (int i = runningMeals.Count - 1; i >= 0; i--)
+        {
+            RunningTavernMeal meal = runningMeals[i];
+            if (meal == null ||
+                meal.npc != npc)
+            {
+                continue;
+            }
+
+            FinishMeal(i, false);
+            released = true;
+        }
+
+        for (int i = runningTasks.Count - 1; i >= 0; i--)
+        {
+            RunningNpcTask task = runningTasks[i];
+            if (task == null ||
+                task.npc != npc)
+            {
+                continue;
+            }
+
+            FinishTask(i, false);
+            released = true;
+        }
+
+        return released;
     }
 
     static bool IsEscortOfferLocked(NpcTaskOffer offer)
@@ -5522,11 +5583,6 @@ public partial class NpcTaskProvider : MonoBehaviour
         return new Vector2(
             direction.x * cos - direction.y * sin,
             direction.x * sin + direction.y * cos);
-    }
-
-    void OnNpcMapTeleported()
-    {
-        OnNpcMapTeleported(null);
     }
 
     void OnNpcMapTeleported(GameObject gateObject)

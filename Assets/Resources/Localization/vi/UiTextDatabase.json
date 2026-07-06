@@ -37,140 +37,140 @@
         },
         {
           "key": "speechCategoryFallback",
-          "value": "T\u00f4n th\u01b0\u1ee3ng c\u1ee9 thong th\u1ea3 xem qua, n\u01a1i n\u00e0y ch\u1ec9 ban cho h\u1eefu duy\u00ean."
+          "value": "Tôn thượng cứ thong thả xem qua, nơi này chỉ ban cho hữu duyên."
         },
         {
           "key": "speechInspectFallback",
-          "value": "T\u00f4n th\u01b0\u1ee3ng qu\u1ea3 nhi\u00ean nh\u00ecn th\u1ea5u c\u0103n c\u1ed1t, {0} n\u00e0y qu\u1ea3 l\u00e0 {1}."
+          "value": "Tôn thượng quả nhiên nhìn thấu căn cốt, {0} này quả là {1}."
         },
         {
           "key": "speechBuyFallback",
-          "value": "Da t\u1ea1 t\u00f4n th\u01b0\u1ee3ng \u0111\u00e3 ch\u1ecdn l\u1ea5y {0}, m\u00f3n n\u00e0y s\u1ebd v\u1ec1 \u0111\u00fang ng\u01b0\u1eddi."
+          "value": "Đa tạ tôn thượng đã chọn lấy {0}, món này sẽ về đúng người."
         },
         {
           "key": "speechBuyFallbackTrung",
-          "value": "Da t\u1ea1 t\u00f4n th\u01b0\u1ee3ng r\u1ed9ng tay, {0} n\u00e0y s\u1ebd \u0111\u01b0\u1ee3c trao cho h\u1eefu duy\u00ean."
+          "value": "Đa tạ tôn thượng rộng tay, {0} này sẽ được trao cho hữu duyên."
         },
         {
           "key": "speechBuyFallbackThuong",
-          "value": "\u00c1nh m\u1eaft t\u00f4n th\u01b0\u1ee3ng qu\u1ea3 nhi\u00ean kh\u00f4ng t\u1ea7m th\u01b0\u1eddng, {0} \u0111\u01b0\u1ee3c ban \u0111i nh\u1ea5t \u0111\u1ecbnh h\u1ee3p duy\u00ean."
+          "value": "Ánh mắt tôn thượng quả nhiên không tầm thường, {0} được ban đi nhất định hợp duyên."
         },
         {
           "key": "speechBuyFallbackTien",
-          "value": "Ti\u00ean nh\u00e3n nh\u01b0 t\u00f4n th\u01b0\u1ee3ng kh\u00e9o ch\u1ecdn, {0} ch\u1ec9 \u0111\u1ee3i ban cho \u0111\u00fang ch\u1ee7 nh\u00e2n."
+          "value": "Tôn thượng quả có tiên nhãn, {0} chỉ đợi ban cho đúng chủ nhân."
         }
       ],
       "lists": [
         {
           "key": "speechGreetingLines",
           "values": [
-            "T\u00f4n th\u01b0\u1ee3ng c\u1ee9 thong th\u1ea3 xem qua, n\u01a1i n\u00e0y ch\u1ec9 ban cho h\u1eefu duy\u00ean.",
-            "H\u00f4m nay linh quang \u0111ang s\u00e1ng, bi\u1ebft \u0111\u00e2u ng\u00e0i s\u1ebd ch\u1ecdn tr\u00fang b\u1ea3o v\u1eadt h\u1ee3p m\u1ec7nh.",
-            "M\u1eddi ng\u00e0i t\u1ef1 nhi\u00ean xem h\u00e0ng, c\u01a1 duy\u00ean n\u1ebfu \u0111\u1ebfn th\u00ec kh\u00f4ng c\u1ea7n c\u1ea9u \u0111\u00e2u xa."
+            "Tôn thượng cứ thong thả xem qua, nơi này chỉ ban cho hữu duyên.",
+            "Hôm nay linh quang đang sáng, biết đâu ngài sẽ chọn trúng bảo vật hợp mệnh.",
+            "Mời ngài cứ tự nhiên xem hàng, cơ duyên nếu đến thì không cần cầu đâu xa."
           ]
         },
         {
           "key": "speechDanDuocLines",
           "values": [
-            "Linh d\u01b0\u1ee3c n\u00e0y \u0111\u1ec3 d\u00e0nh ban cho ng\u01b0\u1eddi c\u1ea7n vun b\u1ed3i kh\u00ed huy\u1ebft.",
-            "\u0110an d\u01b0\u1ee3c c\u00f3 duy\u00ean c\u00f3 ph\u1ea7n, ch\u1ec9 \u0111\u1ee3i h\u1eefu duy\u00ean mang v\u1ec1 c\u1ed9ng d\u01b0\u1ee5ng."
+            "Linh dược này để dành ban cho người cần vun bồi khí huyết.",
+            "Đan dược có duyên có phần, chỉ đợi hữu duyên mang về sử dụng."
           ]
         },
         {
           "key": "speechPhapBaoLines",
           "values": [
-            "Ph\u00e1p b\u1ea3o c\u00f3 linh quang, ch\u1ec9 khi ban cho \u0111\u00fang ng\u01b0\u1eddi m\u1edbi r\u1ee9c s\u00e1ng.",
-            "Ng\u00e0i c\u1ee9 thong th\u1ea3 nh\u00ecn, ph\u00e1p b\u1ea3o h\u1ee3p duy\u00ean th\u00ec uy th\u1ebf t\u1ef1 sinh."
+            "Pháp bảo có linh quang, chỉ khi ban cho đúng người mới rực sáng.",
+            "Ngài cứ thong thả nhìn, pháp bảo hợp duyên thì uy thế tự sinh."
           ]
         },
         {
           "key": "speechCongPhapLines",
           "values": [
-            "C\u00f4ng ph\u00e1p tr\u1ecdng duy\u00ean, ai \u0111\u1eafy \u0111\u1ee7 ngo\u1ed9 t\u00ednh th\u00ec s\u1ebd nh\u1eadn ra ngay.",
-            "T\u1ea1ng kinh n\u00e0y c\u00f3 kh\u00f4ng \u00edt b\u1ea3n c\u1ed5, h\u1ee3p cho k\u1ebb mu\u1ed1n th\u1ea5m ng\u1ed9 \u0111\u1ea1o l\u00fd."
+            "Công pháp trọng duyên, ai đầy đủ ngộ tính thì sẽ nhận ra ngay.",
+            "Tạng kinh này có không ít bản cổ, hợp cho kẻ muốn thấm ngộ đạo lý."
           ]
         },
         {
           "key": "speechVatLieuLines",
           "values": [
-            "V\u1eadt li\u1ec7u n\u00e0y c\u00f3 linh t\u00ednh, r\u1ea5t h\u1ee3p \u0111\u1ec3 ban cho ng\u01b0\u1eddi bi\u1ebft d\u00f9ng \u0111\u00fang ch\u1ed7.",
-            "Thi\u00ean v\u1eadt \u0111\u1ecbnh s\u1eb5n cho luy\u1ec7n t\u1ea1o, ch\u1ec9 c\u1ea7n h\u1eefu duy\u00ean l\u00e0 nh\u1eadn ra ngay."
+            "Vật liệu này có linh tính, rất hợp để ban cho người biết dùng đúng chỗ.",
+            "Thiên vật định sẵn cho luyện tạo, chỉ cần hữu duyên là nhận ra ngay."
           ]
         },
         {
           "key": "speechThucPhamLines",
           "values": [
-            "Linh th\u1ef1c n\u00e0y c\u0169ng l\u00e0 m\u1ed9t ph\u1ea7n ban ph\u1ed1c cho th\u00e2n t\u00e2m.",
-            "Th\u1ef1c ph\u1ea9m \u1ea5m l\u00e0nh, \u0111\u01b0a \u0111\u1ebfn \u0111\u00fang l\u00fac th\u00ec c\u0169ng l\u00e0 c\u01a1 duy\u00ean."
+            "Linh thực này cũng là một phần ban phúc cho thân tâm.",
+            "Thực phẩm ấm lành, đưa đến đúng lúc thì cũng là cơ duyên."
           ]
         },
         {
           "key": "speechInspectVatLieuGeneralLines",
           "values": [
-            "V\u1eadt li\u1ec7u n\u00e0y c\u00f3 linh t\u00ednh, ban cho \u0111\u00fang ng\u01b0\u1eddi s\u1ebd th\u00e0nh n\u1ec1n m\u00f3ng cho luy\u1ec7n \u0111an ho\u1eb7c t\u1ea1o b\u1ea3o.",
-            "M\u1ed9t m\u00f3n v\u1eadt li\u1ec7u bi\u1ebft ch\u1ecdn tay ng\u01b0\u1eddi, d\u00f9ng v\u00e0o luy\u1ec7n kh\u00ed hay luy\u1ec7n \u0111an \u0111\u1ec1u s\u00e1ng gi\u00e1."
+            "Vật liệu này có linh tính, ban cho đúng người sẽ thành nền móng cho luyện đan hoặc tạo bảo.",
+            "Một món vật liệu biết chọn tay người, dùng vào luyện khí hay luyện đan đều sáng giá."
           ]
         },
         {
           "key": "speechInspectVatLieuHerbLines",
           "values": [
-            "D\u01b0\u1ee3c th\u1ea3o n\u00e0y c\u00f2n \u0111\u1ecdng linh kh\u00ed \u0111\u1ea5t tr\u1eddi, r\u1ea5t h\u1ee3p \u0111\u1ec3 ban cho ng\u01b0\u1eddi chuy\u00ean v\u1ec1 \u0111an l\u00f4.",
-            "M\u1ed9t c\u1ecf linh c\u00f2n mang kh\u00ed sinh tr\u01b0\u1edfng, trao \u0111\u00fang tay th\u00ec d\u1ec5 sinh ra \u0111an t\u1ed1t."
+            "Dược thảo này còn đọng linh khí đất trời, rất hợp để ban cho người chuyên về đan lô.",
+            "Một nhánh linh thảo còn mang khí sinh trưởng, trao đúng tay thì dễ luyện ra đan tốt."
           ]
         },
         {
           "key": "speechInspectVatLieuOreLines",
           "values": [
-            "Kho\u00e1ng th\u1ea1ch n\u00e0y c\u1ee9ng m\u00e0 c\u00f3 th\u1ea7n quang, \u0111\u01b0a v\u00e0o l\u00f2 luy\u1ec7n l\u00e0 d\u1ec5 sinh ra th\u00e0nh ph\u1ea9m t\u1ed1t.",
-            "M\u1ea3nh qu\u1ea7n th\u1ea1ch n\u00e0y c\u00f3 th\u1ea5t c\u1ed1t, ban cho \u0111\u00fang ng\u01b0\u1eddi th\u00ec r\u1ea5t h\u1ee3p luy\u1ec7n t\u1ea1o."
+            "Khoáng thạch này cứng mà có thần quang, đưa vào lò luyện là dễ sinh ra thành phẩm tốt.",
+            "Mảnh quặng thạch này có kết cấu chắc, ban cho đúng người thì rất hợp để luyện tạo."
           ]
         },
         {
           "key": "speechInspectVatLieuSpiritStoneLines",
           "values": [
-            "Linh th\u1ea1ch n\u00e0y kh\u00ed t\u1ee9c \u0111\u1ea7y \u0111\u1ea7n, ban v\u00e0o l\u00fac c\u1ea7n th\u00ec c\u1ef1c k\u1ef3 ti\u1ec7n cho ng\u01b0\u1eddi h\u1eefu duy\u00ean.",
-            "M\u1ed9t kh\u1ed1i linh th\u1ea1ch \u0111\u1ee7 kh\u00ed, ai c\u00f3 m\u1eaft nh\u00ecn th\u00ec s\u1ebd bi\u1ebft \u0111\u00e2y l\u00e0 m\u00f3n \u0111\u00e1ng gi\u1eef."
+            "Linh thạch này có khí tức đầy đặn, ban vào lúc cần thì cực kỳ tiện cho người hữu duyên.",
+            "Một khối linh thạch đủ khí, ai có mắt nhìn thì sẽ biết đây là món đáng giữ."
           ]
         },
         {
           "key": "speechInspectVatLieuCraftingPartLines",
           "values": [
-            "M\u1ea3nh gh\u00e9p n\u00e0y tuy nh\u1ecf nh\u01b0ng c\u00f3 th\u1ea7n \u00fd, \u0111\u1eb7t \u0111\u00fang tay th\u00ec th\u00e0nh n\u1ec1n c\u1ee7a m\u1ed9t m\u00f3n t\u1ed1t.",
+            "Mảnh ghép này tuy nhỏ nhưng có thần ý, đặt đúng tay thì thành nền của một món tốt.",
             "Một phần vật liệu tưởng nhỏ, nhưng vào tay người biết dùng sẽ thành nền móng quý giá."
           ]
         },
         {
           "key": "speechInspectCongPhapGeneralLines",
           "values": [
-            "B\u00ean trong \u1ea9n \u0111\u1ea1o v\u0103n, trao cho ng\u01b0\u1eddi c\u00f3 ng\u1ed9 t\u00ednh s\u1ebd t\u1ef1 m\u1edf ra \u0111\u01b0\u1eddng \u0111i ri\u00eang.",
-            "C\u00f4ng ph\u00e1p n\u00e0y c\u00f3 d\u01b0 h\u01b0\u1edfng ri\u00eang, ng\u01b0\u1eddi c\u00f3 duy\u00ean nh\u00ecn qua s\u1ebd hi\u1ec3u ngay."
+            "Bên trong ẩn đạo văn, trao cho người có ngộ tính sẽ tự mở ra đường đi riêng.",
+            "Công pháp này có dư hưởng riêng, người có duyên nhìn qua sẽ hiểu ngay."
           ]
         },
         {
           "key": "speechInspectCongPhapAttackLines",
           "values": [
-            "C\u00f4ng ph\u00e1p n\u00e0y nghi\u00ean v\u1ec1 s\u00e1t ph\u00e1t, trao \u0111\u00fang ng\u01b0\u1eddi s\u1ebd th\u00e0nh m\u1ed9t m\u0169i nh\u1ecdn r\u1ea5t s\u1eafc.",
-            "M\u1ed9t b\u1ea3n c\u00f4ng ph\u00e1p chi\u1ebfn \u0111\u1ea5u, ch\u1ecdn \u0111\u00fang ch\u1ee7 nh\u00e2n th\u00ec uy th\u1ebf t\u1ef1 sinh."
+            "Công pháp này nghiêng về sát phạt, trao đúng người sẽ thành một mũi nhọn rất sắc.",
+            "Một bản công pháp chiến đấu, chọn đúng chủ nhân thì uy thế tự sinh."
           ]
         },
         {
           "key": "speechInspectCongPhapDefenseLines",
           "values": [
-            "C\u00f4ng ph\u00e1p n\u00e0y thi\u00ean v\u1ec1 th\u1ee7 th\u1ebf, ban cho ng\u01b0\u1eddi gi\u1eef m\u00ecnh l\u00e0 \u0111\u1eb7c bi\u1ec7t h\u1ee3p.",
-            "B\u1ea3n c\u00f4ng ph\u00e1p gi\u1eef th\u00e2n, trao cho \u0111\u00fang ng\u01b0\u1eddi th\u00ec r\u1ea5t \u0111\u00e1ng gi\u00e1."
+            "Công pháp này thiên về thủ thế, ban cho người giữ mình là đặc biệt hợp.",
+            "Bản công pháp giữ thân, trao cho đúng người thì rất đáng giá."
           ]
         },
         {
           "key": "speechInspectCongPhapMovementLines",
           "values": [
-            "C\u00f4ng ph\u00e1p n\u00e0y thi\u00ean v\u1ec1 th\u00e2n ph\u00e1p, ch\u1ecdn \u0111\u00fang ng\u01b0\u1eddi th\u00ec th\u00e2n \u1ea3nh s\u1ebd linh \u0111\u1ed9ng h\u01a1n.",
-            "M\u1ed9t b\u1ea3n th\u00e2n ph\u00e1p kh\u00e9o l\u1ec7, ai c\u00f3 d\u00e2y duy\u00ean v\u1edbi n\u00f3 th\u00ec b\u1ed9 ph\u00e1p s\u1ebd r\u1ea5t thu\u1eadn."
+            "Công pháp này thiên về thân pháp, chọn đúng người thì thân ảnh sẽ linh động hơn.",
+            "Một bản thân pháp khéo léo, ai có duyên với nó thì bộ pháp sẽ rất thuận."
           ]
         },
         {
           "key": "speechInspectCongPhapCultivationLines",
           "values": [
-            "C\u00f4ng ph\u00e1p n\u00e0y qu\u00fd \u1edf ch\u1ed7 d\u01b0\u1ee1ng kh\u00ed, g\u1eb7p ng\u01b0\u1eddi c\u00f3 duy\u00ean th\u00ec s\u1ebd khai m\u1edf r\u1ea5t nhanh.",
+            "Công pháp này quý ở chỗ dưỡng khí, gặp người có duyên thì sẽ khai mở rất nhanh.",
             "Một bản dưỡng khí tốt, ban cho người đang tu luyện sẽ giống như gặp đúng dòng nước mát."
           ]
         },
@@ -185,13 +185,13 @@
           "key": "speechInspectDanDuocBreakthroughLines",
           "values": [
             "Đan này có khí phá cảnh, trao đúng lúc chẳng khác nào thêm một lần gió thuận.",
-            "Một viên có duyên cho phá cảnh, đến tay đúng người là cực kỳ đắt giá."
+            "Một viên đan trợ phá cảnh, đến tay đúng người là cực kỳ đáng giá."
           ]
         },
         {
           "key": "speechInspectDanDuocCultivationLines",
           "values": [
-            "Đan này nghiêng về bồi nguyên dưỡng khí, rất hợp cho người đang dưỡng cơ.",
+            "Đan này nghiêng về bồi nguyên dưỡng khí, rất hợp cho người đang dưỡng căn cơ.",
             "Linh đan dưỡng khí, ban cho đúng người sẽ giống như thêm một dòng nước trong vào kinh mạch."
           ]
         },
@@ -205,7 +205,7 @@
         {
           "key": "speechInspectPhapBaoGeneralLines",
           "values": [
-            "B\u1ea3o quang \u1ea9n m\u00e0 kh\u00f4ng ph\u00f4, ch\u1ecdn \u0111\u00fang ch\u1ee7 nh\u00e2n th\u00ec m\u1edbi th\u1ea5y h\u1ebft gi\u00e1 tr\u1ecb.",
+            "Bảo quang ẩn mà không phô, chọn đúng chủ nhân thì mới thấy hết giá trị.",
             "Pháp bảo này có khí tượng riêng, nhìn kỹ sẽ thấy hợp cho người hữu duyên."
           ]
         },
@@ -261,57 +261,57 @@
         {
           "key": "speechInspectHaLines",
           "values": [
-            "{0} n\u00e0y tuy l\u00e0 {1}, nh\u01b0ng ban cho ng\u01b0\u1eddi h\u1ee3p m\u1ec7nh th\u00ec v\u1eabn r\u1ea5t \u0111\u1eafng gi\u00e1.",
-            "M\u1ed9t m\u00f3n {1} g\u1ecdn g\u00e0ng, th\u00e2y l\u00f2ng m\u00e0 trao cho \u0111\u00fang ng\u01b0\u1eddi l\u00e0 c\u00f3 d\u1ee5ng."
+            "{0} này tuy là {1}, nhưng ban cho người hợp mệnh thì vẫn rất đáng giá.",
+            "Một món {1} gọn gàng, thành tâm trao cho đúng người thì vẫn có ích."
           ]
         },
         {
           "key": "speechInspectTrungLines",
           "values": [
-            "{0} n\u00e0y \u0111\u00e3 mang ph\u1ea7n {1}, ban xu\u1ed1ng cho h\u1eefu duy\u00ean th\u00ec c\u00e0ng t\u1ecf \u0111\u1ea1o v\u1ecb.",
-            "Ng\u00e0i ch\u1ecdn kh\u00e1 l\u1eafm, m\u1ed9t m\u00f3n {1} nh\u01b0 th\u1ebf n\u00e0y \u0111\u00e1ng \u0111\u1ec3 trao tay."
+            "{0} này đã mang phần {1}, ban xuống cho hữu duyên thì càng tỏ đạo vị.",
+            "Ngài chọn khá lắm, một món {1} như thế này đáng để trao tay."
           ]
         },
         {
           "key": "speechInspectThuongLines",
           "values": [
-            "Qu\u1ea3 nhi\u00ean ng\u00e0i c\u00f3 \u0111\u1ed9c nh\u00e3n, {0} \u0111\u00edch th\u1ef1c l\u00e0 {1} c\u00f3 duy\u00ean.",
-            "B\u1ea3o v\u1eadt c\u1ea5p {1} nh\u01b0 {0}, ban cho \u0111\u00fang ng\u01b0\u1eddi th\u00ec qu\u1ea3 l\u00e0 kh\u00f4ng ph\u00ed."
+            "Quả nhiên ngài có tuệ nhãn, {0} đích thực là {1} có duyên.",
+            "Bảo vật cấp {1} như {0}, ban cho đúng người thì quả là không phí."
           ]
         },
         {
           "key": "speechInspectTienLines",
           "values": [
-            "Ch\u1ec9 b\u1eadc th\u1eaft h\u1eefu duy\u00ean m\u1edbi c\u00f3 th\u1ec3 d\u1eebng m\u1eaft \u1edf {0}, qu\u1ea3 nhi\u00ean l\u00e0 {1}.",
-            "Ti\u00ean ph\u1ea9m c\u00f3 linh quang t\u1ef1 \u1ea9n, ch\u1ec9 khi \u0111\u01b0\u1ee3c ban cho \u0111\u00fang ng\u01b0\u1eddi m\u1edbi th\u1eadt s\u1ef1 t\u1ecfa s\u00e1ng."
+            "Chỉ bậc thật sự hữu duyên mới có thể dừng mắt ở {0}, quả nhiên là {1}.",
+            "Tiên phẩm có linh quang tự ẩn, chỉ khi được ban cho đúng người mới thật sự tỏa sáng."
           ]
         },
         {
           "key": "speechBuyHaLines",
           "values": [
-            "C\u1ea3m \u01a1n t\u00f4n th\u01b0\u1ee3ng \u0111\u00e3 ch\u1ecdn l\u1ea5y, mong {0} s\u1edbm g\u1eb7p \u0111\u00fang h\u1eefu duy\u00ean.",
-            "Da t\u1ea1 t\u00f4n th\u01b0\u1ee3ng ban nh\u1eadn, d\u00f9 l\u00e0 {1} nh\u01b0ng v\u1eabn \u0111\u1eafy \u0111\u1ee7 linh t\u00ednh."
+            "Cảm ơn tôn thượng đã chọn lấy, mong {0} sớm gặp đúng hữu duyên.",
+            "Đa tạ tôn thượng đã chọn, dù là {1} nhưng vẫn đầy đủ linh tính."
           ]
         },
         {
           "key": "speechBuyTrungLines",
           "values": [
-            "Ch\u00fac t\u00f4n th\u01b0\u1ee3ng c\u00f3 c\u01a1 duy\u00ean t\u1ef1 khai, {0} n\u00e0y \u0111\u01b0\u1ee3c ban ra s\u1ebd h\u1ed3 tr\u1ee3 kh\u00f4ng \u00edt.",
-            "Da t\u1ea1 t\u00f4n th\u01b0\u1ee3ng \u0111\u00e3 r\u1ed9ng tay \u0111\u1ecbnh duy\u00ean, b\u1ea3o v\u1eadt {1} n\u00e0y r\u1ea5t h\u1ee3p \u0111\u1ec3 trao l\u1ea1i cho ng\u01b0\u1eddi x\u1ee9ng \u0111\u00e1ng."
+            "Chúc tôn thượng có cơ duyên tự khai, {0} này được ban ra sẽ hỗ trợ không ít.",
+            "Đa tạ tôn thượng đã rộng tay định duyên, bảo vật {1} này rất hợp để trao lại cho người xứng đáng."
           ]
         },
         {
           "key": "speechBuyThuongLines",
           "values": [
-            "Kh\u00ed v\u1eadn c\u1ee7a t\u00f4n th\u01b0\u1ee3ng qu\u1ea3 nhi\u00ean phi ph\u00e0m, {0} \u0111\u01b0\u1ee3c ban xu\u1ed1ng nh\u1ea5t \u0111\u1ecbnh s\u1ebd r\u1ee9c s\u00e1ng.",
-            "B\u1eadc cao nh\u00e2n ra tay qu\u1ea3 kh\u00e1c, l\u1ea7n n\u00e0y ch\u1ecdn th\u1eb3ng b\u1ea3o v\u1eadt h\u1ea1ng {1} th\u1eadt l\u00e0 \u0111\u00fang duy\u00ean."
+            "Khí vận của tôn thượng quả nhiên phi phàm, {0} được ban xuống nhất định sẽ rực sáng.",
+            "Bậc cao nhân ra tay quả khác, lần này chọn thẳng bảo vật hạng {1} thật là đúng duyên."
           ]
         },
         {
           "key": "speechBuyTienLines",
           "values": [
-            "Ti\u00ean nh\u00e3n nh\u01b0 t\u00f4n th\u01b0\u1ee3ng th\u1eadt khi\u1ebfn k\u1ebb bu\u00f4n n\u00e0y kh\u00e2m ph\u1ee5c, {0} ch\u1ec9 \u0111\u1ee3i ban cho \u0111\u00fang ch\u1ee7 nh\u00e2n.",
-            "B\u00e1u v\u1eadt h\u1ea1ng {1} m\u00e0 g\u1eb7p \u0111\u01b0\u1ee3c minh ch\u1ee7, qu\u1ea3 l\u00e0 duy\u00ean tr\u1eddi an b\u1ed9."
+            "Tiên nhãn như tôn thượng thật khiến kẻ buôn này khâm phục, {0} chỉ đợi ban cho đúng chủ nhân.",
+            "Báu vật hạng {1} mà gặp được minh chủ, quả là duyên trời an bài."
           ]
         }
       ]
@@ -650,6 +650,24 @@
             "Để giữ lại một tia sinh cơ cuối cùng, Thiên Đạo đã cưỡng ép thiêu đốt bản nguyên của chính mình.\n\nSức mạnh ấy đánh lui ngoại địch, phong bế vết nứt hư không, cứu lấy phần còn sót lại của Hoang Cổ Đại Lục.\n\nNhưng cái giá phải trả quá lớn.\n\nBản nguyên Thiên Đạo vỡ nát, quyền năng thất lạc khắp nơi. Linh khí suy yếu, pháp tắc hỗn loạn, thế giới chỉ còn lại những vùng đất rời rạc đang tự chống chọi với thời gian.",
             "Hiện tại, một tia tàn ý của Thiên Đạo đã thức tỉnh.\n\nĐó chính là ngươi.\n\nNgươi chưa thể chưởng khống toàn bộ thế giới, chỉ có thể quan sát một vùng đất nhỏ bé nơi rìa Hoang Cổ Đại Lục.\n\nNhưng từ nơi này, Thiên Đạo có thể bắt đầu trùng tu.\n\nHãy dẫn dắt sinh linh, ban phát cơ duyên, thúc đẩy tu luyện, mở rộng vùng đất, khôi phục linh khí và từng bước thu hồi bản nguyên đã mất.\n\nKhi Thiên Đạo đủ mạnh, Hoang Cổ Đại Lục sẽ một lần nữa nghênh đón thời đại mới."
           ]
+        },
+        {
+          "key": "defaultPageTitles",
+          "values": [
+            "Thiên Đạo Hoàn Chỉnh",
+            "Hạo Kiếp Diệt Giới",
+            "Bản Nguyên Vỡ Nát",
+            "Trùng Tu Thiên Đạo"
+          ]
+        },
+        {
+          "key": "defaultPageBodies",
+          "values": [
+            "Thuở thiên địa còn nguyên vẹn, Hoang Cổ Đại Lục từng là một thế giới phồn thịnh.\n\nThiên Đạo bao phủ vạn vật, nhật nguyệt vận hành có thứ tự, linh khí luân chuyển không dứt.\n\nSinh linh sinh ra, tu luyện, tranh đấu, truyền thừa rồi hóa thành một phần của thiên địa.\n\nTông môn hưng thịnh, yêu thú tung hoành, linh thảo sinh trưởng khắp núi sông. Mỗi sinh mệnh đều có quỹ tích riêng, mỗi cơ duyên đều nằm trong đại đạo tuần hoàn.",
+            "Nhưng vào một kỷ nguyên xa xưa, hư không bỗng rạn nứt.\n\nMột thế lực đến từ ngoài thiên địa xâm nhập Hoang Cổ Đại Lục.\n\nChúng không tuân theo Thiên Đạo, không nhập luân hồi, chỉ muốn nuốt lấy linh khí, bản nguyên và sinh cơ của cả thế giới.\n\nTrận hạo kiếp ấy khiến núi sông sụp đổ, tông môn tiêu vong, vô số sinh linh hóa thành tro bụi. Trật tự thiên địa bắt đầu tan rã.",
+            "Để giữ lại một tia sinh cơ cuối cùng, Thiên Đạo đã cưỡng ép thiêu đốt bản nguyên của chính mình.\n\nSức mạnh ấy đánh lui ngoại địch, phong bế vết nứt hư không, cứu lấy phần còn sót lại của Hoang Cổ Đại Lục.\n\nNhưng cái giá phải trả quá lớn.\n\nBản nguyên Thiên Đạo vỡ nát, quyền năng thất lạc khắp nơi. Linh khí suy yếu, pháp tắc hỗn loạn, thế giới chỉ còn lại những vùng đất rời rạc đang tự chống chọi với thời gian.",
+            "Hiện tại, một tia tàn ý của Thiên Đạo đã thức tỉnh.\n\nĐó chính là ngươi.\n\nNgươi chưa thể chưởng khống toàn bộ thế giới, chỉ có thể quan sát một vùng đất nhỏ bé nơi rìa Hoang Cổ Đại Lục.\n\nNhưng từ nơi này, Thiên Đạo có thể bắt đầu trùng tu.\n\nHãy dẫn dắt sinh linh, ban phát cơ duyên, thúc đẩy tu luyện, mở rộng vùng đất, khôi phục linh khí và từng bước thu hồi bản nguyên đã mất.\n\nKhi Thiên Đạo đủ mạnh, Hoang Cổ Đại Lục sẽ một lần nữa nghênh đón thời đại mới."
+          ]
         }
       ]
     },
@@ -679,6 +697,10 @@
         {
           "key": "maritalStatusRow",
           "value": "Tình trạng"
+        },
+        {
+          "key": "maritalStatusRowAlt",
+          "value": "Tình trạng:"
         },
         {
           "key": "statusRow",
@@ -856,7 +878,7 @@
         },
         {
           "key": "labelFear",
-          "value": "Kinh Sợ"
+          "value": "Kính Sợ"
         },
         {
           "key": "labelFate",
@@ -928,11 +950,11 @@
         },
         {
           "key": "emptyStateTitle",
-          "value": "Ch?a c? thi?n m?nh chi t?"
+          "value": "Chưa có thiên mệnh chi tử"
         },
         {
           "key": "emptyStateDescription",
-          "value": "H?y ban c? duy?n cho m?t sinh linh ph? h?p ?? xu?t hi?n t?i ??y."
+          "value": "Hãy ban cơ duyên cho một sinh linh phù hợp để xuất hiện tại đây."
         },
         {
           "key": "descriptionNone",
@@ -948,7 +970,7 @@
         },
         {
           "key": "fearFormat",
-          "value": "Kinh sợ: {0}"
+          "value": "Kính sợ: {0}"
         },
         {
           "key": "titleChildOfHeaven",

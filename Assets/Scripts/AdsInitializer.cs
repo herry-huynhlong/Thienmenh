@@ -4,6 +4,8 @@ using System;
 
 public class AdsInitializer : MonoBehaviour, IUnityAdsInitializationListener
 {
+    static AdsInitializer instance;
+
     public static bool IsInitialized { get; private set; }
     public static event Action OnAdsInitialized;
 
@@ -18,6 +20,14 @@ public class AdsInitializer : MonoBehaviour, IUnityAdsInitializationListener
 
     private void Awake()
     {
+        if (instance != null &&
+            instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
         DontDestroyOnLoad(gameObject);
         InitializeAds();
     }

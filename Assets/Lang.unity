@@ -9895,6 +9895,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PhapTuongBreath
   scaleAmount: 0.8
   breathSpeed: 2
+  animateAlpha: 0
+  minAlpha: 0.15
+  maxAlpha: 0.25
 --- !u!114 &34095726
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20208,6 +20211,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PhapTuongBreath
   scaleAmount: 0.5
   breathSpeed: 2
+  animateAlpha: 0
+  minAlpha: 0.15
+  maxAlpha: 0.25
 --- !u!114 &312403974
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21694,6 +21700,7 @@ MonoBehaviour:
   currentAction: idle
   currentTarget: {fileID: 0}
   debugWorkTarget: 
+  debugWorkLogs: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &337541977
 MonoBehaviour:
@@ -29239,6 +29246,7 @@ MonoBehaviour:
   currentAction: idle
   currentTarget: {fileID: 0}
   debugWorkTarget: 
+  debugWorkLogs: 1
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &546560092
 MonoBehaviour:
@@ -37322,6 +37330,7 @@ MonoBehaviour:
   currentAction: idle
   currentTarget: {fileID: 0}
   debugWorkTarget: 
+  debugWorkLogs: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &610803234
 MonoBehaviour:
@@ -48698,6 +48707,7 @@ MonoBehaviour:
   currentAction: idle
   currentTarget: {fileID: 0}
   debugWorkTarget: 
+  debugWorkLogs: 1
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &954560967
 MonoBehaviour:
@@ -57677,6 +57687,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PhapTuongBreath
   scaleAmount: 0.1
   breathSpeed: 2
+  animateAlpha: 0
+  minAlpha: 0.15
+  maxAlpha: 0.25
 --- !u!114 &1053694702
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -59343,6 +59356,7 @@ MonoBehaviour:
   currentAction: idle
   currentTarget: {fileID: 0}
   debugWorkTarget: 
+  debugWorkLogs: 1
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &1066808552
 MonoBehaviour:
@@ -79838,6 +79852,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PhapTuongBreath
   scaleAmount: 0.08
   breathSpeed: 1.2
+  animateAlpha: 0
+  minAlpha: 0.15
+  maxAlpha: 0.25
 --- !u!114 &1202850054
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -81578,6 +81595,7 @@ MonoBehaviour:
   currentAction: idle
   currentTarget: {fileID: 0}
   debugWorkTarget: 
+  debugWorkLogs: 1
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &1243343401
 MonoBehaviour:
@@ -83206,6 +83224,7 @@ MonoBehaviour:
   currentAction: idle
   currentTarget: {fileID: 0}
   debugWorkTarget: 
+  debugWorkLogs: 1
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &1275826754
 MonoBehaviour:
@@ -84406,7 +84425,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1304320904
 Transform:
   m_ObjectHideFlags: 0
@@ -89079,6 +89098,7 @@ MonoBehaviour:
   currentAction: idle
   currentTarget: {fileID: 0}
   debugWorkTarget: 
+  debugWorkLogs: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &1398839548
 MonoBehaviour:
@@ -89772,6 +89792,7 @@ MonoBehaviour:
   currentAction: idle
   currentTarget: {fileID: 0}
   debugWorkTarget: 
+  debugWorkLogs: 1
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &1408745015
 MonoBehaviour:
@@ -91381,6 +91402,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PhapTuongBreath
   scaleAmount: 0.3
   breathSpeed: 1.2
+  animateAlpha: 0
+  minAlpha: 0.15
+  maxAlpha: 0.25
 --- !u!114 &1467307836
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -97053,7 +97077,7 @@ Transform:
   m_GameObject: {fileID: 1607465723}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.07, y: 4.2600174, z: 0}
+  m_LocalPosition: {x: -0.97, y: 0.46, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -97155,13 +97179,13 @@ MonoBehaviour:
   generateFromEntityProfile: 1
   entityProfile: {fileID: 0}
   monsterName: 
-  maxHP: 800
-  currentHP: 800
+  maxHP: 80
+  currentHP: 80
   beastLevel: 1
-  huntTargetType: 1
+  huntTargetType: 2
   autoStatsFromRealm: 1
   syncBeastLevelFromRealm: 1
-  realm: 1
+  realm: 0
   realmStage: 1
   cultivationExp: 0
   baseExpToNextRealm: 100
@@ -97176,9 +97200,9 @@ MonoBehaviour:
   npcDevourExpMultiplier: 0.35
   minNpcDevourExp: 20
   healAfterDevouringNpc: 1
-  damage: 80
-  defense: 30
-  effectResistance: 2
+  damage: 8
+  defense: 3
+  effectResistance: 0
   beastInstinct: 60
   aggression: 50
   fear: 20
@@ -97189,7 +97213,7 @@ MonoBehaviour:
   territorial: 50
   bloodlust: 20
   survivalInstinct: 50
-  moveSpeed: 2.12
+  moveSpeed: 2
   roamRadius: 3
   waitTime: 2
   autoConfigureRigidbody: 1
@@ -109023,6 +109047,7 @@ MonoBehaviour:
   currentAction: idle
   currentTarget: {fileID: 0}
   debugWorkTarget: 
+  debugWorkLogs: 1
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &1668547563
 MonoBehaviour:
@@ -137701,6 +137726,7 @@ MonoBehaviour:
   currentAction: idle
   currentTarget: {fileID: 0}
   debugWorkTarget: 
+  debugWorkLogs: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &2092184321
 MonoBehaviour:
@@ -138531,6 +138557,7 @@ MonoBehaviour:
   currentAction: idle
   currentTarget: {fileID: 0}
   debugWorkTarget: 
+  debugWorkLogs: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &2104565427
 MonoBehaviour:

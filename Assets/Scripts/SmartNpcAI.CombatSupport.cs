@@ -428,8 +428,7 @@ public partial class SmartNpcAI
         int incomingDamage)
     {
         if (attackerObject == null ||
-            IsDead ||
-            NpcTaskProvider.IsNpcBusyWithAnyProvider(gameObject))
+            IsDead)
         {
             return;
         }
@@ -448,6 +447,7 @@ public partial class SmartNpcAI
             ReleaseMonsterReservation(currentMonsterTarget);
         }
 
+        NpcTaskProvider.ReleaseNpcFromProviderTasksForCombat(gameObject);
         ClearHelpRequestState();
         StopMonsterRetreat();
         isCounterAttackingMonster = true;

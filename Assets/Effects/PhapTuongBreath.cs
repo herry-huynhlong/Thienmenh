@@ -6,9 +6,14 @@ public class PhapTuongBreath : MonoBehaviour
     private Vector3 originalScale;
     private SpriteRenderer spriteRenderer;
     private Graphic graphic;
+    private Color originalSpriteColor;
+    private Color originalGraphicColor;
 
     public float scaleAmount = 0.08f;
     public float breathSpeed = 1.2f;
+    public bool animateAlpha = false;
+    [Range(0f, 1f)] public float minAlpha = 0.15f;
+    [Range(0f, 1f)] public float maxAlpha = 0.25f;
 
     void Start()
     {
@@ -18,6 +23,15 @@ public class PhapTuongBreath : MonoBehaviour
         if (spriteRenderer == null)
         {
             graphic = GetComponent<Graphic>();
+        }
+
+        if (spriteRenderer != null)
+        {
+            originalSpriteColor = spriteRenderer.color;
+        }
+        else if (graphic != null)
+        {
+            originalGraphicColor = graphic.color;
         }
 
         if (spriteRenderer == null && graphic == null)
@@ -39,14 +53,22 @@ public class PhapTuongBreath : MonoBehaviour
 
         if (spriteRenderer != null)
         {
-            Color color = spriteRenderer.color;
-            color.a = Mathf.Lerp(0.15f, 0.25f, t);
-            spriteRenderer.color = color;
+            if (animateAlpha)
+            {
+                Color color = originalSpriteColor;
+                color.a = Mathf.Lerp(minAlpha, maxAlpha, t);
+                spriteRenderer.color = color;
+            }
             return;
         }
 
-        Color graphicColor = graphic.color;
-        graphicColor.a = Mathf.Lerp(0.15f, 0.25f, t);
+        if (!animateAlpha)
+        {
+            return;
+        }
+
+        Color graphicColor = originalGraphicColor;
+        graphicColor.a = Mathf.Lerp(minAlpha, maxAlpha, t);
         graphic.color = graphicColor;
     }
 }

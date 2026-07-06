@@ -35,7 +35,7 @@ public class NpcWorkArea : MonoBehaviour
         }
     }
 
-    public Vector3 GetRandomPoint()
+    public Vector3 GetRandomPoint(GameObject npc = null)
     {
         if (areaCollider == null)
         {
@@ -50,7 +50,7 @@ public class NpcWorkArea : MonoBehaviour
                 continue;
             }
 
-            if (IsBlocked(point))
+            if (IsBlocked(point, npc))
             {
                 continue;
             }
@@ -58,7 +58,7 @@ public class NpcWorkArea : MonoBehaviour
             return point;
         }
 
-        return transform.position;
+        return FindFallbackPoint(npc);
     }
 
     Vector3 PickPointInBounds()
@@ -79,15 +79,116 @@ public class NpcWorkArea : MonoBehaviour
             0f);
     }
 
-    bool IsBlocked(Vector3 point)
+    Vector3 FindFallbackPoint(GameObject npc)
     {
-        if (blockedLayers.value == 0 || blockedCheckRadius <= 0f)
+        Vector3 center = areaCollider != null
+            ? areaCollider.bounds.center
+            : transform.position;
+        center.z = transform.position.z;
+
+        if ((areaCollider == null || areaCollider.OverlapPoint(center)) &&
+            !IsBlocked(center, npc))
+        {
+            return center;
+        }
+
+        float baseRadius = Mathf.Max(
+            blockedCheckRadius * 2f,
+            0.2f);
+        const int rings = 4;
+        const int samplesPerRing = 8;
+
+        for (int ring = 1; ring <= rings; ring++)
+        {
+            float radius = baseRadius * ring;
+            for (int sample = 0; sample < samplesPerRing; sample++)
+            {
+                float angle =
+                    (Mathf.PI * 2f * sample) / samplesPerRing;
+                Vector3 candidate =
+                    center +
+                    new Vector3(
+                        Mathf.Cos(angle),
+                        Mathf.Sin(angle),
+                        0f) * radius;
+
+                if (areaCollider != null &&
+                    !areaCollider.OverlapPoint(candidate))
+                {
+                    continue;
+                }
+
+                if (IsBlocked(candidate, npc))
+                {
+                    continue;
+                }
+
+                return candidate;
+            }
+        }
+
+        return center;
+    }
+
+    bool IsBlocked(Vector3 point, GameObject npc)
+    {
+        if (blockedCheckRadius <= 0f)
         {
             return false;
         }
 
-        Collider2D hit = Physics2D.OverlapCircle(point, blockedCheckRadius, blockedLayers);
-        return hit != null && !hit.isTrigger;
+        if (blockedLayers.value != 0)
+        {
+            Collider2D[] hits =
+                Physics2D.OverlapCircleAll(
+                    point,
+                    blockedCheckRadius,
+                    blockedLayers);
+
+            for (int i = 0; i < hits.Length; i++)
+            {
+                Collider2D hit = hits[i];
+                if (hit == null ||
+                    hit.isTrigger ||
+                    (npc != null && hit.transform.IsChildOf(npc.transform)))
+                {
+                    continue;
+                }
+
+                return true;
+            }
+        }
+
+        Collider2D[] occupants =
+            Physics2D.OverlapCircleAll(
+                point,
+                blockedCheckRadius);
+
+        for (int i = 0; i < occupants.Length; i++)
+        {
+            Collider2D occupant = occupants[i];
+            if (occupant == null ||
+                occupant.isTrigger)
+            {
+                continue;
+            }
+
+            Transform root = occupant.transform.root;
+            if (npc != null &&
+                (root == npc.transform ||
+                occupant.transform.IsChildOf(npc.transform)))
+            {
+                continue;
+            }
+
+            if (root.GetComponent<VillagerAI>() != null ||
+                root.GetComponent<SmartNpcAI>() != null)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     void OnDrawGizmosSelected()

@@ -93,11 +93,6 @@ public class NpcCounterBroker : MonoBehaviour
         KeepBrokerAtStation();
     }
 
-    void OnNpcMapTeleported()
-    {
-        OnNpcMapTeleported(null);
-    }
-
     void OnNpcMapTeleported(GameObject gateObject)
     {
         if (!keepBrokerStationary)

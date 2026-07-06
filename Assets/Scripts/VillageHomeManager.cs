@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -23,10 +24,10 @@ public class VillageHomeManager : MonoBehaviour
         nextCheckTime = Time.time + Mathf.Max(0.1f, checkInterval);
         WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
 
-        VillagerAI[] villagers =
-            FindObjectsByType<VillagerAI>(FindObjectsInactive.Exclude);
+        List<VillagerAI> villagers =
+            new List<VillagerAI>(VillagerAI.ActiveVillagers);
 
-        for (int i = 0; i < villagers.Length; i++)
+        for (int i = 0; i < villagers.Count; i++)
         {
             VillagerAI villager = villagers[i];
             if (villager == null ||
