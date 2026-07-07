@@ -18,6 +18,8 @@ public class SavedWorldResourceNode
     public int amount;
     public Vector3 position;
     public bool active;
+    public bool wasDepleted;
+    public string customStateJson;
 }
 
 [Serializable]
@@ -147,6 +149,7 @@ public class WorldResourceField : MonoBehaviour
     void ConfigureExistingResources()
     {
         WorldStatItemPickup[] pickups = GetComponentsInChildren<WorldStatItemPickup>(true);
+        GrowingHerbField growingHerbField = GetComponent<GrowingHerbField>();
 
         foreach (WorldStatItemPickup pickup in pickups)
         {
@@ -162,6 +165,19 @@ public class WorldResourceField : MonoBehaviour
             pickup.OnDepleted -= SaveResourceState;
             pickup.OnDepleted += SaveResourceState;
 
+            WorldResourceNode worldNode =
+                pickup.GetComponent<WorldResourceNode>();
+            if (worldNode == null)
+            {
+                worldNode = pickup.gameObject.AddComponent<WorldResourceNode>();
+            }
+
+            worldNode.SetPickup(pickup);
+            worldNode.respawnAmount = Mathf.Max(1, respawnAmount);
+            worldNode.respawnDelay = respawnDelay;
+            worldNode.respawnMode = respawnMode;
+            worldNode.respawnRegion = region;
+
             ResourceNode resourceNode = pickup.GetComponent<ResourceNode>();
             if (resourceNode == null)
             {
@@ -170,6 +186,17 @@ public class WorldResourceField : MonoBehaviour
 
             resourceNode.pickup = pickup;
             resourceNode.RefreshResourceKind();
+
+            if (growingHerbField != null)
+            {
+                growingHerbField.ConfigureResourceNode(
+                    pickup.gameObject,
+                    pickup,
+                    worldNode,
+                    visualSize,
+                    sortingOrder,
+                    true);
+            }
 
             SetupRareItemEffect(pickup.gameObject, pickup.item);
         }
@@ -219,11 +246,14 @@ public class WorldResourceField : MonoBehaviour
             resourceObject.transform.position = position;
         }
 
-        ConfigureResource(resourceObject, entry);
+        ConfigureResource(resourceObject, entry, true);
         return resourceObject.GetComponent<WorldStatItemPickup>();
     }
 
-    void ConfigureResource(GameObject resourceObject, ResourceFieldItemEntry entry)
+    void ConfigureResource(
+        GameObject resourceObject,
+        ResourceFieldItemEntry entry,
+        bool initializeCustomState)
     {
         WorldStatItemPickup pickup = resourceObject.GetComponent<WorldStatItemPickup>();
 
@@ -244,7 +274,7 @@ public class WorldResourceField : MonoBehaviour
         if (node == null)
             node = resourceObject.AddComponent<WorldResourceNode>();
 
-        node.pickup = pickup;
+        node.SetPickup(pickup);
         node.respawnAmount = Mathf.Max(1, respawnAmount);
         node.respawnDelay = respawnDelay;
         node.respawnMode = respawnMode;
@@ -267,7 +297,20 @@ public class WorldResourceField : MonoBehaviour
         collider.isTrigger = true;
         collider.radius = colliderRadius;
 
-        if (showAutoItemVisual)
+        bool herbVisualApplied = false;
+        GrowingHerbField growingHerbField = GetComponent<GrowingHerbField>();
+        if (growingHerbField != null)
+        {
+            herbVisualApplied = growingHerbField.ConfigureResourceNode(
+                resourceObject,
+                pickup,
+                node,
+                visualSize,
+                sortingOrder,
+                initializeCustomState);
+        }
+
+        if (showAutoItemVisual && !herbVisualApplied)
         {
             EnsureVisual(resourceObject, entry.item);
         }
@@ -441,17 +484,27 @@ public class WorldResourceField : MonoBehaviour
 
         foreach (WorldStatItemPickup pickup in pickups)
         {
-            if (pickup == null || pickup.item == null || pickup.amount <= 0)
+            bool isManagedRespawnResource =
+                pickup != null &&
+                pickup.GetComponent<WorldResourceNode>() != null;
+
+            if (pickup == null ||
+                pickup.item == null ||
+                (pickup.amount <= 0 && !isManagedRespawnResource))
+            {
                 continue;
+            }
 
             GameSaveSystem.RegisterItem(pickup.item);
 
             data.resources.Add(new SavedWorldResourceNode
             {
                 itemKey = GameSaveSystem.GetItemKey(pickup.item),
-                amount = pickup.amount,
+                amount = Mathf.Max(0, pickup.amount),
                 position = pickup.transform.position,
-                active = pickup.gameObject.activeSelf
+                active = pickup.gameObject.activeSelf,
+                wasDepleted = pickup.amount <= 0,
+                customStateJson = CaptureCustomState(pickup)
             });
         }
 
@@ -483,7 +536,7 @@ public class WorldResourceField : MonoBehaviour
 
         foreach (SavedWorldResourceNode saved in data.resources)
         {
-            if (saved == null || saved.amount <= 0)
+            if (saved == null)
                 continue;
 
             StatItemData item = GameSaveSystem.FindItem(saved.itemKey);
@@ -494,7 +547,9 @@ public class WorldResourceField : MonoBehaviour
             ResourceFieldItemEntry entry = new ResourceFieldItemEntry
             {
                 item = item,
-                amount = Mathf.Max(1, saved.amount),
+                amount = saved.wasDepleted
+                    ? Mathf.Max(1, respawnAmount)
+                    : Mathf.Max(1, saved.amount),
                 weight = 1
             };
 
@@ -508,8 +563,31 @@ public class WorldResourceField : MonoBehaviour
                 resourceObject.transform.position = saved.position;
             }
 
-            ConfigureResource(resourceObject, entry);
-            resourceObject.SetActive(saved.active);
+            bool initializeCustomState =
+                saved.wasDepleted || string.IsNullOrEmpty(saved.customStateJson);
+            ConfigureResource(
+                resourceObject,
+                entry,
+                initializeCustomState);
+
+            WorldStatItemPickup pickup =
+                resourceObject.GetComponent<WorldStatItemPickup>();
+
+            if (saved.wasDepleted)
+            {
+                GrowingHerbNode herbNode =
+                    resourceObject.GetComponent<GrowingHerbNode>();
+                if (herbNode != null)
+                {
+                    herbNode.ResetToRespawnSmall();
+                }
+            }
+            else
+            {
+                RestoreCustomState(pickup, saved.customStateJson);
+            }
+
+            resourceObject.SetActive(saved.wasDepleted ? true : saved.active);
         }
 
         return true;
@@ -777,6 +855,50 @@ public class WorldResourceField : MonoBehaviour
                pickup.item != null &&
                pickup.amount > 0 &&
                pickup.allowNpcPickup;
+    }
+
+    string CaptureCustomState(WorldStatItemPickup pickup)
+    {
+        if (pickup == null)
+        {
+            return string.Empty;
+        }
+
+        MonoBehaviour[] components =
+            pickup.GetComponents<MonoBehaviour>();
+
+        foreach (MonoBehaviour component in components)
+        {
+            if (component is IWorldResourcePersistentState stateProvider)
+            {
+                return stateProvider.CapturePersistentState();
+            }
+        }
+
+        return string.Empty;
+    }
+
+    void RestoreCustomState(
+        WorldStatItemPickup pickup,
+        string customStateJson)
+    {
+        if (pickup == null ||
+            string.IsNullOrEmpty(customStateJson))
+        {
+            return;
+        }
+
+        MonoBehaviour[] components =
+            pickup.GetComponents<MonoBehaviour>();
+
+        foreach (MonoBehaviour component in components)
+        {
+            if (component is IWorldResourcePersistentState stateProvider)
+            {
+                stateProvider.RestorePersistentState(customStateJson);
+                return;
+            }
+        }
     }
 
     void OnDrawGizmosSelected()

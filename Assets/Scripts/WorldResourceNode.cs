@@ -11,6 +11,9 @@ public enum ResourceRespawnMode
 [RequireComponent(typeof(WorldStatItemPickup))]
 public class WorldResourceNode : MonoBehaviour
 {
+    public event System.Action OnRespawnStarted;
+    public event System.Action OnRespawnCompleted;
+
     [Header("Resource")]
     public WorldStatItemPickup pickup;
     public int respawnAmount = 1;
@@ -39,20 +42,17 @@ public class WorldResourceNode : MonoBehaviour
     {
         CacheReferences();
         startPosition = transform.position;
+        EnsurePickupSubscription();
+    }
 
-        if (pickup != null)
-        {
-            pickup.destroyWhenEmpty = false;
-            pickup.OnDepleted += HandleDepleted;
-        }
+    void OnEnable()
+    {
+        EnsurePickupSubscription();
     }
 
     void OnDestroy()
     {
-        if (pickup != null)
-        {
-            pickup.OnDepleted -= HandleDepleted;
-        }
+        RemovePickupSubscription();
     }
 
     void OnValidate()
@@ -80,6 +80,7 @@ public class WorldResourceNode : MonoBehaviour
     IEnumerator RespawnRoutine()
     {
         respawning = true;
+        OnRespawnStarted?.Invoke();
 
         bool relocate = ShouldRelocate();
         bool hideWhileWaiting =
@@ -109,10 +110,24 @@ public class WorldResourceNode : MonoBehaviour
             pickup.amount = Mathf.Max(1, respawnAmount);
         }
 
+        OnRespawnCompleted?.Invoke();
         SetRendererAlpha(1f);
         SetVisualActive(true);
         SetCollidersActive(true);
         respawning = false;
+    }
+
+    public void SetPickup(WorldStatItemPickup configuredPickup)
+    {
+        if (pickup == configuredPickup)
+        {
+            EnsurePickupSubscription();
+            return;
+        }
+
+        RemovePickupSubscription();
+        pickup = configuredPickup;
+        EnsurePickupSubscription();
     }
 
     bool ShouldRelocate()
@@ -167,6 +182,31 @@ public class WorldResourceNode : MonoBehaviour
 
         renderers = GetComponentsInChildren<Renderer>(true);
         colliders = GetComponentsInChildren<Collider2D>(true);
+    }
+
+    void EnsurePickupSubscription()
+    {
+        if (pickup == null)
+        {
+            pickup = GetComponent<WorldStatItemPickup>();
+        }
+
+        if (pickup == null)
+        {
+            return;
+        }
+
+        pickup.destroyWhenEmpty = false;
+        pickup.OnDepleted -= HandleDepleted;
+        pickup.OnDepleted += HandleDepleted;
+    }
+
+    void RemovePickupSubscription()
+    {
+        if (pickup != null)
+        {
+            pickup.OnDepleted -= HandleDepleted;
+        }
     }
 
     void SetVisualActive(bool active)

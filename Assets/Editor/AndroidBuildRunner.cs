@@ -1,11 +1,15 @@
 using System.IO;
 using System.Linq;
+using System;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 
 public static class AndroidBuildRunner
 {
+    const string KeystorePassEnv = "UNITY_ANDROID_KEYSTORE_PASS";
+    const string KeyaliasPassEnv = "UNITY_ANDROID_KEYALIAS_PASS";
+
     [MenuItem("Tools/Build/Build Android APK")]
     public static void BuildApk()
     {
@@ -25,6 +29,7 @@ public static class AndroidBuildRunner
 
         string apkPath = Path.Combine(outputDirectory, "Thienmenh.apk");
 
+        ApplySigningPasswordsFromEnvironment();
         EditorUserBuildSettings.buildAppBundle = false;
 
         BuildPlayerOptions options = new BuildPlayerOptions
@@ -47,5 +52,32 @@ public static class AndroidBuildRunner
 
         UnityEngine.Debug.Log(
             "[AndroidBuildRunner] Build succeeded: " + apkPath);
+    }
+
+    static void ApplySigningPasswordsFromEnvironment()
+    {
+        string keystorePath = PlayerSettings.Android.keystoreName;
+        if (string.IsNullOrWhiteSpace(keystorePath))
+        {
+            return;
+        }
+
+        string keystorePass = Environment.GetEnvironmentVariable(KeystorePassEnv);
+        string keyaliasPass = Environment.GetEnvironmentVariable(KeyaliasPassEnv);
+
+        if (string.IsNullOrWhiteSpace(keystorePass) ||
+            string.IsNullOrWhiteSpace(keyaliasPass))
+        {
+            throw new BuildFailedException(
+                "Android signing passwords are missing. " +
+                "Set environment variables " +
+                KeystorePassEnv +
+                " and " +
+                KeyaliasPassEnv +
+                " before building.");
+        }
+
+        PlayerSettings.Android.keystorePass = keystorePass;
+        PlayerSettings.Android.keyaliasPass = keyaliasPass;
     }
 }
