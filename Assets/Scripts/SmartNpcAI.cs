@@ -4267,7 +4267,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         }
 
         if (IsCurrentTargetCollider(hit) ||
-            IsCurrentMonsterCollider(hit))
+            IsCurrentMonsterCollider(hit) ||
+            IsCounterCustomerZoneCollider(hit))
         {
             return false;
         }
@@ -4276,6 +4277,31 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             hit.GetComponentInParent<SmartNpcAI>() == null &&
             hit.GetComponentInParent<NpcMapMover2D>() == null &&
             hit.GetComponentInParent<MonsterAI>() == null;
+    }
+
+    bool IsCounterCustomerZoneCollider(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return false;
+        }
+
+        NpcCounterBroker broker =
+            hit.GetComponentInParent<NpcCounterBroker>();
+        if (broker == null ||
+            broker.customerPoint == null)
+        {
+            return false;
+        }
+
+        Collider2D customerZone =
+            broker.GetCustomerZoneCollider();
+        if (customerZone == null)
+        {
+            return false;
+        }
+
+        return hit == customerZone;
     }
 
     bool IsCurrentTargetCollider(Collider2D hit)

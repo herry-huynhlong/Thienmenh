@@ -202,14 +202,20 @@ MonoBehaviour:
   salePrice: 200000
   craftDays: 3
   workHoursPerDay: 8
+  materialRequirements:
+  - item: {fileID: 11400000, guid: 5e5f67b712146264aadac43d081c153a, type: 2}
+    amount: 1
+  - item: {fileID: 11400000, guid: 2b8aa7f6ec042024cb8bfe718bb40982, type: 2}
+    amount: 2
   buyDurationSeconds: 5
   sellDurationSeconds: 10
   sleepStart: 20
-  sleepEnd: 6
-  morningWorkStart: 8
-  morningWorkEnd: 12
-  afternoonWorkStart: 13
-  afternoonWorkEnd: 17
+  sleepEnd: 5
+  tradeStart: 5.0833335
+  morningWorkStart: 7.0833335
+  morningWorkEnd: 11
+  afternoonWorkStart: 14.083333
+  afternoonWorkEnd: 20
   forgePointOverride: {fileID: 0}
   marketPointOverride: {fileID: 0}
   buyAction: Di mua nguyen lieu ren
@@ -484,41 +490,41 @@ MonoBehaviour:
   slots:
   - activity: 1
     startHour: 20
-    endHour: 6
+    endHour: 5
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 12
-    startHour: 6
-    endHour: 8
+    startHour: 5
+    endHour: 5.0833335
+    allowDangerInterrupt: 1
+    allowHungerInterrupt: 1
+    allowFatigueInterrupt: 1
+    allowSocialInterrupt: 0
+  - activity: 15
+    startHour: 5.0833335
+    endHour: 7.0833335
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 3
-    startHour: 8
-    endHour: 12
+    startHour: 7.0833335
+    endHour: 11
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 12
-    startHour: 12
-    endHour: 13
+    startHour: 11
+    endHour: 14.083333
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1
     allowFatigueInterrupt: 1
     allowSocialInterrupt: 0
   - activity: 3
-    startHour: 13
-    endHour: 17
-    allowDangerInterrupt: 1
-    allowHungerInterrupt: 1
-    allowFatigueInterrupt: 1
-    allowSocialInterrupt: 0
-  - activity: 12
-    startHour: 17
+    startHour: 14.083333
     endHour: 20
     allowDangerInterrupt: 1
     allowHungerInterrupt: 1

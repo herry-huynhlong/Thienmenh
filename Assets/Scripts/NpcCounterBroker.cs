@@ -54,6 +54,35 @@ public class NpcCounterBroker : MonoBehaviour
         return point != null ? point.GetComponent<NpcInteractionPoint>() : null;
     }
 
+    public BoxCollider2D GetCustomerZoneCollider()
+    {
+        if (customerPoint == null)
+        {
+            return null;
+        }
+
+        BoxCollider2D box = customerPoint.GetComponent<BoxCollider2D>();
+        if (box != null)
+        {
+            return box;
+        }
+
+        NpcInteractionPoint interactionPoint =
+            GetInteractionPoint(customerPoint);
+        if (interactionPoint != null)
+        {
+            box = interactionPoint.GetComponent<BoxCollider2D>();
+            if (box != null)
+            {
+                return box;
+            }
+
+            return interactionPoint.GetComponentInParent<BoxCollider2D>();
+        }
+
+        return customerPoint.GetComponentInParent<BoxCollider2D>();
+    }
+
     [Header("Pricing")]
     public NpcTradeContext sellToNpcContext =
         NpcTradeContext.CounterBrokerBuy;
@@ -125,6 +154,18 @@ public class NpcCounterBroker : MonoBehaviour
                 return interactionPoint.transform.position;
             }
 
+            BoxCollider2D customerZone =
+                GetCustomerZoneCollider();
+            if (customerZone != null &&
+                customerZone.enabled)
+            {
+                Vector3 center = customerZone.bounds.center;
+                center.z = customerPoint != null
+                    ? customerPoint.position.z
+                    : transform.position.z;
+                return center;
+            }
+
             return customerPoint != null
                 ? customerPoint.position
                 : transform.position;
@@ -142,6 +183,11 @@ public class NpcCounterBroker : MonoBehaviour
                 ? interactionPoint.interactionRadius
                 : customerArriveDistance;
 
+            if (requireCustomerAtPoint)
+            {
+                return pointRadius;
+            }
+
             return allowMultipleCustomers
                 ? Mathf.Max(pointRadius, multiCustomerServiceRadius)
                 : pointRadius;
@@ -152,9 +198,44 @@ public class NpcCounterBroker : MonoBehaviour
     {
         NpcInteractionPoint interactionPoint =
             GetInteractionPoint(customerPoint);
+        BoxCollider2D customerZone =
+            GetCustomerZoneCollider();
+
+        if (requireCustomerAtPoint)
+        {
+            if (interactionPoint != null)
+            {
+                if (customerZone != null &&
+                    customerZone.enabled)
+                {
+                    return interactionPoint.GetStandPositionFor(npc);
+                }
+
+                return interactionPoint.transform.position;
+            }
+
+            if (customerZone != null &&
+                customerZone.enabled)
+            {
+                return GetCustomerStandPositionInZone(
+                    customerZone,
+                    npc);
+            }
+
+            return CustomerPosition;
+        }
+
         if (interactionPoint != null)
         {
             return interactionPoint.GetStandPositionFor(npc);
+        }
+
+        if (customerZone != null &&
+            customerZone.enabled)
+        {
+            return GetCustomerStandPositionInZone(
+                customerZone,
+                npc);
         }
 
         Vector3 center = CustomerPosition;
@@ -173,11 +254,102 @@ public class NpcCounterBroker : MonoBehaviour
         return center + (Vector3)offset;
     }
 
+    Vector3 GetCustomerStandPositionInZone(
+        BoxCollider2D customerZone,
+        GameObject npc)
+    {
+        Bounds bounds = customerZone.bounds;
+        Vector3 center = bounds.center;
+        Vector3 extents = bounds.extents;
+
+        float marginX = Mathf.Clamp(
+            extents.x * 0.12f,
+            0.05f,
+            Mathf.Max(0.05f, extents.x - 0.02f));
+        float marginY = Mathf.Clamp(
+            extents.y * 0.12f,
+            0.05f,
+            Mathf.Max(0.05f, extents.y - 0.02f));
+
+        float minX = center.x - extents.x + marginX;
+        float maxX = center.x + extents.x - marginX;
+        float minY = center.y - extents.y + marginY;
+        float maxY = center.y + extents.y - marginY;
+
+        if (minX > maxX)
+        {
+            minX = maxX = center.x;
+        }
+
+        if (minY > maxY)
+        {
+            minY = maxY = center.y;
+        }
+
+        float standX = Mathf.Clamp(center.x, minX, maxX);
+        float standY = Mathf.Clamp(center.y, minY, maxY);
+
+        if (npc != null)
+        {
+            Vector3 actorPosition = npc.transform.position;
+            if (bounds.Contains(actorPosition))
+            {
+                standX = Mathf.Clamp(actorPosition.x, minX, maxX);
+                standY = Mathf.Clamp(actorPosition.y, minY, maxY);
+            }
+            else
+            {
+                standX = Mathf.Clamp(actorPosition.x, minX, maxX);
+                standY = Mathf.Clamp(actorPosition.y, minY, maxY);
+            }
+        }
+        else if (!requireCustomerAtPoint &&
+            allowMultipleCustomers)
+        {
+            float width = Mathf.Max(0.01f, maxX - minX);
+            float height = Mathf.Max(0.01f, maxY - minY);
+            int hash = Mathf.Abs(name.GetHashCode());
+            float normalized =
+                ((hash % 1000) / 999f);
+
+            if (width >= height)
+            {
+                standX = Mathf.Lerp(
+                    minX + width * 0.15f,
+                    maxX - width * 0.15f,
+                    normalized);
+            }
+            else
+            {
+                standY = Mathf.Lerp(
+                    minY + height * 0.15f,
+                    maxY - height * 0.15f,
+                    normalized);
+            }
+        }
+
+        Vector3 standPosition = new Vector3(
+            standX,
+            standY,
+            customerPoint != null
+                ? customerPoint.position.z
+                : transform.position.z);
+
+        return standPosition;
+    }
+
     public bool IsCustomerAtCounter(GameObject npc)
     {
         if (npc == null)
         {
             return false;
+        }
+
+        BoxCollider2D customerZone = GetCustomerZoneCollider();
+        if (customerZone != null &&
+            customerZone.enabled)
+        {
+            return customerZone.OverlapPoint(npc.transform.position);
         }
 
         return Vector2.Distance(

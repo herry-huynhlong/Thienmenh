@@ -157,9 +157,9 @@ public class HeavenGiftPlacementController : MonoBehaviour
         }
 
         Vector3 worldPosition =
-            camera.ScreenToWorldPoint(screenPosition);
-
-        worldPosition.z = 0f;
+            CameraWorldPlaneUtility.ScreenToWorldOnPlane(
+                camera,
+                screenPosition);
 
         if (!sourceInventory.RemoveItem(pendingItem, 1))
         {

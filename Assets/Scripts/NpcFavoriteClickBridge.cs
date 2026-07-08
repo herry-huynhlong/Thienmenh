@@ -61,7 +61,10 @@ public class NpcFavoriteClickBridge : MonoBehaviour
             return;
         }
 
-        Vector3 worldPosition = targetCamera.ScreenToWorldPoint(screenPosition);
+        Vector3 worldPosition =
+            CameraWorldPlaneUtility.ScreenToWorldOnPlane(
+                targetCamera,
+                screenPosition);
         Vector2 point = new Vector2(worldPosition.x, worldPosition.y);
         Collider2D[] hits = Physics2D.OverlapPointAll(point, clickableLayers);
 

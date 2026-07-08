@@ -111,6 +111,31 @@ public partial class VillagerAI
                 GoHomeToRest();
                 return true;
 
+            case NpcScheduleActivity.BuyGoods:
+            case NpcScheduleActivity.SellGoods:
+            case NpcScheduleActivity.TradeBuySell:
+                if (IsForgeWorker())
+                {
+                    GoForgeWorkOrTrade();
+                }
+                else if (job == VillagerJob.Trader)
+                {
+                    GoTrade();
+                }
+                else if (activity == NpcScheduleActivity.BuyGoods)
+                {
+                    GoBuyGoods();
+                }
+                else if (activity == NpcScheduleActivity.SellGoods)
+                {
+                    GoSellGoods();
+                }
+                else
+                {
+                    GoTrade();
+                }
+                return true;
+
             case NpcScheduleActivity.Work:
                 if (IsAlchemyWorker())
                 {

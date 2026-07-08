@@ -187,7 +187,10 @@ public class InteriorCameraFocus : MonoBehaviour
             return false;
         }
 
-        Vector2 worldPosition = cam.ScreenToWorldPoint(screenPosition);
+        Vector2 worldPosition =
+            CameraWorldPlaneUtility.ScreenToWorldOnPlane(
+                cam,
+                screenPosition);
         Collider2D[] hits = Physics2D.OverlapCircleAll(worldPosition, hitRadius, clickableLayers);
 
         for (int i = 0; i < hits.Length; i++)

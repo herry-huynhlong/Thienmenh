@@ -458,8 +458,14 @@ public class MobileCameraController : MonoBehaviour
 
             if (isDragging)
             {
-                Vector3 startWorld = cam.ScreenToWorldPoint(dragStartScreenPos);
-                Vector3 currentWorld = cam.ScreenToWorldPoint(Input.mousePosition);
+                Vector3 startWorld =
+                    CameraWorldPlaneUtility.ScreenToWorldOnPlane(
+                        cam,
+                        dragStartScreenPos);
+                Vector3 currentWorld =
+                    CameraWorldPlaneUtility.ScreenToWorldOnPlane(
+                        cam,
+                        Input.mousePosition);
                 Vector3 worldDelta = startWorld - currentWorld;
 
                 Vector3 targetPos = dragStartCameraPos + worldDelta;

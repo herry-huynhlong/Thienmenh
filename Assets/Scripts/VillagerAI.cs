@@ -237,6 +237,9 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
     Vector3 wanderTarget;
     Vector3 directMoveTarget;
     NpcMapZone? directMoveTargetZone;
+    bool directMoveTargetUsesRoad = true;
+    float lastMovementHaltLogTime = -999f;
+    string lastMovementHaltLogKey = string.Empty;
     float thinkTimer;
     float actionTimer;
     int routinePlanDay = int.MinValue;
@@ -931,6 +934,10 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
         if (Time.time < movementPausedUntil)
         {
+            LogMovementHaltDebug(
+                "MoveHold",
+                "reason=movementPaused now=" +
+                Time.time.ToString("0.00"));
             StopMoving();
             UpdateVisualAnimation();
             return;
@@ -938,6 +945,10 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
         if (Time.time < crowdYieldUntil)
         {
+            LogMovementHaltDebug(
+                "MoveHold",
+                "reason=crowdYield now=" +
+                Time.time.ToString("0.00"));
             StopMoving();
             UpdateVisualAnimation();
             return;
@@ -959,6 +970,10 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
         if (IsBusyActionActive())
         {
+            LogMovementHaltDebug(
+                "MoveHold",
+                "reason=busyAction actionTimer=" +
+                actionTimer.ToString("0.00"));
             StopMoving();
             UpdateVisualAnimation();
             return;
@@ -2627,6 +2642,23 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (fixedBlacksmith != null &&
+            fixedBlacksmith.enabled &&
+            fixedBlacksmith.debugLogs)
+        {
+            detail +=
+                " tradeSource=" +
+                fixedBlacksmith.DebugTradeDestinationSource +
+                " tradeShop=" +
+                fixedBlacksmith.DebugTradeShopName +
+                " materialReqCount=" +
+                fixedBlacksmith.DebugMaterialRequirementCount +
+                " hasMaterialReq=" +
+                (fixedBlacksmith.DebugHasConfiguredMaterialRequirements
+                    ? 1
+                    : 0);
+        }
+
         Debug.LogWarning(
             "[VillagerAI] " +
             stage +
@@ -2642,6 +2674,49 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             (WorldTimeSystem.Instance != null
                 ? WorldTimeSystem.Instance.CurrentHour.ToString("0.##")
                 : "null"));
+#endif
+    }
+
+    void LogMovementHaltDebug(string stage, string detail)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        NpcFixedBlacksmithController fixedBlacksmith =
+            GetComponent<NpcFixedBlacksmithController>();
+
+        if (!debugWorkLogs &&
+            (fixedBlacksmith == null ||
+            !fixedBlacksmith.enabled ||
+            !fixedBlacksmith.debugLogs))
+        {
+            return;
+        }
+
+        string key = stage + "|" + detail;
+        if (key == lastMovementHaltLogKey &&
+            Time.time - lastMovementHaltLogTime < 0.35f)
+        {
+            return;
+        }
+
+        lastMovementHaltLogKey = key;
+        lastMovementHaltLogTime = Time.time;
+
+        LogJobRouteDebug(
+            stage,
+            detail +
+            " vel=" +
+            (rb != null
+                ? rb.linearVelocity.ToString()
+                : "noRb") +
+            " desiredVel=" + desiredVelocity +
+            " pausedUntil=" +
+            movementPausedUntil.ToString("0.00") +
+            " crowdYieldUntil=" +
+            crowdYieldUntil.ToString("0.00") +
+            " directTarget=" +
+            (hasDirectMoveTarget
+                ? directMoveTarget.ToString()
+                : "none"));
 #endif
     }
 
@@ -3021,7 +3096,8 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
     public void ForceJobMoveTo(
         Vector3 target,
         string action,
-        NpcMapZone? targetZone = null)
+        NpcMapZone? targetZone = null,
+        bool useRoad = true)
     {
         if (IsDead)
         {
@@ -3039,7 +3115,8 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
         LogJobRouteDebug(
             "ForceJobMoveTo",
-            "target=" + target);
+            "target=" + target +
+            " useRoad=" + (useRoad ? 1 : 0));
         LogJobRouteDebug(
             "ForceJobZone",
             "current=" +
@@ -3052,7 +3129,14 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                 : "None"));
 
         SetDirectMoveTarget(target, false, targetZone);
-        MoveUsingRoad(target, targetZone);
+        directMoveTargetUsesRoad = useRoad;
+        if (useRoad)
+        {
+            MoveUsingRoad(target, targetZone);
+            return;
+        }
+
+        MoveToPosition(target, targetZone);
     }
 
     public void ForceGatherTarget(
@@ -3134,6 +3218,21 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
                 if (Vector2.Distance(transform.position, activeDirectTarget) <= arriveDistance)
                 {
+                    LogMovementHaltDebug(
+                        "DirectTargetReached",
+                        "actorPos=" + transform.position +
+                        " activeDirectTarget=" +
+                        activeDirectTarget +
+                        " storedDirectTarget=" +
+                        directMoveTarget +
+                        " dist=" +
+                        Vector2.Distance(
+                            transform.position,
+                            activeDirectTarget).ToString("0.00") +
+                        " arriveDistance=" +
+                        arriveDistance.ToString("0.00") +
+                        " usingTeleportRoute=" +
+                        (usingTeleportRoute ? 1 : 0));
                     if (usingTeleportRoute &&
                         TryForceTeleportRouteUseNearDirectTarget(
                             activeDirectTarget))
@@ -3143,11 +3242,28 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
                     hasDirectMoveTarget = false;
                     directMoveTargetZone = null;
+                    directMoveTargetUsesRoad = true;
                     StopMoving();
                     return;
                 }
 
-                MoveUsingRoad(directMoveTarget, directMoveTargetZone);
+                if (directMoveTargetUsesRoad)
+                {
+                    MoveUsingRoad(directMoveTarget, directMoveTargetZone);
+                }
+                else
+                {
+                    NpcMapZone? currentZone = GetCurrentMapZone();
+                    if (directMoveTargetZone.HasValue &&
+                        (!currentZone.HasValue ||
+                        currentZone.Value != directMoveTargetZone.Value))
+                    {
+                        MoveUsingRoad(directMoveTarget, directMoveTargetZone);
+                        return;
+                    }
+
+                    MoveToPosition(directMoveTarget, directMoveTargetZone);
+                }
                 return;
             }
 
@@ -3780,19 +3896,37 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
             if (!IsMoveTargetFeasible(position))
             {
+                Vector3 requestedPosition = position;
                 Vector3 fallback;
-                if (TryFindClearPointNear(position, out fallback))
+                if (TryFindClearPointNear(position, out fallback) &&
+                    !ShouldRejectFallbackTarget(
+                        requestedPosition,
+                        fallback))
                 {
                     position = fallback;
                     finalTarget = position;
                 }
                 else
                 {
+                    LogMovementHaltDebug(
+                        "MoveFallbackRejected",
+                        "requested=" + requestedPosition +
+                        " fallback=" + fallback +
+                        " requestedDist=" +
+                        Vector2.Distance(
+                            transform.position,
+                            requestedPosition).ToString("0.00") +
+                        " fallbackDist=" +
+                        Vector2.Distance(
+                            transform.position,
+                            fallback).ToString("0.00"));
                     LogJobRouteDebug(
                         "MoveBlocked",
-                        "requested=" + position +
+                        "requested=" + requestedPosition +
                         " final=" + finalTarget);
-                    HandleBlockedMovement(position, finalTarget);
+                    HandleBlockedMovement(
+                        requestedPosition,
+                        finalTarget);
                     return;
                 }
             }
@@ -3800,6 +3934,15 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             Vector2 toPosition = position - transform.position;
             if (toPosition.magnitude <= arriveDistance)
             {
+                LogMovementHaltDebug(
+                    "MoveStopNearTarget",
+                    "actorPos=" + transform.position +
+                    " stepTarget=" + position +
+                    " finalTarget=" + finalTarget +
+                    " dist=" +
+                    toPosition.magnitude.ToString("0.00") +
+                    " arriveDistance=" +
+                    arriveDistance.ToString("0.00"));
                 ClearActivePath();
                 StopMoving();
                 return;
@@ -4010,6 +4153,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         hasObstacleAvoidTarget = false;
         movementTargetZone = null;
         directMoveTargetZone = null;
+        directMoveTargetUsesRoad = true;
         ClearActivePath();
     }
 
@@ -4061,6 +4205,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         hasWanderTarget = false;
         hasDirectMoveTarget = true;
         directMoveTargetZone = targetZone;
+        directMoveTargetUsesRoad = true;
 
         NpcMapZone? currentZone = GetCurrentMapZone();
         bool crossZoneTarget =
@@ -4079,9 +4224,32 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         {
             Vector3 clamped = ClampToCurrentMapArea(position);
             Vector3 clearTarget;
-            resolvedTarget = TryFindClearPointNear(clamped, out clearTarget)
-                ? clearTarget
-                : clamped;
+            bool foundClearTarget =
+                TryFindClearPointNear(clamped, out clearTarget);
+            if (foundClearTarget &&
+                ShouldRejectFallbackTarget(clamped, clearTarget))
+            {
+                LogMovementHaltDebug(
+                    "DirectTargetFallbackRejected",
+                    "requested=" + position +
+                    " clamped=" + clamped +
+                    " fallback=" + clearTarget +
+                    " requestedDist=" +
+                    Vector2.Distance(
+                        transform.position,
+                        clamped).ToString("0.00") +
+                    " fallbackDist=" +
+                    Vector2.Distance(
+                        transform.position,
+                        clearTarget).ToString("0.00"));
+                resolvedTarget = clamped;
+            }
+            else
+            {
+                resolvedTarget = foundClearTarget
+                    ? clearTarget
+                    : clamped;
+            }
         }
 
         if (Vector2.Distance(directMoveTarget, resolvedTarget) >
@@ -4807,6 +4975,26 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
         result = transform.position;
         return IsMoveTargetFeasible(result);
+    }
+
+    bool ShouldRejectFallbackTarget(
+        Vector3 requestedTarget,
+        Vector3 fallbackTarget)
+    {
+        float requestedDistance =
+            Vector2.Distance(
+                transform.position,
+                requestedTarget);
+        if (requestedDistance <= arriveDistance)
+        {
+            return false;
+        }
+
+        float fallbackDistance =
+            Vector2.Distance(
+                transform.position,
+                fallbackTarget);
+        return fallbackDistance <= arriveDistance;
     }
 
     bool IsMoveTargetFeasible(Vector3 position)
@@ -5850,9 +6038,39 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             return false;
         }
 
+        if (IsCounterCustomerZoneCollider(hit))
+        {
+            return false;
+        }
+
         return hit.GetComponentInParent<VillagerAI>() == null &&
             hit.GetComponentInParent<SmartNpcAI>() == null &&
             hit.GetComponentInParent<NpcMapMover2D>() == null;
+    }
+
+    bool IsCounterCustomerZoneCollider(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return false;
+        }
+
+        NpcCounterBroker broker =
+            hit.GetComponentInParent<NpcCounterBroker>();
+        if (broker == null ||
+            broker.customerPoint == null)
+        {
+            return false;
+        }
+
+        Collider2D customerZone =
+            broker.GetCustomerZoneCollider();
+        if (customerZone == null)
+        {
+            return false;
+        }
+
+        return hit == customerZone;
     }
 
     bool IsSelfCollider(Collider2D hit)
@@ -5906,6 +6124,14 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         }
 
         blockedMoveTimer += Time.fixedDeltaTime;
+        LogMovementHaltDebug(
+            "MoveBlockedHold",
+            "blockedTarget=" + blockedTarget +
+            " finalTarget=" + finalTarget +
+            " blockedMoveTimer=" +
+            blockedMoveTimer.ToString("0.00") +
+            " retryDelay=" +
+            blockedTargetRetryDelay.ToString("0.00"));
         StopMoving();
         ClearActivePath();
 
@@ -5933,10 +6159,19 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                 arriveDistance)
             {
                 directMoveTarget = fallback;
+                LogMovementHaltDebug(
+                    "MoveBlockedRecover",
+                    "escapeSeed=" + escapeSeed +
+                    " fallback=" + fallback +
+                    " directTargetCleared=0");
             }
             else
             {
                 hasDirectMoveTarget = false;
+                LogMovementHaltDebug(
+                    "MoveBlockedRecover",
+                    "escapeSeed=" + escapeSeed +
+                    " fallback=none directTargetCleared=1");
             }
         }
 

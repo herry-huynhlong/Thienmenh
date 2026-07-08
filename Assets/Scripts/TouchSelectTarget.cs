@@ -278,7 +278,8 @@ public class TouchSelectTarget : MonoBehaviour
         }
 
         Vector2 worldPos =
-            cam.ScreenToWorldPoint(
+            CameraWorldPlaneUtility.ScreenToWorldOnPlane(
+                cam,
                 Input.mousePosition);
 
         Transform selectedTarget =

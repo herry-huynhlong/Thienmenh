@@ -112,6 +112,26 @@ public class SimpleItemShop : MonoBehaviour
             Mathf.RoundToInt(basePrice * Mathf.Max(0f, priceMultiplier)));
     }
 
+    public int GetNpcBuyPrice(
+        StatItemData item,
+        GameObject buyerObject)
+    {
+        if (item == null || buyerObject == null)
+        {
+            return 0;
+        }
+
+        int basePrice =
+            NpcEconomy.GetNpcBuyPrice(
+                item,
+                buyerObject,
+                GetBuyContext());
+
+        return Mathf.Max(
+            basePrice > 0 ? 1 : 0,
+            Mathf.RoundToInt(basePrice * Mathf.Max(0f, priceMultiplier)));
+    }
+
     public int GetSellPrice(StatItemData item)
     {
         if (item == null)
@@ -259,6 +279,193 @@ public class SimpleItemShop : MonoBehaviour
         SaveRuntimeStock();
         buyerInventory.AddItem(slot.item, 1);
 
+        return true;
+    }
+
+    public int FindItemIndex(StatItemData item)
+    {
+        if (item == null)
+        {
+            return -1;
+        }
+
+        for (int i = 0; i < items.Count; i++)
+        {
+            ShopItemSlot slot = items[i];
+            if (slot != null &&
+                slot.item == item)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public bool BuyNpcItemToInventory(
+        int itemIndex,
+        GameObject buyerObject,
+        ItemInventory buyerInventory,
+        int amount,
+        out int purchasedAmount,
+        out int totalPrice)
+    {
+        purchasedAmount = 0;
+        totalPrice = 0;
+
+        RefreshFromSellerInventory();
+
+        if (buyerObject == null ||
+            buyerInventory == null ||
+            amount <= 0 ||
+            itemIndex < 0 ||
+            itemIndex >= items.Count)
+        {
+            return false;
+        }
+
+        ShopItemSlot slot = items[itemIndex];
+        if (slot == null ||
+            slot.item == null ||
+            slot.amount <= 0 ||
+            !NpcEconomy.CanTradeNormally(slot.item))
+        {
+            return false;
+        }
+
+        int unitPrice =
+            GetNpcBuyPrice(
+                slot.item,
+                buyerObject);
+
+        if (unitPrice <= 0)
+        {
+            return false;
+        }
+
+        int affordableAmount =
+            Mathf.Min(
+                amount,
+                NpcEconomy.GetNpcMoney(buyerObject) / unitPrice,
+                slot.amount);
+
+        if (affordableAmount <= 0)
+        {
+            return false;
+        }
+
+        if (sellFromNpcInventory &&
+            sellerInventory != null)
+        {
+            for (int i = 0; i < affordableAmount; i++)
+            {
+                if (!sellerInventory.RemoveItem(slot.item, 1))
+                {
+                    break;
+                }
+
+                purchasedAmount++;
+            }
+
+            if (purchasedAmount <= 0)
+            {
+                return false;
+            }
+
+            totalPrice =
+                unitPrice * purchasedAmount;
+            AddMoneyToSeller(totalPrice);
+            RefreshFromSellerInventory();
+        }
+        else
+        {
+            slot.amount -= affordableAmount;
+            purchasedAmount = affordableAmount;
+            totalPrice =
+                unitPrice * purchasedAmount;
+            SaveRuntimeStock();
+        }
+
+        NpcEconomy.AddNpcMoney(
+            buyerObject,
+            -totalPrice);
+        buyerInventory.AddItem(
+            slot.item,
+            purchasedAmount);
+
+        return purchasedAmount > 0;
+    }
+
+    public bool SellNpcItemFromInventory(
+        StatItemData item,
+        GameObject sellerObject,
+        ItemInventory sellerInventory,
+        int amount,
+        out int soldAmount,
+        out int totalPrice)
+    {
+        soldAmount = 0;
+        totalPrice = 0;
+
+        if (item == null ||
+            sellerObject == null ||
+            sellerInventory == null ||
+            amount <= 0 ||
+            !NpcEconomy.CanTradeNormally(item))
+        {
+            return false;
+        }
+
+        int available =
+            sellerInventory.GetAmount(item);
+        if (available <= 0)
+        {
+            return false;
+        }
+
+        int unitPrice =
+            GetSellPrice(item);
+        if (unitPrice <= 0)
+        {
+            return false;
+        }
+
+        soldAmount =
+            Mathf.Min(
+                amount,
+                available);
+
+        if (!sellerInventory.RemoveItem(
+                item,
+                soldAmount))
+        {
+            soldAmount = 0;
+            return false;
+        }
+
+        int itemIndex =
+            FindItemIndex(item);
+
+        if (itemIndex >= 0)
+        {
+            items[itemIndex].amount += soldAmount;
+        }
+        else
+        {
+            items.Add(
+                new ShopItemSlot
+                {
+                    item = item,
+                    amount = soldAmount
+                });
+        }
+
+        totalPrice =
+            unitPrice * soldAmount;
+        NpcEconomy.AddNpcMoney(
+            sellerObject,
+            totalPrice);
+        SaveRuntimeStock();
         return true;
     }
 

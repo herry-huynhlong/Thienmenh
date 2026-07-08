@@ -86,7 +86,10 @@ public class TaskBoardInteract : MonoBehaviour
             return;
         }
 
-        Vector2 worldPosition = cam.ScreenToWorldPoint(screenPosition);
+        Vector2 worldPosition =
+            CameraWorldPlaneUtility.ScreenToWorldOnPlane(
+                cam,
+                screenPosition);
 
         if (!boardCollider.OverlapPoint(worldPosition))
         {
