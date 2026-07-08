@@ -195,6 +195,24 @@ public static class NpcMapNavigator
             !targetZone.HasValue ||
             currentZone.Value == targetZone.Value)
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.LogWarning(
+                "[NpcMapNavigator] npc=" +
+                npc.name +
+                " stage=RouteCheck detail=direct" +
+                " currentZone=" +
+                (currentZone.HasValue
+                    ? currentZone.Value.ToString()
+                    : "None") +
+                " targetZone=" +
+                (targetZone.HasValue
+                    ? targetZone.Value.ToString()
+                    : "None") +
+                " forcedTargetZone=" +
+                (forcedTargetZone.HasValue
+                    ? forcedTargetZone.Value.ToString()
+                    : "None"));
+#endif
             return finalTarget;
         }
 
@@ -249,6 +267,18 @@ public static class NpcMapNavigator
 
         Vector3 entryPosition =
             gate.GetApproachPosition(npc.transform.position);
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        Debug.LogWarning(
+            "[NpcMapNavigator] npc=" +
+            npc.name +
+            " stage=RouteCheck detail=useGate" +
+            " gate=" + gate.name +
+            " currentZone=" + currentZone.Value +
+            " targetZone=" + targetZone.Value +
+            " destinationZone=" + destinationZone +
+            " entry=" + entryPosition);
+#endif
 
         usingTeleportRoute = true;
         routeAction = NpcText.ActionFormat(

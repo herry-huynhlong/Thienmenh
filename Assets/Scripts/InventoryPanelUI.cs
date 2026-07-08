@@ -49,13 +49,19 @@ public class InventoryPanelUI : MonoBehaviour
 
     [Header("Detail")]
     public GameObject detailPanel;
+    public Image detailFrameImage;
     public Image detailIcon;
     public TMP_Text detailNameText;
     public TMP_Text detailAmountText;
+    public TMP_Text detailAmountLabelText;
     public TMP_Text detailTypeText;
     public TMP_Text detailGradeText;
     public TMP_Text detailTargetsText;
     public TMP_Text detailPriceText;
+    public TMP_Text detailPriceLabelText;
+    public TMP_Text detailOwnerText;
+    public TMP_Text detailOwnerLabelText;
+    public TMP_Text detailDescriptionTitleText;
     public TMP_Text detailDescriptionText;
     public TMP_Text detailStatsText;
     public Button useButton;
@@ -395,11 +401,15 @@ public class InventoryPanelUI : MonoBehaviour
         selectedItem = stack.item;
         bool usesRightPanelLayout =
             UsesRightPanelLayout();
+        bool usesNpcInventoryDetailLayout =
+            UsesNpcInventoryDetailLayout();
 
         if (detailPanel != null)
         {
             detailPanel.SetActive(true);
         }
+
+        ApplyDetailGradeFrame(stack.item);
 
         if (detailIcon != null)
         {
@@ -414,15 +424,17 @@ public class InventoryPanelUI : MonoBehaviour
 
         if (detailAmountText != null)
         {
-            detailAmountText.text =
-                ItemText.Format("detail", "amountFormat", stack.amount);
+            detailAmountText.text = usesNpcInventoryDetailLayout
+                ? stack.amount.ToString()
+                : ItemText.Format("detail", "amountFormat", stack.amount);
         }
 
         if (detailTypeText != null)
         {
             detailTypeText.text =
-                usesRightPanelLayout &&
-                IsDescendantOf(detailTypeText.transform, rightPanelTransform)
+                (usesRightPanelLayout &&
+                IsDescendantOf(detailTypeText.transform, rightPanelTransform)) ||
+                usesNpcInventoryDetailLayout
                 ? ItemText.Type(stack.item.itemType)
                 : ItemText.Format(
                     "detail",
@@ -433,8 +445,9 @@ public class InventoryPanelUI : MonoBehaviour
         if (detailGradeText != null)
         {
             detailGradeText.text =
-                usesRightPanelLayout &&
-                IsDescendantOf(detailGradeText.transform, rightPanelTransform)
+                (usesRightPanelLayout &&
+                IsDescendantOf(detailGradeText.transform, rightPanelTransform)) ||
+                usesNpcInventoryDetailLayout
                 ? ItemText.Grade(stack.item.grade)
                 : ItemText.Format(
                     "detail",
@@ -457,11 +470,21 @@ public class InventoryPanelUI : MonoBehaviour
 
         if (detailPriceText != null)
         {
-            detailPriceText.text =
-                ItemText.Format(
+            string formattedPrice =
+                NpcEconomy.FormatPrice(stack.item);
+
+            detailPriceText.text = usesNpcInventoryDetailLayout
+                ? formattedPrice
+                : ItemText.Format(
                     "detail",
                     "priceFormat",
-                    NpcEconomy.FormatPrice(stack.item));
+                    formattedPrice);
+        }
+
+        if (detailOwnerText != null)
+        {
+            detailOwnerText.text =
+                GetInventoryOwnerName();
         }
 
         if (detailDescriptionText != null)
@@ -1373,8 +1396,12 @@ public class InventoryPanelUI : MonoBehaviour
         SetText(detailGradeText, "");
         SetText(detailTargetsText, "");
         SetText(detailPriceText, "");
+        SetText(detailOwnerText, "");
         SetText(detailDescriptionText, "");
         SetText(detailStatsText, "");
+        SetImageVisible(
+            detailFrameImage,
+            false);
         ClearPreviewIcon(previewItemIcon);
         ClearPreviewIcon(previewBigIcon);
         SetImageVisible(
@@ -1501,10 +1528,35 @@ public class InventoryPanelUI : MonoBehaviour
             Transform detailTransform =
                 detailPanel.transform;
 
+            if (detailFrameImage == null)
+            {
+                detailFrameImage =
+                    FindImageByName(detailTransform, "IconBG");
+            }
+
+            if (detailIcon == null)
+            {
+                detailIcon =
+                    FindImageByName(detailTransform, "IconItem");
+            }
+
             if (detailNameText == null)
             {
                 detailNameText =
+                    FindTextByName(detailTransform, "Name") ??
                     FindTextByName(detailTransform, "DetailNameText");
+            }
+
+            if (detailAmountText == null)
+            {
+                detailAmountText =
+                    FindTextByName(detailTransform, "DetailAmountText");
+            }
+
+            if (detailAmountLabelText == null)
+            {
+                detailAmountLabelText =
+                    FindTextByName(detailTransform, "AmountLabel");
             }
 
             if (detailTypeText == null)
@@ -1531,11 +1583,38 @@ public class InventoryPanelUI : MonoBehaviour
                     FindTextByName(detailTransform, "DetailPriceText");
             }
 
+            if (detailPriceLabelText == null)
+            {
+                detailPriceLabelText =
+                    FindTextByName(detailTransform, "PriceLabel");
+            }
+
+            if (detailOwnerText == null)
+            {
+                detailOwnerText =
+                    FindTextByName(detailTransform, "DetailOwnerText");
+            }
+
+            if (detailOwnerLabelText == null)
+            {
+                detailOwnerLabelText =
+                    FindTextByName(detailTransform, "OwnerLabel");
+            }
+
+            if (detailDescriptionTitleText == null)
+            {
+                detailDescriptionTitleText =
+                    FindTextByName(detailTransform, "DescriptionTitle");
+            }
+
             if (detailDescriptionText == null)
             {
                 detailDescriptionText =
+                    FindTextByName(detailTransform, "DescriptionText") ??
                     FindTextByName(detailTransform, "DetailDescriptionText");
             }
+
+            ApplyNpcInventoryDetailStaticTexts();
 
             if (detailStatsText == null)
             {
@@ -1855,6 +1934,79 @@ public class InventoryPanelUI : MonoBehaviour
         {
             text.text = value;
         }
+    }
+
+    bool UsesNpcInventoryDetailLayout()
+    {
+        return detailPanel != null &&
+            (HasAncestorNamed(detailPanel.transform, "targetinfopanel") ||
+            HasAncestorNamed(detailPanel.transform, "npcinventorygrid")) &&
+            FindChildByName(detailPanel.transform, "TagRow") != null &&
+            FindChildByName(detailPanel.transform, "InfoRows") != null &&
+            FindChildByName(detailPanel.transform, "DescriptionBox") != null;
+    }
+
+    void ApplyNpcInventoryDetailStaticTexts()
+    {
+        if (!UsesNpcInventoryDetailLayout())
+        {
+            return;
+        }
+
+        SetText(
+            detailAmountLabelText,
+            ItemText.Get("detail", "amountLabel", "S\u1ED1 l\u01B0\u1EE3ng"));
+        SetText(
+            detailPriceLabelText,
+            ItemText.Get("detail", "priceLabel", "Gi\u00E1 tr\u1ECB"));
+        SetText(
+            detailOwnerLabelText,
+            ItemText.Get("detail", "ownerLabel", "Ch\u1EE7 s\u1EDF h\u1EEFu"));
+        SetText(
+            detailDescriptionTitleText,
+            ItemText.Get("detail", "descriptionTitle", "M\u00F4 t\u1EA3"));
+    }
+
+    string GetInventoryOwnerName()
+    {
+        if (inventory == null)
+        {
+            return "";
+        }
+
+        Transform owner =
+            inventory.transform;
+
+        if (owner == null)
+        {
+            return "";
+        }
+
+        VillagerAI villager =
+            owner.GetComponent<VillagerAI>();
+
+        if (villager != null)
+        {
+            return villager.villagerName;
+        }
+
+        SmartNpcAI smartNpc =
+            owner.GetComponent<SmartNpcAI>();
+
+        if (smartNpc != null)
+        {
+            return smartNpc.npcName;
+        }
+
+        NpcData npcData =
+            owner.GetComponent<NpcData>();
+
+        if (npcData != null)
+        {
+            return npcData.npcName;
+        }
+
+        return owner.name;
     }
 
     string BuildStatsText(ItemStack stack)
@@ -2454,6 +2606,27 @@ public class InventoryPanelUI : MonoBehaviour
         previewGradeFrameImage.color = Color.white;
         previewGradeFrameImage.raycastTarget = false;
         previewGradeFrameImage.preserveAspect = false;
+    }
+
+    void ApplyDetailGradeFrame(
+        StatItemData item)
+    {
+        if (detailFrameImage == null)
+        {
+            return;
+        }
+
+        Sprite frame =
+            item != null
+                ? ItemGradeFrameLibrary.GetFrame(item.grade)
+                : null;
+        detailFrameImage.sprite = frame;
+        SetImageVisible(
+            detailFrameImage,
+            frame != null);
+        detailFrameImage.color = Color.white;
+        detailFrameImage.raycastTarget = false;
+        detailFrameImage.preserveAspect = false;
     }
 
     void ClearPreviewIcon(

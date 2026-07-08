@@ -22,9 +22,10 @@ public class NPCVisualAnimation : MonoBehaviour
     [HideInInspector] public AnimationClip rightAttackClip;
     [HideInInspector] public AnimationClip leftAttackClip;
 
-    public AnimationClip cultivateDownClip;
-    public AnimationClip cultivateUpClip;
-    public AnimationClip cultivateSideClip;
+    public AnimationClip cultivateClip;
+    [HideInInspector] public AnimationClip cultivateDownClip;
+    [HideInInspector] public AnimationClip cultivateUpClip;
+    [HideInInspector] public AnimationClip cultivateSideClip;
     [HideInInspector] public AnimationClip rightCultivateClip;
     [HideInInspector] public AnimationClip leftCultivateClip;
 
@@ -52,6 +53,9 @@ public class NPCVisualAnimation : MonoBehaviour
     int overrideStateHash;
     Vector2 lastDirection = Vector2.down;
     AnimationClip currentClip;
+    bool? lastLoggedIdleState;
+    string lastLoggedAction;
+    Vector2? lastLoggedInputDirection;
 
     enum ActionCategory
     {
@@ -174,6 +178,8 @@ public class NPCVisualAnimation : MonoBehaviour
         {
             lastDirection = GetFacingDirection(moveDirection);
         }
+
+        LogInputState(moveDirection, isIdling, currentAction);
 
         AnimationClip clipToPlay = null;
         ActionCategory actionCategory = ResolveActionCategory(currentAction);
@@ -466,6 +472,50 @@ public class NPCVisualAnimation : MonoBehaviour
         currentClip = clipToPlay;
     }
 
+    void LogInputState(
+        Vector2 moveDirection,
+        bool isIdling,
+        string currentAction)
+    {
+        if (!ShouldLogVisualDebug())
+        {
+            return;
+        }
+
+        bool actionChanged =
+            !string.Equals(
+                lastLoggedAction,
+                currentAction,
+                System.StringComparison.Ordinal);
+        bool idleChanged =
+            !lastLoggedIdleState.HasValue ||
+            lastLoggedIdleState.Value != isIdling;
+        bool directionChanged =
+            !lastLoggedInputDirection.HasValue ||
+            Vector2.Distance(
+                lastLoggedInputDirection.Value,
+                moveDirection) > 0.01f;
+
+        if (!actionChanged &&
+            !idleChanged &&
+            !directionChanged)
+        {
+            return;
+        }
+
+        Debug.Log(
+            "[NPCVisualAnimation] Input object=" +
+            gameObject.name +
+            " idle=" + isIdling +
+            " moveDirection=" + moveDirection +
+            " facing=" + lastDirection +
+            " action=" + currentAction);
+
+        lastLoggedAction = currentAction;
+        lastLoggedIdleState = isIdling;
+        lastLoggedInputDirection = moveDirection;
+    }
+
     AnimationClip GetActionClip(ActionCategory actionCategory, Vector2 direction)
     {
         switch (actionCategory)
@@ -488,13 +538,7 @@ public class NPCVisualAnimation : MonoBehaviour
             }
 
             case ActionCategory.Cultivate:
-                return GetDirectionalClip(
-                    cultivateUpClip,
-                    cultivateDownClip,
-                    cultivateSideClip,
-                    rightCultivateClip,
-                    leftCultivateClip,
-                    direction);
+                return GetCultivateClip();
 
             case ActionCategory.Die:
             {
@@ -529,6 +573,16 @@ public class NPCVisualAnimation : MonoBehaviour
             sideClip ??
             upClip ??
             downClip;
+    }
+
+    AnimationClip GetCultivateClip()
+    {
+        return cultivateClip ??
+            cultivateSideClip ??
+            rightCultivateClip ??
+            leftCultivateClip ??
+            cultivateUpClip ??
+            cultivateDownClip;
     }
 
     AnimationClip GetWalkClip(Vector2 direction)
@@ -762,6 +816,7 @@ public class NPCVisualAnimation : MonoBehaviour
         target.cultivateDownClip = source.cultivateDownClip;
         target.cultivateUpClip = source.cultivateUpClip;
         target.cultivateSideClip = source.cultivateSideClip;
+        target.cultivateClip = source.cultivateClip;
         target.rightCultivateClip = source.rightCultivateClip;
         target.leftCultivateClip = source.leftCultivateClip;
 
@@ -993,6 +1048,15 @@ public class NPCVisualAnimation : MonoBehaviour
                 FindBestClip(clips, "meditate", "up");
         }
 
+        if (visual.cultivateClip == null)
+        {
+            visual.cultivateClip =
+                FindBestClip(clips, "cultivate") ??
+                FindBestClip(clips, "lie") ??
+                FindBestClip(clips, "sit") ??
+                FindBestClip(clips, "meditate");
+        }
+
         if (visual.cultivateSideClip == null)
         {
             visual.rightCultivateClip =
@@ -1006,16 +1070,13 @@ public class NPCVisualAnimation : MonoBehaviour
                 FindBestClip(clips, "sit", "left") ??
                 FindBestClip(clips, "meditate", "left");
             visual.cultivateSideClip =
+                visual.cultivateClip ??
                 visual.rightCultivateClip ??
                 visual.leftCultivateClip ??
                 FindBestClip(clips, "cultivate", "side") ??
                 FindBestClip(clips, "lie", "side") ??
                 FindBestClip(clips, "sit", "side") ??
-                FindBestClip(clips, "meditate", "side") ??
-                FindBestClip(clips, "cultivate") ??
-                FindBestClip(clips, "lie") ??
-                FindBestClip(clips, "sit") ??
-                FindBestClip(clips, "meditate");
+                FindBestClip(clips, "meditate", "side");
 
             if (visual.rightCultivateClip != null &&
                 visual.cultivateSideClip == visual.rightCultivateClip)
@@ -1027,6 +1088,16 @@ public class NPCVisualAnimation : MonoBehaviour
             {
                 visual.sideSpriteFacesRight = false;
             }
+        }
+
+        if (visual.cultivateClip == null)
+        {
+            visual.cultivateClip =
+                visual.cultivateSideClip ??
+                visual.rightCultivateClip ??
+                visual.leftCultivateClip ??
+                visual.cultivateUpClip ??
+                visual.cultivateDownClip;
         }
 
         if (visual.dieDownClip == null)

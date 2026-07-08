@@ -358,10 +358,10 @@ AnimatorStateMachine:
     m_Position: {x: 290, y: 90, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -964955978894318435}
-    m_Position: {x: 449.8068, y: 36.492798, z: 0}
+    m_Position: {x: 510, y: -60, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -8019108145963178936}
-    m_Position: {x: 459.8068, y: 46.492798, z: 0}
+    m_Position: {x: 540, y: 0, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -5175022589269171722}
     m_Position: {x: 469.8068, y: 56.492798, z: 0}

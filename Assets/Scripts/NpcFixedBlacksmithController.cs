@@ -232,11 +232,11 @@ public class NpcFixedBlacksmithController : MonoBehaviour
         return new List<NpcScheduleSlot>
         {
             CreateSlot(NpcScheduleActivity.Sleep, sleepStart, sleepEnd),
-            CreateSlot(NpcScheduleActivity.ReturnHome, sleepEnd, morningWorkStart),
+            CreateSlot(NpcScheduleActivity.Idle, sleepEnd, morningWorkStart),
             CreateSlot(NpcScheduleActivity.Work, morningWorkStart, morningWorkEnd),
-            CreateSlot(NpcScheduleActivity.ReturnHome, morningWorkEnd, afternoonWorkStart),
+            CreateSlot(NpcScheduleActivity.Idle, morningWorkEnd, afternoonWorkStart),
             CreateSlot(NpcScheduleActivity.Work, afternoonWorkStart, afternoonWorkEnd),
-            CreateSlot(NpcScheduleActivity.ReturnHome, afternoonWorkEnd, sleepStart)
+            CreateSlot(NpcScheduleActivity.Idle, afternoonWorkEnd, sleepStart)
         };
     }
 
@@ -582,6 +582,20 @@ public class NpcFixedBlacksmithController : MonoBehaviour
         out bool isBrokerTarget,
         out NpcCounterBroker broker)
     {
+        Transform marketPoint = GetMarketPoint();
+        NpcMapZone? marketZone = ResolveZoneForTransform(marketPoint);
+
+        if (marketPointOverride != null &&
+            marketPoint != null &&
+            marketZone.HasValue)
+        {
+            targetPosition = marketPoint.position;
+            targetZone = marketZone;
+            isBrokerTarget = false;
+            broker = null;
+            return true;
+        }
+
         if (TryGetBrokerDestination(
                 buyMaterialsAtVanBaoLau,
                 out targetPosition,
@@ -592,8 +606,6 @@ public class NpcFixedBlacksmithController : MonoBehaviour
             return true;
         }
 
-        Transform marketPoint = GetMarketPoint();
-        NpcMapZone? marketZone = ResolveZoneForTransform(marketPoint);
         if (marketPoint == null ||
             (buyMaterialsAtVanBaoLau &&
             marketZone.HasValue &&
@@ -624,6 +636,20 @@ public class NpcFixedBlacksmithController : MonoBehaviour
         out bool isBrokerTarget,
         out NpcCounterBroker broker)
     {
+        Transform marketPoint = GetMarketPoint();
+        NpcMapZone? marketZone = ResolveZoneForTransform(marketPoint);
+
+        if (marketPointOverride != null &&
+            marketPoint != null &&
+            marketZone.HasValue)
+        {
+            targetPosition = marketPoint.position;
+            targetZone = marketZone;
+            isBrokerTarget = false;
+            broker = null;
+            return true;
+        }
+
         if (TryGetBrokerDestination(
                 sellAtVanBaoLau,
                 out targetPosition,
@@ -634,8 +660,6 @@ public class NpcFixedBlacksmithController : MonoBehaviour
             return true;
         }
 
-        Transform marketPoint = GetMarketPoint();
-        NpcMapZone? marketZone = ResolveZoneForTransform(marketPoint);
         if (marketPoint == null ||
             (sellAtVanBaoLau &&
             marketZone.HasValue &&

@@ -381,6 +381,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
         WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
         if (timeSystem != null &&
+            !suppressBaseTimeRestRules &&
             (timeSystem.CurrentPhase == WorldTimePhase.Noon ||
             (timeSystem.CurrentHour >= 11f &&
                 timeSystem.CurrentHour < 13f) ||
@@ -2607,6 +2608,38 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             detail +
             " hour=" +
             (WorldTimeSystem.Instance != null
+                  ? WorldTimeSystem.Instance.CurrentHour.ToString("0.##")
+                  : "null"));
+#endif
+    }
+
+    void LogJobRouteDebug(string stage, string detail)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        NpcFixedBlacksmithController fixedBlacksmith =
+            GetComponent<NpcFixedBlacksmithController>();
+
+        if (!debugWorkLogs &&
+            (fixedBlacksmith == null ||
+            !fixedBlacksmith.enabled ||
+            !fixedBlacksmith.debugLogs))
+        {
+            return;
+        }
+
+        Debug.LogWarning(
+            "[VillagerAI] " +
+            stage +
+            " -> " +
+            gameObject.name +
+            " action=" +
+            currentAction +
+            " job=" +
+            job +
+            " detail=" +
+            detail +
+            " hour=" +
+            (WorldTimeSystem.Instance != null
                 ? WorldTimeSystem.Instance.CurrentHour.ToString("0.##")
                 : "null"));
 #endif
@@ -3004,6 +3037,20 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             currentAction = action;
         }
 
+        LogJobRouteDebug(
+            "ForceJobMoveTo",
+            "target=" + target);
+        LogJobRouteDebug(
+            "ForceJobZone",
+            "current=" +
+            (GetCurrentMapZone().HasValue
+                ? GetCurrentMapZone().Value.ToString()
+                : "None") +
+            " target=" +
+            (targetZone.HasValue
+                ? targetZone.Value.ToString()
+                : "None"));
+
         SetDirectMoveTarget(target, false, targetZone);
         MoveUsingRoad(target, targetZone);
     }
@@ -3070,8 +3117,30 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         {
             if (hasDirectMoveTarget)
             {
-                if (Vector2.Distance(transform.position, directMoveTarget) <= arriveDistance)
+                Vector3 activeDirectTarget = directMoveTarget;
+                bool usingTeleportRoute = false;
+                string routeAction = string.Empty;
+
+                if (directMoveTargetZone.HasValue)
                 {
+                    activeDirectTarget =
+                        NpcMapNavigator.GetNextMoveTarget(
+                            gameObject,
+                            directMoveTarget,
+                            directMoveTargetZone,
+                            out usingTeleportRoute,
+                            out routeAction);
+                }
+
+                if (Vector2.Distance(transform.position, activeDirectTarget) <= arriveDistance)
+                {
+                    if (usingTeleportRoute &&
+                        TryForceTeleportRouteUseNearDirectTarget(
+                            activeDirectTarget))
+                    {
+                        return;
+                    }
+
                     hasDirectMoveTarget = false;
                     directMoveTargetZone = null;
                     StopMoving();
@@ -3097,6 +3166,68 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         MoveUsingRoad(
             GetApproachPosition(currentTarget),
             GetTargetZone(currentTarget));
+    }
+
+    bool TryForceTeleportRouteUseNearDirectTarget(Vector3 activeDirectTarget)
+    {
+        if (directMoveTargetZone == null)
+        {
+            return false;
+        }
+
+        NpcMapZone? currentZone = GetCurrentMapZone();
+        if (!currentZone.HasValue ||
+            currentZone.Value == directMoveTargetZone.Value)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < NpcTeleportGate.Gates.Count; i++)
+        {
+            NpcTeleportGate gate = NpcTeleportGate.Gates[i];
+            if (gate == null ||
+                !gate.TryGetTeleportRouteForZone(
+                    currentZone.Value,
+                    out _,
+                    out _,
+                    out _))
+            {
+                continue;
+            }
+
+            Vector3 gateApproach =
+                gate.GetApproachPosition(transform.position);
+              float distanceToGateApproach =
+                  Vector2.Distance(
+                      transform.position,
+                      gateApproach);
+              float distanceToDirectTarget =
+                  Vector2.Distance(
+                      gateApproach,
+                      activeDirectTarget);
+
+            if (distanceToDirectTarget > 0.25f ||
+                distanceToGateApproach > Mathf.Max(
+                    arriveDistance,
+                    gate.npcAutoUseRadius))
+            {
+                continue;
+            }
+
+              LogJobRouteDebug(
+                  "ForceGateUse",
+                  "gate=" + gate.name +
+                  " gateApproach=" + gateApproach +
+                  " directMoveTarget=" + activeDirectTarget +
+                  " distToGate=" + distanceToGateApproach.ToString("0.00"));
+
+            if (gate.TryForceNpcUse(gameObject))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
     NpcMapZone? GetTargetZone(Transform target)
     {
@@ -3286,12 +3417,31 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         {
             bool usingTeleportRoute;
             string routeAction;
+            Vector3 requestedTarget = target;
             target = NpcMapNavigator.GetNextMoveTarget(
                 gameObject,
                 target,
                 targetZone,
                 out usingTeleportRoute,
                 out routeAction);
+
+            LogJobRouteDebug(
+                "MoveUsingRoad",
+                "requested=" + requestedTarget +
+                " resolved=" + target);
+            LogJobRouteDebug(
+                "MoveUsingRoadRoute",
+                "targetZone=" +
+                (targetZone.HasValue
+                    ? targetZone.Value.ToString()
+                    : "None") +
+                " useGate=" + usingTeleportRoute);
+            LogJobRouteDebug(
+                "MoveUsingRoadAction",
+                "routeAction=" +
+                (string.IsNullOrEmpty(routeAction)
+                    ? "None"
+                    : routeAction));
 
             if (usingTeleportRoute)
             {
@@ -3600,6 +3750,15 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
         try
         {
+            LogJobRouteDebug(
+                "MoveToPosition",
+                "actorPos=" + transform.position +
+                " stepTarget=" + position +
+                " zone=" +
+                (targetZone.HasValue
+                    ? targetZone.Value.ToString()
+                    : "None"));
+
             position = ClampToCurrentMapArea(position);
             Vector3 finalTarget = position;
 
@@ -3629,6 +3788,10 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                 }
                 else
                 {
+                    LogJobRouteDebug(
+                        "MoveBlocked",
+                        "requested=" + position +
+                        " final=" + finalTarget);
                     HandleBlockedMovement(position, finalTarget);
                     return;
                 }
@@ -4233,6 +4396,15 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         ClearActivePath();
         UpdateCultivationEffect(false);
 
+        LogJobRouteDebug(
+            "OnNpcMapTeleported",
+            "gate=" + (gate != null ? gate.name : "null") +
+            " resolvedZone=" +
+            (resolvedZone.HasValue
+                ? resolvedZone.Value.ToString()
+                : "None") +
+            " actorPos=" + transform.position);
+
         if (shouldResumeHomeReturn && !hiddenAtHome)
         {
             Vector3 homePosition = GetHomePosition();
@@ -4417,6 +4589,19 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             isIdle
             ? Vector2.zero
             : animationVelocity.normalized;
+
+        if (visualAnimation.debugVisualLogs)
+        {
+            Debug.Log(
+                "[VillagerAI] Visual input object=" +
+                gameObject.name +
+                " velocity=" + animationVelocity +
+                " speed=" + animationVelocity.magnitude.ToString("F3") +
+                " idleThreshold=" + animationIdleSpeed.ToString("F3") +
+                " isIdle=" + isIdle +
+                " desiredVelocity=" + desiredVelocity +
+                " action=" + currentAction);
+        }
 
         visualAnimation.UpdateNPCAnimation(direction, isIdle, currentAction);
     }

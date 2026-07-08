@@ -22,6 +22,22 @@
         {
           "key": "priceFormat",
           "value": "Price: {0}"
+        },
+        {
+          "key": "amountLabel",
+          "value": "Amount"
+        },
+        {
+          "key": "priceLabel",
+          "value": "Value"
+        },
+        {
+          "key": "ownerLabel",
+          "value": "Owner"
+        },
+        {
+          "key": "descriptionTitle",
+          "value": "Description"
         }
       ]
     },

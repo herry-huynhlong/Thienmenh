@@ -22,6 +22,22 @@
         {
           "key": "priceFormat",
           "value": "Giá: {0}"
+        },
+        {
+          "key": "amountLabel",
+          "value": "Số lượng"
+        },
+        {
+          "key": "priceLabel",
+          "value": "Giá trị"
+        },
+        {
+          "key": "ownerLabel",
+          "value": "Chủ sở hữu"
+        },
+        {
+          "key": "descriptionTitle",
+          "value": "Mô tả"
         }
       ]
     },

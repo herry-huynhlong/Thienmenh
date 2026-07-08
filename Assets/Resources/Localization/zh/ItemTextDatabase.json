@@ -22,6 +22,22 @@
         {
           "key": "priceFormat",
           "value": "价格：{0}"
+        },
+        {
+          "key": "amountLabel",
+          "value": "数量"
+        },
+        {
+          "key": "priceLabel",
+          "value": "价值"
+        },
+        {
+          "key": "ownerLabel",
+          "value": "持有者"
+        },
+        {
+          "key": "descriptionTitle",
+          "value": "描述"
         }
       ]
     },
