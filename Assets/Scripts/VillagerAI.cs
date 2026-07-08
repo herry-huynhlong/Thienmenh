@@ -352,22 +352,39 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             return false;
         }
 
+        NpcFixedBlacksmithController fixedBlacksmith =
+            GetComponent<NpcFixedBlacksmithController>();
+        bool suppressBaseTimeRestRules =
+            fixedBlacksmith != null &&
+            fixedBlacksmith.enabled &&
+            fixedBlacksmith.SuppressBaseTimeRestRules;
+
+        NpcScheduleController schedule =
+            NpcScheduleController.GetSchedule(gameObject);
+        if (schedule != null &&
+            schedule.enforceSchedule &&
+            schedule.CurrentSlot != null)
+        {
+            NpcScheduleActivity activity =
+                schedule.CurrentActivity;
+            if (activity == NpcScheduleActivity.ReturnHome ||
+                activity == NpcScheduleActivity.Sleep)
+            {
+                return !IsAtHomePosition(GetHomePosition());
+            }
+
+            if (suppressBaseTimeRestRules)
+            {
+                return false;
+            }
+        }
+
         WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
         if (timeSystem != null &&
             (timeSystem.CurrentPhase == WorldTimePhase.Noon ||
             (timeSystem.CurrentHour >= 11f &&
                 timeSystem.CurrentHour < 13f) ||
             timeSystem.CurrentPhase == WorldTimePhase.Night))
-        {
-            return !IsAtHomePosition(GetHomePosition());
-        }
-
-        NpcScheduleController schedule =
-            NpcScheduleController.GetSchedule(gameObject);
-        if (schedule != null &&
-            schedule.enforceSchedule &&
-            schedule.CurrentSlot != null &&
-            schedule.CurrentActivity == NpcScheduleActivity.ReturnHome)
         {
             return !IsAtHomePosition(GetHomePosition());
         }

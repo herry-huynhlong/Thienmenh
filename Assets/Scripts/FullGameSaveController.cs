@@ -43,7 +43,7 @@ public class FullGameSaveController : MonoBehaviour
     static FullGameSaveController instance;
 
     [Header("Auto Save")]
-    public float autoSaveInterval = 8f;
+    public float autoSaveInterval = 30f;
     public bool saveOnPause = true;
     public bool saveOnQuit = true;
     public bool debugLog;
@@ -112,7 +112,7 @@ public class FullGameSaveController : MonoBehaviour
         if (saveTimer >= autoSaveInterval)
         {
             saveTimer = 0f;
-            SaveFullGame();
+            SaveFullGame(true);
         }
     }
 
@@ -120,7 +120,7 @@ public class FullGameSaveController : MonoBehaviour
     {
         if (paused && saveOnPause)
         {
-            SaveFullGame();
+            SaveFullGame(true);
         }
     }
 
@@ -128,7 +128,7 @@ public class FullGameSaveController : MonoBehaviour
     {
         if (saveOnQuit)
         {
-            SaveFullGame();
+            SaveFullGame(true);
         }
     }
 
@@ -144,7 +144,7 @@ public class FullGameSaveController : MonoBehaviour
         StartCoroutine(ApplyFullSaveAfterSceneLoad());
     }
 
-    public void SaveFullGame()
+    public void SaveFullGame(bool flushNow = false)
     {
         string sceneName = GetCurrentGameplaySceneName();
         if (string.IsNullOrEmpty(sceneName) || IsNonGameplayScene(sceneName))
@@ -162,8 +162,14 @@ public class FullGameSaveController : MonoBehaviour
         SaveWallets();
         PlayerPrefs.SetString(FullSaveKey, JsonUtility.ToJson(data));
         GameSaveSystem.RegisterDynamicSaveKey(FullSaveKey);
+        GameSaveSystem.MarkSaveExists();
         GameSaveSystem.SaveCurrentScene(sceneName);
-        PlayerPrefs.Save();
+        GameSaveSystem.QueuePendingCommit();
+
+        if (flushNow)
+        {
+            GameSaveSystem.FlushPendingCommit();
+        }
 
         if (debugLog)
         {

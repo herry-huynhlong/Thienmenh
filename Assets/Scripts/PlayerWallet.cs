@@ -112,7 +112,7 @@ public class PlayerWallet : MonoBehaviour
 
         PlayerPrefs.SetInt(WalletSaveKey, sharedMoney);
         GameSaveSystem.MarkSaveExists();
-        PlayerPrefs.Save();
+        GameSaveSystem.QueuePendingCommit();
     }
 
     public void Load()

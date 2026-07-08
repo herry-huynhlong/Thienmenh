@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: a1807213e723f404f85b6d7754e7ede5
+guid: 48d2a12fe4e74b24fa0edcf0c03ef76d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1413741695902505641
-    second: Rice_Mature_0
+      213: -4436260038894307043
+    second: "C\u01B0\u1EDDng C\u1ED1t Th\u1EA3o - Mid_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 4000
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -97,7 +97,7 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
-    buildTarget: WebGL
+    buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -110,7 +110,7 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
-    buildTarget: Android
+    buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Rice_Mature_0
+      name: "C\u01B0\u1EDDng C\u1ED1t Th\u1EA3o - Mid_0"
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1254
-        height: 1254
+        x: 204
+        y: 163
+        width: 848
+        height: 899
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9aa5d64059e9e9310800000000000000
-      internalID: 1413741695902505641
+      spriteID: d19b17abffc3f62c0800000000000000
+      internalID: -4436260038894307043
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Rice_Mature_0: 1413741695902505641
+      "C\u01B0\u1EDDng C\u1ED1t Th\u1EA3o - Mid_0": -4436260038894307043
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -55,6 +55,7 @@ public static class GameSaveSystem
         new Dictionary<string, StatItemData>();
 
     static bool savedGameLoadRequested;
+    static bool pendingPlayerPrefsCommit;
 
     public static bool SavedGameLoadRequested =>
         savedGameLoadRequested;
@@ -78,6 +79,23 @@ public static class GameSaveSystem
     public static void MarkSaveExists()
     {
         PlayerPrefs.SetInt(HasSaveKey, 1);
+        QueuePendingCommit();
+    }
+
+    public static void QueuePendingCommit()
+    {
+        pendingPlayerPrefsCommit = true;
+    }
+
+    public static void FlushPendingCommit()
+    {
+        if (!pendingPlayerPrefsCommit)
+        {
+            return;
+        }
+
+        PlayerPrefs.Save();
+        pendingPlayerPrefsCommit = false;
     }
 
     public static void ClearSave()
@@ -107,6 +125,7 @@ public static class GameSaveSystem
             PlayerPrefs.DeleteKey(key);
         }
 
+        pendingPlayerPrefsCommit = false;
         PlayerPrefs.Save();
     }
 
@@ -212,7 +231,7 @@ public static class GameSaveSystem
 
         PlayerPrefs.SetString(SceneKey, sceneName);
         MarkSaveExists();
-        PlayerPrefs.Save();
+        QueuePendingCommit();
     }
 
     public static string LoadCurrentScene(string fallbackScene)
@@ -265,7 +284,7 @@ public static class GameSaveSystem
         PlayerPrefs.SetInt(WorldTimeDayKey, Mathf.Max(1, day));
         PlayerPrefs.SetFloat(WorldTimeHourKey, Mathf.Clamp(hour, 0f, 23.999f));
         MarkSaveExists();
-        PlayerPrefs.Save();
+        QueuePendingCommit();
     }
 
     public static bool TryLoadWorldTime(
@@ -334,7 +353,7 @@ public static class GameSaveSystem
             JsonUtility.ToJson(data));
 
         MarkSaveExists();
-        PlayerPrefs.Save();
+        QueuePendingCommit();
     }
 
     public static bool TryLoadInventory(
@@ -432,7 +451,7 @@ public static class GameSaveSystem
             JsonUtility.ToJson(data));
 
         MarkSaveExists();
-        PlayerPrefs.Save();
+        QueuePendingCommit();
     }
 
     public static bool TryLoadShopStock(

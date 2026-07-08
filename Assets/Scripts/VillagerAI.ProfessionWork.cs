@@ -15,7 +15,8 @@ public partial class VillagerAI
     bool IsForgeWorker()
     {
         return job == VillagerJob.Blacksmith &&
-            GetComponent<NpcForgeAgent>() != null;
+            (GetComponent<NpcFixedBlacksmithController>() != null ||
+            GetComponent<NpcForgeAgent>() != null);
     }
 
     bool IsAlchemyWorker()
@@ -76,6 +77,15 @@ public partial class VillagerAI
         if (!autonomousWorkEnabled)
         {
             Wander(NpcText.Action("wanderVillage"));
+            return;
+        }
+
+        NpcFixedBlacksmithController fixedBlacksmith =
+            GetComponent<NpcFixedBlacksmithController>();
+        if (fixedBlacksmith != null &&
+            fixedBlacksmith.enabled &&
+            fixedBlacksmith.TryRunWorkCycle())
+        {
             return;
         }
 

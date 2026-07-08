@@ -115,11 +115,9 @@ public class WorldItemInfoPanelUI : MonoBehaviour
             panelRoot.transform,
             "ExtraInfo");
 
-        loreQuoteText = EnsureText(
+        loreQuoteText = EnsureTextInSection(
             loreQuoteText,
             panelRoot.transform,
-            "tuongtruyen",
-            "TuongTruyen",
             "LoreQuote");
 
         EnsureCardReferences(ref valueCard, panelRoot.transform, "ValueCard");
@@ -649,6 +647,41 @@ public class WorldItemInfoPanelUI : MonoBehaviour
             if (text != null)
             {
                 return text;
+            }
+        }
+
+        return current;
+    }
+
+    static TMP_Text EnsureTextInSection(
+        TMP_Text current,
+        Transform root,
+        string sectionName)
+    {
+        if (current != null ||
+            root == null)
+        {
+            return current;
+        }
+
+        if (!string.IsNullOrWhiteSpace(sectionName))
+        {
+            Transform section =
+                FindChildByName(root, sectionName);
+            if (section != null)
+            {
+                TMP_Text sectionText =
+                    section.GetComponent<TMP_Text>();
+                if (sectionText == null)
+                {
+                    sectionText =
+                        section.GetComponentInChildren<TMP_Text>(true);
+                }
+
+                if (sectionText != null)
+                {
+                    return sectionText;
+                }
             }
         }
 
