@@ -370,9 +370,17 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         {
             NpcScheduleActivity activity =
                 schedule.CurrentActivity;
+            bool shouldHoldBlacksmithTradeRoute =
+                fixedBlacksmith != null &&
+                fixedBlacksmith.ShouldKeepTradeRouteActive();
             if (activity == NpcScheduleActivity.ReturnHome ||
                 activity == NpcScheduleActivity.Sleep)
             {
+                if (shouldHoldBlacksmithTradeRoute)
+                {
+                    return false;
+                }
+
                 return !IsAtHomePosition(GetHomePosition());
             }
 
@@ -837,7 +845,17 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             return;
         }
 
-        RefreshScheduledStateForCurrentFrame();
+        NpcFixedBlacksmithController fixedBlacksmith =
+            GetComponent<NpcFixedBlacksmithController>();
+        bool useDedicatedBlacksmithRoutine =
+            fixedBlacksmith != null &&
+            fixedBlacksmith.enabled &&
+            fixedBlacksmith.UseDedicatedRoutine;
+
+        if (!useDedicatedBlacksmithRoutine)
+        {
+            RefreshScheduledStateForCurrentFrame();
+        }
 
         if (isReturningHome &&
             IsAtHomePosition(GetHomePosition()))
@@ -845,7 +863,8 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             CompleteHomeArrival();
         }
 
-        if (ShouldForceReturnHomeForCurrentSchedule())
+        if (!useDedicatedBlacksmithRoutine &&
+            ShouldForceReturnHomeForCurrentSchedule())
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (Time.time - lastReturnHomeTriggerLogTime >= 1f)

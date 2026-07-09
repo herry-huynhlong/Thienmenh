@@ -38,6 +38,20 @@ public static class NpcPlayModeTestRunner
 
         SessionState.SetBool(BatchRunQueuedKey, true);
         Debug.Log("NpcPlayModeTestRunner: detected batchmode -runTests.");
+        string testFilter = GetCommandLineValue("-testFilter");
+        if (!string.IsNullOrWhiteSpace(testFilter))
+        {
+            Debug.Log(
+                "NpcPlayModeTestRunner: running filtered PlayMode test(s): " +
+                testFilter);
+            Run(
+                testFilter.Split(
+                    new[] { ';' },
+                    StringSplitOptions.RemoveEmptyEntries),
+                true);
+            return;
+        }
+
         Debug.Log("NpcPlayModeTestRunner: redirecting batch run to NpcThreeDayAuditBatchRunner.");
         NpcThreeDayAuditBatchRunner.Run();
     }

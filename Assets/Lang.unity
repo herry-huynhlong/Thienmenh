@@ -9593,9 +9593,6 @@ Tilemap:
   - serializedVersion: 2
     m_RefCount: 699
     m_Data: {fileID: 152954984, guid: e3046f4802b255e43bc09df30edadcc1, type: 3}
-  - serializedVersion: 2
-    m_RefCount: 0
-    m_Data: {fileID: 1210273113}
   m_TileMatrixArray:
   - serializedVersion: 2
     m_RefCount: 832
@@ -14349,6 +14346,37 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &140959132
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 140959133}
+  m_Layer: 0
+  m_Name: ren
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &140959133
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 140959132}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 130.92, y: 3.17, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1535737711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &142109781
 GameObject:
   m_ObjectHideFlags: 0
@@ -34247,13 +34275,7 @@ Tilemap:
   - serializedVersion: 2
     m_RefCount: 60
     m_Data: {fileID: 1542460602}
-  m_TileSpriteArray:
-  - serializedVersion: 2
-    m_RefCount: 0
-    m_Data: {fileID: 1428221958}
-  - serializedVersion: 2
-    m_RefCount: 0
-    m_Data: {fileID: 1357206449}
+  m_TileSpriteArray: []
   m_TileMatrixArray:
   - serializedVersion: 2
     m_RefCount: 80
@@ -50372,7 +50394,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 851602740}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
@@ -83399,9 +83421,6 @@ Tilemap:
   - serializedVersion: 2
     m_RefCount: 6
     m_Data: {fileID: -97196690, guid: e3046f4802b255e43bc09df30edadcc1, type: 3}
-  - serializedVersion: 2
-    m_RefCount: 0
-    m_Data: {fileID: 2034997697}
   m_TileMatrixArray:
   - serializedVersion: 2
     m_RefCount: 903
@@ -94437,6 +94456,14 @@ PrefabInstance:
       propertyPath: marketPointOverride
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 3201119476251412231, guid: afa77975feceb5d4da429fc22403760e, type: 3}
+      propertyPath: buyApproachPointOverride
+      value: 
+      objectReference: {fileID: 140959133}
+    - target: {fileID: 3201119476251412231, guid: afa77975feceb5d4da429fc22403760e, type: 3}
+      propertyPath: sellApproachPointOverride
+      value: 
+      objectReference: {fileID: 140959133}
     - target: {fileID: 5919177293927157788, guid: afa77975feceb5d4da429fc22403760e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 10.51
@@ -104990,6 +105017,7 @@ Transform:
   - {fileID: 483456130}
   - {fileID: 214357150}
   - {fileID: 172248962}
+  - {fileID: 140959133}
   m_Father: {fileID: 745795171}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!70 &1535737712
@@ -121327,7 +121355,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1674595249}
   m_Layer: 0
-  m_Name: ren
+  m_Name: ren1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -121342,7 +121370,7 @@ Transform:
   m_GameObject: {fileID: 1674595248}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.24, y: -0.77, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -152694,6 +152722,37 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &2098765431
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2098765432}
+  m_Layer: 0
+  m_Name: ThorenNpcStoreStandPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2098765432
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2098765431}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 133.55, y: 4.35, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2101007563
 GameObject:
   m_ObjectHideFlags: 0
@@ -165474,3 +165533,4 @@ SceneRoots:
   - {fileID: 252927331}
   - {fileID: 1617887145}
   - {fileID: 6651249}
+  - {fileID: 2098765432}

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 [System.Serializable]
@@ -25,6 +26,7 @@ public class NpcFixedBlacksmithController : MonoBehaviour
     public bool disableLegacyForgeComponents = true;
     public string professionName = "Lo Ren";
     public bool suppressBaseTimeRestRules = true;
+    public bool useDedicatedRoutine = true;
 
     [Header("Economy")]
     [Min(0)] public int startingMoney = 100000;
@@ -56,7 +58,9 @@ public class NpcFixedBlacksmithController : MonoBehaviour
     [Header("Points")]
     public Transform forgePointOverride;
     public Transform marketPointOverride;
+    public Transform buyApproachPointOverride;
     public Transform buyPointOverride;
+    public Transform sellApproachPointOverride;
     public Transform sellPointOverride;
 
     [Header("Actions")]
@@ -80,8 +84,47 @@ public class NpcFixedBlacksmithController : MonoBehaviour
     NpcScheduleController schedule;
     string lastTradeDestinationSource = "none";
     string lastTradeShopName = "none";
+    NpcCounterBroker cachedBrokerApproachBroker;
+    Vector3 cachedBrokerApproachPosition;
+    ForgeCycleState cachedBrokerApproachState;
+    bool hasCachedBrokerApproachPosition;
+    Transform runtimeTradeApproachAnchor;
+    static readonly MethodInfo villagerIsMoveTargetFeasibleMethod =
+        typeof(VillagerAI).GetMethod(
+            "IsMoveTargetFeasible",
+            BindingFlags.Instance |
+            BindingFlags.NonPublic);
+    static readonly MethodInfo villagerTryFindClearPointNearMethod =
+        typeof(VillagerAI).GetMethod(
+            "TryFindClearPointNear",
+            BindingFlags.Instance |
+            BindingFlags.NonPublic);
+    static readonly MethodInfo villagerHasClearLineToMethod =
+        typeof(VillagerAI).GetMethod(
+            "HasClearLineTo",
+            BindingFlags.Instance |
+            BindingFlags.NonPublic,
+            null,
+            new[] { typeof(Vector3) },
+            null);
+    static readonly FieldInfo villagerHasRoadPreferenceField =
+        typeof(VillagerAI).GetField(
+            "hasRoadPreference",
+            BindingFlags.Instance |
+            BindingFlags.NonPublic);
+    static readonly FieldInfo villagerPrefersRoadForCurrentRouteField =
+        typeof(VillagerAI).GetField(
+            "prefersRoadForCurrentRoute",
+            BindingFlags.Instance |
+            BindingFlags.NonPublic);
+    static readonly FieldInfo villagerRoadPreferenceTargetField =
+        typeof(VillagerAI).GetField(
+            "roadPreferenceTarget",
+            BindingFlags.Instance |
+            BindingFlags.NonPublic);
 
     public bool SuppressBaseTimeRestRules => suppressBaseTimeRestRules;
+    public bool UseDedicatedRoutine => useDedicatedRoutine;
     public string DebugTradeDestinationSource => lastTradeDestinationSource;
     public string DebugTradeShopName => lastTradeShopName;
     public int DebugMaterialRequirementCount =>
@@ -90,6 +133,79 @@ public class NpcFixedBlacksmithController : MonoBehaviour
             : 0;
     public bool DebugHasConfiguredMaterialRequirements =>
         HasConfiguredMaterialRequirements();
+
+    public bool ShouldKeepTradeRouteActive()
+    {
+        CacheReferences();
+
+        if (villager == null ||
+            !enabled ||
+            !isActiveAndEnabled)
+        {
+            return false;
+        }
+
+        switch (state)
+        {
+            case ForgeCycleState.NeedMaterials:
+            case ForgeCycleState.BuyingMaterials:
+                if (TryGetBuyDestination(
+                        out Vector3 buyPosition,
+                        out _,
+                        out bool isBuyBrokerTarget,
+                        out NpcCounterBroker buyBroker))
+                {
+                    return !HasArrivedAtTradeDestination(
+                        buyPosition,
+                        isBuyBrokerTarget,
+                        buyBroker);
+                }
+
+                return false;
+
+            case ForgeCycleState.ReadyToSell:
+            case ForgeCycleState.Selling:
+                if (TryGetSellDestination(
+                        out Vector3 sellPosition,
+                        out _,
+                        out bool isSellBrokerTarget,
+                        out NpcCounterBroker sellBroker))
+                {
+                    return !HasArrivedAtTradeDestination(
+                        sellPosition,
+                        isSellBrokerTarget,
+                        sellBroker);
+                }
+
+                return false;
+
+            default:
+                return false;
+        }
+    }
+
+    public bool TryRunDedicatedRoutine()
+    {
+        CacheReferences();
+        EnsureRecommendedScheduleConfigured();
+
+        if (!useDedicatedRoutine ||
+            villager == null ||
+            !enabled ||
+            !isActiveAndEnabled)
+        {
+            return false;
+        }
+
+        float currentHour = GetCurrentClockHour();
+        if (IsDedicatedRestWindow(currentHour))
+        {
+            villager.GoHomeToRest();
+            return true;
+        }
+
+        return TryRunWorkCycle();
+    }
 
     float RequiredWorkHours =>
         Mathf.Max(1, craftDays) * Mathf.Max(1f, workHoursPerDay);
@@ -140,6 +256,100 @@ public class NpcFixedBlacksmithController : MonoBehaviour
     void Update()
     {
         SyncSleepVisibility();
+    }
+
+    [ContextMenu("Blacksmith/Debug Current Trade Route")]
+    public void DebugCurrentTradeRoute()
+    {
+        CacheReferences();
+
+        if (villager == null)
+        {
+            Debug.LogWarning(
+                "[NpcFixedBlacksmith] missing VillagerAI for " + name,
+                this);
+            return;
+        }
+
+        if (!TryGetBuyDestination(
+                out Vector3 buyPosition,
+                out NpcMapZone? buyZone,
+                out bool isBrokerTarget,
+                out NpcCounterBroker broker))
+        {
+            Debug.LogWarning(
+                "[NpcFixedBlacksmith] no buy destination for " + name,
+                this);
+            return;
+        }
+
+        Transform approachPoint = buyApproachPointOverride;
+        Transform buyPoint = buyPointOverride;
+        float probeRadius = Mathf.Max(0.12f, GetApproachClearanceRadius());
+
+        string detail =
+            "actorPos=" + transform.position +
+            " actorZone=" + GetZoneText(GetCurrentZone()) +
+            " state=" + state +
+            " action=" + villager.currentAction +
+            " buyApproachPoint=" +
+            (approachPoint != null ? approachPoint.position.ToString() : "none") +
+            " buyApproachFeasible=" +
+            (approachPoint != null &&
+                IsVillagerMoveTargetFeasible(approachPoint.position) ? 1 : 0) +
+            " buyApproachClearLine=" +
+            (approachPoint != null &&
+                HasVillagerClearLineTo(approachPoint.position) ? 1 : 0) +
+            " buyApproachHits=" +
+            DescribeBlockingCollidersAtPoint(
+                approachPoint != null ? approachPoint.position : transform.position,
+                probeRadius) +
+            " buyPoint=" +
+            (buyPoint != null ? buyPoint.position.ToString() : "none") +
+            " resolvedBuy=" + buyPosition +
+            " buyZone=" + GetZoneText(buyZone) +
+            " isBrokerTarget=" + (isBrokerTarget ? 1 : 0) +
+            " resolvedBuyFeasible=" +
+            (IsVillagerMoveTargetFeasible(buyPosition) ? 1 : 0) +
+            " resolvedBuyClearLine=" +
+            (HasVillagerClearLineTo(buyPosition) ? 1 : 0) +
+            " resolvedBuyHits=" +
+            DescribeBlockingCollidersAtPoint(
+                buyPosition,
+                probeRadius) +
+            " rayToApproach=" +
+            DescribeRaycastBlockersTo(
+                approachPoint != null ? approachPoint.position : buyPosition,
+                probeRadius) +
+            " rayToResolvedBuy=" +
+            DescribeRaycastBlockersTo(
+                buyPosition,
+                probeRadius);
+
+        if (broker != null)
+        {
+            BoxCollider2D customerZone = broker.GetCustomerZoneCollider();
+            detail +=
+                " broker=" + broker.name +
+                " customerCenter=" + broker.CustomerPosition +
+                " customerRadius=" + broker.CustomerServiceRadius.ToString("0.00");
+
+            if (customerZone != null)
+            {
+                Bounds bounds = customerZone.bounds;
+                detail +=
+                    " customerZoneMin=" + bounds.min +
+                    " customerZoneMax=" + bounds.max +
+                    " approachInsideZone=" +
+                    (approachPoint != null && customerZone.OverlapPoint(approachPoint.position) ? 1 : 0) +
+                    " resolvedInsideZone=" +
+                    (customerZone.OverlapPoint(buyPosition) ? 1 : 0);
+            }
+        }
+
+        Debug.LogWarning(
+            "[NpcFixedBlacksmith] " + name + " DebugCurrentTradeRoute " + detail,
+            this);
     }
 
 #if UNITY_EDITOR
@@ -431,11 +641,11 @@ public class NpcFixedBlacksmithController : MonoBehaviour
                     isBrokerTarget,
                     buyBroker,
                     false));
-            villager.ForceJobMoveTo(
+            MoveVillagerToTradeTarget(
                 buyPosition,
                 buyAction,
                 buyZone,
-                !isBrokerTarget);
+                isBrokerTarget);
             return true;
         }
 
@@ -487,11 +697,11 @@ public class NpcFixedBlacksmithController : MonoBehaviour
                         isBrokerTarget,
                         buyBroker,
                         false));
-                villager.ForceJobMoveTo(
+                MoveVillagerToTradeTarget(
                     buyPosition,
                     buyAction,
                     buyZone,
-                    !isBrokerTarget);
+                    isBrokerTarget);
                 return true;
             }
         }
@@ -648,11 +858,11 @@ public class NpcFixedBlacksmithController : MonoBehaviour
                 isBrokerTarget,
                 sellBroker))
         {
-            villager.ForceJobMoveTo(
+            MoveVillagerToTradeTarget(
                 sellPosition,
                 sellAction,
                 sellZone,
-                !isBrokerTarget);
+                isBrokerTarget);
             return true;
         }
 
@@ -682,11 +892,11 @@ public class NpcFixedBlacksmithController : MonoBehaviour
                 isBrokerTarget,
                 sellBroker))
         {
-            villager.ForceJobMoveTo(
+            MoveVillagerToTradeTarget(
                 sellPosition,
                 sellAction,
                 sellZone,
-                !isBrokerTarget);
+                isBrokerTarget);
             return true;
         }
 
@@ -793,15 +1003,25 @@ public class NpcFixedBlacksmithController : MonoBehaviour
             return false;
         }
 
+        targetZone = ResolveZoneForTransform(pointOverride);
+
         NpcCounterBroker pointBroker =
             pointOverride.GetComponentInParent<NpcCounterBroker>();
+        if (pointBroker == null)
+        {
+            pointBroker =
+                FindBrokerForManualTradePoint(
+                    pointOverride.position,
+                    targetZone);
+        }
+
         if (pointBroker != null &&
             pointBroker.customerPoint == pointOverride)
         {
             targetPosition = GetBrokerApproachPosition(pointBroker);
             targetZone =
                 ResolveBrokerZone(pointBroker) ??
-                ResolveZoneForTransform(pointOverride);
+                targetZone;
             isBrokerTarget = pointBroker.receiveAllNpcRequests;
             broker = pointBroker;
             lastTradeDestinationSource =
@@ -809,8 +1029,24 @@ public class NpcFixedBlacksmithController : MonoBehaviour
             return true;
         }
 
+        if (pointBroker != null &&
+            TryGetClearCustomerZonePreferredPoint(
+                pointBroker,
+                pointOverride.position,
+                out Vector3 resolvedPoint))
+        {
+            targetPosition = resolvedPoint;
+            targetZone =
+                ResolveBrokerZone(pointBroker) ??
+                targetZone;
+            broker = pointBroker;
+            lastTradeDestinationSource =
+                sourceLabel + ":customerZonePreferred";
+            return true;
+        }
+
         targetPosition = pointOverride.position;
-        targetZone = ResolveZoneForTransform(pointOverride);
+        broker = pointBroker;
         lastTradeDestinationSource = sourceLabel;
         return true;
     }
@@ -1557,7 +1793,37 @@ public class NpcFixedBlacksmithController : MonoBehaviour
         if (customerZone != null &&
             customerZone.enabled)
         {
-            approachPosition.z = customerCenter.z;
+            if (customerZone.OverlapPoint(transform.position))
+            {
+                hasCachedBrokerApproachPosition = false;
+                approachPosition = transform.position;
+                approachPosition.z = customerCenter.z;
+                return approachPosition;
+            }
+
+            if (hasCachedBrokerApproachPosition &&
+                cachedBrokerApproachBroker == broker &&
+                cachedBrokerApproachState == state &&
+                customerZone.OverlapPoint(cachedBrokerApproachPosition))
+            {
+                return cachedBrokerApproachPosition;
+            }
+
+            if (!TryGetClearCustomerZoneApproachPosition(
+                    broker,
+                    customerZone,
+                    customerCenter,
+                    out approachPosition))
+            {
+                approachPosition =
+                    GetRandomCustomerZoneApproachPosition(
+                        customerZone,
+                        customerCenter);
+            }
+            cachedBrokerApproachBroker = broker;
+            cachedBrokerApproachPosition = approachPosition;
+            cachedBrokerApproachState = state;
+            hasCachedBrokerApproachPosition = true;
             return approachPosition;
         }
 
@@ -1576,6 +1842,569 @@ public class NpcFixedBlacksmithController : MonoBehaviour
 
         approachPosition.z = customerCenter.z;
         return approachPosition;
+    }
+
+    bool ShouldUseRoadForTradeMove(
+        NpcMapZone? targetZone,
+        bool isBrokerTarget)
+    {
+        if (!isBrokerTarget)
+        {
+            return true;
+        }
+
+        if (!targetZone.HasValue)
+        {
+            return false;
+        }
+
+        NpcMapZone? currentZone = ResolveZoneForPosition(transform.position);
+        return !currentZone.HasValue ||
+            currentZone.Value != targetZone.Value;
+    }
+
+    void MoveVillagerToTradeTarget(
+        Vector3 targetPosition,
+        string action,
+        NpcMapZone? targetZone,
+        bool isBrokerTarget)
+    {
+        if (villager == null)
+        {
+            return;
+        }
+
+        if (TryGetExactTradeApproachTarget(
+                targetZone,
+                out Vector3 approachPosition,
+                out NpcMapZone? approachZone))
+        {
+            ForceVillagerRoadPreference(approachPosition);
+            villager.ForceJobMoveTo(
+                approachPosition,
+                action,
+                approachZone,
+                true);
+            return;
+        }
+
+        if (isBrokerTarget)
+        {
+            ForceVillagerRoadPreference(targetPosition);
+        }
+
+        villager.ForceJobMoveTo(
+            targetPosition,
+            action,
+            targetZone,
+            isBrokerTarget ||
+            ShouldUseRoadForTradeMove(
+                targetZone,
+                isBrokerTarget));
+    }
+
+    bool TryGetExactTradeApproachTarget(
+        NpcMapZone? fallbackZone,
+        out Vector3 approachPosition,
+        out NpcMapZone? approachZone)
+    {
+        approachPosition = Vector3.zero;
+        approachZone = fallbackZone;
+
+        Transform point = GetActiveTradeApproachPoint();
+        if (point == null)
+        {
+            return false;
+        }
+
+        approachPosition = point.position;
+        approachZone =
+            ResolveZoneForTransform(point) ??
+            fallbackZone;
+
+        return !IsNear(approachPosition);
+    }
+
+    Transform GetActiveTradeApproachPoint()
+    {
+        switch (state)
+        {
+            case ForgeCycleState.NeedMaterials:
+            case ForgeCycleState.BuyingMaterials:
+                return buyApproachPointOverride;
+
+            case ForgeCycleState.ReadyToSell:
+            case ForgeCycleState.Selling:
+                return sellApproachPointOverride;
+
+            default:
+                return null;
+        }
+    }
+
+    void ForceVillagerRoadPreference(Vector3 targetPosition)
+    {
+        if (villager == null)
+        {
+            return;
+        }
+
+        villagerHasRoadPreferenceField?.SetValue(
+            villager,
+            true);
+        villagerPrefersRoadForCurrentRouteField?.SetValue(
+            villager,
+            true);
+        villagerRoadPreferenceTargetField?.SetValue(
+            villager,
+            targetPosition);
+    }
+
+    NpcMapZone? ResolveZoneForPosition(Vector3 position)
+    {
+        NpcMapArea area = NpcMapArea.FindArea(position);
+        if (area == null)
+        {
+            area = NpcMapArea.FindNearestArea(position);
+        }
+
+        return area != null
+            ? area.zone
+            : (NpcMapZone?)null;
+    }
+
+    Vector3 GetRandomCustomerZoneApproachPosition(
+        BoxCollider2D customerZone,
+        Vector3 customerCenter)
+    {
+        Bounds bounds = customerZone.bounds;
+        Vector3 center = bounds.center;
+        Vector3 extents = bounds.extents;
+        float marginX = Mathf.Clamp(
+            extents.x * 0.08f,
+            0.05f,
+            Mathf.Max(0.05f, extents.x - 0.02f));
+        float marginY = Mathf.Clamp(
+            extents.y * 0.08f,
+            0.05f,
+            Mathf.Max(0.05f, extents.y - 0.02f));
+        float minX = center.x - extents.x + marginX;
+        float maxX = center.x + extents.x - marginX;
+        float minY = center.y - extents.y + marginY;
+        float maxY = center.y + extents.y - marginY;
+        float edgeInset = Mathf.Clamp(
+            GetArrivalDistance() + 0.2f,
+            0.25f,
+            Mathf.Max(
+                0.25f,
+                Mathf.Min(extents.x, extents.y) - 0.05f));
+
+        float safeMinX = Mathf.Min(maxX, minX + edgeInset);
+        float safeMaxX = Mathf.Max(minX, maxX - edgeInset);
+        float safeMinY = Mathf.Min(maxY, minY + edgeInset);
+        float safeMaxY = Mathf.Max(minY, maxY - edgeInset);
+
+        if (safeMinX > safeMaxX)
+        {
+            float midX = (minX + maxX) * 0.5f;
+            safeMinX = midX;
+            safeMaxX = midX;
+        }
+
+        if (safeMinY > safeMaxY)
+        {
+            float midY = (minY + maxY) * 0.5f;
+            safeMinY = midY;
+            safeMaxY = midY;
+        }
+
+        float standX =
+            Mathf.Approximately(safeMinX, safeMaxX)
+                ? safeMinX
+                : Random.Range(safeMinX, safeMaxX);
+        float standY =
+            Mathf.Approximately(safeMinY, safeMaxY)
+                ? safeMinY
+                : Random.Range(safeMinY, safeMaxY);
+
+        return new Vector3(
+            standX,
+            standY,
+            customerCenter.z);
+    }
+
+    bool TryGetClearCustomerZonePreferredPoint(
+        NpcCounterBroker broker,
+        Vector3 preferredPosition,
+        out Vector3 approachPosition)
+    {
+        approachPosition = preferredPosition;
+
+        if (broker == null)
+        {
+            return false;
+        }
+
+        BoxCollider2D customerZone =
+            broker.GetCustomerZoneCollider();
+        Vector3 customerCenter = broker.CustomerPosition;
+
+        return TryGetClearCustomerZoneApproachPosition(
+            broker,
+            customerZone,
+            customerCenter,
+            preferredPosition,
+            out approachPosition);
+    }
+
+    bool TryGetClearCustomerZoneApproachPosition(
+        NpcCounterBroker broker,
+        BoxCollider2D customerZone,
+        Vector3 customerCenter,
+        out Vector3 approachPosition)
+    {
+        Vector3 preferred =
+            broker != null
+                ? broker.GetCustomerPositionFor(gameObject)
+                : customerCenter;
+
+        return TryGetClearCustomerZoneApproachPosition(
+            broker,
+            customerZone,
+            customerCenter,
+            preferred,
+            out approachPosition);
+    }
+
+    bool TryGetClearCustomerZoneApproachPosition(
+        NpcCounterBroker broker,
+        BoxCollider2D customerZone,
+        Vector3 customerCenter,
+        Vector3 preferred,
+        out Vector3 approachPosition)
+    {
+        approachPosition = customerCenter;
+
+        if (customerZone == null ||
+            !customerZone.enabled)
+        {
+            return false;
+        }
+
+        preferred.z = customerCenter.z;
+
+        if (TryResolveReachableCustomerZonePoint(
+                preferred,
+                customerZone,
+                out Vector3 resolvedPreferred))
+        {
+            approachPosition = resolvedPreferred;
+            return true;
+        }
+
+        Bounds bounds = customerZone.bounds;
+        Vector3 center = bounds.center;
+        Vector3 extents = bounds.extents;
+        float margin = Mathf.Clamp(
+            GetApproachClearanceRadius() * 0.75f,
+            0.05f,
+            Mathf.Max(0.05f, Mathf.Min(extents.x, extents.y) - 0.02f));
+        float minX = center.x - extents.x + margin;
+        float maxX = center.x + extents.x - margin;
+        float minY = center.y - extents.y + margin;
+        float maxY = center.y + extents.y - margin;
+        float step = Mathf.Max(
+            0.14f,
+            GetApproachClearanceRadius() * 0.85f);
+        float bestDistance = float.PositiveInfinity;
+        bool found = false;
+
+        for (float y = minY; y <= maxY; y += step)
+        {
+            for (float x = minX; x <= maxX; x += step)
+            {
+                Vector3 candidate = new Vector3(
+                    x,
+                    y,
+                    customerCenter.z);
+                if (!TryResolveReachableCustomerZonePoint(
+                        candidate,
+                        customerZone,
+                        out Vector3 resolvedCandidate))
+                {
+                    continue;
+                }
+
+                float distance =
+                    (resolvedCandidate - preferred).sqrMagnitude;
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    approachPosition = resolvedCandidate;
+                    found = true;
+                }
+            }
+        }
+
+        return found;
+    }
+
+    NpcCounterBroker FindBrokerForManualTradePoint(
+        Vector3 position,
+        NpcMapZone? targetZone)
+    {
+        NpcCounterBroker[] brokers =
+            FindObjectsByType<NpcCounterBroker>(
+                FindObjectsInactive.Exclude,
+                FindObjectsSortMode.None);
+
+        NpcCounterBroker bestBroker = null;
+        float bestDistance = float.PositiveInfinity;
+
+        for (int i = 0; i < brokers.Length; i++)
+        {
+            NpcCounterBroker candidate = brokers[i];
+            if (candidate == null ||
+                !candidate.isActiveAndEnabled)
+            {
+                continue;
+            }
+
+            NpcMapZone? candidateZone =
+                ResolveBrokerZone(candidate);
+            if (targetZone.HasValue &&
+                candidateZone.HasValue &&
+                candidateZone.Value != targetZone.Value)
+            {
+                continue;
+            }
+
+            BoxCollider2D customerZone =
+                candidate.GetCustomerZoneCollider();
+            bool coversPoint =
+                customerZone != null &&
+                customerZone.enabled &&
+                customerZone.bounds.Contains(position);
+            if (!coversPoint)
+            {
+                continue;
+            }
+
+            float distance =
+                Vector2.Distance(
+                    position,
+                    candidate.CustomerPosition);
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                bestBroker = candidate;
+            }
+        }
+
+        if (bestBroker != null)
+        {
+            return bestBroker;
+        }
+
+        if (targetZone.HasValue &&
+            TryFindBrokerInZone(targetZone.Value, out NpcCounterBroker zoneBroker))
+        {
+            return zoneBroker;
+        }
+
+        return null;
+    }
+
+    bool TryResolveReachableCustomerZonePoint(
+        Vector3 candidate,
+        BoxCollider2D customerZone,
+        out Vector3 resolvedPoint)
+    {
+        resolvedPoint = candidate;
+
+        if (!IsCustomerZoneApproachClear(
+                candidate,
+                customerZone))
+        {
+            return false;
+        }
+
+        if (IsVillagerMoveTargetFeasible(candidate) &&
+            HasVillagerClearLineTo(candidate))
+        {
+            return true;
+        }
+
+        if (!TryFindVillagerClearPointNear(
+                candidate,
+                customerZone,
+                out Vector3 clearPoint))
+        {
+            return false;
+        }
+
+        clearPoint.z = candidate.z;
+        if (!IsCustomerZoneApproachClear(
+                clearPoint,
+                customerZone) ||
+            !HasVillagerClearLineTo(clearPoint))
+        {
+            return false;
+        }
+
+        resolvedPoint = clearPoint;
+        return true;
+    }
+
+    bool IsCustomerZoneApproachClear(
+        Vector3 candidate,
+        BoxCollider2D customerZone)
+    {
+        if (customerZone == null ||
+            !customerZone.enabled)
+        {
+            return false;
+        }
+
+        Bounds bounds = customerZone.bounds;
+        if (!bounds.Contains(candidate))
+        {
+            return false;
+        }
+
+        float clearanceRadius = GetApproachClearanceRadius();
+        Collider2D[] hits = Physics2D.OverlapCircleAll(
+            candidate,
+            clearanceRadius);
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Collider2D hit = hits[i];
+            if (hit == null ||
+                hit.isTrigger ||
+                hit == customerZone ||
+                hit.transform == transform ||
+                hit.transform.IsChildOf(transform))
+            {
+                continue;
+            }
+
+            if (hit.GetComponentInParent<VillagerAI>() != null ||
+                hit.GetComponentInParent<SmartNpcAI>() != null ||
+                hit.GetComponentInParent<NpcMapMover2D>() != null)
+            {
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    bool IsVillagerMoveTargetFeasible(Vector3 candidate)
+    {
+        if (villager == null ||
+            villagerIsMoveTargetFeasibleMethod == null)
+        {
+            return true;
+        }
+
+        object result =
+            villagerIsMoveTargetFeasibleMethod.Invoke(
+                villager,
+                new object[] { candidate });
+        return result is bool feasible &&
+            feasible;
+    }
+
+    bool HasVillagerClearLineTo(Vector3 candidate)
+    {
+        if (villager == null ||
+            villagerHasClearLineToMethod == null)
+        {
+            return true;
+        }
+
+        object result =
+            villagerHasClearLineToMethod.Invoke(
+                villager,
+                new object[] { candidate });
+        return result is bool clear &&
+            clear;
+    }
+
+    bool TryFindVillagerClearPointNear(
+        Vector3 candidate,
+        BoxCollider2D customerZone,
+        out Vector3 clearPoint)
+    {
+        clearPoint = candidate;
+
+        if (villager == null ||
+            customerZone == null ||
+            !customerZone.enabled ||
+            villagerTryFindClearPointNearMethod == null)
+        {
+            return false;
+        }
+
+        object[] args =
+        {
+            candidate,
+            candidate
+        };
+        object result =
+            villagerTryFindClearPointNearMethod.Invoke(
+                villager,
+                args);
+        if (!(result is bool found) ||
+            !found)
+        {
+            return false;
+        }
+
+        if (!(args[1] is Vector3 resolved))
+        {
+            return false;
+        }
+
+        if (!customerZone.bounds.Contains(resolved))
+        {
+            return false;
+        }
+
+        clearPoint = resolved;
+        return true;
+    }
+
+    float GetApproachClearanceRadius()
+    {
+        float radius =
+            Mathf.Max(0.12f, GetArrivalDistance() * 0.8f);
+        Collider2D[] ownColliders =
+            GetComponentsInChildren<Collider2D>();
+
+        for (int i = 0; i < ownColliders.Length; i++)
+        {
+            Collider2D own = ownColliders[i];
+            if (own == null ||
+                own.isTrigger)
+            {
+                continue;
+            }
+
+            Bounds bounds = own.bounds;
+            radius = Mathf.Max(
+                radius,
+                Mathf.Min(
+                    0.35f,
+                    Mathf.Max(
+                        bounds.extents.x,
+                        bounds.extents.y)));
+        }
+
+        return Mathf.Clamp(radius, 0.12f, 0.35f);
     }
 
     bool HasArrivedAtTradeDestination(
@@ -1623,7 +2452,7 @@ public class NpcFixedBlacksmithController : MonoBehaviour
 
         Vector3 brokerCenter = broker.CustomerPosition;
         Vector3 brokerStand =
-            broker.GetCustomerPositionFor(gameObject);
+            GetBrokerApproachPosition(broker);
         BoxCollider2D customerZone =
             broker.GetCustomerZoneCollider();
 
@@ -1859,12 +2688,53 @@ public class NpcFixedBlacksmithController : MonoBehaviour
             : 0f;
     }
 
+    float GetCurrentClockHour()
+    {
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        return timeSystem != null
+            ? timeSystem.CurrentHour
+            : 0f;
+    }
+
     int GetCurrentWorldDay()
     {
         WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
         return timeSystem != null
             ? timeSystem.CurrentDay
             : 0;
+    }
+
+    bool IsDedicatedRestWindow(float hour)
+    {
+        if (IsHourInRange(hour, sleepStart, sleepEnd))
+        {
+            return true;
+        }
+
+        return IsHourInRange(
+            hour,
+            morningWorkEnd,
+            afternoonWorkStart);
+    }
+
+    static bool IsHourInRange(
+        float hour,
+        float startHour,
+        float endHour)
+    {
+        if (Mathf.Approximately(startHour, endHour))
+        {
+            return false;
+        }
+
+        if (startHour < endHour)
+        {
+            return hour >= startHour &&
+                hour < endHour;
+        }
+
+        return hour >= startHour ||
+            hour < endHour;
     }
 
     void LogDebug(string stage, string detail)
@@ -1881,6 +2751,98 @@ public class NpcFixedBlacksmithController : MonoBehaviour
             " state=" + state +
             " detail=" + detail,
             this);
+    }
+
+    string DescribeBlockingCollidersAtPoint(
+        Vector3 position,
+        float radius)
+    {
+        Collider2D[] hits = Physics2D.OverlapCircleAll(position, radius);
+        if (hits == null || hits.Length == 0)
+        {
+            return "none";
+        }
+
+        System.Text.StringBuilder builder =
+            new System.Text.StringBuilder();
+        bool wroteAny = false;
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Collider2D hit = hits[i];
+            if (hit == null ||
+                hit.isTrigger ||
+                IsSelfCollider(hit))
+            {
+                continue;
+            }
+
+            if (wroteAny)
+            {
+                builder.Append(" | ");
+            }
+
+            builder.Append(hit.name)
+                .Append("@")
+                .Append(hit.bounds.center)
+                .Append(" layer=")
+                .Append(hit.gameObject.layer);
+            wroteAny = true;
+        }
+
+        return wroteAny ? builder.ToString() : "none";
+    }
+
+    string DescribeRaycastBlockersTo(
+        Vector3 targetPosition,
+        float radius)
+    {
+        Vector2 origin = transform.position;
+        Vector2 delta = (Vector2)targetPosition - origin;
+        float distance = delta.magnitude;
+        if (distance <= 0.001f)
+        {
+            return "none";
+        }
+
+        RaycastHit2D[] hits = Physics2D.CircleCastAll(
+            origin,
+            Mathf.Max(0.01f, radius),
+            delta.normalized,
+            distance);
+        if (hits == null || hits.Length == 0)
+        {
+            return "none";
+        }
+
+        System.Text.StringBuilder builder =
+            new System.Text.StringBuilder();
+        bool wroteAny = false;
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Collider2D hit = hits[i].collider;
+            if (hit == null ||
+                hit.isTrigger ||
+                IsSelfCollider(hit))
+            {
+                continue;
+            }
+
+            if (wroteAny)
+            {
+                builder.Append(" | ");
+            }
+
+            builder.Append(hit.name)
+                .Append("@")
+                .Append(hit.bounds.center)
+                .Append(" dist=")
+                .Append(hits[i].distance.ToString("0.00"));
+            wroteAny = true;
+        }
+
+        return wroteAny ? builder.ToString() : "none";
     }
 
     static string GetZoneLabel(NpcMapZone zone)

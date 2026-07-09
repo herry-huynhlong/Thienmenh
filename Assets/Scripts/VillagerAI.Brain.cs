@@ -4,6 +4,13 @@ public partial class VillagerAI
 {
     void Think()
     {
+        NpcFixedBlacksmithController fixedBlacksmith =
+            GetComponent<NpcFixedBlacksmithController>();
+        bool useDedicatedBlacksmithRoutine =
+            fixedBlacksmith != null &&
+            fixedBlacksmith.enabled &&
+            fixedBlacksmith.UseDedicatedRoutine;
+
         if (WorldTimeSystem.Instance != null)
         {
             if (WorldTimeSystem.Instance.CurrentDay != lastPlanResetDay)
@@ -37,6 +44,12 @@ public partial class VillagerAI
 
         if (actionTimer > 0f &&
             NpcRoleUtility.IsInCombat(gameObject))
+        {
+            return;
+        }
+
+        if (useDedicatedBlacksmithRoutine &&
+            fixedBlacksmith.TryRunDedicatedRoutine())
         {
             return;
         }
@@ -92,6 +105,13 @@ public partial class VillagerAI
         NpcScheduleActivity activity = schedule.CurrentActivity;
         ResetScheduledStateIfSlotChanged(schedule, slot, activity);
 
+        NpcFixedBlacksmithController fixedBlacksmith =
+            GetComponent<NpcFixedBlacksmithController>();
+        bool shouldHoldBlacksmithTradeRoute =
+            fixedBlacksmith != null &&
+            fixedBlacksmith.enabled &&
+            fixedBlacksmith.ShouldKeepTradeRouteActive();
+
         if (slot == null)
         {
             return false;
@@ -108,6 +128,13 @@ public partial class VillagerAI
             case NpcScheduleActivity.Sleep:
             case NpcScheduleActivity.Eat:
             case NpcScheduleActivity.ReturnHome:
+                if (shouldHoldBlacksmithTradeRoute &&
+                    IsForgeWorker())
+                {
+                    GoForgeWorkOrTrade();
+                    return true;
+                }
+
                 GoHomeToRest();
                 return true;
 
@@ -196,6 +223,16 @@ public partial class VillagerAI
         string key = BuildScheduleSlotKey(slot, activity);
         if (currentScheduleSlotKey == key)
         {
+            return;
+        }
+
+        NpcFixedBlacksmithController fixedBlacksmith =
+            GetComponent<NpcFixedBlacksmithController>();
+        if (fixedBlacksmith != null &&
+            fixedBlacksmith.enabled &&
+            fixedBlacksmith.ShouldKeepTradeRouteActive())
+        {
+            currentScheduleSlotKey = key;
             return;
         }
 

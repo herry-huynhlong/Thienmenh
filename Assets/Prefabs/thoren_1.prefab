@@ -195,6 +195,8 @@ MonoBehaviour:
   autoConfigureVillager: 1
   disableLegacyForgeComponents: 1
   professionName: Lo Ren
+  suppressBaseTimeRestRules: 1
+  useDedicatedRoutine: 1
   startingMoney: 100000
   grantStartingMoneyOnStart: 1
   forgedItem: {fileID: 11400000, guid: 00d6947b52de2a04d888fa221e40ffb8, type: 2}

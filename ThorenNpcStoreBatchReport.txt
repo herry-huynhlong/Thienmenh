@@ -1,0 +1,37 @@
+[ThorenNpcStoreBatch] 19:15:35 Open scene: Assets/Lang.unity
+[ThorenNpcStoreBatch] 19:15:45 Entered Play Mode
+[ThorenNpcStoreBatch] 19:15:47 Initialized actorPos=(10.44, -0.52, 0.00) zoneCenter=(131.12, 4.26, 0.00) zoneMin=(127.83, 3.77, 0.00) zoneMax=(134.41, 4.74, 0.00)
+[ThorenNpcStoreBatch] 19:15:47 SAMPLE actorPos=(9.82, -0.01, 0.00) action= cachedApproach=(129.99, 4.26, 0.00) directTarget=(129.99, 4.26, 0.00) targetZone=null
+[ThorenNpcStoreBatch] 19:15:48 SAMPLE actorPos=(9.80, 0.00, 0.00) action= cachedApproach=(129.99, 4.26, 0.00) directTarget=(129.99, 4.26, 0.00) targetZone=null
+[ThorenNpcStoreBatch] 19:15:49 SAMPLE actorPos=(9.80, 0.00, 0.00) action= cachedApproach=(129.99, 4.26, 0.00) directTarget=(129.99, 4.26, 0.00) targetZone=null
+[ThorenNpcStoreBatch] 19:15:49 SAMPLE actorPos=(9.80, 0.00, 0.00) action=Di mua nguyen lieu ren cachedApproach=(129.99, 4.26, 0.00) directTarget=(129.99, 4.26, 0.00) targetZone=VanBaoLau
+[ThorenNpcStoreBatch] 19:15:50 SAMPLE actorPos=(9.19, 0.51, 0.00) action=Di mua nguyen lieu ren cachedApproach=(129.99, 4.26, 0.00) directTarget=(129.99, 4.26, 0.00) targetZone=VanBaoLau
+[ThorenNpcStoreBatch] 19:15:51 SAMPLE actorPos=(8.47, 1.11, 0.00) action=Di mua nguyen lieu ren cachedApproach=(129.99, 4.26, 0.00) directTarget=(129.99, 4.26, 0.00) targetZone=VanBaoLau
+[ThorenNpcStoreBatch] 19:15:51 SAMPLE actorPos=(7.74, 1.71, 0.00) action=Di mua nguyen lieu ren cachedApproach=(129.99, 4.26, 0.00) directTarget=(129.99, 4.26, 0.00) targetZone=VanBaoLau
+[ThorenNpcStoreBatch] 19:15:52 SAMPLE actorPos=(7.01, 2.31, 0.00) action=Di mua nguyen lieu ren cachedApproach=(129.99, 4.26, 0.00) directTarget=(129.99, 4.26, 0.00) targetZone=VanBaoLau
+[ThorenNpcStoreBatch] 19:15:52 SAMPLE actorPos=(6.28, 2.91, 0.00) action=Về nhà nghỉ ngơi cachedApproach=(129.99, 4.26, 0.00) directTarget=(10.77, -0.05, 0.00) targetZone=Lang
+[ThorenNpcStoreBatch] 19:15:53 SAMPLE actorPos=(6.91, 2.49, 0.00) action=Về nhà nghỉ ngơi cachedApproach=(129.99, 4.26, 0.00) directTarget=(10.77, -0.05, 0.00) targetZone=Lang
+[ThorenNpcStoreBatch] 19:15:53 SAMPLE actorPos=(7.70, 1.98, 0.00) action=Về nhà nghỉ ngơi cachedApproach=(129.99, 4.26, 0.00) directTarget=(10.77, -0.05, 0.00) targetZone=Lang
+[ThorenNpcStoreBatch] 19:15:54 SAMPLE actorPos=(8.49, 1.46, 0.00) action=Về nhà nghỉ ngơi cachedApproach=(129.99, 4.26, 0.00) directTarget=(10.77, -0.05, 0.00) targetZone=Lang
+[ThorenNpcStoreBatch] 19:15:54 SAMPLE actorPos=(9.27, 0.94, 0.00) action=Về nhà nghỉ ngơi cachedApproach=(129.99, 4.26, 0.00) directTarget=(10.77, -0.05, 0.00) targetZone=Lang
+[ThorenNpcStoreBatch] 19:15:55 SAMPLE actorPos=(10.06, 0.42, 0.00) action= cachedApproach=(129.99, 4.26, 0.00) directTarget=(10.77, -0.05, 0.00) targetZone=null
+[ThorenNpcStoreBatch] 19:15:56 SAMPLE actorPos=(10.09, 0.40, 0.00) action= cachedApproach=(129.99, 4.26, 0.00) directTarget=(10.77, -0.05, 0.00) targetZone=null
+[ThorenNpcStoreBatch] 19:15:56 SAMPLE actorPos=(10.09, 0.40, 0.00) action= cachedApproach=(129.99, 4.26, 0.00) directTarget=(10.77, -0.05, 0.00) targetZone=null
+[ThorenNpcStoreBatch] 19:15:57 SAMPLE actorPos=(10.09, 0.40, 0.00) action=Di mua nguyen lieu ren cachedApproach=(129.99, 4.26, 0.00) directTarget=(129.99, 4.26, 0.00) targetZone=VanBaoLau
+[ThorenNpcStoreBatch] 19:15:57 SAMPLE actorPos=(9.43, 0.88, 0.00) action=Di mua nguyen lieu ren cachedApproach=(129.99, 4.26, 0.00) directTarget=(129.99, 4.26, 0.00) targetZone=VanBaoLau
+[ThorenNpcStoreBatch] 19:15:58 SAMPLE actorPos=(8.66, 1.43, 0.00) action=Di mua nguyen lieu ren cachedApproach=(129.99, 4.26, 0.00) directTarget=(129.99, 4.26, 0.00) targetZone=VanBaoLau
+[ThorenNpcStoreBatch] 19:15:58 SAMPLE actorPos=(7.90, 1.98, 0.00) action=Di mua nguyen lieu ren cachedApproach=(129.99, 4.26, 0.00) directTarget=(129.99, 4.26, 0.00) targetZone=VanBaoLau
+[ThorenNpcStoreBatch] 19:15:59 SAMPLE actorPos=(7.13, 2.53, 0.00) action=Di mua nguyen lieu ren cachedApproach=(129.99, 4.26, 0.00) directTarget=(129.99, 4.26, 0.00) targetZone=VanBaoLau
+[ThorenNpcStoreBatch] 19:16:00 SAMPLE actorPos=(6.37, 3.08, 0.00) action=Di mua nguyen lieu ren cachedApproach=(129.99, 4.26, 0.00) directTarget=(129.99, 4.26, 0.00) targetZone=VanBaoLau
+[ThorenNpcStoreBatch] 19:16:00 SAMPLE actorPos=(5.60, 3.63, 0.00) action= cachedApproach=(129.99, 4.26, 0.00) directTarget=(129.99, 4.26, 0.00) targetZone=null
+[ThorenNpcStoreBatch] 19:16:01 SAMPLE actorPos=(5.60, 3.63, 0.00) action= cachedApproach=(129.99, 4.26, 0.00) directTarget=(129.99, 4.26, 0.00) targetZone=null
+[ThorenNpcStoreBatch] 19:16:01 SAMPLE actorPos=(5.60, 3.63, 0.00) action=Về nhà nghỉ ngơi cachedApproach=(129.99, 4.26, 0.00) directTarget=(10.77, -0.05, 0.00) targetZone=Lang
+[ThorenNpcStoreBatch] 19:16:02 SAMPLE actorPos=(6.26, 3.17, 0.00) action=Về nhà nghỉ ngơi cachedApproach=(129.99, 4.26, 0.00) directTarget=(10.77, -0.05, 0.00) targetZone=Lang
+[ThorenNpcStoreBatch] 19:16:03 SAMPLE actorPos=(7.02, 2.62, 0.00) action=Về nhà nghỉ ngơi cachedApproach=(129.99, 4.26, 0.00) directTarget=(10.77, -0.05, 0.00) targetZone=Lang
+[ThorenNpcStoreBatch] 19:16:04 SAMPLE actorPos=(7.79, 2.07, 0.00) action=Về nhà nghỉ ngơi cachedApproach=(129.99, 4.26, 0.00) directTarget=(10.77, -0.05, 0.00) targetZone=Lang
+[ThorenNpcStoreBatch] 19:16:04 SAMPLE actorPos=(8.56, 1.53, 0.00) action=Về nhà nghỉ ngơi cachedApproach=(129.99, 4.26, 0.00) directTarget=(10.77, -0.05, 0.00) targetZone=Lang
+[ThorenNpcStoreBatch] 19:16:05 SAMPLE actorPos=(9.33, 0.98, 0.00) action=Về nhà nghỉ ngơi cachedApproach=(129.99, 4.26, 0.00) directTarget=(10.77, -0.05, 0.00) targetZone=Lang
+[ThorenNpcStoreBatch] 19:16:06 SAMPLE actorPos=(10.10, 0.43, 0.00) action=Về nhà nghỉ ngơi cachedApproach=(129.99, 4.26, 0.00) directTarget=(10.77, -0.05, 0.00) targetZone=Lang
+[ThorenNpcStoreBatch] 19:16:06 SAMPLE actorPos=(10.59, 0.08, 0.00) action=Đang nghỉ ngơi cachedApproach=(129.99, 4.26, 0.00) directTarget=(10.77, -0.05, 0.00) targetZone=null
+[ThorenNpcStoreBatch] 19:16:07 SAMPLE actorPos=(10.59, 0.08, 0.00) action=Đang nghỉ ngơi cachedApproach=(129.99, 4.26, 0.00) directTarget=(10.77, -0.05, 0.00) targetZone=null
+[ThorenNpcStoreBatch] 19:16:07 TIMEOUT actorPos=(10.59, 0.08, 0.00) action=Đang nghỉ ngơi cachedApproach=(129.99, 4.26, 0.00) directTarget=(10.77, -0.05, 0.00) targetZone=null blockersAtApproach=couterpoint@(130.96, 3.85, 0.00) trigger=0 layer=0 | ProviderPoint@(130.92, 3.82, 0.00) trigger=0 layer=0 | Bar_Workpoint@(131.07, 3.76, 0.00) trigger=0 layer=0 blockersAtActor=none zoneCenter=(131.12, 4.26, 0.00) zoneMin=(127.83, 3.77, 0.00) zoneMax=(134.41, 4.74, 0.00)

@@ -238,6 +238,7 @@ public class NpcRuntimeAuditTests
     static readonly Type WorldTimeSystemType = GetGameType("WorldTimeSystem");
     static readonly Type NpcTaskProviderType = GetGameType("NpcTaskProvider");
     static readonly Type NpcTaskOfferType = GetGameType("NpcTaskOffer");
+    static readonly Type FixedBlacksmithControllerType = GetGameType("NpcFixedBlacksmithController");
 
     [UnityTest]
     [Timeout(600000)]
@@ -741,6 +742,112 @@ public class NpcRuntimeAuditTests
             }
 
             UnityEngine.Object.Destroy(fallbackAreaObject);
+        }
+    }
+
+    [UnityTest]
+    [Timeout(180000)]
+    public IEnumerator ThorenBlacksmithReachesNpcStoreCustomerZoneWhenBuyingMaterials()
+    {
+        float originalTimeScale = Time.timeScale;
+        float originalFixedDeltaTime = Time.fixedDeltaTime;
+        Time.timeScale = 8f;
+        Time.fixedDeltaTime = originalFixedDeltaTime;
+
+        try
+        {
+            yield return LoadSceneAndWarmup(QuickWarmupSeconds);
+
+            Component worldTime = EnsureWorldTimeSystem();
+            SetWorldTime(worldTime, 1, 1, 1, 6.25f);
+            SetFloatMember(worldTime, "realSecondsPerGameDay", 24f);
+
+            Component blacksmith =
+                FindActiveComponentByNameContains(
+                    FixedBlacksmithControllerType,
+                    "thoren");
+            Assert.NotNull(
+                blacksmith,
+                "Could not find an active NpcFixedBlacksmithController for thoren.");
+
+            Behaviour villager =
+                blacksmith.gameObject.GetComponent(VillagerType) as Behaviour;
+            Assert.NotNull(
+                villager,
+                "Thoren is missing an active VillagerAI brain.");
+
+            GameObject customerPoint = GameObject.Find("CounterCustomerPoint");
+            Assert.NotNull(
+                customerPoint,
+                "CounterCustomerPoint was not found in Assets/Lang.unity.");
+
+            BoxCollider2D customerZone =
+                customerPoint.GetComponent<BoxCollider2D>();
+            Assert.NotNull(
+                customerZone,
+                "CounterCustomerPoint is missing its BoxCollider2D.");
+            Assert.IsTrue(
+                customerZone.enabled,
+                "CounterCustomerPoint BoxCollider2D must stay enabled.");
+
+            MethodInfo resetCycle =
+                blacksmith.GetType().GetMethod(
+                    "ResetCycle",
+                    BindingFlags.Instance | BindingFlags.Public);
+            Assert.NotNull(
+                resetCycle,
+                "NpcFixedBlacksmithController.ResetCycle was not found.");
+            resetCycle.Invoke(blacksmith, null);
+
+            SetFieldValue(blacksmith, "debugLogs", true);
+            SetFieldValue(villager, "debugWorkLogs", true);
+            SetFieldValue(villager, "thinkTimer", 0f);
+            SetFieldValue(villager, "actionTimer", 0f);
+
+            yield return null;
+
+            const float timeoutSeconds = 20f;
+            const float sampleSeconds = 0.25f;
+            float elapsed = 0f;
+            bool reachedCustomerZone = false;
+
+            while (elapsed < timeoutSeconds)
+            {
+                if (customerZone.OverlapPoint(villager.transform.position))
+                {
+                    reachedCustomerZone = true;
+                    break;
+                }
+
+                yield return new WaitForSeconds(sampleSeconds);
+                elapsed += sampleSeconds;
+            }
+
+            string action =
+                Convert.ToString(
+                    GetFieldValue(villager, "currentAction"),
+                    CultureInfo.InvariantCulture);
+            object cachedApproach =
+                GetFieldValue(
+                    blacksmith,
+                    "cachedBrokerApproachPosition");
+
+            Assert.IsTrue(
+                reachedCustomerZone,
+                "Thoren did not enter CounterCustomerPoint within " +
+                timeoutSeconds.ToString("0.0", CultureInfo.InvariantCulture) +
+                "s. actorPos=" + villager.transform.position +
+                " action=" + action +
+                " cachedApproach=" +
+                (cachedApproach != null ? cachedApproach.ToString() : "null") +
+                " customerZoneCenter=" + customerZone.bounds.center +
+                " customerZoneMin=" + customerZone.bounds.min +
+                " customerZoneMax=" + customerZone.bounds.max);
+        }
+        finally
+        {
+            Time.timeScale = originalTimeScale;
+            Time.fixedDeltaTime = originalFixedDeltaTime;
         }
     }
 
@@ -2349,6 +2456,38 @@ public class NpcRuntimeAuditTests
     {
         Component component = FindFirstActiveComponent(type);
         return component as Behaviour;
+    }
+
+    static Component FindActiveComponentByNameContains(
+        Type type,
+        string namePart)
+    {
+        if (type == null)
+        {
+            return null;
+        }
+
+        UnityEngine.Object[] found =
+            UnityEngine.Object.FindObjectsByType(type, FindObjectsSortMode.None);
+        for (int i = 0; i < found.Length; i++)
+        {
+            Component component = found[i] as Component;
+            if (component == null ||
+                !component.gameObject.activeInHierarchy ||
+                (component is Behaviour behaviour && !behaviour.enabled))
+            {
+                continue;
+            }
+
+            if (component.gameObject.name.IndexOf(
+                    namePart,
+                    StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return component;
+            }
+        }
+
+        return null;
     }
 
     static Component FindFirstActiveComponent(Type type)

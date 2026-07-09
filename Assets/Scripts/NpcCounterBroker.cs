@@ -289,21 +289,7 @@ public class NpcCounterBroker : MonoBehaviour
         float standX = Mathf.Clamp(center.x, minX, maxX);
         float standY = Mathf.Clamp(center.y, minY, maxY);
 
-        if (npc != null)
-        {
-            Vector3 actorPosition = npc.transform.position;
-            if (bounds.Contains(actorPosition))
-            {
-                standX = Mathf.Clamp(actorPosition.x, minX, maxX);
-                standY = Mathf.Clamp(actorPosition.y, minY, maxY);
-            }
-            else
-            {
-                standX = Mathf.Clamp(actorPosition.x, minX, maxX);
-                standY = Mathf.Clamp(actorPosition.y, minY, maxY);
-            }
-        }
-        else if (!requireCustomerAtPoint &&
+        if (!requireCustomerAtPoint &&
             allowMultipleCustomers)
         {
             float width = Mathf.Max(0.01f, maxX - minX);
