@@ -22,7 +22,8 @@ public partial class VillagerAI
     bool IsAlchemyWorker()
     {
         return job == VillagerJob.Alchemist &&
-            GetComponent<NpcAlchemyAgent>() != null;
+            (GetComponent<NpcFixedAlchemistController>() != null ||
+            GetComponent<NpcAlchemyAgent>() != null);
     }
 
     void GoAlchemyWorkOrTrade()
@@ -30,6 +31,15 @@ public partial class VillagerAI
         if (!autonomousWorkEnabled)
         {
             Wander(NpcText.Action("wanderVillage"));
+            return;
+        }
+
+        NpcFixedAlchemistController fixedAlchemist =
+            GetComponent<NpcFixedAlchemistController>();
+        if (fixedAlchemist != null &&
+            fixedAlchemist.enabled &&
+            fixedAlchemist.TryRunWorkCycle())
+        {
             return;
         }
 

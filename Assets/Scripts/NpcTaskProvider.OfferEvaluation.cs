@@ -9,6 +9,8 @@ public partial class NpcTaskProvider
 
     NpcTaskOffer PickOfferFor(GameObject npc, bool autoAssigned)
     {
+        RefreshExpandedCatalogWhenIdle();
+
         if (npc == null ||
             offers == null ||
             offers.Length == 0)
@@ -313,15 +315,31 @@ public partial class NpcTaskProvider
     {
         if (!requireNpcPowerAboveBeastLevel ||
             offer == null ||
-            offer.taskType != NpcTaskType.HuntMonster ||
-            offer.requiredHuntTargetType == HuntTargetType.Animal ||
-            offer.requiredBeastLevel <= 0)
+            offer.taskType != NpcTaskType.HuntMonster)
         {
             return true;
         }
 
-        CultivationRealm beastRealm = GetRealmForBeastLevel(offer.requiredBeastLevel);
-        int beastPower = CultivationProgression.GetRealmPower(beastRealm, 1);
+        int beastPower = 0;
+        if (offer.useMonsterRealmStageRequirement)
+        {
+            beastPower = CultivationProgression.GetRealmPower(
+                offer.requiredMonsterRealm,
+                offer.requiredMonsterMaxStage);
+        }
+        else if (offer.requiredHuntTargetType != HuntTargetType.Animal &&
+            offer.requiredBeastLevel > 0)
+        {
+            CultivationRealm beastRealm =
+                GetRealmForBeastLevel(offer.requiredBeastLevel);
+            beastPower = CultivationProgression.GetRealmPower(beastRealm, 1);
+        }
+
+        if (beastPower <= 0)
+        {
+            return true;
+        }
+
         return npcPower >= beastPower + Mathf.Max(0, huntRequiredPowerMargin);
     }
 
@@ -374,63 +392,6 @@ public partial class NpcTaskProvider
         if (!MeetsHuntBeastPowerRequirement(npcPower, offer))
         {
             return 0f;
-        }
-
-        VillagerAI villager = npc.GetComponent<VillagerAI>();
-        if (villager != null)
-        {
-            switch (villager.job)
-            {
-                case VillagerJob.Hunter:
-                case VillagerJob.Guard:
-                    if (offer.taskType == NpcTaskType.HuntMonster ||
-                        offer.taskType == NpcTaskType.Patrol ||
-                        offer.taskType == NpcTaskType.Escort)
-                    {
-                        score += 35f;
-                    }
-                    break;
-
-                case VillagerJob.Farmer:
-                case VillagerJob.Fisher:
-                    if (offer.taskType == NpcTaskType.GatherResource ||
-                        offer.taskType == NpcTaskType.Deliver ||
-                        offer.taskType == NpcTaskType.HarvestAndDeliver)
-                    {
-                        score += 30f;
-                    }
-                    break;
-
-                case VillagerJob.Alchemist:
-                case VillagerJob.Blacksmith:
-                    if (offer.taskType == NpcTaskType.Deliver ||
-                        offer.taskType == NpcTaskType.GatherResource)
-                    {
-                        score += 20f;
-                    }
-                    break;
-
-                case VillagerJob.Trader:
-                    if (offer.taskType == NpcTaskType.Deliver ||
-                        offer.taskType == NpcTaskType.GatherResource ||
-                        offer.taskType == NpcTaskType.HarvestAndDeliver)
-                    {
-                        score += 20f;
-                    }
-                    break;
-            }
-
-            if (villager.bravery < 45 &&
-                (offer.taskType == NpcTaskType.HuntMonster ||
-                    offer.taskType == NpcTaskType.Escort))
-            {
-                score -= 45f;
-            }
-
-            if (villager.fatigue >= 70f)
-            {
-                score -= 20f;
-            }
         }
 
         SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();

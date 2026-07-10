@@ -85,6 +85,10 @@ public class NpcAlchemyAgent : MonoBehaviour
     bool workSpotInitialized;
     bool movingToBroker;
 
+    public bool IsRefining => refining;
+    public bool HasSellableFinishedGoodsAvailable =>
+        HasSellableFinishedGoods();
+
     void Awake()
     {
         EnsureReferences();
@@ -328,6 +332,25 @@ public class NpcAlchemyAgent : MonoBehaviour
         }
 
         StartRefining(resultItem, 1);
+        return true;
+    }
+
+    public bool TryStartFixedAlchemy(
+        StatItemData pillItem,
+        int amount = 1)
+    {
+        EnsureReferences();
+
+        if (refining ||
+            inventory == null ||
+            pillItem == null)
+        {
+            return false;
+        }
+
+        StartRefining(
+            pillItem,
+            Mathf.Max(1, amount));
         return true;
     }
 

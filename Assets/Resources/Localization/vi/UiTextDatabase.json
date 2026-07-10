@@ -1066,6 +1066,28 @@
         }
       ],
       "lists": []
+    },
+    {
+      "name": "weatherUi",
+      "entries": [
+        {
+          "key": "toggleTitle",
+          "value": "Th\u1eddi Ti\u1ebft"
+        },
+        {
+          "key": "rain",
+          "value": "M\u01b0a L\u1edbn"
+        },
+        {
+          "key": "snow",
+          "value": "Tuy\u1ebft"
+        },
+        {
+          "key": "clear",
+          "value": "Tr\u1eddi Quang"
+        }
+      ],
+      "lists": []
     }
   ]
 }

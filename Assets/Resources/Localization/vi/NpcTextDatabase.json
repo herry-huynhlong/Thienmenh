@@ -645,6 +645,126 @@
         {
           "key": "workingTask",
           "value": "Đang làm nhiệm vụ"
+        },
+        {
+          "key": "fixedBlacksmithBuyMaterials",
+          "value": "Đi mua nguyên liệu rèn"
+        },
+        {
+          "key": "fixedBlacksmithForging",
+          "value": "Đang rèn pháp bảo"
+        },
+        {
+          "key": "fixedBlacksmithSellGoods",
+          "value": "Đi bán pháp bảo"
+        },
+        {
+          "key": "fixedBlacksmithWaitNextCycle",
+          "value": "Chờ ca rèn tiếp theo"
+        },
+        {
+          "key": "fixedBlacksmithMaterialsReady",
+          "value": "Đã đủ nguyên liệu để rèn"
+        },
+        {
+          "key": "fixedBlacksmithNeedMoneyToBuy",
+          "value": "Thiếu linh thạch để mua nguyên liệu"
+        },
+        {
+          "key": "fixedBlacksmithMissingBuyPoint",
+          "value": "Không tìm thấy điểm mua ở {0}"
+        },
+        {
+          "key": "fixedBlacksmithBuyingMaterials",
+          "value": "Đang mua nguyên liệu rèn"
+        },
+        {
+          "key": "fixedBlacksmithNotEnoughMoneyToBuy",
+          "value": "Không đủ linh thạch mua nguyên liệu"
+        },
+        {
+          "key": "fixedBlacksmithMaterialsPurchaseIncomplete",
+          "value": "Chưa mua đủ nguyên liệu"
+        },
+        {
+          "key": "fixedBlacksmithBoughtMaterials",
+          "value": "Đã mua xong nguyên liệu"
+        },
+        {
+          "key": "fixedBlacksmithForgingProgress",
+          "value": "{0} ({1}/{2}h)"
+        },
+        {
+          "key": "fixedBlacksmithMissingMaterialsContinue",
+          "value": "Thiếu nguyên liệu để tiếp tục rèn"
+        },
+        {
+          "key": "fixedBlacksmithForgeComplete",
+          "value": "Đã rèn xong, chuẩn bị đem bán"
+        },
+        {
+          "key": "fixedBlacksmithMissingSellPoint",
+          "value": "Không tìm thấy điểm bán ở {0}"
+        },
+        {
+          "key": "fixedBlacksmithSellingGoods",
+          "value": "Đang bán pháp bảo"
+        },
+        {
+          "key": "fixedAlchemistBuyMaterials",
+          "value": "Đi mua dược liệu"
+        },
+        {
+          "key": "fixedAlchemistRefining",
+          "value": "Đang luyện đan"
+        },
+        {
+          "key": "fixedAlchemistSellGoods",
+          "value": "Đi bán đan dược"
+        },
+        {
+          "key": "fixedAlchemistWaitNextCycle",
+          "value": "Chờ mẻ luyện đan tiếp theo"
+        },
+        {
+          "key": "fixedAlchemistRefineComplete",
+          "value": "Đã luyện xong, chuẩn bị đem bán"
+        },
+        {
+          "key": "fixedAlchemistMissingBuyPoint",
+          "value": "Không tìm thấy điểm mua dược liệu"
+        },
+        {
+          "key": "fixedAlchemistMissingMaterialsContinue",
+          "value": "Thiếu dược liệu để tiếp tục luyện đan"
+        },
+        {
+          "key": "fixedAlchemistCannotStartBatch",
+          "value": "Không thể bắt đầu mẻ đan cố định"
+        },
+        {
+          "key": "fixedAlchemistBoughtMaterials",
+          "value": "Đã mua xong dược liệu"
+        },
+        {
+          "key": "fixedAlchemistMaterialsStillMissing",
+          "value": "Chưa mua đủ dược liệu"
+        },
+        {
+          "key": "fixedAlchemistCouldNotBuyMaterials",
+          "value": "Không mua được dược liệu"
+        },
+        {
+          "key": "fixedAlchemistMissingSellPoint",
+          "value": "Không tìm thấy điểm bán đan dược"
+        },
+        {
+          "key": "fixedAlchemistSoldGoods",
+          "value": "Đã bán xong đan dược"
+        },
+        {
+          "key": "fixedAlchemistCouldNotSellGoods",
+          "value": "Chưa bán được đan dược"
         }
       ]
     },

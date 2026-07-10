@@ -67,7 +67,18 @@ public class TaskBoardRowUI : MonoBehaviour
                 result += Text("separator");
             }
 
-            if (offer.requiredItem == null && offer.requiredBeastLevel > 0)
+            if (offer.useMonsterRealmStageRequirement)
+            {
+                result +=
+                    "Tieu diet " +
+                    offer.requiredMonsterKills +
+                    " yeu thu " +
+                    NpcText.RealmWithStage(
+                        offer.requiredMonsterRealm,
+                        offer.requiredMonsterMaxStage) +
+                    " tro xuong";
+            }
+            else if (offer.requiredItem == null && offer.requiredBeastLevel > 0)
             {
                 result += Format(
                     "beastLevelObjective",
@@ -113,17 +124,6 @@ public class TaskBoardRowUI : MonoBehaviour
         if (offer.rewardSpiritStone > 0)
         {
             result += Format("spiritStoneReward", offer.rewardSpiritStone);
-            hasReward = true;
-        }
-
-        if (offer.rewardCultivationExp > 0)
-        {
-            if (hasReward)
-            {
-                result += Text("separator");
-            }
-
-            result += Format("expReward", offer.rewardCultivationExp);
             hasReward = true;
         }
 

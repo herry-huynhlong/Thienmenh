@@ -11,6 +11,9 @@ public interface IWorldResourcePersistentState
 public class GrowingHerbNodeState
 {
     public float growthStartWorldHour;
+    public float accumulatedGrowthHours;
+    public float lastGrowthSampleWorldHour;
+    public float lastSnowDamageCheckWorldHour;
     public float visualRandomScale;
 }
 
@@ -26,6 +29,10 @@ public class GrowingHerbNode : MonoBehaviour, IWorldResourcePersistentState
     [SerializeField] Sprite largeSprite;
     [SerializeField] float matureAfterGameHours = 48f;
     [SerializeField] float midStageThreshold = 0.5f;
+    [SerializeField] float rainGrowthMultiplier = 1.5f;
+    [SerializeField] float snowGrowthMultiplier = 0.5f;
+    [SerializeField] float snowDamageCheckIntervalHours = 6f;
+    [SerializeField] float snowDamageChancePerCheck = 0.18f;
     [SerializeField] int initialSmallWeight = 30;
     [SerializeField] int initialMidWeight = 40;
     [SerializeField] int initialLargeWeight = 30;
@@ -34,6 +41,9 @@ public class GrowingHerbNode : MonoBehaviour, IWorldResourcePersistentState
     [SerializeField] float targetVisualSize = 0.45f;
     [SerializeField] int sortingOrder = 20;
     [SerializeField] float growthStartWorldHour = -1f;
+    [SerializeField] float accumulatedGrowthHours;
+    [SerializeField] float lastGrowthSampleWorldHour = -1f;
+    [SerializeField] float lastSnowDamageCheckWorldHour = -1f;
     [SerializeField] float visualRandomScale = 1f;
 
     bool hasAppliedConfiguration;
@@ -53,6 +63,7 @@ public class GrowingHerbNode : MonoBehaviour, IWorldResourcePersistentState
         SubscribeEvents();
         if (hasAppliedConfiguration)
         {
+            UpdateGrowthFromWorldTime();
             RefreshVisualState();
         }
     }
@@ -66,6 +77,7 @@ public class GrowingHerbNode : MonoBehaviour, IWorldResourcePersistentState
     {
         if (hasAppliedConfiguration)
         {
+            UpdateGrowthFromWorldTime();
             RefreshVisualState();
         }
     }
@@ -78,6 +90,10 @@ public class GrowingHerbNode : MonoBehaviour, IWorldResourcePersistentState
         Sprite configuredLargeSprite,
         float configuredMatureAfterGameHours,
         float configuredMidStageThreshold,
+        float configuredRainGrowthMultiplier,
+        float configuredSnowGrowthMultiplier,
+        float configuredSnowDamageCheckIntervalHours,
+        float configuredSnowDamageChancePerCheck,
         int configuredInitialSmallWeight,
         int configuredInitialMidWeight,
         int configuredInitialLargeWeight,
@@ -93,6 +109,10 @@ public class GrowingHerbNode : MonoBehaviour, IWorldResourcePersistentState
         largeSprite = configuredLargeSprite;
         matureAfterGameHours = Mathf.Max(0.5f, configuredMatureAfterGameHours);
         midStageThreshold = Mathf.Clamp(configuredMidStageThreshold, 0.05f, 0.95f);
+        rainGrowthMultiplier = Mathf.Max(1f, configuredRainGrowthMultiplier);
+        snowGrowthMultiplier = Mathf.Clamp(configuredSnowGrowthMultiplier, 0.1f, 1f);
+        snowDamageCheckIntervalHours = Mathf.Max(0.25f, configuredSnowDamageCheckIntervalHours);
+        snowDamageChancePerCheck = Mathf.Clamp01(configuredSnowDamageChancePerCheck);
         initialSmallWeight = Mathf.Max(0, configuredInitialSmallWeight);
         initialMidWeight = Mathf.Max(0, configuredInitialMidWeight);
         initialLargeWeight = Mathf.Max(0, configuredInitialLargeWeight);
@@ -110,6 +130,11 @@ public class GrowingHerbNode : MonoBehaviour, IWorldResourcePersistentState
         hasAppliedConfiguration = true;
         EnsureReferences();
         SubscribeEvents();
+        if (lastGrowthSampleWorldHour < 0f)
+        {
+            lastGrowthSampleWorldHour = GetCurrentWorldHour();
+        }
+
         RefreshVisualState();
     }
 
@@ -181,6 +206,9 @@ public class GrowingHerbNode : MonoBehaviour, IWorldResourcePersistentState
         GrowingHerbNodeState state = new GrowingHerbNodeState
         {
             growthStartWorldHour = growthStartWorldHour,
+            accumulatedGrowthHours = accumulatedGrowthHours,
+            lastGrowthSampleWorldHour = lastGrowthSampleWorldHour,
+            lastSnowDamageCheckWorldHour = lastSnowDamageCheckWorldHour,
             visualRandomScale = visualRandomScale
         };
 
@@ -201,9 +229,20 @@ public class GrowingHerbNode : MonoBehaviour, IWorldResourcePersistentState
         if (state != null)
         {
             growthStartWorldHour = state.growthStartWorldHour;
+            accumulatedGrowthHours = Mathf.Max(0f, state.accumulatedGrowthHours);
+            lastGrowthSampleWorldHour = state.lastGrowthSampleWorldHour;
+            lastSnowDamageCheckWorldHour = state.lastSnowDamageCheckWorldHour;
             visualRandomScale = state.visualRandomScale <= 0f
                 ? 1f
                 : state.visualRandomScale;
+        }
+
+        if (accumulatedGrowthHours <= 0f && growthStartWorldHour >= 0f)
+        {
+            accumulatedGrowthHours = Mathf.Clamp(
+                GetCurrentWorldHour() - growthStartWorldHour,
+                0f,
+                Mathf.Max(0.5f, matureAfterGameHours));
         }
 
         RefreshVisualState();
@@ -211,22 +250,20 @@ public class GrowingHerbNode : MonoBehaviour, IWorldResourcePersistentState
 
     float GetGrowthProgress01()
     {
-        if (growthStartWorldHour < 0f)
-        {
-            return 0f;
-        }
-
         float matureHours = Mathf.Max(0.5f, matureAfterGameHours);
-        float elapsed = GetCurrentWorldHour() - growthStartWorldHour;
-        return Mathf.Clamp01(elapsed / matureHours);
+        return Mathf.Clamp01(accumulatedGrowthHours / matureHours);
     }
 
     void SetGrowthProgress01(float progress)
     {
-        float currentWorldHour = GetCurrentWorldHour();
         float clampedProgress = Mathf.Clamp01(progress);
+        float currentWorldHour = GetCurrentWorldHour();
+        accumulatedGrowthHours =
+            clampedProgress * Mathf.Max(0.5f, matureAfterGameHours);
         growthStartWorldHour =
-            currentWorldHour - clampedProgress * Mathf.Max(0.5f, matureAfterGameHours);
+            currentWorldHour - accumulatedGrowthHours;
+        lastGrowthSampleWorldHour = currentWorldHour;
+        lastSnowDamageCheckWorldHour = currentWorldHour;
     }
 
     float GetCurrentWorldHour()
@@ -344,5 +381,85 @@ public class GrowingHerbNode : MonoBehaviour, IWorldResourcePersistentState
     void HandleRespawnCompleted()
     {
         ResetToRespawnSmall();
+    }
+
+    void UpdateGrowthFromWorldTime()
+    {
+        float currentWorldHour = GetCurrentWorldHour();
+        if (lastGrowthSampleWorldHour < 0f)
+        {
+            lastGrowthSampleWorldHour = currentWorldHour;
+            if (lastSnowDamageCheckWorldHour < 0f)
+            {
+                lastSnowDamageCheckWorldHour = currentWorldHour;
+            }
+
+            return;
+        }
+
+        float elapsedWorldHours = Mathf.Max(0f, currentWorldHour - lastGrowthSampleWorldHour);
+        if (elapsedWorldHours <= 0f)
+        {
+            return;
+        }
+
+        accumulatedGrowthHours += elapsedWorldHours * ResolveGrowthMultiplier();
+        accumulatedGrowthHours =
+            Mathf.Clamp(accumulatedGrowthHours, 0f, Mathf.Max(0.5f, matureAfterGameHours));
+        growthStartWorldHour = currentWorldHour - accumulatedGrowthHours;
+        lastGrowthSampleWorldHour = currentWorldHour;
+
+        TryApplySnowDamage(currentWorldHour);
+    }
+
+    float ResolveGrowthMultiplier()
+    {
+        WeatherSystem weather = WeatherSystem.Instance;
+        if (weather == null)
+        {
+            return 1f;
+        }
+
+        switch (weather.CurrentWeather)
+        {
+            case WorldWeather.Rain:
+            case WorldWeather.Thunder:
+                return Mathf.Max(1f, rainGrowthMultiplier);
+            case WorldWeather.Snow:
+                return Mathf.Clamp(snowGrowthMultiplier, 0.1f, 1f);
+            default:
+                return 1f;
+        }
+    }
+
+    void TryApplySnowDamage(float currentWorldHour)
+    {
+        WeatherSystem weather = WeatherSystem.Instance;
+        if (weather == null || weather.CurrentWeather != WorldWeather.Snow)
+        {
+            return;
+        }
+
+        if (IsHarvestAvailable)
+        {
+            return;
+        }
+
+        if (lastSnowDamageCheckWorldHour < 0f)
+        {
+            lastSnowDamageCheckWorldHour = currentWorldHour;
+            return;
+        }
+
+        float interval = Mathf.Max(0.25f, snowDamageCheckIntervalHours);
+        while (currentWorldHour - lastSnowDamageCheckWorldHour >= interval)
+        {
+            lastSnowDamageCheckWorldHour += interval;
+            if (UnityEngine.Random.value <= snowDamageChancePerCheck)
+            {
+                ResetToRespawnSmall();
+                break;
+            }
+        }
     }
 }

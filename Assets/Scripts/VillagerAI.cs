@@ -357,10 +357,15 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
         NpcFixedBlacksmithController fixedBlacksmith =
             GetComponent<NpcFixedBlacksmithController>();
+        NpcFixedAlchemistController fixedAlchemist =
+            GetComponent<NpcFixedAlchemistController>();
         bool suppressBaseTimeRestRules =
-            fixedBlacksmith != null &&
+            (fixedBlacksmith != null &&
             fixedBlacksmith.enabled &&
-            fixedBlacksmith.SuppressBaseTimeRestRules;
+            fixedBlacksmith.SuppressBaseTimeRestRules) ||
+            (fixedAlchemist != null &&
+            fixedAlchemist.enabled &&
+            fixedAlchemist.SuppressBaseTimeRestRules);
 
         NpcScheduleController schedule =
             NpcScheduleController.GetSchedule(gameObject);
@@ -373,10 +378,18 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             bool shouldHoldBlacksmithTradeRoute =
                 fixedBlacksmith != null &&
                 fixedBlacksmith.ShouldKeepTradeRouteActive();
+            bool shouldHoldAlchemistTradeRoute =
+                fixedAlchemist != null &&
+                fixedAlchemist.ShouldKeepTradeRouteActive();
             if (activity == NpcScheduleActivity.ReturnHome ||
                 activity == NpcScheduleActivity.Sleep)
             {
                 if (shouldHoldBlacksmithTradeRoute)
+                {
+                    return false;
+                }
+
+                if (shouldHoldAlchemistTradeRoute)
                 {
                     return false;
                 }
@@ -847,12 +860,19 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
         NpcFixedBlacksmithController fixedBlacksmith =
             GetComponent<NpcFixedBlacksmithController>();
+        NpcFixedAlchemistController fixedAlchemist =
+            GetComponent<NpcFixedAlchemistController>();
         bool useDedicatedBlacksmithRoutine =
             fixedBlacksmith != null &&
             fixedBlacksmith.enabled &&
             fixedBlacksmith.UseDedicatedRoutine;
+        bool useDedicatedAlchemistRoutine =
+            fixedAlchemist != null &&
+            fixedAlchemist.enabled &&
+            fixedAlchemist.UseDedicatedRoutine;
 
-        if (!useDedicatedBlacksmithRoutine)
+        if (!useDedicatedBlacksmithRoutine &&
+            !useDedicatedAlchemistRoutine)
         {
             RefreshScheduledStateForCurrentFrame();
         }
@@ -864,6 +884,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         }
 
         if (!useDedicatedBlacksmithRoutine &&
+            !useDedicatedAlchemistRoutine &&
             ShouldForceReturnHomeForCurrentSchedule())
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -2652,18 +2673,25 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         NpcFixedBlacksmithController fixedBlacksmith =
             GetComponent<NpcFixedBlacksmithController>();
+        NpcFixedAlchemistController fixedAlchemist =
+            GetComponent<NpcFixedAlchemistController>();
+        bool hasFixedTradeDebug =
+            fixedBlacksmith != null &&
+            fixedBlacksmith.enabled &&
+            fixedBlacksmith.debugLogs;
+        bool hasFixedAlchemyDebug =
+            fixedAlchemist != null &&
+            fixedAlchemist.enabled &&
+            fixedAlchemist.debugLogs;
 
         if (!debugWorkLogs &&
-            (fixedBlacksmith == null ||
-            !fixedBlacksmith.enabled ||
-            !fixedBlacksmith.debugLogs))
+            !hasFixedTradeDebug &&
+            !hasFixedAlchemyDebug)
         {
             return;
         }
 
-        if (fixedBlacksmith != null &&
-            fixedBlacksmith.enabled &&
-            fixedBlacksmith.debugLogs)
+        if (hasFixedTradeDebug)
         {
             detail +=
                 " tradeSource=" +
@@ -2674,6 +2702,20 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                 fixedBlacksmith.DebugMaterialRequirementCount +
                 " hasMaterialReq=" +
                 (fixedBlacksmith.DebugHasConfiguredMaterialRequirements
+                    ? 1
+                    : 0);
+        }
+        else if (hasFixedAlchemyDebug)
+        {
+            detail +=
+                " tradeSource=" +
+                fixedAlchemist.DebugTradeDestinationSource +
+                " tradeShop=" +
+                fixedAlchemist.DebugTradeShopName +
+                " materialReqCount=" +
+                fixedAlchemist.DebugMaterialRequirementCount +
+                " hasMaterialReq=" +
+                (fixedAlchemist.DebugHasConfiguredMaterialRequirements
                     ? 1
                     : 0);
         }
@@ -2701,11 +2743,20 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         NpcFixedBlacksmithController fixedBlacksmith =
             GetComponent<NpcFixedBlacksmithController>();
+        NpcFixedAlchemistController fixedAlchemist =
+            GetComponent<NpcFixedAlchemistController>();
+        bool hasFixedTradeDebug =
+            fixedBlacksmith != null &&
+            fixedBlacksmith.enabled &&
+            fixedBlacksmith.debugLogs;
+        bool hasFixedAlchemyDebug =
+            fixedAlchemist != null &&
+            fixedAlchemist.enabled &&
+            fixedAlchemist.debugLogs;
 
         if (!debugWorkLogs &&
-            (fixedBlacksmith == null ||
-            !fixedBlacksmith.enabled ||
-            !fixedBlacksmith.debugLogs))
+            !hasFixedTradeDebug &&
+            !hasFixedAlchemyDebug)
         {
             return;
         }
@@ -6016,6 +6067,11 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         {
             if (IsBlockingObstacle(hit))
             {
+                LogMovementHaltDebug(
+                    "PositionBlocked",
+                    "probe=" + position +
+                    " radius=" + GetBodyClearRadius().ToString("0.00") +
+                    " obstacle=" + DescribeObstacle(hit));
                 return true;
             }
         }
@@ -6062,9 +6118,44 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             return false;
         }
 
+        if (IsTaskProviderInteractionCollider(hit))
+        {
+            return false;
+        }
+
+        if (IsInteractionPointCollider(hit))
+        {
+            return false;
+        }
+
+        if (IsInteriorFocusCollider(hit))
+        {
+            return false;
+        }
+
         return hit.GetComponentInParent<VillagerAI>() == null &&
             hit.GetComponentInParent<SmartNpcAI>() == null &&
             hit.GetComponentInParent<NpcMapMover2D>() == null;
+    }
+
+    string DescribeObstacle(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return "null";
+        }
+
+        Bounds bounds = hit.bounds;
+        return hit.name +
+            " layer=" + hit.gameObject.layer +
+            " trigger=" + (hit.isTrigger ? 1 : 0) +
+            " pos=" + hit.transform.position +
+            " center=" + bounds.center +
+            " size=" + bounds.size +
+            " parent=" +
+            (hit.transform.parent != null
+                ? hit.transform.parent.name
+                : "none");
     }
 
     bool IsCounterCustomerZoneCollider(Collider2D hit)
@@ -6090,6 +6181,67 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         }
 
         return hit == customerZone;
+    }
+
+    bool IsTaskProviderInteractionCollider(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return false;
+        }
+
+        NpcTaskProvider provider =
+            hit.GetComponentInParent<NpcTaskProvider>();
+        if (provider == null)
+        {
+            return false;
+        }
+
+        Transform providerPoint = provider.providerPoint;
+        if (providerPoint != null &&
+            (hit.transform == providerPoint ||
+            hit.transform.IsChildOf(providerPoint)))
+        {
+            return true;
+        }
+
+        Transform providerStandPoint = provider.providerStandPoint;
+        if (providerStandPoint != null &&
+            (hit.transform == providerStandPoint ||
+            hit.transform.IsChildOf(providerStandPoint)))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    bool IsInteractionPointCollider(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return false;
+        }
+
+        NpcInteractionPoint interactionPoint =
+            hit.GetComponentInParent<NpcInteractionPoint>();
+        if (interactionPoint == null)
+        {
+            return false;
+        }
+
+        return hit.transform == interactionPoint.transform ||
+            hit.transform.IsChildOf(interactionPoint.transform);
+    }
+
+    bool IsInteriorFocusCollider(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return false;
+        }
+
+        return hit.GetComponentInParent<InteriorCameraFocus>() != null;
     }
 
     bool IsSelfCollider(Collider2D hit)

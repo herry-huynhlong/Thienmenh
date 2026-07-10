@@ -63,12 +63,6 @@ public class NpcFixedBlacksmithController : MonoBehaviour
     public Transform sellApproachPointOverride;
     public Transform sellPointOverride;
 
-    [Header("Actions")]
-    public string buyAction = "Di mua nguyen lieu ren";
-    public string forgeAction = "Dang ren phap bao";
-    public string sellAction = "Di ban phap bao";
-    public string waitAction = "Cho ca ren tiep theo";
-
     [Header("Runtime")]
     public ForgeCycleState state = ForgeCycleState.NeedMaterials;
     [Min(0f)] public float forgedWorkHours;
@@ -82,8 +76,11 @@ public class NpcFixedBlacksmithController : MonoBehaviour
     VillagerAI villager;
     ItemInventory inventory;
     NpcScheduleController schedule;
+    Collider2D[] selfColliders;
     string lastTradeDestinationSource = "none";
+    string lastTradeDestinationDetail = "none";
     string lastTradeShopName = "none";
+    string lastBrokerApproachDetail = "none";
     NpcCounterBroker cachedBrokerApproachBroker;
     Vector3 cachedBrokerApproachPosition;
     ForgeCycleState cachedBrokerApproachState;
@@ -133,6 +130,10 @@ public class NpcFixedBlacksmithController : MonoBehaviour
             : 0;
     public bool DebugHasConfiguredMaterialRequirements =>
         HasConfiguredMaterialRequirements();
+    string BuyAction => NpcText.Action("fixedBlacksmithBuyMaterials");
+    string ForgeAction => NpcText.Action("fixedBlacksmithForging");
+    string SellAction => NpcText.Action("fixedBlacksmithSellGoods");
+    string WaitAction => NpcText.Action("fixedBlacksmithWaitNextCycle");
 
     public bool ShouldKeepTradeRouteActive()
     {
@@ -307,6 +308,7 @@ public class NpcFixedBlacksmithController : MonoBehaviour
             " buyPoint=" +
             (buyPoint != null ? buyPoint.position.ToString() : "none") +
             " resolvedBuy=" + buyPosition +
+            " sourceDetail=" + lastTradeDestinationDetail +
             " buyZone=" + GetZoneText(buyZone) +
             " isBrokerTarget=" + (isBrokerTarget ? 1 : 0) +
             " resolvedBuyFeasible=" +
@@ -451,6 +453,40 @@ public class NpcFixedBlacksmithController : MonoBehaviour
         schedule = schedule != null
             ? schedule
             : GetComponent<NpcScheduleController>();
+        selfColliders = selfColliders != null &&
+            selfColliders.Length > 0
+            ? selfColliders
+            : GetComponentsInChildren<Collider2D>(true);
+    }
+
+    bool IsSelfCollider(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return false;
+        }
+
+        if (hit.transform == transform ||
+            hit.transform.IsChildOf(transform))
+        {
+            return true;
+        }
+
+        if (selfColliders == null ||
+            selfColliders.Length == 0)
+        {
+            selfColliders = GetComponentsInChildren<Collider2D>(true);
+        }
+
+        for (int i = 0; i < selfColliders.Length; i++)
+        {
+            if (selfColliders[i] == hit)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     void ClampConfig()
@@ -584,7 +620,9 @@ public class NpcFixedBlacksmithController : MonoBehaviour
             state = ForgeCycleState.Forging;
             forgedWorkHours = 0f;
             stateStartedAtRealtime = -1f;
-            villager.SetActionImmediate("Da du nguyen lieu de ren", 1f);
+            villager.SetActionImmediate(
+                NpcText.Action("fixedBlacksmithMaterialsReady"),
+                1f);
             LogDebug("NeedMaterials", "resumeForgingFromInventory=1");
             return true;
         }
@@ -595,7 +633,9 @@ public class NpcFixedBlacksmithController : MonoBehaviour
         if (minimumBudget > 0 &&
             NpcEconomy.GetNpcMoney(gameObject) < minimumBudget)
         {
-            villager.SetActionImmediate("Thieu linh thach de mua nguyen lieu", 2f);
+            villager.SetActionImmediate(
+                NpcText.Action("fixedBlacksmithNeedMoneyToBuy"),
+                2f);
             return true;
         }
 
@@ -606,8 +646,9 @@ public class NpcFixedBlacksmithController : MonoBehaviour
                 out NpcCounterBroker buyBroker))
         {
             villager.SetActionImmediate(
-                "Khong tim thay diem mua o " +
-                GetZoneLabel(preferredTradeZone),
+                NpcText.ActionFormat(
+                    "fixedBlacksmithMissingBuyPoint",
+                    GetZoneLabel(preferredTradeZone)),
                 Mathf.Max(1f, villager.thinkInterval));
             LogDebug(
                 "NeedMaterials",
@@ -643,7 +684,7 @@ public class NpcFixedBlacksmithController : MonoBehaviour
                     false));
             MoveVillagerToTradeTarget(
                 buyPosition,
-                buyAction,
+                BuyAction,
                 buyZone,
                 isBrokerTarget);
             return true;
@@ -657,7 +698,9 @@ public class NpcFixedBlacksmithController : MonoBehaviour
     {
         state = ForgeCycleState.BuyingMaterials;
         stateStartedAtRealtime = Time.time;
-        villager.SetActionImmediate("Dang mua nguyen lieu ren", buyDurationSeconds);
+        villager.SetActionImmediate(
+            NpcText.Action("fixedBlacksmithBuyingMaterials"),
+            buyDurationSeconds);
         LogDebug("State", "BuyingMaterials");
     }
 
@@ -699,7 +742,7 @@ public class NpcFixedBlacksmithController : MonoBehaviour
                         false));
                 MoveVillagerToTradeTarget(
                     buyPosition,
-                    buyAction,
+                    BuyAction,
                     buyZone,
                     isBrokerTarget);
                 return true;
@@ -708,7 +751,9 @@ public class NpcFixedBlacksmithController : MonoBehaviour
 
         if (!HasActionFinished(buyDurationSeconds))
         {
-            villager.SetActionImmediate("Dang mua nguyen lieu ren", buyDurationSeconds);
+            villager.SetActionImmediate(
+                NpcText.Action("fixedBlacksmithBuyingMaterials"),
+                buyDurationSeconds);
             return true;
         }
 
@@ -717,7 +762,9 @@ public class NpcFixedBlacksmithController : MonoBehaviour
             if (!HasConfiguredMaterialRequirements())
             {
                 state = ForgeCycleState.NeedMaterials;
-                villager.SetActionImmediate("Khong du linh thach mua nguyen lieu", 2f);
+                villager.SetActionImmediate(
+                    NpcText.Action("fixedBlacksmithNotEnoughMoneyToBuy"),
+                    2f);
                 return true;
             }
         }
@@ -728,7 +775,9 @@ public class NpcFixedBlacksmithController : MonoBehaviour
             if (!TryPurchaseConfiguredMaterials(out purchaseDetail))
             {
                 state = ForgeCycleState.NeedMaterials;
-                villager.SetActionImmediate("Chua mua du nguyen lieu", 2f);
+                villager.SetActionImmediate(
+                    NpcText.Action("fixedBlacksmithMaterialsPurchaseIncomplete"),
+                    2f);
                 LogDebug("BuyPending", purchaseDetail);
                 return true;
             }
@@ -746,7 +795,9 @@ public class NpcFixedBlacksmithController : MonoBehaviour
         stateStartedAtRealtime = -1f;
         lastProgressWorldHour = GetCurrentWorldHour();
         lastPurchaseDay = GetCurrentWorldDay();
-        villager.SetActionImmediate("Da mua xong nguyen lieu", 1f);
+        villager.SetActionImmediate(
+            NpcText.Action("fixedBlacksmithBoughtMaterials"),
+            1f);
         LogDebug(
             "BuyComplete",
             "money=" + NpcEconomy.GetNpcMoney(gameObject) +
@@ -765,7 +816,7 @@ public class NpcFixedBlacksmithController : MonoBehaviour
             lastProgressWorldHour = currentWorldHour;
             villager.ForceJobMoveTo(
                 forgePoint.position,
-                forgeAction,
+                ForgeAction,
                 NpcMapNavigator.GetDestinationZone(forgePoint));
             return true;
         }
@@ -794,9 +845,11 @@ public class NpcFixedBlacksmithController : MonoBehaviour
         }
 
         villager.SetActionImmediate(
-            forgeAction + " (" +
-            Mathf.CeilToInt(forgedWorkHours) + "/" +
-            Mathf.CeilToInt(RequiredWorkHours) + "h)",
+            NpcText.ActionFormat(
+                "fixedBlacksmithForgingProgress",
+                ForgeAction,
+                Mathf.CeilToInt(forgedWorkHours),
+                Mathf.CeilToInt(RequiredWorkHours)),
             Mathf.Max(1f, villager.thinkInterval));
         return true;
     }
@@ -811,7 +864,9 @@ public class NpcFixedBlacksmithController : MonoBehaviour
             forgedWorkHours = 0f;
             stateStartedAtRealtime = -1f;
             lastProgressWorldHour = GetCurrentWorldHour();
-            villager.SetActionImmediate("Thieu nguyen lieu de tiep tuc ren", 2f);
+            villager.SetActionImmediate(
+                NpcText.Action("fixedBlacksmithMissingMaterialsContinue"),
+                2f);
             LogDebug("ForgeBlocked", consumedDetail);
             return;
         }
@@ -825,7 +880,9 @@ public class NpcFixedBlacksmithController : MonoBehaviour
         state = ForgeCycleState.ReadyToSell;
         stateStartedAtRealtime = -1f;
         lastProgressWorldHour = GetCurrentWorldHour();
-        villager.SetActionImmediate("Da ren xong, chuan bi dem ban", 1f);
+        villager.SetActionImmediate(
+            NpcText.Action("fixedBlacksmithForgeComplete"),
+            1f);
         LogDebug(
             "ForgeComplete",
             "cycles=" + completedCycles +
@@ -844,8 +901,9 @@ public class NpcFixedBlacksmithController : MonoBehaviour
                 out NpcCounterBroker sellBroker))
         {
             villager.SetActionImmediate(
-                "Khong tim thay diem ban o " +
-                GetZoneLabel(preferredTradeZone),
+                NpcText.ActionFormat(
+                    "fixedBlacksmithMissingSellPoint",
+                    GetZoneLabel(preferredTradeZone)),
                 Mathf.Max(1f, villager.thinkInterval));
             LogDebug(
                 "ReadyToSell",
@@ -860,7 +918,7 @@ public class NpcFixedBlacksmithController : MonoBehaviour
         {
             MoveVillagerToTradeTarget(
                 sellPosition,
-                sellAction,
+                SellAction,
                 sellZone,
                 isBrokerTarget);
             return true;
@@ -874,7 +932,9 @@ public class NpcFixedBlacksmithController : MonoBehaviour
     {
         state = ForgeCycleState.Selling;
         stateStartedAtRealtime = Time.time;
-        villager.SetActionImmediate("Dang ban phap bao", sellDurationSeconds);
+        villager.SetActionImmediate(
+            NpcText.Action("fixedBlacksmithSellingGoods"),
+            sellDurationSeconds);
         LogDebug("State", "Selling");
     }
 
@@ -894,7 +954,7 @@ public class NpcFixedBlacksmithController : MonoBehaviour
         {
             MoveVillagerToTradeTarget(
                 sellPosition,
-                sellAction,
+                SellAction,
                 sellZone,
                 isBrokerTarget);
             return true;
@@ -902,7 +962,9 @@ public class NpcFixedBlacksmithController : MonoBehaviour
 
         if (!HasActionFinished(sellDurationSeconds))
         {
-            villager.SetActionImmediate("Dang ban phap bao", sellDurationSeconds);
+            villager.SetActionImmediate(
+                NpcText.Action("fixedBlacksmithSellingGoods"),
+                sellDurationSeconds);
             return true;
         }
 
@@ -938,7 +1000,7 @@ public class NpcFixedBlacksmithController : MonoBehaviour
         stateStartedAtRealtime = -1f;
         lastProgressWorldHour = GetCurrentWorldHour();
         lastSaleDay = GetCurrentWorldDay();
-        villager.SetActionImmediate(waitAction, 1f);
+        villager.SetActionImmediate(WaitAction, 1f);
         LogDebug(
             "SellComplete",
             "money=" + NpcEconomy.GetNpcMoney(gameObject) +
@@ -1026,6 +1088,13 @@ public class NpcFixedBlacksmithController : MonoBehaviour
             broker = pointBroker;
             lastTradeDestinationSource =
                 sourceLabel + ":brokerCustomerPoint";
+            lastTradeDestinationDetail =
+                "overridePoint=" + pointOverride.position +
+                " overrideZone=" + GetZoneText(targetZone) +
+                " broker=" + pointBroker.name +
+                " customerPoint=" + pointBroker.customerPoint.position +
+                " resolved=" + targetPosition +
+                " approachDetail=" + lastBrokerApproachDetail;
             return true;
         }
 
@@ -1042,12 +1111,27 @@ public class NpcFixedBlacksmithController : MonoBehaviour
             broker = pointBroker;
             lastTradeDestinationSource =
                 sourceLabel + ":customerZonePreferred";
+            lastTradeDestinationDetail =
+                "overridePoint=" + pointOverride.position +
+                " overrideZone=" + GetZoneText(targetZone) +
+                " broker=" + pointBroker.name +
+                " preferred=" + pointOverride.position +
+                " resolved=" + resolvedPoint +
+                " customerPoint=" +
+                (pointBroker.customerPoint != null
+                    ? pointBroker.customerPoint.position.ToString()
+                    : "none");
             return true;
         }
 
         targetPosition = pointOverride.position;
         broker = pointBroker;
         lastTradeDestinationSource = sourceLabel;
+        lastTradeDestinationDetail =
+            "overridePoint=" + pointOverride.position +
+            " overrideZone=" + GetZoneText(targetZone) +
+            " broker=" + (pointBroker != null ? pointBroker.name : "none") +
+            " resolved=manualOverride";
         return true;
     }
 
@@ -1539,6 +1623,8 @@ public class NpcFixedBlacksmithController : MonoBehaviour
         out bool isBrokerTarget,
         out NpcCounterBroker broker)
     {
+        lastTradeDestinationDetail = "none";
+
         if (TryGetManualTradePoint(
                 buyPointOverride,
                 "buyPointOverride",
@@ -1616,6 +1702,8 @@ public class NpcFixedBlacksmithController : MonoBehaviour
         out bool isBrokerTarget,
         out NpcCounterBroker broker)
     {
+        lastTradeDestinationDetail = "none";
+
         if (TryGetManualTradePoint(
                 sellPointOverride,
                 "sellPointOverride",
@@ -1781,6 +1869,7 @@ public class NpcFixedBlacksmithController : MonoBehaviour
     {
         if (broker == null)
         {
+            lastBrokerApproachDetail = "broker=null";
             return Vector3.zero;
         }
 
@@ -1798,6 +1887,10 @@ public class NpcFixedBlacksmithController : MonoBehaviour
                 hasCachedBrokerApproachPosition = false;
                 approachPosition = transform.position;
                 approachPosition.z = customerCenter.z;
+                lastBrokerApproachDetail =
+                    "mode=actorInsideCustomerZone actorPos=" +
+                    transform.position +
+                    " resolved=" + approachPosition;
                 return approachPosition;
             }
 
@@ -1806,6 +1899,9 @@ public class NpcFixedBlacksmithController : MonoBehaviour
                 cachedBrokerApproachState == state &&
                 customerZone.OverlapPoint(cachedBrokerApproachPosition))
             {
+                lastBrokerApproachDetail =
+                    "mode=cached state=" + cachedBrokerApproachState +
+                    " resolved=" + cachedBrokerApproachPosition;
                 return cachedBrokerApproachPosition;
             }
 
@@ -1819,6 +1915,19 @@ public class NpcFixedBlacksmithController : MonoBehaviour
                     GetRandomCustomerZoneApproachPosition(
                         customerZone,
                         customerCenter);
+                lastBrokerApproachDetail =
+                    "mode=randomCustomerZone center=" +
+                    customerCenter +
+                    " resolved=" + approachPosition;
+            }
+            else
+            {
+                lastBrokerApproachDetail =
+                    "mode=clearCustomerZone center=" +
+                    customerCenter +
+                    " preferred=" +
+                    broker.GetCustomerPositionFor(gameObject) +
+                    " resolved=" + approachPosition;
             }
             cachedBrokerApproachBroker = broker;
             cachedBrokerApproachPosition = approachPosition;
@@ -1841,6 +1950,11 @@ public class NpcFixedBlacksmithController : MonoBehaviour
         }
 
         approachPosition.z = customerCenter.z;
+        lastBrokerApproachDetail =
+            "mode=serviceRadiusClamp center=" + customerCenter +
+            " preferred=" + broker.GetCustomerPositionFor(gameObject) +
+            " resolved=" + approachPosition +
+            " radius=" + serviceRadius.ToString("0.00");
         return approachPosition;
     }
 
@@ -2437,6 +2551,7 @@ public class NpcFixedBlacksmithController : MonoBehaviour
             " target=" + targetPosition +
             " targetZone=" + GetZoneText(targetZone) +
             " source=" + lastTradeDestinationSource +
+            " sourceDetail=" + lastTradeDestinationDetail +
             " shop=" + lastTradeShopName +
             " isBrokerTarget=" + (isBrokerTarget ? 1 : 0) +
             " arrived=" + (arrived ? 1 : 0) +

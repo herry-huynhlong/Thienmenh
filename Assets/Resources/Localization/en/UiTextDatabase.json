@@ -29,7 +29,7 @@
         },
         {
           "key": "buyButtonNotEnough",
-          "value": "Not enough LT"
+          "value": "Not enough Spirit Stones"
         },
         {
           "key": "buyButtonUnavailable",
@@ -189,7 +189,7 @@
         },
         {
           "key": "readyRewardFormat",
-          "value": "Watch ad to receive +{0} LT"
+          "value": "Watch an ad to receive +{0} Spirit Stones"
         },
         {
           "key": "loadFailed",
@@ -209,7 +209,7 @@
         },
         {
           "key": "rewardGrantedFormat",
-          "value": "Received +{0} LT"
+          "value": "Received +{0} Spirit Stones"
         },
         {
           "key": "walletMissing",
@@ -429,11 +429,11 @@
         },
         {
           "key": "languageVietnamese",
-          "value": "Tiáº¿ng Viá»‡t"
+          "value": "Tiếng Việt"
         },
         {
           "key": "languageChinese",
-          "value": "ä¸­æ–‡"
+          "value": "中文"
         },
         {
           "key": "languageEnglish",
@@ -458,7 +458,7 @@
         {
           "key": "pageTitles",
           "values": [
-            "The Heavenly Dao Complete",
+            "When the Heavenly Dao Was Whole",
             "Cataclysm That Shattered the World",
             "The Origin Lies in Ruin",
             "Reforging the Heavenly Dao"
@@ -476,7 +476,7 @@
         {
           "key": "defaultPageTitles",
           "values": [
-            "The Heavenly Dao Complete",
+            "When the Heavenly Dao Was Whole",
             "Cataclysm That Shattered the World",
             "The Origin Lies in Ruin",
             "Reforging the Heavenly Dao"
@@ -863,7 +863,7 @@
         },
         {
           "key": "spiritStoneAmountDefault",
-          "value": "0 LT"
+          "value": "0 Spirit Stones"
         },
         {
           "key": "amountZero",
@@ -880,6 +880,28 @@
         {
           "key": "heavenDaoTitle",
           "value": "HEAVENLY DAO CONTROL"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "weatherUi",
+      "entries": [
+        {
+          "key": "toggleTitle",
+          "value": "Weather"
+        },
+        {
+          "key": "rain",
+          "value": "Heavy Rain"
+        },
+        {
+          "key": "snow",
+          "value": "Snow"
+        },
+        {
+          "key": "clear",
+          "value": "Clear Sky"
         }
       ],
       "lists": []

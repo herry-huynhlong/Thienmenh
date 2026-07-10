@@ -23,6 +23,12 @@ public static class WorldSimulationBootstrap
             weatherVisualObject.AddComponent<WeatherVisualSystem>();
         }
 
+        if (WeatherAccumulationSystem.Instance == null)
+        {
+            GameObject accumulationObject = new GameObject("WeatherAccumulationSystem");
+            accumulationObject.AddComponent<WeatherAccumulationSystem>();
+        }
+
         if (HeavenSystem.Instance == null)
         {
             GameObject heavenObject = new GameObject("HeavenSystem");

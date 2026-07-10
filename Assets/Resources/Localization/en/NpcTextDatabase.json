@@ -65,7 +65,7 @@
         },
         {
           "key": "item",
-          "value": "item"
+          "value": "Item"
         },
         {
           "key": "realmStageFormat",
@@ -300,7 +300,7 @@
         },
         {
           "key": "waiting",
-          "value": "waiting"
+          "value": "Waiting"
         },
         {
           "key": "stayNearHome",
@@ -368,7 +368,7 @@
         },
         {
           "key": "goVanBaoLauBroker",
-          "value": "Going to Van Bao Lau to meet the broker"
+          "value": "Going to the Myriad Treasures Pavilion to meet the broker"
         },
         {
           "key": "visitedTaskProvider",
@@ -376,11 +376,11 @@
         },
         {
           "key": "goVanBaoLauTask",
-          "value": "Going to Van Bao Lau to check tasks"
+          "value": "Going to the Myriad Treasures Pavilion to check tasks"
         },
         {
           "key": "checkedVanBaoLau",
-          "value": "Checked Van Bao Lau"
+          "value": "Checked the Myriad Treasures Pavilion"
         },
         {
           "key": "goHomeRest",
@@ -541,6 +541,126 @@
         {
           "key": "choosePatrolPoint",
           "value": "Choosing patrol point"
+        },
+        {
+          "key": "fixedBlacksmithBuyMaterials",
+          "value": "Buying forging materials"
+        },
+        {
+          "key": "fixedBlacksmithForging",
+          "value": "Forging artifact"
+        },
+        {
+          "key": "fixedBlacksmithSellGoods",
+          "value": "Selling artifact"
+        },
+        {
+          "key": "fixedBlacksmithWaitNextCycle",
+          "value": "Waiting for the next forge cycle"
+        },
+        {
+          "key": "fixedBlacksmithMaterialsReady",
+          "value": "Materials are ready for forging"
+        },
+        {
+          "key": "fixedBlacksmithNeedMoneyToBuy",
+          "value": "Not enough spirit stones to buy materials"
+        },
+        {
+          "key": "fixedBlacksmithMissingBuyPoint",
+          "value": "Could not find a buying point in {0}"
+        },
+        {
+          "key": "fixedBlacksmithBuyingMaterials",
+          "value": "Buying forging materials"
+        },
+        {
+          "key": "fixedBlacksmithNotEnoughMoneyToBuy",
+          "value": "Not enough spirit stones to buy materials"
+        },
+        {
+          "key": "fixedBlacksmithMaterialsPurchaseIncomplete",
+          "value": "Not enough materials were purchased"
+        },
+        {
+          "key": "fixedBlacksmithBoughtMaterials",
+          "value": "Finished buying materials"
+        },
+        {
+          "key": "fixedBlacksmithForgingProgress",
+          "value": "{0} ({1}/{2}h)"
+        },
+        {
+          "key": "fixedBlacksmithMissingMaterialsContinue",
+          "value": "Not enough materials to continue forging"
+        },
+        {
+          "key": "fixedBlacksmithForgeComplete",
+          "value": "Forging finished, preparing to sell"
+        },
+        {
+          "key": "fixedBlacksmithMissingSellPoint",
+          "value": "Could not find a selling point in {0}"
+        },
+        {
+          "key": "fixedBlacksmithSellingGoods",
+          "value": "Selling artifact"
+        },
+        {
+          "key": "fixedAlchemistBuyMaterials",
+          "value": "Buying herbs"
+        },
+        {
+          "key": "fixedAlchemistRefining",
+          "value": "Refining pills"
+        },
+        {
+          "key": "fixedAlchemistSellGoods",
+          "value": "Selling pills"
+        },
+        {
+          "key": "fixedAlchemistWaitNextCycle",
+          "value": "Waiting for the next refining batch"
+        },
+        {
+          "key": "fixedAlchemistRefineComplete",
+          "value": "Refining finished, preparing to sell"
+        },
+        {
+          "key": "fixedAlchemistMissingBuyPoint",
+          "value": "Could not find a herb buying point"
+        },
+        {
+          "key": "fixedAlchemistMissingMaterialsContinue",
+          "value": "Not enough herbs to continue refining"
+        },
+        {
+          "key": "fixedAlchemistCannotStartBatch",
+          "value": "Could not start the fixed refining batch"
+        },
+        {
+          "key": "fixedAlchemistBoughtMaterials",
+          "value": "Finished buying herbs"
+        },
+        {
+          "key": "fixedAlchemistMaterialsStillMissing",
+          "value": "Still missing herbs after buying"
+        },
+        {
+          "key": "fixedAlchemistCouldNotBuyMaterials",
+          "value": "Could not buy herbs"
+        },
+        {
+          "key": "fixedAlchemistMissingSellPoint",
+          "value": "Could not find a pill selling point"
+        },
+        {
+          "key": "fixedAlchemistSoldGoods",
+          "value": "Finished selling pills"
+        },
+        {
+          "key": "fixedAlchemistCouldNotSellGoods",
+          "value": "Could not sell pills"
         }
       ]
     },
@@ -581,27 +701,27 @@
         },
         {
           "key": "tradeMemoryTopic",
-          "value": "Traded {0} for {1} LT"
+          "value": "Traded {0} for {1} Spirit Stones"
         },
         {
           "key": "tradeRejectedMemoryTopic",
-          "value": "Low offer for {0}: {1} LT"
+          "value": "Low offer for {0}: {1} Spirit Stones"
         },
         {
           "key": "tradeBuyerFallback",
-          "value": "I will take {0}; here is {1} LT."
+          "value": "I will take {0}; here are {1} Spirit Stones."
         },
         {
           "key": "tradeSellerFallback",
-          "value": "Sold {0}, received {1} LT."
+          "value": "Sold {0} and received {1} Spirit Stones."
         },
         {
           "key": "tradeRejectFallback",
-          "value": "{1} LT for {0} is too low."
+          "value": "{1} Spirit Stones for {0} is too low."
         },
         {
           "key": "forgeOrderDisabledBuyer",
-          "value": "Orders are not accepted for now"
+          "value": "Orders are not being accepted at the moment."
         },
         {
           "key": "forgeOrderDisabledSmith",
@@ -609,7 +729,7 @@
         },
         {
           "key": "forgeOrderRejectInvalidBuyer",
-          "value": "Invalid order"
+          "value": "Invalid order."
         },
         {
           "key": "forgeOrderRejectInvalidSmith",
@@ -617,7 +737,7 @@
         },
         {
           "key": "forgeOrderRejectTypeBuyer",
-          "value": "Only artifact orders are accepted"
+          "value": "Only artifact orders are accepted."
         },
         {
           "key": "forgeOrderRejectTypeSmith",
@@ -625,7 +745,7 @@
         },
         {
           "key": "forgeOrderDuplicateBuyer",
-          "value": "This order already exists"
+          "value": "This order already exists."
         },
         {
           "key": "forgeOrderDuplicateSmith",
@@ -633,7 +753,7 @@
         },
         {
           "key": "forgeOrderRejectRecipeBuyer",
-          "value": "No suitable recipe available"
+          "value": "No suitable recipe is available."
         },
         {
           "key": "forgeOrderRejectRecipeSmith",
@@ -641,11 +761,11 @@
         },
         {
           "key": "forgeOrderRejectDepositBuyer",
-          "value": "Not enough deposit"
+          "value": "The deposit is insufficient."
         },
         {
           "key": "forgeOrderRejectDepositSmith",
-          "value": "Not enough deposit."
+          "value": "The deposit is insufficient."
         },
         {
           "key": "forgeOrderAcceptBuyer",
@@ -912,7 +1032,7 @@
         {
           "key": "tradeBuyerLines",
           "values": [
-            "I will take {0}; here is {1} LT.",
+            "I will take {0}; here are {1} Spirit Stones.",
             "This is exactly what I needed. Thanks.",
             "This price works. The trade is done."
           ]
@@ -920,7 +1040,7 @@
         {
           "key": "tradeSellerLines",
           "values": [
-            "Sold {0}, received {1} LT.",
+            "Sold {0} and received {1} Spirit Stones.",
             "Good item. Use it carefully.",
             "Smooth trade. Come again next time."
           ]
@@ -928,7 +1048,7 @@
         {
           "key": "tradeRejectLines",
           "values": [
-            "{1} LT for {0} is too low.",
+            "{1} Spirit Stones for {0} is too low.",
             "This item cannot be sold that cheaply.",
             "If you are sincere, offer a little more."
           ]
@@ -1420,7 +1540,7 @@
         },
         {
           "key": "reward",
-          "value": " - reward {0} LT"
+          "value": " - Reward: {0} Spirit Stones"
         },
         {
           "key": "linhRice",
@@ -1679,7 +1799,7 @@
         },
         {
           "key": "taskCompletedWorld",
-          "value": "{0} completed task {1} and received {2} LT."
+          "value": "{0} completed task {1} and received {2} Spirit Stones."
         }
       ]
     },

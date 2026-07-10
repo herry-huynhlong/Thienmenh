@@ -6,10 +6,16 @@ public partial class VillagerAI
     {
         NpcFixedBlacksmithController fixedBlacksmith =
             GetComponent<NpcFixedBlacksmithController>();
+        NpcFixedAlchemistController fixedAlchemist =
+            GetComponent<NpcFixedAlchemistController>();
         bool useDedicatedBlacksmithRoutine =
             fixedBlacksmith != null &&
             fixedBlacksmith.enabled &&
             fixedBlacksmith.UseDedicatedRoutine;
+        bool useDedicatedAlchemistRoutine =
+            fixedAlchemist != null &&
+            fixedAlchemist.enabled &&
+            fixedAlchemist.UseDedicatedRoutine;
 
         if (WorldTimeSystem.Instance != null)
         {
@@ -50,6 +56,12 @@ public partial class VillagerAI
 
         if (useDedicatedBlacksmithRoutine &&
             fixedBlacksmith.TryRunDedicatedRoutine())
+        {
+            return;
+        }
+
+        if (useDedicatedAlchemistRoutine &&
+            fixedAlchemist.TryRunDedicatedRoutine())
         {
             return;
         }
@@ -107,10 +119,16 @@ public partial class VillagerAI
 
         NpcFixedBlacksmithController fixedBlacksmith =
             GetComponent<NpcFixedBlacksmithController>();
+        NpcFixedAlchemistController fixedAlchemist =
+            GetComponent<NpcFixedAlchemistController>();
         bool shouldHoldBlacksmithTradeRoute =
             fixedBlacksmith != null &&
             fixedBlacksmith.enabled &&
             fixedBlacksmith.ShouldKeepTradeRouteActive();
+        bool shouldHoldAlchemistTradeRoute =
+            fixedAlchemist != null &&
+            fixedAlchemist.enabled &&
+            fixedAlchemist.ShouldKeepTradeRouteActive();
 
         if (slot == null)
         {
@@ -135,6 +153,13 @@ public partial class VillagerAI
                     return true;
                 }
 
+                if (shouldHoldAlchemistTradeRoute &&
+                    IsAlchemyWorker())
+                {
+                    GoAlchemyWorkOrTrade();
+                    return true;
+                }
+
                 GoHomeToRest();
                 return true;
 
@@ -144,6 +169,10 @@ public partial class VillagerAI
                 if (IsForgeWorker())
                 {
                     GoForgeWorkOrTrade();
+                }
+                else if (IsAlchemyWorker())
+                {
+                    GoAlchemyWorkOrTrade();
                 }
                 else if (job == VillagerJob.Trader)
                 {
@@ -228,9 +257,19 @@ public partial class VillagerAI
 
         NpcFixedBlacksmithController fixedBlacksmith =
             GetComponent<NpcFixedBlacksmithController>();
+        NpcFixedAlchemistController fixedAlchemist =
+            GetComponent<NpcFixedAlchemistController>();
         if (fixedBlacksmith != null &&
             fixedBlacksmith.enabled &&
             fixedBlacksmith.ShouldKeepTradeRouteActive())
+        {
+            currentScheduleSlotKey = key;
+            return;
+        }
+
+        if (fixedAlchemist != null &&
+            fixedAlchemist.enabled &&
+            fixedAlchemist.ShouldKeepTradeRouteActive())
         {
             currentScheduleSlotKey = key;
             return;

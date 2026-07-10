@@ -15,6 +15,7 @@ public class WeatherSystem : MonoBehaviour
     public static WeatherSystem Instance { get; private set; }
 
     public WorldWeather CurrentWeather { get; private set; } = WorldWeather.Clear;
+    public bool ManualOverrideActive { get; private set; }
 
     [Header("Calendar Schedule")]
     public bool useCalendarSchedule = true;
@@ -51,6 +52,11 @@ public class WeatherSystem : MonoBehaviour
             return;
         }
 
+        if (ManualOverrideActive)
+        {
+            return;
+        }
+
         if (useCalendarSchedule)
         {
             SetWeather(ResolveScheduledWeather(timeSystem), false);
@@ -81,6 +87,26 @@ public class WeatherSystem : MonoBehaviour
         }
 
         if (reschedule && !useCalendarSchedule && WorldTimeSystem.Instance != null)
+        {
+            ScheduleNextChange(WorldTimeSystem.Instance);
+        }
+    }
+
+    public void SetManualWeather(WorldWeather weather)
+    {
+        ManualOverrideActive = true;
+        SetWeather(weather, false);
+    }
+
+    public void ClearManualWeatherOverride()
+    {
+        ManualOverrideActive = false;
+
+        if (useCalendarSchedule && WorldTimeSystem.Instance != null)
+        {
+            SetWeather(ResolveScheduledWeather(WorldTimeSystem.Instance), false);
+        }
+        else if (WorldTimeSystem.Instance != null)
         {
             ScheduleNextChange(WorldTimeSystem.Instance);
         }

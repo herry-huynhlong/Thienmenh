@@ -3723,6 +3723,11 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         {
             if (IsBlockingObstacle(hit))
             {
+                DebugFlow(
+                    "PositionBlocked",
+                    "probe=" + position +
+                    " radius=" + GetBodyClearRadius().ToString("0.00") +
+                    " obstacle=" + DescribeObstacle(hit));
                 return true;
             }
         }
@@ -4277,6 +4282,26 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             hit.GetComponentInParent<SmartNpcAI>() == null &&
             hit.GetComponentInParent<NpcMapMover2D>() == null &&
             hit.GetComponentInParent<MonsterAI>() == null;
+    }
+
+    string DescribeObstacle(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return "null";
+        }
+
+        Bounds bounds = hit.bounds;
+        return hit.name +
+            " layer=" + hit.gameObject.layer +
+            " trigger=" + (hit.isTrigger ? 1 : 0) +
+            " pos=" + hit.transform.position +
+            " center=" + bounds.center +
+            " size=" + bounds.size +
+            " parent=" +
+            (hit.transform.parent != null
+                ? hit.transform.parent.name
+                : "none");
     }
 
     bool IsCounterCustomerZoneCollider(Collider2D hit)

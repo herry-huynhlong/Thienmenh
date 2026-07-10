@@ -70,6 +70,18 @@
         {
           "key": "realmStageFormat",
           "value": "{0} {1}层"
+        },
+        {
+          "key": "attack",
+          "value": "攻击"
+        },
+        {
+          "key": "defense",
+          "value": "防御"
+        },
+        {
+          "key": "speed",
+          "value": "速度"
         }
       ]
     },
@@ -87,6 +99,18 @@
         {
           "key": "villager",
           "value": "村民"
+        },
+        {
+          "key": "commoner",
+          "value": "凡民"
+        },
+        {
+          "key": "cultivator",
+          "value": "修士"
+        },
+        {
+          "key": "unknown",
+          "value": "未知"
         }
       ]
     },
@@ -541,6 +565,206 @@
         {
           "key": "choosePatrolPoint",
           "value": "选择巡逻点"
+        },
+        {
+          "key": "alchemy",
+          "value": "正在炼丹"
+        },
+        {
+          "key": "attack",
+          "value": "正在攻击"
+        },
+        {
+          "key": "boughtGoods",
+          "value": "已购买货物"
+        },
+        {
+          "key": "clearHarvestMonster",
+          "value": "清理采集点附近的妖兽"
+        },
+        {
+          "key": "fightBlockingMonster",
+          "value": "与挡路的妖兽战斗"
+        },
+        {
+          "key": "fleeMonsterArea",
+          "value": "离开妖兽区域"
+        },
+        {
+          "key": "forging",
+          "value": "正在炼器"
+        },
+        {
+          "key": "goAlchemy",
+          "value": "前往炼丹"
+        },
+        {
+          "key": "goBuyGoods",
+          "value": "前往购买货物"
+        },
+        {
+          "key": "goForge",
+          "value": "前往炼器"
+        },
+        {
+          "key": "goSellGoods",
+          "value": "前往出售货物"
+        },
+        {
+          "key": "goWorkTask",
+          "value": "前往执行任务"
+        },
+        {
+          "key": "guardSpiritHerbMonster",
+          "value": "对付守护灵草的妖兽"
+        },
+        {
+          "key": "moveToTask",
+          "value": "前往任务地点"
+        },
+        {
+          "key": "pickHuntEvidence",
+          "value": "收集狩猎痕迹"
+        },
+        {
+          "key": "pickItem",
+          "value": "拾取物品"
+        },
+        {
+          "key": "receiveTask",
+          "value": "领取任务"
+        },
+        {
+          "key": "returnStorage",
+          "value": "将货物带回仓库"
+        },
+        {
+          "key": "sellGoods",
+          "value": "正在出售货物"
+        },
+        {
+          "key": "workingTask",
+          "value": "正在执行任务"
+        },
+        {
+          "key": "fixedBlacksmithBuyMaterials",
+          "value": "去购买锻造材料"
+        },
+        {
+          "key": "fixedBlacksmithForging",
+          "value": "正在锻造法宝"
+        },
+        {
+          "key": "fixedBlacksmithSellGoods",
+          "value": "去售卖法宝"
+        },
+        {
+          "key": "fixedBlacksmithWaitNextCycle",
+          "value": "等待下一轮锻造"
+        },
+        {
+          "key": "fixedBlacksmithMaterialsReady",
+          "value": "锻造材料已备齐"
+        },
+        {
+          "key": "fixedBlacksmithNeedMoneyToBuy",
+          "value": "灵石不足，无法购买材料"
+        },
+        {
+          "key": "fixedBlacksmithMissingBuyPoint",
+          "value": "在{0}找不到购买点"
+        },
+        {
+          "key": "fixedBlacksmithBuyingMaterials",
+          "value": "正在购买锻造材料"
+        },
+        {
+          "key": "fixedBlacksmithNotEnoughMoneyToBuy",
+          "value": "灵石不足，无法购买材料"
+        },
+        {
+          "key": "fixedBlacksmithMaterialsPurchaseIncomplete",
+          "value": "材料尚未买齐"
+        },
+        {
+          "key": "fixedBlacksmithBoughtMaterials",
+          "value": "已购买完材料"
+        },
+        {
+          "key": "fixedBlacksmithForgingProgress",
+          "value": "{0} ({1}/{2}h)"
+        },
+        {
+          "key": "fixedBlacksmithMissingMaterialsContinue",
+          "value": "缺少材料，无法继续锻造"
+        },
+        {
+          "key": "fixedBlacksmithForgeComplete",
+          "value": "锻造完成，准备去售卖"
+        },
+        {
+          "key": "fixedBlacksmithMissingSellPoint",
+          "value": "在{0}找不到售卖点"
+        },
+        {
+          "key": "fixedBlacksmithSellingGoods",
+          "value": "正在售卖法宝"
+        },
+        {
+          "key": "fixedAlchemistBuyMaterials",
+          "value": "去购买药材"
+        },
+        {
+          "key": "fixedAlchemistRefining",
+          "value": "正在炼丹"
+        },
+        {
+          "key": "fixedAlchemistSellGoods",
+          "value": "去售卖丹药"
+        },
+        {
+          "key": "fixedAlchemistWaitNextCycle",
+          "value": "等待下一炉炼丹"
+        },
+        {
+          "key": "fixedAlchemistRefineComplete",
+          "value": "炼丹完成，准备去售卖"
+        },
+        {
+          "key": "fixedAlchemistMissingBuyPoint",
+          "value": "找不到购买药材的地点"
+        },
+        {
+          "key": "fixedAlchemistMissingMaterialsContinue",
+          "value": "缺少药材，无法继续炼丹"
+        },
+        {
+          "key": "fixedAlchemistCannotStartBatch",
+          "value": "无法开始固定炼丹批次"
+        },
+        {
+          "key": "fixedAlchemistBoughtMaterials",
+          "value": "已购买完药材"
+        },
+        {
+          "key": "fixedAlchemistMaterialsStillMissing",
+          "value": "购买后仍缺少药材"
+        },
+        {
+          "key": "fixedAlchemistCouldNotBuyMaterials",
+          "value": "无法购买药材"
+        },
+        {
+          "key": "fixedAlchemistMissingSellPoint",
+          "value": "找不到售卖丹药的地点"
+        },
+        {
+          "key": "fixedAlchemistSoldGoods",
+          "value": "已售完丹药"
+        },
+        {
+          "key": "fixedAlchemistCouldNotSellGoods",
+          "value": "未能售出丹药"
         }
       ]
     },

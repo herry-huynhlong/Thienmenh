@@ -5,135 +5,313 @@
       "entries": [
         {
           "key": "titleDanDuoc",
-          "value": "çµè¯å ‚"
+          "value": "灵药堂"
         },
         {
           "key": "titlePhapBao",
-          "value": "ç¥žå…µé˜"
+          "value": "神兵阁"
         },
         {
           "key": "titleCongPhap",
-          "value": "åŠŸæ³•è—"
+          "value": "功法藏"
         },
         {
           "key": "titleVatLieu",
-          "value": "å¤©æé˜"
+          "value": "天材阁"
         },
         {
           "key": "titleThucPham",
-          "value": "å¾¡è†³åŠ"
+          "value": "御膳坊"
         },
         {
           "key": "buyButtonBuy",
-          "value": "è´­ä¹°"
+          "value": "购买"
         },
         {
           "key": "buyButtonNotEnough",
-          "value": "çµçŸ³ä¸è¶³"
+          "value": "灵石不足"
         },
         {
           "key": "buyButtonUnavailable",
-          "value": "ä¸å¯è´­ä¹°"
+          "value": "不可购买"
+        },
+        {
+          "key": "speechCategoryFallback",
+          "value": "尊上请慢慢挑选，此间宝物只赠有缘之人。"
+        },
+        {
+          "key": "speechInspectFallback",
+          "value": "尊上果然看透根骨，这件{0}确是{1}。"
+        },
+        {
+          "key": "speechBuyFallback",
+          "value": "多谢尊上选中{0}，此物总算得遇其主。"
+        },
+        {
+          "key": "speechBuyFallbackTrung",
+          "value": "多谢尊上慷慨出手，{0}自会交予有缘之人。"
+        },
+        {
+          "key": "speechBuyFallbackThuong",
+          "value": "尊上眼光果然不凡，{0}赐出后必能契合其缘。"
+        },
+        {
+          "key": "speechBuyFallbackTien",
+          "value": "尊上果有仙眼，{0}只待赐予真正的主人。"
         }
       ],
       "lists": [
         {
           "key": "speechGreetingLines",
           "values": [
-            "\u9053\u53cb\u60f3\u5bfb\u4ec0\u4e48\u5b9d\u7269\uff1f\u5c3d\u7ba1\u968f\u610f\u6311\u9009\u3002",
-            "\u8d35\u5ba2\u6765\u5f97\u6b63\u597d\uff0c\u4eca\u65e5\u5230\u4e86\u4e0d\u5c11\u597d\u8d27\u3002",
-            "\u968f\u610f\u89c2\u770b\u5427\uff0c\u8bf4\u4e0d\u5b9a\u673a\u7f18\u5c31\u5728\u773c\u524d\u3002"
+            "道友想寻什么宝物？尽管随意挑选。",
+            "贵客来得正好，今日到了不少好货。",
+            "随意观看吧，说不定机缘就在眼前。"
           ]
         },
         {
           "key": "speechDanDuocLines",
           "values": [
-            "\u7075\u836f\u517b\u6c14\u7597\u4f24\uff0c\u8bf7\u9053\u53cb\u8fc7\u76ee\u4e00\u89c2\u3002",
-            "\u4ece\u4e0b\u54c1\u5230\u4ed9\u54c1\uff0c\u6b64\u95f4\u4e39\u836f\u6837\u6837\u4e0d\u7f3a\u3002"
+            "灵药养气疗伤，请道友过目一观。",
+            "从下品到仙品，此间丹药样样不缺。"
           ]
         },
         {
           "key": "speechPhapBaoLines",
           "values": [
-            "\u6cd5\u5b9d\u6709\u7075\uff0c\u53ea\u5f85\u5408\u9002\u4e3b\u4eba\u3002",
-            "\u82e5\u80fd\u9009\u5bf9\u4e00\u4ef6\uff0c\u6c14\u5ea6\u4e0e\u6218\u529b\u90fd\u4f1a\u4e0d\u540c\u3002"
+            "法宝有灵，只待合适主人。",
+            "若能选对一件，气度与战力都会不同。"
           ]
         },
         {
           "key": "speechCongPhapLines",
           "values": [
-            "\u529f\u6cd5\u770b\u7f18\u4e5f\u770b\u609f\u6027\uff0c\u9053\u53cb\u6162\u6162\u6311\u3002",
-            "\u85cf\u7ecf\u4e2d\u9887\u6709\u51e0\u5377\u65e7\u672c\uff0c\u6216\u8bb8\u6b63\u5408\u9053\u53cb\u5fc3\u610f\u3002"
+            "功法看缘也看悟性，道友慢慢挑。",
+            "藏经中颇有几卷旧本，或许正合道友心意。"
           ]
         },
         {
           "key": "speechVatLieuLines",
           "values": [
-            "\u8fd9\u4e9b\u5929\u6750\u5730\u5b9d\uff0c\u65e0\u8bba\u70bc\u4e39\u70bc\u5668\u90fd\u7528\u5f97\u4e0a\u3002",
-            "\u6709\u7075\u6027\u7684\u6750\u6599\uff0c\u4e00\u5411\u53ea\u8ba4\u5f97\u6709\u773c\u529b\u4e4b\u4eba\u3002"
+            "这些天材地宝，无论炼丹炼器都用得上。",
+            "有灵性的材料，一向只认得有眼力之人。"
           ]
         },
         {
           "key": "speechThucPhamLines",
           "values": [
-            "\u7075\u98df\u517b\u8eab\u5b89\u795e\uff0c\u4e5f\u662f\u4fee\u884c\u4e4b\u4e00\u9053\u3002",
-            "\u70ed\u9999\u5728\u4fa7\uff0c\u9053\u53cb\u4e0d\u59a8\u4e00\u8bd5\u3002"
+            "灵食养身安神，也是修行之一道。",
+            "热香在侧，道友不妨一试。"
+          ]
+        },
+        {
+          "key": "speechInspectVatLieuGeneralLines",
+          "values": [
+            "此物灵性充盈，若赐给合适之人，可成为炼丹或炼器的根基。",
+            "一件懂得择主的灵材，无论炼器还是炼丹，都十分珍贵。"
+          ]
+        },
+        {
+          "key": "speechInspectVatLieuHerbLines",
+          "values": [
+            "这株灵草尚存天地灵气，很适合赐给精通丹道之人。",
+            "一枝仍带生机的灵草，交到合适的人手中，往往能炼出好丹。"
+          ]
+        },
+        {
+          "key": "speechInspectVatLieuOreLines",
+          "values": [
+            "这块矿石坚硬且隐有神光，投入炉中很容易炼成上品。",
+            "这块矿料结构坚实，赐给合适之人，最适合用来炼制器物。"
+          ]
+        },
+        {
+          "key": "speechInspectVatLieuSpiritStoneLines",
+          "values": [
+            "这块灵石灵气充盈，在需要之时赐下，对有缘人极为便利。",
+            "一块灵气充足的灵石，有眼力的人自然知道值得珍藏。"
+          ]
+        },
+        {
+          "key": "speechInspectVatLieuCraftingPartLines",
+          "values": [
+            "这枚部件虽小却带有神意，交到合适的人手中，便能成为佳器之基。",
+            "一小块看似不起眼的材料，落入会用之人手中，也能成为珍贵根基。"
+          ]
+        },
+        {
+          "key": "speechInspectCongPhapGeneralLines",
+          "values": [
+            "其中暗藏道纹，若交给悟性出众之人，自会开辟出独特道路。",
+            "这门功法自有余韵，有缘之人一看便能领会。"
+          ]
+        },
+        {
+          "key": "speechInspectCongPhapAttackLines",
+          "values": [
+            "此功法偏重杀伐，赐给合适之人，便会成为一柄锋利尖刃。",
+            "一门战斗功法，若择对主人，自会生出威势。"
+          ]
+        },
+        {
+          "key": "speechInspectCongPhapDefenseLines",
+          "values": [
+            "此功法偏重守势，赐给善于自保之人最为合适。",
+            "这门护身功法若交给合适之人，价值非凡。"
+          ]
+        },
+        {
+          "key": "speechInspectCongPhapMovementLines",
+          "values": [
+            "此功法偏重身法，择对主人后，身影会更加灵动。",
+            "一门精妙身法，与它有缘之人修习后，步法自然顺畅。"
+          ]
+        },
+        {
+          "key": "speechInspectCongPhapCultivationLines",
+          "values": [
+            "此功法贵在养气，若遇有缘之人，很快便能开启修行之路。",
+            "一门上佳养气功法，赐给修炼之人，如同恰逢清泉。"
+          ]
+        },
+        {
+          "key": "speechInspectDanDuocGeneralLines",
+          "values": [
+            "这枚丹药灵气充足，赐给合适之人，会成为难得助力。",
+            "一枚根基稳固的丹药，交到命数相合之人手中，价值自现。"
+          ]
+        },
+        {
+          "key": "speechInspectDanDuocBreakthroughLines",
+          "values": [
+            "此丹蕴含破境之气，在恰当时机赐下，犹如再添一阵顺风。",
+            "一枚辅助破境的丹药，落到合适的人手中，极为珍贵。"
+          ]
+        },
+        {
+          "key": "speechInspectDanDuocCultivationLines",
+          "values": [
+            "此丹偏重培元养气，很适合正在稳固根基之人。",
+            "一枚养气灵丹，赐给合适之人，宛如为经脉添入一股清泉。"
+          ]
+        },
+        {
+          "key": "speechInspectDanDuocHpLines",
+          "values": [
+            "此丹偏重滋养生机，赐给需要调养之人最为合适。",
+            "一枚补气养身的丹药，交给合适之人，很快便能显出效用。"
+          ]
+        },
+        {
+          "key": "speechInspectPhapBaoGeneralLines",
+          "values": [
+            "宝光内敛而不显，只有选对主人，才能显出全部价值。",
+            "此法宝自有气象，细看便知适合有缘之人。"
+          ]
+        },
+        {
+          "key": "speechInspectPhapBaoProtectLines",
+          "values": [
+            "这件护身法宝一看便知不凡，赐给所选之人，如同多了一层护命屏障。",
+            "一件精妙的护身之器，交给合适之人，便是一层令人安心的庇护。"
+          ]
+        },
+        {
+          "key": "speechInspectPhapBaoResistanceLines",
+          "values": [
+            "此物偏重抵御与化解，一看便知适合护身渡劫。",
+            "这件法宝擅长化解外力，一眼便知是护身佳品。"
+          ]
+        },
+        {
+          "key": "speechInspectPhapBaoOffenseLines",
+          "values": [
+            "此法宝偏重攻伐，却仍是上佳之物，赐给合适之人可大增威势。",
+            "一件颇具锋芒的攻击法宝，赐给真正的主人，气势自然不同。"
+          ]
+        },
+        {
+          "key": "speechInspectThucPhamGeneralLines",
+          "values": [
+            "这份灵食温和滋养，在合适之时赐下，也是一份福缘。",
+            "此食带有祥和之气，交到有缘之人手中正合适。"
+          ]
+        },
+        {
+          "key": "speechInspectThucPhamNourishLines",
+          "values": [
+            "这道食物可补身养气，很适合赐给需要稳固根基之人。",
+            "一份温和的灵食，赐给需要调养身体之人，恰到好处。"
+          ]
+        },
+        {
+          "key": "speechInspectThucPhamGrainLines",
+          "values": [
+            "这些谷物蕴含平和之气，用来稳固根基十分合适。",
+            "这种谷物虽轻却厚实，正适合赐给重视根基之人。"
+          ]
+        },
+        {
+          "key": "speechInspectThucPhamSpiritFruitLines",
+          "values": [
+            "这枚灵果蕴含甘润灵气，赐给有缘之人正合适。",
+            "一枚灵光充盈的果实，若遇命数相合之人，更显珍贵。"
           ]
         },
         {
           "key": "speechInspectHaLines",
           "values": [
-            "{0}\u867d\u662f{1}\uff0c\u4f46\u80dc\u5728\u5b9e\u7528\u3002",
-            "\u8fd9\u4ef6{1}\u7269\u4ef6\u6734\u5b9e\u8010\u7528\uff0c\u4e0d\u5931\u4e3a\u597d\u9009\u62e9\u3002"
+            "{0}虽是{1}，但胜在实用。",
+            "这件{1}物件朴实耐用，不失为好选择。"
           ]
         },
         {
           "key": "speechInspectTrungLines",
           "values": [
-            "{0}\u5df2\u662f{1}\uff0c\u5e26\u5728\u8eab\u4e0a\u4e5f\u5f88\u4f53\u9762\u3002",
-            "\u9053\u53cb\u76ee\u5149\u4e0d\u9519\uff0c\u8fd9\u7b49{1}\u503c\u5f97\u4e00\u89c2\u3002"
+            "{0}已是{1}，带在身上也很体面。",
+            "道友目光不错，这等{1}值得一观。"
           ]
         },
         {
           "key": "speechInspectThuongLines",
           "values": [
-            "\u9053\u53cb\u597d\u773c\u529b\uff0c{0}\u6b63\u662f{1}\u4e4b\u7269\u3002",
-            "\u50cf{0}\u8fd9\u6837\u7684{1}\u5b9d\u7269\uff0c\u5e76\u4e0d\u5e38\u89c1\u3002"
+            "道友好眼力，{0}正是{1}之物。",
+            "像{0}这样的{1}宝物，并不常见。"
           ]
         },
         {
           "key": "speechInspectTienLines",
           "values": [
-            "\u53ea\u6709\u771f\u6b63\u7684\u8d35\u5ba2\uff0c\u624d\u4f1a\u4e00\u773c\u770b\u4e2d{0}\u8fd9\u7b49{1}\u3002",
-            "\u4ed9\u54c1\u7075\u5149\u85cf\u800c\u4e0d\u9732\uff0c\u9053\u53cb\u5374\u4e00\u773c\u8bc6\u7834\uff0c\u4ee4\u4eba\u656c\u4f69\u3002"
+            "只有真正的贵客，才会一眼看中{0}这等{1}。",
+            "仙品灵光藏而不露，道友却一眼识破，令人敬佩。"
           ]
         },
         {
           "key": "speechBuyHaLines",
           "values": [
-            "\u8c22\u8c22\u60e0\u987e\uff0c\u613f{0}\u80fd\u5408\u9053\u53cb\u5fc3\u610f\u3002",
-            "\u591a\u8c22\u5173\u7167\uff0c\u8fd9\u4ef6{1}\u4e5f\u81ea\u6709\u7528\u5904\u3002"
+            "谢谢惠顾，愿{0}能合道友心意。",
+            "多谢关照，这件{1}也自有用处。"
           ]
         },
         {
           "key": "speechBuyTrungLines",
           "values": [
-            "\u613f\u9053\u53cb\u8d22\u8fd0\u4ea8\u901a\uff0c{0}\u5fc5\u80fd\u52a9\u4e0a\u4e00\u81c2\u4e4b\u529b\u3002",
-            "\u51fa\u624b\u679c\u7136\u4e0d\u51e1\uff0c\u8fd9\u4ef6{1}\u4ea4\u7ed9\u9053\u53cb\u6b63\u597d\u3002"
+            "愿道友财运亨通，{0}必能助上一臂之力。",
+            "出手果然不凡，这件{1}交给道友正好。"
           ]
         },
         {
           "key": "speechBuyThuongLines",
           "values": [
-            "\u9053\u53cb\u6c14\u5ea6\u679c\u7136\u4e0d\u51e1\uff0c{0}\u5728\u9053\u53cb\u624b\u4e2d\u5fc5\u5b9a\u5927\u653e\u5149\u5f69\u3002",
-            "\u4e0a\u54c1\u4e4b\u7269\u81ea\u5f53\u914d\u4e0a\u54c1\u4e4b\u4e3b\uff0c\u9053\u53cb\u9009\u5f97\u597d\u3002"
+            "道友气度果然不凡，{0}在道友手中必定大放光彩。",
+            "{1}之物自当配上品之主，道友选得好。"
           ]
         },
         {
           "key": "speechBuyTienLines",
           "values": [
-            "\u9053\u53cb\u8fd9\u822c\u773c\u754c\uff0c\u8fde\u6211\u8fd9\u5c0f\u5e97\u638c\u67dc\u90fd\u4e0d\u7531\u5f97\u5fc3\u751f\u656c\u670d\uff0c{0}\u4e5f\u53ea\u6709\u9053\u53cb\u624d\u914d\u62e5\u6709\u3002",
-            "\u4ed9\u54c1\u91cd\u5668\u9047\u4e0a\u9053\u53cb\u8fd9\u7b49\u4e3b\u4eba\uff0c\u5f53\u771f\u662f\u5929\u5b9a\u826f\u7f18\u3002"
+            "道友这般眼界，连我这小店掌柜都不由得心生敬服，{0}也只有道友才配拥有。",
+            "{1}重器遇上道友这等主人，当真是天定良缘。"
           ]
         }
       ]
@@ -143,27 +321,27 @@
       "entries": [
         {
           "key": "controlFormat",
-          "value": "æŽŒæŽ§ï¼š{0}%"
+          "value": "掌控：{0}%"
         },
         {
           "key": "karmaFormat",
-          "value": "å› æžœï¼š{0}"
+          "value": "因果：{0}"
         },
         {
           "key": "devUnlockAll",
-          "value": "å¼€å‘æ¨¡å¼å·²è§£é”å…¨éƒ¨æƒé™"
+          "value": "开发模式已解锁全部权限"
         },
         {
           "key": "nextUnlockFormat",
-          "value": "å³å°†è§£é” {0}%ï¼š{1}"
+          "value": "即将解锁 {0}%：{1}"
         },
         {
           "key": "allUnlocked",
-          "value": "å½“å‰ç­‰çº§å·²å…¨éƒ¨è§£é”"
+          "value": "当前等级已全部解锁"
         },
         {
           "key": "footerHint",
-          "value": "ä¸–ç•Œå‘å±•æ—¶ï¼Œæœ¬æºä¼šé€æ¸æ¢å¤ã€‚"
+          "value": "世界发展时，本源会逐渐恢复。"
         }
       ],
       "lists": []
@@ -173,47 +351,47 @@
       "entries": [
         {
           "key": "loading",
-          "value": "æ­£åœ¨åŠ è½½å¹¿å‘Š..."
+          "value": "正在加载广告..."
         },
         {
           "key": "missingAdUnit",
-          "value": "ç¼ºå°‘å¹¿å‘Šå•å…ƒIDã€‚"
+          "value": "缺少广告单元ID。"
         },
         {
           "key": "notReady",
-          "value": "å¹¿å‘Šå°šæœªå‡†å¤‡å¥½ã€‚"
+          "value": "广告尚未准备好。"
         },
         {
           "key": "opening",
-          "value": "æ­£åœ¨æ‰“å¼€å¹¿å‘Š..."
+          "value": "正在打开广告..."
         },
         {
           "key": "readyRewardFormat",
-          "value": "è§‚çœ‹å¹¿å‘ŠèŽ·å¾— +{0} çµçŸ³"
+          "value": "观看广告获得 +{0} 灵石"
         },
         {
           "key": "loadFailed",
-          "value": "å¹¿å‘ŠåŠ è½½å¤±è´¥ã€‚"
+          "value": "广告加载失败。"
         },
         {
           "key": "watching",
-          "value": "æ­£åœ¨è§‚çœ‹å¹¿å‘Š..."
+          "value": "正在观看广告..."
         },
         {
           "key": "showFailed",
-          "value": "æ— æ³•æ‰“å¼€å¹¿å‘Šã€‚"
+          "value": "无法打开广告。"
         },
         {
           "key": "incomplete",
-          "value": "å¹¿å‘Šæœªçœ‹å®Œï¼Œæ— æ³•èŽ·å¾—å¥–åŠ±ã€‚"
+          "value": "广告未看完，无法获得奖励。"
         },
         {
           "key": "rewardGrantedFormat",
-          "value": "å·²èŽ·å¾— +{0} çµçŸ³"
+          "value": "已获得 +{0} 灵石"
         },
         {
           "key": "walletMissing",
-          "value": "æ‰¾ä¸åˆ°çµçŸ³é’±åŒ…ã€‚"
+          "value": "找不到灵石钱包。"
         }
       ],
       "lists": []
@@ -223,7 +401,7 @@
       "entries": [
         {
           "key": "totalFormat",
-          "value": "ç”Ÿçµï¼š{0}"
+          "value": "生灵：{0}"
         }
       ],
       "lists": []
@@ -237,11 +415,11 @@
         },
         {
           "key": "focusButton",
-          "value": "å‰å¾€ä¿®å£«"
+          "value": "前往修士"
         },
         {
           "key": "removeButton",
-          "value": "ç§»é™¤ä¿®å£«"
+          "value": "移除修士"
         }
       ],
       "lists": []
@@ -251,35 +429,35 @@
       "entries": [
         {
           "key": "emptyText",
-          "value": "æ²¡æœ‰ç‰©å“"
+          "value": "没有物品"
         },
         {
           "key": "titleFormat",
-          "value": "{0} - èƒŒåŒ…"
+          "value": "{0} - 背包"
         },
         {
           "key": "compactInfoFormat",
-          "value": "èƒŒåŒ…ï¼š{0} | æ€»è®¡ï¼š{1}"
+          "value": "背包：{0} | 总计：{1}"
         },
         {
           "key": "walletLine",
-          "value": "çµçŸ³ï¼š{0}"
+          "value": "灵石：{0}"
         },
         {
           "key": "spiritStoneLine",
-          "value": "ä¿®ç‚¼çµçŸ³ï¼š{0}"
+          "value": "修炼灵石：{0}"
         },
         {
           "key": "inventoryValueLine",
-          "value": "èƒŒåŒ…ä»·å€¼ï¼š{0}"
+          "value": "背包价值：{0}"
         },
         {
           "key": "totalAssetsLine",
-          "value": "æ€»èµ„äº§ï¼š{0}"
+          "value": "总资产：{0}"
         },
         {
           "key": "itemCountsFormat",
-          "value": "ç‰©å“ç§ç±»ï¼š{0} / æ€»ç‰©å“ï¼š{1}"
+          "value": "物品种类：{0} / 总物品：{1}"
         },
         {
           "key": "itemLineFormat",
@@ -297,27 +475,27 @@
         },
         {
           "key": "defaultWhenUnavailable",
-          "value": "è’å¤å¤§é™† - ç¬¬1å¹´ ç¬¬1æœˆ ç¬¬1æ—¥ - 06:00"
+          "value": "荒古大陆 - 第1年 第1月 第1日 - 06:00"
         },
         {
           "key": "continentName",
-          "value": "è’å¤å¤§é™†"
+          "value": "荒古大陆"
         },
         {
           "key": "dayFormat",
-          "value": "ç¬¬{0}æ—¥"
+          "value": "第{0}日"
         },
         {
           "key": "monthFormat",
-          "value": "ç¬¬{0}æœˆ - {1}"
+          "value": "第{0}月 - {1}"
         },
         {
           "key": "yearFormat",
-          "value": "ç¬¬{0}å¹´ - {1}"
+          "value": "第{0}年 - {1}"
         },
         {
           "key": "clockFormat",
-          "value": "{0}\n{1}\n{2:00}æ—¶{3:00}åˆ†"
+          "value": "{0}\n{1}\n{2:00}时{3:00}分"
         }
       ],
       "lists": []
@@ -327,7 +505,7 @@
       "entries": [
         {
           "key": "originPrefix",
-          "value": "å¤©é“"
+          "value": "天道"
         },
         {
           "key": "normalPrefix",
@@ -335,11 +513,11 @@
         },
         {
           "key": "normalPrefixFormat",
-          "value": "{0}ï¼š{1}"
+          "value": "{0}：{1}"
         },
         {
           "key": "originLabelFallback",
-          "value": "æœ¬æº"
+          "value": "本源"
         },
         {
           "key": "originRewardFormat",
@@ -357,19 +535,19 @@
       "entries": [
         {
           "key": "aboutLog",
-          "value": "å¤©å‘½ä¹‹å­ - ä¿®ä»™RPG"
+          "value": "天命之子 - 修仙RPG"
         },
         {
           "key": "settingsTitle",
-          "value": "è®¾ç½®"
+          "value": "设置"
         },
         {
           "key": "settingsVolume",
-          "value": "éŸ³é‡"
+          "value": "音量"
         },
         {
           "key": "settingsFullscreen",
-          "value": "å…¨å±"
+          "value": "全屏"
         },
         {
           "key": "settingsFps",
@@ -377,63 +555,63 @@
         },
         {
           "key": "settingsMute",
-          "value": "é™éŸ³"
+          "value": "静音"
         },
         {
           "key": "settingsUnmute",
-          "value": "å–æ¶ˆé™éŸ³"
+          "value": "取消静音"
         },
         {
           "key": "settingsSave",
-          "value": "ä¿å­˜"
+          "value": "保存"
         },
         {
           "key": "settingsClose",
-          "value": "å…³é—­"
+          "value": "关闭"
         },
         {
           "key": "newGame",
-          "value": "å¼€å§‹æ¸¸æˆ"
+          "value": "开始游戏"
         },
         {
           "key": "continueGame",
-          "value": "ç»§ç»­"
+          "value": "继续"
         },
         {
           "key": "settingsMenu",
-          "value": "è®¾ç½®"
+          "value": "设置"
         },
         {
           "key": "aboutMenu",
-          "value": "ä»‹ç»"
+          "value": "介绍"
         },
         {
           "key": "exitGame",
-          "value": "é€€å‡º"
+          "value": "退出"
         },
         {
           "key": "menuMap",
-          "value": "åœ°å›¾"
+          "value": "地图"
         },
         {
           "key": "menuShop",
-          "value": "å•†åº—"
+          "value": "商店"
         },
         {
           "key": "menuStory",
-          "value": "å‰§æƒ…"
+          "value": "剧情"
         },
         {
           "key": "menuInventory",
-          "value": "å‚¨ç‰©"
+          "value": "储物"
         },
         {
           "key": "languageVietnamese",
-          "value": "Tiáº¿ng Viá»‡t"
+          "value": "Tiếng Việt"
         },
         {
           "key": "languageChinese",
-          "value": "ä¸­æ–‡"
+          "value": "中文"
         },
         {
           "key": "languageEnglish",
@@ -447,7 +625,7 @@
       "entries": [
         {
           "key": "fallbackTitle",
-          "value": "é‡ä¿®å¤©é“"
+          "value": "重修天道"
         },
         {
           "key": "pageIndicatorFormat",
@@ -458,37 +636,37 @@
         {
           "key": "pageTitles",
           "values": [
-            "å¤©é“å®Œæ•´",
-            "æµ©åŠ«ç­ä¸–",
-            "æœ¬æºç ´ç¢Ž",
-            "é‡ä¿®å¤©é“"
+            "天道完整",
+            "浩劫灭世",
+            "本源破碎",
+            "重修天道"
           ]
         },
         {
           "key": "pageBodies",
           "values": [
-            "å¤©åœ°å°šä¸”å®Œæ•´ä¹‹æ—¶ï¼Œè’å¤å¤§é™†æ›¾æ˜¯ä¸€æ–¹ç¹ç››ä¸–ç•Œã€‚\n\nå¤©é“è¦†ç›–ä¸‡ç‰©ï¼Œæ—¥æœˆè¿è¡Œæœ‰åºï¼Œçµæ°”å¾ªçŽ¯ä¸æ¯ã€‚\n\nç”Ÿçµè¯žç”Ÿã€ä¿®ç‚¼ã€äº‰æ–—ã€ä¼ æ‰¿ï¼Œæœ€ç»ˆåŒ–ä¸ºå¤©åœ°çš„ä¸€éƒ¨åˆ†ã€‚\n\nå®—é—¨å…´ç››ï¼Œå¦–å…½çºµæ¨ªï¼Œçµè‰éç”Ÿå±±æ²³ã€‚æ¯ä¸€ä¸ªç”Ÿå‘½éƒ½æœ‰è‡ªå·±çš„è½¨è¿¹ï¼Œæ¯ä¸€ä»½æœºç¼˜éƒ½åœ¨å¤§é“è½®è½¬ä¹‹ä¸­ã€‚",
-            "ç„¶è€Œåœ¨ä¹…è¿œçºªå…ƒä¹‹å‰ï¼Œè™šç©ºå¿½ç„¶è£‚å¼€ã€‚\n\nä¸€è‚¡æ¥è‡ªå¤©åœ°ä¹‹å¤–çš„åŠ›é‡ä¾µå…¥è’å¤å¤§é™†ã€‚\n\nå®ƒä»¬ä¸éµå¤©é“ï¼Œä¸å…¥è½®å›žï¼Œåªæƒ³åžå™¬æ•´æ–¹ä¸–ç•Œçš„çµæ°”ã€æœ¬æºä¸Žç”Ÿæœºã€‚\n\né‚£åœºæµ©åŠ«ä»¤å±±æ²³å´©å¡Œï¼Œå®—é—¨è¦†ç­ï¼Œæ— æ•°ç”ŸçµåŒ–ä¸ºç°çƒ¬ã€‚å¤©åœ°ç§©åºè‡ªæ­¤å¼€å§‹å´©åã€‚",
-            "ä¸ºä¿ä½æœ€åŽä¸€çº¿ç”Ÿæœºï¼Œå¤©é“å¼ºè¡Œç‡ƒçƒ§è‡ªèº«æœ¬æºã€‚\n\né‚£è‚¡åŠ›é‡å‡»é€€å¤–æ•Œï¼Œå°é—­è™šç©ºè£‚éš™ï¼Œæ•‘ä¸‹è’å¤å¤§é™†æ®‹å­˜çš„ä¸€è§’ã€‚\n\nä½†ä»£ä»·æžä¸ºæ²‰é‡ã€‚\n\nå¤©é“æœ¬æºç ´ç¢Žï¼Œæƒèƒ½æ•£è½å„å¤„ã€‚çµæ°”è¡°å¼±ï¼Œæ³•åˆ™æ··ä¹±ï¼Œä¸–ç•Œåªå‰©ä¸‹ä¸€ç‰‡ç‰‡ç ´ç¢ŽåœŸåœ°ï¼Œåœ¨æ—¶å…‰ä¸­è‰°éš¾æ”¯æ’‘ã€‚",
-            "å¦‚ä»Šï¼Œå¤©é“çš„ä¸€ç¼•æ®‹å¿µå·²ç»è‹é†’ã€‚\n\né‚£ä¾¿æ˜¯ä½ ã€‚\n\nä½ å°šä¸èƒ½æŽŒæŽ§æ•´ä¸ªä¸–ç•Œï¼Œåªèƒ½è§‚æœ›è’å¤å¤§é™†è¾¹ç¼˜çš„ä¸€å°ç‰‡åœŸåœ°ã€‚\n\nä½†ä»Žè¿™é‡Œå¼€å§‹ï¼Œå¤©é“å¯ä»¥é‡æ–°ä¿®å¤ã€‚\n\nå¼•å¯¼ç”Ÿçµï¼Œèµäºˆæœºç¼˜ï¼ŒæŽ¨åŠ¨ä¿®ç‚¼ï¼Œæ‰©å±•åœŸåœ°ï¼Œæ¢å¤çµæ°”ï¼Œå¹¶ä¸€æ­¥æ­¥æ”¶å›žæ•£è½çš„æœ¬æºã€‚\n\nå½“å¤©é“è¶³å¤Ÿå¼ºå¤§ï¼Œè’å¤å¤§é™†å°†å†æ¬¡è¿Žæ¥æ–°çš„æ—¶ä»£ã€‚"
+            "天地尚且完整之时，荒古大陆曾是一方繁盛世界。\n\n天道覆盖万物，日月运行有序，灵气循环不息。\n\n生灵诞生、修炼、争斗、传承，最终化为天地的一部分。\n\n宗门兴盛，妖兽纵横，灵草遍生山河。每一个生命都有自己的轨迹，每一份机缘都在大道轮转之中。",
+            "然而在久远纪元之前，虚空忽然裂开。\n\n一股来自天地之外的力量侵入荒古大陆。\n\n它们不遵天道，不入轮回，只想吞噬整方世界的灵气、本源与生机。\n\n那场浩劫令山河崩塌，宗门覆灭，无数生灵化为灰烬。天地秩序自此开始崩坏。",
+            "为保住最后一线生机，天道强行燃烧自身本源。\n\n那股力量击退外敌，封闭虚空裂隙，救下荒古大陆残存的一角。\n\n但代价极为沉重。\n\n天道本源破碎，权能散落各处。灵气衰弱，法则混乱，世界只剩下一片片破碎土地，在时光中艰难支撑。",
+            "如今，天道的一缕残念已经苏醒。\n\n那便是你。\n\n你尚不能掌控整个世界，只能观望荒古大陆边缘的一小片土地。\n\n但从这里开始，天道可以重新修复。\n\n引导生灵，赐予机缘，推动修炼，扩展土地，恢复灵气，并一步步收回散落的本源。\n\n当天道足够强大，荒古大陆将再次迎来新的时代。"
           ]
         },
         {
           "key": "defaultPageTitles",
           "values": [
-            "å¤©é“å®Œæ•´",
-            "æµ©åŠ«ç­ä¸–",
-            "æœ¬æºç ´ç¢Ž",
-            "é‡ä¿®å¤©é“"
+            "天道完整",
+            "浩劫灭世",
+            "本源破碎",
+            "重修天道"
           ]
         },
         {
           "key": "defaultPageBodies",
           "values": [
-            "å¤©åœ°å°šä¸”å®Œæ•´ä¹‹æ—¶ï¼Œè’å¤å¤§é™†æ›¾æ˜¯ä¸€æ–¹ç¹ç››ä¸–ç•Œã€‚\n\nå¤©é“è¦†ç›–ä¸‡ç‰©ï¼Œæ—¥æœˆè¿è¡Œæœ‰åºï¼Œçµæ°”å¾ªçŽ¯ä¸æ¯ã€‚\n\nç”Ÿçµè¯žç”Ÿã€ä¿®ç‚¼ã€äº‰æ–—ã€ä¼ æ‰¿ï¼Œæœ€ç»ˆåŒ–ä¸ºå¤©åœ°çš„ä¸€éƒ¨åˆ†ã€‚\n\nå®—é—¨å…´ç››ï¼Œå¦–å…½çºµæ¨ªï¼Œçµè‰éç”Ÿå±±æ²³ã€‚æ¯ä¸€ä¸ªç”Ÿå‘½éƒ½æœ‰è‡ªå·±çš„è½¨è¿¹ï¼Œæ¯ä¸€ä»½æœºç¼˜éƒ½åœ¨å¤§é“è½®è½¬ä¹‹ä¸­ã€‚",
-            "ç„¶è€Œåœ¨ä¹…è¿œçºªå…ƒä¹‹å‰ï¼Œè™šç©ºå¿½ç„¶è£‚å¼€ã€‚\n\nä¸€è‚¡æ¥è‡ªå¤©åœ°ä¹‹å¤–çš„åŠ›é‡ä¾µå…¥è’å¤å¤§é™†ã€‚\n\nå®ƒä»¬ä¸éµå¤©é“ï¼Œä¸å…¥è½®å›žï¼Œåªæƒ³åžå™¬æ•´æ–¹ä¸–ç•Œçš„çµæ°”ã€æœ¬æºä¸Žç”Ÿæœºã€‚\n\né‚£åœºæµ©åŠ«ä»¤å±±æ²³å´©å¡Œï¼Œå®—é—¨è¦†ç­ï¼Œæ— æ•°ç”ŸçµåŒ–ä¸ºç°çƒ¬ã€‚å¤©åœ°ç§©åºè‡ªæ­¤å¼€å§‹å´©åã€‚",
-            "ä¸ºä¿ä½æœ€åŽä¸€çº¿ç”Ÿæœºï¼Œå¤©é“å¼ºè¡Œç‡ƒçƒ§è‡ªèº«æœ¬æºã€‚\n\né‚£è‚¡åŠ›é‡å‡»é€€å¤–æ•Œï¼Œå°é—­è™šç©ºè£‚éš™ï¼Œæ•‘ä¸‹è’å¤å¤§é™†æ®‹å­˜çš„ä¸€è§’ã€‚\n\nä½†ä»£ä»·æžä¸ºæ²‰é‡ã€‚\n\nå¤©é“æœ¬æºç ´ç¢Žï¼Œæƒèƒ½æ•£è½å„å¤„ã€‚çµæ°”è¡°å¼±ï¼Œæ³•åˆ™æ··ä¹±ï¼Œä¸–ç•Œåªå‰©ä¸‹ä¸€ç‰‡ç‰‡ç ´ç¢ŽåœŸåœ°ï¼Œåœ¨æ—¶å…‰ä¸­è‰°éš¾æ”¯æ’‘ã€‚",
-            "å¦‚ä»Šï¼Œå¤©é“çš„ä¸€ç¼•æ®‹å¿µå·²ç»è‹é†’ã€‚\n\né‚£ä¾¿æ˜¯ä½ ã€‚\n\nä½ å°šä¸èƒ½æŽŒæŽ§æ•´ä¸ªä¸–ç•Œï¼Œåªèƒ½è§‚æœ›è’å¤å¤§é™†è¾¹ç¼˜çš„ä¸€å°ç‰‡åœŸåœ°ã€‚\n\nä½†ä»Žè¿™é‡Œå¼€å§‹ï¼Œå¤©é“å¯ä»¥é‡æ–°ä¿®å¤ã€‚\n\nå¼•å¯¼ç”Ÿçµï¼Œèµäºˆæœºç¼˜ï¼ŒæŽ¨åŠ¨ä¿®ç‚¼ï¼Œæ‰©å±•åœŸåœ°ï¼Œæ¢å¤çµæ°”ï¼Œå¹¶ä¸€æ­¥æ­¥æ”¶å›žæ•£è½çš„æœ¬æºã€‚\n\nå½“å¤©é“è¶³å¤Ÿå¼ºå¤§ï¼Œè’å¤å¤§é™†å°†å†æ¬¡è¿Žæ¥æ–°çš„æ—¶ä»£ã€‚"
+            "天地尚且完整之时，荒古大陆曾是一方繁盛世界。\n\n天道覆盖万物，日月运行有序，灵气循环不息。\n\n生灵诞生、修炼、争斗、传承，最终化为天地的一部分。\n\n宗门兴盛，妖兽纵横，灵草遍生山河。每一个生命都有自己的轨迹，每一份机缘都在大道轮转之中。",
+            "然而在久远纪元之前，虚空忽然裂开。\n\n一股来自天地之外的力量侵入荒古大陆。\n\n它们不遵天道，不入轮回，只想吞噬整方世界的灵气、本源与生机。\n\n那场浩劫令山河崩塌，宗门覆灭，无数生灵化为灰烬。天地秩序自此开始崩坏。",
+            "为保住最后一线生机，天道强行燃烧自身本源。\n\n那股力量击退外敌，封闭虚空裂隙，救下荒古大陆残存的一角。\n\n但代价极为沉重。\n\n天道本源破碎，权能散落各处。灵气衰弱，法则混乱，世界只剩下一片片破碎土地，在时光中艰难支撑。",
+            "如今，天道的一缕残念已经苏醒。\n\n那便是你。\n\n你尚不能掌控整个世界，只能观望荒古大陆边缘的一小片土地。\n\n但从这里开始，天道可以重新修复。\n\n引导生灵，赐予机缘，推动修炼，扩展土地，恢复灵气，并一步步收回散落的本源。\n\n当天道足够强大，荒古大陆将再次迎来新的时代。"
           ]
         }
       ]
@@ -502,71 +680,75 @@
         },
         {
           "key": "damageRow",
-          "value": "ä¼¤å®³"
+          "value": "伤害"
         },
         {
           "key": "defenseRow",
-          "value": "é˜²å¾¡"
+          "value": "防御"
         },
         {
           "key": "lifespanRow",
-          "value": "å¯¿å…ƒ"
+          "value": "寿元"
         },
         {
           "key": "jobRow",
-          "value": "èŒä½"
+          "value": "职位"
         },
         {
           "key": "maritalStatusRow",
-          "value": "çŠ¶æ€"
+          "value": "状态"
+        },
+        {
+          "key": "maritalStatusRowAlt",
+          "value": "状态："
         },
         {
           "key": "statusRow",
-          "value": "çŠ¶æ€ï¼š"
+          "value": "状态："
         },
         {
           "key": "statusRowAlt",
-          "value": "çŠ¶æ€ï¼š"
+          "value": "状态："
         },
         {
           "key": "equipmentList",
-          "value": "è£…å¤‡"
+          "value": "装备"
         },
         {
           "key": "skillList",
-          "value": "æŠ€èƒ½"
+          "value": "技能"
         },
         {
           "key": "equipmentWeapon",
-          "value": "æ­¦å™¨"
+          "value": "武器"
         },
         {
           "key": "equipmentArmor",
-          "value": "æŠ¤ç”²"
+          "value": "护甲"
         },
         {
           "key": "equipmentAccessory",
-          "value": "æ³•å®"
+          "value": "法宝"
         },
         {
           "key": "actionFormat",
-          "value": "æ­£åœ¨{0}"
+          "value": "正在{0}"
         },
         {
           "key": "monsterLootNone",
-          "value": "æ— "
+          "value": "无"
         },
         {
           "key": "monsterLootUnset",
-          "value": "æœªè®¾ç½®"
+          "value": "未设置"
         },
         {
           "key": "inventoryEmpty",
-          "value": "ç©º"
+          "value": "空"
         },
         {
           "key": "inventorySummaryFormat",
-          "value": "{0}ç§ / {1}ä»¶"
+          "value": "{0}种 / {1}件"
         }
       ],
       "lists": []
@@ -576,31 +758,31 @@
       "entries": [
         {
           "key": "dayUnknown",
-          "value": "ç¬¬ï¼Ÿæ—¥"
+          "value": "第？日"
         },
         {
           "key": "dayOnlyFormat",
-          "value": "ç¬¬{0}æ—¥"
+          "value": "第{0}日"
         },
         {
           "key": "monthDayFormat",
-          "value": "ç¬¬{0}æœˆ - ç¬¬{1}æ—¥"
+          "value": "第{0}月 - 第{1}日"
         },
         {
           "key": "timeUnknown",
-          "value": "ã€æ—¶ç©ºã€‘"
+          "value": "【时空】"
         },
         {
           "key": "introLogWelcome",
-          "value": "æ¬¢è¿Žæ¥åˆ°è’å¤å¤§é™†ï¼çµæ°”å®‰å®ï¼Œå¤©æ¸…äº‘æœ—ã€‚"
+          "value": "欢迎来到荒古大陆！灵气安宁，天清云朗。"
         },
         {
           "key": "introLogSecretRealm",
-          "value": "ä¸œæ–¹æœ‰å¼‚åŠ¨ï¼ä¸Šå¤ç§˜å¢ƒç»“ç•Œå‡ºçŽ°è¡°å¼±è¿¹è±¡ã€‚"
+          "value": "东方有异动！上古秘境结界出现衰弱迹象。"
         },
         {
           "key": "introLogBeastWave",
-          "value": "å¦–æ°”å†²å¤©ï¼å…½æ½®æ­£åœ¨èºåŠ¨ï¼Œå‡†å¤‡è¢­å‡»æ‘åº„ï¼"
+          "value": "妖气冲天！兽潮正在躁动，准备袭击村庄！"
         }
       ],
       "lists": []
@@ -610,27 +792,27 @@
       "entries": [
         {
           "key": "anonymous",
-          "value": "æ— å"
+          "value": "无名"
         },
         {
           "key": "broken",
-          "value": "{1}çš„{0}å·²ç»æŸåã€‚"
+          "value": "{1}的{0}已经损坏。"
         },
         {
           "key": "refined",
-          "value": "{0}å°†{1}ç‚¼åŒ–æˆä¸¹è¯ã€‚"
+          "value": "{0}将{1}炼化成丹药。"
         },
         {
           "key": "forged",
-          "value": "{0}é”»é€ äº†{1}ã€‚"
+          "value": "{0}锻造了{1}。"
         },
         {
           "key": "stolen",
-          "value": "{0}ä»Ž{2}æ‰‹ä¸­å¤ºèµ°{1}ã€‚"
+          "value": "{0}从{2}手中夺走{1}。"
         },
         {
           "key": "taught",
-          "value": "{0}å°†{1}ä¼ æŽˆç»™{2}ã€‚"
+          "value": "{0}将{1}传授给{2}。"
         },
         {
           "key": "default",
@@ -644,15 +826,15 @@
       "entries": [
         {
           "key": "panelTitle",
-          "value": "å¤©é“ç…§æ‹‚"
+          "value": "天道照拂"
         },
         {
           "key": "listTitle",
-          "value": "å—å…³æ³¨çš„ç”Ÿçµ"
+          "value": "受关注的生灵"
         },
         {
           "key": "listHeader",
-          "value": "åˆ—è¡¨"
+          "value": "列表"
         },
         {
           "key": "countFormat",
@@ -660,126 +842,127 @@
         },
         {
           "key": "filterAll",
-          "value": "å…¨éƒ¨"
+          "value": "全部"
         },
         {
           "key": "filterCultivator",
-          "value": "ä¿®å£«"
+          "value": "修士"
         },
         {
           "key": "filterMonster",
-          "value": "å¦–å…½"
+          "value": "妖兽"
         },
         {
           "key": "searchPlaceholder",
-          "value": "æœç´¢å§“å / å¢ƒç•Œ..."
+          "value": "搜索姓名 / 境界..."
         },
         {
           "key": "labelName",
-          "value": "å§“åï¼š"
+          "value": "姓名："
         },
         {
           "key": "labelTitle",
-          "value": "ç§°å·ï¼š"
+          "value": "称号："
         },
         {
           "key": "labelRealm",
-          "value": "å¢ƒç•Œï¼š"
+          "value": "境界："
         },
         {
           "key": "labelOrigin",
-          "value": "å‡ºèº«ï¼š"
+          "value": "出身："
         },
         {
           "key": "labelAptitude",
-          "value": "èµ„è´¨"
+          "value": "资质"
         },
         {
           "key": "labelFear",
-          "value": "æ•¬ç•"
+          "value": "敬畏"
         },
         {
           "key": "labelFate",
-          "value": "æœºç¼˜"
+          "value": "机缘"
         },
         {
           "key": "labelDescription",
-          "value": "æè¿° / å¤‡æ³¨"
+          "value": "描述 / 备注"
         },
         {
           "key": "buttonGiveFate",
-          "value": "èµäºˆæœºç¼˜"
+          "value": "赐予机缘"
         },
         {
           "key": "buttonRemove",
-          "value": "ç§»é™¤"
+          "value": "移除"
         },
         {
           "key": "unknownName",
-          "value": "æ— å"
+          "value": "无名"
         },
         {
           "key": "unknownRealm",
-          "value": "æœªçŸ¥"
+          "value": "未知"
         },
         {
           "key": "titleNone",
-          "value": "æ— "
+          "value": "无"
         },
         {
           "key": "originNone",
-          "value": "æ— "
+          "value": "无"
         },
         {
           "key": "originCultivator",
-          "value": "ä¿®å£«"
+          "value": "修士"
         },
         {
           "key": "originCommoner",
-          "value": "å‡¡æ°‘"
+          "value": "凡民"
         },
         {
           "key": "originMonster",
-          "value": "å¦–å…½"
+          "value": "妖兽"
         },
         {
           "key": "sampleName",
-          "value": "é˜®é’"
+          "value": "阮青"
         },
         {
           "key": "sampleRealm",
-          "value": "ç‚¼æ°”"
+          "value": "炼气"
         },
         {
           "key": "stateWatching",
-          "value": "å…³æ³¨ä¸­"
+          "value": "关注中"
         },
         {
           "key": "stateBlessed",
-          "value": "å·²èµæœºç¼˜"
+          "value": "已赐机缘"
         },
         {
           "key": "stateReceived",
-          "value": "å·²èŽ·å¾—"
+          "value": "已获得"
         },
         {
           "key": "detailEmpty",
           "value": "-"
         },
-                {
+        {
           "key": "emptyStateTitle",
-          "value": "??????"
+          "value": "暂无天命之子"
         },
         {
           "key": "emptyStateDescription",
-          "value": "????????????????????"
-        },{
+          "value": "请为合适的生灵赐予机缘，使其出现在此处。"
+        },
+        {
           "key": "descriptionNone",
-          "value": "æ— å¤‡æ³¨"
+          "value": "无备注"
         },
         {
           "key": "descriptionFallbackFormat",
-          "value": "{0}æ­£å—å¤©é“å…³æ³¨ï¼Œå½“å‰å¢ƒç•Œä¸º{1}ã€‚"
+          "value": "{0}正受天道关注，当前境界为{1}。"
         },
         {
           "key": "aptitudeFormat",
@@ -787,19 +970,19 @@
         },
         {
           "key": "fearFormat",
-          "value": "æ•¬ç•ï¼š{0}"
+          "value": "敬畏：{0}"
         },
         {
           "key": "titleChildOfHeaven",
-          "value": "å¤©å‘½ä¹‹å­"
+          "value": "天命之子"
         },
         {
           "key": "titleSaintBody",
-          "value": "åœ£ä½“"
+          "value": "圣体"
         },
         {
           "key": "titleSwordHeart",
-          "value": "å‰‘å¿ƒ"
+          "value": "剑心"
         }
       ],
       "lists": []
@@ -809,27 +992,27 @@
       "entries": [
         {
           "key": "monster",
-          "value": "å¦–å…½"
+          "value": "妖兽"
         },
         {
           "key": "npc",
-          "value": "ä¿®å£«"
+          "value": "修士"
         },
         {
           "key": "villager",
-          "value": "æ‘æ°‘"
+          "value": "村民"
         },
         {
           "key": "commoner",
-          "value": "å‡¡æ°‘"
+          "value": "凡民"
         },
         {
           "key": "cultivator",
-          "value": "ä¿®å£«"
+          "value": "修士"
         },
         {
           "key": "unknown",
-          "value": "æœªçŸ¥"
+          "value": "未知"
         }
       ],
       "lists": []
@@ -839,27 +1022,27 @@
       "entries": [
         {
           "key": "settingsLanguage",
-          "value": "è¯­è¨€"
+          "value": "语言"
         },
         {
           "key": "gameTitle",
-          "value": "é‡ä¿®å¤©é“"
+          "value": "重修天道"
         },
         {
           "key": "listTitle",
-          "value": "åˆ—è¡¨"
+          "value": "列表"
         },
         {
           "key": "quantity",
-          "value": "æ•°é‡"
+          "value": "数量"
         },
         {
           "key": "price",
-          "value": "ä»·æ ¼"
+          "value": "价格"
         },
         {
           "key": "status",
-          "value": "çŠ¶æ€"
+          "value": "状态"
         },
         {
           "key": "spiritStoneAmountDefault",
@@ -871,15 +1054,37 @@
         },
         {
           "key": "watchAd",
-          "value": "è§‚çœ‹å¹¿å‘Š"
+          "value": "观看广告"
         },
         {
           "key": "recentTitle",
-          "value": "æœ€è¿‘"
+          "value": "最近"
         },
         {
           "key": "heavenDaoTitle",
-          "value": "å¤©é“æŽŒæŽ§"
+          "value": "天道掌控"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "weatherUi",
+      "entries": [
+        {
+          "key": "toggleTitle",
+          "value": "\u5929\u6c14"
+        },
+        {
+          "key": "rain",
+          "value": "\u66b4\u96e8"
+        },
+        {
+          "key": "snow",
+          "value": "\u5927\u96ea"
+        },
+        {
+          "key": "clear",
+          "value": "\u6674\u6717"
         }
       ],
       "lists": []

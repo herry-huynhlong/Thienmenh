@@ -31,6 +31,8 @@ public class NpcCounterBroker : MonoBehaviour
     public bool useKinematicBodyWhileStationary = true;
     public bool disableBoundaryClampWhileStationary = true;
     public bool disableMovementAnimatorWhileStationary = true;
+    public bool debugCounterChecks = false;
+    public bool forceCustomerZoneTrigger = true;
 
     [Header("Wallet")]
     [InspectorName("Linh Thạch ban đầu")]
@@ -54,16 +56,39 @@ public class NpcCounterBroker : MonoBehaviour
         return point != null ? point.GetComponent<NpcInteractionPoint>() : null;
     }
 
+    void LogCounterDebug(string stage, string detail, Object context = null)
+    {
+        if (!debugCounterChecks)
+        {
+            return;
+        }
+
+        Debug.LogWarning(
+            "[NpcCounterBroker] " +
+            name +
+            " stage=" + stage +
+            " detail=" + detail,
+            context != null ? context : this);
+    }
+
     public BoxCollider2D GetCustomerZoneCollider()
     {
         if (customerPoint == null)
         {
+            LogCounterDebug("GetCustomerZoneCollider", "customerPoint=null");
             return null;
         }
 
         BoxCollider2D box = customerPoint.GetComponent<BoxCollider2D>();
         if (box != null)
         {
+            LogCounterDebug(
+                "GetCustomerZoneCollider",
+                "source=customerPoint box=" + box.name +
+                " enabled=" + (box.enabled ? 1 : 0) +
+                " center=" + box.bounds.center +
+                " size=" + box.bounds.size,
+                box);
             return box;
         }
 
@@ -74,13 +99,40 @@ public class NpcCounterBroker : MonoBehaviour
             box = interactionPoint.GetComponent<BoxCollider2D>();
             if (box != null)
             {
+                LogCounterDebug(
+                    "GetCustomerZoneCollider",
+                    "source=interactionPoint box=" + box.name +
+                    " enabled=" + (box.enabled ? 1 : 0) +
+                    " center=" + box.bounds.center +
+                    " size=" + box.bounds.size,
+                    box);
                 return box;
             }
 
-            return interactionPoint.GetComponentInParent<BoxCollider2D>();
+            box = interactionPoint.GetComponentInParent<BoxCollider2D>();
+            LogCounterDebug(
+                "GetCustomerZoneCollider",
+                box != null
+                    ? "source=interactionPointParent box=" + box.name +
+                        " enabled=" + (box.enabled ? 1 : 0) +
+                        " center=" + box.bounds.center +
+                        " size=" + box.bounds.size
+                    : "source=interactionPointParent box=null",
+                box != null ? box : interactionPoint);
+            return box;
         }
 
-        return customerPoint.GetComponentInParent<BoxCollider2D>();
+        box = customerPoint.GetComponentInParent<BoxCollider2D>();
+        LogCounterDebug(
+            "GetCustomerZoneCollider",
+            box != null
+                ? "source=customerPointParent box=" + box.name +
+                    " enabled=" + (box.enabled ? 1 : 0) +
+                    " center=" + box.bounds.center +
+                    " size=" + box.bounds.size
+                : "source=customerPointParent box=null",
+            box != null ? box : customerPoint);
+        return box;
     }
 
     [Header("Pricing")]
@@ -328,6 +380,7 @@ public class NpcCounterBroker : MonoBehaviour
     {
         if (npc == null)
         {
+            LogCounterDebug("IsCustomerAtCounter", "npc=null");
             return false;
         }
 
@@ -335,12 +388,43 @@ public class NpcCounterBroker : MonoBehaviour
         if (customerZone != null &&
             customerZone.enabled)
         {
-            return customerZone.OverlapPoint(npc.transform.position);
+            bool inside =
+                customerZone.OverlapPoint(npc.transform.position);
+            LogCounterDebug(
+                "IsCustomerAtCounter",
+                "npc=" + npc.name +
+                " mode=zone" +
+                " npcPos=" + npc.transform.position +
+                " zoneCenter=" + customerZone.bounds.center +
+                " zoneSize=" + customerZone.bounds.size +
+                " inside=" + (inside ? 1 : 0),
+                npc);
+            return inside;
         }
 
-        return Vector2.Distance(
+        float serviceRadius =
+            Mathf.Max(0.05f, CustomerServiceRadius);
+        float distance = Vector2.Distance(
             npc.transform.position,
-            CustomerPosition) <= Mathf.Max(0.05f, CustomerServiceRadius);
+            CustomerPosition);
+        bool withinDistance = distance <= serviceRadius;
+        LogCounterDebug(
+            "IsCustomerAtCounter",
+            "npc=" + npc.name +
+            " mode=distance" +
+            " npcPos=" + npc.transform.position +
+            " customerPos=" + CustomerPosition +
+            " distance=" + distance.ToString("0.00") +
+            " radius=" + serviceRadius.ToString("0.00") +
+            " within=" + (withinDistance ? 1 : 0) +
+            " customerPoint=" +
+            (customerPoint != null
+                ? customerPoint.position.ToString()
+                : "none") +
+            " requireAtPoint=" + (requireCustomerAtPoint ? 1 : 0) +
+            " allowMultiple=" + (allowMultipleCustomers ? 1 : 0),
+            npc);
+        return withinDistance;
     }
     public static bool TryTradeWithActiveBroker(NpcTradeAgent npc)
     {
@@ -1226,6 +1310,31 @@ public class NpcCounterBroker : MonoBehaviour
             {
                 villager.enabled = false;
             }
+        }
+
+        ConfigureCustomerZoneCollider();
+    }
+
+    void ConfigureCustomerZoneCollider()
+    {
+        if (!forceCustomerZoneTrigger)
+        {
+            return;
+        }
+
+        BoxCollider2D customerZone = GetCustomerZoneCollider();
+        if (customerZone == null)
+        {
+            return;
+        }
+
+        if (!customerZone.isTrigger)
+        {
+            customerZone.isTrigger = true;
+            LogCounterDebug(
+                "ConfigureCustomerZoneCollider",
+                "forcedTrigger=1 box=" + customerZone.name,
+                customerZone);
         }
     }
 

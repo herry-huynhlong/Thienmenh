@@ -54,7 +54,7 @@
         },
         {
           "key": "breakthroughRealm",
-          "value": "Realm Breakthrough"
+          "value": "Breakthrough to the Next Realm"
         },
         {
           "key": "damageBonus",
@@ -102,11 +102,11 @@
         },
         {
           "key": "canRefinePill",
-          "value": "Can refine pills"
+          "value": "Can be refined into pills"
         },
         {
           "key": "canForgeArtifact",
-          "value": "Can forge artifacts"
+          "value": "Can be used to forge artifacts"
         },
         {
           "key": "canStudy",
@@ -118,7 +118,7 @@
         },
         {
           "key": "npcIntent",
-          "value": "Cultivator Priority: {0}"
+          "value": "Cultivator Preference: {0}"
         }
       ]
     },
@@ -206,19 +206,19 @@
       "entries": [
         {
           "key": "Ha",
-          "value": "Low Grade"
+          "value": "Low-grade"
         },
         {
           "key": "Trung",
-          "value": "Mid Grade"
+          "value": "Mid-grade"
         },
         {
           "key": "Thuong",
-          "value": "High Grade"
+          "value": "High-grade"
         },
         {
           "key": "Tien",
-          "value": "Immortal Grade"
+          "value": "Immortal-grade"
         }
       ]
     },

@@ -1,5 +1,9 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class WeatherVisualSystem : MonoBehaviour
 {
@@ -12,13 +16,19 @@ public class WeatherVisualSystem : MonoBehaviour
     public int sortingOrder = 25000;
 
     [Header("Rain")]
-    public float rainRate = 260f;
-    public float thunderRainRate = 420f;
+    public float rainRate = 180f;
+    public float thunderRainRate = 300f;
     public Color rainColor = new Color(0.62f, 0.78f, 1f, 0.62f);
+    public string rainResourcePath = "thoitiet/rain";
+    public string rainEditorAssetPath = "Assets/UI/thoitiet/rain.png";
+    public float rainSpriteAnimationFps = 14f;
 
     [Header("Snow")]
-    public float snowRate = 95f;
+    public float snowRate = 60f;
     public Color snowColor = new Color(1f, 1f, 1f, 0.86f);
+    public string snowResourcePath = "thoitiet/snow";
+    public string snowEditorAssetPath = "Assets/UI/thoitiet/snow.png";
+    public float snowSpriteAnimationFps = 10f;
 
     [Header("Spiritual Qi")]
     public float qiRate = 45f;
@@ -37,6 +47,8 @@ public class WeatherVisualSystem : MonoBehaviour
     WorldWeather activeWeather = (WorldWeather)(-1);
     float thunderTimer;
     float thunderFlashAlpha;
+    Sprite[] rainSprites;
+    Sprite[] snowSprites;
 
     void Awake()
     {
@@ -160,6 +172,8 @@ public class WeatherVisualSystem : MonoBehaviour
 
     void BuildVisuals()
     {
+        rainSprites = LoadSprites(rainResourcePath, rainEditorAssetPath);
+        snowSprites = LoadSprites(snowResourcePath, snowEditorAssetPath);
         rainParticles = CreateRainParticles();
         snowParticles = CreateSnowParticles();
         qiParticles = CreateQiParticles();
@@ -193,11 +207,19 @@ public class WeatherVisualSystem : MonoBehaviour
         velocity.z = new ParticleSystem.MinMaxCurve(0f, 0f);
 
         ParticleSystemRenderer renderer = particles.GetComponent<ParticleSystemRenderer>();
-        renderer.renderMode = ParticleSystemRenderMode.Stretch;
-        renderer.lengthScale = 2.2f;
-        renderer.velocityScale = 0.18f;
         renderer.sortingOrder = sortingOrder;
-        AssignMaterial(renderer, rainColor, CreateRainTexture());
+
+        if (rainSprites != null && rainSprites.Length > 0)
+        {
+            ConfigureRainSpriteParticles(particles, renderer, rainSprites);
+        }
+        else
+        {
+            renderer.renderMode = ParticleSystemRenderMode.Stretch;
+            renderer.lengthScale = 2.2f;
+            renderer.velocityScale = 0.18f;
+            AssignMaterial(renderer, rainColor, CreateRainTexture());
+        }
 
         return particles;
     }
@@ -234,9 +256,17 @@ public class WeatherVisualSystem : MonoBehaviour
         noise.frequency = 0.32f;
 
         ParticleSystemRenderer renderer = particles.GetComponent<ParticleSystemRenderer>();
-        renderer.renderMode = ParticleSystemRenderMode.Billboard;
         renderer.sortingOrder = sortingOrder;
-        AssignMaterial(renderer, snowColor, CreateSoftCircleTexture(24));
+
+        if (snowSprites != null && snowSprites.Length > 0)
+        {
+            ConfigureSnowSpriteParticles(particles, renderer, snowSprites);
+        }
+        else
+        {
+            renderer.renderMode = ParticleSystemRenderMode.Billboard;
+            AssignMaterial(renderer, snowColor, CreateSoftCircleTexture(24));
+        }
 
         return particles;
     }
@@ -338,7 +368,7 @@ public class WeatherVisualSystem : MonoBehaviour
         float topY = height * 0.5f + screenMargin;
 
         SetTopEmitter(rainParticles, emitterWidth, topY);
-        SetTopEmitter(snowParticles, emitterWidth, topY);
+        SetFullScreenEmitter(snowParticles, emitterWidth, height + screenMargin * 2f);
         SetFullScreenEmitter(qiParticles, emitterWidth, height + screenMargin * 2f);
     }
 
@@ -427,6 +457,91 @@ public class WeatherVisualSystem : MonoBehaviour
         }
 
         renderer.material = material;
+    }
+
+    void ConfigureRainSpriteParticles(
+        ParticleSystem particles,
+        ParticleSystemRenderer renderer,
+        Sprite[] sprites)
+    {
+        ParticleSystem.MainModule main = particles.main;
+        main.startSize = new ParticleSystem.MinMaxCurve(0.22f, 0.36f);
+
+        renderer.renderMode = ParticleSystemRenderMode.Billboard;
+        renderer.lengthScale = 1f;
+        renderer.velocityScale = 0f;
+
+        Texture2D texture = sprites[0] != null ? sprites[0].texture : null;
+        AssignMaterial(renderer, rainColor, texture);
+        ConfigureSpriteAnimation(particles, sprites, rainSpriteAnimationFps);
+    }
+
+    void ConfigureSnowSpriteParticles(
+        ParticleSystem particles,
+        ParticleSystemRenderer renderer,
+        Sprite[] sprites)
+    {
+        ParticleSystem.MainModule main = particles.main;
+        main.startSize = new ParticleSystem.MinMaxCurve(0.32f, 0.52f);
+
+        renderer.renderMode = ParticleSystemRenderMode.Billboard;
+        renderer.lengthScale = 1f;
+        renderer.velocityScale = 0f;
+
+        Texture2D texture = sprites[0] != null ? sprites[0].texture : null;
+        AssignMaterial(renderer, snowColor, texture);
+        ConfigureSpriteAnimation(particles, sprites, snowSpriteAnimationFps);
+    }
+
+    void ConfigureSpriteAnimation(
+        ParticleSystem particles,
+        Sprite[] sprites,
+        float fps)
+    {
+        ParticleSystem.TextureSheetAnimationModule sheet =
+            particles.textureSheetAnimation;
+        sheet.enabled = true;
+        sheet.mode = ParticleSystemAnimationMode.Sprites;
+        sheet.timeMode = ParticleSystemAnimationTimeMode.FPS;
+        sheet.fps = Mathf.Max(1f, fps);
+
+        for (int i = 0; i < sprites.Length; i++)
+        {
+            if (sprites[i] != null)
+            {
+                sheet.AddSprite(sprites[i]);
+            }
+        }
+    }
+
+    Sprite[] LoadSprites(string resourcePath, string editorAssetPath)
+    {
+        Sprite[] resourceSprites = Resources.LoadAll<Sprite>(resourcePath);
+        if (resourceSprites != null && resourceSprites.Length > 0)
+        {
+            return resourceSprites;
+        }
+
+#if UNITY_EDITOR
+        Object[] subAssets = AssetDatabase.LoadAllAssetRepresentationsAtPath(
+            editorAssetPath);
+        List<Sprite> sprites = new List<Sprite>();
+
+        for (int i = 0; i < subAssets.Length; i++)
+        {
+            if (subAssets[i] is Sprite sprite)
+            {
+                sprites.Add(sprite);
+            }
+        }
+
+        if (sprites.Count > 0)
+        {
+            return sprites.ToArray();
+        }
+#endif
+
+        return null;
     }
 
     Texture2D CreateRainTexture()

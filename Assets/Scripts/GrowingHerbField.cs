@@ -13,6 +13,10 @@ public class GrowingHerbField : MonoBehaviour
     [Header("Growth")]
     [Min(0.5f)] public float matureAfterGameHours = 48f;
     [Range(0.05f, 0.95f)] public float midStageThreshold = 0.5f;
+    [Min(1f)] public float rainGrowthMultiplier = 1.5f;
+    [Range(0.1f, 1f)] public float snowGrowthMultiplier = 0.5f;
+    [Min(0.25f)] public float snowDamageCheckIntervalHours = 6f;
+    [Range(0f, 1f)] public float snowDamageChancePerCheck = 0.18f;
 
     [Header("Initial Spawn Weights")]
     [Min(0)] public int initialSmallWeight = 30;
@@ -77,6 +81,10 @@ public class GrowingHerbField : MonoBehaviour
             largeSprite,
             matureAfterGameHours,
             midStageThreshold,
+            rainGrowthMultiplier,
+            snowGrowthMultiplier,
+            snowDamageCheckIntervalHours,
+            snowDamageChancePerCheck,
             initialSmallWeight,
             initialMidWeight,
             initialLargeWeight,
@@ -101,6 +109,10 @@ public class GrowingHerbField : MonoBehaviour
     {
         matureAfterGameHours = Mathf.Max(0.5f, matureAfterGameHours);
         midStageThreshold = Mathf.Clamp(midStageThreshold, 0.05f, 0.95f);
+        rainGrowthMultiplier = Mathf.Max(1f, rainGrowthMultiplier);
+        snowGrowthMultiplier = Mathf.Clamp(snowGrowthMultiplier, 0.1f, 1f);
+        snowDamageCheckIntervalHours = Mathf.Max(0.25f, snowDamageCheckIntervalHours);
+        snowDamageChancePerCheck = Mathf.Clamp01(snowDamageChancePerCheck);
         initialSmallWeight = Mathf.Max(0, initialSmallWeight);
         initialMidWeight = Mathf.Max(0, initialMidWeight);
         initialLargeWeight = Mathf.Max(0, initialLargeWeight);

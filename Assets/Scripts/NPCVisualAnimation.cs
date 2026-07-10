@@ -46,6 +46,34 @@ public class NPCVisualAnimation : MonoBehaviour
     [Header("Debug")]
     public bool debugVisualLogs;
 
+    [Header("Animator States")]
+    public string walkDownState;
+    public string walkUpState;
+    public string walkSideState;
+    public string walkRightState;
+    public string walkLeftState;
+    public string idleDownState;
+    public string idleUpState;
+    public string idleSideState;
+    public string idleRightState;
+    public string idleLeftState;
+    public string attackDownState;
+    public string attackUpState;
+    public string attackSideState;
+    public string attackRightState;
+    public string attackLeftState;
+    public string cultivateStateName;
+    public string cultivateDownState;
+    public string cultivateUpState;
+    public string cultivateSideState;
+    public string cultivateRightState;
+    public string cultivateLeftState;
+    public string dieDownState;
+    public string dieUpState;
+    public string dieSideState;
+    public string dieRightState;
+    public string dieLeftState;
+
     Animator animator;
     SpriteRenderer spriteRenderer;
     AnimatorOverrideController overrideController;
@@ -53,6 +81,7 @@ public class NPCVisualAnimation : MonoBehaviour
     int overrideStateHash;
     Vector2 lastDirection = Vector2.down;
     AnimationClip currentClip;
+    string currentStateName;
     bool? lastLoggedIdleState;
     string lastLoggedAction;
     Vector2? lastLoggedInputDirection;
@@ -85,12 +114,6 @@ public class NPCVisualAnimation : MonoBehaviour
             return visual;
         }
 
-        NPCVisualAnimation template = FindTemplate(visual);
-        if (template != null)
-        {
-            CopyTemplate(template, visual);
-        }
-
         return visual;
     }
 
@@ -115,6 +138,7 @@ public class NPCVisualAnimation : MonoBehaviour
         }
 
         currentClip = null;
+        currentStateName = null;
 
         if (controller == null)
         {
@@ -187,6 +211,8 @@ public class NPCVisualAnimation : MonoBehaviour
         if (actionCategory != ActionCategory.None)
         {
             clipToPlay = GetActionClip(actionCategory, lastDirection);
+            string stateToPlay =
+                GetActionStateName(actionCategory, lastDirection);
 
             if (ShouldLogVisualDebug())
             {
@@ -196,12 +222,12 @@ public class NPCVisualAnimation : MonoBehaviour
                     " action=" + currentAction +
                     " category=" + actionCategory +
                     " direction=" + lastDirection +
+                    " state=" + stateToPlay +
                     " clip=" + DescribeClip(clipToPlay));
             }
 
-            if (clipToPlay != null)
+            if (PlayVisual(stateToPlay, clipToPlay))
             {
-                PlayClip(clipToPlay);
                 return;
             }
 
@@ -222,6 +248,14 @@ public class NPCVisualAnimation : MonoBehaviour
             clipToPlay = isIdling
                 ? GetIdleClip(lastDirection)
                 : GetWalkClip(lastDirection);
+            string stateToPlay = isIdling
+                ? GetIdleStateName(lastDirection)
+                : GetWalkStateName(lastDirection);
+
+            if (PlayVisual(stateToPlay, clipToPlay))
+            {
+                return;
+            }
 
             if (clipToPlay == null &&
                 ShouldLogVisualDebug())
@@ -234,8 +268,6 @@ public class NPCVisualAnimation : MonoBehaviour
                     " action=" + currentAction);
             }
         }
-
-        PlayClip(clipToPlay);
     }
 
     public void SetFacingDirection(Vector2 direction)
@@ -270,6 +302,8 @@ public class NPCVisualAnimation : MonoBehaviour
 
         AnimationClip clipToPlay =
             GetActionClip(actionCategory, lastDirection);
+        string stateToPlay =
+            GetActionStateName(actionCategory, lastDirection);
         if (ShouldLogVisualDebug())
         {
             Debug.Log(
@@ -278,10 +312,11 @@ public class NPCVisualAnimation : MonoBehaviour
                 " action=" + currentAction +
                 " category=" + actionCategory +
                 " direction=" + lastDirection +
+                " state=" + stateToPlay +
                 " clip=" + DescribeClip(clipToPlay));
         }
 
-        if (clipToPlay == null)
+        if (string.IsNullOrWhiteSpace(stateToPlay) && clipToPlay == null)
         {
             Debug.LogWarning(
                 "[NPCVisualAnimation] Replay action clip missing object=" +
@@ -292,7 +327,8 @@ public class NPCVisualAnimation : MonoBehaviour
         }
 
         currentClip = null;
-        PlayClip(clipToPlay);
+        currentStateName = null;
+        PlayVisual(stateToPlay, clipToPlay);
     }
 
     Vector2 GetCardinalDirection(Vector2 direction)
@@ -441,6 +477,65 @@ public class NPCVisualAnimation : MonoBehaviour
                 System.StringComparison.OrdinalIgnoreCase);
     }
 
+    bool PlayVisual(string stateName, AnimationClip clipToPlay)
+    {
+        if (TryPlayState(stateName))
+        {
+            return true;
+        }
+
+        if (clipToPlay != null)
+        {
+            PlayClip(clipToPlay);
+            return true;
+        }
+
+        return false;
+    }
+
+    bool TryPlayState(string stateName)
+    {
+        if (string.IsNullOrWhiteSpace(stateName) ||
+            animator == null)
+        {
+            return false;
+        }
+
+        if (currentStateName == stateName)
+        {
+            return true;
+        }
+
+        int fullPathHash =
+            Animator.StringToHash("Base Layer." + stateName);
+        int shortHash = Animator.StringToHash(stateName);
+
+        bool hasFullPathState = animator.HasState(0, fullPathHash);
+        bool hasShortState = animator.HasState(0, shortHash);
+        if (!hasFullPathState && !hasShortState)
+        {
+            return false;
+        }
+
+        if (ShouldLogVisualDebug())
+        {
+            Debug.Log(
+                "[NPCVisualAnimation] Play state object=" +
+                gameObject.name +
+                " state=" + stateName +
+                " facing=" + lastDirection);
+        }
+
+        animator.Play(
+            hasFullPathState ? fullPathHash : shortHash,
+            0,
+            0f);
+        animator.Update(0f);
+        currentStateName = stateName;
+        currentClip = null;
+        return true;
+    }
+
     void PlayClip(AnimationClip clipToPlay)
     {
         if (!EnsureRuntimeBinding())
@@ -470,6 +565,7 @@ public class NPCVisualAnimation : MonoBehaviour
         }
         animator.Update(0f);
         currentClip = clipToPlay;
+        currentStateName = null;
     }
 
     void LogInputState(
@@ -596,6 +692,17 @@ public class NPCVisualAnimation : MonoBehaviour
             direction);
     }
 
+    string GetWalkStateName(Vector2 direction)
+    {
+        return GetDirectionalStateName(
+            walkUpState,
+            walkDownState,
+            walkSideState,
+            walkRightState,
+            walkLeftState,
+            direction);
+    }
+
     AnimationClip GetIdleClip(Vector2 direction)
     {
         return GetDirectionalClip(
@@ -604,6 +711,17 @@ public class NPCVisualAnimation : MonoBehaviour
             sideIdleClip,
             rightIdleClip,
             leftIdleClip,
+            direction);
+    }
+
+    string GetIdleStateName(Vector2 direction)
+    {
+        return GetDirectionalStateName(
+            idleUpState,
+            idleDownState,
+            idleSideState,
+            idleRightState,
+            idleLeftState,
             direction);
     }
 
@@ -664,6 +782,71 @@ public class NPCVisualAnimation : MonoBehaviour
 
         ApplySideFlip(direction);
         return sideClip;
+    }
+
+    string GetDirectionalStateName(
+        string upState,
+        string downState,
+        string sideState,
+        string rightState,
+        string leftState,
+        Vector2 direction)
+    {
+        if (direction.x > directionDeadZone &&
+            !string.IsNullOrWhiteSpace(rightState))
+        {
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.flipX = false;
+            }
+
+            return rightState;
+        }
+
+        if (direction.x < -directionDeadZone &&
+            !string.IsNullOrWhiteSpace(leftState))
+        {
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.flipX = false;
+            }
+
+            return leftState;
+        }
+
+        if (direction == Vector2.up &&
+            !string.IsNullOrWhiteSpace(upState))
+        {
+            ApplySideFlip(direction);
+            return upState;
+        }
+
+        if (direction == Vector2.down &&
+            !string.IsNullOrWhiteSpace(downState))
+        {
+            ApplySideFlip(direction);
+            return downState;
+        }
+
+        if (Mathf.Abs(direction.y) > Mathf.Abs(direction.x))
+        {
+            if (direction.y > 0f &&
+                !string.IsNullOrWhiteSpace(upState))
+            {
+                ApplySideFlip(direction);
+                return upState;
+            }
+
+            if (direction.y < 0f &&
+                !string.IsNullOrWhiteSpace(downState))
+            {
+                ApplySideFlip(direction);
+                return downState;
+            }
+        }
+
+        ApplySideFlip(direction);
+        return sideState;
     }
 
     void ApplySideFlip(Vector2 direction)
@@ -743,7 +926,49 @@ public class NPCVisualAnimation : MonoBehaviour
                 " controller=" + controller.name);
         }
 
-        return overrideController != null;
+        return true;
+    }
+
+    string GetActionStateName(
+        ActionCategory actionCategory,
+        Vector2 direction)
+    {
+        switch (actionCategory)
+        {
+            case ActionCategory.Attack:
+                return GetDirectionalStateName(
+                    attackUpState,
+                    attackDownState,
+                    attackSideState,
+                    attackRightState,
+                    attackLeftState,
+                    direction);
+
+            case ActionCategory.Cultivate:
+                if (!string.IsNullOrWhiteSpace(cultivateStateName))
+                {
+                    return cultivateStateName;
+                }
+
+                return GetDirectionalStateName(
+                    cultivateUpState,
+                    cultivateDownState,
+                    cultivateSideState,
+                    cultivateRightState,
+                    cultivateLeftState,
+                    direction);
+
+            case ActionCategory.Die:
+                return GetDirectionalStateName(
+                    dieUpState,
+                    dieDownState,
+                    dieSideState,
+                    dieRightState,
+                    dieLeftState,
+                    direction);
+        }
+
+        return null;
     }
 
     bool ShouldLogVisualDebug()
@@ -765,71 +990,6 @@ public class NPCVisualAnimation : MonoBehaviour
             visual.downIdleClip != null &&
             visual.upIdleClip != null &&
             visual.sideIdleClip != null;
-    }
-
-    static NPCVisualAnimation FindTemplate(NPCVisualAnimation target)
-    {
-        NPCVisualAnimation[] visuals =
-            Object.FindObjectsByType<NPCVisualAnimation>(
-                FindObjectsInactive.Exclude);
-
-        for (int i = 0; i < visuals.Length; i++)
-        {
-            NPCVisualAnimation candidate = visuals[i];
-            if (candidate == null ||
-                candidate == target ||
-                !HasCompleteClips(candidate))
-            {
-                continue;
-            }
-
-            return candidate;
-        }
-
-        return null;
-    }
-
-    static void CopyTemplate(NPCVisualAnimation source, NPCVisualAnimation target)
-    {
-        if (source == null || target == null)
-        {
-            return;
-        }
-
-        target.downWalkClip = source.downWalkClip;
-        target.upWalkClip = source.upWalkClip;
-        target.sideWalkClip = source.sideWalkClip;
-        target.rightWalkClip = source.rightWalkClip;
-        target.leftWalkClip = source.leftWalkClip;
-        target.downIdleClip = source.downIdleClip;
-        target.upIdleClip = source.upIdleClip;
-        target.sideIdleClip = source.sideIdleClip;
-        target.rightIdleClip = source.rightIdleClip;
-        target.leftIdleClip = source.leftIdleClip;
-
-        target.attackDownClip = source.attackDownClip;
-        target.attackUpClip = source.attackUpClip;
-        target.attackSideClip = source.attackSideClip;
-        target.rightAttackClip = source.rightAttackClip;
-        target.leftAttackClip = source.leftAttackClip;
-
-        target.cultivateDownClip = source.cultivateDownClip;
-        target.cultivateUpClip = source.cultivateUpClip;
-        target.cultivateSideClip = source.cultivateSideClip;
-        target.cultivateClip = source.cultivateClip;
-        target.rightCultivateClip = source.rightCultivateClip;
-        target.leftCultivateClip = source.leftCultivateClip;
-
-        target.dieDownClip = source.dieDownClip;
-        target.dieUpClip = source.dieUpClip;
-        target.dieSideClip = source.dieSideClip;
-        target.rightDieClip = source.rightDieClip;
-        target.leftDieClip = source.leftDieClip;
-
-        target.sideSpriteFacesRight = source.sideSpriteFacesRight;
-        target.invertSideFlip = source.invertSideFlip;
-        target.invertVerticalFacing = source.invertVerticalFacing;
-        target.directionDeadZone = source.directionDeadZone;
     }
 
     static void TryAssignClipsFromAnimator(NPCVisualAnimation visual)
@@ -863,22 +1023,34 @@ public class NPCVisualAnimation : MonoBehaviour
             visual.downWalkClip = FindBestClip(clips, "walk", "down");
             assignedFromAnimator |= visual.downWalkClip != null;
         }
+        visual.walkDownState = CoalesceStateName(
+            visual.walkDownState,
+            visual.downWalkClip);
 
         if (visual.upWalkClip == null)
         {
             visual.upWalkClip = FindBestClip(clips, "walk", "up");
             assignedFromAnimator |= visual.upWalkClip != null;
         }
+        visual.walkUpState = CoalesceStateName(
+            visual.walkUpState,
+            visual.upWalkClip);
 
         if (visual.rightWalkClip == null)
         {
             visual.rightWalkClip = FindBestClip(clips, "walk", "right");
         }
+        visual.walkRightState = CoalesceStateName(
+            visual.walkRightState,
+            visual.rightWalkClip);
 
         if (visual.leftWalkClip == null)
         {
             visual.leftWalkClip = FindBestClip(clips, "walk", "left");
         }
+        visual.walkLeftState = CoalesceStateName(
+            visual.walkLeftState,
+            visual.leftWalkClip);
 
         if (visual.sideWalkClip == null)
         {
@@ -888,6 +1060,9 @@ public class NPCVisualAnimation : MonoBehaviour
                 visual.leftWalkClip ??
                 genericWalk;
         }
+        visual.walkSideState = CoalesceStateName(
+            visual.walkSideState,
+            visual.sideWalkClip);
 
         assignedFromAnimator |=
             visual.rightWalkClip != null ||
@@ -912,6 +1087,9 @@ public class NPCVisualAnimation : MonoBehaviour
                 FindBestClip(clips, "lie", "down");
             assignedFromAnimator |= visual.downIdleClip != null;
         }
+        visual.idleDownState = CoalesceStateName(
+            visual.idleDownState,
+            visual.downIdleClip);
 
         if (visual.upIdleClip == null)
         {
@@ -920,6 +1098,9 @@ public class NPCVisualAnimation : MonoBehaviour
                 FindBestClip(clips, "lie", "up");
             assignedFromAnimator |= visual.upIdleClip != null;
         }
+        visual.idleUpState = CoalesceStateName(
+            visual.idleUpState,
+            visual.upIdleClip);
 
         if (visual.rightIdleClip == null)
         {
@@ -927,6 +1108,9 @@ public class NPCVisualAnimation : MonoBehaviour
                 FindBestClip(clips, "idle", "right") ??
                 FindBestClip(clips, "lie", "right");
         }
+        visual.idleRightState = CoalesceStateName(
+            visual.idleRightState,
+            visual.rightIdleClip);
 
         if (visual.leftIdleClip == null)
         {
@@ -934,6 +1118,9 @@ public class NPCVisualAnimation : MonoBehaviour
                 FindBestClip(clips, "idle", "left") ??
                 FindBestClip(clips, "lie", "left");
         }
+        visual.idleLeftState = CoalesceStateName(
+            visual.idleLeftState,
+            visual.leftIdleClip);
 
         if (visual.sideIdleClip == null)
         {
@@ -943,6 +1130,9 @@ public class NPCVisualAnimation : MonoBehaviour
                 visual.leftIdleClip ??
                 genericIdle;
         }
+        visual.idleSideState = CoalesceStateName(
+            visual.idleSideState,
+            visual.sideIdleClip);
 
         assignedFromAnimator |=
             visual.rightIdleClip != null ||
@@ -985,6 +1175,9 @@ public class NPCVisualAnimation : MonoBehaviour
                 FindBestClip(clips, "fight", "down") ??
                 FindBestClip(clips, "hit", "down");
         }
+        visual.attackDownState = CoalesceStateName(
+            visual.attackDownState,
+            visual.attackDownClip);
 
         if (visual.attackUpClip == null)
         {
@@ -993,6 +1186,9 @@ public class NPCVisualAnimation : MonoBehaviour
                 FindBestClip(clips, "fight", "up") ??
                 FindBestClip(clips, "hit", "up");
         }
+        visual.attackUpState = CoalesceStateName(
+            visual.attackUpState,
+            visual.attackUpClip);
 
         if (visual.rightAttackClip == null)
         {
@@ -1001,6 +1197,9 @@ public class NPCVisualAnimation : MonoBehaviour
                 FindBestClip(clips, "fight", "right") ??
                 FindBestClip(clips, "hit", "right");
         }
+        visual.attackRightState = CoalesceStateName(
+            visual.attackRightState,
+            visual.rightAttackClip);
 
         if (visual.leftAttackClip == null)
         {
@@ -1009,6 +1208,9 @@ public class NPCVisualAnimation : MonoBehaviour
                 FindBestClip(clips, "fight", "left") ??
                 FindBestClip(clips, "hit", "left");
         }
+        visual.attackLeftState = CoalesceStateName(
+            visual.attackLeftState,
+            visual.leftAttackClip);
 
         if (visual.attackSideClip == null)
         {
@@ -1018,6 +1220,9 @@ public class NPCVisualAnimation : MonoBehaviour
                 FindBestClip(clips, "attack", "side") ??
                 FindBestClip(clips, "fight", "side");
         }
+        visual.attackSideState = CoalesceStateName(
+            visual.attackSideState,
+            visual.attackSideClip);
 
         if (visual.rightAttackClip != null &&
             visual.attackSideClip == visual.rightAttackClip)
@@ -1038,6 +1243,9 @@ public class NPCVisualAnimation : MonoBehaviour
                 FindBestClip(clips, "sit", "down") ??
                 FindBestClip(clips, "meditate", "down");
         }
+        visual.cultivateDownState = CoalesceStateName(
+            visual.cultivateDownState,
+            visual.cultivateDownClip);
 
         if (visual.cultivateUpClip == null)
         {
@@ -1047,6 +1255,9 @@ public class NPCVisualAnimation : MonoBehaviour
                 FindBestClip(clips, "sit", "up") ??
                 FindBestClip(clips, "meditate", "up");
         }
+        visual.cultivateUpState = CoalesceStateName(
+            visual.cultivateUpState,
+            visual.cultivateUpClip);
 
         if (visual.cultivateClip == null)
         {
@@ -1056,19 +1267,36 @@ public class NPCVisualAnimation : MonoBehaviour
                 FindBestClip(clips, "sit") ??
                 FindBestClip(clips, "meditate");
         }
+        visual.cultivateStateName = CoalesceStateName(
+            visual.cultivateStateName,
+            visual.cultivateClip);
 
-        if (visual.cultivateSideClip == null)
+        if (visual.rightCultivateClip == null)
         {
             visual.rightCultivateClip =
                 FindBestClip(clips, "cultivate", "right") ??
                 FindBestClip(clips, "lie", "right") ??
                 FindBestClip(clips, "sit", "right") ??
                 FindBestClip(clips, "meditate", "right");
+        }
+        visual.cultivateRightState = CoalesceStateName(
+            visual.cultivateRightState,
+            visual.rightCultivateClip);
+
+        if (visual.leftCultivateClip == null)
+        {
             visual.leftCultivateClip =
                 FindBestClip(clips, "cultivate", "left") ??
                 FindBestClip(clips, "lie", "left") ??
                 FindBestClip(clips, "sit", "left") ??
                 FindBestClip(clips, "meditate", "left");
+        }
+        visual.cultivateLeftState = CoalesceStateName(
+            visual.cultivateLeftState,
+            visual.leftCultivateClip);
+
+        if (visual.cultivateSideClip == null)
+        {
             visual.cultivateSideClip =
                 visual.cultivateClip ??
                 visual.rightCultivateClip ??
@@ -1077,6 +1305,9 @@ public class NPCVisualAnimation : MonoBehaviour
                 FindBestClip(clips, "lie", "side") ??
                 FindBestClip(clips, "sit", "side") ??
                 FindBestClip(clips, "meditate", "side");
+            visual.cultivateSideState = CoalesceStateName(
+                visual.cultivateSideState,
+                visual.cultivateSideClip);
 
             if (visual.rightCultivateClip != null &&
                 visual.cultivateSideClip == visual.rightCultivateClip)
@@ -1107,6 +1338,9 @@ public class NPCVisualAnimation : MonoBehaviour
                 FindBestClip(clips, "death", "down") ??
                 FindBestClip(clips, "dead", "down");
         }
+        visual.dieDownState = CoalesceStateName(
+            visual.dieDownState,
+            visual.dieDownClip);
 
         if (visual.dieUpClip == null)
         {
@@ -1115,23 +1349,43 @@ public class NPCVisualAnimation : MonoBehaviour
                 FindBestClip(clips, "death", "up") ??
                 FindBestClip(clips, "dead", "up");
         }
+        visual.dieUpState = CoalesceStateName(
+            visual.dieUpState,
+            visual.dieUpClip);
 
-        if (visual.dieSideClip == null)
+        if (visual.rightDieClip == null)
         {
             visual.rightDieClip =
                 FindBestClip(clips, "die", "right") ??
                 FindBestClip(clips, "death", "right") ??
                 FindBestClip(clips, "dead", "right");
+        }
+        visual.dieRightState = CoalesceStateName(
+            visual.dieRightState,
+            visual.rightDieClip);
+
+        if (visual.leftDieClip == null)
+        {
             visual.leftDieClip =
                 FindBestClip(clips, "die", "left") ??
                 FindBestClip(clips, "death", "left") ??
                 FindBestClip(clips, "dead", "left");
+        }
+        visual.dieLeftState = CoalesceStateName(
+            visual.dieLeftState,
+            visual.leftDieClip);
+
+        if (visual.dieSideClip == null)
+        {
             visual.dieSideClip =
                 visual.rightDieClip ??
                 visual.leftDieClip ??
                 FindBestClip(clips, "die", "side") ??
                 FindBestClip(clips, "death", "side") ??
                 FindBestClip(clips, "dead", "side");
+            visual.dieSideState = CoalesceStateName(
+                visual.dieSideState,
+                visual.dieSideClip);
 
             if (visual.rightDieClip != null &&
                 visual.dieSideClip == visual.rightDieClip)
@@ -1199,5 +1453,17 @@ public class NPCVisualAnimation : MonoBehaviour
         return string.IsNullOrEmpty(value)
             ? string.Empty
             : value.Replace("_", "").Replace(" ", "").ToLowerInvariant();
+    }
+
+    static string CoalesceStateName(
+        string existingStateName,
+        AnimationClip clip)
+    {
+        if (!string.IsNullOrWhiteSpace(existingStateName))
+        {
+            return existingStateName;
+        }
+
+        return clip != null ? clip.name : string.Empty;
     }
 }
