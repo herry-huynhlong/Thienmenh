@@ -291,46 +291,42 @@ public class WorldTimeSystem : MonoBehaviour
         }
 
         currentYear = Mathf.Max(1, currentYear);
-        currentMonth = Mathf.Max(1, currentMonth);
-        currentDay = Mathf.Max(1, currentDay);
+        long totalMonths =
+            ((long)currentYear - 1L) * MonthsInYear +
+            currentMonth -
+            1L;
+        long totalDays =
+            totalMonths * DaysInMonth +
+            currentDay -
+            1L;
 
-        while (currentHour >= 24f)
+        double dayOffset = Math.Floor(currentHour / 24.0);
+        double hourOfDay = currentHour - dayOffset * 24.0;
+        totalDays += (long)dayOffset;
+
+        if (totalDays < 0L)
         {
-            currentHour -= 24f;
-            currentDay++;
+            totalDays = 0L;
+            hourOfDay = 0.0;
         }
 
-        while (currentHour < 0f)
+        if (hourOfDay < 0.0)
         {
-            currentHour += 24f;
-            currentDay--;
+            hourOfDay = 0.0;
         }
 
-        while (currentDay > DaysInMonth)
-        {
-            currentDay -= DaysInMonth;
-            currentMonth++;
-        }
+        long normalizedYear =
+            totalDays / (MonthsInYear * DaysInMonth) + 1L;
+        long dayInYear =
+            totalDays % (MonthsInYear * DaysInMonth);
 
-        while (currentDay < 1)
-        {
-            currentDay += DaysInMonth;
-            currentMonth--;
-        }
-
-        while (currentMonth > MonthsInYear)
-        {
-            currentMonth -= MonthsInYear;
-            currentYear++;
-        }
-
-        while (currentMonth < 1)
-        {
-            currentMonth += MonthsInYear;
-            currentYear = Mathf.Max(1, currentYear - 1);
-        }
-
-        currentHour = Mathf.Clamp(currentHour, 0f, 23.999f);
+        currentYear =
+            normalizedYear > int.MaxValue
+                ? int.MaxValue
+                : (int)normalizedYear;
+        currentMonth = (int)(dayInYear / DaysInMonth) + 1;
+        currentDay = (int)(dayInYear % DaysInMonth) + 1;
+        currentHour = Mathf.Clamp((float)hourOfDay, 0f, 23.999f);
     }
 
     void TriggerTimeEvents(bool force)

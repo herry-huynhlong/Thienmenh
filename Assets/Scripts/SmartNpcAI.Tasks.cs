@@ -50,6 +50,162 @@ public partial class SmartNpcAI
         SetActionImmediate(action, durationSeconds);
     }
 
+    public void EnterBicanhSessionMode()
+    {
+        EnterRestrictedMapSessionMode();
+    }
+
+    public void EnterRestrictedMapSessionMode()
+    {
+        isBicanhParticipant = true;
+
+        NpcTaskProvider.ReleaseNpcFromProviderTasksForCombat(gameObject);
+        ClearTaskProviderVisitState();
+        ClearCultivationTravelState();
+        ClearTravelTargetsAndStop();
+        ClearHelpRequestState();
+        StopMonsterRetreat();
+
+        waitingOutsideTreasureLightning = false;
+        hasTreasureWaitPosition = false;
+        treasureWaitLowPowerSkirmish = false;
+        treasureHuntTarget = null;
+        treasureHuntItem = null;
+        hasHomeReturnTarget = false;
+        hasEscapeTarget = false;
+        hasObstacleAvoidTarget = false;
+        movementPausedUntil = 0f;
+        crowdYieldUntil = 0f;
+        postTeleportRecoveryUntil = Time.time + 0.35f;
+        actionTimer = 0f;
+        thinkTimer = 0f;
+
+        if (IsNormalWorldTravelAction(currentAction))
+        {
+            ReleaseMonsterReservation();
+            currentMonsterTarget = null;
+            ClearMonsterCombatState();
+            SetActionImmediate(NpcText.Action("idle"));
+        }
+    }
+
+    public void ExitBicanhSessionMode()
+    {
+        ExitRestrictedMapSessionMode();
+    }
+
+    public void ExitRestrictedMapSessionMode()
+    {
+        isBicanhParticipant = false;
+    }
+
+    public void EnforceBicanhCombatOnlyState()
+    {
+        EnforceMapBehaviorPolicyState();
+    }
+
+    public void EnforceMapBehaviorPolicyState()
+    {
+        if (NpcMapBehaviorPolicy.AllowsNormalWorldTravel(gameObject) &&
+            NpcMapBehaviorPolicy.AllowsSchedule(gameObject) &&
+            !isBicanhParticipant)
+        {
+            return;
+        }
+
+        if (currentMonsterTarget != null &&
+            !NpcMapBehaviorPolicy.CanUseMonsterTarget(
+                gameObject,
+                currentMonsterTarget))
+        {
+            ReleaseMonsterReservation(currentMonsterTarget);
+            currentMonsterTarget = null;
+            ClearMonsterCombatState();
+            ClearHelpRequestState();
+        }
+
+        bool hasCombatPatrolIntent =
+            NpcMapBehaviorPolicy.ForcesCombatLoop(gameObject) &&
+            (currentAction == NpcText.Action("goHunt") ||
+            IsHuntDisplayAction(currentAction)) &&
+            (hasWanderTarget || currentTarget != null);
+        bool hasCombatAvoidIntent =
+            NpcMapBehaviorPolicy.ForcesCombatLoop(gameObject) &&
+            currentAction == NpcText.Action("fleeMonsterArea") &&
+            (hasWanderTarget ||
+            hasEscapeTarget ||
+            hasObstacleAvoidTarget);
+
+        bool hasCombatIntent =
+            currentMonsterTarget != null ||
+            hasCombatPatrolIntent ||
+            hasCombatAvoidIntent ||
+            HasCombatSupportIntent() ||
+            (currentSmartTask != null &&
+            currentSmartTask.IsValid &&
+            IsMapCombatTaskGoal(currentSmartTask.goal)) ||
+            (scheduleSmartTask != null &&
+            scheduleSmartTask.IsValid &&
+            IsMapCombatTaskGoal(scheduleSmartTask.goal));
+
+        if (!hasCombatIntent)
+        {
+            ClearSmartTask();
+            ClearScheduledTask();
+        }
+
+        bool hasRestrictedMapContext =
+            IsNormalWorldTravelAction(currentAction) ||
+            currentTarget != null ||
+            hasWanderTarget ||
+            hasEscapeTarget ||
+            hasObstacleAvoidTarget ||
+            currentMonsterTarget != null ||
+            (currentSmartTask != null && currentSmartTask.IsValid) ||
+            (scheduleSmartTask != null && scheduleSmartTask.IsValid);
+
+        if (!hasCombatIntent &&
+            !hasRestrictedMapContext)
+        {
+            return;
+        }
+
+        if (!hasCombatIntent ||
+            IsNormalWorldTravelAction(currentAction))
+        {
+            bool clearedNormalWorldAction =
+                IsNormalWorldTravelAction(currentAction);
+            ReleaseMonsterReservation();
+            ClearTaskProviderVisitState();
+            ClearCultivationTravelState();
+            ClearTravelTargetsAndStop();
+            ClearHelpRequestState();
+            StopMonsterRetreat();
+            waitingOutsideTreasureLightning = false;
+            hasTreasureWaitPosition = false;
+            treasureWaitLowPowerSkirmish = false;
+            treasureHuntTarget = null;
+            treasureHuntItem = null;
+            hasHomeReturnTarget = false;
+            hasEscapeTarget = false;
+            hasObstacleAvoidTarget = false;
+            movementPausedUntil = 0f;
+            crowdYieldUntil = 0f;
+            actionTimer = 0f;
+            if (!hasCombatIntent)
+            {
+                currentMonsterTarget = null;
+                ClearMonsterCombatState();
+            }
+
+            if (!hasCombatIntent ||
+                clearedNormalWorldAction)
+            {
+                currentAction = NpcText.Action("idle");
+            }
+        }
+    }
+
     public void ClearSmartTask()
     {
         SmartAITask clearedTask =
@@ -211,6 +367,12 @@ public partial class SmartNpcAI
 
         if (currentSmartTask == null ||
             !currentSmartTask.IsValid)
+        {
+            return false;
+        }
+
+        if (!NpcMapBehaviorPolicy.AllowsSchedule(gameObject) &&
+            !IsMapCombatTaskGoal(currentSmartTask.goal))
         {
             return false;
         }
@@ -435,6 +597,12 @@ public partial class SmartNpcAI
             return "";
         }
 
+        if (!NpcMapBehaviorPolicy.AllowsNormalWorldTravel(gameObject) &&
+            IsNormalWorldTravelAction(action))
+        {
+            return "";
+        }
+
         if (IsIdleLikeDisplayAction(action))
         {
             return "";
@@ -519,6 +687,16 @@ public partial class SmartNpcAI
             action == NpcText.Action("outerSkirmishNamed");
     }
 
+    bool IsNormalWorldTravelAction(string action)
+    {
+        return NpcMapBehaviorPolicy.IsNormalWorldTravelAction(action);
+    }
+
+    bool IsMapCombatTaskGoal(SmartAITaskGoal goal)
+    {
+        return NpcMapBehaviorPolicy.IsAllowedCombatTask(goal);
+    }
+
     bool HasActiveTravelContext()
     {
         return currentTarget != null ||
@@ -549,6 +727,12 @@ public partial class SmartNpcAI
     {
         if (task == null ||
             !task.IsValid)
+        {
+            return "";
+        }
+
+        if (!NpcMapBehaviorPolicy.AllowsSchedule(gameObject) &&
+            !IsMapCombatTaskGoal(task.goal))
         {
             return "";
         }
@@ -618,6 +802,11 @@ public partial class SmartNpcAI
 
     string GetScheduleActionTextForDisplay(NpcScheduleActivity activity)
     {
+        if (!NpcMapBehaviorPolicy.AllowsSchedule(gameObject))
+        {
+            return "";
+        }
+
         switch (activity)
         {
             case NpcScheduleActivity.Idle:

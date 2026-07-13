@@ -5,7 +5,8 @@ public enum NpcMapZone
 {
     Lang,
     VanBaoLau,
-    MaThuSonMach
+    MaThuSonMach,
+    BichAnh
 }
 
 [RequireComponent(typeof(Collider2D))]
@@ -17,6 +18,7 @@ public class NpcMapArea : MonoBehaviour
     public NpcMapZone zone = NpcMapZone.Lang;
     public string displayName = "Làng";
     public Collider2D areaBounds;
+    public Transform movementCenterPoint;
 
     public static IReadOnlyList<NpcMapArea> Areas => areas;
 
@@ -86,6 +88,27 @@ public class NpcMapArea : MonoBehaviour
 
         Vector2 closest = areaBounds.ClosestPoint(position);
         return new Vector3(closest.x, closest.y, position.z);
+    }
+
+    public Vector3 GetMovementCenter(Vector3 fallbackPosition)
+    {
+        if (movementCenterPoint != null)
+        {
+            Vector3 point = movementCenterPoint.position;
+            if (areaBounds == null || Contains(point))
+            {
+                return point;
+            }
+
+            return ClosestPoint(point);
+        }
+
+        if (areaBounds != null)
+        {
+            return areaBounds.bounds.center;
+        }
+
+        return fallbackPosition;
     }
 
     public static NpcMapArea FindArea(Vector3 position)

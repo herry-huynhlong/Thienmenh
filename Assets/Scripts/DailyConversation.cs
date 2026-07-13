@@ -13,6 +13,10 @@ public class DailyConversation : MonoBehaviour
     [Header("Dialogue")]
     public string greetingDialogueKey = "greetings";
     public string replyDialogueKey = "replies";
+    [HideInInspector]
+    public bool pauseMovementDuringConversation;
+    [HideInInspector]
+    public bool setActionDuringConversation;
 
     float scanTimer;
     float nextTalkTime;
@@ -34,7 +38,7 @@ public class DailyConversation : MonoBehaviour
     {
         if (Time.time < nextTalkTime ||
             IsDead() ||
-            !NpcScheduleController.AllowsSocial(gameObject))
+            !AllowsLegacySocial(gameObject))
         {
             return;
         }
@@ -74,8 +78,8 @@ public class DailyConversation : MonoBehaviour
 
     void StartConversation(DailyConversation other)
     {
-        if (!NpcScheduleController.AllowsSocial(gameObject) ||
-            !NpcScheduleController.AllowsSocial(other.gameObject))
+        if (!AllowsLegacySocial(gameObject) ||
+            !AllowsLegacySocial(other.gameObject))
         {
             return;
         }
@@ -83,21 +87,14 @@ public class DailyConversation : MonoBehaviour
         nextTalkTime = Time.time + conversationCooldown;
         other.nextTalkTime = Time.time + other.conversationCooldown;
 
-        string myLine = GetRandomLine(greetingDialogueKey);
-        string otherLine = other.GetRandomLine(other.replyDialogueKey);
-
-        NpcRoleUtility.StopForConversation(gameObject);
-        NpcRoleUtility.StopForConversation(other.gameObject);
-
-        SetAction(NpcText.ActionFormat("conversationLine", myLine));
-        other.SetAction(NpcText.ActionFormat("conversationLine", otherLine));
-
-        Debug.Log(
-            GetDisplayName() +
-            " nói với " +
-            other.GetDisplayName() +
-            ": " +
-            myLine);
+        NpcSpeechController.TryShowSpeech(
+            gameObject,
+            other.gameObject,
+            "ambient_opening");
+        NpcSpeechController.TryShowSpeech(
+            other.gameObject,
+            gameObject,
+            "ambient_reply");
     }
 
     bool CanTalkWith(DailyConversation other)
@@ -107,8 +104,8 @@ public class DailyConversation : MonoBehaviour
             return false;
         }
 
-        if (!NpcScheduleController.AllowsSocial(gameObject) ||
-            !NpcScheduleController.AllowsSocial(other.gameObject))
+        if (!AllowsLegacySocial(gameObject) ||
+            !AllowsLegacySocial(other.gameObject))
         {
             return false;
         }
@@ -124,7 +121,7 @@ public class DailyConversation : MonoBehaviour
             return false;
         }
 
-        NpcSocialRelationship relationship = graph.Get(other.gameObject);
+        NpcSocialRelationship relationship = graph.Find(other.gameObject);
         if (relationship == null)
         {
             return false;
@@ -134,27 +131,17 @@ public class DailyConversation : MonoBehaviour
             minRelationshipToTalk;
     }
 
-    string GetRandomLine(string key)
-    {
-        return NpcText.DialogueLine(
-            key,
-            NpcText.Dialogue("dailyFallback"));
-    }
-
     bool IsDead()
     {
         IDamageable damageable = GetComponent<IDamageable>();
         return damageable != null && damageable.IsDead;
     }
 
-    string GetDisplayName()
+    bool AllowsLegacySocial(GameObject npc)
     {
-        return NpcRoleUtility.GetDisplayName(gameObject);
-    }
-
-    void SetAction(string action)
-    {
-        NpcRoleUtility.SetAction(gameObject, action);
+        return NpcScheduleController.AllowsSocial(
+            npc,
+            NpcSocialChannel.LegacyDailyConversation);
     }
 
     void OnDrawGizmosSelected()

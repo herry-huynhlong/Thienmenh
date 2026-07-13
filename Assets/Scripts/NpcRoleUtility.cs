@@ -385,13 +385,16 @@ public static class NpcRoleUtility
             return;
         }
 
+        NpcActionState actionState =
+            NpcActionState.FromDisplayText(action);
+
         VillagerAI villager = GetActiveVillagerAI(npc) ??
             GetVillagerAI(npc);
         if (villager != null)
         {
             if (!villager.IsActionLocked)
             {
-                villager.currentAction = action;
+                villager.SetCurrentActionState(actionState);
             }
         }
 
@@ -399,7 +402,13 @@ public static class NpcRoleUtility
             GetSmartNpcAI(npc);
         if (smartNpc != null)
         {
-            smartNpc.ForceSetCurrentAction(action);
+            smartNpc.SetCurrentActionState(actionState);
+        }
+
+        MonsterAI monster = npc.GetComponent<MonsterAI>();
+        if (monster != null)
+        {
+            monster.SetCurrentActionState(actionState);
         }
     }
 
@@ -435,7 +444,49 @@ public static class NpcRoleUtility
             Vector3.MoveTowards(
                 npc.transform.position,
                 moveTarget,
-            speed * Time.deltaTime);
+                speed * Time.deltaTime);
+    }
+
+    public static bool TryGetCurrentMovement(
+        GameObject npc,
+        out NpcMovementResult movement)
+    {
+        movement = default;
+        if (npc == null)
+        {
+            return false;
+        }
+
+        INpcMovementResultProvider provider =
+            npc.GetComponent<INpcMovementResultProvider>();
+        if (provider == null)
+        {
+            return false;
+        }
+
+        movement = provider.CurrentMovement;
+        return movement.status != NpcMovementStatus.None;
+    }
+
+    public static bool TryGetLastMovementResult(
+        GameObject npc,
+        out NpcMovementResult movement)
+    {
+        movement = default;
+        if (npc == null)
+        {
+            return false;
+        }
+
+        INpcMovementResultProvider provider =
+            npc.GetComponent<INpcMovementResultProvider>();
+        if (provider == null)
+        {
+            return false;
+        }
+
+        movement = provider.LastMovementResult;
+        return movement.status != NpcMovementStatus.None;
     }
 
     static bool IsRouteBlocked(NpcRouteStatus routeStatus)
@@ -643,7 +694,7 @@ public static class NpcRoleUtility
         MonsterAI monster = actor.GetComponent<MonsterAI>();
         if (monster != null)
         {
-            monster.currentAction = attackAction;
+            monster.SetActionImmediate(attackAction);
         }
     }
 }

@@ -547,6 +547,8 @@ public static class NpcMapNavigator
                 return "Vạn Bảo Lâu";
             case NpcMapZone.MaThuSonMach:
                 return "Ma Thú Sơn Mạch";
+            case NpcMapZone.BichAnh:
+                return "Bích Anh";
             default:
                 return "Làng";
         }

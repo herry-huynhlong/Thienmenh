@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 public class MonsterAttack : MonoBehaviour
 {
-    public int damage = 10;
     public GameObject owner;
     MonsterAI ownerMonster;
     readonly Dictionary<IDamageable, int> lastHitAttackSequence =
@@ -17,7 +16,6 @@ public class MonsterAttack : MonoBehaviour
             if (ownerMonster != null)
             {
                 owner = ownerMonster.gameObject;
-                damage = ownerMonster.damage;
             }
         }
         else
@@ -78,14 +76,14 @@ public class MonsterAttack : MonoBehaviour
             return;
         }
 
-        int appliedDamage = damage;
+        int appliedDamage = GetBaseDamage();
         if (owner != null && damageable.DamageTransform != null)
         {
             appliedDamage =
                 NpcCombatTechniqueSystem.ModifyOutgoingDamage(
                     owner,
                     damageable.DamageTransform.gameObject,
-                    damage);
+                    appliedDamage);
 
             NpcSocialEventBus.PublishHostility(
                 owner,
@@ -106,6 +104,27 @@ public class MonsterAttack : MonoBehaviour
         }
 
         damageable.TakeDamage(appliedDamage);
+    }
+
+    int GetBaseDamage()
+    {
+        if (ownerMonster != null)
+        {
+            return Mathf.Max(1, ownerMonster.damage);
+        }
+
+        if (owner != null)
+        {
+            MonsterAI resolvedOwner =
+                owner.GetComponentInParent<MonsterAI>();
+            if (resolvedOwner != null)
+            {
+                ownerMonster = resolvedOwner;
+                return Mathf.Max(1, resolvedOwner.damage);
+            }
+        }
+
+        return 10;
     }
 
     bool CanDealTriggerDamage()

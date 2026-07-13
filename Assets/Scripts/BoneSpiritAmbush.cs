@@ -14,6 +14,7 @@ public class BoneSpiritAmbush : MonoBehaviour
     [Header("Detect")]
     public LayerMask targetLayers;
     public float detectRadius = 4f;
+    public string[] targetTags = { "NPC", "Player" };
 
     [Header("Return To Cloud")]
     public bool returnToCloudWhenNoTarget = true;
@@ -114,9 +115,11 @@ public class BoneSpiritAmbush : MonoBehaviour
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(
             transform.position,
-            radius,
-            targetLayers
+            radius
         );
+
+        float nearestDistance = float.MaxValue;
+        Transform nearestTarget = null;
 
         foreach (Collider2D hit in hits)
         {
@@ -140,10 +143,50 @@ public class BoneSpiritAmbush : MonoBehaviour
                 continue;
             }
 
-            return hit.transform;
+            if (!IsValidTarget(hit.gameObject))
+            {
+                continue;
+            }
+
+            float distance =
+                Vector2.Distance(transform.position, hit.transform.position);
+            if (distance < nearestDistance)
+            {
+                nearestDistance = distance;
+                nearestTarget = hit.transform;
+            }
         }
 
-        return null;
+        return nearestTarget;
+    }
+
+    bool IsValidTarget(GameObject obj)
+    {
+        if (obj == null)
+        {
+            return false;
+        }
+
+        if (obj.CompareTag("NPC") || obj.CompareTag("Player"))
+        {
+            return true;
+        }
+
+        if (targetTags != null)
+        {
+            for (int i = 0; i < targetTags.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(targetTags[i]) &&
+                    obj.CompareTag(targetTags[i]))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return obj.GetComponentInParent<PlayerHealth>() != null ||
+            obj.GetComponentInParent<VillagerAI>() != null ||
+            obj.GetComponentInParent<SmartNpcAI>() != null;
     }
 
     IEnumerator ManifestRoutine()

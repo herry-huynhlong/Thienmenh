@@ -685,10 +685,9 @@ public class ItemInventory : MonoBehaviour
             }
 
             ItemStack existing =
-                stack.item != null &&
-                stack.item.UsesDurability()
-                ? null
-                : destination.Find(entry => entry.item == stack.item);
+                destination.Find(
+                    entry => entry != null &&
+                    entry.item == stack.item);
 
             if (existing != null)
             {

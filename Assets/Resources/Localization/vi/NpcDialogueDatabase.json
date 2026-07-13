@@ -1,0 +1,570 @@
+{
+  "rules": [
+    {
+      "id": "family_parent_open_001",
+      "category": "ambient_opening",
+      "channel": "Family",
+      "duration": 1.8,
+      "cooldownSeconds": 28,
+      "priority": 20,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working", "Idle", "Cultivating"],
+      "requiredKinships": ["ParentOfTarget"],
+      "texts": [
+        "Đi đường cẩn thận.",
+        "Làm xong thì về sớm.",
+        "Giữ mình cho chắc."
+      ]
+    },
+    {
+      "id": "family_parent_reply_001",
+      "category": "ambient_reply",
+      "channel": "Family",
+      "duration": 1.8,
+      "cooldownSeconds": 28,
+      "priority": 20,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working", "Idle", "Cultivating"],
+      "requiredKinships": ["ParentOfTarget"],
+      "texts": [
+        "Ừ, biết giữ mình là tốt.",
+        "Làm đâu ra đó.",
+        "Có việc thì gọi ta."
+      ]
+    },
+    {
+      "id": "family_child_open_001",
+      "category": "ambient_opening",
+      "channel": "Family",
+      "duration": 1.7,
+      "cooldownSeconds": 28,
+      "priority": 20,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working", "Idle"],
+      "requiredKinships": ["ChildOfTarget"],
+      "texts": [
+        "Người đừng lo cho con.",
+        "Con làm xong sẽ về.",
+        "Cha mẹ nhớ nghỉ sớm."
+      ]
+    },
+    {
+      "id": "family_child_reply_001",
+      "category": "ambient_reply",
+      "channel": "Family",
+      "duration": 1.7,
+      "cooldownSeconds": 28,
+      "priority": 20,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working", "Idle"],
+      "requiredKinships": ["ChildOfTarget"],
+      "texts": [
+        "Con biết rồi.",
+        "Vâng, con nhớ.",
+        "Con không đi xa đâu."
+      ]
+    },
+    {
+      "id": "family_spouse_open_001",
+      "category": "ambient_opening",
+      "channel": "Family",
+      "duration": 1.8,
+      "cooldownSeconds": 24,
+      "priority": 22,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working", "Idle", "Cultivating"],
+      "requiredKinships": ["Spouse"],
+      "texts": [
+        "Xong việc nhớ tìm ta.",
+        "Hôm nay ngươi đừng quá sức.",
+        "Giữ lấy hơi thở cho ổn."
+      ]
+    },
+    {
+      "id": "family_spouse_reply_001",
+      "category": "ambient_reply",
+      "channel": "Family",
+      "duration": 1.8,
+      "cooldownSeconds": 24,
+      "priority": 22,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working", "Idle", "Cultivating"],
+      "requiredKinships": ["Spouse"],
+      "texts": [
+        "Ta biết, ngươi cũng vậy.",
+        "Xong việc ta sẽ qua.",
+        "Không sao, ta còn vững."
+      ]
+    },
+    {
+      "id": "family_sibling_open_001",
+      "category": "ambient_opening",
+      "channel": "Family",
+      "duration": 1.6,
+      "cooldownSeconds": 26,
+      "priority": 18,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working", "Idle"],
+      "requiredKinships": ["Sibling"],
+      "texts": [
+        "Đừng chạy nhanh quá.",
+        "Lát nữa gặp lại.",
+        "Có gì thì gọi ta."
+      ]
+    },
+    {
+      "id": "family_sibling_reply_001",
+      "category": "ambient_reply",
+      "channel": "Family",
+      "duration": 1.6,
+      "cooldownSeconds": 26,
+      "priority": 18,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working", "Idle"],
+      "requiredKinships": ["Sibling"],
+      "texts": [
+        "Biết rồi, đừng nhắc mãi.",
+        "Ừ, lát gặp.",
+        "Ta nghe đây."
+      ]
+    },
+    {
+      "id": "ambient_hostile_open_001",
+      "category": "ambient_opening",
+      "channel": "Ambient",
+      "duration": 1.6,
+      "cooldownSeconds": 35,
+      "priority": 18,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working", "Idle"],
+      "requiredSpeakerTags": ["Hostile"],
+      "texts": [
+        "Ta vẫn nhớ món nợ cũ.",
+        "Đừng đến quá gần.",
+        "Hôm nay ta chưa muốn gây chuyện."
+      ]
+    },
+    {
+      "id": "ambient_hostile_reply_001",
+      "category": "ambient_reply",
+      "channel": "Ambient",
+      "duration": 1.6,
+      "cooldownSeconds": 35,
+      "priority": 18,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working", "Idle"],
+      "requiredSpeakerTags": ["Hostile"],
+      "texts": [
+        "Ta cũng không quên đâu.",
+        "Vậy thì tự giữ lấy mình.",
+        "Nói ít thôi, làm việc của ngươi đi."
+      ]
+    },
+    {
+      "id": "ambient_friendly_open_001",
+      "category": "ambient_opening",
+      "channel": "Ambient",
+      "duration": 1.7,
+      "cooldownSeconds": 22,
+      "priority": 15,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working", "Idle", "Cultivating"],
+      "requiredSpeakerTags": ["Friendly"],
+      "texts": [
+        "Hôm nay khí sắc ngươi khá hơn.",
+        "Có tin gì mới nhớ báo ta.",
+        "Đạo lộ hôm nay xem ra yên."
+      ]
+    },
+    {
+      "id": "ambient_friendly_reply_001",
+      "category": "ambient_reply",
+      "channel": "Ambient",
+      "duration": 1.7,
+      "cooldownSeconds": 22,
+      "priority": 15,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working", "Idle", "Cultivating"],
+      "requiredSpeakerTags": ["Friendly"],
+      "texts": [
+        "Có gì ta sẽ nói ngay.",
+        "Ừ, hôm nay cũng tạm ổn.",
+        "Yên được một ngày là quý."
+      ]
+    },
+    {
+      "id": "ambient_stranger_open_001",
+      "category": "ambient_opening",
+      "channel": "Ambient",
+      "duration": 1.7,
+      "cooldownSeconds": 26,
+      "priority": 12,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working", "Idle"],
+      "requiredSpeakerTags": ["Stranger"],
+      "texts": [
+        "Lần đầu gặp mặt, mong bình an.",
+        "Đạo hữu đi đường thuận lợi.",
+        "Qua đây cẩn thận, đường không yên đâu."
+      ]
+    },
+    {
+      "id": "ambient_stranger_reply_001",
+      "category": "ambient_reply",
+      "channel": "Ambient",
+      "duration": 1.7,
+      "cooldownSeconds": 26,
+      "priority": 12,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working", "Idle"],
+      "requiredSpeakerTags": ["Stranger"],
+      "texts": [
+        "Đa tạ đã nhắc.",
+        "Ừ, ngươi cũng vậy.",
+        "Gặp nhau là duyên."
+      ]
+    },
+    {
+      "id": "ambient_moving_open_001",
+      "category": "ambient_opening",
+      "channel": "Ambient",
+      "duration": 1.5,
+      "cooldownSeconds": 20,
+      "priority": 10,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving"],
+      "texts": [
+        "Đi tiếp đi, trời còn sáng.",
+        "Đường phía trước còn trống.",
+        "Bước chân cứ giữ đều."
+      ]
+    },
+    {
+      "id": "ambient_moving_reply_001",
+      "category": "ambient_reply",
+      "channel": "Ambient",
+      "duration": 1.5,
+      "cooldownSeconds": 20,
+      "priority": 10,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving"],
+      "texts": [
+        "Ừ, ta đang đi đây.",
+        "Lát nữa hẵng nói tiếp.",
+        "Để ta qua đoạn này trước."
+      ]
+    },
+    {
+      "id": "ambient_working_open_001",
+      "category": "ambient_opening",
+      "channel": "Ambient",
+      "duration": 1.6,
+      "cooldownSeconds": 20,
+      "priority": 10,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Working"],
+      "texts": [
+        "Việc hôm nay có thuận không?",
+        "Làm tay cho chắc.",
+        "Xong việc rồi hãy nghỉ."
+      ]
+    },
+    {
+      "id": "ambient_working_reply_001",
+      "category": "ambient_reply",
+      "channel": "Ambient",
+      "duration": 1.6,
+      "cooldownSeconds": 20,
+      "priority": 10,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Working"],
+      "texts": [
+        "Cũng tạm, còn đang dở tay.",
+        "Để ta làm nốt đã.",
+        "Việc chưa xong, nói ngắn thôi."
+      ]
+    },
+    {
+      "id": "ambient_cultivating_open_001",
+      "category": "ambient_opening",
+      "channel": "Ambient",
+      "duration": 1.7,
+      "cooldownSeconds": 24,
+      "priority": 11,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Cultivating"],
+      "texts": [
+        "Khí cơ hôm nay có vẻ thông.",
+        "Tâm ngươi đang ổn đấy.",
+        "Giữ nhịp thở cho đều."
+      ]
+    },
+    {
+      "id": "ambient_cultivating_reply_001",
+      "category": "ambient_reply",
+      "channel": "Ambient",
+      "duration": 1.7,
+      "cooldownSeconds": 24,
+      "priority": 11,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Cultivating"],
+      "texts": [
+        "Ừ, để ta gom khí nốt.",
+        "Tâm còn yên thì chưa vội.",
+        "Qua nhịp này rồi nói tiếp."
+      ]
+    },
+    {
+      "id": "ambient_gather_open_001",
+      "category": "ambient_opening",
+      "channel": "Ambient",
+      "duration": 1.6,
+      "cooldownSeconds": 20,
+      "priority": 10,
+      "mode": "DisplayOnly",
+      "requiredSpeakerTags": ["Gathering"],
+      "texts": [
+        "Hái cho xong rồi hẵng nói.",
+        "Lưng còng một chút, miệng vẫn còn rảnh.",
+        "Thu thập xong mẻ này mới tính."
+      ]
+    },
+    {
+      "id": "ambient_gather_reply_001",
+      "category": "ambient_reply",
+      "channel": "Ambient",
+      "duration": 1.6,
+      "cooldownSeconds": 20,
+      "priority": 10,
+      "mode": "DisplayOnly",
+      "requiredSpeakerTags": ["Gathering"],
+      "texts": [
+        "Ừ, tay ta vẫn đang làm đây.",
+        "Đợi ta hái nốt mớ này.",
+        "Nói ngắn thôi, tránh lỡ tay."
+      ]
+    },
+    {
+      "id": "combat_attack_001",
+      "category": "combat_attack",
+      "channel": "Combat",
+      "duration": 1.4,
+      "cooldownSeconds": 5,
+      "priority": 50,
+      "mode": "DisplayOnly",
+      "requiredSpeakerTags": ["InCombat"],
+      "texts": [
+        "Tránh ra!",
+        "Đừng cản đường sống!",
+        "Đã ra tay thì đỡ lấy!"
+      ]
+    },
+    {
+      "id": "combat_defend_001",
+      "category": "combat_defend",
+      "channel": "Combat",
+      "duration": 1.4,
+      "cooldownSeconds": 5,
+      "priority": 50,
+      "mode": "DisplayOnly",
+      "requiredSpeakerTags": ["InCombat"],
+      "texts": [
+        "Dám động vào ta?",
+        "Muốn chết sao!",
+        "Đừng ép ta phản kích!"
+      ]
+    },
+    {
+      "id": "combat_low_health_001",
+      "category": "combat_low_health",
+      "channel": "Emergency",
+      "duration": 1.5,
+      "cooldownSeconds": 6,
+      "priority": 60,
+      "mode": "DisplayOnly",
+      "requiredSpeakerTags": ["InCombat", "LowHealth"],
+      "texts": [
+        "Chưa thể gục ở đây.",
+        "Còn thở là còn đường lui.",
+        "Giữ mạng trước đã!"
+      ]
+    },
+    {
+      "id": "combat_bullied_001",
+      "category": "combat_bullied",
+      "channel": "Emergency",
+      "duration": 1.5,
+      "cooldownSeconds": 6,
+      "priority": 62,
+      "mode": "DisplayOnly",
+      "requiredSpeakerTags": ["InCombat"],
+      "texts": [
+        "Ỷ mạnh hiếp yếu sao!",
+        "Có giỏi thì công bằng một trận!",
+        "Đừng tưởng cảnh giới cao là hết lý!"
+      ]
+    },
+    {
+      "id": "trade_buyer_001",
+      "category": "trade_buyer",
+      "channel": "Trade",
+      "duration": 1.7,
+      "cooldownSeconds": 14,
+      "priority": 15,
+      "mode": "DisplayOnly",
+      "texts": [
+        "Ta lấy {item}, gửi {price} linh thạch.",
+        "{item} này đúng lúc cần.",
+        "Được, món này ta nhận."
+      ]
+    },
+    {
+      "id": "trade_seller_001",
+      "category": "trade_seller",
+      "channel": "Trade",
+      "duration": 1.7,
+      "cooldownSeconds": 14,
+      "priority": 15,
+      "mode": "DisplayOnly",
+      "texts": [
+        "Đã giao {item}.",
+        "Nhận lấy, dùng cho cẩn thận.",
+        "Món này hợp giá {price}."
+      ]
+    },
+    {
+      "id": "trade_reject_001",
+      "category": "trade_reject",
+      "channel": "Trade",
+      "duration": 1.7,
+      "cooldownSeconds": 16,
+      "priority": 18,
+      "mode": "DisplayOnly",
+      "texts": [
+        "Giá ấy cho {item} thì thấp quá.",
+        "{price} linh thạch chưa đủ.",
+        "Muốn lấy {item}, hãy thêm giá."
+      ]
+    },
+    {
+      "id": "tribulation_self_001",
+      "category": "tribulation_self",
+      "channel": "Tribulation",
+      "duration": 1.8,
+      "cooldownSeconds": 20,
+      "priority": 100,
+      "mode": "DisplayOnly",
+      "requiredSpeakerTags": ["InTribulation"],
+      "texts": [
+        "Thiên kiếp đã đến.",
+        "Tâm phải vững.",
+        "Qua kiếp này rồi nói."
+      ]
+    },
+    {
+      "id": "tribulation_witness_001",
+      "category": "tribulation_witness",
+      "channel": "Tribulation",
+      "duration": 1.8,
+      "cooldownSeconds": 20,
+      "priority": 90,
+      "mode": "DisplayOnly",
+      "requiredTargetTags": ["InTribulation"],
+      "texts": [
+        "{target} đang dẫn kiếp!",
+        "Lùi ra, đừng đứng gần thiên lôi!",
+        "Khí cơ quanh {target} đang loạn."
+      ]
+    },
+    {
+      "id": "escort_greeting_001",
+      "category": "escort_greeting",
+      "channel": "Escort",
+      "duration": 1.9,
+      "cooldownSeconds": 0.9,
+      "priority": 24,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working"],
+      "texts": [
+        "Ta phụng mệnh hộ tống đạo hữu.",
+        "Đường này cứ theo ta.",
+        "Đừng chậm, chân khí sẽ dẫn đường."
+      ]
+    },
+    {
+      "id": "escort_reply_001",
+      "category": "escort_reply",
+      "channel": "Escort",
+      "duration": 1.9,
+      "cooldownSeconds": 0.9,
+      "priority": 24,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working"],
+      "texts": [
+        "Ừ, cùng đi.",
+        "Đa tạ, có ngươi bên cạnh yên tâm hơn.",
+        "Ta theo kịp."
+      ]
+    },
+    {
+      "id": "escort_delivery_001",
+      "category": "escort_delivery",
+      "channel": "Escort",
+      "duration": 1.9,
+      "cooldownSeconds": 0.9,
+      "priority": 24,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working", "Idle"],
+      "texts": [
+        "Đây là vật đã dặn mang đến.",
+        "Việc ủy thác đã xong.",
+        "Xin nhận cho."
+      ]
+    },
+    {
+      "id": "escort_delivery_reply_001",
+      "category": "escort_delivery_reply",
+      "channel": "Escort",
+      "duration": 1.9,
+      "cooldownSeconds": 0.9,
+      "priority": 24,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working", "Idle"],
+      "texts": [
+        "Đa tạ, hữu lễ.",
+        "Tốt, việc đã xong.",
+        "Đường sau này lại cùng đi."
+      ]
+    },
+    {
+      "id": "flee_self_001",
+      "category": "flee_self",
+      "channel": "Emergency",
+      "duration": 1.3,
+      "cooldownSeconds": 6,
+      "priority": 70,
+      "mode": "DisplayOnly",
+      "requiredSpeakerTags": ["Fleeing"],
+      "texts": [
+        "Kêu cứu!",
+        "Không ổn rồi, lui mau!",
+        "Đạo hữu cứu ta!"
+      ]
+    },
+    {
+      "id": "cultivate_self_001",
+      "category": "cultivate_self",
+      "channel": "Cultivation",
+      "duration": 1.4,
+      "cooldownSeconds": 16,
+      "priority": 30,
+      "mode": "DisplayOnly",
+      "requiredSpeakerTags": ["Cultivating"],
+      "texts": [
+        "Tâm tĩnh, khí thông.",
+        "Một hơi này không thể đứt.",
+        "Giữ đan điền cho ổn."
+      ]
+    }
+  ]
+}

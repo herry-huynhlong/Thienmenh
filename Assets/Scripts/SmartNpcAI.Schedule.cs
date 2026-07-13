@@ -4,6 +4,25 @@ public partial class SmartNpcAI
 {
     void RefreshScheduledStateForCurrentFrame()
     {
+        if (!NpcMapBehaviorPolicy.AllowsSchedule(gameObject))
+        {
+            if (currentSmartTask != null &&
+                currentSmartTask.IsValid &&
+                !IsMapCombatTaskGoal(currentSmartTask.goal))
+            {
+                ClearSmartTask();
+            }
+
+            if (scheduleSmartTask != null &&
+                scheduleSmartTask.IsValid &&
+                !IsMapCombatTaskGoal(scheduleSmartTask.goal))
+            {
+                ClearScheduledTask();
+            }
+
+            return;
+        }
+
         NpcScheduleController schedule = GetComponent<NpcScheduleController>();
         if (schedule == null || !schedule.enforceSchedule)
         {
@@ -19,6 +38,7 @@ public partial class SmartNpcAI
         string key = BuildScheduleSlotKey(slot, schedule.CurrentActivity);
         if (currentScheduleSlotKey == key)
         {
+            EnsureScheduledTaskForCurrentActivity(schedule.CurrentActivity);
             return;
         }
 
@@ -101,6 +121,43 @@ public partial class SmartNpcAI
             schedule.CurrentActivity == NpcScheduleActivity.FreeHuntAndGather)
         {
             schedule.ClearCurrentSlotActivityState(schedule.CurrentActivity);
+        }
+    }
+
+    void EnsureScheduledTaskForCurrentActivity(
+        NpcScheduleActivity activity)
+    {
+        SmartAITaskGoal scheduledGoal =
+            MapScheduleActivityToSmartGoal(activity);
+        if (scheduledGoal == SmartAITaskGoal.None)
+        {
+            return;
+        }
+
+        bool missingScheduleTask =
+            scheduleSmartTask == null ||
+            !scheduleSmartTask.IsValid ||
+            scheduleSmartTask.goal != scheduledGoal;
+        bool missingCurrentTask =
+            currentSmartTask == null ||
+            !currentSmartTask.IsValid;
+
+        if (!missingScheduleTask &&
+            !missingCurrentTask)
+        {
+            return;
+        }
+
+        RequestScheduledTask(
+            scheduledGoal,
+            "schedule " + activity);
+
+        if (runtimeTraceScheduleChanges)
+        {
+            TraceRuntime(
+                "EnsureScheduledTaskForCurrentActivity",
+                "restored-goal=" + scheduledGoal +
+                " activity=" + activity);
         }
     }
 
@@ -752,6 +809,11 @@ public partial class SmartNpcAI
 
     bool TryAbortIncompatibleHuntFlowForSchedule()
     {
+        if (!NpcMapBehaviorPolicy.AllowsSchedule(gameObject))
+        {
+            return false;
+        }
+
         NpcScheduleController schedule =
             GetComponent<NpcScheduleController>();
         if (schedule == null ||
@@ -793,6 +855,11 @@ public partial class SmartNpcAI
 
     bool TryClearStaleScheduledDirectedState()
     {
+        if (!NpcMapBehaviorPolicy.AllowsSchedule(gameObject))
+        {
+            return false;
+        }
+
         NpcScheduleController schedule =
             GetComponent<NpcScheduleController>();
         if (schedule == null ||

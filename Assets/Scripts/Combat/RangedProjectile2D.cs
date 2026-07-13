@@ -166,6 +166,19 @@ public class RangedProjectile2D : MonoBehaviour
 
         if (damageable != null && !damageable.IsDead)
         {
+            if (owner != null &&
+                BicanhSessionManager.AreDungeonParticipantsAllies(owner, target))
+            {
+                return;
+            }
+
+            MonsterAI monster = damageable as MonsterAI;
+            if (monster != null)
+            {
+                monster.TakeDamage(damage, owner);
+                return;
+            }
+
             damageable.TakeDamage(damage);
             return;
         }

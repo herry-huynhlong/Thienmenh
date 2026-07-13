@@ -2968,6 +2968,8 @@ public class NpcFixedBlacksmithController : MonoBehaviour
                 return "Van Bao Lau";
             case NpcMapZone.MaThuSonMach:
                 return "Ma Thu Son Mach";
+            case NpcMapZone.BichAnh:
+                return "Bich Anh";
             default:
                 return "Lang";
         }

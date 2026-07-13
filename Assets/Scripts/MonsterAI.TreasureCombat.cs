@@ -290,11 +290,22 @@ public partial class MonsterAI
 
     public void TakeDamage(int damageAmount)
     {
+        TakeDamage(damageAmount, null);
+    }
+
+    public void TakeDamage(int damageAmount, GameObject attackerObject)
+    {
         if (isDead ||
             isRespawning)
         {
             return;
         }
+
+        lastDamageSource = attackerObject;
+        lastSmartNpcAttacker =
+            attackerObject != null
+                ? attackerObject.GetComponentInParent<SmartNpcAI>()
+                : null;
 
         int finalDamage =
             CombatStatCalculator.CalculateFinalDamageInt(

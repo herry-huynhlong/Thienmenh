@@ -108,6 +108,14 @@ public class NpcCombatHitbox2D : MonoBehaviour
             return;
         }
 
+        if (owner != null &&
+            BicanhSessionManager.AreDungeonParticipantsAllies(
+                owner,
+                targetObject))
+        {
+            return;
+        }
+
         if (!hitTargets.Add(targetObject.GetInstanceID()))
         {
             return;
@@ -147,7 +155,15 @@ public class NpcCombatHitbox2D : MonoBehaviour
                 Quaternion.identity);
         }
 
-        damageable.TakeDamage(finalDamage);
+        MonsterAI monster = damageable as MonsterAI;
+        if (monster != null)
+        {
+            monster.TakeDamage(finalDamage, owner);
+        }
+        else
+        {
+            damageable.TakeDamage(finalDamage);
+        }
 
         if (destroyAfterFirstHit)
         {

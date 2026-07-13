@@ -13,8 +13,12 @@ public partial class SmartNpcAI
     {
         if (isRetreatingFromMonster)
         {
-            if (!ShouldRetreatFromCurrentMonster() ||
-                Time.time >= retreatUntilTime)
+            bool shouldKeepRetreating =
+                UsesSharedCombatTargeting()
+                    ? Time.time < retreatUntilTime
+                    : ShouldRetreatFromCurrentMonster() &&
+                        Time.time < retreatUntilTime;
+            if (!shouldKeepRetreating)
             {
                 StopMonsterRetreat();
             }
@@ -26,6 +30,13 @@ public partial class SmartNpcAI
                 wanderTarget = retreatTarget;
                 return true;
             }
+        }
+
+        if (UsesSharedCombatTargeting() &&
+            CombatPowerUtility.GetCurrentHpRatio(gameObject) <= 0.35f &&
+            TryBeginCombatMapRetreat("bicanh low hp retreat"))
+        {
+            return true;
         }
 
         if (currentHelpRequest != null)
@@ -41,7 +52,11 @@ public partial class SmartNpcAI
                     ? currentHelpRequest.monster.GetComponent<MonsterAI>()
                     : null;
 
-                if (monster == null || monster.IsDead)
+                if (monster == null ||
+                    monster.IsDead ||
+                    !NpcMapBehaviorPolicy.CanUseMonsterTarget(
+                        gameObject,
+                        monster))
                 {
                     ClearHelpRequestState();
                     return false;
@@ -124,7 +139,11 @@ public partial class SmartNpcAI
             ? request.monster.GetComponent<MonsterAI>()
             : null;
 
-        if (monster == null || monster.IsDead)
+        if (monster == null ||
+            monster.IsDead ||
+            !NpcMapBehaviorPolicy.CanUseMonsterTarget(
+                gameObject,
+                monster))
         {
             ClearHelpRequestState();
             return false;
@@ -184,6 +203,115 @@ public partial class SmartNpcAI
         return true;
     }
 
+    bool TryBeginCombatMapRetreat(string reason)
+    {
+        if (!BicanhSessionManager.TryGetDungeonRetreatPoint(
+                gameObject,
+                out Vector3 safePoint))
+        {
+            return false;
+        }
+
+        ReleaseMonsterReservation(currentMonsterTarget);
+        currentMonsterTarget = null;
+        currentTarget = null;
+        ClearMonsterCombatState();
+        ClearHelpRequestState();
+
+        isRetreatingFromMonster = true;
+        retreatUntilTime = Time.time + 12f;
+        retreatTarget = safePoint;
+        hasWanderTarget = true;
+        wanderTarget = retreatTarget;
+        hasEscapeTarget = false;
+        hasObstacleAvoidTarget = false;
+        RequestEmergencyTask(
+            SmartAITaskGoal.Pursued,
+            SmartAITaskPriority.Emergency,
+            false,
+            reason);
+        currentAction = NpcText.Action("fleeMonsterArea");
+        StopNpcMovement();
+        DebugFlow(
+            "Retreat",
+            "Bicanh retreat reason=" + reason +
+            " target=" + retreatTarget);
+        return true;
+    }
+
+    bool TryAvoidCombatMapThreat(MonsterAI monster)
+    {
+        if (monster == null)
+        {
+            return false;
+        }
+
+        ReleaseMonsterReservation(currentMonsterTarget);
+        currentMonsterTarget = null;
+        currentTarget = null;
+        ClearMonsterCombatState();
+        ClearHelpRequestState();
+
+        Vector3 safePoint =
+            GetCombatMapAvoidPoint(monster.transform.position);
+        hasWanderTarget = true;
+        wanderTarget = safePoint;
+        hasEscapeTarget = false;
+        hasObstacleAvoidTarget = true;
+        obstacleAvoidTarget = safePoint;
+        hasHomeReturnTarget = false;
+        actionTimer = Mathf.Max(actionTimer, 1.25f);
+        currentAction = NpcText.Action("fleeMonsterArea");
+        DebugFlow(
+            "Retreat",
+            "Bicanh avoid threat target=" +
+            monster.monsterName +
+            " avoidPoint=" +
+            safePoint);
+        return true;
+    }
+
+    Vector3 GetCombatMapAvoidPoint(Vector3 threatPosition)
+    {
+        Vector3 fallback = transform.position;
+        NpcMapZone? zone = NpcMapNavigator.ResolveActorZone(gameObject);
+        NpcMapArea area = zone.HasValue
+            ? NpcMapArea.FindNearestAreaInZone(zone.Value, transform.position)
+            : NpcMapArea.FindArea(transform.position);
+
+        Vector2 away =
+            (Vector2)transform.position - (Vector2)threatPosition;
+        if (away.sqrMagnitude <= 0.01f)
+        {
+            away = Random.insideUnitCircle;
+        }
+
+        float avoidDistance = Mathf.Max(attackRange + 2.5f, 4f);
+        Vector3 candidate =
+            transform.position + (Vector3)(away.normalized * avoidDistance);
+
+        if (area != null)
+        {
+            candidate = area.ClosestPoint(candidate);
+        }
+
+        if (IsMoveTargetFeasible(candidate))
+        {
+            return candidate;
+        }
+
+        if (area != null)
+        {
+            Vector3 center = area.GetMovementCenter(transform.position);
+            if (IsMoveTargetFeasible(center))
+            {
+                return center;
+            }
+        }
+
+        return fallback;
+    }
+
     bool TryReserveMonsterTarget(
         MonsterAI monster,
         float durationSeconds)
@@ -191,6 +319,12 @@ public partial class SmartNpcAI
         if (monster == null)
         {
             return false;
+        }
+
+        if (UsesSharedCombatTargeting())
+        {
+            currentMonsterTarget = monster;
+            return true;
         }
 
         TargetReservationSystem reservationSystem =
@@ -293,6 +427,14 @@ public partial class SmartNpcAI
 
     Vector3 GetRetreatPoint(Vector3 threatPosition)
     {
+        if (UsesSharedCombatTargeting() &&
+            BicanhSessionManager.TryGetDungeonRetreatPoint(
+                gameObject,
+                out Vector3 dungeonRetreatPoint))
+        {
+            return dungeonRetreatPoint;
+        }
+
         NpcMapArea area = NpcMapArea.FindArea(transform.position);
         NpcTeleportGate escapeGate = FindNearestTeleportGate(area);
         if (escapeGate != null)
@@ -402,11 +544,27 @@ public partial class SmartNpcAI
 
     bool IsValidHelpRequest(SmartNpcHelpRequestSystem.HelpRequest request)
     {
-        return request != null &&
-            request.requester != null &&
-            request.monster != null &&
-            !request.IsExpired &&
-            request.requester.activeInHierarchy &&
+        if (request == null ||
+            request.requester == null ||
+            request.monster == null ||
+            request.IsExpired)
+        {
+            return false;
+        }
+
+        if (NpcMapBehaviorPolicy.IsRestrictedSessionParticipant(gameObject))
+        {
+            return NpcMapBehaviorPolicy.CanUseHelpRequest(
+                    gameObject,
+                    request.requester,
+                    request.monster) &&
+                request.requester.activeInHierarchy &&
+                request.monster.activeInHierarchy &&
+                NpcAreaUtility.IsSameArea(gameObject, request.requester) &&
+                NpcAreaUtility.IsSameArea(gameObject, request.monster);
+        }
+
+        return request.requester.activeInHierarchy &&
             request.monster.activeInHierarchy &&
             NpcAreaUtility.IsSameArea(gameObject, request.requester) &&
             NpcAreaUtility.IsSameArea(gameObject, request.monster);
@@ -437,6 +595,13 @@ public partial class SmartNpcAI
             attackerObject.GetComponentInParent<MonsterAI>();
         if (monster == null ||
             monster.IsDead)
+        {
+            return;
+        }
+
+        if (!NpcMapBehaviorPolicy.CanUseMonsterTarget(
+                gameObject,
+                monster))
         {
             return;
         }

@@ -105,6 +105,25 @@ public static class CombatPowerUtility
         return npcHpRatio <= RetreatHpThreshold;
     }
 
+    public static float EstimateWinChance(
+        float allyPower,
+        GameObject monster)
+    {
+        float monsterPower = Mathf.Max(1f, GetPower(monster));
+        float ratio = Mathf.Max(0f, allyPower) /
+            Mathf.Max(1f, allyPower + monsterPower);
+        return Mathf.Clamp01(ratio);
+    }
+
+    public static bool ShouldTeamFight(
+        float allyPower,
+        GameObject monster,
+        float requiredWinChance = 0.8f)
+    {
+        return EstimateWinChance(allyPower, monster) >=
+            Mathf.Clamp01(requiredWinChance);
+    }
+
     public static string DescribeNpcVsMonster(GameObject npc, GameObject monster)
     {
         float npcPower = Mathf.Max(1f, GetPower(npc));

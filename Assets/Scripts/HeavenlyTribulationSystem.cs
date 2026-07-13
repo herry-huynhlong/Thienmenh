@@ -22,6 +22,12 @@ public class HeavenlyTribulationSystem : MonoBehaviour
     static readonly Dictionary<int, PillProtectionState> pillProtectionUntil =
         new Dictionary<int, PillProtectionState>();
 
+    static readonly HashSet<int> lockedTribulationTargets =
+        new HashSet<int>();
+
+    static readonly Dictionary<int, TribulationTargetLock> activeTargetLocks =
+        new Dictionary<int, TribulationTargetLock>();
+
     readonly List<Action> activeTribulationCancellations =
         new List<Action>();
 
@@ -52,6 +58,16 @@ public class HeavenlyTribulationSystem : MonoBehaviour
     public Color boltOuterColor = new Color(0.25f, 0.85f, 1f, 1f);
 
     static Material cachedLineMaterial;
+
+    public static bool HasActiveTribulation =>
+        Instance != null &&
+        Instance.activeTribulationCancellations.Count > 0;
+
+    public static bool IsTargetLocked(GameObject target)
+    {
+        return target != null &&
+            lockedTribulationTargets.Contains(target.GetInstanceID());
+    }
 
     void Awake()
     {
@@ -214,6 +230,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
             yield break;
         }
 
+        TribulationTargetLock targetLock = null;
         TribulationRuntime runtime = BuildRuntime(target, targetRealm);
 
         Vector3 originalPosition = target.transform.position;
@@ -226,8 +243,12 @@ public class HeavenlyTribulationSystem : MonoBehaviour
             MoveTargetToCenter(target, center);
         }
 
+        targetLock = BeginTribulationLock(target);
+
         Vector3 strikeCenter = GetTribulationStrikeCenter(target, center);
         Vector3 visualCenter = GetTribulationVisualCenter(target, strikeCenter);
+        ShowTribulationSpeech(target);
+        ShowNearbyTribulationWitnessSpeech(target);
 
         AddWorldLog(
             displayName + " dẫn động Thiên Kiếp, chuẩn bị đột phá " +
@@ -245,6 +266,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         {
             if (target == null || damageable.IsDead)
             {
+                ReleaseTribulationLock(targetLock);
                 CompleteTribulation(onCompleted, false);
                 yield break;
             }
@@ -260,6 +282,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 
         if (target == null || damageable.IsDead)
         {
+            ReleaseTribulationLock(targetLock);
             CompleteTribulation(onCompleted, false);
             yield break;
         }
@@ -274,16 +297,14 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 
         if (target == null || damageable.IsDead)
         {
-            CompleteTribulation(onCompleted, false);
-        }
-
-        if (target == null || damageable.IsDead)
-        {
             AddWorldLog(displayName + " thất bại dưới Thiên Kiếp.", 2);
+            ReleaseTribulationLock(targetLock);
+            CompleteTribulation(onCompleted, false);
             yield break;
         }
 
         onPassed?.Invoke();
+        ReleaseTribulationLock(targetLock);
         CompleteTribulation(onCompleted, true);
 
         AddWorldLog(
@@ -311,6 +332,8 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         {
             cancellations[i]?.Invoke();
         }
+
+        ReleaseAllTribulationLocks();
     }
 
     struct TribulationRuntime
@@ -322,12 +345,114 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         public float talentFactor;
     }
 
+    class TribulationTargetLock
+    {
+        public GameObject target;
+        public int targetId;
+        public Rigidbody2D rb;
+        public RigidbodyType2D bodyType;
+        public bool simulated;
+        public float gravityScale;
+        public RigidbodyConstraints2D constraints;
+        public bool released;
+    }
+
     int GetMajorRealmTier(CultivationRealm targetRealm)
     {
         return Mathf.Clamp(
             (int)targetRealm - (int)CultivationRealm.Foundation,
             0,
             4);
+    }
+
+    TribulationTargetLock BeginTribulationLock(GameObject target)
+    {
+        if (target == null)
+        {
+            return null;
+        }
+
+        int targetId = target.GetInstanceID();
+        if (activeTargetLocks.TryGetValue(
+                targetId,
+                out TribulationTargetLock existing))
+        {
+            return existing;
+        }
+
+        TribulationTargetLock targetLock = new TribulationTargetLock
+        {
+            target = target,
+            targetId = targetId,
+            rb = target.GetComponent<Rigidbody2D>()
+        };
+
+        if (targetLock.rb != null)
+        {
+            targetLock.bodyType = targetLock.rb.bodyType;
+            targetLock.simulated = targetLock.rb.simulated;
+            targetLock.gravityScale = targetLock.rb.gravityScale;
+            targetLock.constraints = targetLock.rb.constraints;
+            targetLock.rb.linearVelocity = Vector2.zero;
+            targetLock.rb.angularVelocity = 0f;
+            targetLock.rb.gravityScale = 0f;
+            targetLock.rb.constraints = RigidbodyConstraints2D.FreezeAll;
+        }
+
+        lockedTribulationTargets.Add(targetId);
+        activeTargetLocks[targetId] = targetLock;
+        NpcRoleUtility.SetAction(target, NpcText.Action("waitTribulation"));
+        target.SendMessage(
+            "OnHeavenlyTribulationLockChanged",
+            true,
+            SendMessageOptions.DontRequireReceiver);
+        return targetLock;
+    }
+
+    void ReleaseTribulationLock(TribulationTargetLock targetLock)
+    {
+        if (targetLock == null || targetLock.released)
+        {
+            return;
+        }
+
+        targetLock.released = true;
+        lockedTribulationTargets.Remove(targetLock.targetId);
+        activeTargetLocks.Remove(targetLock.targetId);
+
+        if (targetLock.rb != null)
+        {
+            targetLock.rb.bodyType = targetLock.bodyType;
+            targetLock.rb.simulated = targetLock.simulated;
+            targetLock.rb.gravityScale = targetLock.gravityScale;
+            targetLock.rb.constraints = targetLock.constraints;
+            targetLock.rb.linearVelocity = Vector2.zero;
+            targetLock.rb.angularVelocity = 0f;
+        }
+
+        if (targetLock.target != null)
+        {
+            targetLock.target.SendMessage(
+                "OnHeavenlyTribulationLockChanged",
+                false,
+                SendMessageOptions.DontRequireReceiver);
+        }
+    }
+
+    void ReleaseAllTribulationLocks()
+    {
+        if (activeTargetLocks.Count <= 0)
+        {
+            return;
+        }
+
+        TribulationTargetLock[] locks =
+            new List<TribulationTargetLock>(activeTargetLocks.Values).ToArray();
+
+        for (int i = 0; i < locks.Length; i++)
+        {
+            ReleaseTribulationLock(locks[i]);
+        }
     }
 
     TribulationRuntime BuildRuntime(
@@ -476,6 +601,79 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         return strikeCenter + Vector3.up * headOffset;
     }
 
+    void ShowTribulationSpeech(GameObject target)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        NpcSpeechController.TryShowSpeech(
+            target,
+            null,
+            "tribulation_self");
+    }
+
+    void ShowNearbyTribulationWitnessSpeech(GameObject target)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        float radius = Mathf.Max(4f, strikeRadius * 3f);
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(target.transform.position, radius);
+        HashSet<int> shownNpcIds = new HashSet<int>();
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            GameObject npc = ResolveNearbyNpcRoot(hits[i], target);
+            if (npc == null ||
+                !shownNpcIds.Add(npc.GetInstanceID()) ||
+                NpcRoleUtility.IsDead(npc))
+            {
+                continue;
+            }
+
+            NpcSpeechController.TryShowSpeech(
+                npc,
+                target,
+                "tribulation_witness");
+        }
+    }
+
+    GameObject ResolveNearbyNpcRoot(Collider2D hit, GameObject excluded)
+    {
+        if (hit == null)
+        {
+            return null;
+        }
+
+        VillagerAI villager = hit.GetComponentInParent<VillagerAI>();
+        if (villager != null &&
+            villager.gameObject != excluded)
+        {
+            return villager.gameObject;
+        }
+
+        SmartNpcAI smartNpc = hit.GetComponentInParent<SmartNpcAI>();
+        if (smartNpc != null &&
+            smartNpc.gameObject != excluded)
+        {
+            return smartNpc.gameObject;
+        }
+
+        MonsterAI monster = hit.GetComponentInParent<MonsterAI>();
+        if (monster != null &&
+            monster.gameObject != excluded)
+        {
+            return monster.gameObject;
+        }
+
+        return null;
+    }
+
     Bounds Encapsulate(Bounds first, Bounds second)
     {
         first.Encapsulate(second.min);
@@ -616,6 +814,11 @@ public class HeavenlyTribulationSystem : MonoBehaviour
             radius,
             damageLayers);
 
+        HashSet<IDamageable> damagedTargets =
+            new HashSet<IDamageable>();
+        HashSet<Transform> damagedTransforms =
+            new HashSet<Transform>();
+
         foreach (Collider2D hit in hits)
         {
             if (hit == null)
@@ -625,7 +828,16 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 
             IDamageable damageable = hit.GetComponentInParent<IDamageable>();
 
-            if (damageable == null || damageable.IsDead)
+            if (damageable == null ||
+                damageable.IsDead ||
+                !damagedTargets.Add(damageable))
+            {
+                continue;
+            }
+
+            Transform damageTransform = damageable.DamageTransform;
+            if (damageTransform != null &&
+                !damagedTransforms.Add(damageTransform))
             {
                 continue;
             }

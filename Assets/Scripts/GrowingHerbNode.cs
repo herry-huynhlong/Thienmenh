@@ -50,6 +50,7 @@ public class GrowingHerbNode : MonoBehaviour, IWorldResourcePersistentState
     bool subscribed;
     bool configuredAllowNpcPickup;
     bool configuredAllowPlayerPickup;
+    bool isDepleted;
 
     public bool IsHarvestAvailable => GetGrowthProgress01() >= 1f;
 
@@ -186,18 +187,26 @@ public class GrowingHerbNode : MonoBehaviour, IWorldResourcePersistentState
     {
         EnsureReferences();
 
+        bool depleted = pickup != null && pickup.amount <= 0;
+        isDepleted = depleted;
+
         if (stageRenderer != null)
         {
-            stageRenderer.sprite = ResolveStageSprite();
+            stageRenderer.sprite = depleted ? null : ResolveStageSprite();
             stageRenderer.sortingOrder = sortingOrder;
-            stageRenderer.enabled = stageRenderer.sprite != null;
-            ApplyRendererScale();
+            stageRenderer.enabled = !depleted && stageRenderer.sprite != null;
+
+            if (!depleted)
+            {
+                ApplyRendererScale();
+            }
         }
 
         if (pickup != null)
         {
-            pickup.allowNpcPickup = configuredAllowNpcPickup && IsHarvestAvailable;
-            pickup.allowPlayerPickup = configuredAllowPlayerPickup && IsHarvestAvailable;
+            bool harvestAvailable = !depleted && IsHarvestAvailable;
+            pickup.allowNpcPickup = configuredAllowNpcPickup && harvestAvailable;
+            pickup.allowPlayerPickup = configuredAllowPlayerPickup && harvestAvailable;
         }
     }
 
@@ -380,6 +389,7 @@ public class GrowingHerbNode : MonoBehaviour, IWorldResourcePersistentState
 
     void HandleRespawnCompleted()
     {
+        isDepleted = false;
         ResetToRespawnSmall();
     }
 

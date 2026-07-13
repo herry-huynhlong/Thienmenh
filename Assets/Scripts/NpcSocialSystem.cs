@@ -438,20 +438,7 @@ public static class NpcMonsterCombatDialogue
 
     static void AddSharedRespect(GameObject first, GameObject second)
     {
-        NpcRelationshipGraph firstGraph =
-            first.GetComponent<NpcRelationshipGraph>();
-        NpcRelationshipGraph secondGraph =
-            second.GetComponent<NpcRelationshipGraph>();
-
-        if (firstGraph != null)
-        {
-            firstGraph.AddSocial(second, 3, 4, NpcText.Dialogue("combatMonsterReason"));
-        }
-
-        if (secondGraph != null)
-        {
-            secondGraph.AddSocial(first, 3, 4, NpcText.Dialogue("combatMonsterReason"));
-        }
+        // Display-only: victory lines must not mutate relationship data.
     }
 
     static string GetName(GameObject npc)
@@ -590,6 +577,33 @@ public class NpcRelationshipGraph : MonoBehaviour
 {
     public List<NpcSocialRelationship> relationships =
         new List<NpcSocialRelationship>();
+
+    public NpcSocialRelationship Find(GameObject target)
+    {
+        NpcSocialIdentity identity = target != null
+            ? target.GetComponent<NpcSocialIdentity>()
+            : null;
+
+        return identity != null ? Find(identity.socialId) : null;
+    }
+
+    public NpcSocialRelationship Find(string targetId)
+    {
+        if (string.IsNullOrEmpty(targetId))
+        {
+            return null;
+        }
+
+        for (int i = 0; i < relationships.Count; i++)
+        {
+            if (relationships[i].targetId == targetId)
+            {
+                return relationships[i];
+            }
+        }
+
+        return null;
+    }
 
     public NpcSocialRelationship Get(GameObject target)
     {
@@ -838,10 +852,14 @@ public class NpcMemory : MonoBehaviour
             relationshipGraph.AddTrade(other, 2);
         }
 
-        ShowTradeOverhead(buyer, itemName, price);
+        ShowTradeOverhead(buyer, other, itemName, price);
     }
 
-    void ShowTradeOverhead(GameObject buyer, string itemName, int price)
+    void ShowTradeOverhead(
+        GameObject buyer,
+        GameObject other,
+        string itemName,
+        int price)
     {
         if (NpcRoleUtility.IsInCombat(gameObject))
         {
@@ -849,14 +867,16 @@ public class NpcMemory : MonoBehaviour
         }
 
         bool isBuyer = buyer == gameObject;
-        string lineKey = isBuyer ? "tradeBuyerLines" : "tradeSellerLines";
-        string fallbackKey = isBuyer ? "tradeBuyerFallback" : "tradeSellerFallback";
-        string template = NpcText.DialogueLine(
-            lineKey,
-            NpcText.Dialogue(fallbackKey, ""));
-        string line = NpcText.Format(template, itemName, price);
 
-        ShowOverheadLine(line, 2.8f, 1);
+        NpcSpeechController.TryShowSpeech(
+            gameObject,
+            other,
+            isBuyer ? "trade_buyer" : "trade_seller",
+            new[]
+            {
+                new NpcDialogueToken("item", itemName),
+                new NpcDialogueToken("price", price.ToString())
+            });
     }
 
     void ShowOverheadLine(string line, float duration, int priority = 0)
@@ -940,33 +960,18 @@ public class NpcMemory : MonoBehaviour
         bool isActor = actor == gameObject;
         bool lowHealth = !isActor && GetHealthRatio(gameObject) <= 0.35f;
         bool bulliedByStronger = !isActor && IsBulliedByStronger(actor, gameObject);
-        string lineKey = bulliedByStronger
-            ? "bulliedLowRealmLines"
+        string category = bulliedByStronger
+            ? "combat_bullied"
             : lowHealth
-            ? "combatLowHealthLines"
+            ? "combat_low_health"
             : isActor
-                ? "combatAttackLines"
-                : "combatDefendLines";
-        string fallbackKey = bulliedByStronger
-            ? "combatDefendFallback"
-            : lowHealth
-            ? "combatLowHealthFallback"
-            : isActor
-                ? "combatAttackFallback"
-                : "combatDefendFallback";
-        string line = NpcText.DialogueLine(
-            lineKey,
-            NpcText.Dialogue(fallbackKey, ""));
+                ? "combat_attack"
+                : "combat_defend";
 
-        if (bulliedByStronger)
-        {
-            line = NpcText.Format(
-                line,
-                NpcRoleUtility.GetDisplayName(gameObject),
-                NpcRoleUtility.GetDisplayName(actor));
-        }
-
-        ShowOverheadLine(line, 3f, 4);
+        NpcSpeechController.TryShowSpeech(
+            gameObject,
+            isActor ? target : actor,
+            category);
         nextCombatLineTime = Time.time + Mathf.Max(0.5f, combatLineCooldown);
     }
 
@@ -1046,6 +1051,8 @@ public class NpcOverheadDialogueUI : MonoBehaviour
     float hideAt;
     int activePriority = int.MinValue;
 
+    public NpcSpeechDisplayState SpeechDisplayState { get; private set; }
+
     void Awake()
     {
         EnsureText();
@@ -1087,6 +1094,11 @@ public class NpcOverheadDialogueUI : MonoBehaviour
 
     public void ShowLine(string line, float duration, int priority)
     {
+        TryShowLine(line, duration, priority);
+    }
+
+    public bool TryShowLine(string line, float duration, int priority)
+    {
         line = NpcText.CleanDisplayText(line);
 
         if (string.IsNullOrEmpty(line))
@@ -1095,12 +1107,12 @@ public class NpcOverheadDialogueUI : MonoBehaviour
             {
                 Hide();
             }
-            return;
+            return false;
         }
 
         if (!CanReplace(priority))
         {
-            return;
+            return false;
         }
 
         EnsureText();
@@ -1109,6 +1121,8 @@ public class NpcOverheadDialogueUI : MonoBehaviour
         text.gameObject.SetActive(true);
         hideAt = Time.time + Mathf.Max(0.2f, duration);
         activePriority = priority;
+        SpeechDisplayState = NpcSpeechDisplayState.Showing;
+        return true;
     }
 
     public void Hide()
@@ -1119,6 +1133,7 @@ public class NpcOverheadDialogueUI : MonoBehaviour
         }
 
         activePriority = int.MinValue;
+        SpeechDisplayState = NpcSpeechDisplayState.None;
     }
 
     bool CanReplace(int priority)
@@ -1270,6 +1285,10 @@ public class NpcConversationAgent : MonoBehaviour
     public float interruptThreshold = 80f;
     public float defaultLockStrength = 45f;
     public bool allowGroupConversation = true;
+    [HideInInspector]
+    public bool pauseMovementDuringConversation;
+    [HideInInspector]
+    public bool setActionDuringConversation;
 
     NpcSocialIdentity identity;
     NpcMemory memory;
@@ -1329,8 +1348,12 @@ public class NpcConversationAgent : MonoBehaviour
         }
 
         if (!force &&
-            (!NpcScheduleController.AllowsSocial(gameObject) ||
-            !NpcScheduleController.AllowsSocial(other.gameObject)))
+            (!NpcScheduleController.AllowsSocial(
+                gameObject,
+                NpcSocialChannel.AmbientConversation) ||
+            !NpcScheduleController.AllowsSocial(
+                other.gameObject,
+                NpcSocialChannel.AmbientConversation)))
         {
             return false;
         }
@@ -1367,17 +1390,42 @@ public class NpcConversationAgent : MonoBehaviour
             return false;
         }
 
-        string topic = PickTopic(other);
-        string myLine = BuildLineFor(other, topic, true);
-        string otherLine = other.BuildLineFor(this, topic, false);
+        bool showedOpening =
+            NpcSpeechController.TryShowSpeech(
+                gameObject,
+                other.gameObject,
+                "ambient_opening",
+                out NpcDialogueSelection openingSelection);
+        bool showedReply =
+            NpcSpeechController.TryShowSpeech(
+                other.gameObject,
+                gameObject,
+                "ambient_reply",
+                out NpcDialogueSelection replySelection);
+
+        if (!showedOpening && !showedReply)
+        {
+            return false;
+        }
+
+        float exchangeDuration = conversationDuration;
+        if (showedOpening)
+        {
+            exchangeDuration = Mathf.Max(exchangeDuration, openingSelection.duration);
+        }
+
+        if (showedReply)
+        {
+            exchangeDuration = Mathf.Max(exchangeDuration, replySelection.duration);
+        }
 
         NpcConversationSession session =
             new NpcConversationSession
             {
                 first = this,
                 second = other,
-                topic = topic,
-                endTime = Time.time + conversationDuration,
+                topic = showedOpening ? openingSelection.id : replySelection.id,
+                endTime = Time.time + exchangeDuration,
                 lockStrength = defaultLockStrength,
                 canBecomeGroup = allowGroupConversation && other.allowGroupConversation
             };
@@ -1389,42 +1437,6 @@ public class NpcConversationAgent : MonoBehaviour
         nextConversationTime = Time.time + conversationCooldown;
         other.nextConversationTime = Time.time + other.conversationCooldown;
 
-        NpcRoleUtility.StopForConversation(gameObject);
-        NpcRoleUtility.StopForConversation(other.gameObject);
-
-        overhead.ShowLine(myLine, conversationDuration);
-        other.overhead.ShowLine(otherLine, conversationDuration);
-
-        relationships.AddSocial(other.gameObject, 1, 1, topic);
-        other.relationships.AddSocial(gameObject, 1, 1, topic);
-
-        memory.Remember(
-            NpcMemoryType.Conversation,
-            gameObject,
-            other.gameObject,
-            topic,
-            1f,
-            1f,
-            5);
-
-        other.memory.Remember(
-            NpcMemoryType.Conversation,
-            other.gameObject,
-            gameObject,
-            topic,
-            1f,
-            1f,
-            5);
-
-        if (ContainsJsonKeyword(topic, "spiritHerb") ||
-            ContainsJsonKeyword(topic, "spiritMedicine") ||
-            ContainsJsonKeyword(topic, "stream"))
-        {
-            NpcSocialEventBus.PublishRumorShared(gameObject, other.gameObject, topic);
-        }
-
-        NpcRoleUtility.SetAction(gameObject, NpcText.Action("talking"));
-        NpcRoleUtility.SetAction(other.gameObject, NpcText.Action("talking"));
         return true;
     }
 
@@ -1435,8 +1447,8 @@ public class NpcConversationAgent : MonoBehaviour
             return false;
         }
 
-        NpcSocialRelationship relation = relationships.Get(other.gameObject);
-        return relation != null && relation.lastInteractionDay < 0;
+        NpcSocialRelationship relation = relationships.Find(other.gameObject);
+        return relation == null || relation.lastInteractionDay < 0;
     }
 
     bool IsConversationBroken(NpcConversationSession session)
@@ -1474,13 +1486,11 @@ public class NpcConversationAgent : MonoBehaviour
         if (session.first != null && session.first.activeSession == session)
         {
             session.first.activeSession = null;
-            NpcRoleUtility.SetAction(session.first.gameObject, NpcText.Action("idle"));
         }
 
         if (session.second != null && session.second.activeSession == session)
         {
             session.second.activeSession = null;
-            NpcRoleUtility.SetAction(session.second.gameObject, NpcText.Action("idle"));
         }
     }
 
@@ -1491,7 +1501,7 @@ public class NpcConversationAgent : MonoBehaviour
             return true;
         }
 
-        NpcSocialRelationship relation = relationships.Get(interrupter.gameObject);
+        NpcSocialRelationship relation = relationships.Find(interrupter.gameObject);
         float relationshipUrgency = 0f;
         if (relation != null)
         {
@@ -1523,18 +1533,15 @@ public class NpcConversationAgent : MonoBehaviour
             return false;
         }
 
-        NpcSocialRelationship relation = relationships.Get(other.gameObject);
-        if (relation == null)
-        {
-            return false;
-        }
+        NpcSocialRelationship relation = relationships.Find(other.gameObject);
 
         if (IsHostileBlocked(relation))
         {
             return false;
         }
 
-        if (relation.lastInteractionDay < 0)
+        if (relation == null ||
+            relation.lastInteractionDay < 0)
         {
             return allowFirstMeetingConversation;
         }
@@ -1605,15 +1612,19 @@ public class NpcConversationAgent : MonoBehaviour
             IsBusyTalking ||
             NpcRoleUtility.IsInCombat(gameObject) ||
             NpcRoleUtility.IsInCombat(other.gameObject) ||
-            !NpcScheduleController.AllowsSocial(gameObject) ||
-            !NpcScheduleController.AllowsSocial(other.gameObject) ||
+            !NpcScheduleController.AllowsSocial(
+                gameObject,
+                NpcSocialChannel.AmbientConversation) ||
+            !NpcScheduleController.AllowsSocial(
+                other.gameObject,
+                NpcSocialChannel.AmbientConversation) ||
             !IsSocialContextAllowed() ||
             !CanSocializeWith(other))
         {
             return 0f;
         }
 
-        NpcSocialRelationship relation = relationships.Get(other.gameObject);
+        NpcSocialRelationship relation = relationships.Find(other.gameObject);
         float affection = relation != null ? relation.affection : 0f;
         float grudge = relation != null ? relation.grudge : 0f;
         float socialNeed = GetComponent<NpcNeeds>() != null
@@ -1686,7 +1697,7 @@ public class NpcConversationAgent : MonoBehaviour
             return unresolved.topic;
         }
 
-        NpcSocialRelationship relation = relationships.Get(other.gameObject);
+        NpcSocialRelationship relation = relationships.Find(other.gameObject);
         if (relation != null &&
             IsHostileBlocked(relation))
         {
@@ -1807,7 +1818,7 @@ public class NpcConversationAgent : MonoBehaviour
 
     string PickContextReply(NpcConversationAgent other)
     {
-        NpcSocialRelationship relation = relationships.Get(other.gameObject);
+        NpcSocialRelationship relation = relationships.Find(other.gameObject);
         if (relation != null &&
             relation.lastInteractionDay < 0 &&
             UnityEngine.Random.value < 0.7f)
@@ -2298,7 +2309,9 @@ public class NpcDecisionBrain : MonoBehaviour
         NpcDecisionKind best = NpcDecisionKind.Work;
         float bestScore = 35f;
 
-        if (NpcScheduleController.AllowsSocial(gameObject))
+        if (NpcScheduleController.AllowsSocial(
+            gameObject,
+            NpcSocialChannel.DecisionSocialize))
         {
             Consider(NpcDecisionKind.Socialize, socialScore, ref best, ref bestScore);
         }
@@ -2405,7 +2418,7 @@ public class NpcDecisionBrain : MonoBehaviour
             }
 
             NpcSocialRelationship relationship =
-                relationships.Get(targetIdentity.gameObject);
+                relationships.Find(targetIdentity.gameObject);
 
             if (relationship != null)
             {
@@ -2503,7 +2516,7 @@ public class NpcNegotiationAgent : MonoBehaviour
 
     public int AdjustPriceFor(GameObject other, int basePrice)
     {
-        NpcSocialRelationship relationship = relationships.Get(other);
+        NpcSocialRelationship relationship = relationships.Find(other);
         if (relationship == null)
         {
             return basePrice;
@@ -2540,22 +2553,17 @@ public class NpcNegotiationAgent : MonoBehaviour
 
         relationships.AddTrade(other, -2);
 
-        string line = NpcText.Format(
-            NpcText.DialogueLine(
-                "tradeRejectLines",
-                NpcText.Dialogue("tradeRejectFallback", "")),
-            itemName,
-            offeredPrice);
-
-        NpcOverheadDialogueUI overhead = GetComponent<NpcOverheadDialogueUI>();
-        if (overhead == null)
-        {
-            overhead = gameObject.AddComponent<NpcOverheadDialogueUI>();
-        }
-
         if (!NpcRoleUtility.IsInCombat(gameObject))
         {
-            overhead.ShowLine(line, 2.8f, 1);
+            NpcSpeechController.TryShowSpeech(
+                gameObject,
+                other,
+                "trade_reject",
+                new[]
+                {
+                    new NpcDialogueToken("item", itemName),
+                    new NpcDialogueToken("price", offeredPrice.ToString())
+                });
         }
     }
 }
@@ -2864,6 +2872,7 @@ public class NpcSocialWorldInstaller : MonoBehaviour
         Ensure<NpcRelationshipGraph>(npc);
         Ensure<NpcMemory>(npc);
         Ensure<NpcOverheadDialogueUI>(npc);
+        Ensure<NpcSpeechController>(npc);
         Ensure<NpcConversationAgent>(npc);
 
         NpcDecisionBrain brain = Ensure<NpcDecisionBrain>(npc);

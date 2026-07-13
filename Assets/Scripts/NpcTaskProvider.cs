@@ -3207,8 +3207,6 @@ public partial class NpcTaskProvider : MonoBehaviour
                         arriveDistance,
                         escortFollowDistance * 0.75f))
             {
-                NpcRoleUtility.StopForConversation(task.npc);
-                NpcRoleUtility.StopForConversation(task.escortCompanionNpc);
                 task.remainingTime = Mathf.Max(
                     1f,
                 escortGreetingDuration);
@@ -6614,20 +6612,23 @@ public partial class NpcTaskProvider : MonoBehaviour
         return completionPosition + (Vector3)(awayFromCompletion * greetingOffset);
     }
 
-    void ShowEscortDialogueLine(GameObject npc, string line, float duration = 2.4f)
+    bool TryShowEscortDialogue(
+        GameObject speaker,
+        GameObject target,
+        string category,
+        out NpcDialogueSelection selection)
     {
-        if (npc == null || string.IsNullOrEmpty(line))
+        selection = default;
+        if (speaker == null || string.IsNullOrWhiteSpace(category))
         {
-            return;
+            return false;
         }
 
-        NpcOverheadDialogueUI overhead = npc.GetComponent<NpcOverheadDialogueUI>();
-        if (overhead == null)
-        {
-            overhead = npc.AddComponent<NpcOverheadDialogueUI>();
-        }
-
-        overhead.ShowLine(line, duration, 2);
+        return NpcSpeechController.TryShowSpeech(
+            speaker,
+            target,
+            category,
+            out selection);
     }
 
     bool UpdateEscortGreetingDialogue(RunningNpcTask task)
@@ -6643,14 +6644,17 @@ public partial class NpcTaskProvider : MonoBehaviour
 
         if (task.escortGreetingConversationStep == 0)
         {
-            NpcRoleUtility.StopForConversation(task.npc);
-            NpcRoleUtility.StopForConversation(task.escortCompanionNpc);
-            ShowEscortDialogueLine(
+            TryShowEscortDialogue(
                 task.npc,
-                "Tại hạ phụng mệnh hộ tống đạo hữu trong chuyến này.");
-            NpcRoleUtility.SetAction(task.npc, NpcText.Action("talking"));
-            NpcRoleUtility.SetAction(task.escortCompanionNpc, NpcText.Action("talking"));
-            task.remainingTime = Mathf.Max(1.1f, escortGreetingDuration * 0.45f);
+                task.escortCompanionNpc,
+                "escort_greeting",
+                out _);
+            TryShowEscortDialogue(
+                task.escortCompanionNpc,
+                task.npc,
+                "escort_reply",
+                out _);
+            task.remainingTime = Mathf.Max(1.0f, escortGreetingDuration * 0.42f);
             task.escortGreetingConversationStep = 1;
             return true;
         }
@@ -6662,12 +6666,17 @@ public partial class NpcTaskProvider : MonoBehaviour
                 return true;
             }
 
-            ShowEscortDialogueLine(
+            TryShowEscortDialogue(
+                task.npc,
                 task.escortCompanionNpc,
-                "Làm phiền đạo hữu, xin hộ tống ta một đoạn.");
-            NpcRoleUtility.SetAction(task.npc, NpcText.Action("talking"));
-            NpcRoleUtility.SetAction(task.escortCompanionNpc, NpcText.Action("talking"));
-            task.remainingTime = Mathf.Max(1.1f, escortGreetingDuration * 0.45f);
+                "escort_greeting",
+                out _);
+            TryShowEscortDialogue(
+                task.escortCompanionNpc,
+                task.npc,
+                "escort_reply",
+                out _);
+            task.remainingTime = Mathf.Max(1.0f, escortGreetingDuration * 0.42f);
             task.escortGreetingConversationStep = 2;
             return true;
         }
@@ -6700,16 +6709,17 @@ public partial class NpcTaskProvider : MonoBehaviour
 
         if (task.escortDeliveryConversationStep == 0)
         {
-            NpcRoleUtility.StopForConversation(task.npc);
-            NpcRoleUtility.StopForConversation(task.escortCompanionNpc);
-            NpcRoleUtility.StopForConversation(task.escortCompletionNpc);
-            ShowEscortDialogueLine(
+            TryShowEscortDialogue(
                 task.escortCompanionNpc,
-                "Đây là linh vật / linh tài mà đạo hữu đã dặn mang tới.");
-            NpcRoleUtility.SetAction(task.npc, NpcText.Action("talking"));
-            NpcRoleUtility.SetAction(task.escortCompanionNpc, NpcText.Action("talking"));
-            NpcRoleUtility.SetAction(task.escortCompletionNpc, NpcText.Action("talking"));
-            task.remainingTime = Mathf.Max(1.1f, escortGreetingDuration * 0.45f);
+                task.escortCompletionNpc,
+                "escort_delivery",
+                out _);
+            TryShowEscortDialogue(
+                task.escortCompletionNpc,
+                task.escortCompanionNpc,
+                "escort_delivery_reply",
+                out _);
+            task.remainingTime = Mathf.Max(1.0f, escortGreetingDuration * 0.42f);
             task.escortDeliveryConversationStep = 1;
             return true;
         }
@@ -6721,13 +6731,17 @@ public partial class NpcTaskProvider : MonoBehaviour
                 return true;
             }
 
-            ShowEscortDialogueLine(
+            TryShowEscortDialogue(
+                task.escortCompanionNpc,
                 task.escortCompletionNpc,
-                "Đa tạ, hữu lễ.");
-            NpcRoleUtility.SetAction(task.npc, NpcText.Action("talking"));
-            NpcRoleUtility.SetAction(task.escortCompanionNpc, NpcText.Action("talking"));
-            NpcRoleUtility.SetAction(task.escortCompletionNpc, NpcText.Action("talking"));
-            task.remainingTime = Mathf.Max(1.1f, escortGreetingDuration * 0.45f);
+                "escort_delivery",
+                out _);
+            TryShowEscortDialogue(
+                task.escortCompletionNpc,
+                task.escortCompanionNpc,
+                "escort_delivery_reply",
+                out _);
+            task.remainingTime = Mathf.Max(1.0f, escortGreetingDuration * 0.42f);
             task.escortDeliveryConversationStep = 2;
             return true;
         }

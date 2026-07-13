@@ -70,6 +70,31 @@ public partial class SmartNpcAI
             return;
         }
 
+        if (NpcMapBehaviorPolicy.ForcesCombatLoop(gameObject))
+        {
+            if (canFight &&
+                canCompeteResource)
+            {
+                SearchMonster();
+                TraceBranch(
+                    "ThinkBrainCore",
+                    "MapPolicyMonsterSearch",
+                    true);
+                DebugFlow("ThinkHunt", "Map policy monster search");
+            }
+            else
+            {
+                StartIdleWander();
+                TraceBranch(
+                    "ThinkBrainCore",
+                    "MapPolicyIdle",
+                    true);
+                DebugFlow("ThinkFallback", "Map policy idle");
+            }
+
+            return;
+        }
+
         if (TryRunScheduledActivity())
         {
             TraceBranch("ThinkBrainCore", "TryRunScheduledActivity", true);

@@ -345,6 +345,11 @@ public static class GameSaveSystem
             return;
         }
 
+        string saveKey =
+            InventoryPrefix + inventoryKey;
+
+        RegisterDynamicSaveKey(saveKey);
+
         SavedInventoryData data =
             new SavedInventoryData();
 
@@ -374,7 +379,7 @@ public static class GameSaveSystem
         }
 
         PlayerPrefs.SetString(
-            InventoryPrefix + inventoryKey,
+            saveKey,
             JsonUtility.ToJson(data));
 
         MarkSaveExists();
@@ -399,30 +404,51 @@ public static class GameSaveSystem
             return false;
         }
 
-        SavedInventoryData data =
-            JsonUtility.FromJson<SavedInventoryData>(
-                PlayerPrefs.GetString(key));
+        RegisterDynamicSaveKey(key);
 
-        target.Clear();
-
-        if (data == null ||
+        if (!TryDeserializeJson(
+                key,
+                PlayerPrefs.GetString(key),
+                out SavedInventoryData data) ||
+            data == null ||
             data.items == null)
         {
-            return true;
+            return false;
         }
+
+        List<ItemStack> loadedItems =
+            new List<ItemStack>(data.items.Count);
+        List<string> unresolvedItemKeys =
+            null;
 
         foreach (SavedItemStack savedStack in data.items)
         {
-            StatItemData item =
-                FindItem(savedStack.itemKey);
-
-            if (item == null ||
+            if (savedStack == null ||
                 savedStack.amount <= 0)
             {
                 continue;
             }
 
-            target.Add(
+            StatItemData item =
+                FindItem(savedStack.itemKey);
+
+            if (item == null)
+            {
+                if (!string.IsNullOrWhiteSpace(savedStack.itemKey))
+                {
+                    if (unresolvedItemKeys == null)
+                    {
+                        unresolvedItemKeys =
+                            new List<string>();
+                    }
+
+                    unresolvedItemKeys.Add(savedStack.itemKey);
+                }
+
+                continue;
+            }
+
+            loadedItems.Add(
                 new ItemStack
                 {
                     item = item,
@@ -437,6 +463,19 @@ public static class GameSaveSystem
                 });
         }
 
+        if (unresolvedItemKeys != null &&
+            unresolvedItemKeys.Count > 0)
+        {
+            Debug.LogWarning(
+                "GameSaveSystem skipped applying inventory '" +
+                inventoryKey +
+                "' because some item IDs could not be resolved: " +
+                string.Join(", ", unresolvedItemKeys));
+            return false;
+        }
+
+        target.Clear();
+        target.AddRange(loadedItems);
         return true;
     }
 
@@ -449,6 +488,11 @@ public static class GameSaveSystem
         {
             return;
         }
+
+        string saveKey =
+            ShopPrefix + shopKey;
+
+        RegisterDynamicSaveKey(saveKey);
 
         SavedShopData data =
             new SavedShopData();
@@ -472,7 +516,7 @@ public static class GameSaveSystem
         }
 
         PlayerPrefs.SetString(
-            ShopPrefix + shopKey,
+            saveKey,
             JsonUtility.ToJson(data));
 
         MarkSaveExists();
@@ -497,14 +541,16 @@ public static class GameSaveSystem
             return false;
         }
 
-        SavedShopData data =
-            JsonUtility.FromJson<SavedShopData>(
-                PlayerPrefs.GetString(key));
+        RegisterDynamicSaveKey(key);
 
-        if (data == null ||
+        if (!TryDeserializeJson(
+                key,
+                PlayerPrefs.GetString(key),
+                out SavedShopData data) ||
+            data == null ||
             data.stocks == null)
         {
-            return true;
+            return false;
         }
 
         Dictionary<string, int> stockByItem =
@@ -536,6 +582,34 @@ public static class GameSaveSystem
         }
 
         return true;
+    }
+
+    static bool TryDeserializeJson<T>(
+        string saveKey,
+        string serialized,
+        out T data)
+    {
+        data = default(T);
+
+        if (string.IsNullOrWhiteSpace(serialized))
+        {
+            return false;
+        }
+
+        try
+        {
+            data = JsonUtility.FromJson<T>(serialized);
+            return data != null;
+        }
+        catch (Exception exception)
+        {
+            Debug.LogWarning(
+                "GameSaveSystem failed to parse save key '" +
+                saveKey +
+                "': " +
+                exception.Message);
+            return false;
+        }
     }
 
     static IEnumerable<string> PlayerPrefsKeys()

@@ -213,6 +213,9 @@ public partial class MonsterAI
             rb.linearVelocity = Vector2.zero;
         }
 
+        lastDamageSource = null;
+        lastSmartNpcAttacker = null;
+
         SetMonsterVisible(true);
         SetMonsterColliders(true);
         if (directionalAnimator != null)

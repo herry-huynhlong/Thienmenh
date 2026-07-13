@@ -33,6 +33,12 @@ public class WorldResourceField : MonoBehaviour
 {
     static readonly List<WorldResourceField> fields = new List<WorldResourceField>();
 
+    sealed class ResolvedSavedResourceNode
+    {
+        public SavedWorldResourceNode savedNode;
+        public StatItemData item;
+    }
+
     [Header("Items")]
     public List<ResourceFieldItemEntry> items = new List<ResourceFieldItemEntry>();
 
@@ -471,7 +477,7 @@ public class WorldResourceField : MonoBehaviour
     string GetResourceSaveKey()
     {
         string key = string.IsNullOrEmpty(resourceSaveKey) ? name : resourceSaveKey;
-        return ResourceSavePrefix + SceneManager.GetActiveScene().name + "." + key;
+        return ResourceSavePrefix + gameObject.scene.name + "." + key;
     }
 
     public void SaveResourceState()
@@ -526,13 +532,20 @@ public class WorldResourceField : MonoBehaviour
         if (!PlayerPrefs.HasKey(key))
             return false;
 
-        SavedWorldResourceField data =
-            JsonUtility.FromJson<SavedWorldResourceField>(PlayerPrefs.GetString(key));
+        if (!TryDeserializeResourceField(
+                key,
+                PlayerPrefs.GetString(key),
+                out SavedWorldResourceField data) ||
+            data == null ||
+            data.resources == null)
+        {
+            return false;
+        }
 
-        ClearExistingResources();
-
-        if (data == null || data.resources == null)
-            return true;
+        List<ResolvedSavedResourceNode> resolvedNodes =
+            new List<ResolvedSavedResourceNode>(data.resources.Count);
+        List<string> unresolvedItemKeys =
+            null;
 
         foreach (SavedWorldResourceNode saved in data.resources)
         {
@@ -542,7 +555,48 @@ public class WorldResourceField : MonoBehaviour
             StatItemData item = GameSaveSystem.FindItem(saved.itemKey);
 
             if (item == null)
+            {
+                if (!string.IsNullOrWhiteSpace(saved.itemKey))
+                {
+                    if (unresolvedItemKeys == null)
+                    {
+                        unresolvedItemKeys =
+                            new List<string>();
+                    }
+
+                    unresolvedItemKeys.Add(saved.itemKey);
+                }
+
                 continue;
+            }
+
+            resolvedNodes.Add(
+                new ResolvedSavedResourceNode
+                {
+                    savedNode = saved,
+                    item = item
+                });
+        }
+
+        if (unresolvedItemKeys != null &&
+            unresolvedItemKeys.Count > 0)
+        {
+            Debug.LogWarning(
+                name +
+                " skipped applying resource field save because some item IDs could not be resolved: " +
+                string.Join(", ", unresolvedItemKeys),
+                this);
+            return false;
+        }
+
+        ClearExistingResources();
+
+        foreach (ResolvedSavedResourceNode resolvedNode in resolvedNodes)
+        {
+            SavedWorldResourceNode saved =
+                resolvedNode.savedNode;
+            StatItemData item =
+                resolvedNode.item;
 
             ResourceFieldItemEntry entry = new ResourceFieldItemEntry
             {
@@ -591,6 +645,37 @@ public class WorldResourceField : MonoBehaviour
         }
 
         return true;
+    }
+
+    bool TryDeserializeResourceField(
+        string saveKey,
+        string serialized,
+        out SavedWorldResourceField data)
+    {
+        data = null;
+
+        if (string.IsNullOrWhiteSpace(serialized))
+        {
+            return false;
+        }
+
+        try
+        {
+            data =
+                JsonUtility.FromJson<SavedWorldResourceField>(serialized);
+            return data != null;
+        }
+        catch (Exception exception)
+        {
+            Debug.LogWarning(
+                name +
+                " failed to parse resource field save key '" +
+                saveKey +
+                "': " +
+                exception.Message,
+                this);
+            return false;
+        }
     }
 
     void ClearExistingResources()

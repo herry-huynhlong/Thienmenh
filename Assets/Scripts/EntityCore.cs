@@ -7,7 +7,8 @@ public enum EntityKind
     Player,
     Commoner,
     Cultivator,
-    Beast
+    Beast,
+    Animal
 }
 
 public enum EntityGender
@@ -244,6 +245,11 @@ public static class EntityGenerator
     static readonly string[] beastNames =
     {
         "Lang Yêu", "Hổ Yêu", "Xà Tinh", "Ưng Yêu", "Hắc Báo", "Độc Lang"
+    };
+
+    static readonly string[] animalNames =
+    {
+        "Lá»™c Tráº¯ng", "HÆ°Æ¡u Núi", "Thá» XÃ¡m", "DÃª Suá»‘i", "TrÃ¢u Rá»«ng", "Ngá»±a Sá»«ng"
     };
 
     public static EntityProfile EnsureProfile(GameObject owner, EntityKind kind)

@@ -23,7 +23,7 @@ public enum VillagerJob
 }
 
 [RequireComponent(typeof(NpcScheduleController))]
-public partial class VillagerAI : MonoBehaviour, IDamageable
+public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwner
 {
     static readonly HashSet<VillagerAI> activeVillagers =
         new HashSet<VillagerAI>();
@@ -218,6 +218,8 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
     [Header("Runtime")]
     public string currentAction = "idle";
+    public NpcActionId currentActionId = NpcActionId.Idle;
+    public string currentActionKey = "idle";
     public Transform currentTarget;
     public string debugWorkTarget;
     public bool debugWorkLogs;
@@ -454,7 +456,44 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         }
 
         actionTimer = Mathf.Max(actionTimer, Mathf.Max(0f, durationSeconds));
-        currentAction = action;
+        SetCurrentActionState(NpcActionState.FromDisplayText(action));
+    }
+
+    public NpcActionState CurrentActionState
+    {
+        get
+        {
+            NpcActionState resolved =
+                NpcActionState.FromDisplayText(currentAction);
+
+            if (resolved.id == NpcActionId.Unknown &&
+                !string.IsNullOrWhiteSpace(currentActionKey))
+            {
+                resolved = NpcActionState.FromKey(currentActionKey);
+            }
+
+            if (resolved.id == NpcActionId.Unknown &&
+                currentActionId != NpcActionId.Unknown)
+            {
+                resolved.id = currentActionId;
+            }
+
+            if (!string.IsNullOrWhiteSpace(currentAction))
+            {
+                resolved.displayText = currentAction;
+            }
+
+            return resolved;
+        }
+    }
+
+    public void SetCurrentActionState(NpcActionState state)
+    {
+        currentActionId = state.id;
+        currentActionKey = state.key ?? "";
+        currentAction = !string.IsNullOrWhiteSpace(state.displayText)
+            ? state.displayText
+            : NpcText.Action(currentActionKey);
     }
 
     void Awake()
@@ -838,6 +877,13 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
     {
         SyncCultivationEffect();
 
+        if (HeavenlyTribulationSystem.IsTargetLocked(gameObject))
+        {
+            StopMoving();
+            SetCurrentActionState(NpcActionState.FromKey("waitTribulation"));
+            return;
+        }
+
         if (hiddenAtHome)
         {
             if (ShouldLeaveHiddenHomeNow())
@@ -954,6 +1000,13 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
 
     void FixedUpdate()
     {
+        if (HeavenlyTribulationSystem.IsTargetLocked(gameObject))
+        {
+            StopMoving();
+            UpdateVisualAnimation();
+            return;
+        }
+
         if (hiddenAtHome)
         {
             if (rb != null)
@@ -7371,6 +7424,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             {
                 currentAction = NpcText.Action("panicBurned");
                 currentTarget = homePoint;
+                NpcSpeechController.TryShowSpeech(gameObject, null, "flee_self");
             }
 
             return;
@@ -7412,6 +7466,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         {
             currentAction = NpcText.Action("panicBurned");
             currentTarget = homePoint;
+            NpcSpeechController.TryShowSpeech(gameObject, null, "flee_self");
         }
     }
 

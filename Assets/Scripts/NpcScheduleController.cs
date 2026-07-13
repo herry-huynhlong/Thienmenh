@@ -29,6 +29,15 @@ public enum NpcScheduleActivity
     TradeBuySell
 }
 
+public enum NpcSocialChannel
+{
+    General,
+    AmbientConversation,
+    DecisionSocialize,
+    ForcedConversation,
+    LegacyDailyConversation
+}
+
 [System.Serializable]
 public class NpcScheduleSlot
 {
@@ -144,6 +153,13 @@ public class NpcScheduleController : MonoBehaviour
 
     public static bool AllowsSocial(GameObject npc)
     {
+        return AllowsSocial(npc, NpcSocialChannel.General);
+    }
+
+    public static bool AllowsSocial(
+        GameObject npc,
+        NpcSocialChannel channel)
+    {
         NpcScheduleController schedule = GetSchedule(npc);
         if (schedule == null || !schedule.enforceSchedule)
         {
@@ -153,19 +169,40 @@ public class NpcScheduleController : MonoBehaviour
         NpcScheduleSlot slot = schedule.CurrentSlot;
         if (slot == null)
         {
-            return false;
+            return channel == NpcSocialChannel.ForcedConversation;
         }
 
-        if (slot.allowSocialInterrupt)
+        if (channel == NpcSocialChannel.ForcedConversation ||
+            slot.allowSocialInterrupt)
         {
             return true;
         }
 
         NpcScheduleActivity activity = slot.activity;
+        switch (channel)
+        {
+            case NpcSocialChannel.AmbientConversation:
+            case NpcSocialChannel.DecisionSocialize:
+                return IsSoftSocialActivity(activity);
+            case NpcSocialChannel.LegacyDailyConversation:
+                return activity == NpcScheduleActivity.Idle;
+            default:
+                return IsGeneralSocialActivity(activity);
+        }
+    }
+
+    static bool IsGeneralSocialActivity(NpcScheduleActivity activity)
+    {
+        return IsSoftSocialActivity(activity);
+    }
+
+    static bool IsSoftSocialActivity(NpcScheduleActivity activity)
+    {
         return activity == NpcScheduleActivity.Idle ||
             activity == NpcScheduleActivity.SellGoods ||
             activity == NpcScheduleActivity.BuyGoods ||
-            activity == NpcScheduleActivity.TakeTask;
+            activity == NpcScheduleActivity.TakeTask ||
+            activity == NpcScheduleActivity.TradeBuySell;
     }
 
     public static bool AllowsActivity(

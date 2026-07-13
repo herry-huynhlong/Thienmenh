@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class NpcMapMover2D : MonoBehaviour
+public class NpcMapMover2D : MonoBehaviour, INpcMovementResultProvider
 {
     [Header("Movement")]
     public float moveSpeed = 2f;
@@ -41,6 +41,7 @@ public class NpcMapMover2D : MonoBehaviour
     public int maxPickTargetAttempts = 16;
     public float stuckTimeToPickNewTarget = 0.8f;
     public bool useObstacleAvoidance = true;
+    [Min(0f)] public float movementTimeoutSeconds = 30f;
 
     [Header("Crowd Avoidance")]
     public bool ignoreNpcBodyCollisions = true;
@@ -55,6 +56,10 @@ public class NpcMapMover2D : MonoBehaviour
     public Vector2 currentTarget;
     public string currentAction = "Idle";
     public Vector2 currentVelocity;
+    public NpcMovementStatus movementStatus;
+    public NpcMovementFailureReason movementFailureReason;
+    public int movementRequestId;
+    public float movementElapsedSeconds;
 
     Rigidbody2D rb;
     NPCVisualAnimation visualAnimation;
@@ -76,6 +81,12 @@ public class NpcMapMover2D : MonoBehaviour
     bool hasTarget;
     bool hasObstacleAvoidTarget;
     bool currentTargetIgnoresAllowedArea;
+    float movementStartedAt;
+    NpcMovementResult currentMovement;
+    NpcMovementResult lastMovementResult;
+
+    public NpcMovementResult CurrentMovement => currentMovement;
+    public NpcMovementResult LastMovementResult => lastMovementResult;
 
     void Awake()
     {
@@ -124,6 +135,95 @@ public class NpcMapMover2D : MonoBehaviour
     {
         NpcCollisionRegistry.Unregister(this);
     }
+
+    void BeginMovementRequest(Vector2 target, string action)
+    {
+        if (!currentMovement.IsTerminal &&
+            currentMovement.status != NpcMovementStatus.None)
+        {
+            CompleteMovement(
+                NpcMovementStatus.Cancelled,
+                NpcMovementFailureReason.ReplacedTarget);
+        }
+
+        movementRequestId++;
+        movementStartedAt = Time.time;
+        movementElapsedSeconds = 0f;
+        movementStatus = NpcMovementStatus.Pending;
+        movementFailureReason = NpcMovementFailureReason.None;
+        currentMovement = new NpcMovementResult
+        {
+            requestId = movementRequestId,
+            status = movementStatus,
+            reason = movementFailureReason,
+            target = target,
+            action = action ?? "",
+            startedAt = movementStartedAt,
+            finishedAt = 0f,
+            elapsedSeconds = 0f
+        };
+    }
+
+    void MarkMovement(
+        NpcMovementStatus status,
+        NpcMovementFailureReason reason)
+    {
+        if (currentMovement.status == NpcMovementStatus.None)
+        {
+            return;
+        }
+
+        if (currentMovement.IsTerminal)
+        {
+            return;
+        }
+
+        movementElapsedSeconds =
+            Mathf.Max(0f, Time.time - movementStartedAt);
+        movementStatus = status;
+        movementFailureReason = reason;
+        currentMovement.status = status;
+        currentMovement.reason = reason;
+        currentMovement.elapsedSeconds = movementElapsedSeconds;
+    }
+
+    void CompleteMovement(
+        NpcMovementStatus status,
+        NpcMovementFailureReason reason)
+    {
+        movementElapsedSeconds =
+            Mathf.Max(0f, Time.time - movementStartedAt);
+        movementStatus = status;
+        movementFailureReason = reason;
+        currentMovement.status = status;
+        currentMovement.reason = reason;
+        currentMovement.finishedAt = Time.time;
+        currentMovement.elapsedSeconds = movementElapsedSeconds;
+        lastMovementResult = currentMovement;
+    }
+
+    bool TryCompleteMovementTimeout()
+    {
+        if (!hasTarget ||
+            movementTimeoutSeconds <= 0f ||
+            currentMovement.IsTerminal ||
+            Time.time - movementStartedAt < movementTimeoutSeconds)
+        {
+            return false;
+        }
+
+        CompleteMovement(
+            NpcMovementStatus.Timeout,
+            NpcMovementFailureReason.Timeout);
+        hasTarget = false;
+        StopRigidbodyMotion();
+        waitTimer = Mathf.Max(waitTimer, blockedRetryWait);
+        currentAction = "Move Timeout";
+        currentVelocity = Vector2.zero;
+        UpdateVisualAnimation();
+        return true;
+    }
+
     void AutoResolveMapBounds()
     {
         if (!autoResolveMapArea)
@@ -155,7 +255,7 @@ public class NpcMapMover2D : MonoBehaviour
 
         currentMapArea = area;
         mapBounds = area.areaBounds;
-        centerPosition = GetInitialCenterPosition();
+        centerPosition = area.GetMovementCenter(transform.position);
         if (!currentTargetIgnoresAllowedArea)
         {
             currentTarget = ClampToAllowedArea(currentTarget);
@@ -207,6 +307,14 @@ public class NpcMapMover2D : MonoBehaviour
 
         currentMapArea = null;
         ApplyMapArea(area);
+        if (!currentMovement.IsTerminal &&
+            currentMovement.status != NpcMovementStatus.None)
+        {
+            CompleteMovement(
+                NpcMovementStatus.Cancelled,
+                NpcMovementFailureReason.Teleported);
+        }
+
         hasTarget = false;
         waitingAfterArrive = false;
         currentTargetIgnoresAllowedArea = false;
@@ -226,6 +334,11 @@ public class NpcMapMover2D : MonoBehaviour
 
     Vector2 GetInitialCenterPosition()
     {
+        if (currentMapArea != null)
+        {
+            return ClampToAllowedArea(currentMapArea.GetMovementCenter(transform.position));
+        }
+
         if (centerPoint != null &&
             IsPointInsideMapBounds(centerPoint.position))
         {
@@ -259,6 +372,9 @@ public class NpcMapMover2D : MonoBehaviour
         {
             currentVelocity = Vector2.zero;
             currentAction = "Talking";
+            MarkMovement(
+                NpcMovementStatus.Paused,
+                NpcMovementFailureReason.Conversation);
             UpdateVisualAnimation();
             return;
         }
@@ -267,6 +383,9 @@ public class NpcMapMover2D : MonoBehaviour
         {
             StopRigidbodyMotion();
             currentAction = "Yielding";
+            MarkMovement(
+                NpcMovementStatus.Paused,
+                NpcMovementFailureReason.CrowdYield);
             UpdateVisualAnimation();
             return;
         }
@@ -274,6 +393,9 @@ public class NpcMapMover2D : MonoBehaviour
         if (!hasTarget)
         {
             currentAction = "Waiting";
+            MarkMovement(
+                NpcMovementStatus.Paused,
+                NpcMovementFailureReason.Waiting);
             waitTimer -= Time.deltaTime;
 
             if (waitTimer <= 0f)
@@ -282,6 +404,11 @@ public class NpcMapMover2D : MonoBehaviour
                 PickNewTarget();
             }
 
+            return;
+        }
+
+        if (TryCompleteMovementTimeout())
+        {
             return;
         }
 
@@ -346,6 +473,9 @@ public class NpcMapMover2D : MonoBehaviour
                 blockedMoveTimer += Time.deltaTime;
                 currentAction = "Blocked";
                 currentVelocity = Vector2.zero;
+                MarkMovement(
+                    NpcMovementStatus.Blocked,
+                    NpcMovementFailureReason.ObstacleBlocked);
                 UpdateVisualAnimation();
                 DetectStuck();
 
@@ -353,7 +483,10 @@ public class NpcMapMover2D : MonoBehaviour
                 {
                     if (!TryPickStuckEscapeTarget(direction, out Vector2 escapeTarget))
                     {
-                        StopAndWait(false, blockedRetryWait);
+                        StopAndWait(
+                            false,
+                            blockedRetryWait,
+                            NpcMovementFailureReason.ObstacleBlocked);
                         return;
                     }
 
@@ -377,6 +510,9 @@ public class NpcMapMover2D : MonoBehaviour
         direction = ApplyCrowdAvoidance(direction);
         currentVelocity = direction * moveSpeed;
         currentAction = "Moving";
+        MarkMovement(
+            NpcMovementStatus.Moving,
+            NpcMovementFailureReason.None);
         UpdateVisualAnimation();
         DetectStuck();
     }
@@ -435,6 +571,7 @@ public class NpcMapMover2D : MonoBehaviour
         blockedMoveTimer = 0f;
         ClearObstacleAvoidance();
         currentAction = action;
+        BeginMovementRequest(resolvedTarget, action);
     }
 
     public void StopForConversation()
@@ -494,11 +631,15 @@ public class NpcMapMover2D : MonoBehaviour
                 hasTarget = true;
                 stuckTimer = 0f;
                 currentAction = "New Target";
+                BeginMovementRequest(candidate, currentAction);
                 return;
             }
         }
 
-        StopAndWait(false, blockedRetryWait);
+        StopAndWait(
+            false,
+            blockedRetryWait,
+            NpcMovementFailureReason.NoClearTarget);
         currentAction = "No Clear Target";
     }
 
@@ -519,6 +660,29 @@ public class NpcMapMover2D : MonoBehaviour
 
     void StopAndWait(bool arrived, float time)
     {
+        StopAndWait(
+            arrived,
+            time,
+            arrived
+                ? NpcMovementFailureReason.Arrived
+                : NpcMovementFailureReason.Stuck);
+    }
+
+    void StopAndWait(
+        bool arrived,
+        float time,
+        NpcMovementFailureReason reason)
+    {
+        if (!currentMovement.IsTerminal &&
+            currentMovement.status != NpcMovementStatus.None)
+        {
+            CompleteMovement(
+                arrived
+                    ? NpcMovementStatus.Arrived
+                    : NpcMovementStatus.Failed,
+                reason);
+        }
+
         hasTarget = false;
         currentTargetIgnoresAllowedArea = false;
         StopRigidbodyMotion();
@@ -1070,6 +1234,10 @@ public class NpcMapMover2D : MonoBehaviour
         }
 
         crowdBlockedTimer += Time.deltaTime;
+        MarkMovement(
+            NpcMovementStatus.Blocked,
+            NpcMovementFailureReason.CrowdBlocked);
+
         if (crowdBlockedTimer >= stuckTimeToPickNewTarget &&
             TryChooseCrowdDetourDirection(
                 desiredDirection,
@@ -1097,6 +1265,9 @@ public class NpcMapMover2D : MonoBehaviour
                   Time.time + Mathf.Max(0.1f, crowdYieldDuration * 0.5f);
               StopRigidbodyMotion();
               currentAction = "Yielding";
+              MarkMovement(
+                  NpcMovementStatus.Paused,
+                  NpcMovementFailureReason.CrowdYield);
               return false;
           }
 
@@ -1119,6 +1290,9 @@ public class NpcMapMover2D : MonoBehaviour
               Time.time + Mathf.Max(0.1f, crowdYieldDuration * 0.5f);
           StopRigidbodyMotion();
           currentAction = "Yielding";
+          MarkMovement(
+              NpcMovementStatus.Paused,
+              NpcMovementFailureReason.CrowdYield);
           return false;
       }
 
@@ -1369,7 +1543,10 @@ public class NpcMapMover2D : MonoBehaviour
                 return;
             }
 
-            StopAndWait(false, blockedRetryWait);
+            StopAndWait(
+                false,
+                blockedRetryWait,
+                NpcMovementFailureReason.Stuck);
         }
     }
 
@@ -1497,7 +1674,10 @@ public class NpcMapMover2D : MonoBehaviour
             transform.position = target;
             currentVelocity = Vector2.zero;
             currentAction = "Clamp Inside";
-            StopAndWait(false, blockedRetryWait);
+            StopAndWait(
+                false,
+                blockedRetryWait,
+                NpcMovementFailureReason.OutsideAllowedArea);
             return;
         }
 
@@ -1507,6 +1687,13 @@ public class NpcMapMover2D : MonoBehaviour
             1.5f;
 
         currentAction = "Return Inside";
+        if (!currentMovement.IsTerminal &&
+            currentMovement.status != NpcMovementStatus.None)
+        {
+            CompleteMovement(
+                NpcMovementStatus.Failed,
+                NpcMovementFailureReason.OutsideAllowedArea);
+        }
         hasTarget = false;
     }
 

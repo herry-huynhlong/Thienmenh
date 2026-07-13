@@ -100,6 +100,15 @@ public class Fireball : MonoBehaviour
                 continue;
             }
 
+            if (owner != null &&
+                damageable.DamageTransform != null &&
+                BicanhSessionManager.AreDungeonParticipantsAllies(
+                    owner,
+                    damageable.DamageTransform.gameObject))
+            {
+                continue;
+            }
+
             if (owner != null && damageable.DamageTransform != null)
             {
                 int modifiedDamage =
@@ -123,6 +132,13 @@ public class Fireball : MonoBehaviour
                     continue;
                 }
 
+                MonsterAI monster = damageable as MonsterAI;
+                if (monster != null)
+                {
+                    monster.TakeDamage(modifiedDamage, owner);
+                    continue;
+                }
+
                 damageable.TakeDamage(modifiedDamage);
                 continue;
             }
@@ -131,6 +147,13 @@ public class Fireball : MonoBehaviour
             if (fallbackSmartNpc != null)
             {
                 fallbackSmartNpc.TakeDamage(damage, owner);
+                continue;
+            }
+
+            MonsterAI fallbackMonster = damageable as MonsterAI;
+            if (fallbackMonster != null)
+            {
+                fallbackMonster.TakeDamage(damage, owner);
                 continue;
             }
 

@@ -2,6 +2,106 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
+public class BicanhSessionSaveData
+{
+    public bool sessionRunning;
+    public string activeEventName = "";
+    public float remainingSeconds;
+    public int sessionDeathCount;
+    public bool handledSecretRealmEvent;
+    public string lastObservedWorldEvent = "";
+    public List<BicanhParticipantSaveData> participants =
+        new List<BicanhParticipantSaveData>();
+}
+
+[Serializable]
+public class BicanhParticipantSaveData
+{
+    public string stateKey;
+    public string npcId;
+    public string npcDataPersistentId;
+    public string worldActorPersistentId;
+    public string socialId;
+    public string objectName;
+
+    public Vector3 currentPosition;
+    public Quaternion currentRotation;
+    public bool currentActiveSelf;
+
+    public Vector3 originalPosition;
+    public Quaternion originalRotation;
+    public bool originalActiveSelf;
+    public bool originalWasDead;
+
+    public bool hasRigidbody;
+    public int rbBodyType;
+    public bool rbSimulated;
+    public float rbGravityScale;
+    public int rbConstraints;
+    public Vector2 rbLinearVelocity;
+    public float rbAngularVelocity;
+
+    public bool hasSmartNpc;
+    public bool smartNpcAutonomousActivitiesEnabled;
+    public bool smartNpcCanCultivate;
+    public bool smartNpcCanFight;
+    public bool smartNpcCanTrade;
+    public bool smartNpcCanGather;
+    public bool smartNpcCanSellGoods;
+    public bool smartNpcCanMakeFriends;
+    public bool smartNpcCanKillOthers;
+    public bool smartNpcCanCompeteResource;
+    public bool smartNpcCanCreateSect;
+    public int smartNpcCurrentHP;
+    public int smartNpcCurrentActionId;
+    public string smartNpcCurrentActionKey;
+    public string smartNpcCurrentAction;
+    public int smartNpcOriginalHP;
+    public int smartNpcOriginalActionId;
+    public string smartNpcOriginalActionKey;
+    public string smartNpcOriginalAction;
+
+    public bool hasVillager;
+    public bool villagerHomeRoutineManagedExternally;
+    public bool villagerDailyTaskPlanEnabled;
+    public bool villagerDailyRoutineEnabled;
+    public bool villagerAutonomousWorkEnabled;
+    public bool villagerAutonomousResourceWorkEnabled;
+    public bool villagerAutonomousDangerousWorkEnabled;
+    public bool villagerStrongNpcAvoidMortalWork;
+    public bool villagerHideAtHome;
+    public int villagerCurrentHP;
+    public int villagerCurrentActionId;
+    public string villagerCurrentActionKey;
+    public string villagerCurrentAction;
+    public int villagerOriginalHP;
+    public int villagerOriginalActionId;
+    public string villagerOriginalActionKey;
+    public string villagerOriginalAction;
+
+    public bool hasMonster;
+    public int monsterCurrentHP;
+    public int monsterCurrentActionId;
+    public string monsterCurrentActionKey;
+    public string monsterCurrentAction;
+    public int monsterOriginalHP;
+    public int monsterOriginalActionId;
+    public string monsterOriginalActionKey;
+    public string monsterOriginalAction;
+    public bool monsterGuardTerritory;
+
+    public List<BicanhBehaviourSaveData> behaviourStates =
+        new List<BicanhBehaviourSaveData>();
+}
+
+[Serializable]
+public class BicanhBehaviourSaveData
+{
+    public string typeName;
+    public bool enabled;
+}
+
 public class BicanhSessionManager : MonoBehaviour
 {
     [Header("Unlock")]
@@ -13,12 +113,11 @@ public class BicanhSessionManager : MonoBehaviour
     public CultivationRealm minimumRealm = CultivationRealm.Foundation;
     [Range(1, 9)] public int minimumRealmStage = 1;
     public bool includeSmartNpcAI = true;
-    public bool includeMonsterAI = true;
-    public bool includeVillagerAI = false;
 
     [Header("Spawn")]
     public Transform spawnPointsRoot;
     public Transform fallbackReturnPoint;
+    public bool requireValidFallbackReturnPoint = true;
     public float minimumSpawnSpacing = 0.9f;
     public float spawnJitterRadius = 0.35f;
 
@@ -35,6 +134,10 @@ public class BicanhSessionManager : MonoBehaviour
     readonly List<Transform> cachedSpawnPoints = new List<Transform>();
     readonly List<Vector3> occupiedSpawnPositions = new List<Vector3>();
     readonly HashSet<GameObject> spawnedThisSession = new HashSet<GameObject>();
+    readonly List<Collider2D> disabledSpawnAreaColliders =
+        new List<Collider2D>();
+    readonly List<bool> disabledSpawnAreaColliderStates =
+        new List<bool>();
     float sessionEndAt;
     int sessionDeathCount;
     bool handledSecretRealmEvent;
@@ -60,6 +163,16 @@ public class BicanhSessionManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+    }
+
+    void OnEnable()
+    {
+        NpcSocialEventBus.MonsterDefeated += HandleMonsterDefeated;
+    }
+
+    void OnDisable()
+    {
+        NpcSocialEventBus.MonsterDefeated -= HandleMonsterDefeated;
     }
 
     void Update()
@@ -90,6 +203,13 @@ public class BicanhSessionManager : MonoBehaviour
     {
         if (sessionRunning)
         {
+            return;
+        }
+
+        if (requireValidFallbackReturnPoint &&
+            fallbackReturnPoint == null)
+        {
+            Debug.LogWarning("[Bicanh] Thieu fallbackReturnPoint hop le.");
             return;
         }
 
@@ -139,6 +259,7 @@ public class BicanhSessionManager : MonoBehaviour
         activeEventName = "Bicanh";
         sessionDeathCount = 0;
         handledSecretRealmEvent = true;
+        DisableSpawnAreaColliders();
 
         Debug.Log($"[Bicanh] Session bat dau: {snapshots.Count} participant.");
     }
@@ -170,6 +291,7 @@ public class BicanhSessionManager : MonoBehaviour
         snapshots.Clear();
         spawnedThisSession.Clear();
         occupiedSpawnPositions.Clear();
+        RestoreSpawnAreaColliders();
         sessionRunning = false;
         activeEventName = "";
         sessionEndAt = 0f;
@@ -244,9 +366,126 @@ public class BicanhSessionManager : MonoBehaviour
             Instance.ContainsParticipant(entity);
     }
 
+    public static bool AreDungeonParticipantsAllies(
+        GameObject first,
+        GameObject second)
+    {
+        return IsDungeonParticipant(first) &&
+            IsDungeonParticipant(second);
+    }
+
     public static bool ShouldPreserveDungeonDeath(GameObject entity)
     {
         return IsDungeonParticipant(entity);
+    }
+
+    public static bool TryGetDungeonRetreatPoint(
+        GameObject entity,
+        out Vector3 point)
+    {
+        point = Vector3.zero;
+        if (Instance == null ||
+            !Instance.sessionRunning ||
+            entity == null ||
+            !Instance.ContainsParticipant(entity))
+        {
+            return false;
+        }
+
+        if (Instance.cachedSpawnPoints.Count > 0 &&
+            Instance.cachedSpawnPoints[0] != null)
+        {
+            point = Instance.cachedSpawnPoints[0].position;
+            return true;
+        }
+
+        if (Instance.fallbackReturnPoint != null)
+        {
+            point = Instance.fallbackReturnPoint.position;
+            return true;
+        }
+
+        point = Instance.transform.position;
+        return true;
+    }
+
+    public BicanhSessionSaveData CaptureSaveData()
+    {
+        BicanhSessionSaveData data = new BicanhSessionSaveData
+        {
+            sessionRunning = sessionRunning,
+            activeEventName = activeEventName ?? "",
+            remainingSeconds =
+                sessionDurationSeconds > 0f && sessionRunning
+                    ? Mathf.Max(0f, sessionEndAt - Time.time)
+                    : 0f,
+            sessionDeathCount = sessionDeathCount,
+            handledSecretRealmEvent = handledSecretRealmEvent,
+            lastObservedWorldEvent = lastObservedWorldEvent ?? ""
+        };
+
+        if (!sessionRunning)
+        {
+            return data;
+        }
+
+        for (int i = 0; i < snapshots.Count; i++)
+        {
+            BicanhParticipantSaveData participant =
+                CaptureParticipantSaveData(snapshots[i]);
+            if (participant != null)
+            {
+                data.participants.Add(participant);
+            }
+        }
+
+        return data;
+    }
+
+    public void RestoreFromSaveData(BicanhSessionSaveData data)
+    {
+        snapshots.Clear();
+        spawnedThisSession.Clear();
+        occupiedSpawnPositions.Clear();
+        RestoreSpawnAreaColliders();
+
+        if (data == null || !data.sessionRunning)
+        {
+            sessionRunning = false;
+            activeEventName = "";
+            sessionEndAt = 0f;
+            sessionDeathCount = 0;
+            return;
+        }
+
+        sessionRunning = false;
+        activeEventName = data.activeEventName ?? "";
+        sessionDeathCount = Mathf.Max(0, data.sessionDeathCount);
+        handledSecretRealmEvent = data.handledSecretRealmEvent;
+        lastObservedWorldEvent = data.lastObservedWorldEvent ?? "";
+        sessionEndAt = sessionDurationSeconds > 0f
+            ? Time.time + Mathf.Max(1f, data.remainingSeconds)
+            : 0f;
+
+        if (data.participants != null)
+        {
+            for (int i = 0; i < data.participants.Count; i++)
+            {
+                RestoreParticipantSaveData(data.participants[i]);
+            }
+        }
+
+        sessionRunning = snapshots.Count > 0;
+        if (!sessionRunning)
+        {
+            activeEventName = "";
+            sessionEndAt = 0f;
+            RestoreSpawnAreaColliders();
+        }
+        else
+        {
+            DisableSpawnAreaColliders();
+        }
     }
 
     void UpdateEventLatch()
@@ -283,6 +522,50 @@ public class BicanhSessionManager : MonoBehaviour
         }
     }
 
+    void HandleMonsterDefeated(
+        MonsterAI monster,
+        Vector3 position,
+        string monsterName,
+        int monsterLevel)
+    {
+        if (!sessionRunning ||
+            monster == null)
+        {
+            return;
+        }
+
+        SmartNpcAI killer = monster.LastSmartNpcAttacker;
+        if (killer == null ||
+            !IsDungeonParticipant(killer.gameObject))
+        {
+            return;
+        }
+
+        int cultivationReward = Mathf.Max(10, monsterLevel * 15);
+        int originReward = Mathf.Max(1, monsterLevel * 2);
+
+        NpcRoleUtility.AddCultivationExp(killer.gameObject, cultivationReward);
+
+        if (HeavenDaoSystem.Instance != null)
+        {
+            string rewardReason =
+                "Bich Anh diet " +
+                (!string.IsNullOrWhiteSpace(monsterName)
+                    ? monsterName
+                    : "quai");
+            HeavenDaoSystem.Instance.AddOrigin(originReward, rewardReason);
+        }
+
+        Debug.Log(
+            "[Bicanh] " +
+            killer.name +
+            " ha " +
+            (!string.IsNullOrWhiteSpace(monsterName) ? monsterName : "quai") +
+            ", + " + cultivationReward +
+            " tu vi, + " + originReward +
+            " origin.");
+    }
+
     void HandleDungeonDeath(ParticipantSnapshot snapshot)
     {
         if (snapshot == null || snapshot.entity == null)
@@ -309,41 +592,11 @@ public class BicanhSessionManager : MonoBehaviour
 
         if (includeSmartNpcAI)
         {
-            foreach (SmartNpcAI smartNpc in FindObjectsByType<SmartNpcAI>(FindObjectsInactive.Exclude))
+            foreach (SmartNpcAI smartNpc in FindObjectsByType<SmartNpcAI>(FindObjectsInactive.Include))
             {
                 GameObject entity = smartNpc != null ? smartNpc.gameObject : null;
-                if (IsDungeonResident(entity) ||
-                    !IsEligibleCombatant(entity))
-                {
-                    continue;
-                }
-
-                result.Add(entity);
-            }
-        }
-
-        if (includeVillagerAI)
-        {
-            foreach (VillagerAI villager in FindObjectsByType<VillagerAI>(FindObjectsInactive.Exclude))
-            {
-                GameObject entity = villager != null ? villager.gameObject : null;
-                if (IsDungeonResident(entity) ||
-                    !IsEligibleCombatant(entity))
-                {
-                    continue;
-                }
-
-                result.Add(entity);
-            }
-        }
-
-        if (includeMonsterAI)
-        {
-            foreach (MonsterAI monster in FindObjectsByType<MonsterAI>(FindObjectsInactive.Exclude))
-            {
-                GameObject entity = monster != null ? monster.gameObject : null;
-                if (IsDungeonResident(entity) ||
-                    !IsEligibleCombatant(entity))
+                if (IsDungeonParticipant(entity) ||
+                    !IsEligibleBicanhNpc(entity))
                 {
                     continue;
                 }
@@ -355,15 +608,9 @@ public class BicanhSessionManager : MonoBehaviour
         return result;
     }
 
-    bool IsDungeonResident(GameObject entity)
+    bool IsEligibleBicanhNpc(GameObject entity)
     {
-        return entity != null &&
-            entity.GetComponent<BicanhDungeonResident>() != null;
-    }
-
-    bool IsEligibleCombatant(GameObject entity)
-    {
-        if (entity == null || !entity.activeInHierarchy)
+        if (entity == null)
         {
             return false;
         }
@@ -373,43 +620,21 @@ public class BicanhSessionManager : MonoBehaviour
             return false;
         }
 
-        int power = GetRealmPower(entity);
-        int requiredPower = CultivationProgression.GetRealmPower(
-            minimumRealm,
-            Mathf.Clamp(minimumRealmStage, 1, CultivationProgression.MaxStage));
-
-        return power >= requiredPower;
+        return !IsExcludedBicanhSpecialNpc(entity);
     }
 
-    int GetRealmPower(GameObject entity)
+    bool IsExcludedBicanhSpecialNpc(GameObject entity)
     {
         if (entity == null)
         {
-            return 0;
+            return true;
         }
 
-        SmartNpcAI smartNpc = entity.GetComponent<SmartNpcAI>();
-        if (smartNpc != null)
-        {
-            return CultivationProgression.GetRealmPower(smartNpc.realm, smartNpc.realmStage);
-        }
-
-        VillagerAI villager = entity.GetComponent<VillagerAI>();
-        if (villager != null &&
-            villager.enabled)
-        {
-            return CultivationProgression.GetRealmPower(
-                CultivationRealm.Mortal,
-                1);
-        }
-
-        MonsterAI monster = entity.GetComponent<MonsterAI>();
-        if (monster != null)
-        {
-            return CultivationProgression.GetRealmPower(monster.realm, monster.realmStage);
-        }
-
-        return NpcRoleUtility.GetRealmPower(entity);
+        return entity.GetComponent<NpcTaskProvider>() != null ||
+            entity.GetComponent<NpcCounterBroker>() != null ||
+            entity.GetComponent<NpcShopStockRefill>() != null ||
+            string.Equals(entity.name, "NPC_B", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(entity.name, "NPC_C", StringComparison.OrdinalIgnoreCase);
     }
 
     void CaptureAndApply(GameObject entity, Vector3 destination)
@@ -427,6 +652,489 @@ public class BicanhSessionManager : MonoBehaviour
         spawnedThisSession.Add(entity);
     }
 
+    BicanhParticipantSaveData CaptureParticipantSaveData(
+        ParticipantSnapshot snapshot)
+    {
+        if (snapshot == null || snapshot.entity == null)
+        {
+            return null;
+        }
+
+        GameObject entity = snapshot.entity;
+        BicanhParticipantSaveData data =
+            new BicanhParticipantSaveData
+            {
+                stateKey = GetEntityStateKey(entity),
+                objectName = entity.name,
+                currentPosition = entity.transform.position,
+                currentRotation = entity.transform.rotation,
+                currentActiveSelf = entity.activeSelf,
+                originalPosition = snapshot.position,
+                originalRotation = snapshot.rotation,
+                originalActiveSelf = snapshot.wasActiveSelf,
+                originalWasDead = snapshot.wasDead
+            };
+
+        NPCIdentity identity = entity.GetComponent<NPCIdentity>();
+        if (identity != null)
+        {
+            data.npcId = identity.npcId;
+        }
+
+        NpcData npcData = entity.GetComponent<NpcData>();
+        if (npcData != null)
+        {
+            npcData.EnsurePersistentId();
+            data.npcDataPersistentId = npcData.persistentId;
+        }
+
+        SpawnedWorldActor actor = entity.GetComponent<SpawnedWorldActor>();
+        if (actor != null)
+        {
+            actor.EnsurePersistentId();
+            data.worldActorPersistentId = actor.persistentId;
+        }
+
+        NpcSocialIdentity socialIdentity =
+            entity.GetComponent<NpcSocialIdentity>();
+        if (socialIdentity != null)
+        {
+            data.socialId = socialIdentity.socialId;
+        }
+
+        data.hasRigidbody = snapshot.rb != null;
+        if (snapshot.rb != null)
+        {
+            data.rbBodyType = (int)snapshot.rbBodyType;
+            data.rbSimulated = snapshot.rbSimulated;
+            data.rbGravityScale = snapshot.rbGravityScale;
+            data.rbConstraints = (int)snapshot.rbConstraints;
+            data.rbLinearVelocity = snapshot.rbLinearVelocity;
+            data.rbAngularVelocity = snapshot.rbAngularVelocity;
+        }
+
+        CaptureSmartNpcSaveData(snapshot, data);
+        CaptureVillagerSaveData(snapshot, data);
+        CaptureMonsterSaveData(snapshot, data);
+        CaptureBehaviourSaveData(snapshot, data);
+        return data;
+    }
+
+    void CaptureSmartNpcSaveData(
+        ParticipantSnapshot snapshot,
+        BicanhParticipantSaveData data)
+    {
+        SmartNpcAI smartNpc = snapshot.smartNpc;
+        data.hasSmartNpc = smartNpc != null;
+        if (smartNpc == null)
+        {
+            return;
+        }
+
+        data.smartNpcAutonomousActivitiesEnabled =
+            snapshot.smartNpcAutonomousActivitiesEnabled;
+        data.smartNpcCanCultivate = snapshot.smartNpcCanCultivate;
+        data.smartNpcCanFight = snapshot.smartNpcCanFight;
+        data.smartNpcCanTrade = snapshot.smartNpcCanTrade;
+        data.smartNpcCanGather = snapshot.smartNpcCanGather;
+        data.smartNpcCanSellGoods = snapshot.smartNpcCanSellGoods;
+        data.smartNpcCanMakeFriends = snapshot.smartNpcCanMakeFriends;
+        data.smartNpcCanKillOthers = snapshot.smartNpcCanKillOthers;
+        data.smartNpcCanCompeteResource =
+            snapshot.smartNpcCanCompeteResource;
+        data.smartNpcCanCreateSect = snapshot.smartNpcCanCreateSect;
+        data.smartNpcOriginalHP = snapshot.smartNpcCurrentHP;
+        data.smartNpcOriginalAction = snapshot.smartNpcCurrentAction;
+        NpcActionState originalAction =
+            NpcActionState.FromDisplayText(snapshot.smartNpcCurrentAction);
+        data.smartNpcOriginalActionId = (int)originalAction.id;
+        data.smartNpcOriginalActionKey = originalAction.key;
+        data.smartNpcCurrentHP = smartNpc.currentHP;
+        data.smartNpcCurrentAction = smartNpc.currentAction;
+        NpcActionState currentAction = smartNpc.CurrentActionState;
+        data.smartNpcCurrentActionId = (int)currentAction.id;
+        data.smartNpcCurrentActionKey = currentAction.key;
+    }
+
+    void CaptureVillagerSaveData(
+        ParticipantSnapshot snapshot,
+        BicanhParticipantSaveData data)
+    {
+        VillagerAI villager = snapshot.villager;
+        data.hasVillager = villager != null;
+        if (villager == null)
+        {
+            return;
+        }
+
+        data.villagerHomeRoutineManagedExternally =
+            snapshot.villagerHomeRoutineManagedExternally;
+        data.villagerDailyTaskPlanEnabled =
+            snapshot.villagerDailyTaskPlanEnabled;
+        data.villagerDailyRoutineEnabled =
+            snapshot.villagerDailyRoutineEnabled;
+        data.villagerAutonomousWorkEnabled =
+            snapshot.villagerAutonomousWorkEnabled;
+        data.villagerAutonomousResourceWorkEnabled =
+            snapshot.villagerAutonomousResourceWorkEnabled;
+        data.villagerAutonomousDangerousWorkEnabled =
+            snapshot.villagerAutonomousDangerousWorkEnabled;
+        data.villagerStrongNpcAvoidMortalWork =
+            snapshot.villagerStrongNpcAvoidMortalWork;
+        data.villagerHideAtHome = snapshot.villagerHideAtHome;
+        data.villagerOriginalHP = snapshot.villagerCurrentHP;
+        data.villagerOriginalAction = snapshot.villagerCurrentAction;
+        NpcActionState originalAction =
+            NpcActionState.FromDisplayText(snapshot.villagerCurrentAction);
+        data.villagerOriginalActionId = (int)originalAction.id;
+        data.villagerOriginalActionKey = originalAction.key;
+        data.villagerCurrentHP = villager.currentHP;
+        data.villagerCurrentAction = villager.currentAction;
+        NpcActionState currentAction = villager.CurrentActionState;
+        data.villagerCurrentActionId = (int)currentAction.id;
+        data.villagerCurrentActionKey = currentAction.key;
+    }
+
+    void CaptureMonsterSaveData(
+        ParticipantSnapshot snapshot,
+        BicanhParticipantSaveData data)
+    {
+        MonsterAI monster = snapshot.monster;
+        data.hasMonster = monster != null;
+        if (monster == null)
+        {
+            return;
+        }
+
+        data.monsterGuardTerritory = snapshot.monsterGuardTerritory;
+        data.monsterOriginalHP = snapshot.monsterCurrentHP;
+        data.monsterOriginalAction = snapshot.monsterCurrentAction;
+        NpcActionState originalAction =
+            NpcActionState.FromDisplayText(snapshot.monsterCurrentAction);
+        data.monsterOriginalActionId = (int)originalAction.id;
+        data.monsterOriginalActionKey = originalAction.key;
+        data.monsterCurrentHP = monster.currentHP;
+        data.monsterCurrentAction = monster.currentAction;
+        NpcActionState currentAction = monster.CurrentActionState;
+        data.monsterCurrentActionId = (int)currentAction.id;
+        data.monsterCurrentActionKey = currentAction.key;
+    }
+
+    void CaptureBehaviourSaveData(
+        ParticipantSnapshot snapshot,
+        BicanhParticipantSaveData data)
+    {
+        for (int i = 0; i < snapshot.behaviourStates.Count; i++)
+        {
+            BehaviourState state = snapshot.behaviourStates[i];
+            if (state == null || state.behaviour == null)
+            {
+                continue;
+            }
+
+            data.behaviourStates.Add(new BicanhBehaviourSaveData
+            {
+                typeName = state.behaviour.GetType().FullName,
+                enabled = state.enabled
+            });
+        }
+    }
+
+    void RestoreParticipantSaveData(BicanhParticipantSaveData data)
+    {
+        if (data == null)
+        {
+            return;
+        }
+
+        GameObject entity = FindEntityBySaveData(data);
+        if (entity == null)
+        {
+            Debug.LogWarning(
+                "[Bicanh] Khong khoi phuc duoc participant: " +
+                data.stateKey);
+            return;
+        }
+
+        ParticipantSnapshot snapshot = new ParticipantSnapshot(entity);
+        ApplySavedSnapshotState(snapshot, data);
+        ApplySavedDungeonState(snapshot, data);
+
+        snapshots.Add(snapshot);
+        spawnedThisSession.Add(entity);
+        occupiedSpawnPositions.Add(entity.transform.position);
+    }
+
+    void ApplySavedSnapshotState(
+        ParticipantSnapshot snapshot,
+        BicanhParticipantSaveData data)
+    {
+        snapshot.position = data.originalPosition;
+        snapshot.rotation = data.originalRotation;
+        snapshot.wasActiveSelf = data.originalActiveSelf;
+        snapshot.wasDead = data.originalWasDead;
+
+        if (snapshot.rb != null && data.hasRigidbody)
+        {
+            snapshot.rbBodyType = (RigidbodyType2D)data.rbBodyType;
+            snapshot.rbSimulated = data.rbSimulated;
+            snapshot.rbGravityScale = data.rbGravityScale;
+            snapshot.rbConstraints =
+                (RigidbodyConstraints2D)data.rbConstraints;
+            snapshot.rbLinearVelocity = data.rbLinearVelocity;
+            snapshot.rbAngularVelocity = data.rbAngularVelocity;
+        }
+
+        if (snapshot.smartNpc != null && data.hasSmartNpc)
+        {
+            snapshot.smartNpcAutonomousActivitiesEnabled =
+                data.smartNpcAutonomousActivitiesEnabled;
+            snapshot.smartNpcCanCultivate = data.smartNpcCanCultivate;
+            snapshot.smartNpcCanFight = data.smartNpcCanFight;
+            snapshot.smartNpcCanTrade = data.smartNpcCanTrade;
+            snapshot.smartNpcCanGather = data.smartNpcCanGather;
+            snapshot.smartNpcCanSellGoods = data.smartNpcCanSellGoods;
+            snapshot.smartNpcCanMakeFriends = data.smartNpcCanMakeFriends;
+            snapshot.smartNpcCanKillOthers = data.smartNpcCanKillOthers;
+            snapshot.smartNpcCanCompeteResource =
+                data.smartNpcCanCompeteResource;
+            snapshot.smartNpcCanCreateSect = data.smartNpcCanCreateSect;
+            snapshot.smartNpcCurrentHP = data.smartNpcOriginalHP;
+            snapshot.smartNpcCurrentAction = data.smartNpcOriginalAction;
+        }
+
+        if (snapshot.villager != null && data.hasVillager)
+        {
+            snapshot.villagerHomeRoutineManagedExternally =
+                data.villagerHomeRoutineManagedExternally;
+            snapshot.villagerDailyTaskPlanEnabled =
+                data.villagerDailyTaskPlanEnabled;
+            snapshot.villagerDailyRoutineEnabled =
+                data.villagerDailyRoutineEnabled;
+            snapshot.villagerAutonomousWorkEnabled =
+                data.villagerAutonomousWorkEnabled;
+            snapshot.villagerAutonomousResourceWorkEnabled =
+                data.villagerAutonomousResourceWorkEnabled;
+            snapshot.villagerAutonomousDangerousWorkEnabled =
+                data.villagerAutonomousDangerousWorkEnabled;
+            snapshot.villagerStrongNpcAvoidMortalWork =
+                data.villagerStrongNpcAvoidMortalWork;
+            snapshot.villagerHideAtHome = data.villagerHideAtHome;
+            snapshot.villagerCurrentHP = data.villagerOriginalHP;
+            snapshot.villagerCurrentAction = data.villagerOriginalAction;
+        }
+
+        if (snapshot.monster != null && data.hasMonster)
+        {
+            snapshot.monsterCurrentHP = data.monsterOriginalHP;
+            snapshot.monsterCurrentAction = data.monsterOriginalAction;
+            snapshot.monsterGuardTerritory = data.monsterGuardTerritory;
+        }
+    }
+
+    void ApplySavedDungeonState(
+        ParticipantSnapshot snapshot,
+        BicanhParticipantSaveData data)
+    {
+        if (snapshot == null || snapshot.entity == null)
+        {
+            return;
+        }
+
+        GameObject entity = snapshot.entity;
+        entity.SetActive(data.currentActiveSelf);
+        SetWorldPosition(entity, data.currentPosition);
+        entity.transform.rotation = data.currentRotation;
+        NotifyTeleported(entity);
+
+        if (snapshot.smartNpc != null && data.hasSmartNpc)
+        {
+            snapshot.smartNpc.isBicanhParticipant = true;
+        }
+
+        RestoreCurrentCombatState(snapshot, data);
+        ApplyDungeonRestrictions(snapshot);
+        RestoreSavedBehaviourSuspension(snapshot, data);
+        RestoreRenderersAndColliders(entity);
+    }
+
+    void RestoreCurrentCombatState(
+        ParticipantSnapshot snapshot,
+        BicanhParticipantSaveData data)
+    {
+        if (snapshot.smartNpc != null && data.hasSmartNpc)
+        {
+            snapshot.smartNpc.currentHP = data.smartNpcCurrentHP;
+            if (snapshot.smartNpc.characterStats != null)
+            {
+                snapshot.smartNpc.characterStats.currentHP =
+                    data.smartNpcCurrentHP;
+            }
+
+            if (!string.IsNullOrWhiteSpace(data.smartNpcCurrentAction))
+            {
+                snapshot.smartNpc.SetCurrentActionState(
+                    ResolveSavedActionState(
+                        data.smartNpcCurrentActionKey,
+                        data.smartNpcCurrentActionId,
+                        data.smartNpcCurrentAction));
+            }
+        }
+
+        if (snapshot.villager != null && data.hasVillager)
+        {
+            snapshot.villager.currentHP = data.villagerCurrentHP;
+            if (snapshot.villager.characterStats != null)
+            {
+                snapshot.villager.characterStats.currentHP =
+                    data.villagerCurrentHP;
+            }
+
+            if (!string.IsNullOrWhiteSpace(data.villagerCurrentAction))
+            {
+                snapshot.villager.SetCurrentActionState(
+                    ResolveSavedActionState(
+                        data.villagerCurrentActionKey,
+                        data.villagerCurrentActionId,
+                        data.villagerCurrentAction));
+            }
+        }
+
+        if (snapshot.monster != null && data.hasMonster)
+        {
+            snapshot.monster.currentHP = data.monsterCurrentHP;
+            if (snapshot.monster.entityProfile != null)
+            {
+                snapshot.monster.entityProfile.stats.currentHP =
+                    data.monsterCurrentHP;
+            }
+
+            if (!string.IsNullOrWhiteSpace(data.monsterCurrentAction))
+            {
+                snapshot.monster.SetCurrentActionState(
+                    ResolveSavedActionState(
+                        data.monsterCurrentActionKey,
+                        data.monsterCurrentActionId,
+                        data.monsterCurrentAction));
+            }
+        }
+    }
+
+    void ApplyDungeonRestrictions(ParticipantSnapshot snapshot)
+    {
+        if (snapshot.smartNpc != null)
+        {
+            snapshot.smartNpc.autonomousActivitiesEnabled = true;
+            snapshot.smartNpc.canCultivate = false;
+            snapshot.smartNpc.canFight = true;
+            snapshot.smartNpc.canTrade = false;
+            snapshot.smartNpc.canGather = false;
+            snapshot.smartNpc.canSellGoods = false;
+            snapshot.smartNpc.canMakeFriends = false;
+            snapshot.smartNpc.canKillOthers = true;
+            snapshot.smartNpc.canCompeteResource = true;
+            snapshot.smartNpc.canCreateSect = false;
+        }
+
+        if (snapshot.villager != null)
+        {
+            snapshot.villager.homeRoutineManagedExternally = true;
+            snapshot.villager.dailyTaskPlanEnabled = false;
+            snapshot.villager.dailyRoutineEnabled = false;
+            snapshot.villager.autonomousWorkEnabled = false;
+            snapshot.villager.autonomousResourceWorkEnabled = false;
+            snapshot.villager.autonomousDangerousWorkEnabled = false;
+            snapshot.villager.strongNpcAvoidMortalWork = false;
+            snapshot.villager.hideAtHome = false;
+        }
+
+        if (snapshot.monster != null)
+        {
+            snapshot.monster.guardTerritory = false;
+        }
+    }
+
+    void RestoreSavedBehaviourSuspension(
+        ParticipantSnapshot snapshot,
+        BicanhParticipantSaveData data)
+    {
+        snapshot.behaviourStates.Clear();
+
+        MonoBehaviour[] behaviours =
+            snapshot.entity.GetComponentsInChildren<MonoBehaviour>(true);
+
+        foreach (MonoBehaviour behaviour in behaviours)
+        {
+            if (behaviour == null ||
+                !ShouldSuspendBehaviour(behaviour) ||
+                behaviour is SmartNpcAI ||
+                behaviour is VillagerAI ||
+                behaviour is MonsterAI)
+            {
+                continue;
+            }
+
+            bool originalEnabled =
+                FindSavedBehaviourEnabled(data, behaviour, behaviour.enabled);
+            snapshot.behaviourStates.Add(
+                new BehaviourState(behaviour, originalEnabled));
+            behaviour.enabled = false;
+        }
+    }
+
+    bool FindSavedBehaviourEnabled(
+        BicanhParticipantSaveData data,
+        Behaviour behaviour,
+        bool fallback)
+    {
+        if (data == null ||
+            data.behaviourStates == null ||
+            behaviour == null)
+        {
+            return fallback;
+        }
+
+        string fullName = behaviour.GetType().FullName;
+        for (int i = 0; i < data.behaviourStates.Count; i++)
+        {
+            BicanhBehaviourSaveData saved = data.behaviourStates[i];
+            if (saved != null &&
+                string.Equals(
+                    saved.typeName,
+                    fullName,
+                    StringComparison.Ordinal))
+            {
+                return saved.enabled;
+            }
+        }
+
+        return fallback;
+    }
+
+    NpcActionState ResolveSavedActionState(
+        string actionKey,
+        int actionId,
+        string displayText)
+    {
+        NpcActionState state =
+            !string.IsNullOrWhiteSpace(actionKey)
+                ? NpcActionState.FromKey(actionKey)
+                : NpcActionState.FromDisplayText(displayText);
+
+        if (!string.IsNullOrWhiteSpace(displayText))
+        {
+            state.displayText = displayText;
+        }
+
+        if (state.id == NpcActionId.Unknown &&
+            Enum.IsDefined(typeof(NpcActionId), actionId))
+        {
+            state.id = (NpcActionId)actionId;
+        }
+
+        return state;
+    }
+
     void ApplyDungeonMode(ParticipantSnapshot snapshot, Vector3 destination)
     {
         if (snapshot == null || snapshot.entity == null)
@@ -436,10 +1144,10 @@ public class BicanhSessionManager : MonoBehaviour
 
         GameObject entity = snapshot.entity;
         SetWorldPosition(entity, destination);
-        NotifyTeleported(entity);
-
-        NpcRoleUtility.StopForConversation(entity);
-        NpcRoleUtility.SetAction(entity, NpcText.Action("idle"));
+        if (!entity.activeSelf)
+        {
+            entity.SetActive(true);
+        }
 
         SmartNpcAI smartNpc = snapshot.smartNpc;
         if (smartNpc != null)
@@ -466,7 +1174,13 @@ public class BicanhSessionManager : MonoBehaviour
             smartNpc.canKillOthers = true;
             smartNpc.canCompeteResource = true;
             smartNpc.canCreateSect = false;
+            smartNpc.EnterBicanhSessionMode();
         }
+
+        NotifyTeleported(entity);
+
+        NpcRoleUtility.StopForConversation(entity);
+        NpcRoleUtility.SetAction(entity, NpcText.Action("idle"));
 
         VillagerAI villager = snapshot.villager;
         if (villager != null)
@@ -540,21 +1254,8 @@ public class BicanhSessionManager : MonoBehaviour
 
         string name = behaviour.GetType().Name;
         return name == nameof(NpcTaskProvider) ||
-            name == nameof(NpcSocialSystem) ||
-            name == nameof(NpcConversationAgent) ||
-            name == nameof(NpcDecisionBrain) ||
-            name == nameof(NpcNegotiationAgent) ||
             name == nameof(NpcResourceGatherer) ||
-            name == nameof(NpcTradeAgent) ||
-            name == nameof(NpcItemCollector) ||
-            name == nameof(NpcFavorite) ||
-            name == nameof(NpcSocialIdentity) ||
-            name == nameof(NpcNeeds) ||
-            name == nameof(NpcPersonality) ||
-            name == nameof(NpcRelationshipGraph) ||
-            name == nameof(NpcMemory) ||
-            name == nameof(NpcOverheadDialogueUI) ||
-            name == nameof(NpcFavoriteManager);
+            name == nameof(NpcTradeAgent);
     }
 
     void RestoreParticipant(ParticipantSnapshot snapshot, bool restoreInventory)
@@ -567,11 +1268,12 @@ public class BicanhSessionManager : MonoBehaviour
         GameObject entity = snapshot.entity;
         RestoreNonCombatBehaviours(snapshot);
         RestoreTypeSpecificState(snapshot);
-        if (restoreInventory)
-        {
-            RestoreInventory(snapshot);
-        }
         RestoreRenderersAndColliders(entity);
+
+        if (entity.activeSelf != snapshot.wasActiveSelf)
+        {
+            entity.SetActive(snapshot.wasActiveSelf);
+        }
 
         if (snapshot.rb != null)
         {
@@ -583,20 +1285,52 @@ public class BicanhSessionManager : MonoBehaviour
             snapshot.rb.angularVelocity = snapshot.rbAngularVelocity;
         }
 
-        SetWorldPosition(entity, snapshot.position);
+        SetWorldPosition(entity, ResolveReturnPosition(snapshot));
         entity.transform.rotation = snapshot.rotation;
 
         NotifyTeleported(entity);
-
-        if (snapshot.wasActiveSelf && !entity.activeSelf)
-        {
-            entity.SetActive(true);
-        }
 
         if (IsDead(entity) || snapshot.wasDead)
         {
             RestoreDeathState(snapshot);
         }
+    }
+
+    Vector3 ResolveReturnPosition(ParticipantSnapshot snapshot)
+    {
+        if (snapshot == null)
+        {
+            return GetFallbackReturnPosition();
+        }
+
+        if (IsValidReturnPosition(snapshot.position))
+        {
+            return snapshot.position;
+        }
+
+        return GetFallbackReturnPosition();
+    }
+
+    bool IsValidReturnPosition(Vector3 position)
+    {
+        if (!float.IsFinite(position.x) ||
+            !float.IsFinite(position.y) ||
+            !float.IsFinite(position.z))
+        {
+            return false;
+        }
+
+        return NpcMapArea.FindArea(position) != null;
+    }
+
+    Vector3 GetFallbackReturnPosition()
+    {
+        if (fallbackReturnPoint != null)
+        {
+            return fallbackReturnPoint.position;
+        }
+
+        return transform.position;
     }
 
     void RestoreInventory(ParticipantSnapshot snapshot)
@@ -665,6 +1399,7 @@ public class BicanhSessionManager : MonoBehaviour
             smartNpc.canKillOthers = snapshot.smartNpcCanKillOthers;
             smartNpc.canCompeteResource = snapshot.smartNpcCanCompeteResource;
             smartNpc.canCreateSect = snapshot.smartNpcCanCreateSect;
+            smartNpc.ExitBicanhSessionMode();
             if (!string.IsNullOrEmpty(snapshot.smartNpcCurrentAction))
             {
                 smartNpc.ForceSetCurrentAction(snapshot.smartNpcCurrentAction);
@@ -684,7 +1419,9 @@ public class BicanhSessionManager : MonoBehaviour
             villager.hideAtHome = snapshot.villagerHideAtHome;
             if (!string.IsNullOrEmpty(snapshot.villagerCurrentAction))
             {
-                villager.currentAction = snapshot.villagerCurrentAction;
+                villager.SetCurrentActionState(
+                    NpcActionState.FromDisplayText(
+                        snapshot.villagerCurrentAction));
             }
         }
     }
@@ -700,6 +1437,7 @@ public class BicanhSessionManager : MonoBehaviour
             }
 
             SetPrivateBool(snapshot.smartNpc, "isDead", false);
+            snapshot.smartNpc.ExitBicanhSessionMode();
             if (!string.IsNullOrEmpty(snapshot.smartNpcCurrentAction))
             {
                 snapshot.smartNpc.ForceSetCurrentAction(snapshot.smartNpcCurrentAction);
@@ -716,7 +1454,9 @@ public class BicanhSessionManager : MonoBehaviour
 
             if (!string.IsNullOrEmpty(snapshot.villagerCurrentAction))
             {
-                snapshot.villager.currentAction = snapshot.villagerCurrentAction;
+                snapshot.villager.SetCurrentActionState(
+                    NpcActionState.FromDisplayText(
+                        snapshot.villagerCurrentAction));
             }
             RestoreRenderersAndColliders(snapshot.villager.gameObject);
         }
@@ -734,7 +1474,9 @@ public class BicanhSessionManager : MonoBehaviour
             SetPrivateBool(snapshot.monster, "isRespawning", false);
             if (!string.IsNullOrEmpty(snapshot.monsterCurrentAction))
             {
-                snapshot.monster.currentAction = snapshot.monsterCurrentAction;
+                snapshot.monster.SetCurrentActionState(
+                    NpcActionState.FromDisplayText(
+                        snapshot.monsterCurrentAction));
             }
             RestoreRenderersAndColliders(snapshot.monster.gameObject);
 
@@ -790,7 +1532,7 @@ public class BicanhSessionManager : MonoBehaviour
 
         entity.SendMessage(
             "OnNpcMapTeleported",
-            null,
+            entity,
             SendMessageOptions.DontRequireReceiver);
     }
 
@@ -914,6 +1656,53 @@ public class BicanhSessionManager : MonoBehaviour
                 cachedSpawnPoints.Add(child);
             }
         }
+
+        if (cachedSpawnPoints.Count == 0)
+        {
+            cachedSpawnPoints.Add(root);
+        }
+    }
+
+    void DisableSpawnAreaColliders()
+    {
+        RestoreSpawnAreaColliders();
+
+        if (spawnPointsRoot == null)
+        {
+            return;
+        }
+
+        Collider2D[] colliders =
+            spawnPointsRoot.GetComponentsInChildren<Collider2D>(true);
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            Collider2D collider2d = colliders[i];
+            if (collider2d == null)
+            {
+                continue;
+            }
+
+            disabledSpawnAreaColliders.Add(collider2d);
+            disabledSpawnAreaColliderStates.Add(collider2d.enabled);
+            collider2d.enabled = false;
+        }
+    }
+
+    void RestoreSpawnAreaColliders()
+    {
+        for (int i = 0; i < disabledSpawnAreaColliders.Count; i++)
+        {
+            Collider2D collider2d = disabledSpawnAreaColliders[i];
+            if (collider2d != null)
+            {
+                collider2d.enabled =
+                    i < disabledSpawnAreaColliderStates.Count &&
+                    disabledSpawnAreaColliderStates[i];
+            }
+        }
+
+        disabledSpawnAreaColliders.Clear();
+        disabledSpawnAreaColliderStates.Clear();
     }
 
     static void Shuffle<T>(List<T> items)
@@ -951,6 +1740,122 @@ public class BicanhSessionManager : MonoBehaviour
         }
 
         return false;
+    }
+
+    GameObject FindEntityBySaveData(BicanhParticipantSaveData data)
+    {
+        if (data == null)
+        {
+            return null;
+        }
+
+        if (!string.IsNullOrWhiteSpace(data.npcId))
+        {
+            foreach (NPCIdentity identity in FindObjectsByType<NPCIdentity>(FindObjectsInactive.Include))
+            {
+                if (identity != null &&
+                    string.Equals(
+                        identity.npcId,
+                        data.npcId,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return identity.gameObject;
+                }
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(data.worldActorPersistentId))
+        {
+            foreach (SpawnedWorldActor actor in FindObjectsByType<SpawnedWorldActor>(FindObjectsInactive.Include))
+            {
+                if (actor != null &&
+                    string.Equals(
+                        actor.persistentId,
+                        data.worldActorPersistentId,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return actor.gameObject;
+                }
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(data.npcDataPersistentId))
+        {
+            foreach (NpcData npcData in FindObjectsByType<NpcData>(FindObjectsInactive.Include))
+            {
+                if (npcData != null &&
+                    string.Equals(
+                        npcData.persistentId,
+                        data.npcDataPersistentId,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return npcData.gameObject;
+                }
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(data.socialId))
+        {
+            foreach (NpcSocialIdentity socialIdentity in FindObjectsByType<NpcSocialIdentity>(FindObjectsInactive.Include))
+            {
+                if (socialIdentity != null &&
+                    string.Equals(
+                        socialIdentity.socialId,
+                        data.socialId,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return socialIdentity.gameObject;
+                }
+            }
+        }
+
+        return !string.IsNullOrWhiteSpace(data.objectName)
+            ? GameObject.Find(data.objectName)
+            : null;
+    }
+
+    string GetEntityStateKey(GameObject entity)
+    {
+        if (entity == null)
+        {
+            return "";
+        }
+
+        SpawnedWorldActor actor = entity.GetComponent<SpawnedWorldActor>();
+        if (actor != null)
+        {
+            actor.EnsurePersistentId();
+            if (!string.IsNullOrWhiteSpace(actor.persistentId))
+            {
+                return "actor:" + actor.persistentId;
+            }
+        }
+
+        NpcData npcData = entity.GetComponent<NpcData>();
+        if (npcData != null)
+        {
+            npcData.EnsurePersistentId();
+            if (!string.IsNullOrWhiteSpace(npcData.persistentId))
+            {
+                return "npcData:" + npcData.persistentId;
+            }
+        }
+
+        NPCIdentity identity = entity.GetComponent<NPCIdentity>();
+        if (identity != null && !string.IsNullOrWhiteSpace(identity.npcId))
+        {
+            return "npc:" + identity.npcId;
+        }
+
+        NpcSocialIdentity socialIdentity =
+            entity.GetComponent<NpcSocialIdentity>();
+        if (socialIdentity != null &&
+            !string.IsNullOrWhiteSpace(socialIdentity.socialId))
+        {
+            return "social:" + socialIdentity.socialId;
+        }
+
+        return "name:" + entity.name;
     }
 
     class BehaviourState

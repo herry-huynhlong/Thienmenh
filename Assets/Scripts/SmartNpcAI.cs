@@ -19,7 +19,7 @@ public enum PhysiqueType
 }
 
 [RequireComponent(typeof(NpcScheduleController))]
-public partial class SmartNpcAI : MonoBehaviour, IDamageable
+public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwner
 {
     [Header("Entity Generation")]
     public bool generateFromEntityProfile = true;
@@ -40,6 +40,9 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
     public bool canCompeteResource = true;
     public bool canCreateSect = true;
     public bool autonomousActivitiesEnabled = false;
+    [Header("Map Session")]
+    [Tooltip("Legacy runtime flag used by BicanhSessionManager; behavior rules are resolved through NpcMapBehaviorPolicy.")]
+    public bool isBicanhParticipant;
 
     [Header("Canh gioi")]
     public CultivationRealm realm = CultivationRealm.Mortal;
@@ -222,6 +225,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
     [Header("Trang thai hien tai")]
     public string currentAction = "";
+    public NpcActionId currentActionId = NpcActionId.Unknown;
+    public string currentActionKey = "";
     [SerializeField] SmartAITask currentSmartTask = new SmartAITask();
     [SerializeField] SmartAITask scheduleSmartTask = new SmartAITask();
 
@@ -545,7 +550,44 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         }
 
         actionTimer = Mathf.Max(actionTimer, Mathf.Max(0f, durationSeconds));
-        currentAction = action;
+        SetCurrentActionState(NpcActionState.FromDisplayText(action));
+    }
+
+    public NpcActionState CurrentActionState
+    {
+        get
+        {
+            NpcActionState resolved =
+                NpcActionState.FromDisplayText(currentAction);
+
+            if (resolved.id == NpcActionId.Unknown &&
+                !string.IsNullOrWhiteSpace(currentActionKey))
+            {
+                resolved = NpcActionState.FromKey(currentActionKey);
+            }
+
+            if (resolved.id == NpcActionId.Unknown &&
+                currentActionId != NpcActionId.Unknown)
+            {
+                resolved.id = currentActionId;
+            }
+
+            if (!string.IsNullOrWhiteSpace(currentAction))
+            {
+                resolved.displayText = currentAction;
+            }
+
+            return resolved;
+        }
+    }
+
+    public void SetCurrentActionState(NpcActionState state)
+    {
+        currentActionId = state.id;
+        currentActionKey = state.key ?? "";
+        currentAction = !string.IsNullOrWhiteSpace(state.displayText)
+            ? state.displayText
+            : NpcText.Action(currentActionKey);
     }
 
     void OnEnable()
@@ -779,6 +821,17 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (HeavenlyTribulationSystem.IsTargetLocked(gameObject))
+        {
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+
+            SetCurrentActionState(NpcActionState.FromKey("waitTribulation"));
+            return;
+        }
+
         if (isDead)
         {
             return;
@@ -799,6 +852,11 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         }
 
         RefreshScheduledStateForCurrentFrame();
+
+        if (ShouldEnforceMapBehaviorPolicy())
+        {
+            EnforceMapBehaviorPolicyState();
+        }
 
         bool busyWithProvider =
             NpcTaskProvider.IsNpcBusyWithAnyProvider(gameObject);
@@ -986,6 +1044,17 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 rb.linearVelocity = Vector2.zero;
             }
 
+            return;
+        }
+
+        if (HeavenlyTribulationSystem.IsTargetLocked(gameObject))
+        {
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+
+            UpdateVisualAnimation();
             return;
         }
 
@@ -1522,7 +1591,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
     bool ShouldResumeCultivationTravel()
     {
         if (!canCultivate ||
-            IsInDungeonCombatSession())
+            IsRestrictedMapSessionActive())
         {
             return false;
         }
@@ -2926,6 +2995,24 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             treasureHuntTarget != null ||
             treasureHuntItem != null ||
             hasHomeReturnTarget;
+
+        if (!NpcMapBehaviorPolicy.AllowsNormalWorldTravel(gameObject) &&
+            IsNormalWorldTravelAction(currentAction))
+        {
+            currentMonsterTarget = null;
+            ClearMonsterCombatState();
+            ClearTaskProviderVisitState();
+            ClearCultivationTravelState();
+            ClearTravelTargetsAndStop();
+            waitingOutsideTreasureLightning = false;
+            hasTreasureWaitPosition = false;
+            treasureWaitLowPowerSkirmish = false;
+            treasureHuntTarget = null;
+            treasureHuntItem = null;
+            hasHomeReturnTarget = false;
+            preserveTravelState = false;
+            currentAction = NpcText.Action("idle");
+        }
 
         spawnPosition = transform.position;       // Đặt lại điểm gốc di chuyển tại map mới
         lastUnstuckPosition = transform.position; // Reset vị trí chống kẹt
@@ -5186,12 +5273,13 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
     void Cultivate()
     {
-        if (IsDead || IsInDungeonCombatSession())
+        if (IsDead || IsRestrictedMapSessionActive())
         {
             return;
         }
 
         currentAction = NpcText.Action("cultivate");
+        NpcSpeechController.TryShowSpeech(gameObject, null, "cultivate_self");
         float cultivateSeconds =
             GameHoursToSeconds(
                 Random.Range(
@@ -5240,7 +5328,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
     {
         if (IsDead ||
             waitingForHeavenlyTribulation ||
-            IsInDungeonCombatSession())
+            IsRestrictedMapSessionActive())
         {
             return;
         }
@@ -5301,6 +5389,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         actionTimer = Mathf.Max(actionTimer, cultivateSeconds);
         currentAction = NpcText.Action("cultivateAbsorbQi");
+        NpcSpeechController.TryShowSpeech(gameObject, null, "cultivate_self");
 
     }
 
@@ -5420,7 +5509,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
     bool TryGoToCultivationPoint()
     {
-        if (IsInDungeonCombatSession())
+        if (IsRestrictedMapSessionActive())
         {
             return false;
         }
@@ -5921,9 +6010,16 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             action.StartsWith("Đi cổng dịch chuyển");
     }
 
-    bool IsInDungeonCombatSession()
+    bool IsRestrictedMapSessionActive()
     {
-        return BicanhSessionManager.IsDungeonParticipant(gameObject);
+        return NpcMapBehaviorPolicy.IsRestrictedSessionParticipant(gameObject);
+    }
+
+    bool ShouldEnforceMapBehaviorPolicy()
+    {
+        return IsRestrictedMapSessionActive() ||
+            !NpcMapBehaviorPolicy.AllowsNormalWorldTravel(gameObject) ||
+            !NpcMapBehaviorPolicy.AllowsSchedule(gameObject);
     }
 
     bool IgnoresMortalNeeds()
@@ -6358,15 +6454,27 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
     void SearchMonster()
     {
+        NpcMapZone? allowedCombatZone =
+            NpcMapBehaviorPolicy.GetAllowedCombatZone(gameObject);
+        bool restrictToCombatZone =
+            NpcMapBehaviorPolicy.ForcesCombatLoop(gameObject) &&
+            allowedCombatZone.HasValue;
         NpcLocationArea huntArea =
             NpcLocationArea.FindBestArea(
                 gameObject,
                 NpcScheduleActivity.Hunt,
                 VillagerJob.None,
                 NpcLocationPurpose.Hunt,
-                null,
+                allowedCombatZone,
                 GetSmartDangerTier(),
                 transform.position);
+
+        if (restrictToCombatZone &&
+            huntArea != null &&
+            huntArea.zone != allowedCombatZone.Value)
+        {
+            huntArea = null;
+        }
 
         bool hasHuntArea =
             huntArea != null;
@@ -6374,15 +6482,50 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             hasHuntArea
                 ? huntArea.transform.position
                 : spawnPosition;
+        MonsterAI sharedCombatTarget =
+            restrictToCombatZone
+                ? NpcMapBehaviorPolicy.GetSharedCombatTarget(
+                    allowedCombatZone.Value)
+                : null;
 
         if (currentMonsterTarget != null &&
             !isCounterAttackingMonster &&
-            !ShouldSmartAutoHuntMonster(currentMonsterTarget))
+            (!ShouldSmartAutoHuntMonster(currentMonsterTarget) ||
+            !CanUseMonsterTargetByMapPolicy(
+                currentMonsterTarget,
+                allowedCombatZone)))
         {
             ReleaseMonsterReservation(currentMonsterTarget);
             currentMonsterTarget = null;
             currentTarget = null;
             DebugFlow("Hunt", "Drop non-beast target");
+        }
+
+        if (restrictToCombatZone &&
+            currentMonsterTarget != null)
+        {
+            if (sharedCombatTarget == null)
+            {
+                NpcMapBehaviorPolicy.SetSharedCombatTarget(
+                    allowedCombatZone.Value,
+                    currentMonsterTarget);
+                sharedCombatTarget = currentMonsterTarget;
+            }
+            else if (currentMonsterTarget != sharedCombatTarget &&
+                NpcMapBehaviorPolicy.CanUseMonsterTarget(
+                    gameObject,
+                    sharedCombatTarget))
+            {
+                ReleaseMonsterReservation(currentMonsterTarget);
+                currentMonsterTarget = sharedCombatTarget;
+                currentTarget = sharedCombatTarget.transform;
+                TryIgnoreCombatTargetCollision(currentTarget);
+                hasWanderTarget = false;
+                currentAction =
+                    NpcText.ActionFormat(
+                        "huntMonsterNamed",
+                        sharedCombatTarget.monsterName);
+            }
         }
 
         // Neu dang co muc tieu song thi tiep tuc danh.
@@ -6391,6 +6534,13 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             // Bo target neu quai da chet.
             if (currentMonsterTarget.currentHP <= 0)
             {
+                if (restrictToCombatZone)
+                {
+                    NpcMapBehaviorPolicy.ClearSharedCombatTarget(
+                        allowedCombatZone.Value,
+                        currentMonsterTarget);
+                }
+
                 ReleaseMonsterReservation(currentMonsterTarget);
                 currentMonsterTarget = null;
                 currentTarget = null;
@@ -6400,14 +6550,16 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             }
 
             bool targetStillInHuntArea =
-                hasHuntArea
-                    ? IsPointInsideNpcLocationArea(
-                        huntArea,
-                        currentMonsterTarget.transform.position)
-                    : Vector2.Distance(
-                        spawnPosition,
-                        currentMonsterTarget.transform.position) <=
-                        maxRoamDistance;
+                restrictToCombatZone
+                    ? true
+                    : hasHuntArea
+                        ? IsPointInsideNpcLocationArea(
+                            huntArea,
+                            currentMonsterTarget.transform.position)
+                        : Vector2.Distance(
+                            spawnPosition,
+                            currentMonsterTarget.transform.position) <=
+                            maxRoamDistance;
 
             bool preserveCombatTarget =
                 isCounterAttackingMonster ||
@@ -6434,6 +6586,23 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                     "Keep combat target outside hunt area");
             }
 
+            if (restrictToCombatZone &&
+                !ShouldSharedCombatTeamFight(
+                    currentMonsterTarget,
+                    allowedCombatZone))
+            {
+                NpcMapBehaviorPolicy.ClearSharedCombatTarget(
+                    allowedCombatZone.Value,
+                    currentMonsterTarget);
+                MonsterAI overpowerMonster = currentMonsterTarget;
+                ReleaseMonsterReservation(currentMonsterTarget);
+                currentMonsterTarget = null;
+                currentTarget = null;
+                ClearMonsterCombatState();
+                TryAvoidCombatMapThreat(overpowerMonster);
+                return;
+            }
+
             if (isRetreatingFromMonster)
             {
                 currentTarget = null;
@@ -6443,7 +6612,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 return;
             }
 
-            if (!TargetReservationSystem.Instance.IsReservedByOwner(
+            if (!UsesSharedCombatTargeting() &&
+                !TargetReservationSystem.Instance.IsReservedByOwner(
                     currentMonsterTarget.gameObject,
                     gameObject) &&
                 currentHelpRequest == null &&
@@ -6491,15 +6661,27 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         MonsterAI[] monsters =
             FindObjectsByType<MonsterAI>(FindObjectsInactive.Exclude);
 
+        MonsterAI sharedTarget =
+            restrictToCombatZone
+                ? FindSharedCombatMapTarget(allowedCombatZone.Value)
+                : null;
         MonsterAI bestTarget = null;
         float closestDistance =
             Mathf.Infinity;
+        MonsterAI overpowerThreatNearby = null;
 
         foreach (MonsterAI monster in monsters)
         {
             // Bo qua quai da chet.
             if (!ShouldSmartAutoHuntMonster(monster) ||
                 monster.currentHP <= 0)
+            {
+                continue;
+            }
+
+            if (!CanUseMonsterTargetByMapPolicy(
+                    monster,
+                    allowedCombatZone))
             {
                 continue;
             }
@@ -6526,12 +6708,14 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 RequestHelpForMonster(monster);
             }
 
-            if (!ShouldFightMonster(monster))
+            if (sharedTarget != null &&
+                monster != sharedTarget)
             {
                 continue;
             }
 
-            if (TargetReservationSystem.Instance.IsReservedByOther(
+            if (!UsesSharedCombatTargeting() &&
+                TargetReservationSystem.Instance.IsReservedByOther(
                     monster.gameObject,
                     gameObject))
             {
@@ -6539,14 +6723,16 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             }
 
             bool monsterInHuntArea =
-                hasHuntArea
-                    ? IsPointInsideNpcLocationArea(
-                        huntArea,
-                        monster.transform.position)
-                    : Vector2.Distance(
-                        spawnPosition,
-                        monster.transform.position) <=
-                        maxRoamDistance;
+                restrictToCombatZone
+                    ? true
+                    : hasHuntArea
+                        ? IsPointInsideNpcLocationArea(
+                            huntArea,
+                            monster.transform.position)
+                        : Vector2.Distance(
+                            spawnPosition,
+                            monster.transform.position) <=
+                            maxRoamDistance;
 
             if (!monsterInHuntArea)
             {
@@ -6558,6 +6744,19 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 Vector2.Distance(
                     transform.position,
                     monster.transform.position);
+
+            if (!ShouldSharedCombatTeamFight(
+                    monster,
+                    allowedCombatZone))
+            {
+                if (restrictToCombatZone &&
+                    distance <= Mathf.Max(attackRange + 3f, 5f))
+                {
+                    overpowerThreatNearby = monster;
+                }
+
+                continue;
+            }
 
             // Chon muc tieu gan nhat.
             if (distance < closestDistance)
@@ -6576,6 +6775,13 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                     bestTarget,
                     Mathf.Max(4f, attackCooldown * 4f)))
             {
+                if (restrictToCombatZone)
+                {
+                    NpcMapBehaviorPolicy.SetSharedCombatTarget(
+                        allowedCombatZone.Value,
+                        bestTarget);
+                }
+
                 currentTarget =
                     bestTarget.transform;
                 TryIgnoreCombatTargetCollision(currentTarget);
@@ -6591,6 +6797,19 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             DebugFlow("Hunt", "Monster already reserved by other npc");
         }
 
+        if (restrictToCombatZone &&
+            overpowerThreatNearby != null &&
+            TryAvoidCombatMapThreat(overpowerThreatNearby))
+        {
+            return;
+        }
+
+        if (restrictToCombatZone &&
+            TryStartCombatMapLootPickup(allowedCombatZone.Value))
+        {
+            return;
+        }
+
         if (hasHuntArea)
         {
             Vector3 roamPoint = huntArea.GetRandomPoint(gameObject);
@@ -6601,6 +6820,24 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             hasObstacleAvoidTarget = false;
             currentAction = NpcText.Action("goHunt");
             DebugFlow("Hunt", "Patrol hunt area");
+        }
+        else if (restrictToCombatZone)
+        {
+            NpcMapArea combatArea =
+                NpcMapArea.FindNearestAreaInZone(
+                    allowedCombatZone.Value,
+                    transform.position);
+            Vector3 roamPoint =
+                combatArea != null
+                    ? combatArea.GetMovementCenter(transform.position)
+                    : spawnPosition;
+            currentTarget = null;
+            wanderTarget = roamPoint;
+            hasWanderTarget = true;
+            hasEscapeTarget = false;
+            hasObstacleAvoidTarget = false;
+            currentAction = NpcText.Action("goHunt");
+            DebugFlow("Hunt", "Patrol combat map");
         }
         else
         {
@@ -6707,6 +6944,16 @@ void TryAttackMonster()
     // Bo target neu quai da chet.
     if (currentMonsterTarget.currentHP <= 0)
     {
+        NpcMapZone? allowedCombatZone =
+            NpcMapBehaviorPolicy.GetAllowedCombatZone(gameObject);
+        if (UsesSharedCombatTargeting() &&
+            allowedCombatZone.HasValue)
+        {
+            NpcMapBehaviorPolicy.ClearSharedCombatTarget(
+                allowedCombatZone.Value,
+                currentMonsterTarget);
+        }
+
         ReleaseMonsterReservation(currentMonsterTarget);
         currentMonsterTarget = null;
 
@@ -6716,7 +6963,8 @@ void TryAttackMonster()
         return;
     }
 
-    if (!TargetReservationSystem.Instance.IsReservedByOwner(
+    if (!UsesSharedCombatTargeting() &&
+        !TargetReservationSystem.Instance.IsReservedByOwner(
             currentMonsterTarget.gameObject,
             gameObject) &&
         currentHelpRequest == null &&
@@ -6822,7 +7070,7 @@ void TryAttackMonster()
         NpcText.Dialogue("combatMonsterReason"));
 
     actionTimer = Mathf.Max(actionTimer, 0.45f);
-    currentMonsterTarget.TakeDamage(attackDamage);
+    currentMonsterTarget.TakeDamage(attackDamage, gameObject);
 
     Debug.Log(NpcText.Format(NpcText.Get("logs", "attackMonster"), npcName, currentMonsterTarget.monsterName, attackDamage));
 }
@@ -7256,6 +7504,8 @@ public void ShootFireball()
 
         MonsterAI[] monsters =
             FindObjectsByType<MonsterAI>(FindObjectsInactive.Exclude);
+        NpcMapZone? allowedCombatZone =
+            NpcMapBehaviorPolicy.GetAllowedCombatZone(gameObject);
 
         MonsterAI bestTarget = null;
         float bestDistance = float.MaxValue;
@@ -7266,7 +7516,10 @@ public void ShootFireball()
             if (monster == null ||
                 monster.currentHP <= 0 ||
                 !monster.attackSmartNpcs ||
-                !ShouldSmartAutoHuntMonster(monster))
+                !ShouldSmartAutoHuntMonster(monster) ||
+                !CanUseMonsterTargetByMapPolicy(
+                    monster,
+                    allowedCombatZone))
             {
                 continue;
             }
@@ -7287,12 +7540,15 @@ public void ShootFireball()
                 return;
             }
 
-            if (!ShouldFightMonster(monster))
+            if (!ShouldSharedCombatTeamFight(
+                    monster,
+                    allowedCombatZone))
             {
                 continue;
             }
 
-            if (TargetReservationSystem.Instance.IsReservedByOther(
+            if (!UsesSharedCombatTargeting() &&
+                TargetReservationSystem.Instance.IsReservedByOther(
                     monster.gameObject,
                     gameObject))
             {
@@ -7334,6 +7590,225 @@ public void ShootFireball()
             "Combat",
             "Interrupted gather to attack monster " +
             bestTarget.monsterName);
+    }
+
+    bool CanUseMonsterTargetByMapPolicy(
+        MonsterAI monster,
+        NpcMapZone? allowedCombatZone)
+    {
+        if (!NpcMapBehaviorPolicy.ForcesCombatLoop(gameObject))
+        {
+            return true;
+        }
+
+        if (!allowedCombatZone.HasValue)
+        {
+            return false;
+        }
+
+        if (monster == null)
+        {
+            return false;
+        }
+
+        NpcMapZone? monsterZone =
+            NpcMapNavigator.ResolveActorZone(monster.gameObject);
+        return monsterZone.HasValue &&
+            monsterZone.Value == allowedCombatZone.Value;
+    }
+
+    bool UsesSharedCombatTargeting()
+    {
+        return NpcMapBehaviorPolicy.ForcesCombatLoop(gameObject);
+    }
+
+    bool TryStartCombatMapLootPickup(NpcMapZone allowedCombatZone)
+    {
+        WorldStatItemPickup[] pickups =
+            FindObjectsByType<WorldStatItemPickup>(
+                FindObjectsInactive.Exclude);
+        WorldStatItemPickup bestPickup = null;
+        float bestDistance = Mathf.Infinity;
+
+        foreach (WorldStatItemPickup pickup in pickups)
+        {
+            if (pickup == null ||
+                pickup.item == null ||
+                pickup.amount <= 0 ||
+                !pickup.allowNpcPickup ||
+                pickup.RequiresNpcHarvestAction() ||
+                pickup.IsReservedByOther(gameObject))
+            {
+                continue;
+            }
+
+            NpcMapArea pickupArea =
+                NpcMapArea.FindArea(pickup.transform.position);
+            if (pickupArea == null ||
+                pickupArea.zone != allowedCombatZone)
+            {
+                continue;
+            }
+
+            float distance =
+                Vector2.Distance(transform.position, pickup.transform.position);
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                bestPickup = pickup;
+            }
+        }
+
+        if (bestPickup == null ||
+            !bestPickup.TryReserve(gameObject, 4f))
+        {
+            return false;
+        }
+
+        currentTarget = bestPickup.transform;
+        hasWanderTarget = false;
+        hasEscapeTarget = false;
+        hasObstacleAvoidTarget = false;
+        currentAction = NpcText.Action("goHunt");
+        DebugFlow(
+            "Loot",
+            "Bicanh loot pickup " + ItemText.Name(bestPickup.item));
+        return true;
+    }
+
+    float GetSharedCombatTeamPower(NpcMapZone allowedCombatZone)
+    {
+        SmartNpcAI[] smartNpcs =
+            FindObjectsByType<SmartNpcAI>(FindObjectsInactive.Exclude);
+        float power = 0f;
+
+        foreach (SmartNpcAI ally in smartNpcs)
+        {
+            if (ally == null ||
+                ally.IsDead ||
+                CombatPowerUtility.GetCurrentHpRatio(ally.gameObject) <= 0.05f)
+            {
+                continue;
+            }
+
+            NpcMapZone? allyZone =
+                NpcMapNavigator.ResolveActorZone(ally.gameObject);
+            if (!allyZone.HasValue ||
+                allyZone.Value != allowedCombatZone)
+            {
+                continue;
+            }
+
+            power += CombatPowerUtility.GetPower(ally.gameObject);
+        }
+
+        return Mathf.Max(1f, power);
+    }
+
+    bool ShouldSharedCombatTeamFight(
+        MonsterAI monster,
+        NpcMapZone? allowedCombatZone)
+    {
+        if (!UsesSharedCombatTargeting() ||
+            !allowedCombatZone.HasValue ||
+            monster == null)
+        {
+            return ShouldFightMonster(monster);
+        }
+
+        float teamPower =
+            GetSharedCombatTeamPower(allowedCombatZone.Value);
+        return CombatPowerUtility.ShouldTeamFight(
+            teamPower,
+            monster.gameObject,
+            0.8f);
+    }
+
+    MonsterAI FindSharedCombatMapTarget(NpcMapZone allowedCombatZone)
+    {
+        MonsterAI policyTarget =
+            NpcMapBehaviorPolicy.GetSharedCombatTarget(allowedCombatZone);
+        if (policyTarget != null &&
+            NpcMapBehaviorPolicy.CanUseMonsterTarget(
+                gameObject,
+                policyTarget))
+        {
+            return policyTarget;
+        }
+
+        SmartNpcAI[] smartNpcs =
+            FindObjectsByType<SmartNpcAI>(FindObjectsInactive.Exclude);
+        MonsterAI bestExistingTarget = null;
+        float bestExistingDistance = Mathf.Infinity;
+
+        foreach (SmartNpcAI ally in smartNpcs)
+        {
+            if (ally == null ||
+                ally == this ||
+                ally.currentMonsterTarget == null ||
+                ally.currentMonsterTarget.currentHP <= 0 ||
+                !NpcMapBehaviorPolicy.CanUseMonsterTarget(
+                    gameObject,
+                    ally.currentMonsterTarget))
+            {
+                continue;
+            }
+
+            float distance =
+                Vector2.Distance(
+                    transform.position,
+                    ally.currentMonsterTarget.transform.position);
+            if (distance < bestExistingDistance)
+            {
+                bestExistingDistance = distance;
+                bestExistingTarget = ally.currentMonsterTarget;
+            }
+        }
+
+        if (bestExistingTarget != null)
+        {
+            NpcMapBehaviorPolicy.SetSharedCombatTarget(
+                allowedCombatZone,
+                bestExistingTarget);
+            return bestExistingTarget;
+        }
+
+        MonsterAI[] monsters =
+            FindObjectsByType<MonsterAI>(FindObjectsInactive.Exclude);
+        MonsterAI bestTarget = null;
+        float bestDistance = Mathf.Infinity;
+
+        foreach (MonsterAI monster in monsters)
+        {
+            if (!ShouldSmartAutoHuntMonster(monster) ||
+                monster.currentHP <= 0 ||
+                !CanUseMonsterTargetByMapPolicy(
+                    monster,
+                    allowedCombatZone) ||
+                !ShouldSharedCombatTeamFight(
+                    monster,
+                    allowedCombatZone))
+            {
+                continue;
+            }
+
+            float distance =
+                Vector2.Distance(transform.position, monster.transform.position);
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                bestTarget = monster;
+            }
+        }
+
+        if (bestTarget != null)
+        {
+            NpcMapBehaviorPolicy.SetSharedCombatTarget(
+                allowedCombatZone,
+                bestTarget);
+        }
+
+        return bestTarget;
     }
 
     public void ApplyItem(StatItemData item)

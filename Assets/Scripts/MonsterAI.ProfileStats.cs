@@ -4,16 +4,26 @@ public partial class MonsterAI
 {
     void ApplyEntityProfile()
     {
-        entityProfile = EntityGenerator.EnsureProfile(gameObject, EntityKind.Beast);
+        EntityKind desiredKind = IsAnimalTargetType()
+            ? EntityKind.Animal
+            : EntityKind.Beast;
+
+        entityProfile = EntityGenerator.EnsureProfile(gameObject, desiredKind);
         if (entityProfile == null)
         {
             return;
         }
 
-        if (entityProfile.kind != EntityKind.Beast)
+        if (entityProfile.kind != desiredKind)
         {
-            EntityGenerator.FillProfile(entityProfile, EntityKind.Beast);
+            EntityGenerator.FillProfile(entityProfile, desiredKind);
             entityProfile.lockGeneratedValues = true;
+        }
+
+        if (IsAnimalTargetType())
+        {
+            ApplyAnimalProfile(true);
+            return;
         }
 
         double realmPower =
@@ -72,6 +82,30 @@ public partial class MonsterAI
 
     public void RecalculateRealmStats(bool fillHP)
     {
+        if (IsAnimalTargetType())
+        {
+            if (maxHP <= 0)
+            {
+                ApplyAnimalProfile(false);
+            }
+            else
+            {
+                realm = CultivationRealm.Mortal;
+                realmStage = 1;
+                damage = Mathf.Max(1, baseDamage);
+                defense = Mathf.Max(0, baseDefense);
+                effectResistance = Mathf.Max(0, baseEffectResistance);
+                moveSpeed = Mathf.Max(0.1f, baseMoveSpeed);
+                beastLevel = 1;
+                currentHP = fillHP
+                    ? maxHP
+                    : Mathf.Clamp(currentHP, 1, maxHP);
+                SyncEntityProfileStats();
+            }
+
+            return;
+        }
+
         if (!autoStatsFromRealm)
         {
             currentHP = Mathf.Clamp(currentHP, 0, maxHP);
@@ -131,6 +165,69 @@ public partial class MonsterAI
         }
     }
 
+    bool IsAnimalTargetType()
+    {
+        return huntTargetType == HuntTargetType.Animal;
+    }
+
+    void ApplyAnimalProfile(bool randomizeHp)
+    {
+        int resolvedHp = randomizeHp
+            ? Random.Range(80, 91)
+            : Mathf.Clamp(maxHP > 0 ? maxHP : 85, 80, 90);
+
+        baseMaxHP = resolvedHp;
+        baseDamage = Mathf.Max(1, randomizeHp ? Random.Range(4, 7) : Mathf.Max(1, baseDamage));
+        baseDefense = Mathf.Max(0, randomizeHp ? Random.Range(1, 4) : Mathf.Max(0, baseDefense));
+        baseEffectResistance = Mathf.Max(0, randomizeHp ? Random.Range(0, 3) : baseEffectResistance);
+        baseMoveSpeed = Mathf.Max(0.1f, randomizeHp ? Random.Range(1.0f, 1.8f) : baseMoveSpeed);
+        maxHP = resolvedHp;
+        damage = baseDamage;
+        defense = baseDefense;
+        effectResistance = baseEffectResistance;
+        moveSpeed = baseMoveSpeed;
+        realm = CultivationRealm.Mortal;
+        realmStage = 1;
+        beastLevel = 1;
+        currentHP = Mathf.Clamp(currentHP <= 0 ? resolvedHp : currentHP, 1, maxHP);
+        cultivationExp = 0;
+        beastInstinct = Mathf.Clamp(Random.Range(10f, 30f), 0f, 100f);
+        aggression = Mathf.Clamp(Random.Range(5f, 20f), 0f, 100f);
+        fear = Mathf.Clamp(Random.Range(20f, 60f), 0f, 100f);
+        hunger = Mathf.Clamp(Random.Range(5f, 55f), 0f, 100f);
+        territorial = Mathf.Clamp(Random.Range(10f, 35f), 0f, 100f);
+        bloodlust = Mathf.Clamp(Random.Range(0f, 10f), 0f, 100f);
+        survivalInstinct = Mathf.Clamp(Random.Range(55f, 100f), 0f, 100f);
+
+        if (entityProfile != null)
+        {
+            entityProfile.kind = EntityKind.Animal;
+            if (entityProfile.identity != null)
+            {
+                entityProfile.identity.kind = EntityKind.Animal;
+                entityProfile.identity.gender = EntityGender.Unknown;
+                entityProfile.identity.age = Mathf.Clamp(
+                    entityProfile.identity.age <= 0 ? 8 : entityProfile.identity.age,
+                    1,
+                    25);
+                entityProfile.identity.entityName = string.IsNullOrWhiteSpace(monsterName) ? "Phàm thú" : monsterName;
+            }
+
+            entityProfile.currentGoal = EntityGoal.Survive;
+            entityProfile.stats.realm = realm;
+            entityProfile.stats.realmStage = realmStage;
+            entityProfile.stats.maxHP = maxHP;
+            entityProfile.stats.currentHP = currentHP;
+            entityProfile.stats.attack = damage;
+            entityProfile.stats.defense = defense;
+            entityProfile.stats.effectResistance = effectResistance;
+            entityProfile.stats.moveSpeed = moveSpeed;
+            entityProfile.stats.cultivationExp = cultivationExp > int.MaxValue
+                ? int.MaxValue
+                : (int)cultivationExp;
+        }
+    }
+
     void SyncEntityProfileStats()
     {
         if (entityProfile == null)
@@ -159,6 +256,11 @@ public partial class MonsterAI
 
     public string GetRealmText()
     {
+        if (IsAnimalTargetType())
+        {
+            return "PhÃ m thÃº";
+        }
+
         switch (realm)
         {
             case CultivationRealm.Mortal:
@@ -190,6 +292,12 @@ public partial class MonsterAI
 
         if (!Application.isPlaying)
         {
+            if (IsAnimalTargetType())
+            {
+                ApplyAnimalProfile(false);
+                return;
+            }
+
             RecalculateRealmStats(false);
         }
     }

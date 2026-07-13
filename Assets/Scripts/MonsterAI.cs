@@ -7,7 +7,7 @@ public enum HuntTargetType
     Animal
 }
 
-public partial class MonsterAI : MonoBehaviour, IDamageable
+public partial class MonsterAI : MonoBehaviour, IDamageable, INpcActionStateOwner
 {
     [Header("===== ENTITY GENERATION =====")]
     public bool generateFromEntityProfile = true;
@@ -96,6 +96,8 @@ public partial class MonsterAI : MonoBehaviour, IDamageable
     [Header("===== RUNTIME DEBUG =====")]
     public bool debugFlowLogs;
     public string currentAction = "Idle";
+    public NpcActionId currentActionId = NpcActionId.Idle;
+    public string currentActionKey = "idle";
     public Vector2 currentMoveVelocity;
 
     [Header("===== PERFORMANCE =====")]
@@ -150,6 +152,8 @@ public partial class MonsterAI : MonoBehaviour, IDamageable
     int attackSequence;
     bool isDead;
     bool isRespawning;
+    GameObject lastDamageSource;
+    SmartNpcAI lastSmartNpcAttacker;
     Renderer[] cachedRenderers;
     Collider2D[] cachedColliders;
     Vector2 desiredVelocity;
@@ -187,6 +191,8 @@ public partial class MonsterAI : MonoBehaviour, IDamageable
     public bool IsAttackActive => isAttacking;
     public int AttackSequence => attackSequence;
     public bool UsesDirectAttackDamage => directDamageOnAttack;
+    public GameObject LastDamageSource => lastDamageSource;
+    public SmartNpcAI LastSmartNpcAttacker => lastSmartNpcAttacker;
 
     void DebugFlow(string stage, string detail)
     {
@@ -276,6 +282,53 @@ public partial class MonsterAI : MonoBehaviour, IDamageable
         return builder.ToString();
     }
 
+    public NpcActionState CurrentActionState
+    {
+        get
+        {
+            NpcActionState resolved =
+                NpcActionState.FromDisplayText(currentAction);
+
+            if (resolved.id == NpcActionId.Unknown &&
+                !string.IsNullOrWhiteSpace(currentActionKey))
+            {
+                resolved = NpcActionState.FromKey(currentActionKey);
+            }
+
+            if (resolved.id == NpcActionId.Unknown &&
+                currentActionId != NpcActionId.Unknown)
+            {
+                resolved.id = currentActionId;
+            }
+
+            if (!string.IsNullOrWhiteSpace(currentAction))
+            {
+                resolved.displayText = currentAction;
+            }
+
+            return resolved;
+        }
+    }
+
+    public void SetCurrentActionState(NpcActionState state)
+    {
+        currentActionId = state.id;
+        currentActionKey = state.key ?? "";
+        currentAction = !string.IsNullOrWhiteSpace(state.displayText)
+            ? state.displayText
+            : NpcText.Action(currentActionKey);
+    }
+
+    public void SetActionImmediate(string action)
+    {
+        if (string.IsNullOrEmpty(action))
+        {
+            return;
+        }
+
+        SetCurrentActionState(NpcActionState.FromDisplayText(action));
+    }
+
     void Start()
     {
         bool appliedProfile = false;
@@ -356,6 +409,17 @@ public partial class MonsterAI : MonoBehaviour, IDamageable
 
     void Update()
     {
+        if (HeavenlyTribulationSystem.IsTargetLocked(gameObject))
+        {
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+
+            SetCurrentActionState(NpcActionState.FromKey("waitTribulation"));
+            return;
+        }
+
         if (isDead || isRespawning)
         {
             return;
@@ -437,6 +501,17 @@ public partial class MonsterAI : MonoBehaviour, IDamageable
 
     void FixedUpdate()
     {
+        if (HeavenlyTribulationSystem.IsTargetLocked(gameObject))
+        {
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+
+            currentMoveVelocity = Vector2.zero;
+            return;
+        }
+
         if (rb == null)
         {
             return;

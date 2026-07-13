@@ -9,7 +9,17 @@ public static class NpcCombatTechniqueSystem
     {
         if (actor == null ||
             damage <= 0 ||
-            !HasAppliedManual(actor))
+            target == null)
+        {
+            return damage;
+        }
+
+        if (BicanhSessionManager.AreDungeonParticipantsAllies(actor, target))
+        {
+            return 0;
+        }
+
+        if (!HasAppliedManual(actor))
         {
             return damage;
         }
