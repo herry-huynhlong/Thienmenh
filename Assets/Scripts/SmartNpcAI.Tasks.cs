@@ -78,6 +78,31 @@ public partial class SmartNpcAI
         ClearSmartTask();
     }
 
+    public void ClearScheduledTask()
+    {
+        EnsureSmartTaskState();
+
+        SmartAITask previousScheduledTask =
+            scheduleSmartTask != null
+                ? scheduleSmartTask.Clone()
+                : null;
+        bool shouldClearCurrentTask =
+            previousScheduledTask != null &&
+            previousScheduledTask.IsValid &&
+            IsSameTask(currentSmartTask, previousScheduledTask);
+
+        scheduleSmartTask = new SmartAITask();
+        DebugFlow(
+            "TaskComplete",
+            "Cleared scheduled task " +
+            DescribeTask(previousScheduledTask));
+
+        if (shouldClearCurrentTask)
+        {
+            ClearSmartTask();
+        }
+    }
+
     public void ClearEmergencyTaskIfMatches(SmartAITaskGoal goal)
     {
         if (currentSmartTask == null ||
@@ -158,8 +183,11 @@ public partial class SmartNpcAI
             return true;
         }
 
-        if (currentSmartTask.priority < priority ||
-            currentSmartTask.canBeInterrupted)
+        bool canReplace =
+            priority > currentSmartTask.priority ||
+            (priority == currentSmartTask.priority &&
+            currentSmartTask.canBeInterrupted);
+        if (canReplace)
         {
             SmartAITask previousTask = currentSmartTask.Clone();
             currentSmartTask = nextTask;
@@ -321,6 +349,25 @@ public partial class SmartNpcAI
             "/" + task.priority +
             "/interrupt=" + task.canBeInterrupted +
             "/reason=" + task.reason;
+    }
+
+    bool IsSameTask(SmartAITask first, SmartAITask second)
+    {
+        if (first == null ||
+            second == null)
+        {
+            return false;
+        }
+
+        return first.IsValid &&
+            second.IsValid &&
+            first.goal == second.goal &&
+            first.priority == second.priority &&
+            first.canBeInterrupted == second.canBeInterrupted &&
+            string.Equals(
+                first.reason,
+                second.reason,
+                StringComparison.OrdinalIgnoreCase);
     }
 
     public string GetPlayerActionText()

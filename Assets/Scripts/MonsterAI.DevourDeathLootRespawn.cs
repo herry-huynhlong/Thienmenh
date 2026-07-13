@@ -24,7 +24,7 @@ public partial class MonsterAI
 
         AddCultivationExp(exp);
         hunger = Mathf.Clamp(hunger - 35f, 0f, 100f);
-        bloodlust = Mathf.Clamp(bloodlust + 10f, 0f, 100f);
+        ApplyTemperamentSurge(0f, 10f);
 
         if (healAfterDevouringNpc)
         {
@@ -110,6 +110,7 @@ public partial class MonsterAI
     void Die()
     {
         isDead = true;
+        waitingForHeavenlyTribulation = false;
         isAttacking = false;
         hasTarget = false;
         desiredVelocity = Vector2.zero;
@@ -190,6 +191,7 @@ public partial class MonsterAI
         transform.position = startPosition;
         currentHP = maxHP;
         isDead = false;
+        waitingForHeavenlyTribulation = false;
         isAttacking = false;
         isRespawning = false;
         desiredVelocity = Vector2.zero;

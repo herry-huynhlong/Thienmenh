@@ -11,6 +11,10 @@ using UnityEditor;
 
 public class LuckyWheelSpinTest : MonoBehaviour
 {
+    const string SavePrefix = "ThienMenh.Save.LuckyWheel.";
+    const string SpinsKey = SavePrefix + "AvailableSpins";
+    const string NextBonusDayKey = SavePrefix + "NextBonusDay";
+
     private static readonly ItemGrade[] GradeOrder =
     {
         ItemGrade.Ha,
@@ -44,11 +48,19 @@ public class LuckyWheelSpinTest : MonoBehaviour
     public float pointerAngle = 90f;
     public float stopAngleOffset = 0f;
 
+    [Header("Spin Access")]
+    public bool requireRewardedVideoForSpin = true;
+    [Min(0)] public int startingSpins = 0;
+    [Min(1)] public int rewardedVideoSpinAmount = 1;
+    [Min(1)] public int maxAvailableSpins = 5;
+    [Min(1)] public int bonusSpinEveryDays = 5;
+
     [SerializeField]
     private List<StatItemData> wheelItems = new List<StatItemData>();
 
     public StatItemData CurrentReward { get; private set; }
     public int CurrentRewardSlotIndex { get; private set; } = -1;
+    public int AvailableSpins => availableSpins;
 
     class SlotBinding
     {
@@ -61,6 +73,14 @@ public class LuckyWheelSpinTest : MonoBehaviour
 
     readonly List<SlotBinding> slotBindings = new List<SlotBinding>();
     bool isSpinning;
+    int availableSpins;
+    int nextBonusSpinDay;
+    bool spinsInitialized;
+    RewardedLTAdsButton rewardedAdsButton;
+    Button watchVideoButton;
+    TMP_Text watchVideoButtonText;
+    TMP_Text spinCountText;
+    WorldTimeSystem worldTimeSystem;
 
 #if UNITY_EDITOR
     bool isRefreshingEditorData;
@@ -68,7 +88,13 @@ public class LuckyWheelSpinTest : MonoBehaviour
 
     void Awake()
     {
+        CacheActionReferences();
+        BindWorldTimeSystem();
+        InitializeSpinState();
+        CacheRewardedAdsButton();
+        BindActionButtons();
         InitializeWheel();
+        RefreshWatchVideoButtonText();
     }
 
     void OnEnable()
@@ -78,7 +104,18 @@ public class LuckyWheelSpinTest : MonoBehaviour
             spinButton.onClick.AddListener(Spin);
         }
 
+        CacheActionReferences();
+        BindWorldTimeSystem();
+        InitializeSpinState();
+        CacheRewardedAdsButton();
+        BindActionButtons();
         InitializeWheel();
+        ApplyPendingDayBonusFromCurrentTime();
+        LocalizationSettings.LanguageChanged += HandleLanguageChanged;
+        RefreshWatchVideoButtonText();
+        RefreshSpinInfoText();
+        RefreshWatchVideoButtonState();
+        RefreshSpinButtonState();
     }
 
     void Start()
@@ -92,9 +129,17 @@ public class LuckyWheelSpinTest : MonoBehaviour
 
         if (spinButton != null)
         {
-            spinButton.interactable = true;
             spinButton.onClick.RemoveListener(Spin);
         }
+
+        if (watchVideoButton != null)
+        {
+            watchVideoButton.onClick.RemoveListener(HandleWatchVideoClicked);
+        }
+
+        LocalizationSettings.LanguageChanged -= HandleLanguageChanged;
+        UnbindRewardedAdsButton();
+        UnbindWorldTimeSystem();
 
         if (bulbBlink != null)
         {
@@ -216,6 +261,14 @@ public class LuckyWheelSpinTest : MonoBehaviour
             return;
         }
 
+        if (requireRewardedVideoForSpin && availableSpins <= 0)
+        {
+            RefreshSpinInfoText();
+            RefreshSpinButtonState();
+            Debug.Log("LuckyWheelSpinTest: can xem video de nhan them luot quay.");
+            return;
+        }
+
         StartCoroutine(SpinRoutine());
     }
 
@@ -227,9 +280,17 @@ public class LuckyWheelSpinTest : MonoBehaviour
             yield break;
         }
 
+        if (!TryConsumeSpin())
+        {
+            RefreshSpinInfoText();
+            Debug.Log("LuckyWheelSpinTest: can xem video de nhan them luot quay.");
+            yield break;
+        }
+
         isSpinning = true;
         CurrentReward = reward;
         CurrentRewardSlotIndex = slotIndex;
+        RefreshWatchVideoButtonState();
 
         if (spinButton != null)
         {
@@ -267,29 +328,26 @@ public class LuckyWheelSpinTest : MonoBehaviour
         wheelDisk.localRotation = Quaternion.Euler(0f, 0f, endZ);
 
         if (bulbBlink != null)
-    {
-        bulbBlink.SetSpinning(false);
-    }
+        {
+            bulbBlink.SetSpinning(false);
+        }
 
-    yield return new WaitForSeconds(0.15f);
+        yield return new WaitForSeconds(0.15f);
 
-    if (winEffect != null &&
-        slotIndex >= 0 &&
-        slotIndex < slotBindings.Count &&
-        slotBindings[slotIndex] != null &&
-        slotBindings[slotIndex].root != null)
-    {
-        winEffect.PlayFromSlot(slotBindings[slotIndex].root);
-    }
+        if (winEffect != null &&
+            slotIndex >= 0 &&
+            slotIndex < slotBindings.Count &&
+            slotBindings[slotIndex] != null &&
+            slotBindings[slotIndex].root != null)
+        {
+            winEffect.PlayFromSlot(slotBindings[slotIndex].root);
+        }
 
-    GiveRewardToPlayer(reward);
+        GiveRewardToPlayer(reward);
 
-    if (spinButton != null)
-    {
-        spinButton.interactable = true;
-    }
-
-    isSpinning = false;
+        isSpinning = false;
+        RefreshWatchVideoButtonState();
+        RefreshSpinButtonState();
     }
 
     void InitializeWheel()
@@ -312,6 +370,407 @@ public class LuckyWheelSpinTest : MonoBehaviour
 
         BuildSlotBindings();
         ApplyWheelItemsToSlots();
+        RefreshSpinInfoText();
+        RefreshWatchVideoButtonState();
+        RefreshSpinButtonState();
+    }
+
+    void InitializeSpinState()
+    {
+        if (spinsInitialized)
+        {
+            return;
+        }
+
+        int maxSpins = Mathf.Max(1, maxAvailableSpins);
+        int currentDay = GetCurrentAbsoluteDay();
+        int intervalDays = Mathf.Max(1, bonusSpinEveryDays);
+        int startingValue = Mathf.Clamp(startingSpins, 0, maxSpins);
+
+        if (PlayerPrefs.HasKey(SpinsKey))
+        {
+            availableSpins = Mathf.Clamp(
+                PlayerPrefs.GetInt(SpinsKey, startingValue),
+                0,
+                maxSpins);
+            nextBonusSpinDay = Mathf.Max(
+                currentDay + intervalDays,
+                PlayerPrefs.GetInt(
+                    NextBonusDayKey,
+                    currentDay + intervalDays));
+        }
+        else
+        {
+            availableSpins = startingValue;
+            nextBonusSpinDay = currentDay + intervalDays;
+            SaveSpinState();
+        }
+
+        ApplyPendingDayBonusFromCurrentTime();
+        spinsInitialized = true;
+    }
+
+    void CacheRewardedAdsButton()
+    {
+        RewardedLTAdsButton foundButton = GetComponentInChildren<RewardedLTAdsButton>(true);
+        if (foundButton == null)
+        {
+            foundButton = FindAnyObjectByType<RewardedLTAdsButton>(
+                FindObjectsInactive.Include);
+        }
+
+        if (foundButton == rewardedAdsButton)
+        {
+            return;
+        }
+
+        UnbindRewardedAdsButton();
+        rewardedAdsButton = foundButton;
+
+        if (rewardedAdsButton != null)
+        {
+            rewardedAdsButton.SetWalletRewardEnabled(false);
+            rewardedAdsButton.RewardGranted += HandleRewardedVideoGranted;
+            rewardedAdsButton.AvailabilityChanged += HandleRewardedAdAvailabilityChanged;
+        }
+    }
+
+    void UnbindRewardedAdsButton()
+    {
+        if (rewardedAdsButton == null)
+        {
+            return;
+        }
+
+        rewardedAdsButton.RewardGranted -= HandleRewardedVideoGranted;
+        rewardedAdsButton.AvailabilityChanged -= HandleRewardedAdAvailabilityChanged;
+        rewardedAdsButton = null;
+    }
+
+    void HandleRewardedVideoGranted()
+    {
+        int spinAmount = Mathf.Max(1, rewardedVideoSpinAmount);
+        availableSpins = Mathf.Clamp(
+            availableSpins + spinAmount,
+            0,
+            Mathf.Max(1, maxAvailableSpins));
+        SaveSpinState();
+        RefreshSpinInfoText();
+        RefreshWatchVideoButtonState();
+        RefreshSpinButtonState();
+    }
+
+    bool TryConsumeSpin()
+    {
+        if (!requireRewardedVideoForSpin)
+        {
+            return true;
+        }
+
+        if (availableSpins <= 0)
+        {
+            RefreshSpinButtonState();
+            return false;
+        }
+
+        bool wasAtMax = availableSpins >= Mathf.Max(1, maxAvailableSpins);
+        availableSpins--;
+        if (wasAtMax && availableSpins < Mathf.Max(1, maxAvailableSpins))
+        {
+            nextBonusSpinDay =
+                GetCurrentAbsoluteDay() +
+                Mathf.Max(1, bonusSpinEveryDays);
+        }
+
+        SaveSpinState();
+        RefreshSpinInfoText();
+        RefreshWatchVideoButtonState();
+        RefreshSpinButtonState();
+        return true;
+    }
+
+    void RefreshSpinButtonState()
+    {
+        if (spinButton == null)
+        {
+            return;
+        }
+
+        bool hasSpinAvailable = !requireRewardedVideoForSpin || availableSpins > 0;
+        spinButton.interactable = !isSpinning && hasSpinAvailable;
+    }
+
+    void CacheActionReferences()
+    {
+        if (watchVideoButton == null)
+        {
+            Transform watchButtonTransform =
+                transform.Find("BottomActionRoot/AdRewardRow/WatchVideoButton");
+            if (watchButtonTransform != null)
+            {
+                watchVideoButton = watchButtonTransform.GetComponent<Button>();
+            }
+        }
+
+        if (spinCountText == null)
+        {
+            Transform countTextTransform =
+                transform.Find("BottomActionRoot/SpinCountBar/CountText");
+            if (countTextTransform != null)
+            {
+                spinCountText = countTextTransform.GetComponent<TMP_Text>();
+            }
+        }
+
+        if (watchVideoButtonText == null && watchVideoButton != null)
+        {
+            watchVideoButtonText = watchVideoButton.GetComponentInChildren<TMP_Text>(true);
+        }
+    }
+
+    void BindActionButtons()
+    {
+        if (watchVideoButton != null)
+        {
+            watchVideoButton.onClick.RemoveListener(HandleWatchVideoClicked);
+            watchVideoButton.onClick.AddListener(HandleWatchVideoClicked);
+        }
+
+        if (spinCountText != null)
+        {
+            spinCountText.enableAutoSizing = true;
+            spinCountText.fontSizeMin = 18f;
+            spinCountText.fontSizeMax = Mathf.Max(24f, spinCountText.fontSize);
+            spinCountText.alignment = TextAlignmentOptions.Center;
+        }
+    }
+
+    void BindWorldTimeSystem()
+    {
+        WorldTimeSystem foundTimeSystem = WorldTimeSystem.Instance;
+        if (foundTimeSystem == null)
+        {
+            foundTimeSystem = WorldTimeSystem.EnsureInstance();
+        }
+
+        if (foundTimeSystem == worldTimeSystem)
+        {
+            return;
+        }
+
+        UnbindWorldTimeSystem();
+        worldTimeSystem = foundTimeSystem;
+
+        if (worldTimeSystem != null)
+        {
+            worldTimeSystem.OnDayChanged += HandleWorldDayChanged;
+            worldTimeSystem.OnHourChanged += HandleWorldHourChanged;
+        }
+    }
+
+    void UnbindWorldTimeSystem()
+    {
+        if (worldTimeSystem == null)
+        {
+            return;
+        }
+
+        worldTimeSystem.OnDayChanged -= HandleWorldDayChanged;
+        worldTimeSystem.OnHourChanged -= HandleWorldHourChanged;
+        worldTimeSystem = null;
+    }
+
+    void HandleWorldDayChanged(int day)
+    {
+        ApplyPendingDayBonusFromCurrentTime();
+        RefreshSpinInfoText();
+        RefreshWatchVideoButtonState();
+        RefreshSpinButtonState();
+    }
+
+    void HandleWorldHourChanged(int hour)
+    {
+        RefreshSpinInfoText();
+    }
+
+    void HandleRewardedAdAvailabilityChanged()
+    {
+        RefreshWatchVideoButtonState();
+    }
+
+    void HandleLanguageChanged()
+    {
+        RefreshWatchVideoButtonText();
+        RefreshSpinInfoText();
+    }
+
+    void HandleWatchVideoClicked()
+    {
+        if (isSpinning)
+        {
+            return;
+        }
+
+        if (availableSpins >= Mathf.Max(1, maxAvailableSpins))
+        {
+            RefreshSpinInfoText();
+            RefreshWatchVideoButtonState();
+            return;
+        }
+
+        if (rewardedAdsButton == null)
+        {
+            CacheRewardedAdsButton();
+        }
+
+        if (rewardedAdsButton == null)
+        {
+            Debug.LogWarning(
+                "LuckyWheelSpinTest: khong tim thay RewardedLTAdsButton de mo luong xem video.");
+            RefreshWatchVideoButtonState();
+            return;
+        }
+
+        rewardedAdsButton.ShowAd();
+        RefreshWatchVideoButtonState();
+    }
+
+    void ApplyPendingDayBonusFromCurrentTime()
+    {
+        int maxSpins = Mathf.Max(1, maxAvailableSpins);
+        int intervalDays = Mathf.Max(1, bonusSpinEveryDays);
+        int currentDay = GetCurrentAbsoluteDay();
+
+        if (nextBonusSpinDay <= 0)
+        {
+            nextBonusSpinDay = currentDay + intervalDays;
+        }
+
+        if (availableSpins >= maxSpins)
+        {
+            return;
+        }
+
+        bool changed = false;
+        if (currentDay >= nextBonusSpinDay &&
+            availableSpins < maxSpins)
+        {
+            availableSpins++;
+            nextBonusSpinDay = currentDay + intervalDays;
+            changed = true;
+        }
+
+        if (changed)
+        {
+            SaveSpinState();
+        }
+    }
+
+    void RefreshSpinInfoText()
+    {
+        if (spinCountText == null)
+        {
+            return;
+        }
+
+        int maxSpins = Mathf.Max(1, maxAvailableSpins);
+        if (availableSpins >= maxSpins)
+        {
+            spinCountText.text = UiText.Format(
+                "luckyWheel",
+                "spinCountCappedFormat",
+                availableSpins,
+                maxSpins);
+            return;
+        }
+
+        spinCountText.text = UiText.Format(
+            "luckyWheel",
+            "spinCountNextFormat",
+            availableSpins,
+            maxSpins,
+            GetNextBonusCountdownText());
+    }
+
+    void RefreshWatchVideoButtonState()
+    {
+        if (watchVideoButton == null)
+        {
+            return;
+        }
+
+        bool canWatchForSpin =
+            !isSpinning &&
+            availableSpins < Mathf.Max(1, maxAvailableSpins) &&
+            rewardedAdsButton != null &&
+            rewardedAdsButton.IsAdReady;
+
+        watchVideoButton.interactable = canWatchForSpin;
+    }
+
+    void RefreshWatchVideoButtonText()
+    {
+        if (watchVideoButtonText == null)
+        {
+            return;
+        }
+
+        watchVideoButtonText.text = UiText.Get(
+            "luckyWheel",
+            "watchVideoButton",
+            "Xem Video");
+    }
+
+    string GetNextBonusCountdownText()
+    {
+        int currentDay = GetCurrentAbsoluteDay();
+        float currentHour = GetCurrentHour();
+        int intervalDays = Mathf.Max(1, bonusSpinEveryDays);
+        int targetDay = nextBonusSpinDay > 0
+            ? nextBonusSpinDay
+            : currentDay + intervalDays;
+        float remainingHours =
+            ((targetDay - currentDay) * 24f) - currentHour;
+        remainingHours = Mathf.Max(0f, remainingHours);
+
+        int totalHours = Mathf.CeilToInt(remainingHours);
+        int remainingDays = totalHours / 24;
+        int hours = totalHours % 24;
+
+        if (remainingDays > 0)
+        {
+            return UiText.Format(
+                "luckyWheel",
+                "countdownDaysHoursFormat",
+                remainingDays,
+                hours);
+        }
+
+        return UiText.Format(
+            "luckyWheel",
+            "countdownHoursFormat",
+            hours);
+    }
+
+    int GetCurrentAbsoluteDay()
+    {
+        return worldTimeSystem != null
+            ? worldTimeSystem.CurrentDay
+            : 1;
+    }
+
+    float GetCurrentHour()
+    {
+        return worldTimeSystem != null
+            ? worldTimeSystem.CurrentHour
+            : 0f;
+    }
+
+    void SaveSpinState()
+    {
+        PlayerPrefs.SetInt(SpinsKey, availableSpins);
+        PlayerPrefs.SetInt(NextBonusDayKey, nextBonusSpinDay);
+        GameSaveSystem.QueuePendingCommit();
     }
 
     void CacheReferences()

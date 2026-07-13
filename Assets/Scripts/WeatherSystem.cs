@@ -13,6 +13,7 @@ public enum WorldWeather
 public class WeatherSystem : MonoBehaviour
 {
     public static WeatherSystem Instance { get; private set; }
+    bool createdAtRuntime;
 
     public WorldWeather CurrentWeather { get; private set; } = WorldWeather.Clear;
     public bool ManualOverrideActive { get; private set; }
@@ -32,15 +33,31 @@ public class WeatherSystem : MonoBehaviour
     float nextChangeWorldHour;
     bool hasScheduledChange;
 
+    public void MarkCreatedAtRuntime()
+    {
+        createdAtRuntime = true;
+    }
+
     void Awake()
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
-            return;
+            if (Instance.createdAtRuntime && !createdAtRuntime)
+            {
+                Destroy(Instance.gameObject);
+                Instance = this;
+            }
+            else
+            {
+                Destroy(gameObject);
+                return;
+            }
+        }
+        else
+        {
+            Instance = this;
         }
 
-        Instance = this;
         DontDestroyOnLoad(gameObject);
     }
 

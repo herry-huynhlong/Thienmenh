@@ -19,6 +19,7 @@ public enum FarmPlotReservationKind
 public class FarmPlot : MonoBehaviour
 {
     const string CropVisualChildName = "CropVisual";
+    const float MinInteractionRadius = 0.18f;
 
     [Header("Alignment")]
     public Tilemap alignmentTilemap;
@@ -58,6 +59,8 @@ public class FarmPlot : MonoBehaviour
     GameObject reservedBy;
     float reservationExpiresAt;
     FarmPlotReservationKind reservationKind;
+    WorldStatItemPickup cropInfoPickup;
+    CircleCollider2D cropInfoCollider;
 
     public Vector3Int Cell => cell;
     public FarmPlotReservationKind ReservationKind => reservationKind;
@@ -414,6 +417,7 @@ public class FarmPlot : MonoBehaviour
         cropRenderer.sprite = stageSprite;
         cropRenderer.enabled = shouldShow;
         PositionCropRenderer();
+        RefreshInteractionProxy();
     }
 
     public float GetGrowthProgress01()
@@ -496,6 +500,7 @@ public class FarmPlot : MonoBehaviour
     {
         if (cropRenderer != null)
         {
+            EnsureInteractionProxy();
             return;
         }
 
@@ -515,6 +520,7 @@ public class FarmPlot : MonoBehaviour
 
         cropRenderer.sortingOrder = cropSortingOrder;
         PositionCropRenderer();
+        EnsureInteractionProxy();
     }
 
     void PositionCropRenderer()
@@ -527,6 +533,87 @@ public class FarmPlot : MonoBehaviour
         cropRenderer.transform.localPosition = cropLocalOffset;
         cropRenderer.transform.localRotation = Quaternion.identity;
         cropRenderer.transform.localScale = Vector3.one;
+    }
+
+    void EnsureInteractionProxy()
+    {
+        if (cropRenderer == null)
+        {
+            cropInfoPickup = null;
+            cropInfoCollider = null;
+            return;
+        }
+
+        GameObject visualObject = cropRenderer.gameObject;
+
+        cropInfoPickup = visualObject.GetComponent<WorldStatItemPickup>();
+        if (cropInfoPickup == null)
+        {
+            cropInfoPickup = visualObject.AddComponent<WorldStatItemPickup>();
+        }
+
+        cropInfoPickup.allowNpcPickup = false;
+        cropInfoPickup.allowPlayerPickup = false;
+        cropInfoPickup.destroyWhenEmpty = false;
+        cropInfoPickup.requireNpcHarvestAction = false;
+        cropInfoPickup.treatAsDroppedWorldItem = false;
+
+        cropInfoCollider = visualObject.GetComponent<CircleCollider2D>();
+        if (cropInfoCollider == null)
+        {
+            cropInfoCollider = visualObject.AddComponent<CircleCollider2D>();
+        }
+
+        cropInfoCollider.isTrigger = true;
+    }
+
+    void RefreshInteractionProxy()
+    {
+        EnsureInteractionProxy();
+
+        if (cropInfoPickup == null ||
+            cropInfoCollider == null)
+        {
+            return;
+        }
+
+        bool canShowInfo =
+            (state == FarmPlotState.Growing ||
+            state == FarmPlotState.Mature) &&
+            harvestItem != null &&
+            cropRenderer != null &&
+            cropRenderer.enabled &&
+            cropRenderer.sprite != null;
+
+        cropInfoPickup.item =
+            canShowInfo
+                ? harvestItem
+                : null;
+        cropInfoPickup.amount =
+            canShowInfo
+                ? Mathf.Max(1, minHarvestYield)
+                : 0;
+
+        cropInfoCollider.enabled = canShowInfo;
+        cropInfoCollider.offset = Vector2.zero;
+        cropInfoCollider.radius = ResolveInteractionRadius();
+    }
+
+    float ResolveInteractionRadius()
+    {
+        if (cropRenderer == null ||
+            cropRenderer.sprite == null)
+        {
+            return MinInteractionRadius;
+        }
+
+        Bounds spriteBounds = cropRenderer.sprite.bounds;
+        float spriteRadius =
+            Mathf.Max(
+                spriteBounds.extents.x,
+                spriteBounds.extents.y * 0.6f);
+
+        return Mathf.Max(MinInteractionRadius, spriteRadius);
     }
 
     Sprite ResolveCurrentStageSprite()

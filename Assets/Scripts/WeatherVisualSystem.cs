@@ -8,6 +8,7 @@ using UnityEditor;
 public class WeatherVisualSystem : MonoBehaviour
 {
     public static WeatherVisualSystem Instance { get; private set; }
+    bool createdAtRuntime;
 
     [Header("Target")]
     public Camera targetCamera;
@@ -50,15 +51,31 @@ public class WeatherVisualSystem : MonoBehaviour
     Sprite[] rainSprites;
     Sprite[] snowSprites;
 
+    public void MarkCreatedAtRuntime()
+    {
+        createdAtRuntime = true;
+    }
+
     void Awake()
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
-            return;
+            if (Instance.createdAtRuntime && !createdAtRuntime)
+            {
+                Destroy(Instance.gameObject);
+                Instance = this;
+            }
+            else
+            {
+                Destroy(gameObject);
+                return;
+            }
+        }
+        else
+        {
+            Instance = this;
         }
 
-        Instance = this;
         DontDestroyOnLoad(gameObject);
         BuildVisuals();
         ApplyWeather(WorldWeather.Clear);

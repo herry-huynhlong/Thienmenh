@@ -365,15 +365,19 @@ public static class NpcText
 
     static bool LooksLikeMojibake(string value)
     {
-        return value.IndexOf('Ã') >= 0 ||
-            value.IndexOf('Â') >= 0 ||
-            value.IndexOf('Ä') >= 0 ||
-            value.IndexOf('Æ') >= 0 ||
-            value.IndexOf('á') >= 0 ||
-            value.IndexOf('º') >= 0 ||
-            value.IndexOf('»') >= 0 ||
-            (CountSuspiciousMojibakeChars(value) >= 2 &&
-                !ContainsCjk(value));
+        if (string.IsNullOrEmpty(value))
+        {
+            return false;
+        }
+
+        if (ContainsCommonMojibakeSequence(value))
+        {
+            return true;
+        }
+
+        return CountSuspiciousMojibakeChars(value) >= 4 &&
+            !ContainsCjk(value) &&
+            CountReadableVietnameseChars(value) == 0;
     }
 
     static int GetDisplayQualityScore(string value)
@@ -432,6 +436,48 @@ public static class NpcText
             c == 'Đ' ||
             "ăâêôơưáàảãạắằẳẵặấầẩẫậéèẻẽẹếềểễệóòỏõọốồổỗộớờởỡợúùủũụứừửữựíìỉĩịýỳỷỹỵ".IndexOf(c) >= 0 ||
             "ĂÂÊÔƠƯÁÀẢÃẠẮẰẲẴẶẤẦẨẪẬÉÈẺẼẸẾỀỂỄỆÓÒỎÕỌỐỒỔỖỘỚỜỞỠỢÚÙỦŨỤỨỪỬỮỰÍÌỈĨỊÝỲỶỸỴ".IndexOf(c) >= 0;
+    }
+
+    static int CountReadableVietnameseChars(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return 0;
+        }
+
+        int count = 0;
+        for (int i = 0; i < value.Length; i++)
+        {
+            if (IsReadableVietnameseChar(value[i]))
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    static bool ContainsCommonMojibakeSequence(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return false;
+        }
+
+        return value.Contains("Ã") ||
+            value.Contains("Â") ||
+            value.Contains("Ä") ||
+            value.Contains("Æ") ||
+            value.Contains("á»") ||
+            value.Contains("áº") ||
+            value.Contains("á»¥") ||
+            value.Contains("â€") ||
+            value.Contains("â€“") ||
+            value.Contains("â€”") ||
+            value.Contains("â€œ") ||
+            value.Contains("â€\u009d") ||
+            value.Contains("â€˜") ||
+            value.Contains("â€™");
     }
 
     static int CountSuspiciousSequences(string value)
@@ -513,22 +559,13 @@ public static class NpcText
             case 'æ':
             case 'ç':
             case 'è':
-            case 'é':
-            case 'ê':
             case 'ë':
             case 'ì':
-            case 'í':
             case 'î':
             case 'ï':
             case 'ð':
             case 'ñ':
-            case 'ò':
-            case 'ó':
-            case 'ô':
-            case 'õ':
             case 'ö':
-            case 'ù':
-            case 'ú':
             case 'û':
             case 'ü':
                 return true;

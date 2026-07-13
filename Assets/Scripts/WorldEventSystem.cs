@@ -14,6 +14,7 @@ public enum WorldEventType
 public class WorldEventSystem : MonoBehaviour
 {
     public static WorldEventSystem Instance { get; private set; }
+    bool createdAtRuntime;
 
     public float eventCheckHours = 3f;
     [Range(0f, 1f)]
@@ -22,15 +23,31 @@ public class WorldEventSystem : MonoBehaviour
 
     float nextCheckWorldHour;
 
+    public void MarkCreatedAtRuntime()
+    {
+        createdAtRuntime = true;
+    }
+
     void Awake()
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
-            return;
+            if (Instance.createdAtRuntime && !createdAtRuntime)
+            {
+                Destroy(Instance.gameObject);
+                Instance = this;
+            }
+            else
+            {
+                Destroy(gameObject);
+                return;
+            }
+        }
+        else
+        {
+            Instance = this;
         }
 
-        Instance = this;
         DontDestroyOnLoad(gameObject);
         ScheduleNextCheck();
     }
@@ -135,8 +152,7 @@ public class WorldEventSystem : MonoBehaviour
                 continue;
             }
 
-            monster.aggression = Mathf.Clamp(monster.aggression + amount, 0f, 100f);
-            monster.bloodlust = Mathf.Clamp(monster.bloodlust + amount * 0.5f, 0f, 100f);
+            monster.ApplyTemperamentSurge(amount, amount * 0.5f);
         }
     }
 

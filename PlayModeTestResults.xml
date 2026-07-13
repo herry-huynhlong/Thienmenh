@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="2" result="Passed" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-07-12 12:08:52Z" end-time="2026-07-12 12:09:24Z" duration="32.0171678">
+  <test-suite type="TestSuite" id="1027" name="My project" fullname="My project" runstate="Runnable" testcasecount="16" result="Passed" start-time="2026-07-12 12:08:52Z" end-time="2026-07-12 12:09:24Z" duration="32.017168" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <test-suite type="Assembly" id="1022" name="NpcRuntimeAudit.PlayMode.dll" fullname="C:/Users/user01/Documents/GitHub/Thienmenh/Library/ScriptAssemblies/NpcRuntimeAudit.PlayMode.dll" runstate="Runnable" testcasecount="16" result="Passed" start-time="2026-07-12 12:08:52Z" end-time="2026-07-12 12:09:24Z" duration="32.001106" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="25828" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <test-suite type="TestFixture" id="1007" name="MainMenuNewGameIntroTests" fullname="MainMenuNewGameIntroTests" classname="MainMenuNewGameIntroTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-07-12 12:08:52Z" end-time="2026-07-12 12:09:24Z" duration="31.997234" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1008" name="LoadingScene_RevealsMainMenu_AndNewGameShowsIntro" fullname="MainMenuNewGameIntroTests.LoadingScene_RevealsMainMenu_AndNewGameShowsIntro" methodname="LoadingScene_RevealsMainMenu_AndNewGameShowsIntro" classname="MainMenuNewGameIntroTests" runstate="Runnable" seed="1120092346" result="Passed" start-time="2026-07-12 12:08:52Z" end-time="2026-07-12 12:09:23Z" duration="31.157013" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[There can be only one active Event System.
+There can be only one active Event System.
+[LoadingSceneController] MainMenu warmup timeout. backgroundReady=True introReady=False introProgress=0.00
+[LoadingSceneController] MainMenu warmup timeout. backgroundReady=True introReady=False introProgress=0.00
+MainMenuManager: NewGame clicked. Showing intro.
+MainMenuManager: NewGame clicked. Showing intro.
+]]></output>
+        </test-case>
+        <test-case id="1009" name="NewGameButtonClick_ShowsIntroPanelImmediately" fullname="MainMenuNewGameIntroTests.NewGameButtonClick_ShowsIntroPanelImmediately" methodname="NewGameButtonClick_ShowsIntroPanelImmediately" classname="MainMenuNewGameIntroTests" runstate="Runnable" seed="172885183" result="Passed" start-time="2026-07-12 12:09:23Z" end-time="2026-07-12 12:09:24Z" duration="0.805230" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[MainMenuManager: NewGame clicked. Showing intro.
+MainMenuManager: NewGame clicked. Showing intro.
+Saving results to: C:/Users/user01/AppData/LocalLow/DefaultCompany/My project\TestResults.xml
+Saving results to: C:/Users/user01/AppData/LocalLow/DefaultCompany/My project\TestResults.xml
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

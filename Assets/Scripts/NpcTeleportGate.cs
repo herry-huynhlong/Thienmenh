@@ -111,10 +111,31 @@ public class NpcTeleportGate : MonoBehaviour
 
     public Vector3 GetApproachPosition(Vector3 actorPosition)
     {
+        NpcMapArea actorArea =
+            NpcMapArea.FindArea(actorPosition);
+        if (actorArea != null)
+        {
+            return GetApproachPositionForZone(actorArea.zone);
+        }
+
         Transform routeEntry = GetRouteEntryTransform();
         if (routeEntry != null)
         {
             return routeEntry.position;
+        }
+
+        return EntryPosition;
+    }
+
+    public Vector3 GetApproachPositionForZone(NpcMapZone zone)
+    {
+        if (TryGetTeleportRouteForZone(
+                zone,
+                out Vector3 entryPosition,
+                out _,
+                out _))
+        {
+            return entryPosition;
         }
 
         return EntryPosition;
@@ -213,7 +234,7 @@ public class NpcTeleportGate : MonoBehaviour
         npcTeleportCooldowns[cooldownKey] =
             Time.time + Mathf.Max(0.1f, npcGlobalTeleportCooldown);
         npcTeleportReentryLocks[cooldownKey] =
-            Time.time + Mathf.Max(0.1f, npcReentryLockDuration);
+            Time.time + Mathf.Max(4f, npcReentryLockDuration);
         LogGateDebug(
             actor,
             "ForceTeleport",
@@ -322,6 +343,17 @@ public class NpcTeleportGate : MonoBehaviour
         }
 
         SyncSameSceneTeleportTarget();
+
+        if (exitPoint == null &&
+            (sameSceneTeleport == null ||
+             sameSceneTeleport.targetPoint == null))
+        {
+            Debug.LogWarning(
+                "[NpcTeleportGate] " +
+                name +
+                " is missing both exitPoint and sameSceneTeleport.targetPoint.",
+                this);
+        }
     }
 #endif
 
@@ -447,7 +479,7 @@ public class NpcTeleportGate : MonoBehaviour
             npcTeleportCooldowns[cooldownKey] =
                 Time.time + Mathf.Max(0.1f, npcGlobalTeleportCooldown);
             npcTeleportReentryLocks[cooldownKey] =
-                Time.time + Mathf.Max(0.1f, npcReentryLockDuration);
+                Time.time + Mathf.Max(4f, npcReentryLockDuration);
         }
         else
         {
@@ -576,7 +608,7 @@ public class NpcTeleportGate : MonoBehaviour
 
         if (!TryGetTeleportRouteForZone(
                 actorZone.Value,
-                out _,
+                out Vector3 entryPosition,
                 out Vector3 exitPosition,
                 out NpcMapZone destinationZone))
         {
@@ -595,17 +627,35 @@ public class NpcTeleportGate : MonoBehaviour
         }
 
         Vector3 targetPosition = exitPosition;
+        Vector2 arrivalDirection =
+            (Vector2)exitPosition - (Vector2)entryPosition;
+        if (arrivalDirection.sqrMagnitude <= 0.0001f)
+        {
+            arrivalDirection =
+                (Vector2)exitPosition - (Vector2)transform.position;
+        }
+
+        if (arrivalDirection.sqrMagnitude <= 0.0001f)
+        {
+            arrivalDirection = Vector2.up;
+        }
+
+        targetPosition +=
+            (Vector3)(arrivalDirection.normalized *
+            Mathf.Max(0.9f, npcAutoUseRadius * 2.5f));
         LogGateDebug(
             actor,
             "TeleportStart",
             "actorZone=" +
-            actorZone.Value +
-            " destinationZone=" +
-            destinationZone +
-            " target=" +
-            targetPosition +
-            " gatePos=" +
-            transform.position);
+                actorZone.Value +
+                " destinationZone=" +
+                destinationZone +
+                " target=" +
+                targetPosition +
+                " exit=" +
+                exitPosition +
+                " gatePos=" +
+                transform.position);
         Rigidbody2D rb = actor.GetComponent<Rigidbody2D>();
         if (rb != null)
         {

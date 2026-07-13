@@ -216,7 +216,7 @@ public partial class VillagerAI
                 return true;
 
             default:
-                GoHomeToRest();
+                Wander(NpcText.Action("wanderVillage"));
                 return true;
         }
     }

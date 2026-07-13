@@ -49,8 +49,6 @@ public class NpcInventoryPanelUI : MonoBehaviour
         AutoFindItemGridPanel();
         SanitizeCopiedInventoryGrid();
         ConfigureRaycasts();
-        showNearbyShopInventory = false;
-        preferActiveCounterBroker = false;
         Hide();
     }
 
@@ -71,14 +69,7 @@ public class NpcInventoryPanelUI : MonoBehaviour
         }
 
         ItemInventory inventory =
-            npc.GetComponent<ItemInventory>();
-
-        if (inventory == null)
-        {
-            inventory = npc.gameObject.AddComponent<ItemInventory>();
-        }
-
-        inventory.UsePrivateNpcRuntimeItems(false);
+            ResolveInventorySource(npc);
 
         if (currentNpc != npc ||
             currentInventory != inventory)
@@ -109,6 +100,78 @@ public class NpcInventoryPanelUI : MonoBehaviour
         }
 
         Refresh();
+    }
+
+    ItemInventory ResolveInventorySource(Transform npc)
+    {
+        if (npc == null)
+        {
+            return null;
+        }
+
+        if (TryResolveLinkedShopInventory(npc, out ItemInventory shopInventory))
+        {
+            return shopInventory;
+        }
+
+        ItemInventory inventory =
+            npc.GetComponent<ItemInventory>();
+
+        if (inventory == null)
+        {
+            inventory = npc.gameObject.AddComponent<ItemInventory>();
+        }
+
+        inventory.UsePrivateNpcRuntimeItems(false);
+        return inventory;
+    }
+
+    bool TryResolveLinkedShopInventory(
+        Transform npc,
+        out ItemInventory inventory)
+    {
+        inventory = null;
+
+        if (npc == null ||
+            !showNearbyShopInventory)
+        {
+            return false;
+        }
+
+        NpcShopStockRefill refill =
+            ResolveShopStockRefill(npc);
+        if (refill != null &&
+            IsRefillLinkedToNpc(refill, npc))
+        {
+            refill.EnsureStock();
+            inventory = GetRefillInventory(refill);
+            if (inventory != null)
+            {
+                return true;
+            }
+        }
+
+        SimpleItemShop shop =
+            ResolveLinkedShop(npc);
+        if (shop != null)
+        {
+            if (shop.refreshNpcInventoryBeforeOpen)
+            {
+                shop.RefreshFromSellerInventory();
+            }
+
+            inventory =
+                shop.sellerInventory != null
+                    ? shop.sellerInventory
+                    : npc.GetComponent<ItemInventory>();
+
+            if (inventory != null)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     NpcShopStockRefill ResolveShopStockRefill(Transform npc)
@@ -168,6 +231,118 @@ public class NpcInventoryPanelUI : MonoBehaviour
         }
 
         return best;
+    }
+
+    SimpleItemShop ResolveLinkedShop(Transform npc)
+    {
+        if (npc == null)
+        {
+            return null;
+        }
+
+        SimpleItemShop directShop =
+            npc.GetComponent<SimpleItemShop>();
+        if (IsShopLinkedToNpc(directShop, npc))
+        {
+            return directShop;
+        }
+
+        SimpleItemShop[] shops =
+            FindObjectsByType<SimpleItemShop>(FindObjectsInactive.Include);
+
+        float bestDistance = float.MaxValue;
+        float maxDistance = Mathf.Max(0.1f, shopInventorySearchRadius);
+        SimpleItemShop best = null;
+
+        for (int i = 0; i < shops.Length; i++)
+        {
+            SimpleItemShop candidate = shops[i];
+            if (!IsShopLinkedToNpc(candidate, npc))
+            {
+                continue;
+            }
+
+            float distance =
+                Vector2.Distance(
+                    npc.position,
+                    candidate.transform.position);
+
+            if (distance > maxDistance ||
+                distance >= bestDistance)
+            {
+                continue;
+            }
+
+            best = candidate;
+            bestDistance = distance;
+        }
+
+        return best;
+    }
+
+    bool IsRefillLinkedToNpc(
+        NpcShopStockRefill refill,
+        Transform npc)
+    {
+        if (refill == null ||
+            npc == null)
+        {
+            return false;
+        }
+
+        if (refill.transform == npc)
+        {
+            return true;
+        }
+
+        if (refill.sellerInventory != null &&
+            refill.sellerInventory.transform == npc)
+        {
+            return true;
+        }
+
+        return IsShopLinkedToNpc(refill.npcShop, npc);
+    }
+
+    bool IsShopLinkedToNpc(
+        SimpleItemShop shop,
+        Transform npc)
+    {
+        if (shop == null ||
+            npc == null)
+        {
+            return false;
+        }
+
+        if (shop.transform == npc)
+        {
+            return true;
+        }
+
+        if (shop.sellerObject == npc.gameObject)
+        {
+            return true;
+        }
+
+        return shop.sellerInventory != null &&
+            shop.sellerInventory.transform == npc;
+    }
+
+    ItemInventory GetRefillInventory(NpcShopStockRefill refill)
+    {
+        if (refill == null)
+        {
+            return null;
+        }
+
+        if (refill.sellerInventory != null)
+        {
+            return refill.sellerInventory;
+        }
+
+        return refill.npcShop != null
+            ? refill.npcShop.sellerInventory
+            : null;
     }
 
     bool TryGetBrokerStockRefill(
@@ -331,11 +506,8 @@ public class NpcInventoryPanelUI : MonoBehaviour
                         true);
                 }
 
-                if (gridDirty)
-                {
-                    itemGridPanel.Refresh(true);
-                    gridDirty = false;
-                }
+                itemGridPanel.Refresh(true);
+                gridDirty = false;
 
                 ReserveGridTopSpace();
             }
@@ -471,32 +643,146 @@ public class NpcInventoryPanelUI : MonoBehaviour
 
     void AutoFindItemGridPanel()
     {
-        if (itemGridPanel != null)
+        if (IsValidItemGridPanel(itemGridPanel))
+        {
+            DisableDuplicateGridControllers();
+            return;
+        }
+
+        itemGridPanel =
+            FindBestItemGridPanel();
+
+        DisableDuplicateGridControllers();
+    }
+
+    InventoryPanelUI FindBestItemGridPanel()
+    {
+        InventoryPanelUI bestPanel = null;
+        int bestScore = int.MinValue;
+
+        if (panelRoot != null)
+        {
+            InventoryPanelUI[] candidates =
+                panelRoot.GetComponentsInChildren<InventoryPanelUI>(true);
+
+            foreach (InventoryPanelUI candidate in candidates)
+            {
+                int score =
+                    ScoreItemGridPanelCandidate(candidate);
+
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    bestPanel = candidate;
+                }
+            }
+        }
+
+        if (bestPanel != null)
+        {
+            return bestPanel;
+        }
+
+        InventoryPanelUI[] fallbackCandidates =
+            GetComponentsInChildren<InventoryPanelUI>(true);
+
+        foreach (InventoryPanelUI candidate in fallbackCandidates)
+        {
+            int score =
+                ScoreItemGridPanelCandidate(candidate);
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestPanel = candidate;
+            }
+        }
+
+        return bestPanel;
+    }
+
+    int ScoreItemGridPanelCandidate(InventoryPanelUI candidate)
+    {
+        if (!IsValidItemGridPanel(candidate))
+        {
+            return int.MinValue;
+        }
+
+        int score = 0;
+
+        if (candidate.panelRoot == candidate.gameObject)
+        {
+            score += 100;
+        }
+
+        if (candidate.gameObject != panelRoot)
+        {
+            score += 30;
+        }
+
+        if (candidate.inventory != null)
+        {
+            score += 20;
+        }
+
+        if (!candidate.closeWhenClickOutside)
+        {
+            score += 10;
+        }
+
+        if (candidate.transform.IsChildOf(transform))
+        {
+            score += 5;
+        }
+
+        return score;
+    }
+
+    bool IsValidItemGridPanel(InventoryPanelUI candidate)
+    {
+        return candidate != null &&
+            candidate.itemGridParent != null &&
+            candidate.itemButtonPrefab != null;
+    }
+
+    void DisableDuplicateGridControllers()
+    {
+        if (!IsValidItemGridPanel(itemGridPanel) ||
+            panelRoot == null)
         {
             return;
         }
 
-        if (panelRoot != null)
+        InventoryPanelUI[] candidates =
+            panelRoot.GetComponentsInChildren<InventoryPanelUI>(true);
+
+        foreach (InventoryPanelUI candidate in candidates)
         {
-            itemGridPanel =
-                panelRoot.GetComponent<InventoryPanelUI>();
-
-            if (itemGridPanel != null)
+            if (candidate == null ||
+                candidate == itemGridPanel)
             {
-                return;
+                continue;
             }
 
-            itemGridPanel =
-                panelRoot.GetComponentInChildren<InventoryPanelUI>(true);
+            bool sameGridParent =
+                candidate.itemGridParent ==
+                itemGridPanel.itemGridParent;
+            bool samePanelRoot =
+                candidate.panelRoot ==
+                itemGridPanel.panelRoot;
+            bool sameDetailPanel =
+                candidate.detailPanel ==
+                itemGridPanel.detailPanel;
 
-            if (itemGridPanel != null)
+            if (!sameGridParent &&
+                !samePanelRoot &&
+                !sameDetailPanel)
             {
-                return;
+                continue;
             }
+
+            candidate.enabled = false;
         }
-
-        itemGridPanel =
-            GetComponentInChildren<InventoryPanelUI>(true);
     }
 
     bool ShouldUseItemGrid()

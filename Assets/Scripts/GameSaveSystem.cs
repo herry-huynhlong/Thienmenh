@@ -50,6 +50,9 @@ public static class GameSaveSystem
     const string WorldTimeDayKey = SavePrefix + "WorldTime.Day";
     const string WorldTimeHourKey = SavePrefix + "WorldTime.Hour";
     const string ManualUsePrefix = SavePrefix + "ManualUse.";
+    const string LastSceneKey = "LastScene";
+    const string MapReturnSceneKey = "MapReturnScene";
+    const string NewGameIntroFlagKey = "ThienMenh_NewGame";
 
     static readonly Dictionary<string, StatItemData> itemByKey =
         new Dictionary<string, StatItemData>();
@@ -106,6 +109,7 @@ public static class GameSaveSystem
         SimpleItemShop.ClearRuntimeStockCache();
         PlayerWallet.ClearSave();
         PlayerWallet.ResetRuntime();
+        HeavenDaoSystem.ClearSavedState();
 
         List<string> keysToDelete =
             new List<string>();
@@ -119,6 +123,7 @@ public static class GameSaveSystem
         }
 
         AddDynamicSaveKeys(keysToDelete);
+        AddNonPrefixedGameplayKeys(keysToDelete);
 
         foreach (string key in keysToDelete)
         {
@@ -275,6 +280,26 @@ public static class GameSaveSystem
                 keysToDelete.Add(key);
             }
         }
+    }
+
+    static void AddNonPrefixedGameplayKeys(List<string> keysToDelete)
+    {
+        AddKeyIfMissing(keysToDelete, LastSceneKey);
+        AddKeyIfMissing(keysToDelete, MapReturnSceneKey);
+        AddKeyIfMissing(keysToDelete, NewGameIntroFlagKey);
+    }
+
+    static void AddKeyIfMissing(
+        List<string> keysToDelete,
+        string key)
+    {
+        if (string.IsNullOrEmpty(key) ||
+            keysToDelete.Contains(key))
+        {
+            return;
+        }
+
+        keysToDelete.Add(key);
     }
 
     public static void SaveWorldTime(int year, int month, int day, float hour)

@@ -1,6 +1,14 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+public enum NpcRouteStatus
+{
+    Direct,
+    TeleportRoute,
+    NoGate,
+    InvalidGate
+}
+
 public static class NpcMapNavigator
 {
     static readonly Dictionary<GameObject, NpcMapZone> knownNpcZones =
@@ -165,12 +173,46 @@ public static class NpcMapNavigator
     public static Vector3 GetNextMoveTarget(
         GameObject npc,
         Vector3 finalTarget,
+        out bool usingTeleportRoute,
+        out string routeAction,
+        out NpcRouteStatus routeStatus)
+    {
+        return GetNextMoveTarget(
+            npc,
+            finalTarget,
+            null,
+            out usingTeleportRoute,
+            out routeAction,
+            out routeStatus);
+    }
+
+    public static Vector3 GetNextMoveTarget(
+        GameObject npc,
+        Vector3 finalTarget,
         NpcMapZone? forcedTargetZone,
         out bool usingTeleportRoute,
         out string routeAction)
     {
+        return GetNextMoveTarget(
+            npc,
+            finalTarget,
+            forcedTargetZone,
+            out usingTeleportRoute,
+            out routeAction,
+            out _);
+    }
+
+    public static Vector3 GetNextMoveTarget(
+        GameObject npc,
+        Vector3 finalTarget,
+        NpcMapZone? forcedTargetZone,
+        out bool usingTeleportRoute,
+        out string routeAction,
+        out NpcRouteStatus routeStatus)
+    {
         usingTeleportRoute = false;
         routeAction = string.Empty;
+        routeStatus = NpcRouteStatus.Direct;
 
         if (npc == null)
         {
@@ -221,6 +263,8 @@ public static class NpcMapNavigator
 
         if (gate == null)
         {
+            routeStatus = NpcRouteStatus.NoGate;
+            routeAction = BuildNoRouteAction(targetZone.Value);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             Debug.LogWarning(
                 "[NpcMapNavigator] npc=" +
@@ -238,15 +282,17 @@ public static class NpcMapNavigator
                 " actorPos=" +
                 npc.transform.position);
 #endif
-            return finalTarget;
+            return npc.transform.position;
         }
 
         if (!gate.TryGetTeleportRouteForZone(
                 currentZone.Value,
-                out _,
+                out Vector3 entryPosition,
                 out _,
                 out NpcMapZone destinationZone))
         {
+            routeStatus = NpcRouteStatus.InvalidGate;
+            routeAction = BuildNoRouteAction(targetZone.Value);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             Debug.LogWarning(
                 "[NpcMapNavigator] npc=" +
@@ -262,11 +308,8 @@ public static class NpcMapNavigator
                 " actorPos=" +
                 npc.transform.position);
 #endif
-            return finalTarget;
+            return npc.transform.position;
         }
-
-        Vector3 entryPosition =
-            gate.GetApproachPosition(npc.transform.position);
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         Debug.LogWarning(
@@ -281,6 +324,7 @@ public static class NpcMapNavigator
 #endif
 
         usingTeleportRoute = true;
+        routeStatus = NpcRouteStatus.TeleportRoute;
         routeAction = NpcText.ActionFormat(
             "teleportGateTo",
             GetZoneName(destinationZone));
@@ -333,7 +377,8 @@ public static class NpcMapNavigator
             foreach (NpcTeleportGate gate in NpcTeleportGate.Gates)
             {
                 if (gate == null ||
-                    !gate.TryGetOtherZone(zone, out NpcMapZone nextZone))
+                    !gate.TryGetOtherZone(zone, out NpcMapZone nextZone) ||
+                    !IsGateUsableFromZone(gate, zone))
                 {
                     continue;
                 }
@@ -370,7 +415,7 @@ public static class NpcMapNavigator
         {
             if (gate == null ||
                 !gate.Connects(fromZone, toZone) ||
-                ResolvePhysicalGateZone(gate) != fromZone)
+                !IsGateUsableFromZone(gate, fromZone))
             {
                 continue;
             }
@@ -378,16 +423,17 @@ public static class NpcMapNavigator
             return gate;
         }
 
-        foreach (NpcTeleportGate gate in NpcTeleportGate.Gates)
-        {
-            if (gate != null &&
-                gate.Connects(fromZone, toZone))
-            {
-                return gate;
-            }
-        }
-
         return null;
+    }
+
+    static bool IsGateUsableFromZone(
+        NpcTeleportGate gate,
+        NpcMapZone zone)
+    {
+        NpcMapZone? entryZone =
+            ResolvePhysicalGateEntryZone(gate, zone);
+        return !entryZone.HasValue ||
+            entryZone.Value == zone;
     }
 
     static bool TryGetLockedNpcZone(
@@ -439,6 +485,29 @@ public static class NpcMapNavigator
         return null;
     }
 
+    static NpcMapZone? ResolvePhysicalGateEntryZone(
+        NpcTeleportGate gate,
+        NpcMapZone routeFromZone)
+    {
+        if (gate == null ||
+            !gate.TryGetTeleportRouteForZone(
+                routeFromZone,
+                out Vector3 entryPosition,
+                out _,
+                out _))
+        {
+            return null;
+        }
+
+        NpcMapArea area = NpcMapArea.FindArea(entryPosition);
+        if (area != null)
+        {
+            return area.zone;
+        }
+
+        return ResolvePhysicalGateZone(gate);
+    }
+
     static bool IsNearTeleportBoundary(
         Vector3 position,
         NpcMapZone zone)
@@ -481,6 +550,11 @@ public static class NpcMapNavigator
             default:
                 return "Làng";
         }
+    }
+
+    static string BuildNoRouteAction(NpcMapZone targetZone)
+    {
+        return "No route to " + GetZoneName(targetZone);
     }
 }
 

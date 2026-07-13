@@ -165,7 +165,14 @@ public class CharacterStats : MonoBehaviour, IDamageable
                 gameObject,
                 gameObject.name,
                 targetRealm,
-                () => CompleteMajorBreakthrough(targetRealm));
+                () => CompleteMajorBreakthrough(targetRealm),
+                passed =>
+                {
+                    if (!passed)
+                    {
+                        waitingForHeavenlyTribulation = false;
+                    }
+                });
             return;
         }
 
@@ -374,6 +381,11 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
         currentHP -= finalDamage;
         currentHP = Mathf.Clamp(currentHP, 0, finalHP);
+
+        if (IsDead)
+        {
+            waitingForHeavenlyTribulation = false;
+        }
 
         if (entityProfile != null)
         {

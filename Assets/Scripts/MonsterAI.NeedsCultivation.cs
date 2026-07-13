@@ -4,27 +4,56 @@ public partial class MonsterAI
 {
     void UpdateBeastNeeds()
     {
+        EnsureTemperamentInitialized();
         hunger = Mathf.Clamp(hunger + Time.deltaTime * 0.4f, 0f, 100f);
         AbsorbWorldSpiritualEnergy();
 
+        transientAggressionBonus = Mathf.MoveTowards(
+            transientAggressionBonus,
+            0f,
+            Mathf.Max(0f, aggressionSurgeDecayPerSecond) * Time.deltaTime);
+        transientBloodlustBonus = Mathf.MoveTowards(
+            transientBloodlustBonus,
+            0f,
+            Mathf.Max(0f, bloodlustSurgeDecayPerSecond) * Time.deltaTime);
+
+        float weatherAggressionBonus = 0f;
         WeatherSystem weather = WeatherSystem.Instance;
         if (weather != null)
         {
-            aggression = Mathf.Clamp(
-                aggression + weather.BeastAggressionBonus() * Time.deltaTime * 0.01f,
-                0f,
-                100f);
+            weatherAggressionBonus = Mathf.Max(0f, weather.BeastAggressionBonus());
         }
 
+        float dangerousNightBonus = 0f;
         WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
         if (timeSystem != null &&
             timeSystem.IsDangerousNight())
         {
-            bloodlust = Mathf.Clamp(
-                bloodlust + Time.deltaTime * 0.2f,
-                0f,
-                100f);
+            dangerousNightBonus =
+                Mathf.Clamp(dangerousNightBloodlustBonus, 0f, 100f);
         }
+
+        float targetAggression = Mathf.Clamp(
+            baseAggression +
+            transientAggressionBonus +
+            weatherAggressionBonus,
+            0f,
+            100f);
+        float targetBloodlust = Mathf.Clamp(
+            baseBloodlust +
+            transientBloodlustBonus +
+            dangerousNightBonus,
+            0f,
+            100f);
+
+        aggression = Mathf.MoveTowards(
+            aggression,
+            targetAggression,
+            Mathf.Max(0f, aggressionResponsePerSecond) * Time.deltaTime);
+        bloodlust = Mathf.MoveTowards(
+            bloodlust,
+            targetBloodlust,
+            Mathf.Max(0f, bloodlustResponsePerSecond) * Time.deltaTime);
 
         if (entityProfile != null)
         {
@@ -32,6 +61,58 @@ public partial class MonsterAI
             entityProfile.emotion.fear = fear;
             SyncEntityProfileStats();
         }
+    }
+
+    void EnsureTemperamentInitialized()
+    {
+        if (temperamentInitialized)
+        {
+            return;
+        }
+
+        CaptureTemperamentBaselineFromCurrent(false);
+    }
+
+    void CaptureTemperamentBaselineFromCurrent(bool snapCurrentValues)
+    {
+        baseAggression = Mathf.Clamp(aggression, 0f, 100f);
+        baseBloodlust = Mathf.Clamp(bloodlust, 0f, 100f);
+        transientAggressionBonus = 0f;
+        transientBloodlustBonus = 0f;
+        temperamentInitialized = true;
+
+        if (!snapCurrentValues)
+        {
+            return;
+        }
+
+        aggression = baseAggression;
+        bloodlust = baseBloodlust;
+    }
+
+    public void ApplyTemperamentSurge(
+        float aggressionBonus,
+        float bloodlustBonus)
+    {
+        EnsureTemperamentInitialized();
+
+        transientAggressionBonus = Mathf.Clamp(
+            transientAggressionBonus + Mathf.Max(0f, aggressionBonus),
+            0f,
+            100f);
+        transientBloodlustBonus = Mathf.Clamp(
+            transientBloodlustBonus + Mathf.Max(0f, bloodlustBonus),
+            0f,
+            100f);
+
+        aggression = Mathf.Clamp(
+            aggression + Mathf.Max(0f, aggressionBonus),
+            0f,
+            100f);
+        bloodlust = Mathf.Clamp(
+            bloodlust + Mathf.Max(0f, bloodlustBonus),
+            0f,
+            100f);
     }
 
     void AbsorbWorldSpiritualEnergy()
@@ -140,7 +221,14 @@ public partial class MonsterAI
                 gameObject,
                 monsterName,
                 targetRealm,
-                () => CompleteMajorBreakthrough(targetRealm));
+                () => CompleteMajorBreakthrough(targetRealm),
+                passed =>
+                {
+                    if (!passed)
+                    {
+                        waitingForHeavenlyTribulation = false;
+                    }
+                });
             return;
         }
 

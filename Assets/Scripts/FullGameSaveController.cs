@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 [Serializable]
 public class FullGameSaveData
 {
+    public int saveVersion = 1;
+    public long savedAtUtcTicks;
     public string sceneName;
     public bool hasPlayer;
     public Vector3 playerPosition;
@@ -39,7 +41,9 @@ public class SavedFavoriteNpcData
 
 public class FullGameSaveController : MonoBehaviour
 {
+    const int CurrentSaveVersion = 1;
     const string FullSaveKey = "ThienMenh.Save.FullGame";
+    const string FullSaveBackupKey = "ThienMenh.Save.FullGame.Backup";
     static FullGameSaveController instance;
 
     [Header("Auto Save")]
@@ -153,6 +157,8 @@ public class FullGameSaveController : MonoBehaviour
         }
 
         FullGameSaveData data = new FullGameSaveData();
+        data.saveVersion = CurrentSaveVersion;
+        data.savedAtUtcTicks = DateTime.UtcNow.Ticks;
         data.sceneName = sceneName;
 
         SavePlayer(data);
@@ -160,8 +166,22 @@ public class FullGameSaveController : MonoBehaviour
         SaveFavorites(data);
         SaveWorldTime();
         SaveWallets();
-        PlayerPrefs.SetString(FullSaveKey, JsonUtility.ToJson(data));
+
+        string existingPrimary = PlayerPrefs.GetString(FullSaveKey, "");
+        string serialized = JsonUtility.ToJson(data);
+
+        if (!string.IsNullOrEmpty(existingPrimary))
+        {
+            PlayerPrefs.SetString(FullSaveBackupKey, existingPrimary);
+        }
+        else
+        {
+            PlayerPrefs.SetString(FullSaveBackupKey, serialized);
+        }
+
+        PlayerPrefs.SetString(FullSaveKey, serialized);
         GameSaveSystem.RegisterDynamicSaveKey(FullSaveKey);
+        GameSaveSystem.RegisterDynamicSaveKey(FullSaveBackupKey);
         GameSaveSystem.MarkSaveExists();
         GameSaveSystem.SaveCurrentScene(sceneName);
         GameSaveSystem.QueuePendingCommit();
@@ -185,27 +205,32 @@ public class FullGameSaveController : MonoBehaviour
 
     IEnumerator ApplyFullSaveAfterSceneLoad()
     {
-        if (applyingLoad || !PlayerPrefs.HasKey(FullSaveKey))
+        if (applyingLoad ||
+            (!PlayerPrefs.HasKey(FullSaveKey) &&
+             !PlayerPrefs.HasKey(FullSaveBackupKey)))
         {
             yield break;
         }
 
         applyingLoad = true;
-
-        yield return null;
-        yield return null;
-
-        FullGameSaveData data = JsonUtility.FromJson<FullGameSaveData>(PlayerPrefs.GetString(FullSaveKey));
-        if (data != null)
+        try
         {
-            ApplyWorldTime();
-            ApplyPlayer(data);
-            ApplyCamera(data);
             yield return null;
-            ApplyFavorites(data);
-        }
+            yield return null;
 
-        applyingLoad = false;
+            if (TryReadSaveData(out FullGameSaveData data))
+            {
+                ApplyWorldTime();
+                ApplyPlayer(data);
+                ApplyCamera(data);
+                yield return null;
+                ApplyFavorites(data);
+            }
+        }
+        finally
+        {
+            applyingLoad = false;
+        }
     }
 
     void SavePlayer(FullGameSaveData data)
@@ -267,7 +292,11 @@ public class FullGameSaveController : MonoBehaviour
         if (health != null)
         {
             health.maxHP = data.playerMaxHP > 0 ? data.playerMaxHP : health.maxHP;
-            health.currentHP = data.playerCurrentHP > 0 ? data.playerCurrentHP : health.currentHP;
+            health.currentHP =
+                Mathf.Clamp(
+                    data.playerCurrentHP,
+                    0,
+                    Mathf.Max(health.maxHP, 0));
         }
     }
 
@@ -308,6 +337,14 @@ public class FullGameSaveController : MonoBehaviour
         if (controller != null)
         {
             controller.followTarget = null;
+            GameObject player = FindPlayerObject();
+            if (player != null)
+            {
+                controller.followTarget = player.transform;
+                controller.RefreshMapBoundsForPosition(player.transform.position);
+                return;
+            }
+
             controller.RefreshMapBoundsForPosition(camera.transform.position);
         }
     }
@@ -519,6 +556,77 @@ public class FullGameSaveController : MonoBehaviour
                 wallet.Save();
             }
         }
+    }
+
+    bool TryReadSaveData(out FullGameSaveData data)
+    {
+        if (TryReadSaveDataFromKey(FullSaveKey, out data))
+        {
+            return true;
+        }
+
+        if (TryReadSaveDataFromKey(FullSaveBackupKey, out data))
+        {
+            if (debugLog)
+            {
+                Debug.LogWarning(
+                    "FullGameSaveController restored from backup save data.");
+            }
+
+            return true;
+        }
+
+        data = null;
+        return false;
+    }
+
+    bool TryReadSaveDataFromKey(
+        string key,
+        out FullGameSaveData data)
+    {
+        data = null;
+
+        if (!PlayerPrefs.HasKey(key))
+        {
+            return false;
+        }
+
+        string serialized = PlayerPrefs.GetString(key, "");
+        if (string.IsNullOrWhiteSpace(serialized))
+        {
+            return false;
+        }
+
+        try
+        {
+            data = JsonUtility.FromJson<FullGameSaveData>(serialized);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogWarning(
+                "FullGameSaveController failed to parse save key " +
+                key +
+                ": " +
+                exception.Message);
+            return false;
+        }
+
+        if (data == null)
+        {
+            return false;
+        }
+
+        if (data.saveVersion <= 0)
+        {
+            data.saveVersion = 1;
+        }
+
+        if (data.favoriteNpcs == null)
+        {
+            data.favoriteNpcs = new List<SavedFavoriteNpcData>();
+        }
+
+        return true;
     }
 
     GameObject FindPlayerObject()

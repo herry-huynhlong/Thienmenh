@@ -22,6 +22,9 @@ public class HeavenlyTribulationSystem : MonoBehaviour
     static readonly Dictionary<int, PillProtectionState> pillProtectionUntil =
         new Dictionary<int, PillProtectionState>();
 
+    readonly List<Action> activeTribulationCancellations =
+        new List<Action>();
+
     [Header("Tribulation")]
     public TribulationTargetMotionMode targetMotionMode = TribulationTargetMotionMode.KeepTargetStill;
     public int baseLightningCount = 2;
@@ -62,14 +65,39 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    void OnDisable()
+    {
+        CancelActiveTribulations();
+    }
+
+    void OnDestroy()
+    {
+        CancelActiveTribulations();
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+    }
+
     public static void Request(
         GameObject target,
         string displayName,
         CultivationRealm targetRealm,
         Action onPassed)
     {
+        Request(target, displayName, targetRealm, onPassed, null);
+    }
+
+    public static void Request(
+        GameObject target,
+        string displayName,
+        CultivationRealm targetRealm,
+        Action onPassed,
+        Action<bool> onCompleted)
+    {
         if (target == null)
         {
+            onCompleted?.Invoke(false);
             return;
         }
 
@@ -81,12 +109,34 @@ public class HeavenlyTribulationSystem : MonoBehaviour
             system = systemObject.AddComponent<HeavenlyTribulationSystem>();
         }
 
+        Action cancelSession = null;
+        bool completed = false;
+        Action<bool> guardedCompleted = passed =>
+        {
+            if (completed)
+            {
+                return;
+            }
+
+            completed = true;
+            if (cancelSession != null)
+            {
+                system.activeTribulationCancellations.Remove(cancelSession);
+            }
+
+            onCompleted?.Invoke(passed);
+        };
+
+        cancelSession = () => guardedCompleted(false);
+        system.activeTribulationCancellations.Add(cancelSession);
+
         system.StartCoroutine(
             system.RunTribulation(
                 target,
                 displayName,
                 targetRealm,
-                onPassed));
+                onPassed,
+                guardedCompleted));
     }
 
     public static void MarkPillProtectionIfEligible(
@@ -147,10 +197,12 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         GameObject target,
         string displayName,
         CultivationRealm targetRealm,
-        Action onPassed)
+        Action onPassed,
+        Action<bool> onCompleted)
     {
         if (target == null)
         {
+            CompleteTribulation(onCompleted, false);
             yield break;
         }
 
@@ -158,6 +210,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 
         if (damageable == null || damageable.IsDead)
         {
+            CompleteTribulation(onCompleted, false);
             yield break;
         }
 
@@ -192,6 +245,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         {
             if (target == null || damageable.IsDead)
             {
+                CompleteTribulation(onCompleted, false);
                 yield break;
             }
 
@@ -206,6 +260,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 
         if (target == null || damageable.IsDead)
         {
+            CompleteTribulation(onCompleted, false);
             yield break;
         }
 
@@ -219,16 +274,43 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 
         if (target == null || damageable.IsDead)
         {
+            CompleteTribulation(onCompleted, false);
+        }
+
+        if (target == null || damageable.IsDead)
+        {
             AddWorldLog(displayName + " thất bại dưới Thiên Kiếp.", 2);
             yield break;
         }
 
         onPassed?.Invoke();
+        CompleteTribulation(onCompleted, true);
 
         AddWorldLog(
             displayName + " vượt qua Thiên Kiếp, đột phá " +
             NpcText.Realm(targetRealm) + ".",
             1);
+    }
+
+    void CompleteTribulation(Action<bool> onCompleted, bool passed)
+    {
+        onCompleted?.Invoke(passed);
+    }
+
+    void CancelActiveTribulations()
+    {
+        if (activeTribulationCancellations.Count <= 0)
+        {
+            return;
+        }
+
+        Action[] cancellations = activeTribulationCancellations.ToArray();
+        activeTribulationCancellations.Clear();
+
+        for (int i = 0; i < cancellations.Length; i++)
+        {
+            cancellations[i]?.Invoke();
+        }
     }
 
     struct TribulationRuntime

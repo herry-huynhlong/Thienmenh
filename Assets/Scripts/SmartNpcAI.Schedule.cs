@@ -49,6 +49,7 @@ public partial class SmartNpcAI
         }
         if (!preserveActiveFlow)
         {
+            ClearTaskProviderVisitState();
             ClearTravelTargetsAndStop();
             currentMonsterTarget = null;
             treasureHuntTarget = null;
@@ -71,22 +72,29 @@ public partial class SmartNpcAI
             DebugFlow("ScheduleSlot", "Preserve active travel flow");
         }
 
-        RequestScheduledTask(
-            MapScheduleActivityToSmartGoal(schedule.CurrentActivity),
-            "schedule " + schedule.CurrentActivity);
+        SmartAITaskGoal scheduledGoal =
+            MapScheduleActivityToSmartGoal(schedule.CurrentActivity);
+        if (scheduledGoal == SmartAITaskGoal.None)
+        {
+            ClearScheduledTask();
+        }
+        else
+        {
+            RequestScheduledTask(
+                scheduledGoal,
+                "schedule " + schedule.CurrentActivity);
+        }
         if (runtimeTraceScheduleChanges)
         {
             TraceRuntime(
                 "RefreshScheduledStateForCurrentFrame",
-                "request-goal=" +
-                MapScheduleActivityToSmartGoal(schedule.CurrentActivity));
+                "request-goal=" + scheduledGoal);
         }
         DebugFlow(
             "ScheduleGoal",
             "hour=" + GetCurrentWorldHour().ToString("0.00") +
             " activity=" + schedule.CurrentActivity +
-            " mappedGoal=" +
-            MapScheduleActivityToSmartGoal(schedule.CurrentActivity));
+            " mappedGoal=" + scheduledGoal);
 
         if (schedule.CurrentActivity == NpcScheduleActivity.Gather ||
             schedule.CurrentActivity == NpcScheduleActivity.Hunt ||
@@ -842,6 +850,7 @@ public partial class SmartNpcAI
         ClearActiveHuntFlow();
         ClearHelpRequestState();
         StopMonsterRetreat();
+        ClearTaskProviderVisitState();
         currentMonsterTarget = null;
 
         if (resourceGatherer != null)
@@ -1174,6 +1183,45 @@ public partial class SmartNpcAI
         ClearTravelTargetsAndStop();
     }
 
+    void ClearTaskProviderVisitState()
+    {
+        cachedTaskProviderTarget = null;
+    }
+
+    bool IsTaskProviderTargetUsable(NpcTaskProvider provider)
+    {
+        return provider != null &&
+            provider.isActiveAndEnabled &&
+            provider.gameObject.activeInHierarchy &&
+            provider.provideTasks &&
+            provider.offers != null &&
+            provider.offers.Length > 0;
+    }
+
+    NpcTaskProvider ResolveTaskProviderVisitTarget()
+    {
+        if (IsTaskProviderTargetUsable(cachedTaskProviderTarget) &&
+            cachedTaskProviderTarget.HasAnyOfferForNpc(gameObject, false))
+        {
+            return cachedTaskProviderTarget;
+        }
+
+        cachedTaskProviderTarget = null;
+
+        NpcTaskProvider provider =
+            NpcTaskProvider.FindNearestProvider(
+                gameObject,
+                transform.position,
+                false);
+        if (!IsTaskProviderTargetUsable(provider))
+        {
+            return null;
+        }
+
+        cachedTaskProviderTarget = provider;
+        return cachedTaskProviderTarget;
+    }
+
     bool TryVisitTaskProvider()
     {
         NpcScheduleController schedule =
@@ -1198,6 +1246,7 @@ public partial class SmartNpcAI
 
         if (!CanVisitTaskProviderToday())
         {
+            ClearTaskProviderVisitState();
             float currentHour = GetCurrentWorldHour();
             DebugFlow(
                 "TaskProvider",
@@ -1221,10 +1270,7 @@ public partial class SmartNpcAI
                 : "none"));
 
         NpcTaskProvider provider =
-            NpcTaskProvider.FindNearestProvider(
-                gameObject,
-                transform.position,
-                false);
+            ResolveTaskProviderVisitTarget();
 
         if (provider == null)
         {
@@ -1400,6 +1446,7 @@ public partial class SmartNpcAI
         if (provider.TryHandleVisitor(gameObject, false))
         {
             MarkDailyTaskAccepted();
+            ClearTaskProviderVisitState();
             if (schedule != null)
             {
                 schedule.MarkCurrentSlotActivityStarted(
@@ -1424,6 +1471,7 @@ public partial class SmartNpcAI
         }
 
         ClearTravelTargetsAndStop();
+        ClearTaskProviderVisitState();
         actionTimer = Mathf.Max(thinkDelay, GameHoursToSeconds(0.15f));
         currentAction = NpcText.Action("visitedTaskProvider");
         DebugFlow(

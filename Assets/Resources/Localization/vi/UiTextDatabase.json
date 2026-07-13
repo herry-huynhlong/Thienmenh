@@ -397,6 +397,32 @@
       "lists": []
     },
     {
+      "name": "luckyWheel",
+      "entries": [
+        {
+          "key": "watchVideoButton",
+          "value": "Xem Video"
+        },
+        {
+          "key": "spinCountCappedFormat",
+          "value": "Lượt quay {0}/{1}\nĐầy lượt"
+        },
+        {
+          "key": "spinCountNextFormat",
+          "value": "Lượt quay {0}/{1}\n+1 sau {2}"
+        },
+        {
+          "key": "countdownDaysHoursFormat",
+          "value": "{0}N {1}G"
+        },
+        {
+          "key": "countdownHoursFormat",
+          "value": "{0}G"
+        }
+      ],
+      "lists": []
+    },
+    {
       "name": "population",
       "entries": [
         {
@@ -645,10 +671,10 @@
         {
           "key": "pageBodies",
           "values": [
-            "Thuở thiên địa còn nguyên vẹn, Hoang Cổ Đại Lục từng là một thế giới phồn thịnh.\n\nThiên Đạo bao phủ vạn vật, nhật nguyệt vận hành có thứ tự, linh khí luân chuyển không dứt.\n\nSinh linh sinh ra, tu luyện, tranh đấu, truyền thừa rồi hóa thành một phần của thiên địa.\n\nTông môn hưng thịnh, yêu thú tung hoành, linh thảo sinh trưởng khắp núi sông. Mỗi sinh mệnh đều có quỹ tích riêng, mỗi cơ duyên đều nằm trong đại đạo tuần hoàn.",
-            "Nhưng vào một kỷ nguyên xa xưa, hư không bỗng rạn nứt.\n\nMột thế lực đến từ ngoài thiên địa xâm nhập Hoang Cổ Đại Lục.\n\nChúng không tuân theo Thiên Đạo, không nhập luân hồi, chỉ muốn nuốt lấy linh khí, bản nguyên và sinh cơ của cả thế giới.\n\nTrận hạo kiếp ấy khiến núi sông sụp đổ, tông môn tiêu vong, vô số sinh linh hóa thành tro bụi. Trật tự thiên địa bắt đầu tan rã.",
-            "Để giữ lại một tia sinh cơ cuối cùng, Thiên Đạo đã cưỡng ép thiêu đốt bản nguyên của chính mình.\n\nSức mạnh ấy đánh lui ngoại địch, phong bế vết nứt hư không, cứu lấy phần còn sót lại của Hoang Cổ Đại Lục.\n\nNhưng cái giá phải trả quá lớn.\n\nBản nguyên Thiên Đạo vỡ nát, quyền năng thất lạc khắp nơi. Linh khí suy yếu, pháp tắc hỗn loạn, thế giới chỉ còn lại những vùng đất rời rạc đang tự chống chọi với thời gian.",
-            "Hiện tại, một tia tàn ý của Thiên Đạo đã thức tỉnh.\n\nĐó chính là ngươi.\n\nNgươi chưa thể chưởng khống toàn bộ thế giới, chỉ có thể quan sát một vùng đất nhỏ bé nơi rìa Hoang Cổ Đại Lục.\n\nNhưng từ nơi này, Thiên Đạo có thể bắt đầu trùng tu.\n\nHãy dẫn dắt sinh linh, ban phát cơ duyên, thúc đẩy tu luyện, mở rộng vùng đất, khôi phục linh khí và từng bước thu hồi bản nguyên đã mất.\n\nKhi Thiên Đạo đủ mạnh, Hoang Cổ Đại Lục sẽ một lần nữa nghênh đón thời đại mới."
+            "Thuở thiên địa còn nguyên vẹn, Hoang Cổ Đại Lục từng là một thế giới phồn thịnh.\n\nThiên Đạo bao phủ vạn vật, nhật nguyệt vận hành có trật tự, linh khí luân chuyển không dứt.\n\nTông môn hưng thịnh, yêu thú tung hoành, linh thảo sinh trưởng khắp núi sông. Mỗi sinh linh đều có quỹ tích riêng, mỗi cơ duyên đều nằm trong đại đạo tuần hoàn.",
+            "Nhưng vào một kỷ nguyên xa xưa, hư không bỗng rạn nứt.\n\nMột thế lực ngoài thiên địa xâm nhập Hoang Cổ Đại Lục, không tuân Thiên Đạo, không nhập luân hồi, chỉ muốn nuốt lấy linh khí, bản nguyên và sinh cơ của thế giới.\n\nTrận hạo kiếp khiến núi sông sụp đổ, tông môn tiêu vong, vô số sinh linh hóa thành tro bụi. Trật tự thiên địa bắt đầu tan rã.",
+            "Để giữ lại tia sinh cơ cuối cùng, Thiên Đạo buộc phải thiêu đốt bản nguyên của chính mình.\n\nSức mạnh ấy đánh lui ngoại địch, phong bế vết nứt hư không và cứu lấy phần còn sót lại của Hoang Cổ Đại Lục.\n\nNhưng cái giá quá lớn: bản nguyên vỡ nát, quyền năng thất lạc, linh khí suy yếu, pháp tắc hỗn loạn. Thế giới chỉ còn những vùng đất rời rạc chống chọi với thời gian.",
+            "Hiện tại, một tia tàn ý của Thiên Đạo đã thức tỉnh. Đó chính là ngươi.\n\nNgươi chưa thể chưởng khống toàn bộ thế giới, chỉ có thể quan sát một vùng đất nhỏ nơi rìa Hoang Cổ Đại Lục. Nhưng cũng từ đây, hành trình trùng tu Thiên Đạo bắt đầu.\n\nHãy dẫn dắt sinh linh, ban phát cơ duyên, thúc đẩy tu luyện, mở rộng lãnh thổ, khôi phục linh khí và từng bước thu hồi bản nguyên đã mất. Khi Thiên Đạo đủ mạnh, Hoang Cổ Đại Lục sẽ một lần nữa nghênh đón thời đại mới."
           ]
         },
         {
@@ -663,10 +689,10 @@
         {
           "key": "defaultPageBodies",
           "values": [
-            "Thuở thiên địa còn nguyên vẹn, Hoang Cổ Đại Lục từng là một thế giới phồn thịnh.\n\nThiên Đạo bao phủ vạn vật, nhật nguyệt vận hành có thứ tự, linh khí luân chuyển không dứt.\n\nSinh linh sinh ra, tu luyện, tranh đấu, truyền thừa rồi hóa thành một phần của thiên địa.\n\nTông môn hưng thịnh, yêu thú tung hoành, linh thảo sinh trưởng khắp núi sông. Mỗi sinh mệnh đều có quỹ tích riêng, mỗi cơ duyên đều nằm trong đại đạo tuần hoàn.",
-            "Nhưng vào một kỷ nguyên xa xưa, hư không bỗng rạn nứt.\n\nMột thế lực đến từ ngoài thiên địa xâm nhập Hoang Cổ Đại Lục.\n\nChúng không tuân theo Thiên Đạo, không nhập luân hồi, chỉ muốn nuốt lấy linh khí, bản nguyên và sinh cơ của cả thế giới.\n\nTrận hạo kiếp ấy khiến núi sông sụp đổ, tông môn tiêu vong, vô số sinh linh hóa thành tro bụi. Trật tự thiên địa bắt đầu tan rã.",
-            "Để giữ lại một tia sinh cơ cuối cùng, Thiên Đạo đã cưỡng ép thiêu đốt bản nguyên của chính mình.\n\nSức mạnh ấy đánh lui ngoại địch, phong bế vết nứt hư không, cứu lấy phần còn sót lại của Hoang Cổ Đại Lục.\n\nNhưng cái giá phải trả quá lớn.\n\nBản nguyên Thiên Đạo vỡ nát, quyền năng thất lạc khắp nơi. Linh khí suy yếu, pháp tắc hỗn loạn, thế giới chỉ còn lại những vùng đất rời rạc đang tự chống chọi với thời gian.",
-            "Hiện tại, một tia tàn ý của Thiên Đạo đã thức tỉnh.\n\nĐó chính là ngươi.\n\nNgươi chưa thể chưởng khống toàn bộ thế giới, chỉ có thể quan sát một vùng đất nhỏ bé nơi rìa Hoang Cổ Đại Lục.\n\nNhưng từ nơi này, Thiên Đạo có thể bắt đầu trùng tu.\n\nHãy dẫn dắt sinh linh, ban phát cơ duyên, thúc đẩy tu luyện, mở rộng vùng đất, khôi phục linh khí và từng bước thu hồi bản nguyên đã mất.\n\nKhi Thiên Đạo đủ mạnh, Hoang Cổ Đại Lục sẽ một lần nữa nghênh đón thời đại mới."
+            "Thuở thiên địa còn nguyên vẹn, Hoang Cổ Đại Lục từng là một thế giới phồn thịnh.\n\nThiên Đạo bao phủ vạn vật, nhật nguyệt vận hành có trật tự, linh khí luân chuyển không dứt.\n\nTông môn hưng thịnh, yêu thú tung hoành, linh thảo sinh trưởng khắp núi sông. Mỗi sinh linh đều có quỹ tích riêng, mỗi cơ duyên đều nằm trong đại đạo tuần hoàn.",
+            "Nhưng vào một kỷ nguyên xa xưa, hư không bỗng rạn nứt.\n\nMột thế lực ngoài thiên địa xâm nhập Hoang Cổ Đại Lục, không tuân Thiên Đạo, không nhập luân hồi, chỉ muốn nuốt lấy linh khí, bản nguyên và sinh cơ của thế giới.\n\nTrận hạo kiếp khiến núi sông sụp đổ, tông môn tiêu vong, vô số sinh linh hóa thành tro bụi. Trật tự thiên địa bắt đầu tan rã.",
+            "Để giữ lại tia sinh cơ cuối cùng, Thiên Đạo buộc phải thiêu đốt bản nguyên của chính mình.\n\nSức mạnh ấy đánh lui ngoại địch, phong bế vết nứt hư không và cứu lấy phần còn sót lại của Hoang Cổ Đại Lục.\n\nNhưng cái giá quá lớn: bản nguyên vỡ nát, quyền năng thất lạc, linh khí suy yếu, pháp tắc hỗn loạn. Thế giới chỉ còn những vùng đất rời rạc chống chọi với thời gian.",
+            "Hiện tại, một tia tàn ý của Thiên Đạo đã thức tỉnh. Đó chính là ngươi.\n\nNgươi chưa thể chưởng khống toàn bộ thế giới, chỉ có thể quan sát một vùng đất nhỏ nơi rìa Hoang Cổ Đại Lục. Nhưng cũng từ đây, hành trình trùng tu Thiên Đạo bắt đầu.\n\nHãy dẫn dắt sinh linh, ban phát cơ duyên, thúc đẩy tu luyện, mở rộng lãnh thổ, khôi phục linh khí và từng bước thu hồi bản nguyên đã mất. Khi Thiên Đạo đủ mạnh, Hoang Cổ Đại Lục sẽ một lần nữa nghênh đón thời đại mới."
           ]
         }
       ]
@@ -1063,6 +1089,22 @@
         {
           "key": "heavenDaoTitle",
           "value": "THIÊN ĐẠO CHƯỞNG KHỐNG"
+        },
+        {
+          "key": "heavenDaoShopTitle",
+          "value": "Thiên Đạo Lâu"
+        },
+        {
+          "key": "heavenDaoPackBasic",
+          "value": "Gói Cơ Bản"
+        },
+        {
+          "key": "heavenDaoPackAdvanced",
+          "value": "Gói Nâng Cao"
+        },
+        {
+          "key": "heavenDaoPackPremium",
+          "value": "Gói Cao Cấp"
         }
       ],
       "lists": []

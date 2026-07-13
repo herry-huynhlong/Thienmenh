@@ -37,8 +37,8 @@ public class HeavenDaoSystem : MonoBehaviour
 {
     public static HeavenDaoSystem Instance { get; private set; }
 
-    const string OriginKey = "HeavenDao.Origin";
-    const string KarmaKey = "HeavenDao.Karma";
+    internal const string OriginKey = "HeavenDao.Origin";
+    internal const string KarmaKey = "HeavenDao.Karma";
 
     [Header("State")]
     public int origin;
@@ -350,6 +350,24 @@ public class HeavenDaoSystem : MonoBehaviour
         }
         SaveState();
         OnChanged?.Invoke();
+    }
+
+    public static void ClearSavedState()
+    {
+        PlayerPrefs.DeleteKey(OriginKey);
+        PlayerPrefs.DeleteKey(KarmaKey);
+
+        if (Instance == null)
+        {
+            return;
+        }
+
+        Instance.origin = 0;
+        Instance.karma = 0;
+        Instance.recentLogs.Clear();
+        Instance.processedStoryLogs.Clear();
+        Instance.forcedLockedPowers.Clear();
+        Instance.OnChanged?.Invoke();
     }
 
     public bool TryGetStoryReward(

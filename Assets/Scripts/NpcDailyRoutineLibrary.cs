@@ -121,6 +121,9 @@ public static class NpcDailyRoutineLibrary
 
         // SmartAI dùng lịch gốc nhưng lệch giờ theo seed từng NPC
         // để tránh tất cả cùng dồn vào một hoạt động tại cùng thời điểm.
+        ApplySchedulePhaseOffset(
+            slots,
+            GetSmartCultivatorPhaseOffset(npc));
     }
 
     static NpcScheduleActivity PickCultivatorFieldActivity(

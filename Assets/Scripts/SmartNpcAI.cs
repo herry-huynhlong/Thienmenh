@@ -208,6 +208,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
     NpcTradeAgent tradeAgent;
     NpcForgeAgent currentForgeTradeTarget;
     StatItemData currentForgeTradeItem;
+    NpcTaskProvider cachedTaskProviderTarget;
 
     [Header("Dia diem")]
     public Transform homePoint;
@@ -1709,6 +1710,132 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         return NpcMapNavigator.ResolveActorZone(broker.gameObject);
     }
 
+    NpcMapZone? ResolveTransformZone(Transform target)
+    {
+        if (target == null)
+        {
+            return null;
+        }
+
+        NpcMapZone? destinationZone =
+            NpcMapNavigator.GetDestinationZone(target);
+        if (destinationZone.HasValue)
+        {
+            return destinationZone;
+        }
+
+        NpcMapArea area = NpcMapArea.FindArea(target.position);
+        if (area == null)
+        {
+            area = NpcMapArea.FindNearestArea(target.position);
+        }
+
+        return area != null
+            ? area.zone
+            : (NpcMapZone?)null;
+    }
+
+    NpcMapZone? ResolveCultivationPreferredZone()
+    {
+        NpcMapZone? zone =
+            ResolveTransformZone(cultivationPoint);
+        if (zone.HasValue)
+        {
+            return zone;
+        }
+
+        return ResolveTransformZone(homePoint);
+    }
+
+    Vector3 GetCultivationZoneAnchorPosition()
+    {
+        if (cultivationPoint != null)
+        {
+            return cultivationPoint.position;
+        }
+
+        if (homePoint != null)
+        {
+            return homePoint.position;
+        }
+
+        return transform.position;
+    }
+
+    bool TryGetCultivationAreaPosition(
+        NpcMapZone? preferredZone,
+        bool requirePreferredZone,
+        out Vector3 cultivationPosition,
+        out NpcMapZone? cultivationZone)
+    {
+        if (!NpcLocationArea.TryGetPosition(
+                gameObject,
+                NpcScheduleActivity.Cultivate,
+                VillagerJob.None,
+                NpcLocationPurpose.Cultivation,
+                preferredZone,
+                null,
+                transform.position,
+                out cultivationPosition,
+                out cultivationZone))
+        {
+            return false;
+        }
+
+        if (requirePreferredZone &&
+            preferredZone.HasValue &&
+            (!cultivationZone.HasValue ||
+            cultivationZone.Value != preferredZone.Value))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool TryResolveCultivationZoneEntryPosition(
+        NpcMapZone preferredZone,
+        out Vector3 cultivationPosition)
+    {
+        NpcMapArea destinationArea =
+            NpcMapArea.FindNearestAreaInZone(
+                preferredZone,
+                GetCultivationZoneAnchorPosition());
+        if (destinationArea == null)
+        {
+            cultivationPosition = Vector3.zero;
+            return false;
+        }
+
+        cultivationPosition =
+            destinationArea.ClosestPoint(
+                GetCultivationZoneAnchorPosition());
+        return true;
+    }
+
+    bool TryGetCultivationZoneMismatch(
+        out NpcMapZone preferredZone,
+        out NpcMapZone currentZone)
+    {
+        preferredZone = default;
+        currentZone = default;
+
+        NpcMapZone? resolvedPreferredZone =
+            ResolveCultivationPreferredZone();
+        NpcMapZone? resolvedCurrentZone =
+            NpcMapNavigator.ResolveActorZone(gameObject);
+        if (!resolvedPreferredZone.HasValue ||
+            !resolvedCurrentZone.HasValue ||
+            resolvedPreferredZone.Value == resolvedCurrentZone.Value)
+        {
+            return false;
+        }
+
+        preferredZone = resolvedPreferredZone.Value;
+        currentZone = resolvedCurrentZone.Value;
+        return true;
+    }
+
     bool TryHandleBrokerArrivalFromMovement(Vector3 desiredTarget)
     {
         if (currentAction != NpcText.Action("goVanBaoLauBroker"))
@@ -2031,13 +2158,15 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         bool usingTeleportRoute;
         string routeAction;
+        NpcRouteStatus routeStatus;
         Vector3 moveTarget =
             NpcMapNavigator.GetNextMoveTarget(
                 gameObject,
                 desiredTarget,
                 forcedTargetZone,
                 out usingTeleportRoute,
-                out routeAction);
+                out routeAction,
+                out routeStatus);
 
         NpcMapArea currentArea = NpcMapArea.FindArea(transform.position);
         NpcMapArea desiredTargetArea = NpcMapArea.FindArea(desiredTarget);
@@ -2049,6 +2178,30 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         if (!desiredZone.HasValue && desiredTargetArea != null)
         {
             desiredZone = desiredTargetArea.zone;
+        }
+
+        if (routeStatus == NpcRouteStatus.NoGate ||
+            routeStatus == NpcRouteStatus.InvalidGate)
+        {
+            if (!string.IsNullOrEmpty(routeAction))
+            {
+                currentAction = routeAction;
+            }
+
+            StopNpcMovement();
+            DebugFlow(
+                "MoveRoute",
+                "Blocked no route status=" +
+                routeStatus +
+                " currentZone=" +
+                (currentZone.HasValue ? currentZone.Value.ToString() : "None") +
+                " desiredZone=" +
+                (desiredZone.HasValue ? desiredZone.Value.ToString() : "None") +
+                " desiredTarget=" +
+                desiredTarget +
+                " target=" +
+                (currentTarget != null ? currentTarget.name : "null"));
+            return;
         }
 
         if (usingTeleportRoute)
@@ -2416,11 +2569,11 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             if (gate == null ||
                 !gate.TryGetTeleportRouteForZone(
                     currentZone.Value,
-                    out _,
+                    out Vector3 gateApproach,
                     out _,
                     out _) ||
                 Vector2.Distance(
-                    gate.GetApproachPosition(transform.position),
+                    gateApproach,
                     moveTarget) > 0.2f)
             {
                 continue;
@@ -2526,18 +2679,18 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             if (gate == null ||
                 !gate.TryGetTeleportRouteForZone(
                     currentZone.Value,
-                    out _,
+                    out Vector3 gateApproach,
                     out _,
                     out _) ||
                 Vector2.Distance(
-                    gate.GetApproachPosition(transform.position),
+                    gateApproach,
                     blockedTarget) > 0.35f)
             {
                 continue;
             }
 
             NpcMapArea gateArea =
-                NpcMapArea.FindArea(gate.GetApproachPosition(transform.position));
+                NpcMapArea.FindArea(gateApproach);
             if (currentArea != null &&
                 gateArea != null &&
                 gateArea != currentArea)
@@ -2547,7 +2700,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
             if (Vector2.Distance(
                     transform.position,
-                    gate.GetApproachPosition(transform.position)) > recoveryDistance)
+                    gateApproach) > recoveryDistance)
             {
                 continue;
             }
@@ -2766,6 +2919,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
 
         bool preserveTravelState =
             currentMonsterTarget != null ||
+            currentTarget != null ||
+            hasWanderTarget ||
             waitingOutsideTreasureLightning ||
             hasTreasureWaitPosition ||
             treasureHuntTarget != null ||
@@ -2806,30 +2961,36 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             ? gateObject.GetComponent<NpcTeleportGate>()
             : null;
         NpcMapArea area = NpcMapArea.FindArea(transform.position);
-        if (area == null)
-        {
-            area = NpcMapArea.FindArea(gate != null
-                ? gate.ExitPosition
-                : transform.position);
-        }
         NpcMapZone? resolvedZone =
             area != null
                 ? area.zone
                 : NpcMapNavigator.ResolveActorZone(gameObject);
+        Vector3 clearReference = transform.position;
 
         if (gate != null)
         {
-            if (resolvedZone.HasValue)
-            {
-                NpcMapNavigator.LockNpcZone(gameObject, resolvedZone.Value, 3f);
-                NpcMapNavigator.ReportNpcZone(gameObject, resolvedZone.Value);
-            }
-            else
-            {
-                NpcMapNavigator.LockNpcZone(gameObject, gate.toZone, 3f);
-                NpcMapNavigator.ReportNpcZone(gameObject, gate.toZone);
-                resolvedZone = gate.toZone;
-            }
+            Vector3 gateEntryPosition = gate.EntryPosition;
+            Vector3 gateExitPosition = gate.ExitPosition;
+            bool landedNearEntry =
+                ((Vector2)(transform.position - gateEntryPosition)).sqrMagnitude <=
+                ((Vector2)(transform.position - gateExitPosition)).sqrMagnitude;
+            Vector3 landedSidePosition =
+                landedNearEntry
+                    ? gateEntryPosition
+                    : gateExitPosition;
+            Vector3 oppositeSidePosition =
+                landedNearEntry
+                    ? gateExitPosition
+                    : gateEntryPosition;
+            NpcMapZone landedZone =
+                landedNearEntry
+                    ? gate.fromZone
+                    : gate.toZone;
+
+            resolvedZone = landedZone;
+
+            NpcMapNavigator.LockNpcZone(gameObject, landedZone, 3f);
+            NpcMapNavigator.ReportNpcZone(gameObject, resolvedZone.Value);
 
             NpcMapArea resolvedArea =
                 NpcMapNavigator.ResolveMapAreaAfterTeleport(
@@ -2843,6 +3004,29 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             {
                 NpcMapNavigator.ReportNpcZone(gameObject, resolvedArea.zone);
             }
+
+            Vector2 awayFromGate =
+                (Vector2)landedSidePosition -
+                (Vector2)oppositeSidePosition;
+            if (awayFromGate.sqrMagnitude <= 0.0001f)
+            {
+                awayFromGate =
+                    (Vector2)transform.position -
+                    (Vector2)landedSidePosition;
+            }
+
+            if (awayFromGate.sqrMagnitude <= 0.0001f)
+            {
+                awayFromGate = Vector2.up;
+            }
+
+            clearReference =
+                landedSidePosition +
+                (Vector3)(awayFromGate.normalized *
+                Mathf.Max(
+                    0.9f,
+                    targetClearRadius * 3f,
+                    moveSpeed * 0.35f));
         }
         else
         {
@@ -2853,7 +3037,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             }
         }
 
-        if (TryFindClearPointNear(transform.position, out Vector3 clearPoint, false))
+        if (TryFindClearPointNear(clearReference, out Vector3 clearPoint, false))
         {
             transform.position = clearPoint;
             spawnPosition = clearPoint;
@@ -5073,6 +5257,25 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
             return;
         }
 
+        if (TryGetCultivationZoneMismatch(
+                out NpcMapZone preferredZone,
+                out NpcMapZone currentZone))
+        {
+            ClearTravelTargetsAndStop();
+            UpdateCultivationEffect(false);
+            actionTimer = Mathf.Max(
+                actionTimer,
+                GameHoursToSeconds(5f / 60f));
+            currentAction = "waitSchedule" + NpcScheduleActivity.Cultivate;
+            DebugFlow(
+                "Cultivate",
+                "Blocked natural cultivate outside preferred zone currentZone=" +
+                currentZone +
+                " preferredZone=" +
+                preferredZone);
+            return;
+        }
+
         ClearTravelTargetsAndStop();
 
         int gain =
@@ -5294,14 +5497,22 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         out Transform targetPoint,
         out Vector3 cultivationPosition)
     {
-        if (NpcLocationArea.TryGetPosition(
-                gameObject,
-                NpcScheduleActivity.Cultivate,
-                VillagerJob.None,
-                NpcLocationPurpose.Cultivation,
-                transform.position,
+        NpcMapZone? preferredZone =
+            ResolveCultivationPreferredZone();
+        bool requirePreferredZone =
+            TryGetCultivationZoneMismatch(
+                out NpcMapZone mismatchedPreferredZone,
+                out NpcMapZone currentZone);
+        if (requirePreferredZone)
+        {
+            preferredZone = mismatchedPreferredZone;
+        }
+
+        if (TryGetCultivationAreaPosition(
+                preferredZone,
+                requirePreferredZone,
                 out cultivationPosition,
-                out _))
+                out NpcMapZone? configuredZone))
         {
             targetPoint = null;
             hasCultivationTarget = false;
@@ -5309,12 +5520,28 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 "Cultivate",
                 "Use configured cultivation area cultivationPosition=" +
                 cultivationPosition +
+                " cultivationZone=" +
+                (configuredZone.HasValue
+                    ? configuredZone.Value.ToString()
+                    : "None") +
+                " preferredZone=" +
+                (preferredZone.HasValue
+                    ? preferredZone.Value.ToString()
+                    : "None") +
                 " currentPos=" +
                 transform.position);
             TraceRuntime(
                 "TryResolveCultivationTravelDestination",
                 "configured cultivationPosition=" +
-                cultivationPosition);
+                cultivationPosition +
+                " zone=" +
+                (configuredZone.HasValue
+                    ? configuredZone.Value.ToString()
+                    : "None") +
+                " preferredZone=" +
+                (preferredZone.HasValue
+                    ? preferredZone.Value.ToString()
+                    : "None"));
             return true;
         }
 
@@ -5334,20 +5561,21 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 (targetArea == null ||
                 targetArea.zone != destinationZone.Value))
             {
-                if (NpcLocationArea.TryGetPosition(
-                        gameObject,
-                        NpcScheduleActivity.Cultivate,
-                        VillagerJob.None,
-                        NpcLocationPurpose.Cultivation,
-                        transform.position,
+                if (TryGetCultivationAreaPosition(
+                        destinationZone,
+                        true,
                         out cultivationPosition,
-                        out _))
+                        out NpcMapZone? fallbackZone))
                 {
                     targetPoint = null;
                     DebugFlow(
                         "Cultivate",
                         "Fallback to configured cultivation area targetPoint=null destinationZone=" +
                         destinationZone.Value +
+                        " cultivationZone=" +
+                        (fallbackZone.HasValue
+                            ? fallbackZone.Value.ToString()
+                            : "None") +
                         " cultivationPosition=" +
                         cultivationPosition +
                         " currentPos=" +
@@ -5356,6 +5584,10 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                         "TryResolveCultivationTravelDestination",
                         "fallback-configured destinationZone=" +
                         destinationZone.Value +
+                        " cultivationZone=" +
+                        (fallbackZone.HasValue
+                            ? fallbackZone.Value.ToString()
+                            : "None") +
                         " cultivationPosition=" +
                         cultivationPosition);
                     return true;
@@ -5406,20 +5638,52 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
         }
 
         bool foundCultivationPosition =
-            NpcLocationArea.TryGetPosition(
-            gameObject,
-            NpcScheduleActivity.Cultivate,
-            VillagerJob.None,
-            NpcLocationPurpose.Cultivation,
-            transform.position,
-            out cultivationPosition,
-            out _);
+            TryGetCultivationAreaPosition(
+                preferredZone,
+                requirePreferredZone,
+                out cultivationPosition,
+                out NpcMapZone? fallbackCultivationZone);
+
+        if (!foundCultivationPosition &&
+            requirePreferredZone &&
+            preferredZone.HasValue &&
+            TryResolveCultivationZoneEntryPosition(
+                preferredZone.Value,
+                out cultivationPosition))
+        {
+            foundCultivationPosition = true;
+            fallbackCultivationZone = preferredZone.Value;
+            DebugFlow(
+                "Cultivate",
+                "Fallback to preferred zone entry preferredZone=" +
+                preferredZone.Value +
+                " currentZone=" +
+                currentZone +
+                " cultivationPosition=" +
+                cultivationPosition +
+                " currentPos=" +
+                transform.position);
+            TraceRuntime(
+                "TryResolveCultivationTravelDestination",
+                "fallback-zone-entry preferredZone=" +
+                preferredZone.Value +
+                " cultivationPosition=" +
+                cultivationPosition);
+        }
 
         DebugFlow(
             "Cultivate",
             foundCultivationPosition
                 ? "Use fallback cultivation area cultivationPosition=" +
                     cultivationPosition +
+                    " cultivationZone=" +
+                    (fallbackCultivationZone.HasValue
+                        ? fallbackCultivationZone.Value.ToString()
+                        : "None") +
+                    " preferredZone=" +
+                    (preferredZone.HasValue
+                        ? preferredZone.Value.ToString()
+                        : "None") +
                     " currentPos=" +
                     transform.position
                 : "No cultivation destination found currentPos=" +
@@ -5787,7 +6051,14 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable
                 gameObject,
                 npcName,
                 targetRealm,
-                () => CompleteMajorBreakthrough(targetRealm));
+                () => CompleteMajorBreakthrough(targetRealm),
+                passed =>
+                {
+                    if (!passed)
+                    {
+                        waitingForHeavenlyTribulation = false;
+                    }
+                });
             return;
         }
 
@@ -7289,11 +7560,13 @@ public void ShootFireball()
 
         isDead = true;
         currentHP = 0;
+        waitingForHeavenlyTribulation = false;
         bool preserveInDungeon = BicanhSessionManager.ShouldPreserveDungeonDeath(gameObject);
 
         if (characterStats != null)
         {
             characterStats.currentHP = 0;
+            characterStats.waitingForHeavenlyTribulation = false;
         }
 
         ClearTravelTargets();

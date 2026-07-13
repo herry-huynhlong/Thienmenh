@@ -219,6 +219,32 @@
       "lists": []
     },
     {
+      "name": "luckyWheel",
+      "entries": [
+        {
+          "key": "watchVideoButton",
+          "value": "Watch Video"
+        },
+        {
+          "key": "spinCountCappedFormat",
+          "value": "Spins {0}/{1}\nFull"
+        },
+        {
+          "key": "spinCountNextFormat",
+          "value": "Spins {0}/{1}\n+1 in {2}"
+        },
+        {
+          "key": "countdownDaysHoursFormat",
+          "value": "{0}d {1}h"
+        },
+        {
+          "key": "countdownHoursFormat",
+          "value": "{0}h"
+        }
+      ],
+      "lists": []
+    },
+    {
       "name": "population",
       "entries": [
         {
@@ -880,6 +906,22 @@
         {
           "key": "heavenDaoTitle",
           "value": "HEAVENLY DAO CONTROL"
+        },
+        {
+          "key": "heavenDaoShopTitle",
+          "value": "Heaven Dao Pavilion"
+        },
+        {
+          "key": "heavenDaoPackBasic",
+          "value": "Basic Pack"
+        },
+        {
+          "key": "heavenDaoPackAdvanced",
+          "value": "Advanced Pack"
+        },
+        {
+          "key": "heavenDaoPackPremium",
+          "value": "Premium Pack"
         }
       ],
       "lists": []

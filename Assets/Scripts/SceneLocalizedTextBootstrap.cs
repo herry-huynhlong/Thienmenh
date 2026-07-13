@@ -10,6 +10,7 @@ public class SceneLocalizedTextBootstrap : MonoBehaviour
     {
         public string sceneName;
         public string objectName;
+        public string directParentName;
         public string category;
         public string key;
         public string fallback;
@@ -76,7 +77,35 @@ public class SceneLocalizedTextBootstrap : MonoBehaviour
             "Xem Video",
             "sceneUi",
             "watchAd",
-            "Xem Video")
+            "Xem Video"),
+        CreateEntry(
+            "PersistentScene",
+            "Text (TMP)",
+            "ShopPanel",
+            "sceneUi",
+            "heavenDaoShopTitle",
+            "Thiên Đạo Lâu"),
+        CreateEntry(
+            "PersistentScene",
+            "Gói Cơ Bản",
+            "Button_Pack1",
+            "sceneUi",
+            "heavenDaoPackBasic",
+            "Gói Cơ Bản"),
+        CreateEntry(
+            "PersistentScene",
+            "Gói Nâng Cao",
+            "Button_Pack2",
+            "sceneUi",
+            "heavenDaoPackAdvanced",
+            "Gói Nâng Cao"),
+        CreateEntry(
+            "PersistentScene",
+            "Gói Cao Cấp",
+            "Button_Pack3",
+            "sceneUi",
+            "heavenDaoPackPremium",
+            "Gói Cao Cấp")
     };
 
     static readonly SceneTextEntry[] LangSceneEntries =
@@ -130,10 +159,28 @@ public class SceneLocalizedTextBootstrap : MonoBehaviour
         string key,
         string fallback)
     {
+        return CreateEntry(
+            sceneName,
+            objectName,
+            string.Empty,
+            category,
+            key,
+            fallback);
+    }
+
+    static SceneTextEntry CreateEntry(
+        string sceneName,
+        string objectName,
+        string directParentName,
+        string category,
+        string key,
+        string fallback)
+    {
         return new SceneTextEntry
         {
             sceneName = sceneName,
             objectName = objectName,
+            directParentName = directParentName,
             category = category,
             key = key,
             fallback = fallback
@@ -291,6 +338,7 @@ public class SceneLocalizedTextBootstrap : MonoBehaviour
             SetTextByName(
                 entry.sceneName,
                 entry.objectName,
+                entry.directParentName,
                 UiText.Get(
                     entry.category,
                     entry.key,
@@ -301,6 +349,19 @@ public class SceneLocalizedTextBootstrap : MonoBehaviour
     void SetTextByName(
         string sceneName,
         string objectName,
+        string value)
+    {
+        SetTextByName(
+            sceneName,
+            objectName,
+            string.Empty,
+            value);
+    }
+
+    void SetTextByName(
+        string sceneName,
+        string objectName,
+        string directParentName,
         string value)
     {
         if (string.IsNullOrWhiteSpace(sceneName) ||
@@ -321,6 +382,16 @@ public class SceneLocalizedTextBootstrap : MonoBehaviour
                 text.gameObject.name != objectName)
             {
                 continue;
+            }
+
+            if (!string.IsNullOrWhiteSpace(directParentName))
+            {
+                Transform parent = text.transform.parent;
+                if (parent == null ||
+                    parent.name != directParentName)
+                {
+                    continue;
+                }
             }
 
             text.text = value ?? string.Empty;

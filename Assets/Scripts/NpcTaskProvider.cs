@@ -120,6 +120,18 @@ class RunningNpcTask
     public Vector3 escortCompanionHomePosition;
     public Behaviour pausedBaseAi;
     public bool pausedBaseAiWasEnabled;
+    public bool travelWatchdogArmed;
+    public TavernTaskStage travelWatchdogStage;
+    public Vector3 travelWatchdogTarget;
+    public Vector3 travelWatchdogLastPosition;
+    public float travelStageStartedAt;
+    public float travelLastProgressAt;
+    public float travelLastDistanceToTarget = float.PositiveInfinity;
+    public float maxTravelDuration;
+    public int travelRetryCount;
+    public int huntRespawnRetryCount;
+    public float huntMissionDeadlineWorldHour = float.PositiveInfinity;
+    public float huntMissionDeadlineFallbackTime = float.PositiveInfinity;
 }
 
 class RunningTavernMeal
@@ -130,6 +142,14 @@ class RunningTavernMeal
     public float remainingTime;
     public Behaviour pausedBaseAi;
     public bool pausedBaseAiWasEnabled;
+    public bool travelWatchdogArmed;
+    public Vector3 travelWatchdogTarget;
+    public Vector3 travelWatchdogLastPosition;
+    public float travelStageStartedAt;
+    public float travelLastProgressAt;
+    public float travelLastDistanceToTarget = float.PositiveInfinity;
+    public float maxTravelDuration;
+    public int travelRetryCount;
 }
 
 class PendingTaskGoods
@@ -572,10 +592,20 @@ public partial class NpcTaskProvider : MonoBehaviour
     public float providerTalkDistance = 0.75f;
     public bool spreadVisitorsAroundProvider = true;
     public float providerVisitorStandRadius = 0.65f;
+    [Header("Task Travel Watchdog")]
+    [Min(0.05f)] public float taskTravelProgressEpsilon = 0.12f;
+    [Min(0.25f)] public float taskTravelNoProgressTimeout = 8f;
+    [Min(1f)] public float taskTravelMinStageDuration = 10f;
+    [Min(1f)] public float taskTravelMaxStageDuration = 45f;
+    [Min(1f)] public float taskTravelDurationMultiplier = 4f;
+    [Min(0)] public int taskTravelMaxRecoveries = 2;
     public float stuckTurnInDistance = 2.25f;
     public float huntAttackRange = 1.4f;
     public float huntAttackInterval = 1.2f;
     public float huntTargetRetryDelay = 18f;
+    [Min(1)] public int maxHuntTargetSearchAttempts = 6;
+    [Min(1f)] public float maxHuntTaskWaitFallbackSeconds = 180f;
+    [Min(1f)] public float maxHuntTaskWaitWorldHours = 72f;
     public bool requireNpcPowerAboveBeastLevel = true;
     public int huntRequiredPowerMargin = 2;
     [Range(0f, 2f)] public float minimumTaskRewardMarkup = 0.2f;
@@ -607,6 +637,8 @@ public partial class NpcTaskProvider : MonoBehaviour
     Vector3 escortMeetAnchorPosition;
     Vector3 escortCompletionAnchorPosition;
     bool escortAnchorPositionsCaptured;
+    int lastTaskCatalogRefreshDay = -1;
+    bool pendingTaskCatalogRefresh;
 
     [Header("Harvest Delivery")]
     public bool includeLinhRiceHarvestTask = true;
@@ -881,7 +913,74 @@ public partial class NpcTaskProvider : MonoBehaviour
                     10f));
         }
 
+        SortOffersByDisplayOrder(defaultOffers);
         return defaultOffers.ToArray();
+    }
+
+    void SortOffersByDisplayOrder(List<NpcTaskOffer> targetOffers)
+    {
+        if (targetOffers == null ||
+            targetOffers.Count <= 1)
+        {
+            return;
+        }
+
+        targetOffers.Sort(CompareOffersForDisplay);
+    }
+
+    int CompareOffersForDisplay(
+        NpcTaskOffer left,
+        NpcTaskOffer right)
+    {
+        if (ReferenceEquals(left, right))
+        {
+            return 0;
+        }
+
+        if (left == null)
+        {
+            return 1;
+        }
+
+        if (right == null)
+        {
+            return -1;
+        }
+
+        int rankCompare =
+            GetOfferRankSortValue(left.rank).CompareTo(
+                GetOfferRankSortValue(right.rank));
+        if (rankCompare != 0)
+        {
+            return rankCompare;
+        }
+
+        int typeCompare =
+            left.taskType.CompareTo(right.taskType);
+        if (typeCompare != 0)
+        {
+            return typeCompare;
+        }
+
+        return string.Compare(
+            left.taskName,
+            right.taskName,
+            System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    int GetOfferRankSortValue(NpcTaskRank rank)
+    {
+        switch (rank)
+        {
+            case NpcTaskRank.Ha:
+                return 0;
+            case NpcTaskRank.Trung:
+                return 1;
+            case NpcTaskRank.Thuong:
+                return 2;
+            default:
+                return 99;
+        }
     }
 
     NpcTaskOffer CreateLinhRiceHarvestOffer()
@@ -1438,6 +1537,50 @@ public partial class NpcTaskProvider : MonoBehaviour
         }
     }
 
+    void UpdateTaskCatalogDailyReset()
+    {
+        int currentDay = GetCurrentWorldDay();
+        if (currentDay < 0)
+        {
+            return;
+        }
+
+        if (lastTaskCatalogRefreshDay < 0)
+        {
+            lastTaskCatalogRefreshDay = currentDay;
+            return;
+        }
+
+        if (currentDay == lastTaskCatalogRefreshDay &&
+            !pendingTaskCatalogRefresh)
+        {
+            return;
+        }
+
+        if (runningTasks.Count > 0)
+        {
+            pendingTaskCatalogRefresh = true;
+            return;
+        }
+
+        ResetTaskCatalogForNewDay(currentDay);
+    }
+
+    void ResetTaskCatalogForNewDay(int currentDay)
+    {
+        CleanupCompletedOfferHistory();
+        lastCompletedOfferByNpc.Clear();
+
+        if (useExpandedDefaultTaskCatalog)
+        {
+            offers = BuildExpandedDefaultOffers();
+        }
+
+        NormalizeConfiguredOfferText();
+        lastTaskCatalogRefreshDay = currentDay;
+        pendingTaskCatalogRefresh = false;
+    }
+
     void CompleteInterruptedWork()
     {
         for (int i = runningTasks.Count - 1; i >= 0; i--)
@@ -1447,10 +1590,7 @@ public partial class NpcTaskProvider : MonoBehaviour
                 ConsumeTaskItems(task);
 
             runningTasks.RemoveAt(i);
-            UnmarkNpcBusyWithProvider(task != null ? task.npc : null);
-            ReleaseTaskOffer(task != null ? task.offer : null);
-            RestoreEscortCompanionHome(task);
-            ResumeBaseAi(task);
+            CleanupTaskRuntimeState(task);
 
             if (canReward)
             {
@@ -1505,6 +1645,7 @@ public partial class NpcTaskProvider : MonoBehaviour
         providerRb = GetComponent<Rigidbody2D>();
         EnsureProviderInventory();
         lastTaskGoodsTransferDay = GetCurrentWorldDay();
+        lastTaskCatalogRefreshDay = GetCurrentWorldDay();
         CaptureStationaryPosition();
         CaptureEscortAnchorPositions();
         FreezeEscortAnchors();
@@ -1530,6 +1671,7 @@ public partial class NpcTaskProvider : MonoBehaviour
 
     void Update()
     {
+        UpdateTaskCatalogDailyReset();
         UpdateTaskGoodsDailyTransfer();
         UpdateMeals();
         UpdateRunningTasks();
@@ -1683,6 +1825,7 @@ public partial class NpcTaskProvider : MonoBehaviour
             result.Add(offer);
         }
 
+        SortOffersByDisplayOrder(result);
         return result;
     }
 
@@ -1943,6 +2086,9 @@ public partial class NpcTaskProvider : MonoBehaviour
                 : formalFlow
                 ? Mathf.Max(8f, chooseTaskDuration)
                 : Mathf.Max(1f, offer.workDuration),
+            huntMissionDeadlineWorldHour = GetInitialHuntMissionDeadlineWorldHour(),
+            huntMissionDeadlineFallbackTime = Time.time +
+                Mathf.Max(1f, maxHuntTaskWaitFallbackSeconds),
             requiredItem = requiredItem,
             requiredAmount = requiredAmount,
             rewardSpiritStone = rewardSpiritStone,
@@ -1999,6 +2145,7 @@ public partial class NpcTaskProvider : MonoBehaviour
 
             if (IsNpcRecoveringFromDamage(meal.npc))
             {
+                DisarmMealTravelWatchdog(meal);
                 HoldNpcForDamage(meal.npc);
                 continue;
             }
@@ -2008,11 +2155,20 @@ public partial class NpcTaskProvider : MonoBehaviour
                 MoveNpc(meal.npc, meal.mealPosition);
                 NpcRoleUtility.SetAction(meal.npc, TaskAction("goTavernMealPoint"));
 
+                if (UpdateMealTravelWatchdog(
+                        meal,
+                        meal.mealPosition,
+                        arriveDistance))
+                {
+                    continue;
+                }
+
                 if (Vector2.Distance(
                         meal.npc.transform.position,
                         meal.mealPosition) <= arriveDistance)
                 {
                     meal.stage = TavernMealStage.Eating;
+                    DisarmMealTravelWatchdog(meal);
                     NpcEconomy.AddNpcMoney(meal.npc, -mealCost);
                     AddProviderMoney(mealCost);
                     FeedNpc(meal.npc);
@@ -2021,6 +2177,7 @@ public partial class NpcTaskProvider : MonoBehaviour
                 continue;
             }
 
+            DisarmMealTravelWatchdog(meal);
             meal.remainingTime -= Time.deltaTime;
             NpcRoleUtility.SetAction(meal.npc, TaskAction("eatingAtTavern"));
 
@@ -2047,6 +2204,7 @@ public partial class NpcTaskProvider : MonoBehaviour
 
             if (IsNpcRecoveringFromDamage(task.npc))
             {
+                DisarmTaskTravelWatchdog(task);
                 HoldNpcForDamage(task.npc);
                 continue;
             }
@@ -2063,6 +2221,16 @@ public partial class NpcTaskProvider : MonoBehaviour
                         task.npc,
                         TaskAction("goCounterTrade"));
 
+                    if (UpdateTaskTravelWatchdog(
+                            task,
+                            counterTarget,
+                            arriveDistance,
+                            null,
+                            "GoingToCounter"))
+                    {
+                        break;
+                    }
+
                     if (IsNpcReadyForCounterTrade(
                             task.npc,
                             counterTarget))
@@ -2074,6 +2242,7 @@ public partial class NpcTaskProvider : MonoBehaviour
                     break;
 
                 case TavernTaskStage.CheckingCounter:
+                    DisarmTaskTravelWatchdog(task);
                     task.remainingTime -= Time.deltaTime;
                     NpcRoleUtility.SetAction(
                         task.npc,
@@ -2091,6 +2260,16 @@ public partial class NpcTaskProvider : MonoBehaviour
                         task.npc,
                         TaskActionFormat("viewTaskBoard", GetRankText(task.offer.rank)));
 
+                    if (UpdateTaskTravelWatchdog(
+                            task,
+                            task.boardPosition,
+                            arriveDistance,
+                            null,
+                            "GoingToBoard"))
+                    {
+                        break;
+                    }
+
                     if (Vector2.Distance(
                             task.npc.transform.position,
                             task.boardPosition) <= arriveDistance)
@@ -2101,6 +2280,7 @@ public partial class NpcTaskProvider : MonoBehaviour
                     break;
 
                 case TavernTaskStage.ChoosingTask:
+                    DisarmTaskTravelWatchdog(task);
                     task.remainingTime -= Time.deltaTime;
                     NpcRoleUtility.SetAction(
                         task.npc,
@@ -2130,9 +2310,16 @@ public partial class NpcTaskProvider : MonoBehaviour
                     }
 
                     MoveNpc(task.npc, task.providerPosition);
+                    UpdateTaskTravelWatchdog(
+                        task,
+                        task.providerPosition,
+                        GetProviderInteractionDistance(),
+                        null,
+                        "ReturningToProvider");
                     break;
 
                 case TavernTaskStage.ReceivingTask:
+                    DisarmTaskTravelWatchdog(task);
                     task.remainingTime -= Time.deltaTime;
                     NpcRoleUtility.SetAction(
                         task.npc,
@@ -2169,6 +2356,16 @@ public partial class NpcTaskProvider : MonoBehaviour
                         task.npc,
                         TaskActionFormat("goWorkTask", GetTaskDisplayText(task)));
 
+                    if (UpdateTaskTravelWatchdog(
+                            task,
+                            task.workPosition,
+                            arriveDistance,
+                            GetWorkZone(task.offer),
+                            "GoingToWork"))
+                    {
+                        break;
+                    }
+
                     if (Vector2.Distance(
                             task.npc.transform.position,
                             task.workPosition) <= arriveDistance)
@@ -2179,6 +2376,7 @@ public partial class NpcTaskProvider : MonoBehaviour
                     break;
 
                 case TavernTaskStage.Working:
+                    DisarmTaskTravelWatchdog(task);
                     if (IsEscortTask(task))
                     {
                         UpdateEscortMeeting(task);
@@ -2215,6 +2413,12 @@ public partial class NpcTaskProvider : MonoBehaviour
                     break;
                 case TavernTaskStage.WaitingForTargetRespawn:
                     task.remainingTime -= Time.deltaTime;
+                    if (ShouldCancelWaitingHuntTask(task, out string huntWaitCancelReason))
+                    {
+                        CancelStuckTask(task, huntWaitCancelReason);
+                        break;
+                    }
+
                     if (!IsNpcAtHuntWorkPosition(task))
                     {
                         MoveNpc(
@@ -2224,9 +2428,16 @@ public partial class NpcTaskProvider : MonoBehaviour
                         NpcRoleUtility.SetAction(
                             task.npc,
                             TaskActionFormat("huntSearch", BuildHuntProgressText(task)));
+                        UpdateTaskTravelWatchdog(
+                            task,
+                            task.workPosition,
+                            Mathf.Max(arriveDistance, huntAttackRange * 0.5f),
+                            GetWorkZone(task.offer),
+                            "WaitingForTargetRespawn");
                         break;
                     }
 
+                    DisarmTaskTravelWatchdog(task);
                     NpcRoleUtility.SetAction(
                         task.npc,
                         TaskActionFormat("waitHuntRespawn", BuildHuntProgressText(task)));
@@ -2258,9 +2469,18 @@ public partial class NpcTaskProvider : MonoBehaviour
                     }
 
                     MoveNpc(task.npc, task.providerPosition);
+                    UpdateTaskTravelWatchdog(
+                        task,
+                        task.providerPosition,
+                        Mathf.Max(
+                            GetProviderInteractionDistance(),
+                            stuckTurnInDistance),
+                        null,
+                        "ReturningToTurnIn");
                     break;
 
                 case TavernTaskStage.TurningIn:
+                    DisarmTaskTravelWatchdog(task);
                     task.remainingTime -= Time.deltaTime;
                     NpcRoleUtility.SetAction(
                         task.npc,
@@ -2645,9 +2865,20 @@ public partial class NpcTaskProvider : MonoBehaviour
             task.npc,
             TaskActionFormat("goGatherItem", GetTaskRequiredItemName(task), BuildGatherProgressText(task)));
 
+        if (UpdateTaskTravelWatchdog(
+                task,
+                task.workPosition,
+                Mathf.Max(arriveDistance, gatherInteractDistance),
+                GetWorkZone(task.offer),
+                "GatherTravel"))
+        {
+            return;
+        }
+
         if (IsNpcAtGatherPickup(task))
         {
             task.stage = TavernTaskStage.Working;
+            DisarmTaskTravelWatchdog(task);
             task.remainingTime = GetGatherWorkDuration(task);
         }
     }
@@ -2694,6 +2925,7 @@ public partial class NpcTaskProvider : MonoBehaviour
     }
     void UpdateGatherWork(RunningNpcTask task)
     {
+        DisarmTaskTravelWatchdog(task);
         if (HasGatherObjectiveComplete(task))
         {
             task.stage = TavernTaskStage.ReturningToTurnIn;
@@ -2764,6 +2996,12 @@ public partial class NpcTaskProvider : MonoBehaviour
                 NpcRoleUtility.SetAction(
                     task.npc,
                     TaskActionFormat("pickHuntEvidence", BuildHuntProgressText(task)));
+                UpdateTaskTravelWatchdog(
+                    task,
+                    task.workPosition,
+                    Mathf.Max(arriveDistance, gatherInteractDistance),
+                    GetWorkZone(task.offer),
+                    "HuntLootTravel");
                 return;
             }
         }
@@ -2786,6 +3024,16 @@ public partial class NpcTaskProvider : MonoBehaviour
             task.npc,
             TaskActionFormat("huntSearch", BuildHuntProgressText(task)));
 
+        if (UpdateTaskTravelWatchdog(
+                task,
+                task.workPosition,
+                huntAttackRange,
+                GetWorkZone(task.offer),
+                "HuntTravel"))
+        {
+            return;
+        }
+
         if (Vector2.Distance(
                 task.npc.transform.position,
                 task.targetMonster.transform.position) <= huntAttackRange)
@@ -2797,6 +3045,7 @@ public partial class NpcTaskProvider : MonoBehaviour
 
     void UpdateHuntWork(RunningNpcTask task)
     {
+        DisarmTaskTravelWatchdog(task);
         if (HasHuntObjectiveComplete(task))
         {
             task.stage = TavernTaskStage.ReturningToTurnIn;
@@ -2877,6 +3126,16 @@ public partial class NpcTaskProvider : MonoBehaviour
             task.npc,
             TaskActionFormat("workingTask", GetTaskDisplayText(task)));
 
+        if (UpdateTaskTravelWatchdog(
+                task,
+                patrolTarget,
+                arriveDistance,
+                GetWorkZone(task.offer),
+                "PatrolWork"))
+        {
+            return;
+        }
+
         if (Vector2.Distance(
                 task.npc.transform.position,
                 patrolTarget) <= arriveDistance)
@@ -2888,6 +3147,7 @@ public partial class NpcTaskProvider : MonoBehaviour
 
     void UpdateEscortMeeting(RunningNpcTask task)
     {
+        DisarmTaskTravelWatchdog(task);
         if (!IsEscortCompanionUsable(task))
         {
             FinishTask(runningTasks.IndexOf(task), false);
@@ -2929,6 +3189,18 @@ public partial class NpcTaskProvider : MonoBehaviour
                 task.npc,
                 TaskActionFormat("goWorkTask", GetTaskDisplayText(task)));
 
+            if (UpdateTaskTravelWatchdog(
+                    task,
+                    greetingPosition,
+                    Mathf.Max(
+                        arriveDistance,
+                        escortFollowDistance * 0.75f),
+                    null,
+                    "EscortMeetTravel"))
+            {
+                return;
+            }
+
             if (Vector2.Distance(
                     task.npc.transform.position,
                     greetingPosition) <= Mathf.Max(
@@ -2957,6 +3229,18 @@ public partial class NpcTaskProvider : MonoBehaviour
         NpcRoleUtility.SetAction(
             task.npc,
             TaskActionFormat("goWorkTask", GetTaskDisplayText(task)));
+
+        if (UpdateTaskTravelWatchdog(
+                task,
+                deliveryGreetingPosition,
+                Mathf.Max(
+                    arriveDistance,
+                    escortFollowDistance * 0.75f),
+                null,
+                "EscortDeliveryTravel"))
+        {
+            return;
+        }
 
         if (Vector2.Distance(
                 task.npc.transform.position,
@@ -3261,6 +3545,23 @@ public partial class NpcTaskProvider : MonoBehaviour
             return;
         }
 
+        bool hasHuntLoot = FindHuntLootPickup(task) != null;
+        bool hasPotentialTarget = HasPotentialHuntTargetCandidate(task);
+        if (!hasHuntLoot && !hasPotentialTarget)
+        {
+            task.huntRespawnRetryCount++;
+        }
+        else
+        {
+            task.huntRespawnRetryCount = 0;
+        }
+
+        if (ShouldCancelWaitingHuntTask(task, out string cancelReason))
+        {
+            CancelStuckTask(task, cancelReason);
+            return;
+        }
+
         task.stage = TavernTaskStage.WaitingForTargetRespawn;
         task.remainingTime = Mathf.Max(1f, huntTargetRetryDelay);
         task.targetMonster = null;
@@ -3294,6 +3595,12 @@ public partial class NpcTaskProvider : MonoBehaviour
     {
         if (task == null)
         {
+            return;
+        }
+
+        if (ShouldCancelWaitingHuntTask(task, out string cancelReason))
+        {
+            CancelStuckTask(task, cancelReason);
             return;
         }
 
@@ -3451,6 +3758,62 @@ public partial class NpcTaskProvider : MonoBehaviour
         return monster.GetDeathLoot() != null || requiredItem == null;
     }
 
+    bool CanMonsterEverSatisfyHuntTask(RunningNpcTask task, MonsterAI monster)
+    {
+        if (monster == null ||
+            !monster.gameObject.activeInHierarchy)
+        {
+            return false;
+        }
+
+        NpcTaskOffer offer = task != null ? task.offer : null;
+        if (!MatchesRequiredHuntTargetType(
+                offer != null ? offer.requiredHuntTargetType : HuntTargetType.Beast,
+                monster.huntTargetType))
+        {
+            return false;
+        }
+
+        if (!MatchesHuntMonsterDifficulty(offer, monster))
+        {
+            return false;
+        }
+
+        StatItemData requiredItem = GetTaskRequiredItem(task);
+        StatItemData loot = monster.GetDeathLoot();
+        if (requiredItem != null &&
+            loot != requiredItem)
+        {
+            return false;
+        }
+
+        if (requiredItem != null &&
+            loot == null)
+        {
+            return false;
+        }
+
+        return IsHuntTargetUsable(monster) || monster.respawnAfterDeath;
+    }
+
+    bool HasPotentialHuntTargetCandidate(RunningNpcTask task)
+    {
+        if (task == null)
+        {
+            return false;
+        }
+
+        foreach (MonsterAI monster in FindObjectsByType<MonsterAI>(FindObjectsInactive.Exclude))
+        {
+            if (CanMonsterEverSatisfyHuntTask(task, monster))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     void ResolveHuntRequiredItemFromMonster(RunningNpcTask task, MonsterAI monster)
     {
         if (task == null || task.requiredItem != null || monster == null)
@@ -3550,6 +3913,86 @@ public partial class NpcTaskProvider : MonoBehaviour
             monster.gameObject.activeInHierarchy &&
             !monster.IsDead &&
             monster.currentHP > 0;
+    }
+
+    bool ShouldCancelWaitingHuntTask(
+        RunningNpcTask task,
+        out string reason)
+    {
+        reason = null;
+        if (task == null)
+        {
+            return false;
+        }
+
+        if (HasExceededHuntMissionDeadline(task))
+        {
+            reason = "HuntTargetRespawn deadlineExceeded";
+            return true;
+        }
+
+        if (FindHuntLootPickup(task) != null)
+        {
+            task.huntRespawnRetryCount = 0;
+            return false;
+        }
+
+        if (HasPotentialHuntTargetCandidate(task))
+        {
+            task.huntRespawnRetryCount = 0;
+            return false;
+        }
+
+        if (task.huntRespawnRetryCount >= Mathf.Max(1, maxHuntTargetSearchAttempts))
+        {
+            reason = "HuntTargetRespawn noMatchingTarget";
+            return true;
+        }
+
+        return false;
+    }
+
+    float GetInitialHuntMissionDeadlineWorldHour()
+    {
+        float worldHour = GetAbsoluteWorldHour();
+        if (worldHour < 0f)
+        {
+            return float.PositiveInfinity;
+        }
+
+        return worldHour + Mathf.Max(1f, maxHuntTaskWaitWorldHours);
+    }
+
+    bool HasExceededHuntMissionDeadline(RunningNpcTask task)
+    {
+        if (task == null)
+        {
+            return false;
+        }
+
+        float worldHour = GetAbsoluteWorldHour();
+        if (worldHour >= 0f &&
+            !float.IsInfinity(task.huntMissionDeadlineWorldHour))
+        {
+            return worldHour >= task.huntMissionDeadlineWorldHour;
+        }
+
+        return Time.time >= task.huntMissionDeadlineFallbackTime;
+    }
+
+    float GetAbsoluteWorldHour()
+    {
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        if (timeSystem == null)
+        {
+            return -1f;
+        }
+
+        int year = Mathf.Max(1, timeSystem.currentYear);
+        int month = Mathf.Max(1, timeSystem.currentMonth);
+        int day = Mathf.Max(1, timeSystem.currentDay);
+        int absoluteDay = (year - 1) * 360 + (month - 1) * 30 + (day - 1);
+        return absoluteDay * 24f + Mathf.Max(0f, timeSystem.currentHour);
     }
 
     bool IsWorkThreatMonster(MonsterAI monster)
@@ -4032,20 +4475,39 @@ public partial class NpcTaskProvider : MonoBehaviour
             return 0;
         }
 
-        int inventoryProgress = 0;
-        if (task.offer != null &&
-            GetTaskRequiredItem(task) != null &&
-            task.npc != null)
+        int inventoryProgress = GetTaskInventoryProgress(task);
+        if (UsesInventoryTurnInItems(task))
         {
-            inventoryProgress = Mathf.Max(
-                0,
-                GetNpcItemAmount(task.npc, GetTaskRequiredItem(task)) -
-                    task.startingRequiredItemAmount);
+            return inventoryProgress;
         }
 
         return Mathf.Max(
             Mathf.Max(0, task.collectedAmount),
             inventoryProgress);
+    }
+
+    int GetTaskInventoryProgress(RunningNpcTask task)
+    {
+        if (task == null ||
+            task.offer == null ||
+            GetTaskRequiredItem(task) == null ||
+            task.npc == null)
+        {
+            return 0;
+        }
+
+        return Mathf.Max(
+            0,
+            GetNpcItemAmount(task.npc, GetTaskRequiredItem(task)) -
+                task.startingRequiredItemAmount);
+    }
+
+    bool UsesInventoryTurnInItems(RunningNpcTask task)
+    {
+        return task != null &&
+            task.offer != null &&
+            task.offer.consumeRequiredItemsOnTurnIn &&
+            GetTaskRequiredItem(task) != null;
     }
 
     int GetNpcItemAmount(GameObject npc, StatItemData item)
@@ -4456,25 +4918,12 @@ public partial class NpcTaskProvider : MonoBehaviour
             task.offer != null &&
             !ConsumeTaskItems(task))
         {
-            NpcRoleUtility.SetAction(
-                task.npc,
-                TaskActionFormat("missingTurnInItems", GetTaskDisplayText(task)));
-            task.stage = TavernTaskStage.ReturningToTurnIn;
+            RestartTaskWorkAfterMissingTurnInItems(task);
             return;
         }
 
         runningTasks.RemoveAt(index);
-        UnmarkNpcBusyWithProvider(task != null ? task.npc : null);
-        ReleaseTaskOffer(task != null ? task.offer : null);
-        RestoreEscortCompanionHome(task);
-        ResumeEscortCompanion(task);
-        if (task != null &&
-            task.offer != null &&
-            task.offer.taskType == NpcTaskType.Escort)
-        {
-            UnlockEscortOffer(task.offer);
-        }
-        ResumeBaseAi(task);
+        CleanupTaskRuntimeState(task);
 
         if (!completed ||
             task == null ||
@@ -4498,6 +4947,36 @@ public partial class NpcTaskProvider : MonoBehaviour
             schedule.CurrentActivity == NpcScheduleActivity.TakeTask))
         {
             schedule.MarkCurrentSlotActivityCompleted(schedule.CurrentActivity);
+        }
+    }
+
+    void RestartTaskWorkAfterMissingTurnInItems(RunningNpcTask task)
+    {
+        if (task == null)
+        {
+            return;
+        }
+
+        task.collectedAmount = Mathf.Min(
+            Mathf.Max(0, task.collectedAmount),
+            GetTaskInventoryProgress(task));
+        task.targetPickup = null;
+        task.targetLootPickup = null;
+        task.targetMonster = null;
+        task.threatMonster = null;
+        task.stage = TavernTaskStage.GoingToWork;
+        task.remainingTime = Mathf.Max(
+            1f,
+            task.offer != null ? task.offer.workDuration : 1f);
+
+        DisarmTaskTravelWatchdog(task);
+        PrepareTaskWork(task);
+
+        if (task.npc != null)
+        {
+            NpcRoleUtility.SetAction(
+                task.npc,
+                TaskActionFormat("missingTurnInItems", GetTaskDisplayText(task)));
         }
     }
 
@@ -4856,6 +5335,451 @@ public partial class NpcTaskProvider : MonoBehaviour
         }
 
         return GetClearTaskPositionNear(position, npc);
+    }
+
+    void ArmTaskTravelWatchdog(
+        RunningNpcTask task,
+        Vector3 target)
+    {
+        if (task == null ||
+            task.npc == null)
+        {
+            return;
+        }
+
+        task.travelWatchdogArmed = true;
+        task.travelWatchdogStage = task.stage;
+        task.travelWatchdogTarget = target;
+        task.travelWatchdogLastPosition = task.npc.transform.position;
+        task.travelStageStartedAt = Time.time;
+        task.travelLastProgressAt = Time.time;
+        task.travelLastDistanceToTarget =
+            Vector2.Distance(
+                task.npc.transform.position,
+                target);
+        task.maxTravelDuration =
+            ComputeTravelWatchdogDuration(
+                task.npc,
+                task.travelLastDistanceToTarget);
+        task.travelRetryCount = 0;
+    }
+
+    void DisarmTaskTravelWatchdog(RunningNpcTask task)
+    {
+        if (task == null)
+        {
+            return;
+        }
+
+        task.travelWatchdogArmed = false;
+        task.travelLastDistanceToTarget = float.PositiveInfinity;
+        task.maxTravelDuration = 0f;
+    }
+
+    bool UpdateTaskTravelWatchdog(
+        RunningNpcTask task,
+        Vector3 target,
+        float arriveThreshold,
+        NpcMapZone? forcedTargetZone,
+        string context)
+    {
+        if (task == null ||
+            task.npc == null)
+        {
+            return false;
+        }
+
+        float distanceToTarget =
+            Vector2.Distance(
+                task.npc.transform.position,
+                target);
+
+        if (!task.travelWatchdogArmed ||
+            task.travelWatchdogStage != task.stage ||
+            Vector2.Distance(task.travelWatchdogTarget, target) >
+                Mathf.Max(arriveDistance, 0.25f))
+        {
+            ArmTaskTravelWatchdog(task, target);
+            distanceToTarget = task.travelLastDistanceToTarget;
+        }
+
+        if (distanceToTarget <= arriveThreshold)
+        {
+            task.travelLastProgressAt = Time.time;
+            task.travelLastDistanceToTarget = distanceToTarget;
+            task.travelWatchdogLastPosition = task.npc.transform.position;
+            return false;
+        }
+
+        if (distanceToTarget <=
+            task.travelLastDistanceToTarget - Mathf.Max(0.01f, taskTravelProgressEpsilon))
+        {
+            task.travelLastProgressAt = Time.time;
+            task.travelLastDistanceToTarget = distanceToTarget;
+            task.travelWatchdogLastPosition = task.npc.transform.position;
+            return false;
+        }
+
+        if (Time.time - task.travelStageStartedAt >
+            Mathf.Max(taskTravelMinStageDuration, task.maxTravelDuration))
+        {
+            return CancelStuckTask(
+                task,
+                context + " stageTimeout");
+        }
+
+        if (Time.time - task.travelLastProgressAt <
+            Mathf.Max(0.25f, taskTravelNoProgressTimeout))
+        {
+            return false;
+        }
+
+        if (task.travelRetryCount >= Mathf.Max(0, taskTravelMaxRecoveries))
+        {
+            return CancelStuckTask(
+                task,
+                context + " noProgress");
+        }
+
+        RecoverTaskTravel(task, target, forcedTargetZone, context);
+        return true;
+    }
+
+    void RecoverTaskTravel(
+        RunningNpcTask task,
+        Vector3 target,
+        NpcMapZone? forcedTargetZone,
+        string context)
+    {
+        if (task == null ||
+            task.npc == null)
+        {
+            return;
+        }
+
+        task.travelRetryCount++;
+
+        Vector3 currentPosition = task.npc.transform.position;
+        Vector3 clearCurrentPosition =
+            GetClearTaskPositionNear(
+                currentPosition,
+                task.npc);
+
+        if (Vector2.Distance(currentPosition, clearCurrentPosition) > 0.02f)
+        {
+            task.npc.transform.position = clearCurrentPosition;
+
+            Rigidbody2D rb = task.npc.GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                rb.position = clearCurrentPosition;
+                rb.linearVelocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+            }
+        }
+
+        Vector3 recoveryTarget =
+            ResolveTaskRecoveryTarget(task, target);
+
+        task.travelWatchdogTarget = recoveryTarget;
+        task.travelWatchdogLastPosition = task.npc.transform.position;
+        task.travelLastDistanceToTarget =
+            Vector2.Distance(
+                task.npc.transform.position,
+                recoveryTarget);
+        task.travelLastProgressAt = Time.time;
+        task.maxTravelDuration =
+            ComputeTravelWatchdogDuration(
+                task.npc,
+                task.travelLastDistanceToTarget);
+
+        MoveNpc(
+            task.npc,
+            recoveryTarget,
+            forcedTargetZone);
+
+        Debug.LogWarning(
+            "[NpcTaskProvider] Recover travel npc=" +
+            task.npc.name +
+            " stage=" +
+            task.stage +
+            " context=" +
+            context +
+            " retry=" +
+            task.travelRetryCount +
+            " target=" +
+            recoveryTarget +
+            " forcedZone=" +
+            (forcedTargetZone.HasValue
+                ? forcedTargetZone.Value.ToString()
+                : "None"));
+    }
+
+    Vector3 ResolveTaskRecoveryTarget(
+        RunningNpcTask task,
+        Vector3 fallbackTarget)
+    {
+        if (task == null ||
+            task.npc == null)
+        {
+            return fallbackTarget;
+        }
+
+        switch (task.stage)
+        {
+            case TavernTaskStage.GoingToCounter:
+                task.counterPosition = GetCounterPosition(task.npc);
+                return ResolveActiveCounterTradePosition(
+                    task.npc,
+                    task.counterPosition);
+
+            case TavernTaskStage.GoingToBoard:
+                task.boardPosition = GetBoardPosition(task.npc);
+                return task.boardPosition;
+
+            case TavernTaskStage.ReturningToProvider:
+            case TavernTaskStage.ReturningToTurnIn:
+                task.providerPosition = GetProviderPositionFor(task.npc);
+                return task.providerPosition;
+
+            case TavernTaskStage.GoingToWork:
+            case TavernTaskStage.WaitingForTargetRespawn:
+                if (IsEscortTask(task))
+                {
+                    return !task.escortDepartedFromCompanion
+                        ? GetEscortGreetingPosition(task)
+                        : GetEscortCompletionGreetingPosition(task);
+                }
+
+                if (IsPatrolTask(task))
+                {
+                    task.patrolEndPosition =
+                        task.patrolEndPosition != Vector3.zero
+                        ? task.patrolEndPosition
+                        : GetPatrolEndPosition(task.offer);
+                    return task.patrolEndPosition;
+                }
+
+                if (task.targetPickup != null)
+                {
+                    task.workPosition = task.targetPickup.transform.position;
+                    return GetClearTaskPositionNear(
+                        task.workPosition,
+                        task.npc);
+                }
+
+                if (task.targetLootPickup != null)
+                {
+                    task.workPosition = task.targetLootPickup.transform.position;
+                    return GetClearTaskPositionNear(
+                        task.workPosition,
+                        task.npc);
+                }
+
+                if (task.targetMonster != null)
+                {
+                    task.workPosition = task.targetMonster.transform.position;
+                    return task.workPosition;
+                }
+
+                task.workPosition = GetWorkPosition(task.offer);
+                return GetClearTaskPositionNear(
+                    task.workPosition,
+                    task.npc);
+        }
+
+        return GetClearTaskPositionNear(fallbackTarget, task.npc);
+    }
+
+    bool CancelStuckTask(
+        RunningNpcTask task,
+        string reason)
+    {
+        int index = task != null
+            ? runningTasks.IndexOf(task)
+            : -1;
+        if (index < 0)
+        {
+            return true;
+        }
+
+        Debug.LogWarning(
+            "[NpcTaskProvider] Cancel stuck task npc=" +
+            (task.npc != null ? task.npc.name : "null") +
+            " stage=" +
+            task.stage +
+            " reason=" +
+            reason +
+            " target=" +
+            task.travelWatchdogTarget +
+            " retries=" +
+            task.travelRetryCount);
+
+        FinishTask(index, false);
+        return true;
+    }
+
+    void ArmMealTravelWatchdog(
+        RunningTavernMeal meal,
+        Vector3 target)
+    {
+        if (meal == null ||
+            meal.npc == null)
+        {
+            return;
+        }
+
+        meal.travelWatchdogArmed = true;
+        meal.travelWatchdogTarget = target;
+        meal.travelWatchdogLastPosition = meal.npc.transform.position;
+        meal.travelStageStartedAt = Time.time;
+        meal.travelLastProgressAt = Time.time;
+        meal.travelLastDistanceToTarget =
+            Vector2.Distance(
+                meal.npc.transform.position,
+                target);
+        meal.maxTravelDuration =
+            ComputeTravelWatchdogDuration(
+                meal.npc,
+                meal.travelLastDistanceToTarget);
+        meal.travelRetryCount = 0;
+    }
+
+    void DisarmMealTravelWatchdog(RunningTavernMeal meal)
+    {
+        if (meal == null)
+        {
+            return;
+        }
+
+        meal.travelWatchdogArmed = false;
+        meal.travelLastDistanceToTarget = float.PositiveInfinity;
+        meal.maxTravelDuration = 0f;
+    }
+
+    bool UpdateMealTravelWatchdog(
+        RunningTavernMeal meal,
+        Vector3 target,
+        float arriveThreshold)
+    {
+        if (meal == null ||
+            meal.npc == null)
+        {
+            return false;
+        }
+
+        float distanceToTarget =
+            Vector2.Distance(
+                meal.npc.transform.position,
+                target);
+
+        if (!meal.travelWatchdogArmed ||
+            Vector2.Distance(meal.travelWatchdogTarget, target) >
+                Mathf.Max(arriveDistance, 0.25f))
+        {
+            ArmMealTravelWatchdog(meal, target);
+            distanceToTarget = meal.travelLastDistanceToTarget;
+        }
+
+        if (distanceToTarget <= arriveThreshold)
+        {
+            meal.travelLastProgressAt = Time.time;
+            meal.travelLastDistanceToTarget = distanceToTarget;
+            meal.travelWatchdogLastPosition = meal.npc.transform.position;
+            return false;
+        }
+
+        if (distanceToTarget <=
+            meal.travelLastDistanceToTarget - Mathf.Max(0.01f, taskTravelProgressEpsilon))
+        {
+            meal.travelLastProgressAt = Time.time;
+            meal.travelLastDistanceToTarget = distanceToTarget;
+            meal.travelWatchdogLastPosition = meal.npc.transform.position;
+            return false;
+        }
+
+        if (Time.time - meal.travelStageStartedAt >
+                Mathf.Max(taskTravelMinStageDuration, meal.maxTravelDuration) ||
+            ((Time.time - meal.travelLastProgressAt) >=
+                Mathf.Max(0.25f, taskTravelNoProgressTimeout) &&
+             meal.travelRetryCount >= Mathf.Max(0, taskTravelMaxRecoveries)))
+        {
+            int mealIndex = runningMeals.IndexOf(meal);
+            if (mealIndex >= 0)
+            {
+                Debug.LogWarning(
+                    "[NpcTaskProvider] Cancel stuck meal npc=" +
+                    meal.npc.name +
+                    " target=" +
+                    target +
+                    " retries=" +
+                    meal.travelRetryCount);
+                FinishMeal(mealIndex, false);
+            }
+            return true;
+        }
+
+        if (Time.time - meal.travelLastProgressAt >=
+            Mathf.Max(0.25f, taskTravelNoProgressTimeout))
+        {
+            meal.travelRetryCount++;
+            meal.npc.transform.position =
+                GetClearTaskPositionNear(
+                    meal.npc.transform.position,
+                    meal.npc);
+            meal.travelWatchdogTarget =
+                GetClearTaskPositionNear(
+                    target,
+                    meal.npc);
+            meal.travelLastProgressAt = Time.time;
+            meal.travelLastDistanceToTarget =
+                Vector2.Distance(
+                    meal.npc.transform.position,
+                    meal.travelWatchdogTarget);
+            meal.maxTravelDuration =
+                ComputeTravelWatchdogDuration(
+                    meal.npc,
+                    meal.travelLastDistanceToTarget);
+        }
+
+        return false;
+    }
+
+    float ComputeTravelWatchdogDuration(
+        GameObject npc,
+        float distanceToTarget)
+    {
+        float speed =
+            NpcRoleUtility.GetMoveSpeed(
+                npc,
+                fallbackMoveSpeed);
+        float expectedDuration =
+            (distanceToTarget + Mathf.Max(arriveDistance, 0.5f)) /
+            Mathf.Max(0.1f, speed);
+
+        return Mathf.Clamp(
+            expectedDuration * Mathf.Max(1f, taskTravelDurationMultiplier),
+            Mathf.Max(1f, taskTravelMinStageDuration),
+            Mathf.Max(taskTravelMinStageDuration, taskTravelMaxStageDuration));
+    }
+
+    void ClearTaskReservations(RunningNpcTask task)
+    {
+        if (task == null ||
+            task.npc == null)
+        {
+            return;
+        }
+
+        if (task.targetPickup != null)
+        {
+            task.targetPickup.ClearReservation(task.npc);
+        }
+
+        if (task.targetLootPickup != null)
+        {
+            task.targetLootPickup.ClearReservation(task.npc);
+        }
     }
 
     Vector3 GetProviderPosition()
@@ -6070,14 +6994,16 @@ public partial class NpcTaskProvider : MonoBehaviour
         }
         bool usingTeleportRoute;
         string routeAction;
+        NpcRouteStatus routeStatus;
         Vector3 moveTarget = NpcMapNavigator.GetNextMoveTarget(
             npc,
             target,
             forcedTargetZone,
             out usingTeleportRoute,
-            out routeAction);
+            out routeAction,
+            out routeStatus);
 
-        if (usingTeleportRoute &&
+        if ((usingTeleportRoute || IsRouteBlocked(routeStatus)) &&
             !string.IsNullOrEmpty(routeAction))
         {
             NpcRoleUtility.SetAction(npc, routeAction);
@@ -6098,6 +7024,12 @@ public partial class NpcTaskProvider : MonoBehaviour
             npc,
             moveTarget,
             speed * Time.deltaTime);
+    }
+
+    bool IsRouteBlocked(NpcRouteStatus routeStatus)
+    {
+        return routeStatus == NpcRouteStatus.NoGate ||
+            routeStatus == NpcRouteStatus.InvalidGate;
     }
 
     void MoveNpcTransformSafely(
@@ -6276,6 +7208,12 @@ public partial class NpcTaskProvider : MonoBehaviour
 
         pausedBaseAiWasEnabled = pausedBaseAi.enabled;
         pausedBaseAi.enabled = false;
+
+        Rigidbody2D body = npc.GetComponent<Rigidbody2D>();
+        if (body != null)
+        {
+            body.linearVelocity = Vector2.zero;
+        }
     }
 
     void ResumeBaseAi(RunningNpcTask task)
@@ -6308,6 +7246,22 @@ public partial class NpcTaskProvider : MonoBehaviour
         }
 
         pausedBaseAi.enabled = wasEnabled;
+    }
+
+    void CleanupTaskRuntimeState(RunningNpcTask task)
+    {
+        ClearTaskReservations(task);
+        UnmarkNpcBusyWithProvider(task != null ? task.npc : null);
+        ReleaseTaskOffer(task != null ? task.offer : null);
+        RestoreEscortCompanionHome(task);
+        ResumeEscortCompanion(task);
+        if (task != null &&
+            task.offer != null &&
+            task.offer.taskType == NpcTaskType.Escort)
+        {
+            UnlockEscortOffer(task.offer);
+        }
+        ResumeBaseAi(task);
     }
 
     void ResumeEscortCompanion(RunningNpcTask task)

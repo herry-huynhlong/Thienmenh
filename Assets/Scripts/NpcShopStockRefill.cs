@@ -17,6 +17,7 @@ public class NpcShopStockRefill : MonoBehaviour
         "Assets/Item"
     };
     public List<StatItemData> catalogItems = new List<StatItemData>();
+    public bool mirrorConfiguredNpcShopItemsToSellerInventory;
 
     [Header("Stock")]
     public int lowGradeKinds = 20;
@@ -65,7 +66,12 @@ public class NpcShopStockRefill : MonoBehaviour
         EnsureCatalogItems();
         CaptureCatalogFromNpcShopItemsIfNeeded();
 
-        if (sourceShop == null && catalogItems.Count == 0)
+        bool shouldMirrorConfiguredItems =
+            ShouldMirrorConfiguredNpcShopItems();
+
+        if (sourceShop == null &&
+            catalogItems.Count == 0 &&
+            !shouldMirrorConfiguredItems)
         {
             refilling = false;
             return;
@@ -77,6 +83,18 @@ public class NpcShopStockRefill : MonoBehaviour
             HasSellerStock())
         {
             ConfigureNpcShop();
+            refilling = false;
+            return;
+        }
+
+        if (shouldMirrorConfiguredItems)
+        {
+            RefillFromConfiguredNpcShopItems();
+
+            ConfigureNpcShop();
+            stockReady = true;
+            lastCatalogSignature = catalogSignature;
+            npcShop.RefreshFromSellerInventory();
             refilling = false;
             return;
         }
@@ -196,13 +214,94 @@ public class NpcShopStockRefill : MonoBehaviour
         }
     }
 
+    bool ShouldMirrorConfiguredNpcShopItems()
+    {
+        if (!mirrorConfiguredNpcShopItemsToSellerInventory ||
+            sourceShop != null ||
+            npcShop == null ||
+            npcShop.items == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < npcShop.items.Count; i++)
+        {
+            ShopItemSlot slot = npcShop.items[i];
+            if (slot == null ||
+                slot.item == null ||
+                slot.amount <= 0)
+            {
+                continue;
+            }
+
+            if (excludeImmortalGrade &&
+                slot.item.grade == ItemGrade.Tien)
+            {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    void RefillFromConfiguredNpcShopItems()
+    {
+        if (sellerInventory == null ||
+            npcShop == null ||
+            npcShop.items == null)
+        {
+            return;
+        }
+
+        if (replaceStockOnRefill)
+        {
+            sellerInventory.items.Clear();
+        }
+
+        foreach (ShopItemSlot slot in npcShop.items)
+        {
+            if (slot == null ||
+                slot.item == null ||
+                slot.amount <= 0)
+            {
+                continue;
+            }
+
+            if (excludeImmortalGrade &&
+                slot.item.grade == ItemGrade.Tien)
+            {
+                continue;
+            }
+
+            sellerInventory.AddItem(
+                slot.item,
+                Mathf.Max(1, slot.amount));
+        }
+
+        sellerInventory.MarkDirty();
+    }
+
     int GetCatalogSignature()
     {
         unchecked
         {
             int hash = 17;
 
-            if (sourceShop != null)
+            if (ShouldMirrorConfiguredNpcShopItems())
+            {
+                foreach (ShopItemSlot slot in npcShop.items)
+                {
+                    StatItemData item =
+                        slot != null
+                            ? slot.item
+                            : null;
+                    hash = AddItemToSignature(hash, item);
+                    hash = hash * 31 + Mathf.Max(0, slot != null ? slot.amount : 0);
+                }
+            }
+            else if (sourceShop != null)
             {
                 foreach (ShopItemSlot slot in sourceShop.items)
                 {

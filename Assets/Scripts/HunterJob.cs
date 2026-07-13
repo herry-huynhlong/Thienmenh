@@ -549,12 +549,25 @@ public class HunterJob : MonoBehaviour
 
         bool usingTeleportRoute;
         string routeAction;
+        NpcRouteStatus routeStatus;
         Vector3 moveTarget = NpcMapNavigator.GetNextMoveTarget(
             gameObject,
             target,
             targetZone,
             out usingTeleportRoute,
-            out routeAction);
+            out routeAction,
+            out routeStatus);
+
+        if (routeStatus == NpcRouteStatus.NoGate ||
+            routeStatus == NpcRouteStatus.InvalidGate)
+        {
+            SetAction(routeAction);
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+            return;
+        }
 
         SetAction(usingTeleportRoute ? routeAction : action);
 

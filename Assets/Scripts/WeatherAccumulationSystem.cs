@@ -25,6 +25,7 @@ public class WeatherAccumulationSystem : MonoBehaviour
     }
 
     public static WeatherAccumulationSystem Instance { get; private set; }
+    bool createdAtRuntime;
 
     [Header("Scene")]
     public Camera targetCamera;
@@ -65,15 +66,31 @@ public class WeatherAccumulationSystem : MonoBehaviour
     float snowAccumulation;
     float refreshTimer;
 
+    public void MarkCreatedAtRuntime()
+    {
+        createdAtRuntime = true;
+    }
+
     void Awake()
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
-            return;
+            if (Instance.createdAtRuntime && !createdAtRuntime)
+            {
+                Destroy(Instance.gameObject);
+                Instance = this;
+            }
+            else
+            {
+                Destroy(gameObject);
+                return;
+            }
+        }
+        else
+        {
+            Instance = this;
         }
 
-        Instance = this;
         DontDestroyOnLoad(gameObject);
         EnsureDefaultSnowAnchorLayers();
         puddleSprites = LoadSprites(puddleResourcePath, puddleEditorAssetPath);

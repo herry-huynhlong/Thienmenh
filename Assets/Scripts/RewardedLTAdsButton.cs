@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Advertisements;
@@ -5,6 +6,9 @@ using TMPro;
 
 public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityAdsShowListener
 {
+    public event Action RewardGranted;
+    public event Action AvailabilityChanged;
+
     [Header("UI")]
     [SerializeField] private Button watchAdButton;
     [SerializeField] private TMP_Text statusText;
@@ -13,6 +17,7 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
     [SerializeField] private PlayerWallet playerWallet;
 
     [Header("Reward")]
+    [SerializeField] private bool grantWalletReward = true;
     [SerializeField] private int rewardLinhThach = 500;
 
     [Header("Unity Ads Ad Unit ID")]
@@ -23,6 +28,8 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
     private bool adLoaded;
     private string currentStatusKey = "loading";
     private bool currentStatusUsesRewardFormat;
+
+    public bool IsAdReady => adLoaded;
 
     private void Awake()
     {
@@ -83,6 +90,7 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
         }
 
         adLoaded = false;
+        NotifyAvailabilityChanged();
 
         if (watchAdButton != null)
             watchAdButton.interactable = false;
@@ -95,10 +103,12 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
         if (!adLoaded)
         {
             SetStatusByKey("notReady");
+            NotifyAvailabilityChanged();
             return;
         }
 
         adLoaded = false;
+        NotifyAvailabilityChanged();
 
         if (watchAdButton != null)
             watchAdButton.interactable = false;
@@ -112,6 +122,7 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
             return;
 
         adLoaded = true;
+        NotifyAvailabilityChanged();
 
         if (watchAdButton != null)
             watchAdButton.interactable = true;
@@ -126,6 +137,7 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
             return;
 
         adLoaded = false;
+        NotifyAvailabilityChanged();
 
         if (watchAdButton != null)
             watchAdButton.interactable = false;
@@ -146,6 +158,9 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
     {
         if (failedAdUnitId != adUnitId)
             return;
+
+        adLoaded = false;
+        NotifyAvailabilityChanged();
         SetStatusByKey("showFailed");
         Debug.LogWarning("Show Ads lỗi: " + error + " - " + message);
 
@@ -160,6 +175,7 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
         if (showCompletionState == UnityAdsShowCompletionState.COMPLETED)
         {
             GiveReward();
+            RewardGranted?.Invoke();
         }
         else
         {
@@ -172,6 +188,12 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
 
     private void GiveReward()
     {
+        if (!grantWalletReward)
+        {
+            Debug.Log("Nguoi choi xem quang cao xong, khong cong Linh Thach cho button nay.");
+            return;
+        }
+
         if (playerWallet == null)
             playerWallet = FindAnyObjectByType<PlayerWallet>();
 
@@ -230,5 +252,15 @@ public class RewardedLTAdsButton : MonoBehaviour, IUnityAdsLoadListener, IUnityA
         }
 
         SetStatus(UiText.Get("rewardedAds", currentStatusKey));
+    }
+
+    public void SetWalletRewardEnabled(bool enabled)
+    {
+        grantWalletReward = enabled;
+    }
+
+    void NotifyAvailabilityChanged()
+    {
+        AvailabilityChanged?.Invoke();
     }
 }

@@ -253,29 +253,25 @@ public static class NpcRoleUtility
 
     static string GetCurrentAction(GameObject npc)
     {
-        NpcData npcData = npc.GetComponent<NpcData>();
-        if (npcData != null &&
-            !string.IsNullOrWhiteSpace(npcData.currentAction))
-        {
-            return npcData.currentAction;
-        }
-
         VillagerAI villager = GetActiveVillagerAI(npc) ??
             GetVillagerAI(npc);
-        if (villager != null)
+        if (villager != null &&
+            !string.IsNullOrWhiteSpace(villager.currentAction))
         {
             return villager.currentAction;
         }
 
         SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc) ??
             GetSmartNpcAI(npc);
-        if (smartNpc != null)
+        if (smartNpc != null &&
+            !string.IsNullOrWhiteSpace(smartNpc.currentAction))
         {
             return smartNpc.currentAction;
         }
 
         MonsterAI monster = npc.GetComponent<MonsterAI>();
-        if (monster != null)
+        if (monster != null &&
+            !string.IsNullOrWhiteSpace(monster.currentAction))
         {
             return monster.currentAction;
         }
@@ -285,6 +281,13 @@ public static class NpcRoleUtility
             !string.IsNullOrWhiteSpace(mapMover.currentAction))
         {
             return mapMover.currentAction;
+        }
+
+        NpcData npcData = npc.GetComponent<NpcData>();
+        if (npcData != null &&
+            !string.IsNullOrWhiteSpace(npcData.currentAction))
+        {
+            return npcData.currentAction;
         }
 
         return "";
@@ -412,14 +415,16 @@ public static class NpcRoleUtility
 
         bool usingTeleportRoute;
         string routeAction;
+        NpcRouteStatus routeStatus;
         Vector3 moveTarget =
             NpcMapNavigator.GetNextMoveTarget(
                 npc,
                 target,
                 out usingTeleportRoute,
-                out routeAction);
+                out routeAction,
+                out routeStatus);
 
-        if (usingTeleportRoute &&
+        if ((usingTeleportRoute || IsRouteBlocked(routeStatus)) &&
             CanRouteActionReplaceCurrentAction(npc))
         {
             SetAction(npc, routeAction);
@@ -431,6 +436,12 @@ public static class NpcRoleUtility
                 npc.transform.position,
                 moveTarget,
             speed * Time.deltaTime);
+    }
+
+    static bool IsRouteBlocked(NpcRouteStatus routeStatus)
+    {
+        return routeStatus == NpcRouteStatus.NoGate ||
+            routeStatus == NpcRouteStatus.InvalidGate;
     }
 
     static bool CanRouteActionReplaceCurrentAction(GameObject npc)

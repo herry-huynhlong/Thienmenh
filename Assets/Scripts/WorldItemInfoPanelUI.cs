@@ -115,10 +115,9 @@ public class WorldItemInfoPanelUI : MonoBehaviour
             panelRoot.transform,
             "ExtraInfo");
 
-        loreQuoteText = EnsureTextInSection(
+        loreQuoteText = EnsureLoreQuoteContentText(
             loreQuoteText,
-            panelRoot.transform,
-            "LoreQuote");
+            panelRoot.transform);
 
         EnsureCardReferences(ref valueCard, panelRoot.transform, "ValueCard");
         EnsureCardReferences(ref sourceCard, panelRoot.transform, "SourceCard");
@@ -315,17 +314,603 @@ public class WorldItemInfoPanelUI : MonoBehaviour
         }
 
         string lore = ItemText.Lore(item);
-        if (string.IsNullOrWhiteSpace(lore))
+        if (!string.IsNullOrWhiteSpace(lore))
+        {
+            return lore.Trim();
+        }
+
+        string description = ItemText.Description(item);
+        if (string.IsNullOrWhiteSpace(description))
         {
             return "";
         }
 
-        string[] lines = lore.Split('\n');
-        string firstLine = lines.Length > 0 ? lines[0].Trim() : lore.Trim();
+        return BuildGeneratedLoreText(item, description);
+    }
 
-        return firstLine.Length > 140
-            ? firstLine.Substring(0, 137).TrimEnd() + "..."
-            : firstLine;
+    static string BuildGeneratedLoreText(
+        StatItemData item,
+        string description)
+    {
+        string cleanedDescription =
+            NormalizeSpacing(description);
+        if (string.IsNullOrWhiteSpace(cleanedDescription))
+        {
+            return "";
+        }
+
+        switch (LocalizationSettings.CurrentLanguageCode)
+        {
+            case "zh":
+                return BuildChineseGeneratedLoreText(
+                    item,
+                    cleanedDescription);
+
+            case "en":
+                return BuildEnglishGeneratedLoreText(
+                    item,
+                    cleanedDescription);
+
+            default:
+                return BuildVietnameseGeneratedLoreText(
+                    item,
+                    cleanedDescription);
+        }
+    }
+
+    static string BuildVietnameseRumorText(
+        string itemName,
+        string appearanceClause,
+        string effectClause)
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.Append("Tương truyền ");
+        builder.Append(itemName);
+
+        if (!string.IsNullOrWhiteSpace(appearanceClause))
+        {
+            builder.Append(" ");
+            builder.Append(appearanceClause);
+        }
+
+        if (!string.IsNullOrWhiteSpace(effectClause))
+        {
+            builder.Append(" Người trong giới truyền tai rằng ");
+            builder.Append(LowercaseFirstCharacter(
+                RemoveTrailingSentencePunctuation(
+                    effectClause)));
+            builder.Append(".");
+        }
+
+        return builder.ToString().Trim();
+    }
+
+    static string BuildEnglishRumorText(
+        string itemName,
+        string appearanceClause,
+        string effectClause)
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.Append("Rumor has it ");
+        builder.Append(itemName);
+
+        if (!string.IsNullOrWhiteSpace(appearanceClause))
+        {
+            builder.Append(" ");
+            builder.Append(appearanceClause);
+        }
+
+        if (!string.IsNullOrWhiteSpace(effectClause))
+        {
+            builder.Append(" Those familiar with it whisper that ");
+            builder.Append(LowercaseFirstCharacter(
+                RemoveTrailingSentencePunctuation(
+                    effectClause)));
+            builder.Append(".");
+        }
+
+        return builder.ToString().Trim();
+    }
+
+    static string BuildChineseRumorText(
+        string itemName,
+        string appearanceClause,
+        string effectClause)
+    {
+        string trimmedAppearance =
+            RemoveTrailingSentencePunctuation(
+                appearanceClause);
+        string trimmedEffect =
+            RemoveTrailingSentencePunctuation(
+                effectClause);
+        StringBuilder builder = new StringBuilder();
+        builder.Append("相传");
+        builder.Append(itemName);
+
+        if (!string.IsNullOrWhiteSpace(trimmedAppearance))
+        {
+            builder.Append(trimmedAppearance);
+        }
+
+        if (!string.IsNullOrWhiteSpace(trimmedEffect))
+        {
+            builder.Append("，坊间常说它");
+            builder.Append(trimmedEffect);
+            builder.Append("。");
+        }
+        else if (!string.IsNullOrWhiteSpace(trimmedAppearance))
+        {
+            builder.Append("。");
+        }
+
+        return builder.ToString().Trim();
+    }
+
+    static string BuildFallbackRumorAppearance(StatItemData item)
+    {
+        switch (LocalizationSettings.CurrentLanguageCode)
+        {
+            case "zh":
+                return "来历隐秘，常在修士之间口耳相传。";
+            case "en":
+                return "is said to pass quietly from one cultivator to another.";
+            default:
+                return "được lưu truyền âm thầm giữa các tu sĩ.";
+        }
+    }
+
+    static string BuildFallbackRumorEffect(StatItemData item)
+    {
+        string usage = BuildUsageSummaryText(item);
+        if (string.IsNullOrWhiteSpace(usage))
+        {
+            switch (LocalizationSettings.CurrentLanguageCode)
+            {
+                case "zh":
+                    return "ẩn chứa công dụng mà người ngoài khó đoán";
+                case "en":
+                    return "its true use is known only to a few insiders";
+                default:
+                    return "công dụng thật sự của nó chỉ người trong nghề mới rõ";
+            }
+        }
+
+        switch (LocalizationSettings.CurrentLanguageCode)
+        {
+            case "zh":
+                return "在关键时刻往往能派上大用场";
+            case "en":
+                return "it proves useful when handled by the right person";
+            default:
+                return "nó phát huy hiệu quả rõ nhất khi rơi vào tay người biết dùng";
+        }
+    }
+
+    static string[] SplitSentences(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return System.Array.Empty<string>();
+        }
+
+        return value.Split(
+            new[] { '.', '!', '?', '。', '！', '？' },
+            System.StringSplitOptions.RemoveEmptyEntries);
+    }
+
+    static string TrimItemNamePrefix(
+        string sentence,
+        string itemName)
+    {
+        string trimmed = NormalizeSpacing(sentence);
+        if (string.IsNullOrWhiteSpace(trimmed) ||
+            string.IsNullOrWhiteSpace(itemName))
+        {
+            return trimmed;
+        }
+
+        if (!trimmed.StartsWith(
+                itemName,
+                System.StringComparison.OrdinalIgnoreCase))
+        {
+            return trimmed;
+        }
+
+        trimmed = trimmed.Substring(itemName.Length).TrimStart();
+        if (trimmed.StartsWith("là ",
+                System.StringComparison.OrdinalIgnoreCase))
+        {
+            trimmed = trimmed.Substring(3).TrimStart();
+        }
+
+        return trimmed;
+    }
+
+    static string BuildVietnameseGeneratedLoreText(
+        StatItemData item,
+        string description)
+    {
+        string itemName = ItemText.Name(item).Trim();
+        string originHint =
+            BuildVietnameseRumorOrigin(item, description);
+        string effectHint =
+            BuildVietnameseRumorEffect(item, description);
+        string cautionHint =
+            BuildVietnameseRumorCaution(item, description);
+
+        StringBuilder builder = new StringBuilder();
+        builder.Append("Tương truyền ");
+        builder.Append(itemName);
+        builder.Append(" ");
+        builder.Append(originHint);
+        builder.Append(". Người trong giới kháo nhau rằng ");
+        builder.Append(effectHint);
+
+        if (!string.IsNullOrWhiteSpace(cautionHint))
+        {
+            builder.Append(", ");
+            builder.Append(cautionHint);
+        }
+
+        builder.Append(".");
+        return builder.ToString().Trim();
+    }
+
+    static string BuildEnglishGeneratedLoreText(
+        StatItemData item,
+        string description)
+    {
+        string itemName = ItemText.Name(item).Trim();
+        string originHint =
+            BuildEnglishRumorOrigin(item, description);
+        string effectHint =
+            BuildEnglishRumorEffect(item, description);
+
+        return "Rumor has it " +
+            itemName +
+            " " +
+            originHint +
+            ". Those who know it best whisper that " +
+            effectHint +
+            ".";
+    }
+
+    static string BuildChineseGeneratedLoreText(
+        StatItemData item,
+        string description)
+    {
+        string itemName = ItemText.Name(item).Trim();
+        string originHint =
+            BuildChineseRumorOrigin(item, description);
+        string effectHint =
+            BuildChineseRumorEffect(item, description);
+
+        return "相传" +
+            itemName +
+            originHint +
+            "。坊间常说它" +
+            effectHint +
+            "。";
+    }
+
+    static string BuildVietnameseRumorOrigin(
+        StatItemData item,
+        string description)
+    {
+        if (ContainsAny(
+                description,
+                "rễ",
+                "bám",
+                "đất đá",
+                "khe đá",
+                "sườn núi"))
+        {
+            return "thường mọc bám ở những khe đá nặng địa khí";
+        }
+
+        if (ContainsAny(
+                description,
+                "sương",
+                "ẩm",
+                "hàn",
+                "suối",
+                "thâm cốc"))
+        {
+            return "thường sinh ở chỗ ẩm lạnh và hút sương mà lớn";
+        }
+
+        switch (item.itemType)
+        {
+            case ItemType.DanDuoc:
+                return "được giữ kín trong túi đan sư chứ ít khi lộ ra ngoài";
+            case ItemType.PhapBao:
+                return "đã qua nhiều lượt tôi luyện mới giữ được linh tính";
+            case ItemType.CongPhap:
+                return "từng được chép tay rồi cất kín qua nhiều đời";
+            case ItemType.ThucPham:
+                return "nhìn qua bình thường nhưng người biết hàng hiếm khi bỏ qua";
+            case ItemType.VatLieu:
+            default:
+                return "là thứ linh vật nhìn không phô trương nhưng giấu khí rất sâu";
+        }
+    }
+
+    static string BuildVietnameseRumorEffect(
+        StatItemData item,
+        string description)
+    {
+        System.Collections.Generic.List<string> fragments =
+            new System.Collections.Generic.List<string>();
+
+        if (ContainsAny(
+                description,
+                "gân cốt",
+                "xương",
+                "luyện thể",
+                "thể chất"))
+        {
+            fragments.Add(
+                "dược lực của nó thiên về luyện thể, giúp gân cốt cứng hơn và thân thể bền hơn");
+        }
+
+        if (ContainsAny(
+                description,
+                "phòng ngự",
+                "hộ thân",
+                "chống đỡ") ||
+            item.armorBonus > 0)
+        {
+            fragments.Add(
+                "nó hợp với người muốn củng cố hộ thân và tăng sức chịu đòn");
+        }
+
+        if (ContainsAny(
+                description,
+                "tu vi",
+                "linh khí",
+                "hấp thụ") ||
+            item.cultivationBonus > 0)
+        {
+            fragments.Add(
+                "người dùng đúng cách có thể mượn nó để bồi thêm linh lực và tích lũy tu vi");
+        }
+
+        if (ContainsAny(
+                description,
+                "đột phá",
+                "bình cảnh") ||
+            item.breakthroughRealm)
+        {
+            fragments.Add(
+                "nhiều tu sĩ chỉ dám dùng nó vào lúc chạm bình cảnh");
+        }
+
+        if (item.damageBonus > 0)
+        {
+            fragments.Add(
+                "linh tính bên trong khá gắt, hợp với kẻ muốn tăng sát lực");
+        }
+
+        if (item.effectResistanceBonus > 0)
+        {
+            fragments.Add(
+                "nó cũng giúp giữ tâm mạch ổn định trước dị lực bên ngoài");
+        }
+
+        if (fragments.Count == 0)
+        {
+            fragments.Add(
+                "công dụng thật sự của nó chỉ người từng dùng đúng cách mới hiểu hết");
+        }
+
+        if (fragments.Count == 1)
+        {
+            return fragments[0];
+        }
+
+        return fragments[0] + "; ngoài ra " + fragments[1];
+    }
+
+    static string BuildVietnameseRumorCaution(
+        StatItemData item,
+        string description)
+    {
+        if (ContainsAny(
+                description,
+                "độc",
+                "phệ",
+                "tạp chất") ||
+            item.rawToxicityDamage > 0)
+        {
+            return "kẻ nóng vội dùng bừa rất dễ chuốc phản phệ";
+        }
+
+        if (item.rawUsePolicy != RawUsePolicy.Allowed)
+        {
+            return "người thiếu kinh nghiệm dùng sống thường không được lợi";
+        }
+
+        return "";
+    }
+
+    static string BuildEnglishRumorOrigin(
+        StatItemData item,
+        string description)
+    {
+        if (ContainsAny(
+                description,
+                "root",
+                "stone",
+                "rock",
+                "cliff"))
+        {
+            return "is often found clinging to stone where earth qi runs deep";
+        }
+
+        switch (item.itemType)
+        {
+            case ItemType.DanDuoc:
+                return "rarely leaves an alchemist's sleeve";
+            case ItemType.PhapBao:
+                return "carries the temper of repeated forging";
+            default:
+                return "passes quietly among cultivators who know its worth";
+        }
+    }
+
+    static string BuildEnglishRumorEffect(
+        StatItemData item,
+        string description)
+    {
+        if (ContainsAny(
+                description,
+                "bone",
+                "body",
+                "physique") ||
+            item.armorBonus > 0 ||
+            item.hpBonus > 0)
+        {
+            return "it favors body tempering and steadies the user's frame";
+        }
+
+        if (item.cultivationBonus > 0 ||
+            item.breakthroughRealm)
+        {
+            return "it is best saved for the moment one's cultivation begins to stall";
+        }
+
+        return "its value only shows in the hands of someone who knows how to draw out its nature";
+    }
+
+    static string BuildChineseRumorOrigin(
+        StatItemData item,
+        string description)
+    {
+        if (ContainsAny(
+                description,
+                "石",
+                "岩",
+                "根",
+                "地气"))
+        {
+            return "多生在地气沉厚的岩隙之间";
+        }
+
+        switch (item.itemType)
+        {
+            case ItemType.DanDuoc:
+                return "向来只在丹师之间暗中流转";
+            case ItemType.PhapBao:
+                return "历经多次淬炼方才留住灵性";
+            default:
+                return "看似寻常，却常被识货之人私下收藏";
+        }
+    }
+
+    static string BuildChineseRumorEffect(
+        StatItemData item,
+        string description)
+    {
+        if (ContainsAny(
+                description,
+                "骨",
+                "体魄",
+                "炼体") ||
+            item.armorBonus > 0 ||
+            item.hpBonus > 0)
+        {
+            return "偏于淬体固骨";
+        }
+
+        if (item.cultivationBonus > 0 ||
+            item.breakthroughRealm)
+        {
+            return "往往被留到冲关前后才舍得动用";
+        }
+
+        return "真正妙用只在懂行的人手里才会显现";
+    }
+
+    static bool ContainsAny(
+        string value,
+        params string[] needles)
+    {
+        if (string.IsNullOrWhiteSpace(value) ||
+            needles == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < needles.Length; i++)
+        {
+            string needle = needles[i];
+            if (string.IsNullOrWhiteSpace(needle))
+            {
+                continue;
+            }
+
+            if (value.IndexOf(
+                    needle,
+                    System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    static string NormalizeSpacing(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "";
+        }
+
+        return value
+            .Replace("\r", " ")
+            .Replace("\n", " ")
+            .Replace("  ", " ")
+            .Trim();
+    }
+
+    static string EnsureSentence(string value)
+    {
+        string trimmed =
+            RemoveTrailingSentencePunctuation(
+                NormalizeSpacing(value));
+        if (string.IsNullOrWhiteSpace(trimmed))
+        {
+            return "";
+        }
+
+        return trimmed + ".";
+    }
+
+    static string RemoveTrailingSentencePunctuation(
+        string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "";
+        }
+
+        return value.TrimEnd(' ', '.', '!', '?', '。', '！', '？');
+    }
+
+    static string LowercaseFirstCharacter(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "";
+        }
+
+        if (value.Length == 1)
+        {
+            return value.ToLowerInvariant();
+        }
+
+        return char.ToLowerInvariant(value[0]) + value.Substring(1);
     }
 
     static string BuildSourceText(StatItemData item)
@@ -688,6 +1273,53 @@ public class WorldItemInfoPanelUI : MonoBehaviour
         return current;
     }
 
+    static TMP_Text EnsureLoreQuoteContentText(
+        TMP_Text current,
+        Transform root)
+    {
+        if (current != null ||
+            root == null)
+        {
+            return current;
+        }
+
+        Transform section =
+            FindChildByName(root, "LoreQuote");
+        if (section == null)
+        {
+            return current;
+        }
+
+        TMP_Text contentText =
+            FindTextInParent(
+                section,
+                "noidung",
+                "LoreText",
+                "QuoteText",
+                "ContentText");
+
+        if (contentText != null)
+        {
+            return contentText;
+        }
+
+        TMP_Text[] sectionTexts =
+            section.GetComponentsInChildren<TMP_Text>(true);
+
+        foreach (TMP_Text text in sectionTexts)
+        {
+            if (text == null ||
+                text.gameObject.name == "tuongtruyen")
+            {
+                continue;
+            }
+
+            return text;
+        }
+
+        return current;
+    }
+
     static Image FindImage(
         Transform root,
         params string[] names)
@@ -715,6 +1347,39 @@ public class WorldItemInfoPanelUI : MonoBehaviour
             if (image != null)
             {
                 return image;
+            }
+        }
+
+        return null;
+    }
+
+    static TMP_Text FindTextInParent(
+        Transform parent,
+        params string[] names)
+    {
+        if (parent == null ||
+            names == null)
+        {
+            return null;
+        }
+
+        foreach (string name in names)
+        {
+            Transform found = FindChildByName(parent, name);
+            if (found == null)
+            {
+                continue;
+            }
+
+            TMP_Text text = found.GetComponent<TMP_Text>();
+            if (text == null)
+            {
+                text = found.GetComponentInChildren<TMP_Text>(true);
+            }
+
+            if (text != null)
+            {
+                return text;
             }
         }
 

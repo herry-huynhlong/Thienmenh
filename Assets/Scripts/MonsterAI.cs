@@ -60,6 +60,13 @@ public partial class MonsterAI : MonoBehaviour, IDamageable
     [Range(0, 100)] public float bloodlust = 20f;
     [Range(0, 100)] public float survivalInstinct = 50f;
 
+    [Header("===== DIEU TIET HUNG TINH =====")]
+    [Min(0f)] public float aggressionResponsePerSecond = 18f;
+    [Min(0f)] public float bloodlustResponsePerSecond = 16f;
+    [Min(0f)] public float aggressionSurgeDecayPerSecond = 1f;
+    [Min(0f)] public float bloodlustSurgeDecayPerSecond = 0.75f;
+    [Range(0f, 100f)] public float dangerousNightBloodlustBonus = 18f;
+
     [Header("===== DI CHUYEN =====")]
     public float moveSpeed = 2f;
     public float roamRadius = 3f;
@@ -159,6 +166,11 @@ public partial class MonsterAI : MonoBehaviour, IDamageable
     Vector2 lastUnstuckPosition;
     float stuckMoveTimer;
     int patrolRecoveryAttempts;
+    float baseAggression;
+    float baseBloodlust;
+    float transientAggressionBonus;
+    float transientBloodlustBonus;
+    bool temperamentInitialized;
 
     float naturalCultivationRemainder;
 
@@ -274,6 +286,7 @@ public partial class MonsterAI : MonoBehaviour, IDamageable
         }
 
         RecalculateRealmStats(!appliedProfile);
+        CaptureTemperamentBaselineFromCurrent(true);
         animator = GetComponent<Animator>();
         directionalAnimator = GetComponent<MonsterDirectionalAnimator>();
         rb = GetComponent<Rigidbody2D>();

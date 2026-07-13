@@ -3,6 +3,7 @@ using UnityEngine;
 public class HeavenSystem : MonoBehaviour
 {
     public static HeavenSystem Instance { get; private set; }
+    bool createdAtRuntime;
 
     [Header("Heaven Punishment")]
     public GameObject lightningEffectPrefab;
@@ -14,15 +15,31 @@ public class HeavenSystem : MonoBehaviour
     public WorldStatItemPickup worldItemPrefab;
     public float giftDropHeight = 0.25f;
 
+    public void MarkCreatedAtRuntime()
+    {
+        createdAtRuntime = true;
+    }
+
     void Awake()
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
-            return;
+            if (Instance.createdAtRuntime && !createdAtRuntime)
+            {
+                Destroy(Instance.gameObject);
+                Instance = this;
+            }
+            else
+            {
+                Destroy(gameObject);
+                return;
+            }
+        }
+        else
+        {
+            Instance = this;
         }
 
-        Instance = this;
         DontDestroyOnLoad(gameObject);
     }
 

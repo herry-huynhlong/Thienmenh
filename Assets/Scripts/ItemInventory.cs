@@ -28,13 +28,16 @@ public class ItemInventory : MonoBehaviour
     public List<ItemStack> items =
         new List<ItemStack>();
 
+    List<ItemStack> inspectorDefaults =
+        new List<ItemStack>();
+
     public event Action OnChanged;
 
     void Awake()
     {
         ConfigurePrivateNpcInventoryIfNeeded();
 
-        List<ItemStack> inspectorItems =
+        inspectorDefaults =
             CloneItems(items);
 
         RegisterItems();
@@ -58,7 +61,7 @@ public class ItemInventory : MonoBehaviour
             }
             if (keepInspectorItemsWhenLoadingSave)
             {
-                MergeItems(inspectorItems, items);
+                MergeItems(inspectorDefaults, items);
             }
             return;
         }
@@ -88,13 +91,18 @@ public class ItemInventory : MonoBehaviour
             return;
         }
 
+        if (keepInspectorItemsWhenLoadingSave)
+        {
+            MergeItems(inspectorDefaults, items);
+        }
+
         if (shareRuntimeItems &&
-            keepInspectorItemsWhenLoadingSave &&
             sharedItemsByKey.TryGetValue(
                 key,
-                out List<ItemStack> sharedItems))
+                out List<ItemStack> sharedItems) &&
+            !ReferenceEquals(items, sharedItems))
         {
-            MergeItems(sharedItems, items);
+            CopyItems(items, sharedItems);
             items = sharedItems;
         }
 
@@ -656,7 +664,18 @@ public class ItemInventory : MonoBehaviour
         List<ItemStack> source,
         List<ItemStack> destination)
     {
-        foreach (ItemStack stack in source)
+        if (source == null ||
+            destination == null)
+        {
+            return;
+        }
+
+        List<ItemStack> safeSource =
+            ReferenceEquals(source, destination)
+            ? CloneItems(source)
+            : source;
+
+        foreach (ItemStack stack in safeSource)
         {
             if (stack == null ||
                 stack.item == null ||
@@ -673,8 +692,6 @@ public class ItemInventory : MonoBehaviour
 
             if (existing != null)
             {
-                existing.amount =
-                    Mathf.Max(existing.amount, stack.amount);
                 EnsureStackRuntimeFields(existing);
                 continue;
             }
@@ -735,13 +752,16 @@ public class ItemInventory : MonoBehaviour
 
         int maxDurability =
             stack.item.GetMaxDurability();
+        bool initializedMaxDurability = false;
 
         if (stack.maxDurability <= 0)
         {
             stack.maxDurability = maxDurability;
+            initializedMaxDurability = true;
         }
 
-        if (stack.durability <= 0)
+        if (stack.durability < 0 ||
+            (initializedMaxDurability && stack.durability == 0))
         {
             stack.durability = stack.maxDurability;
         }

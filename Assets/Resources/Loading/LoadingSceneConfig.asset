@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49be3da2f2a249e4a9c9d55895570310, type: 3}
+  m_Name: LoadingSceneConfig
+  m_EditorClassIdentifier: 
+  loadingSceneName: Loading
+  defaultTargetScene: MainMenu
+  minimumLoadingSeconds: 10
+  backgroundCrossFadeSeconds: 0.22
+  loadingTextFrameSeconds: 0.2
+  loadingBounceAmplitude: 8
+  loadingBounceSpeed: 4
+  backgroundFrames:
+  - {fileID: -1108033138622915735, guid: 6b6926d0c7ab048419db25069ffd3636, type: 3}
+  - {fileID: 229491671524072200, guid: e2af2e300d8a69c41a130acadaefc11f, type: 3}
+  - {fileID: 231273125674220054, guid: 0ec5cd926c54de140bbeb4940b29d950, type: 3}
+  - {fileID: -7694543048829839318, guid: f34250cb33f5f764cb4480be78696258, type: 3}
+  - {fileID: -5936150968555950901, guid: e0dc87daf88f81c40935de3b35f2adac, type: 3}

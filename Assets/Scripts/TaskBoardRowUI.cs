@@ -69,14 +69,11 @@ public class TaskBoardRowUI : MonoBehaviour
 
             if (offer.useMonsterRealmStageRequirement)
             {
-                result +=
-                    "Tieu diet " +
-                    offer.requiredMonsterKills +
-                    " yeu thu " +
+                result += BuildHuntRealmObjective(
+                    offer.requiredMonsterKills,
                     NpcText.RealmWithStage(
                         offer.requiredMonsterRealm,
-                        offer.requiredMonsterMaxStage) +
-                    " tro xuong";
+                        offer.requiredMonsterMaxStage));
             }
             else if (offer.requiredItem == null && offer.requiredBeastLevel > 0)
             {
@@ -147,6 +144,33 @@ public class TaskBoardRowUI : MonoBehaviour
         }
 
         return result;
+    }
+
+    static string BuildHuntRealmObjective(
+        int requiredMonsterKills,
+        string realmWithStage)
+    {
+        switch (LocalizationSettings.CurrentLanguageCode)
+        {
+            case "en":
+                return "Defeat " +
+                    requiredMonsterKills +
+                    " beasts at " +
+                    realmWithStage +
+                    " or below";
+            case "zh":
+                return "\u51fb\u8d25 " +
+                    requiredMonsterKills +
+                    " \u53ea " +
+                    realmWithStage +
+                    " \u53ca\u4ee5\u4e0b\u5996\u517d";
+            default:
+                return "Di\u1ec7t " +
+                    requiredMonsterKills +
+                    " y\u00eau th\u00fa " +
+                    realmWithStage +
+                    " tr\u1edf xu\u1ed1ng";
+        }
     }
 
     static string Text(string key)

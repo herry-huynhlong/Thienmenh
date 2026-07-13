@@ -3274,6 +3274,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                 Vector3 activeDirectTarget = directMoveTarget;
                 bool usingTeleportRoute = false;
                 string routeAction = string.Empty;
+                NpcRouteStatus routeStatus = NpcRouteStatus.Direct;
 
                 if (directMoveTargetZone.HasValue)
                 {
@@ -3283,7 +3284,29 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                             directMoveTarget,
                             directMoveTargetZone,
                             out usingTeleportRoute,
-                            out routeAction);
+                            out routeAction,
+                            out routeStatus);
+                }
+
+                if (routeStatus == NpcRouteStatus.NoGate ||
+                    routeStatus == NpcRouteStatus.InvalidGate)
+                {
+                    if (!string.IsNullOrEmpty(routeAction))
+                    {
+                        currentAction = routeAction;
+                    }
+
+                    StopMoving();
+                    LogMovementHaltDebug(
+                        "DirectTargetNoRoute",
+                        "status=" + routeStatus +
+                        " actorPos=" + transform.position +
+                        " directMoveTarget=" + directMoveTarget +
+                        " zone=" +
+                        (directMoveTargetZone.HasValue
+                            ? directMoveTargetZone.Value.ToString()
+                            : "None"));
+                    return;
                 }
 
                 if (Vector2.Distance(transform.position, activeDirectTarget) <= arriveDistance)
@@ -3382,15 +3405,15 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
             }
 
             Vector3 gateApproach =
-                gate.GetApproachPosition(transform.position);
-              float distanceToGateApproach =
-                  Vector2.Distance(
-                      transform.position,
-                      gateApproach);
-              float distanceToDirectTarget =
-                  Vector2.Distance(
-                      gateApproach,
-                      activeDirectTarget);
+                gate.GetApproachPositionForZone(currentZone.Value);
+            float distanceToGateApproach =
+                Vector2.Distance(
+                    transform.position,
+                    gateApproach);
+            float distanceToDirectTarget =
+                Vector2.Distance(
+                    gateApproach,
+                    activeDirectTarget);
 
             if (distanceToDirectTarget > 0.25f ||
                 distanceToGateApproach > Mathf.Max(
@@ -3603,13 +3626,15 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
         {
             bool usingTeleportRoute;
             string routeAction;
+            NpcRouteStatus routeStatus;
             Vector3 requestedTarget = target;
             target = NpcMapNavigator.GetNextMoveTarget(
                 gameObject,
                 target,
                 targetZone,
                 out usingTeleportRoute,
-                out routeAction);
+                out routeAction,
+                out routeStatus);
 
             LogJobRouteDebug(
                 "MoveUsingRoad",
@@ -3628,6 +3653,20 @@ public partial class VillagerAI : MonoBehaviour, IDamageable
                 (string.IsNullOrEmpty(routeAction)
                     ? "None"
                     : routeAction));
+
+            if (routeStatus == NpcRouteStatus.NoGate ||
+                routeStatus == NpcRouteStatus.InvalidGate)
+            {
+                if (!string.IsNullOrEmpty(routeAction) &&
+                    CanRouteActionReplaceCurrentAction())
+                {
+                    currentAction = routeAction;
+                    actionTimer = 0f;
+                }
+
+                StopMoving();
+                return;
+            }
 
             if (usingTeleportRoute)
             {

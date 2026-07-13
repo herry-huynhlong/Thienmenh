@@ -80,7 +80,9 @@ public class NpcMapMover2D : MonoBehaviour
     void Awake()
     {
         VillagerAI villagerAI = GetComponent<VillagerAI>();
-        if (villagerAI != null && villagerAI.enabled)
+        SmartNpcAI smartNpcAI = GetComponent<SmartNpcAI>();
+        if ((villagerAI != null && villagerAI.enabled) ||
+            (smartNpcAI != null && smartNpcAI.enabled))
         {
             enabled = false;
             return;

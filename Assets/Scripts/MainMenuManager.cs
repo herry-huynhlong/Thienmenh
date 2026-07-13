@@ -1,8 +1,8 @@
+using System.Collections;
 using System.Globalization;
 using System.Text;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -30,11 +30,16 @@ public class MainMenuManager : MonoBehaviour
     const string TargetFpsPrefKey = "Settings_TargetFps";
     static readonly string[] SupportedLanguageCodes = { "vi", "zh", "en" };
     bool createdRuntimeSettingsPanel;
+    Button newGameButton;
+    Button continueButton;
+    Coroutine waitForIntroPreloadCoroutine;
 
     void Awake()
     {
         EnsureSingleActiveEventSystem();
         EnsureCanvasRaycaster();
+        EnsureMainMenuBackgroundVideo();
+        EnsureNewGameIntroPanel();
         // ApplySavedSettings();
         HookMainMenuButtonsByName();
         HookSettingsControls();
@@ -47,6 +52,11 @@ public class MainMenuManager : MonoBehaviour
 
         LocalizationSettings.LanguageChanged += HandleLanguageChanged;
         RefreshLocalizedUi();
+    }
+
+    void Start()
+    {
+        PreloadNewGameIntro();
     }
 
     void OnDestroy()
@@ -81,20 +91,8 @@ public class MainMenuManager : MonoBehaviour
     {
         Debug.Log("MainMenuManager: Starting new game. Clearing save.");
 
-        float savedVolume = PlayerPrefs.GetFloat(VolumePrefKey, 1f);
-        int savedFullscreen =
-            PlayerPrefs.GetInt(FullscreenPrefKey, Screen.fullScreen ? 1 : 0);
-        int savedTargetFps = PlayerPrefs.GetInt(TargetFpsPrefKey, 60);
-
         GameSaveSystem.RequestNewGameStart();
         GameSaveSystem.ClearSave();
-
-        PlayerPrefs.DeleteAll();
-
-        PlayerPrefs.SetFloat(VolumePrefKey, savedVolume);
-        PlayerPrefs.SetInt(FullscreenPrefKey, savedFullscreen);
-        PlayerPrefs.SetInt(TargetFpsPrefKey, savedTargetFps);
-        PlayerPrefs.Save();
 
         ItemInventory.ClearRuntimeCache();
         SimpleItemShop.ClearRuntimeStockCache();
@@ -126,13 +124,70 @@ public class MainMenuManager : MonoBehaviour
             return;
         }
 
+        if (LoadingSceneController.TryLoadLoadingScene(firstGameScene))
+        {
+            return;
+        }
+
         SceneManager.LoadScene(firstGameScene);
+    }
+
+    void EnsureNewGameIntroPanel()
+    {
+        if (newGameIntroPanel != null)
+        {
+            return;
+        }
+
+        newGameIntroPanel =
+            FindAnyObjectByType<NewGameIntroPanel>(
+                FindObjectsInactive.Include);
+    }
+
+    void PreloadNewGameIntro()
+    {
+        EnsureNewGameIntroPanel();
+        if (newGameIntroPanel == null)
+        {
+            RefreshPrimaryActionButtons();
+            return;
+        }
+
+        newGameIntroPanel.PreloadIntroForMainMenu();
+
+        if (waitForIntroPreloadCoroutine == null &&
+            !newGameIntroPanel.IsReadyToOpenImmediately)
+        {
+            if (isActiveAndEnabled && gameObject.activeInHierarchy)
+            {
+                waitForIntroPreloadCoroutine =
+                    StartCoroutine(WaitForIntroPreload());
+            }
+        }
+
+        RefreshPrimaryActionButtons();
+    }
+
+    IEnumerator WaitForIntroPreload()
+    {
+        while (newGameIntroPanel != null &&
+               !newGameIntroPanel.IsReadyToOpenImmediately)
+        {
+            RefreshPrimaryActionButtons();
+            yield return null;
+        }
+
+        waitForIntroPreloadCoroutine = null;
+        RefreshPrimaryActionButtons();
     }
 
     void HookMainMenuButtonsByName()
     {
         Button[] buttons =
             FindObjectsByType<Button>(FindObjectsInactive.Include);
+
+        newGameButton = null;
+        continueButton = null;
 
         foreach (Button button in buttons)
         {
@@ -141,10 +196,16 @@ public class MainMenuManager : MonoBehaviour
                 continue;
             }
 
+            if (IsIntroPanelButton(button))
+            {
+                continue;
+            }
+
             string key = GetButtonKey(button);
 
             if (IsNewGameButtonKey(key))
             {
+                newGameButton = button;
                 ReplaceButtonClick(button, NewGame);
                 SetButtonLabel(
                     button,
@@ -154,6 +215,7 @@ public class MainMenuManager : MonoBehaviour
 
             if (IsContinueButtonKey(key))
             {
+                continueButton = button;
                 ReplaceButtonClick(button, ContinueGame);
                 SetButtonLabel(
                     button,
@@ -187,95 +249,13 @@ public class MainMenuManager : MonoBehaviour
                     UiText.Get("mainMenu", "exitGame"));
             }
         }
+
+        RefreshPrimaryActionButtons();
     }
 
     void EnsureSingleActiveEventSystem()
     {
-        EventSystem[] systems =
-            FindObjectsByType<EventSystem>(FindObjectsInactive.Include);
-
-        if (systems.Length == 0)
-        {
-            GameObject eventSystemObject = new GameObject("EventSystem");
-            eventSystemObject.AddComponent<EventSystem>();
-            eventSystemObject.AddComponent<StandaloneInputModule>();
-            return;
-        }
-
-        EventSystem keep = ChoosePreferredEventSystem(systems);
-
-        foreach (EventSystem system in systems)
-        {
-            if (system == null || system == keep)
-            {
-                continue;
-            }
-
-            if (system.gameObject.activeSelf)
-            {
-                Debug.LogWarning(
-                    $"MainMenuManager: disabling duplicate EventSystem '{system.name}'.");
-                system.gameObject.SetActive(false);
-            }
-        }
-
-        if (keep == null)
-        {
-            return;
-        }
-
-        if (!keep.gameObject.activeSelf)
-        {
-            keep.gameObject.SetActive(true);
-        }
-
-        keep.enabled = true;
-        EventSystem.current = keep;
-
-        BaseInputModule[] modules = keep.GetComponents<BaseInputModule>();
-
-        foreach (BaseInputModule module in modules)
-        {
-            if (module != null)
-            {
-                module.enabled = true;
-            }
-        }
-    }
-
-    EventSystem ChoosePreferredEventSystem(EventSystem[] systems)
-    {
-        EventSystem firstActive = null;
-
-        foreach (EventSystem system in systems)
-        {
-            if (system == null)
-            {
-                continue;
-            }
-
-            if (firstActive == null && system.gameObject.activeInHierarchy)
-            {
-                firstActive = system;
-            }
-
-            BaseInputModule[] modules = system.GetComponents<BaseInputModule>();
-
-            foreach (BaseInputModule module in modules)
-            {
-                if (module == null)
-                {
-                    continue;
-                }
-
-                if (module.GetType().Name.Contains("InputSystemUIInputModule"))
-                {
-                    return system;
-                }
-            }
-        }
-
-        return firstActive != null ? firstActive : systems[0];
+        EventSystemGuard.EnsureSingle();
     }
 
     void EnsureCanvasRaycaster()
@@ -296,6 +276,30 @@ public class MainMenuManager : MonoBehaviour
         }
 
         raycaster.enabled = true;
+    }
+
+    void EnsureMainMenuBackgroundVideo()
+    {
+        GameObject videoPlayerObject = GameObject.Find("Menuvideoplayer");
+        if (videoPlayerObject == null)
+        {
+            videoPlayerObject =
+                GameObject.Find("MenuVideoPlayerLegacy");
+        }
+
+        if (videoPlayerObject == null)
+        {
+            return;
+        }
+
+        MainMenuBackgroundVideoController controller =
+            videoPlayerObject.GetComponent<MainMenuBackgroundVideoController>();
+
+        if (controller == null)
+        {
+            controller =
+                videoPlayerObject.AddComponent<MainMenuBackgroundVideoController>();
+        }
     }
 
     void ReplaceButtonClick(
@@ -614,6 +618,7 @@ public class MainMenuManager : MonoBehaviour
         foreach (Button button in buttons)
         {
             if (button == null ||
+                IsIntroPanelButton(button) ||
                 !IsSettingsButtonKey(GetButtonKey(button)))
             {
                 continue;
@@ -639,6 +644,27 @@ public class MainMenuManager : MonoBehaviour
             normalized == "options" ||
             normalized == "cai dat" ||
             normalized == "cài đặt";
+    }
+
+    bool IsIntroPanelButton(Button button)
+    {
+        if (button == null)
+        {
+            return false;
+        }
+
+        NewGameIntroPanel intro =
+            newGameIntroPanel != null
+                ? newGameIntroPanel
+                : FindAnyObjectByType<NewGameIntroPanel>(
+                    FindObjectsInactive.Include);
+        if (intro == null ||
+            intro.introPanel == null)
+        {
+            return false;
+        }
+
+        return button.transform.IsChildOf(intro.introPanel.transform);
     }
 
     void SyncSettingsControls()
@@ -849,6 +875,25 @@ public class MainMenuManager : MonoBehaviour
         EnsureSettingsReferences();
         RefreshSettingsPanelTexts();
         SyncSettingsControls();
+        RefreshPrimaryActionButtons();
+    }
+
+    void RefreshPrimaryActionButtons()
+    {
+        bool hasSave = GameSaveSystem.HasSave;
+
+        if (newGameButton != null)
+        {
+            EnsureNewGameIntroPanel();
+            newGameButton.gameObject.SetActive(true);
+            // Let the click through; NewGame() handles waiting for intro preload.
+            newGameButton.interactable = true;
+        }
+
+        if (continueButton != null)
+        {
+            continueButton.gameObject.SetActive(hasSave);
+        }
     }
 
     void RefreshMenuPanelTexts()

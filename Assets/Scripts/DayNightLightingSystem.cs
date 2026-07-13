@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public class DayNightLightingSystem : MonoBehaviour
 {
     public static DayNightLightingSystem Instance { get; private set; }
+    bool createdAtRuntime;
 
     [Header("Target")]
     public Light2D globalLight;
@@ -31,15 +32,31 @@ public class DayNightLightingSystem : MonoBehaviour
     public float dayOverlayAlpha = 0f;
     public float eveningOverlayAlpha = 0.06f;
 
+    public void MarkCreatedAtRuntime()
+    {
+        createdAtRuntime = true;
+    }
+
     void Awake()
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
-            return;
+            if (Instance.createdAtRuntime && !createdAtRuntime)
+            {
+                Destroy(Instance.gameObject);
+                Instance = this;
+            }
+            else
+            {
+                Destroy(gameObject);
+                return;
+            }
+        }
+        else
+        {
+            Instance = this;
         }
 
-        Instance = this;
         DontDestroyOnLoad(gameObject);
     }
 
