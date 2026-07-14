@@ -614,54 +614,24 @@ public static class NpcRoleUtility
             return;
         }
 
-        if (NpcPetCompanion.BlocksSocialDamage(target))
-        {
-            return;
-        }
-
-        amount = NpcCombatTechniqueSystem.ModifyOutgoingDamage(
+        DamageContext context = DamageContext.Attack(
+            amount,
             actor,
+            null,
+            DamageSourceCategory.Social,
+            DamageType.Physical,
+            reason,
+            target.transform.position,
+            true);
+        DamageResult result = DamageSystem.Apply(
             target,
-            amount);
+            context);
 
-        if (actor != null &&
+        if (result.wasApplied &&
+            actor != null &&
             actor != target)
         {
             SetCombatAttackAction(actor, target);
-
-            NpcSocialEventBus.PublishHostility(
-                actor,
-                target,
-                Mathf.Clamp(amount, 1, 100),
-                target.transform.position,
-                reason);
-        }
-
-        VillagerAI villager = GetActiveVillagerAI(target);
-        if (villager != null)
-        {
-            villager.TakeDamage(amount);
-            return;
-        }
-
-        SmartNpcAI smartNpc = GetActiveSmartNpcAI(target);
-        if (smartNpc != null)
-        {
-            smartNpc.TakeDamage(amount);
-            return;
-        }
-
-        MonsterAI monster = target.GetComponent<MonsterAI>();
-        if (monster != null)
-        {
-            monster.TakeDamage(amount);
-            return;
-        }
-
-        CharacterStats stats = target.GetComponent<CharacterStats>();
-        if (stats != null)
-        {
-            stats.TakeDamage(amount);
         }
     }
 

@@ -68,6 +68,10 @@
           "value": "vật phẩm"
         },
         {
+          "key": "resource",
+          "value": "tài nguyên"
+        },
+        {
           "key": "realmStageFormat",
           "value": "{0} tầng {1}"
         },
@@ -677,6 +681,22 @@
         {
           "key": "fixedBlacksmithBuyingMaterials",
           "value": "Đang mua nguyên liệu rèn"
+        },
+        {
+          "key": "gatherResourceCountdown",
+          "value": "Đang hái {0} ({1}s)"
+        },
+        {
+          "key": "catchFishCountdown",
+          "value": "Đang bắt {0} ({1}s)"
+        },
+        {
+          "key": "harvestResourceCountdown",
+          "value": "Đang thu hoạch {0} ({1}s)"
+        },
+        {
+          "key": "butcherResourceCountdown",
+          "value": "Đang thu thịt {0} ({1}s)"
         },
         {
           "key": "fixedBlacksmithNotEnoughMoneyToBuy",

@@ -538,15 +538,9 @@ public static class SmartAiPlayModeBatchRunner
         npc.ClearSmartTask();
         npc.currentAction = string.Empty;
         npc.currentTarget = null;
-        npc.currentHP = npc.maxHP;
+        npc.SetCurrentHealth(npc.AuthoritativeMaxHP);
         npc.fatigue = 0f;
         npc.hunger = 0f;
-
-        if (npc.characterStats != null)
-        {
-            npc.characterStats.currentHP =
-                Mathf.Max(1, npc.characterStats.finalHP);
-        }
 
         HasWanderTargetField?.SetValue(npc, false);
         WanderTargetField?.SetValue(npc, npc.transform.position);
@@ -578,16 +572,12 @@ public static class SmartAiPlayModeBatchRunner
 
     static void ForceLowHealthAndPingDamage(SmartNpcAI npc)
     {
-        int forcedHp = Mathf.Max(2, Mathf.CeilToInt(npc.maxHP * 0.25f));
-        npc.currentHP = forcedHp;
+        int forcedHp = Mathf.Max(
+            2,
+            Mathf.CeilToInt(npc.AuthoritativeMaxHP * 0.25f));
+        npc.SetCurrentHealth(forcedHp);
 
-        if (npc.characterStats != null)
-        {
-            npc.characterStats.currentHP =
-                Mathf.Max(2, Mathf.CeilToInt(npc.characterStats.finalHP * 0.25f));
-        }
-
-        npc.TakeDamage(1);
+        DamageSystem.Apply(npc, DamageContext.Legacy(1));
     }
 
     static MonsterAI FindSampleMonster()

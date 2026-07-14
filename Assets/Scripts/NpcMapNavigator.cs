@@ -11,6 +11,8 @@ public enum NpcRouteStatus
 
 public static class NpcMapNavigator
 {
+    public static bool DebugLogs { get; set; }
+
     static readonly Dictionary<GameObject, NpcMapZone> knownNpcZones =
         new Dictionary<GameObject, NpcMapZone>();
 
@@ -238,7 +240,9 @@ public static class NpcMapNavigator
             currentZone.Value == targetZone.Value)
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            Debug.LogWarning(
+            if (DebugLogs)
+            {
+                Debug.LogWarning(
                 "[NpcMapNavigator] npc=" +
                 npc.name +
                 " stage=RouteCheck detail=direct" +
@@ -254,6 +258,7 @@ public static class NpcMapNavigator
                 (forcedTargetZone.HasValue
                     ? forcedTargetZone.Value.ToString()
                     : "None"));
+            }
 #endif
             return finalTarget;
         }
@@ -266,7 +271,9 @@ public static class NpcMapNavigator
             routeStatus = NpcRouteStatus.NoGate;
             routeAction = BuildNoRouteAction(targetZone.Value);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            Debug.LogWarning(
+            if (DebugLogs)
+            {
+                Debug.LogWarning(
                 "[NpcMapNavigator] npc=" +
                 npc.name +
                 " stage=RouteCheck detail=noGate currentZone=" +
@@ -281,6 +288,7 @@ public static class NpcMapNavigator
                 finalTarget +
                 " actorPos=" +
                 npc.transform.position);
+            }
 #endif
             return npc.transform.position;
         }
@@ -294,7 +302,9 @@ public static class NpcMapNavigator
             routeStatus = NpcRouteStatus.InvalidGate;
             routeAction = BuildNoRouteAction(targetZone.Value);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            Debug.LogWarning(
+            if (DebugLogs)
+            {
+                Debug.LogWarning(
                 "[NpcMapNavigator] npc=" +
                 npc.name +
                 " stage=RouteCheck detail=gateMismatch gate=" +
@@ -307,12 +317,15 @@ public static class NpcMapNavigator
                 finalTarget +
                 " actorPos=" +
                 npc.transform.position);
+            }
 #endif
             return npc.transform.position;
         }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        Debug.LogWarning(
+        if (DebugLogs)
+        {
+            Debug.LogWarning(
             "[NpcMapNavigator] npc=" +
             npc.name +
             " stage=RouteCheck detail=useGate" +
@@ -321,6 +334,7 @@ public static class NpcMapNavigator
             " targetZone=" + targetZone.Value +
             " destinationZone=" + destinationZone +
             " entry=" + entryPosition);
+        }
 #endif
 
         usingTeleportRoute = true;

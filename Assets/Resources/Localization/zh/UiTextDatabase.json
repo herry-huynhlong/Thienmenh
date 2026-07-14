@@ -557,6 +557,104 @@
       "lists": []
     },
     {
+      "name": "inGameMenu",
+      "entries": [
+        {
+          "key": "panelTitle",
+          "value": "控制面板"
+        },
+        {
+          "key": "settingsButton",
+          "value": "设置"
+        },
+        {
+          "key": "infoButton",
+          "value": "介绍"
+        },
+        {
+          "key": "exitButton",
+          "value": "保存游戏"
+        },
+        {
+          "key": "settingsTitle",
+          "value": "设置"
+        },
+        {
+          "key": "languageLabel",
+          "value": "语言"
+        },
+        {
+          "key": "audioLabel",
+          "value": "音频"
+        },
+        {
+          "key": "languageVietnamese",
+          "value": "越南语"
+        },
+        {
+          "key": "languageChinese",
+          "value": "中文"
+        },
+        {
+          "key": "languageEnglish",
+          "value": "英语"
+        },
+        {
+          "key": "muteButton",
+          "value": "静音"
+        },
+        {
+          "key": "unmuteButton",
+          "value": "取消静音"
+        },
+        {
+          "key": "closeButton",
+          "value": "关闭"
+        },
+        {
+          "key": "aboutTitle",
+          "value": "游戏介绍"
+        },
+        {
+          "key": "aboutBody",
+          "value": "天命之子 - 修仙 RPG"
+        },
+        {
+          "key": "exitTitle",
+          "value": "确认保存"
+        },
+        {
+          "key": "exitQuestion",
+          "value": "是否立即保存当前进度？"
+        },
+        {
+          "key": "yesButton",
+          "value": "是"
+        },
+        {
+          "key": "noButton",
+          "value": "否"
+        },
+        {
+          "key": "bottomShop",
+          "value": "商店"
+        },
+        {
+          "key": "bottomInventory",
+          "value": "储物"
+        },
+        {
+          "key": "bottomJournal",
+          "value": "日志"
+        },
+        {
+          "key": "bottomMap",
+          "value": "地图"
+        }
+      ],
+      "lists": []
+    },
+    {
       "name": "mainMenu",
       "entries": [
         {

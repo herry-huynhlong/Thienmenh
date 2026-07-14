@@ -407,6 +407,40 @@ public partial class MonsterAI
         FaceDirection(direction);
     }
 
+    bool TryFinishPatrolMovement()
+    {
+        if (!hasTarget ||
+            HasValidTarget() ||
+            currentAction != NpcText.Action("patrolTerritory"))
+        {
+            return false;
+        }
+
+        Vector2 remaining = targetPosition - rb.position;
+        float arrivalDistance =
+            Mathf.Max(
+                0.1f,
+                desiredVelocity.magnitude * Time.fixedDeltaTime * 1.25f);
+        if (remaining.magnitude > arrivalDistance)
+        {
+            return false;
+        }
+
+        // Arrival is checked in FixedUpdate so a throttled Update cannot let
+        // the rigidbody cross a small patrol point and reverse forever.
+        rb.position = targetPosition;
+        rb.linearVelocity = Vector2.zero;
+        desiredVelocity = Vector2.zero;
+        hasTarget = false;
+        waitTimer = waitTime;
+        currentAction = NpcText.Action("restTerritory");
+        patrolRecoveryAttempts = 0;
+        stuckMoveTimer = 0f;
+        lastUnstuckPosition = targetPosition;
+        SetMovingAnimation(false);
+        return true;
+    }
+
     void FollowTarget(float distance)
     {
         if (isAttacking ||
@@ -504,8 +538,14 @@ public partial class MonsterAI
             }
         }
 
-        ChooseNewPoint(Mathf.Max(0.75f, unstuckRepathRadius));
+        ChooseNewPoint(
+            Mathf.Max(0.75f, unstuckRepathRadius),
+            preserveRecoveryAttempts: true);
         desiredVelocity = Vector2.zero;
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
         SetMovingAnimation(false);
         stuckMoveTimer = 0f;
         lastUnstuckPosition = transform.position;
@@ -545,10 +585,13 @@ public partial class MonsterAI
                 0.75f,
                 Mathf.Min(
                     Mathf.Max(0.75f, roamRadius * 0.2f),
-                    Mathf.Max(0.75f, territoryRadius * 0.2f))));
+                    Mathf.Max(0.75f, territoryRadius * 0.2f))),
+            preserveRecoveryAttempts: false);
     }
 
-    void ChooseNewPoint(float minDistanceFromCurrentPosition)
+    void ChooseNewPoint(
+        float minDistanceFromCurrentPosition,
+        bool preserveRecoveryAttempts = false)
     {
         float patrolRadius =
             Mathf.Max(
@@ -595,7 +638,10 @@ public partial class MonsterAI
             waitTimer = Mathf.Max(0.35f, waitTime * 0.5f);
             desiredVelocity = Vector2.zero;
             currentAction = NpcText.Action("restTerritory");
-            patrolRecoveryAttempts = 0;
+            if (!preserveRecoveryAttempts)
+            {
+                patrolRecoveryAttempts = 0;
+            }
             SetMovingAnimation(false);
             return;
         }
@@ -603,8 +649,15 @@ public partial class MonsterAI
         targetPosition = bestPoint;
         hasTarget = true;
         waitTimer = 0f;
-        patrolRecoveryAttempts = 0;
-        currentAction = NpcText.Action("choosePatrolPoint");
+        if (!preserveRecoveryAttempts)
+        {
+            patrolRecoveryAttempts = 0;
+        }
+        Vector2 direction = targetPosition - (Vector2)transform.position;
+        desiredVelocity = direction.normalized * moveSpeed;
+        currentAction = NpcText.Action("patrolTerritory");
+        SetMovingAnimation(true);
+        FaceDirection(direction);
     }
 
     bool IsPatrolPointReachable(Vector2 candidate)

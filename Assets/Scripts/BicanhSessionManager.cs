@@ -852,7 +852,7 @@ public class BicanhSessionManager : MonoBehaviour
             NpcActionState.FromDisplayText(snapshot.smartNpcCurrentAction);
         data.smartNpcOriginalActionId = (int)originalAction.id;
         data.smartNpcOriginalActionKey = originalAction.key;
-        data.smartNpcCurrentHP = smartNpc.currentHP;
+        data.smartNpcCurrentHP = smartNpc.AuthoritativeCurrentHP;
         data.smartNpcCurrentAction = smartNpc.currentAction;
         NpcActionState currentAction = smartNpc.CurrentActionState;
         data.smartNpcCurrentActionId = (int)currentAction.id;
@@ -891,7 +891,7 @@ public class BicanhSessionManager : MonoBehaviour
             NpcActionState.FromDisplayText(snapshot.villagerCurrentAction);
         data.villagerOriginalActionId = (int)originalAction.id;
         data.villagerOriginalActionKey = originalAction.key;
-        data.villagerCurrentHP = villager.currentHP;
+        data.villagerCurrentHP = villager.AuthoritativeCurrentHP;
         data.villagerCurrentAction = villager.currentAction;
         NpcActionState currentAction = villager.CurrentActionState;
         data.villagerCurrentActionId = (int)currentAction.id;
@@ -1067,12 +1067,7 @@ public class BicanhSessionManager : MonoBehaviour
     {
         if (snapshot.smartNpc != null && data.hasSmartNpc)
         {
-            snapshot.smartNpc.currentHP = data.smartNpcCurrentHP;
-            if (snapshot.smartNpc.characterStats != null)
-            {
-                snapshot.smartNpc.characterStats.currentHP =
-                    data.smartNpcCurrentHP;
-            }
+            snapshot.smartNpc.SetCurrentHealth(data.smartNpcCurrentHP);
 
             if (!string.IsNullOrWhiteSpace(data.smartNpcCurrentAction))
             {
@@ -1086,12 +1081,7 @@ public class BicanhSessionManager : MonoBehaviour
 
         if (snapshot.villager != null && data.hasVillager)
         {
-            snapshot.villager.currentHP = data.villagerCurrentHP;
-            if (snapshot.villager.characterStats != null)
-            {
-                snapshot.villager.characterStats.currentHP =
-                    data.villagerCurrentHP;
-            }
+            snapshot.villager.SetCurrentHealth(data.villagerCurrentHP);
 
             if (!string.IsNullOrWhiteSpace(data.villagerCurrentAction))
             {
@@ -1533,11 +1523,7 @@ public class BicanhSessionManager : MonoBehaviour
     {
         if (snapshot.smartNpc != null)
         {
-            snapshot.smartNpc.currentHP = snapshot.smartNpcCurrentHP;
-            if (snapshot.smartNpc.characterStats != null)
-            {
-                snapshot.smartNpc.characterStats.currentHP = snapshot.smartNpcCurrentHP;
-            }
+            snapshot.smartNpc.SetCurrentHealth(snapshot.smartNpcCurrentHP);
 
             SetPrivateBool(snapshot.smartNpc, "isDead", false);
             snapshot.smartNpc.ExitBicanhSessionMode();
@@ -1549,11 +1535,7 @@ public class BicanhSessionManager : MonoBehaviour
 
         if (snapshot.villager != null)
         {
-            snapshot.villager.currentHP = snapshot.villagerCurrentHP;
-            if (snapshot.villager.characterStats != null)
-            {
-                snapshot.villager.characterStats.currentHP = snapshot.villagerCurrentHP;
-            }
+            snapshot.villager.SetCurrentHealth(snapshot.villagerCurrentHP);
 
             if (!string.IsNullOrEmpty(snapshot.villagerCurrentAction))
             {
@@ -1601,32 +1583,22 @@ public class BicanhSessionManager : MonoBehaviour
 
         if (snapshot.smartNpc != null)
         {
-            snapshot.smartNpc.currentHP =
+            snapshot.smartNpc.SetCurrentHealth(
                 Mathf.Clamp(
                     returnHp,
                     1,
-                    Mathf.Max(1, snapshot.smartNpc.maxHP));
-            if (snapshot.smartNpc.characterStats != null)
-            {
-                snapshot.smartNpc.characterStats.currentHP =
-                    snapshot.smartNpc.currentHP;
-            }
+                    snapshot.smartNpc.AuthoritativeMaxHP));
 
             SetPrivateBool(snapshot.smartNpc, "isDead", false);
         }
 
         if (snapshot.villager != null)
         {
-            snapshot.villager.currentHP =
+            snapshot.villager.SetCurrentHealth(
                 Mathf.Clamp(
                     returnHp,
                     1,
-                    Mathf.Max(1, snapshot.villager.maxHP));
-            if (snapshot.villager.characterStats != null)
-            {
-                snapshot.villager.characterStats.currentHP =
-                    snapshot.villager.currentHP;
-            }
+                    snapshot.villager.AuthoritativeMaxHP));
         }
 
         if (snapshot.monster != null)
@@ -2186,7 +2158,7 @@ public class BicanhSessionManager : MonoBehaviour
                 smartNpcCanKillOthers = smartNpc.canKillOthers;
                 smartNpcCanCompeteResource = smartNpc.canCompeteResource;
                 smartNpcCanCreateSect = smartNpc.canCreateSect;
-                smartNpcCurrentHP = smartNpc.currentHP;
+                smartNpcCurrentHP = smartNpc.AuthoritativeCurrentHP;
                 smartNpcCurrentAction = smartNpc.currentAction;
                 wasDead = smartNpc.IsDead;
             }
@@ -2202,7 +2174,7 @@ public class BicanhSessionManager : MonoBehaviour
                 villagerAutonomousDangerousWorkEnabled = villager.autonomousDangerousWorkEnabled;
                 villagerStrongNpcAvoidMortalWork = villager.strongNpcAvoidMortalWork;
                 villagerHideAtHome = villager.hideAtHome;
-                villagerCurrentHP = villager.currentHP;
+                villagerCurrentHP = villager.AuthoritativeCurrentHP;
                 villagerCurrentAction = villager.currentAction;
                 wasDead = villager.IsDead;
             }

@@ -2068,7 +2068,10 @@ public class InventoryPanelUI : MonoBehaviour
         if (item.isTemporary)
         {
             builder.AppendLine(
-                ItemText.Format("stats", "duration", item.duration));
+                ItemText.Format(
+                    "stats",
+                    "duration",
+                    item.durationScaledSeconds));
         }
 
         if (item.ConsumesWhenUsed() &&

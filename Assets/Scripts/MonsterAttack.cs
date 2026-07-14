@@ -62,13 +62,6 @@ public class MonsterAttack : MonoBehaviour
             return;
         }
 
-        if (NpcPetCompanion.BlocksMonsterAttacks(damageable.DamageTransform != null
-            ? damageable.DamageTransform.gameObject
-            : other.gameObject))
-        {
-            return;
-        }
-
         if (owner != null &&
             damageable.DamageTransform != null &&
             damageable.DamageTransform.gameObject == owner)
@@ -76,34 +69,21 @@ public class MonsterAttack : MonoBehaviour
             return;
         }
 
-        int appliedDamage = GetBaseDamage();
-        if (owner != null && damageable.DamageTransform != null)
-        {
-            appliedDamage =
-                NpcCombatTechniqueSystem.ModifyOutgoingDamage(
-                    owner,
-                    damageable.DamageTransform.gameObject,
-                    appliedDamage);
-
-            NpcSocialEventBus.PublishHostility(
-                owner,
-                damageable.DamageTransform.gameObject,
-                Mathf.Clamp(appliedDamage, 1, 100),
-                damageable.DamageTransform.position,
-                NpcText.Dialogue("combatBeastReason"));
-        }
-
         MarkHitForCurrentAttack(damageable);
 
-        SmartNpcAI smartNpc =
-            damageable as SmartNpcAI;
-        if (smartNpc != null)
-        {
-            smartNpc.TakeDamage(appliedDamage, owner);
-            return;
-        }
-
-        damageable.TakeDamage(appliedDamage);
+        Vector3 hitPosition = damageable.DamageTransform != null
+            ? damageable.DamageTransform.position
+            : other.bounds.center;
+        DamageContext context = DamageContext.Attack(
+            GetBaseDamage(),
+            owner,
+            this,
+            DamageSourceCategory.Monster,
+            DamageType.Physical,
+            NpcText.Dialogue("combatBeastReason"),
+            hitPosition,
+            owner != null);
+        DamageSystem.Apply(damageable, context);
     }
 
     int GetBaseDamage()

@@ -60,6 +60,8 @@ public class EntityIdentity
     public EntityKind kind;
     public EntityGender gender;
     public int age;
+    public int birthAbsoluteDay;
+    public bool hasBirthAbsoluteDay;
 }
 
 [Serializable]
@@ -308,6 +310,7 @@ public static class EntityGenerator
         identity.age = kind == EntityKind.Beast
             ? UnityEngine.Random.Range(1, 80)
             : UnityEngine.Random.Range(14, 80);
+        NpcAgeUtility.SetCurrentAge(identity, identity.age);
 
         if (kind == EntityKind.Beast)
         {

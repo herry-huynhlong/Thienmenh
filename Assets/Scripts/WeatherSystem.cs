@@ -10,6 +10,16 @@ public enum WorldWeather
     DenseSpiritualQi
 }
 
+[Serializable]
+public class WeatherPersistentState
+{
+    public bool hasState = true;
+    public int currentWeather;
+    public bool manualOverrideActive;
+    public float nextChangeWorldHour;
+    public bool hasScheduledChange;
+}
+
 public class WeatherSystem : MonoBehaviour
 {
     public static WeatherSystem Instance { get; private set; }
@@ -32,6 +42,40 @@ public class WeatherSystem : MonoBehaviour
 
     float nextChangeWorldHour;
     bool hasScheduledChange;
+
+    public WeatherPersistentState CapturePersistentState()
+    {
+        return new WeatherPersistentState
+        {
+            hasState = true,
+            currentWeather = (int)CurrentWeather,
+            manualOverrideActive = ManualOverrideActive,
+            nextChangeWorldHour = nextChangeWorldHour,
+            hasScheduledChange = hasScheduledChange
+        };
+    }
+
+    public void RestorePersistentState(WeatherPersistentState saved)
+    {
+        if (saved == null || !saved.hasState)
+        {
+            return;
+        }
+
+        CurrentWeather = Enum.IsDefined(
+                typeof(WorldWeather),
+                saved.currentWeather)
+            ? (WorldWeather)saved.currentWeather
+            : WorldWeather.Clear;
+        ManualOverrideActive = saved.manualOverrideActive;
+        nextChangeWorldHour = saved.nextChangeWorldHour;
+        hasScheduledChange =
+            saved.hasScheduledChange &&
+            !float.IsNaN(nextChangeWorldHour) &&
+            !float.IsInfinity(nextChangeWorldHour);
+
+        OnWeatherChanged?.Invoke(CurrentWeather);
+    }
 
     public void MarkCreatedAtRuntime()
     {
@@ -59,6 +103,14 @@ public class WeatherSystem : MonoBehaviour
         }
 
         DontDestroyOnLoad(gameObject);
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 
     void Update()

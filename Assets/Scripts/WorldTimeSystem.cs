@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public enum WorldTimePhase
 {
@@ -33,25 +34,24 @@ public class WorldTimeSystem : MonoBehaviour
     [Header("Save")]
     public bool loadSavedTimeOnAwake = true;
     public bool autoSaveWorldTime = true;
-    [Min(0f)] public float autoSaveInterval = 10f;
+    [FormerlySerializedAs("autoSaveInterval")]
+    [Min(0f)] public float autoSaveIntervalUnscaledSeconds = 10f;
 
     public event Action<int> OnHourChanged;
     public event Action<int> OnDayChanged;
 
-    int lastTriggeredHour = -1;
-    int lastTriggeredDateCode = -1;
+    long lastTriggeredAbsoluteHour = long.MinValue;
+    long lastTriggeredAbsoluteDay = long.MinValue;
     float saveTimer;
     bool createdAtRuntime;
 
     public WorldTimePhase CurrentPhase => GetCurrentPhase();
     public int CurrentDay => CurrentAbsoluteDay;
     public float CurrentHour => currentHour;
-    public int CurrentAbsoluteDay =>
-        ((currentYear - 1) * MonthsInYear + (currentMonth - 1)) *
-        DaysInMonth +
-        currentDay;
-    public float CurrentWorldHour =>
-        (CurrentAbsoluteDay - 1) * 24f + currentHour;
+    public int CurrentAbsoluteDay => ToPublicAbsoluteDay(GetAbsoluteDay());
+    public double CurrentWorldHourExact =>
+        (GetAbsoluteDay() - 1L) * 24d + currentHour;
+    public float CurrentWorldHour => (float)CurrentWorldHourExact;
 
     public static WorldTimeSystem EnsureInstance()
     {
@@ -117,9 +117,9 @@ public class WorldTimeSystem : MonoBehaviour
 
     void Update()
     {
-        AdvanceTime(Time.deltaTime);
+        AdvanceTime(GameTime.ScaledDeltaSeconds);
         TriggerTimeEvents(false);
-        AutoSaveTime(Time.unscaledDeltaTime);
+        AutoSaveTime(GameTime.UnscaledDeltaSeconds);
     }
 
     void OnApplicationPause(bool paused)
@@ -158,7 +158,41 @@ public class WorldTimeSystem : MonoBehaviour
         NormalizeDateTime();
         saveTimer = 0f;
 
-        if (triggerEvents)
+        if (!triggerEvents)
+        {
+            ResetEventCursorToCurrentTime();
+            return;
+        }
+
+        long targetAbsoluteHour = GetAbsoluteHour();
+        bool canCatchUp =
+            lastTriggeredAbsoluteHour != long.MinValue &&
+            targetAbsoluteHour > lastTriggeredAbsoluteHour;
+
+        TriggerTimeEvents(!canCatchUp);
+    }
+
+    /// <summary>
+    /// Restores an exact saved timestamp without simulating all elapsed hours
+    /// between the current scene time and the saved time.
+    /// </summary>
+    public void RestoreTime(
+        int year,
+        int month,
+        int day,
+        float hour,
+        bool notifyEvents = true)
+    {
+        currentYear = year;
+        currentMonth = month;
+        currentDay = day;
+        currentHour = hour;
+
+        NormalizeDateTime();
+        saveTimer = 0f;
+        ResetEventCursorToCurrentTime();
+
+        if (notifyEvents)
         {
             TriggerTimeEvents(true);
         }
@@ -268,13 +302,13 @@ public class WorldTimeSystem : MonoBehaviour
 
     void AutoSaveTime(float deltaSeconds)
     {
-        if (!autoSaveWorldTime || autoSaveInterval <= 0f)
+        if (!autoSaveWorldTime || autoSaveIntervalUnscaledSeconds <= 0f)
         {
             return;
         }
 
         saveTimer += deltaSeconds;
-        if (saveTimer < autoSaveInterval)
+        if (saveTimer < autoSaveIntervalUnscaledSeconds)
         {
             return;
         }
@@ -331,36 +365,162 @@ public class WorldTimeSystem : MonoBehaviour
 
     void TriggerTimeEvents(bool force)
     {
-        int hour = Mathf.FloorToInt(currentHour);
-        if (force || hour != lastTriggeredHour)
+        if (force || lastTriggeredAbsoluteHour == long.MinValue)
         {
-            lastTriggeredHour = hour;
-            OnHourChanged?.Invoke(hour);
+            NotifyCurrentTimeWithoutDailyTicks();
+            return;
         }
 
-        int dateCode = currentYear * 10000 + currentMonth * 100 + currentDay;
-        if (force || dateCode != lastTriggeredDateCode)
+        int targetYear = currentYear;
+        int targetMonth = currentMonth;
+        int targetDay = currentDay;
+        float targetHourOfDay = currentHour;
+        long targetAbsoluteHour = GetAbsoluteHour();
+        long targetAbsoluteDay = GetAbsoluteDay();
+
+        if (targetAbsoluteHour < lastTriggeredAbsoluteHour)
         {
-            lastTriggeredDateCode = dateCode;
-            OnDayChanged?.Invoke(CurrentAbsoluteDay);
+            NotifyCurrentTimeWithoutDailyTicks();
+            return;
+        }
 
-            if (!force)
+        if (targetAbsoluteHour == lastTriggeredAbsoluteHour)
+        {
+            return;
+        }
+
+        long nextAbsoluteHour = lastTriggeredAbsoluteHour + 1L;
+        try
+        {
+            while (nextAbsoluteHour <= targetAbsoluteHour)
             {
-                VillagerRelationshipManager relationshipManager =
-                    VillagerRelationshipManager.EnsureInstance();
-                if (relationshipManager != null)
+                bool isTargetHour = nextAbsoluteHour == targetAbsoluteHour;
+                if (isTargetHour)
                 {
-                    relationshipManager.DailyRelationshipTick();
+                    SetRawTime(
+                        targetYear,
+                        targetMonth,
+                        targetDay,
+                        targetHourOfDay);
+                }
+                else
+                {
+                    SetTimeFromAbsoluteHour(nextAbsoluteHour);
                 }
 
-                VillagerBirthManager birthManager =
-                    VillagerBirthManager.EnsureInstance();
-                if (birthManager != null)
+                lastTriggeredAbsoluteHour = nextAbsoluteHour;
+                OnHourChanged?.Invoke(Mathf.FloorToInt(currentHour));
+
+                long eventAbsoluteDay = GetAbsoluteDay();
+                if (eventAbsoluteDay != lastTriggeredAbsoluteDay)
                 {
-                    birthManager.DailyBirthTick();
+                    lastTriggeredAbsoluteDay = eventAbsoluteDay;
+                    OnDayChanged?.Invoke(ToPublicAbsoluteDay(eventAbsoluteDay));
+                    RunDailySimulationTicks();
                 }
+
+                if (nextAbsoluteHour == long.MaxValue)
+                {
+                    break;
+                }
+
+                nextAbsoluteHour++;
             }
         }
+        finally
+        {
+            SetRawTime(
+                targetYear,
+                targetMonth,
+                targetDay,
+                targetHourOfDay);
+        }
+
+        lastTriggeredAbsoluteHour = targetAbsoluteHour;
+        lastTriggeredAbsoluteDay = targetAbsoluteDay;
+    }
+
+    void NotifyCurrentTimeWithoutDailyTicks()
+    {
+        ResetEventCursorToCurrentTime();
+        OnHourChanged?.Invoke(Mathf.FloorToInt(currentHour));
+        OnDayChanged?.Invoke(ToPublicAbsoluteDay(lastTriggeredAbsoluteDay));
+    }
+
+    void RunDailySimulationTicks()
+    {
+        VillagerRelationshipManager relationshipManager =
+            VillagerRelationshipManager.EnsureInstance();
+        if (relationshipManager != null)
+        {
+            relationshipManager.DailyRelationshipTick();
+        }
+
+        VillagerBirthManager birthManager =
+            VillagerBirthManager.EnsureInstance();
+        if (birthManager != null)
+        {
+            birthManager.DailyBirthTick();
+        }
+    }
+
+    void ResetEventCursorToCurrentTime()
+    {
+        lastTriggeredAbsoluteHour = GetAbsoluteHour();
+        lastTriggeredAbsoluteDay = GetAbsoluteDay();
+    }
+
+    long GetAbsoluteDay()
+    {
+        return
+            (((long)currentYear - 1L) * MonthsInYear +
+             (currentMonth - 1L)) *
+            DaysInMonth +
+            currentDay;
+    }
+
+    long GetAbsoluteHour()
+    {
+        return (GetAbsoluteDay() - 1L) * 24L +
+               Mathf.FloorToInt(currentHour);
+    }
+
+    void SetTimeFromAbsoluteHour(long absoluteHour)
+    {
+        long zeroBasedDay = absoluteHour / 24L;
+        int hour = (int)(absoluteHour % 24L);
+        long zeroBasedYear =
+            zeroBasedDay / (MonthsInYear * DaysInMonth);
+        long dayInYear =
+            zeroBasedDay % (MonthsInYear * DaysInMonth);
+
+        currentYear =
+            zeroBasedYear >= int.MaxValue
+                ? int.MaxValue
+                : (int)zeroBasedYear + 1;
+        currentMonth = (int)(dayInYear / DaysInMonth) + 1;
+        currentDay = (int)(dayInYear % DaysInMonth) + 1;
+        currentHour = hour;
+    }
+
+    void SetRawTime(int year, int month, int day, float hour)
+    {
+        currentYear = year;
+        currentMonth = month;
+        currentDay = day;
+        currentHour = hour;
+    }
+
+    static int ToPublicAbsoluteDay(long absoluteDay)
+    {
+        if (absoluteDay <= 0L)
+        {
+            return 1;
+        }
+
+        return absoluteDay > int.MaxValue
+            ? int.MaxValue
+            : (int)absoluteDay;
     }
 
     void ApplyConfigFrom(WorldTimeSystem source)
@@ -374,7 +534,8 @@ public class WorldTimeSystem : MonoBehaviour
         realSecondsPerGameDay = source.realSecondsPerGameDay;
         loadSavedTimeOnAwake = source.loadSavedTimeOnAwake;
         autoSaveWorldTime = source.autoSaveWorldTime;
-        autoSaveInterval = source.autoSaveInterval;
+        autoSaveIntervalUnscaledSeconds =
+            source.autoSaveIntervalUnscaledSeconds;
     }
 
     WorldTimePhase GetCurrentPhase()

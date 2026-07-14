@@ -584,11 +584,13 @@ public class TreasureFrenzySystem : MonoBehaviour
                 continue;
             }
 
-            NpcRoleUtility.Damage(
-                null,
-                participant.actor,
+            DamageContext context = DamageContext.Environment(
                 immortalLightningDamage,
-                "thien loi");
+                this,
+                DamageType.HeavenlyTribulation,
+                "treasure_frenzy_lightning",
+                participant.actor.transform.position);
+            DamageSystem.Apply(participant.actor, context);
         }
     }
 
@@ -693,16 +695,21 @@ public class TreasureFrenzySystem : MonoBehaviour
                 continue;
             }
 
-            IDamageable damageable = victim.GetComponentInParent<IDamageable>();
-            if (damageable != null && !damageable.IsDead)
+            if (DamageSystem.TryResolveReceiver(
+                    victim,
+                    out IDamageable damageable) &&
+                !damageable.IsDead)
             {
-                int modifiedDamage =
-                    NpcCombatTechniqueSystem.ModifyOutgoingDamage(
-                        attacker.actor,
-                        victim,
-                        damage);
-
-                damageable.TakeDamage(modifiedDamage);
+                DamageContext context = DamageContext.Attack(
+                    damage,
+                    attacker.actor,
+                    this,
+                    DamageSourceCategory.Unknown,
+                    DamageType.Physical,
+                    NpcText.Dialogue("attackReasonFallback"),
+                    victim.transform.position,
+                    false);
+                DamageSystem.Apply(damageable, context);
             }
         }
     }

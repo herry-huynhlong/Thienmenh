@@ -68,6 +68,10 @@
           "value": "物品"
         },
         {
+          "key": "resource",
+          "value": "资源"
+        },
+        {
           "key": "realmStageFormat",
           "value": "{0} {1}层"
         },
@@ -677,6 +681,22 @@
         {
           "key": "fixedBlacksmithBuyingMaterials",
           "value": "正在购买锻造材料"
+        },
+        {
+          "key": "gatherResourceCountdown",
+          "value": "正在采集{0}（{1}秒）"
+        },
+        {
+          "key": "catchFishCountdown",
+          "value": "正在捕捉{0}（{1}秒）"
+        },
+        {
+          "key": "harvestResourceCountdown",
+          "value": "正在收获{0}（{1}秒）"
+        },
+        {
+          "key": "butcherResourceCountdown",
+          "value": "正在获取肉类{0}（{1}秒）"
         },
         {
           "key": "fixedBlacksmithNotEnoughMoneyToBuy",

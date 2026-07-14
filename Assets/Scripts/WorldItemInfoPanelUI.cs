@@ -313,7 +313,11 @@ public class WorldItemInfoPanelUI : MonoBehaviour
                 builder.AppendLine("Bền công pháp: " + item.manualBreakAfterYears.ToString("0.##") + " năm");
                 break;
             case ItemType.ThucPham:
-                builder.AppendLine("Thời hạn: " + (item.isTemporary ? item.duration.ToString("0.##") + " giây" : "Dùng ngay"));
+                builder.AppendLine(
+                    "Thời hạn: " +
+                    (item.isTemporary
+                        ? item.durationScaledSeconds.ToString("0.##") + " giây"
+                        : "Dùng ngay"));
                 break;
         }
 

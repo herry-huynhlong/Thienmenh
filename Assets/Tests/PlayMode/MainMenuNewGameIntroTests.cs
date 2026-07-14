@@ -12,12 +12,14 @@ public class MainMenuNewGameIntroTests
     [SetUp]
     public void SetUp()
     {
+        DestroyPersistentSystems();
         PlayerPrefs.DeleteAll();
     }
 
     [TearDown]
     public void TearDown()
     {
+        DestroyPersistentSystems();
         PlayerPrefs.DeleteAll();
     }
 
@@ -255,6 +257,29 @@ public class MainMenuNewGameIntroTests
                 inactiveMode,
                 FindObjectsSortMode.None);
         return objects != null && objects.Length > 0 ? objects[0] : null;
+    }
+
+    static void DestroyPersistentSystems()
+    {
+        Type dontDestroyType = ResolveGameType("DontDestroy");
+        if (dontDestroyType == null)
+        {
+            return;
+        }
+
+        UnityEngine.Object[] objects =
+            UnityEngine.Object.FindObjectsByType(
+                dontDestroyType,
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+        for (int i = 0; i < objects.Length; i++)
+        {
+            Component component = objects[i] as Component;
+            if (component != null)
+            {
+                UnityEngine.Object.DestroyImmediate(component.gameObject);
+            }
+        }
     }
 
     static void InvokeStaticMethod(string typeName, string methodName)

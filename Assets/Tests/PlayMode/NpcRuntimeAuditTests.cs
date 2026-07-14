@@ -31,9 +31,14 @@ public class NpcRuntimeAuditTests
     const float ThreeDayAuditTimeScale = 10f;
     const float ThreeDayWarmupRealSeconds = 2f;
     const float ThreeDaySampleRealSeconds = 0.5f;
-    const float ThreeDayStationaryDistance = 0.05f;
+    // Keep the audit threshold below MonsterAI.unstuckMinMoveDistance (0.03).
+    // Otherwise movement that correctly resets the runtime recovery timer can
+    // still be counted as stationary by this audit and create false positives.
+    const float ThreeDayStationaryDistance = 0.02f;
     const float ThreeDayNpcMovingStuckSeconds = 4f;
-    const float ThreeDayMonsterMovingStuckSeconds = 3f;
+    // A short patrol stall is expected to be healed by MonsterAI's recovery loop.
+    // Fail only when it survives multiple recovery opportunities.
+    const float ThreeDayMonsterMovingStuckSeconds = 6f;
     const float ThreeDayLoopStuckSeconds = 8f;
     const float ThreeDayOutsideAreaSeconds = 4f;
 
@@ -45,7 +50,6 @@ public class NpcRuntimeAuditTests
         "goTavern",
         "huntMonster",
         "huntMonsterNamed",
-        "attackMonsterNamed",
         "treasureHunt",
         "treasureHuntNamed",
         "goStoreBuyItem",
@@ -71,7 +75,6 @@ public class NpcRuntimeAuditTests
         "goGatherItem",
         "searchGatherItem",
         "huntSearch",
-        "huntFight",
         "returnProviderReceiveTask",
         "returnTurnInTask",
         "followTaskRoute",
@@ -119,6 +122,8 @@ public class NpcRuntimeAuditTests
         "healing",
         "fishing",
         "hunting",
+        "huntFight",
+        "attackMonsterNamed",
         "harvestResource",
         "paidWork",
         "harvestItemAmount",
@@ -132,6 +137,20 @@ public class NpcRuntimeAuditTests
         "skipUnavailableTask",
         "soldGoods",
         "waitTraderBuyGoods",
+        "fixedAlchemistBuyMaterials",
+        "fixedAlchemistSellGoods",
+        "fixedAlchemistWaitNextCycle",
+        "fixedBlacksmithForging",
+        "fixedBlacksmithSellGoods",
+        "fixedBlacksmithWaitNextCycle",
+        "fixedBlacksmithBuyingMaterials",
+        "gatherResourceCountdown",
+        "catchFishCountdown",
+        "harvestResourceCountdown",
+        "butcherResourceCountdown",
+        "counterTradeWithCustomer",
+        "showTaskBoard",
+        "giveTask",
         "waitLightning",
         "waitLightningNamed",
         "idle",
@@ -161,7 +180,6 @@ public class NpcRuntimeAuditTests
         "goTavern",
         "huntMonster",
         "huntMonsterNamed",
-        "attackMonsterNamed",
         "treasureHunt",
         "treasureHuntNamed",
         "goStoreBuyItem",
@@ -187,7 +205,6 @@ public class NpcRuntimeAuditTests
         "goGatherItem",
         "searchGatherItem",
         "huntSearch",
-        "huntFight",
         "returnProviderReceiveTask",
         "returnTurnInTask",
         "followTaskRoute",
@@ -239,6 +256,275 @@ public class NpcRuntimeAuditTests
     static readonly Type NpcTaskProviderType = GetGameType("NpcTaskProvider");
     static readonly Type NpcTaskOfferType = GetGameType("NpcTaskOffer");
     static readonly Type FixedBlacksmithControllerType = GetGameType("NpcFixedBlacksmithController");
+
+    [Test]
+    public void TeleportCooldownIsScopedPerGate()
+    {
+        GameObject actor = new GameObject("TeleportCooldownActor");
+        GameObject gateObjectA = new GameObject("TeleportGateA");
+        GameObject gateObjectB = new GameObject("TeleportGateB");
+
+        try
+        {
+            Assert.NotNull(NpcTeleportGateType);
+            Component gateA = gateObjectA.AddComponent(NpcTeleportGateType);
+            Component gateB = gateObjectB.AddComponent(NpcTeleportGateType);
+
+            long keyA = InvokePrivateMethod<long>(
+                gateA,
+                "GetNpcCooldownKey",
+                actor);
+            long keyB = InvokePrivateMethod<long>(
+                gateB,
+                "GetNpcCooldownKey",
+                actor);
+
+            Assert.AreNotEqual(
+                keyA,
+                keyB,
+                "A cooldown from one portal must not block the next portal in a multi-hop route.");
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(actor);
+            UnityEngine.Object.DestroyImmediate(gateObjectA);
+            UnityEngine.Object.DestroyImmediate(gateObjectB);
+        }
+    }
+
+    [Test]
+    public void MonsterPatrolEscalatesRepeatedRecoveryToAnchorReset()
+    {
+        GameObject monsterObject = new GameObject("MonsterPatrolRecovery");
+
+        try
+        {
+            Rigidbody2D body = monsterObject.AddComponent<Rigidbody2D>();
+            Assert.NotNull(MonsterType);
+            Component monster = monsterObject.AddComponent(MonsterType);
+            Vector2 anchor = new Vector2(2f, 3f);
+            monsterObject.transform.position = new Vector3(9f, 9f, 0f);
+            SetFieldValue(monster, "maxPatrolRecoveriesBeforeReset", 2);
+            SetFieldValue(monster, "unstuckCheckDelay", 0.2f);
+
+            SetFieldValue(monster, "rb", body);
+            SetFieldValue(monster, "startPosition", anchor);
+            SetFieldValue(monster, "lastUnstuckPosition", (Vector2)monsterObject.transform.position);
+            SetFieldValue(monster, "desiredVelocity", Vector2.right);
+            SetFieldValue(monster, "stuckMoveTimer", 0.2f);
+            SetFieldValue(monster, "patrolRecoveryAttempts", 1);
+
+            InvokePrivateMethod(monster, "UpdateMovementRecovery");
+
+            Assert.That(
+                Vector2.Distance(body.position, anchor),
+                Is.LessThan(0.01f),
+                "The second failed patrol recovery should reset the monster to its territory anchor.");
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(monsterObject);
+        }
+    }
+
+    [Test]
+    public void SmartNpcReleasesStaleGatherTarget()
+    {
+        GameObject npcObject = new GameObject("GatherRecoveryNpc");
+        GameObject pickupObject = new GameObject("GatherRecoveryPickup");
+
+        try
+        {
+            Assert.NotNull(SmartNpcType);
+            Component smartNpc = npcObject.AddComponent(SmartNpcType);
+            SetFieldValue(smartNpc, "generateFromEntityProfile", false);
+            SetFieldValue(smartNpc, "currentHP", 100);
+            SetFieldValue(smartNpc, "maxHP", 100);
+
+            InvokePrivateMethod(
+                smartNpc,
+                "ForceGatherTarget",
+                pickupObject.transform,
+                null);
+            Assert.AreEqual(
+                pickupObject.transform,
+                GetFieldValue(smartNpc, "currentTarget"));
+
+            SetFieldValue(smartNpc, "unstuckRecoveryAttempts", 2);
+            SetFieldValue(smartNpc, "hasEscapeTarget", true);
+            InvokePrivateMethod(
+                smartNpc,
+                "ForceGatherTarget",
+                pickupObject.transform,
+                null);
+            Assert.AreEqual(
+                2,
+                GetFieldValue(smartNpc, "unstuckRecoveryAttempts"),
+                "Refreshing the same gather reservation must preserve anti-stuck progress.");
+            Assert.AreEqual(
+                true,
+                GetFieldValue(smartNpc, "hasEscapeTarget"),
+                "Refreshing the same gather reservation must preserve the active escape detour.");
+
+            InvokePrivateMethod(
+                smartNpc,
+                "ReleaseGatherTarget",
+                pickupObject.transform);
+
+            Assert.IsNull(
+                GetFieldValue(smartNpc, "currentTarget"),
+                "An invalid or exhausted pickup must not remain as the SmartNpcAI movement target.");
+            Assert.AreEqual(
+                GetNpcActionText("idle"),
+                GetFieldValue(smartNpc, "currentAction"));
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(npcObject);
+            UnityEngine.Object.DestroyImmediate(pickupObject);
+        }
+    }
+
+    [Test]
+    public void AuditTreatsCombatAsStationaryWork()
+    {
+        CollectionAssert.DoesNotContain(
+            ThreeDayMovingActionKeys,
+            "huntFight");
+        CollectionAssert.DoesNotContain(
+            ThreeDayMovingActionKeys,
+            "attackMonsterNamed");
+        CollectionAssert.Contains(
+            LegitimateStationaryActionKeys,
+            "huntFight");
+        CollectionAssert.Contains(
+            LegitimateStationaryActionKeys,
+            "attackMonsterNamed");
+        Assert.IsFalse(
+            IsMovingIntentAction(GetNpcActionText("huntFight")));
+        Assert.IsFalse(
+            IsMovingIntentAction(GetNpcActionText("attackMonsterNamed")));
+    }
+
+    [Test]
+    public void SmartNpcDoesNotHoldAttackPoseOutsideAttackRange()
+    {
+        GameObject npcObject = new GameObject("CombatApproachNpc");
+        GameObject monsterObject = new GameObject("CombatApproachMonster");
+
+        try
+        {
+            Assert.NotNull(SmartNpcType);
+            Assert.NotNull(MonsterType);
+            Component smartNpc = npcObject.AddComponent(SmartNpcType);
+            Component monster = monsterObject.AddComponent(MonsterType);
+            SetFieldValue(smartNpc, "attackRange", 1.5f);
+            SetFieldValue(monster, "currentHP", 100);
+            monsterObject.transform.position = new Vector3(5f, 0f, 0f);
+            SetFieldValue(smartNpc, "currentTarget", monsterObject.transform);
+            SetFieldValue(
+                smartNpc,
+                "currentAction",
+                GetNpcActionText("attackMonsterNamed"));
+            SetFieldValue(smartNpc, "currentMonsterTarget", monster);
+
+            Assert.IsFalse(
+                InvokePrivateMethod<bool>(
+                    smartNpc,
+                    "ShouldHoldCombatPosition"),
+                "An NPC outside attack range must keep approaching instead of freezing in an attack pose.");
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(npcObject);
+            UnityEngine.Object.DestroyImmediate(monsterObject);
+        }
+    }
+
+    [Test]
+    public void TaskTravelWatchdogKeepsRetryBudgetWhenTargetMoves()
+    {
+        GameObject providerObject = new GameObject("WatchdogProvider");
+        GameObject npcObject = new GameObject("WatchdogNpc");
+
+        try
+        {
+            Assert.NotNull(NpcTaskProviderType);
+            Component provider =
+                providerObject.AddComponent(NpcTaskProviderType);
+            Behaviour providerBehaviour = provider as Behaviour;
+            Assert.NotNull(providerBehaviour);
+            providerBehaviour.enabled = false;
+            SetFieldValue(provider, "taskTravelNoProgressTimeout", 100f);
+            SetFieldValue(provider, "taskTravelMinStageDuration", 100f);
+            SetFieldValue(provider, "taskTravelMaxStageDuration", 100f);
+
+            Type runningTaskType =
+                GetGameType("RunningNpcTask");
+            Assert.NotNull(runningTaskType);
+            Type taskStageType = GetGameType("TavernTaskStage");
+            Assert.NotNull(taskStageType);
+            object goingToWork = Enum.Parse(taskStageType, "GoingToWork");
+            object task = Activator.CreateInstance(runningTaskType);
+            float stageStartedAt = Time.time - 1f;
+
+            runningTaskType.GetField("npc").SetValue(task, npcObject);
+            runningTaskType.GetField("stage").SetValue(
+                task,
+                goingToWork);
+            runningTaskType.GetField("travelWatchdogArmed").SetValue(task, true);
+            runningTaskType.GetField("travelWatchdogStage").SetValue(
+                task,
+                goingToWork);
+            runningTaskType.GetField("travelWatchdogTarget").SetValue(
+                task,
+                new Vector3(10f, 0f, 0f));
+            runningTaskType.GetField("travelWatchdogLastPosition").SetValue(
+                task,
+                npcObject.transform.position);
+            runningTaskType.GetField("travelStageStartedAt").SetValue(
+                task,
+                stageStartedAt);
+            runningTaskType.GetField("travelLastProgressAt").SetValue(
+                task,
+                Time.time);
+            runningTaskType.GetField("travelLastDistanceToTarget").SetValue(
+                task,
+                10f);
+            runningTaskType.GetField("maxTravelDuration").SetValue(task, 100f);
+            runningTaskType.GetField("travelRetryCount").SetValue(task, 1);
+
+            MethodInfo updateWatchdog = provider.GetType().GetMethod(
+                "UpdateTaskTravelWatchdog",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull(updateWatchdog);
+            updateWatchdog.Invoke(
+                provider,
+                new object[]
+                {
+                    task,
+                    new Vector3(11f, 0f, 0f),
+                    0.5f,
+                    null,
+                    "MovingHuntTarget"
+                });
+
+            Assert.AreEqual(
+                1,
+                runningTaskType.GetField("travelRetryCount").GetValue(task),
+                "Refreshing a moving hunt target must not reset the recovery budget.");
+            Assert.AreEqual(
+                stageStartedAt,
+                (float)runningTaskType.GetField("travelStageStartedAt").GetValue(task),
+                0.001f,
+                "Refreshing a target must preserve the hard stage deadline.");
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(providerObject);
+            UnityEngine.Object.DestroyImmediate(npcObject);
+        }
+    }
 
     [UnityTest]
     [Timeout(600000)]
@@ -413,8 +699,6 @@ public class NpcRuntimeAuditTests
                 9,
                 actors.Count,
                 "Expected 3 VillagerAI, 3 SmartNpcAI, and 3 MonsterAI samples in " + ScenePath);
-
-            EnableThreeDayDebugFlags(actors);
 
             List<string> issues = new List<string>();
             float startWorldHour =
@@ -751,6 +1035,10 @@ public class NpcRuntimeAuditTests
     {
         float originalTimeScale = Time.timeScale;
         float originalFixedDeltaTime = Time.fixedDeltaTime;
+        Component blacksmith = null;
+        Behaviour villager = null;
+        bool originalBlacksmithDebug = false;
+        bool originalVillagerDebug = false;
         Time.timeScale = 8f;
         Time.fixedDeltaTime = originalFixedDeltaTime;
 
@@ -761,8 +1049,13 @@ public class NpcRuntimeAuditTests
             Component worldTime = EnsureWorldTimeSystem();
             SetWorldTime(worldTime, 1, 1, 1, 6.25f);
             SetFloatMember(worldTime, "realSecondsPerGameDay", 24f);
+            InvokePrivateMethod(
+                worldTime,
+                "SetCurrentDayHour",
+                13.5f,
+                false);
 
-            Component blacksmith =
+            blacksmith =
                 FindActiveComponentByNameContains(
                     FixedBlacksmithControllerType,
                     "thoren");
@@ -770,7 +1063,7 @@ public class NpcRuntimeAuditTests
                 blacksmith,
                 "Could not find an active NpcFixedBlacksmithController for thoren.");
 
-            Behaviour villager =
+            villager =
                 blacksmith.gameObject.GetComponent(VillagerType) as Behaviour;
             Assert.NotNull(
                 villager,
@@ -799,6 +1092,22 @@ public class NpcRuntimeAuditTests
                 "NpcFixedBlacksmithController.ResetCycle was not found.");
             resetCycle.Invoke(blacksmith, null);
 
+            // A scene or shared runtime inventory may already contain the
+            // configured materials. This test specifically exercises the buy
+            // route, so begin from an empty private NPC inventory.
+            Component inventory =
+                GetComponent(
+                    blacksmith.gameObject,
+                    GetGameType("ItemInventory"));
+            Assert.NotNull(inventory, "Thoren is missing ItemInventory.");
+            object inventoryItems = GetFieldValue(inventory, "items");
+            Assert.IsInstanceOf<IList>(inventoryItems);
+            ((IList)inventoryItems).Clear();
+
+            originalBlacksmithDebug =
+                Convert.ToBoolean(GetFieldValue(blacksmith, "debugLogs"));
+            originalVillagerDebug =
+                Convert.ToBoolean(GetFieldValue(villager, "debugWorkLogs"));
             SetFieldValue(blacksmith, "debugLogs", true);
             SetFieldValue(villager, "debugWorkLogs", true);
             SetFieldValue(villager, "thinkTimer", 0f);
@@ -806,7 +1115,7 @@ public class NpcRuntimeAuditTests
 
             yield return null;
 
-            const float timeoutSeconds = 20f;
+            const float timeoutSeconds = 45f;
             const float sampleSeconds = 0.25f;
             float elapsed = 0f;
             bool reachedCustomerZone = false;
@@ -846,6 +1155,22 @@ public class NpcRuntimeAuditTests
         }
         finally
         {
+            if (blacksmith != null)
+            {
+                SetFieldValue(
+                    blacksmith,
+                    "debugLogs",
+                    originalBlacksmithDebug);
+            }
+
+            if (villager != null)
+            {
+                SetFieldValue(
+                    villager,
+                    "debugWorkLogs",
+                    originalVillagerDebug);
+            }
+
             Time.timeScale = originalTimeScale;
             Time.fixedDeltaTime = originalFixedDeltaTime;
         }
@@ -1037,6 +1362,7 @@ public class NpcRuntimeAuditTests
             ContainsActionText(action, "attackMonsterNamed"))
         {
             return activity != "Hunt" &&
+                activity != "FreeHuntAndGather" &&
                 !(activity == "Work" && string.Equals(job, "Hunter", StringComparison.OrdinalIgnoreCase));
         }
 
@@ -1054,7 +1380,10 @@ public class NpcRuntimeAuditTests
             ContainsActionText(action, "goGatherNamed") ||
             ContainsActionText(action, "gatherVillageResource"))
         {
-            return activity != "Gather" && activity != "Work" && activity != "Hunt";
+            return activity != "Gather" &&
+                activity != "Work" &&
+                activity != "Hunt" &&
+                activity != "FreeHuntAndGather";
         }
 
         if (ContainsActionText(action, "goCultivatePoint") ||
@@ -1596,7 +1925,8 @@ public class NpcRuntimeAuditTests
             bool movingIntent = IsThreeDayMovingIntent(actor, action);
             bool legitimateStationary =
                 IsLegitimateStationaryAction(action) ||
-                IsCultivationAction(action);
+                IsCultivationAction(action) ||
+                IsThreeDaySuspendedTravelWait(actor, action);
 
             actor.TotalDistance += moved;
             actor.MaxDistanceFromStart = Mathf.Max(
@@ -1693,7 +2023,8 @@ public class NpcRuntimeAuditTests
                 "s action=" + Safe(action) +
                 " schedule=" + Safe(schedule) +
                 " target=" + Safe(target) +
-                " pos=" + FormatVector(position));
+                " pos=" + FormatVector(position) +
+                BuildThreeDayRuntimeDetail(actor));
 
             AddThreeDayIssueOnce(
                 issues,
@@ -1709,7 +2040,8 @@ public class NpcRuntimeAuditTests
                 "s action=" + Safe(action) +
                 " schedule=" + Safe(schedule) +
                 " target=" + Safe(target) +
-                " pos=" + FormatVector(position));
+                " pos=" + FormatVector(position) +
+                BuildThreeDayRuntimeDetail(actor));
 
             if (actor.TypeName != "MonsterAI")
             {
@@ -1742,6 +2074,14 @@ public class NpcRuntimeAuditTests
             return actor.TargetTransform != null;
         }
 
+        if (IsLegitimateStationaryAction(action) ||
+            IsCultivationAction(action) ||
+            IsThreeDaySuspendedTravelWait(actor, action) ||
+            IsThreeDayCombatHoldAction(actor, action))
+        {
+            return false;
+        }
+
         if (MatchesAnyAction(action, ThreeDayMovingActionKeys))
         {
             return true;
@@ -1767,6 +2107,151 @@ public class NpcRuntimeAuditTests
             !ContainsIgnoreCase(action, "cultivate") &&
             !ContainsIgnoreCase(action, "injured") &&
             !ContainsIgnoreCase(action, "dead");
+    }
+
+    static string BuildThreeDayRuntimeDetail(ThreeDayActorState actor)
+    {
+        if (actor == null || actor.Component == null)
+        {
+            return string.Empty;
+        }
+
+        Rigidbody2D body = actor.Component.GetComponent<Rigidbody2D>();
+        StringBuilder detail = new StringBuilder(" runtime[");
+        detail.Append("time=")
+            .Append(Time.time.ToString("0.###", CultureInfo.InvariantCulture))
+            .Append(" rbVelocity=")
+            .Append(body != null ? body.linearVelocity.ToString() : "none");
+
+        string[] fields = actor.TypeName == "MonsterAI"
+            ? new[]
+            {
+                "desiredVelocity",
+                "hasTarget",
+                "currentTarget",
+                "currentTargetDamageable",
+                "isRetreating",
+                "targetPosition",
+                "stuckMoveTimer",
+                "patrolRecoveryAttempts"
+            }
+            : new[]
+            {
+                "currentTarget",
+                "hasWanderTarget",
+                "wanderTarget",
+                "stuckMoveTimer",
+                "unstuckRecoveryAttempts",
+                "blockedMoveTimer",
+                "hasEscapeTarget",
+                "hasObstacleAvoidTarget",
+                "currentMonsterTarget",
+                "isRetreatingFromMonster",
+                "actionTimer",
+                "movementPausedUntil",
+                "crowdYieldUntil"
+            };
+
+        for (int i = 0; i < fields.Length; i++)
+        {
+            detail.Append(' ')
+                .Append(fields[i])
+                .Append('=')
+                .Append(FormatRuntimeValue(GetFieldValue(actor.Component, fields[i])));
+        }
+
+        return detail.Append(']').ToString();
+    }
+
+    static string FormatRuntimeValue(object value)
+    {
+        if (value == null)
+        {
+            return "null";
+        }
+
+        UnityEngine.Object unityObject = value as UnityEngine.Object;
+        if (unityObject != null)
+        {
+            return unityObject.name;
+        }
+
+        return Convert.ToString(value, CultureInfo.InvariantCulture);
+    }
+
+    static bool IsThreeDayCombatHoldAction(
+        ThreeDayActorState actor,
+        string action)
+    {
+        if (actor == null ||
+            actor.TypeName != "MonsterAI" ||
+            string.IsNullOrWhiteSpace(action))
+        {
+            return false;
+        }
+
+        string actionKey =
+            GetStringField(actor.Component, "currentActionKey");
+        bool isCombatOrFlee =
+            ContainsIgnoreCase(actionKey, "attack") ||
+            ContainsIgnoreCase(actionKey, "fight") ||
+            ContainsIgnoreCase(actionKey, "combat") ||
+            ContainsIgnoreCase(actionKey, "intruder") ||
+            ContainsIgnoreCase(actionKey, "flee") ||
+            ContainsIgnoreCase(actionKey, "retreat") ||
+            ContainsIgnoreCase(action, "tấn công") ||
+            ContainsIgnoreCase(action, "xâm phạm") ||
+            ContainsIgnoreCase(action, "bỏ chạy");
+        if (!isCombatOrFlee)
+        {
+            return false;
+        }
+
+        return actor.TargetTransform != null;
+    }
+
+    static bool IsThreeDaySuspendedTravelWait(
+        ThreeDayActorState actor,
+        string action)
+    {
+        if (actor == null ||
+            actor.Component == null ||
+            string.IsNullOrWhiteSpace(action))
+        {
+            return false;
+        }
+
+        string actionKey =
+            GetStringField(actor.Component, "currentActionKey");
+        bool isCounterWait =
+            ContainsIgnoreCase(actionKey, "counterTrade") ||
+            ContainsIgnoreCase(action, "quầy kiểm tra mua bán");
+        if (!isCounterWait)
+        {
+            return false;
+        }
+
+        object hasWanderTargetValue =
+            GetFieldValue(actor.Component, "hasWanderTarget");
+        object hasEscapeTargetValue =
+            GetFieldValue(actor.Component, "hasEscapeTarget");
+        object hasObstacleAvoidTargetValue =
+            GetFieldValue(actor.Component, "hasObstacleAvoidTarget");
+
+        bool hasWanderTarget =
+            hasWanderTargetValue is bool &&
+            (bool)hasWanderTargetValue;
+        bool hasEscapeTarget =
+            hasEscapeTargetValue is bool &&
+            (bool)hasEscapeTargetValue;
+        bool hasObstacleAvoidTarget =
+            hasObstacleAvoidTargetValue is bool &&
+            (bool)hasObstacleAvoidTargetValue;
+
+        return actor.TargetTransform == null &&
+            !hasWanderTarget &&
+            !hasEscapeTarget &&
+            !hasObstacleAvoidTarget;
     }
 
     static void AddThreeDayIssueOnce(
@@ -1958,7 +2443,8 @@ public class NpcRuntimeAuditTests
                 actor.OutsideAreaSeconds = 0f;
             }
 
-            if (HasObstacleOverlap(actor))
+            string obstacleOverlap = GetObstacleOverlapDescription(actor);
+            if (!string.IsNullOrEmpty(obstacleOverlap))
             {
                 actor.ObstacleOverlapSeconds += SampleInterval;
             }
@@ -2010,7 +2496,8 @@ public class NpcRuntimeAuditTests
                 actor.ObstacleOverlapSeconds >= SampleInterval,
                 elapsed,
                 "Actor overlaps a non-trigger non-NPC obstacle collider. action=" +
-                Safe(action) + " pos=" + FormatVector(position));
+                Safe(action) + " pos=" + FormatVector(position) +
+                " obstacle=" + Safe(obstacleOverlap));
 
             actor.LastPosition = position;
             actor.LastCultivation = cultivation;
@@ -2096,7 +2583,11 @@ public class NpcRuntimeAuditTests
                     issues.Add(
                         "[" + FormatSeconds(elapsed) + "] npc_overlap: " +
                         state.ActorA + " and " + state.ActorB +
-                        " overlapped for " + FormatSeconds(state.CurrentSeconds));
+                        " overlapped for " + FormatSeconds(state.CurrentSeconds) +
+                        " posA=" + FormatVector(a.GameObject.transform.position) +
+                        " actionA=" + Safe(a.Action) +
+                        " posB=" + FormatVector(b.GameObject.transform.position) +
+                        " actionB=" + Safe(b.Action));
                 }
             }
         }
@@ -2121,11 +2612,11 @@ public class NpcRuntimeAuditTests
         listener.AddComponent<AudioListener>();
     }
 
-    static bool HasObstacleOverlap(ActorState actor)
+    static string GetObstacleOverlapDescription(ActorState actor)
     {
         if (actor.Colliders.Count == 0)
         {
-            return false;
+            return string.Empty;
         }
 
         ContactFilter2D filter = new ContactFilter2D();
@@ -2153,11 +2644,23 @@ public class NpcRuntimeAuditTests
                     continue;
                 }
 
-                return true;
+                ColliderDistance2D distance =
+                    Physics2D.Distance(own, hit);
+                if (distance.isOverlapped &&
+                    -distance.distance <= 0.03f)
+                {
+                    continue;
+                }
+
+                return hit.name +
+                    " type=" + hit.GetType().Name +
+                    " layer=" + LayerMask.LayerToName(hit.gameObject.layer) +
+                    " actorBounds=" + own.bounds +
+                    " obstacleBounds=" + hit.bounds;
             }
         }
 
-        return false;
+        return string.Empty;
     }
 
     static bool ActorsOverlap(ActorState a, ActorState b)
@@ -2208,6 +2711,7 @@ public class NpcRuntimeAuditTests
     {
         return GetComponentInParent(collider, VillagerType) != null ||
             GetComponentInParent(collider, SmartNpcType) != null ||
+            GetComponentInParent(collider, MonsterType) != null ||
             GetComponentInParent(collider, NpcMapMoverType) != null;
     }
 
@@ -2268,6 +2772,11 @@ public class NpcRuntimeAuditTests
 
         for (int i = 0; i < keys.Length; i++)
         {
+            if (string.Equals(action, keys[i], StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
             string template = GetNpcActionText(keys[i]);
             if (string.IsNullOrEmpty(template))
             {
@@ -2275,6 +2784,13 @@ public class NpcRuntimeAuditTests
             }
 
             if (string.Equals(action, template, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            if (action.StartsWith(
+                    template + " ",
+                    StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }

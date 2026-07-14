@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class WorldStatItemPickup : MonoBehaviour
 {
@@ -10,12 +11,13 @@ public class WorldStatItemPickup : MonoBehaviour
     public bool destroyWhenEmpty = true;
     public bool requireNpcHarvestAction;
     public bool treatAsDroppedWorldItem;
-    public float harvestDuration = 8f;
+    [FormerlySerializedAs("harvestDuration")]
+    public float harvestDurationScaledSeconds = 8f;
     public bool trackReceiverInHeavenNurture;
     public event Action OnDepleted;
 
     GameObject reservedBy;
-    float reservationExpiresAt;
+    float reservationExpiresAtScaledSeconds;
 
     public bool RequiresNpcHarvestAction()
     {
@@ -62,7 +64,9 @@ public class WorldStatItemPickup : MonoBehaviour
         return true;
     }
 
-    public bool TryReserve(GameObject reserver, float duration)
+    public bool TryReserve(
+        GameObject reserver,
+        float durationScaledSeconds)
     {
         if (reserver == null ||
             item == null ||
@@ -83,19 +87,21 @@ public class WorldStatItemPickup : MonoBehaviour
 
         if (reservedBy != null &&
             reservedBy != reserver &&
-            reservationExpiresAt > Time.time)
+            reservationExpiresAtScaledSeconds > GameTime.ScaledNowSeconds)
         {
             return false;
         }
 
         reservedBy = reserver;
-        reservationExpiresAt = Time.time + Mathf.Max(0.25f, duration);
+        reservationExpiresAtScaledSeconds =
+            GameTime.ScaledNowSeconds +
+            Mathf.Max(0.25f, durationScaledSeconds);
         if (reservationSystem != null)
         {
             reservationSystem.TryReserve(
                 gameObject,
                 reserver,
-                duration,
+                durationScaledSeconds,
                 "Pickup");
         }
 
@@ -116,7 +122,7 @@ public class WorldStatItemPickup : MonoBehaviour
 
         if (reservedBy == null ||
             reservedBy == requester ||
-            reservationExpiresAt <= Time.time)
+            reservationExpiresAtScaledSeconds <= GameTime.ScaledNowSeconds)
         {
             return false;
         }
@@ -124,7 +130,9 @@ public class WorldStatItemPickup : MonoBehaviour
         return true;
     }
 
-    public void RefreshReservation(GameObject reserver, float duration)
+    public void RefreshReservation(
+        GameObject reserver,
+        float durationScaledSeconds)
     {
         if (reserver == null)
         {
@@ -135,13 +143,15 @@ public class WorldStatItemPickup : MonoBehaviour
 
         if (reservedBy != null &&
             reservedBy != reserver &&
-            reservationExpiresAt > Time.time)
+            reservationExpiresAtScaledSeconds > GameTime.ScaledNowSeconds)
         {
             return;
         }
 
         reservedBy = reserver;
-        reservationExpiresAt = Time.time + Mathf.Max(0.25f, duration);
+        reservationExpiresAtScaledSeconds =
+            GameTime.ScaledNowSeconds +
+            Mathf.Max(0.25f, durationScaledSeconds);
 
         TargetReservationSystem reservationSystem =
             TargetReservationSystem.TryGetExistingInstance();
@@ -150,7 +160,7 @@ public class WorldStatItemPickup : MonoBehaviour
             reservationSystem.TryReserve(
                 gameObject,
                 reserver,
-                duration,
+                durationScaledSeconds,
                 "Pickup");
         }
     }
@@ -171,7 +181,7 @@ public class WorldStatItemPickup : MonoBehaviour
         }
 
         reservedBy = null;
-        reservationExpiresAt = 0f;
+        reservationExpiresAtScaledSeconds = 0f;
 
         TargetReservationSystem reservationSystem =
             TargetReservationSystem.TryGetExistingInstance();
@@ -377,10 +387,10 @@ public class WorldStatItemPickup : MonoBehaviour
     {
         if (reservedBy == null ||
             !reservedBy.activeInHierarchy ||
-            reservationExpiresAt <= Time.time)
+            reservationExpiresAtScaledSeconds <= GameTime.ScaledNowSeconds)
         {
             reservedBy = null;
-            reservationExpiresAt = 0f;
+            reservationExpiresAtScaledSeconds = 0f;
         }
     }
 

@@ -557,6 +557,104 @@
       "lists": []
     },
     {
+      "name": "inGameMenu",
+      "entries": [
+        {
+          "key": "panelTitle",
+          "value": "Bảng Điều Khiển"
+        },
+        {
+          "key": "settingsButton",
+          "value": "Cài đặt"
+        },
+        {
+          "key": "infoButton",
+          "value": "Giới thiệu"
+        },
+        {
+          "key": "exitButton",
+          "value": "Lưu game"
+        },
+        {
+          "key": "settingsTitle",
+          "value": "Cài đặt"
+        },
+        {
+          "key": "languageLabel",
+          "value": "Ngôn ngữ"
+        },
+        {
+          "key": "audioLabel",
+          "value": "Âm thanh"
+        },
+        {
+          "key": "languageVietnamese",
+          "value": "Tiếng Việt"
+        },
+        {
+          "key": "languageChinese",
+          "value": "中文"
+        },
+        {
+          "key": "languageEnglish",
+          "value": "English"
+        },
+        {
+          "key": "muteButton",
+          "value": "Tắt âm"
+        },
+        {
+          "key": "unmuteButton",
+          "value": "Bật âm"
+        },
+        {
+          "key": "closeButton",
+          "value": "Đóng"
+        },
+        {
+          "key": "aboutTitle",
+          "value": "Giới thiệu"
+        },
+        {
+          "key": "aboutBody",
+          "value": "Thiên Mệnh Chi Tử - game tu tiên RPG"
+        },
+        {
+          "key": "exitTitle",
+          "value": "Xác nhận lưu"
+        },
+        {
+          "key": "exitQuestion",
+          "value": "Bạn có muốn lưu tiến trình ngay bây giờ không?"
+        },
+        {
+          "key": "yesButton",
+          "value": "Có"
+        },
+        {
+          "key": "noButton",
+          "value": "Không"
+        },
+        {
+          "key": "bottomShop",
+          "value": "Cửa Hàng"
+        },
+        {
+          "key": "bottomInventory",
+          "value": "Trữ Vật"
+        },
+        {
+          "key": "bottomJournal",
+          "value": "Nhật Ký"
+        },
+        {
+          "key": "bottomMap",
+          "value": "Bản Đồ"
+        }
+      ],
+      "lists": []
+    },
+    {
       "name": "mainMenu",
       "entries": [
         {

@@ -6,5 +6,7 @@ public interface IDamageable
 
     Transform DamageTransform { get; }
 
+    DamageResult ReceiveDamage(DamageContext context);
+
     void TakeDamage(int damage);
 }

@@ -19,6 +19,20 @@ public class DontDestroy : MonoBehaviour
             existing != null &&
             existing != this)
         {
+            // A new PersistentScene can be loaded after returning to menu or
+            // by a test. The old Systems root is intentionally retained, but
+            // its SceneLoader.Start has already run, so explicitly resume the
+            // gameplay bootstrap before discarding the duplicate root.
+            if (key == "Systems")
+            {
+                SceneLoader existingLoader =
+                    existing.GetComponentInChildren<SceneLoader>(true);
+                if (existingLoader != null)
+                {
+                    existingLoader.EnsureGameplaySceneLoaded();
+                }
+            }
+
             Destroy(gameObject);
             return;
         }

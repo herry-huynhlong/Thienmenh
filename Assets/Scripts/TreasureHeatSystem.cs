@@ -460,27 +460,16 @@ public class TreasureHeatSystem : MonoBehaviour
                 ? 80
                 : 25;
 
-        damage = NpcCombatTechniqueSystem.ModifyOutgoingDamage(
+        DamageContext context = DamageContext.Attack(
+            damage,
             robber,
-            owner,
-            damage);
-
-        VillagerAI villager =
-            owner.GetComponent<VillagerAI>();
-
-        if (villager != null)
-        {
-            villager.TakeDamage(damage);
-            return;
-        }
-
-        SmartNpcAI smartNpc =
-            owner.GetComponent<SmartNpcAI>();
-
-        if (smartNpc != null)
-        {
-            smartNpc.TakeDamage(damage);
-        }
+            this,
+            DamageSourceCategory.Social,
+            DamageType.Physical,
+            NpcText.Dialogue("attackReasonFallback"),
+            owner.transform.position,
+            false);
+        DamageSystem.Apply(owner, context);
     }
 
     float GetRobberyChance(TreasureThreat threat)

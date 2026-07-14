@@ -40,6 +40,8 @@ public class CharacterStats : MonoBehaviour, IDamageable
     public GameObject statusBarPrefab;
 
     public bool IsDead => currentHP <= 0;
+    public int MaxHP => Mathf.Max(1, finalHP);
+    public int CurrentHP => Mathf.Clamp(currentHP, 0, MaxHP);
 
     public Transform DamageTransform => transform;
 
@@ -260,6 +262,91 @@ public class CharacterStats : MonoBehaviour, IDamageable
                     0,
                     finalHP);
         }
+
+        SyncHealthToEntityProfile();
+    }
+
+    public void RestoreHealthState(
+        int savedMaxHP,
+        int savedCurrentHP)
+    {
+        int restoredMaxHP = savedMaxHP > 0
+            ? savedMaxHP
+            : MaxHP;
+
+        finalHP = Mathf.Max(1, restoredMaxHP);
+        currentHP = Mathf.Clamp(savedCurrentHP, 0, finalHP);
+
+        double multiplier =
+            CombatStatCalculator.GetRealmMultiplier(
+                Mathf.Max(0, (int)realm),
+                Mathf.Clamp(realmStage, 1, CultivationProgression.MaxStage) - 1);
+        double unscaledBaseHP =
+            (finalHP - bonusMaxHP) /
+            System.Math.Max(0.0001d, multiplier);
+        baseMaxHP =
+            Mathf.Max(
+                1,
+                CombatStatCalculator.ClampToInt(unscaledBaseHP));
+
+        if (IsDead)
+        {
+            waitingForHeavenlyTribulation = false;
+        }
+
+        SyncHealthToEntityProfile();
+    }
+
+    public void SetCurrentHP(int value)
+    {
+        currentHP = Mathf.Clamp(value, 0, MaxHP);
+
+        if (IsDead)
+        {
+            waitingForHeavenlyTribulation = false;
+        }
+
+        SyncHealthToEntityProfile();
+    }
+
+    public int Heal(int amount)
+    {
+        if (amount <= 0)
+        {
+            return 0;
+        }
+
+        int before = CurrentHP;
+        int healedHP = amount >= MaxHP - before
+            ? MaxHP
+            : before + amount;
+        SetCurrentHP(healedHP);
+        return CurrentHP - before;
+    }
+
+    public void SyncHealthToEntityProfile()
+    {
+        VillagerAI villager = GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            villager.maxHP = MaxHP;
+            villager.currentHP = CurrentHP;
+        }
+
+        SmartNpcAI smartNpc = GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            smartNpc.maxHP = MaxHP;
+            smartNpc.currentHP = CurrentHP;
+        }
+
+        if (entityProfile == null || entityProfile.stats == null)
+        {
+            return;
+        }
+
+        entityProfile.stats.maxHP = MaxHP;
+        entityProfile.stats.currentHP = CurrentHP;
     }
 
     public void ApplyItem(StatItemData item)
@@ -301,6 +388,7 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
         currentHP =
             Mathf.Clamp(currentHP, 0, finalHP);
+        SyncHealthToEntityProfile();
     }
 
     void ApplyModifier(StatModifier modifier, int direction)
@@ -369,35 +457,56 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
     public void TakeDamage(int damage)
     {
+        DamageSystem.Apply(this, DamageContext.Legacy(damage));
+    }
+
+    public DamageResult ReceiveDamage(DamageContext context)
+    {
         if (IsDead)
         {
-            return;
+            return DamageResult.Blocked(
+                context,
+                this,
+                gameObject,
+                DamageBlockReason.TargetAlreadyDead);
         }
 
+        int healthBefore = CurrentHP;
         int finalDamage =
-            CombatStatCalculator.CalculateFinalDamageInt(
-                damage,
+            DamageSystem.CalculateFinalDamage(
+                context,
                 defense);
 
-        currentHP -= finalDamage;
-        currentHP = Mathf.Clamp(currentHP, 0, finalHP);
+        if (finalDamage <= 0)
+        {
+            return DamageResult.Blocked(
+                context,
+                this,
+                gameObject,
+                DamageBlockReason.InvalidAmount);
+        }
+
+        SetCurrentHP(currentHP - finalDamage);
 
         if (IsDead)
         {
             waitingForHeavenlyTribulation = false;
         }
 
-        if (entityProfile != null)
-        {
-            entityProfile.stats.currentHP = currentHP;
-        }
-
         if (!IsDead)
         {
             NpcCombatTechniqueSystem.ReactToDamageTaken(
                 gameObject,
-                damage);
+                finalDamage);
         }
+
+        return DamageResult.Applied(
+            context,
+            this,
+            gameObject,
+            finalDamage,
+            healthBefore,
+            CurrentHP);
     }
 
     public string GetRealmText()

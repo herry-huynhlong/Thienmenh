@@ -5,8 +5,24 @@ using UnityEngine.SceneManagement;
 public class SceneLoader : MonoBehaviour
 {
     public string fallbackGameplayScene = "Lang";
+    Coroutine gameplayLoadRoutine;
 
-    IEnumerator Start()
+    void Start()
+    {
+        EnsureGameplaySceneLoaded();
+    }
+
+    public void EnsureGameplaySceneLoaded()
+    {
+        if (!isActiveAndEnabled || gameplayLoadRoutine != null)
+        {
+            return;
+        }
+
+        gameplayLoadRoutine = StartCoroutine(LoadGameplayScene());
+    }
+
+    IEnumerator LoadGameplayScene()
     {
         string gameplaySceneName = ResolveGameplaySceneName();
         Scene gameplayScene = SceneManager.GetSceneByName(gameplaySceneName);
@@ -27,8 +43,18 @@ public class SceneLoader : MonoBehaviour
 
         if (gameplayScene.IsValid() && gameplayScene.isLoaded)
         {
-            SceneManager.SetActiveScene(gameplayScene);
+            // When the Loading overlay owns the transition, it must be the
+            // component that reveals the gameplay scene. Making Lang active
+            // here exposes it before the configured minimum loading time and
+            // leaves the overlay alive after observers see Lang as ready.
+            Scene loadingScene = SceneManager.GetSceneByName("Loading");
+            if (!loadingScene.IsValid() || !loadingScene.isLoaded)
+            {
+                SceneManager.SetActiveScene(gameplayScene);
+            }
         }
+
+        gameplayLoadRoutine = null;
     }
 
     string ResolveGameplaySceneName()

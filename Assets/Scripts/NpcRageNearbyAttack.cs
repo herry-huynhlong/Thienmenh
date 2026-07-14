@@ -247,7 +247,19 @@ public class NpcRageNearbyAttack : MonoBehaviour
             gameObject,
             target.targetTransform.gameObject);
 
-        target.damageable.TakeDamage(Mathf.Max(1, damage));
+        DamageContext context = DamageContext.Attack(
+            Mathf.Max(1, damage),
+            gameObject,
+            this,
+            DamageSourceCategory.Npc,
+            DamageType.Physical,
+            string.IsNullOrWhiteSpace(attackReason)
+                ? NpcText.Dialogue("attackReasonFallback")
+                : attackReason,
+            target.targetTransform.position,
+            false);
+        context.applyOutgoingModifiers = false;
+        DamageSystem.Apply(target.damageable, context);
     }
 
     void BroadcastRageToNearbyNpcs()

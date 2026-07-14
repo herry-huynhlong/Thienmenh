@@ -16,13 +16,13 @@ public class NpcInteractionPoint : MonoBehaviour
     [Header("Interaction")]
     public float interactionRadius = 0.45f;
     public bool spreadNpcAroundPoint = true;
-    public float standSpacing = 0.35f;
+    public float standSpacing = 0.85f;
     public bool requireClearStandSpot = true;
     public LayerMask blockedLayers = ~0;
     [Min(0.1f)]
-    public float reservationHoldSeconds = 1.25f;
+    public float reservationHoldSeconds = 15f;
     [Min(0.05f)]
-    public float reservationSpacingRadius = 0.2f;
+    public float reservationSpacingRadius = 0.75f;
 
     public Vector3 GetStandPositionFor(GameObject npc)
     {
@@ -32,6 +32,14 @@ public class NpcInteractionPoint : MonoBehaviour
         if (TryGetReservedStandSpotFor(npc, out Vector3 reservedPosition))
         {
             return reservedPosition;
+        }
+
+        // A trigger box usually represents the valid service zone. Prefer
+        // reserving distinct positions inside it so customers remain in
+        // interaction range while still respecting body spacing.
+        if (TryFindClearStandSpotInBox(seed, npc, out Vector3 boxStandPosition))
+        {
+            return boxStandPosition;
         }
 
         if (spreadNpcAroundPoint &&
@@ -207,7 +215,9 @@ public class NpcInteractionPoint : MonoBehaviour
         Collider2D[] hits =
             Physics2D.OverlapCircleAll(
                 position,
-                Mathf.Max(0.1f, Mathf.Max(interactionRadius, standSpacing)),
+                // Spacing controls distance between visitors, not the body
+                // clearance probe against nearby counter/wall colliders.
+                Mathf.Clamp(interactionRadius, 0.1f, 0.45f),
                 blockedLayers);
 
         foreach (Collider2D hit in hits)
@@ -341,7 +351,7 @@ public class NpcInteractionPoint : MonoBehaviour
         int ownerId = npc != null ? npc.GetInstanceID() : 0;
         float minSpacing = Mathf.Max(
             0.1f,
-            Mathf.Min(
+            Mathf.Max(
                 Mathf.Max(interactionRadius, standSpacing),
                 reservationSpacingRadius));
 

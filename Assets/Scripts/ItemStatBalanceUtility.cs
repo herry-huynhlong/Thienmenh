@@ -63,7 +63,8 @@ public static class ItemStatBalanceUtility
         item.armorBonus = 0;
         item.effectResistanceBonus = 0;
         item.isTemporary = false;
-        item.duration = Mathf.Max(1f, item.duration);
+        item.durationScaledSeconds =
+            Mathf.Max(1f, item.durationScaledSeconds);
         item.price = 0;
         item.equipmentSlot = EquipmentSlot.None;
         item.artifactKind = ArtifactKind.None;
@@ -197,7 +198,7 @@ public static class ItemStatBalanceUtility
         {
             item.damageBonus = Roll(item.grade, new IntRange(2, 5), new IntRange(5, 12), new IntRange(15, 35), new IntRange(50, 100), rng);
             item.isTemporary = true;
-            item.duration = RollFloat(rng, 20f, 90f);
+            item.durationScaledSeconds = RollFloat(rng, 20f, 90f);
         }
     }
 

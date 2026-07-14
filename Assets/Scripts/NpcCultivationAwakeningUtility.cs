@@ -106,7 +106,11 @@ public static class NpcCultivationAwakeningUtility
         }
 
         profile.identity.kind = EntityKind.Cultivator;
-        profile.identity.age = Mathf.Max(14, profile.identity.age);
+        int currentAge = NpcAgeUtility.GetCurrentAge(profile.identity);
+        if (currentAge < 14)
+        {
+            NpcAgeUtility.SetCurrentAge(profile.identity, 14);
+        }
 
         if (profile.talent.comprehension <= 0)
         {

@@ -16,6 +16,15 @@ public enum FarmPlotReservationKind
     Harvest
 }
 
+[System.Serializable]
+public class FarmPlotPersistentState
+{
+    public string persistentKey;
+    public int state;
+    public float plantedWorldHour = -1f;
+    public int nextPlantAllowedDay = 1;
+}
+
 public class FarmPlot : MonoBehaviour
 {
     const string CropVisualChildName = "CropVisual";
@@ -48,6 +57,10 @@ public class FarmPlot : MonoBehaviour
     [Min(1)] public int minHarvestYield = 1;
     [Min(1)] public int maxHarvestYield = 2;
 
+    [Header("Persistence")]
+    [Tooltip("Optional explicit ID. When empty, scene, hierarchy and cell form a stable save key.")]
+    [SerializeField] string persistentId;
+
     [Header("Runtime")]
     public FarmPlotState state = FarmPlotState.Empty;
     public float plantedWorldHour = -1f;
@@ -65,6 +78,7 @@ public class FarmPlot : MonoBehaviour
     public Vector3Int Cell => cell;
     public FarmPlotReservationKind ReservationKind => reservationKind;
     public GameObject ReservedBy => reservedBy;
+    public string PersistentSaveKey => GetPersistentSaveKey();
 
     public bool CanPlantNow =>
         state == FarmPlotState.Empty &&
@@ -72,6 +86,67 @@ public class FarmPlot : MonoBehaviour
 
     public bool CanHarvestNow =>
         state == FarmPlotState.Mature;
+
+    public FarmPlotPersistentState CapturePersistentState()
+    {
+        UpdateStateFromWorldTime();
+
+        return new FarmPlotPersistentState
+        {
+            persistentKey = GetPersistentSaveKey(),
+            state = (int)state,
+            plantedWorldHour = plantedWorldHour,
+            nextPlantAllowedDay = nextPlantAllowedDay
+        };
+    }
+
+    public void RestorePersistentState(FarmPlotPersistentState saved)
+    {
+        if (saved == null)
+        {
+            return;
+        }
+
+        state = (FarmPlotState)Mathf.Clamp(
+            saved.state,
+            (int)FarmPlotState.Empty,
+            (int)FarmPlotState.Cooldown);
+        plantedWorldHour = saved.plantedWorldHour;
+        nextPlantAllowedDay = Mathf.Max(1, saved.nextPlantAllowedDay);
+
+        ReleaseReservation(null);
+        UpdateStateFromWorldTime();
+        RefreshVisual();
+    }
+
+    public string GetPersistentSaveKey()
+    {
+        if (!string.IsNullOrWhiteSpace(persistentId))
+        {
+            return persistentId.Trim();
+        }
+
+        string sceneId = gameObject.scene.path;
+        if (string.IsNullOrEmpty(sceneId))
+        {
+            sceneId = gameObject.scene.name;
+        }
+
+        string hierarchyPath = "";
+        Transform current = transform;
+        while (current != null)
+        {
+            hierarchyPath =
+                current.name +
+                "#" + current.GetSiblingIndex() +
+                "/" + hierarchyPath;
+            current = current.parent;
+        }
+
+        return sceneId +
+            "|" + hierarchyPath +
+            "|cell=" + cell.x + "," + cell.y + "," + cell.z;
+    }
 
     void Awake()
     {

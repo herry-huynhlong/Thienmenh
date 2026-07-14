@@ -30,8 +30,7 @@ public class MonsterDirectionalAnimator : MonoBehaviour
     bool ShouldLogAnimationDebug()
     {
         MonsterAI monster = GetComponent<MonsterAI>();
-        return monster != null &&
-            (monster.debugFlowLogs || monster.name.IndexOf("YeuThu", System.StringComparison.OrdinalIgnoreCase) >= 0);
+        return monster != null && monster.debugFlowLogs;
     }
 
     void Awake()

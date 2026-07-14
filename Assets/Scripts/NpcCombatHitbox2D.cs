@@ -121,32 +121,6 @@ public class NpcCombatHitbox2D : MonoBehaviour
             return;
         }
 
-        int finalDamage = Mathf.Max(1, damage);
-
-        if (owner != null && useCombatTechniqueModifier)
-        {
-            finalDamage =
-                NpcCombatTechniqueSystem.ModifyOutgoingDamage(
-                    owner,
-                    targetObject,
-                    finalDamage);
-        }
-
-        if (publishHostility && owner != null)
-        {
-            Vector3 hitPosition =
-                damageable.DamageTransform != null
-                ? damageable.DamageTransform.position
-                : other.bounds.center;
-
-            NpcSocialEventBus.PublishHostility(
-                owner,
-                targetObject,
-                Mathf.Clamp(finalDamage, 1, 100),
-                hitPosition,
-                NpcText.Dialogue("combatSpellReason"));
-        }
-
         if (impactPrefab != null)
         {
             Instantiate(
@@ -155,15 +129,21 @@ public class NpcCombatHitbox2D : MonoBehaviour
                 Quaternion.identity);
         }
 
-        MonsterAI monster = damageable as MonsterAI;
-        if (monster != null)
-        {
-            monster.TakeDamage(finalDamage, owner);
-        }
-        else
-        {
-            damageable.TakeDamage(finalDamage);
-        }
+        Vector3 hitPosition = damageable.DamageTransform != null
+            ? damageable.DamageTransform.position
+            : other.bounds.center;
+        DamageContext context = DamageContext.Attack(
+            Mathf.Max(1, damage),
+            owner,
+            this,
+            DamageSourceCategory.Unknown,
+            DamageType.Physical,
+            NpcText.Dialogue("combatSpellReason"),
+            hitPosition,
+            publishHostility && owner != null);
+        context.applyOutgoingModifiers =
+            useCombatTechniqueModifier && owner != null;
+        DamageSystem.Apply(damageable, context);
 
         if (destroyAfterFirstHit)
         {

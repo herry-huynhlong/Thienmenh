@@ -377,6 +377,21 @@ public partial class MonsterAI : MonoBehaviour, IDamageable, INpcActionStateOwne
 
     void OnDisable()
     {
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        desiredVelocity = Vector2.zero;
+        currentMoveVelocity = Vector2.zero;
+        hasTarget = false;
+        patrolRecoveryAttempts = 0;
+        stuckMoveTimer = 0f;
+        if (!isDead)
+        {
+            currentAction = NpcText.Action("restTerritory");
+        }
+
         NpcCollisionRegistry.Unregister(this);
     }
 
@@ -524,17 +539,53 @@ public partial class MonsterAI : MonoBehaviour, IDamageable, INpcActionStateOwne
             return;
         }
 
+        if (!hasTarget &&
+            !HasValidTarget() &&
+            NpcActionState.FromDisplayText(currentAction).id ==
+                NpcActionId.Combat)
+        {
+            desiredVelocity = Vector2.zero;
+            currentAction = NpcText.Action("restTerritory");
+            ReturnToTerritory();
+            SetMovingAnimation(false);
+            return;
+        }
+
+        if (!hasTarget &&
+            !HasValidTarget() &&
+            currentAction == NpcText.Action("patrolTerritory"))
+        {
+            // Keep the public action consistent with the actual movement
+            // state. Combat/route cleanup can clear the patrol target between
+            // Update and FixedUpdate.
+            desiredVelocity = Vector2.zero;
+            currentAction = NpcText.Action("restTerritory");
+            SetMovingAnimation(false);
+        }
+
+        if (TryFinishPatrolMovement())
+        {
+            return;
+        }
+
+        // Recovery must advance on every physics step. When it only ran on
+        // reduced-distance update frames, its timer advanced by
+        // Time.fixedDeltaTime while most fixed frames were skipped, turning a
+        // 1.1 second recovery into a long visible stall for off-camera mobs.
+        UpdateMovementRecovery();
+
+        // Velocity is cheap and must follow the latest AI decision every
+        // physics step. Throttling this assignment leaves the old direction
+        // active for many steps and makes patrols overshoot and oscillate.
+        rb.linearVelocity = desiredVelocity;
+        currentMoveVelocity = rb.linearVelocity;
+
         if (ShouldUseReducedFixedUpdate())
         {
-            currentMoveVelocity = rb.linearVelocity;
             return;
         }
 
         NpcPerformanceOverlay.RecordMonsterFixedUpdate();
-        UpdateMovementRecovery();
-
-        rb.linearVelocity = desiredVelocity;
-        currentMoveVelocity = rb.linearVelocity;
 
         if (fallbackTransformMove &&
             desiredVelocity.sqrMagnitude > 0.0001f &&

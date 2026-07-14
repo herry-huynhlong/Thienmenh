@@ -11,6 +11,14 @@ public enum WorldEventType
     HeavenlyTribulation
 }
 
+[System.Serializable]
+public class WorldEventPersistentState
+{
+    public bool hasState = true;
+    public string currentEvent = "";
+    public float nextCheckWorldHour;
+}
+
 public class WorldEventSystem : MonoBehaviour
 {
     public static WorldEventSystem Instance { get; private set; }
@@ -22,6 +30,34 @@ public class WorldEventSystem : MonoBehaviour
     public string currentEvent = "";
 
     float nextCheckWorldHour;
+
+    public float NextCheckWorldHour => nextCheckWorldHour;
+
+    public WorldEventPersistentState CapturePersistentState()
+    {
+        return new WorldEventPersistentState
+        {
+            hasState = true,
+            currentEvent = currentEvent ?? "",
+            nextCheckWorldHour = nextCheckWorldHour
+        };
+    }
+
+    public void RestorePersistentState(WorldEventPersistentState saved)
+    {
+        if (saved == null || !saved.hasState)
+        {
+            return;
+        }
+
+        currentEvent = saved.currentEvent ?? "";
+        nextCheckWorldHour = saved.nextCheckWorldHour;
+        if (float.IsNaN(nextCheckWorldHour) ||
+            float.IsInfinity(nextCheckWorldHour))
+        {
+            ScheduleNextCheck();
+        }
+    }
 
     public void MarkCreatedAtRuntime()
     {
@@ -50,6 +86,14 @@ public class WorldEventSystem : MonoBehaviour
 
         DontDestroyOnLoad(gameObject);
         ScheduleNextCheck();
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 
     void Update()

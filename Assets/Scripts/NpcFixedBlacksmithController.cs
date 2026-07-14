@@ -808,14 +808,17 @@ public class NpcFixedBlacksmithController : MonoBehaviour
     bool HandleForging()
     {
         Transform forgePoint = GetForgePoint();
+        Vector3 forgePosition = forgePoint != null
+            ? GetSafeForgePosition(forgePoint.position)
+            : transform.position;
         float currentWorldHour = GetCurrentWorldHour();
 
         if (forgePoint != null &&
-            !IsNear(forgePoint.position))
+            !IsNear(forgePosition))
         {
             lastProgressWorldHour = currentWorldHour;
             villager.ForceJobMoveTo(
-                forgePoint.position,
+                forgePosition,
                 ForgeAction,
                 NpcMapNavigator.GetDestinationZone(forgePoint));
             return true;
@@ -1029,6 +1032,66 @@ public class NpcFixedBlacksmithController : MonoBehaviour
         return villager != null
             ? villager.workPoint
             : null;
+    }
+
+    Vector3 GetSafeForgePosition(Vector3 preferredPosition)
+    {
+        if (IsForgePositionClear(preferredPosition))
+        {
+            return preferredPosition;
+        }
+
+        for (int radiusStep = 0; radiusStep < 10; radiusStep++)
+        {
+            float radius = 0.65f + radiusStep * 0.22f;
+            for (int angleStep = 0; angleStep < 20; angleStep++)
+            {
+                float angle =
+                    (angleStep / 20f) * Mathf.PI * 2f +
+                    radiusStep * 0.19f;
+                Vector3 candidate =
+                    preferredPosition +
+                    new Vector3(
+                        Mathf.Cos(angle),
+                        Mathf.Sin(angle),
+                        0f) * radius;
+                candidate.z = preferredPosition.z;
+                if (IsForgePositionClear(candidate))
+                {
+                    return candidate;
+                }
+            }
+        }
+
+        return preferredPosition;
+    }
+
+    bool IsForgePositionClear(Vector3 position)
+    {
+        float clearanceRadius =
+            Mathf.Max(
+                0.6f,
+                GetApproachClearanceRadius() + 0.2f);
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(position, clearanceRadius);
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Collider2D hit = hits[i];
+            if (hit == null ||
+                !hit.enabled ||
+                hit.isTrigger ||
+                hit.transform.IsChildOf(transform) ||
+                hit.GetComponentInParent<VillagerAI>() != null ||
+                hit.GetComponentInParent<SmartNpcAI>() != null ||
+                hit.GetComponentInParent<MonsterAI>() != null)
+            {
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
     }
 
     Transform GetMarketPoint()

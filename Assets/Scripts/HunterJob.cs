@@ -602,7 +602,16 @@ public class HunterJob : MonoBehaviour
 
         damage = Mathf.Max(1, damage);
 
-        monster.TakeDamage(damage);
+        DamageContext context = DamageContext.Attack(
+            damage,
+            gameObject,
+            this,
+            DamageSourceCategory.Npc,
+            DamageType.Physical,
+            NpcText.Dialogue("combatMonsterReason"),
+            monster.transform.position,
+            true);
+        DamageSystem.Apply(monster, context);
 
         if (monster == null || monster.IsDead)
         {

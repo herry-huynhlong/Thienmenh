@@ -53,7 +53,26 @@ public class NpcCounterBroker : MonoBehaviour
 
     NpcInteractionPoint GetInteractionPoint(Transform point)
     {
-        return point != null ? point.GetComponent<NpcInteractionPoint>() : null;
+        if (point == null)
+        {
+            return null;
+        }
+
+        NpcInteractionPoint interactionPoint =
+            point.GetComponent<NpcInteractionPoint>();
+        if (interactionPoint == null && Application.isPlaying)
+        {
+            interactionPoint =
+                point.gameObject.AddComponent<NpcInteractionPoint>();
+            interactionPoint.interactionRadius =
+                Mathf.Max(0.45f, customerArriveDistance);
+            interactionPoint.standSpacing =
+                Mathf.Max(0.85f, multiCustomerStandRadius);
+            interactionPoint.reservationSpacingRadius = 0.75f;
+            interactionPoint.reservationHoldSeconds = 15f;
+        }
+
+        return interactionPoint;
     }
 
     void LogCounterDebug(string stage, string detail, Object context = null)
@@ -341,12 +360,11 @@ public class NpcCounterBroker : MonoBehaviour
         float standX = Mathf.Clamp(center.x, minX, maxX);
         float standY = Mathf.Clamp(center.y, minY, maxY);
 
-        if (!requireCustomerAtPoint &&
-            allowMultipleCustomers)
+        if (allowMultipleCustomers && npc != null)
         {
             float width = Mathf.Max(0.01f, maxX - minX);
             float height = Mathf.Max(0.01f, maxY - minY);
-            int hash = Mathf.Abs(name.GetHashCode());
+            int hash = Mathf.Abs(npc.GetInstanceID());
             float normalized =
                 ((hash % 1000) / 999f);
 

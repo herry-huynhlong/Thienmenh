@@ -182,6 +182,7 @@ public partial class SmartNpcAI
         }
         hasEscapeTarget = false;
         hasObstacleAvoidTarget = false;
+        unstuckRecoveryAttempts = 0;
     }
 
     void StopNpcMovement()
@@ -791,7 +792,6 @@ public partial class SmartNpcAI
             MatchesSmartAction("huntMonsterNamed", true) ||
             MatchesSmartAction("attackMonsterNamed", true) ||
             HasActiveHuntTravelIntent() ||
-            HasDirectedTravelContext() ||
             (resourceGatherer != null &&
             resourceGatherer.HasActiveGatheringFlow);
     }
@@ -891,6 +891,9 @@ public partial class SmartNpcAI
         bool shouldResetForSchedule =
             activity == NpcScheduleActivity.Idle ||
             activity == NpcScheduleActivity.Work ||
+            activity == NpcScheduleActivity.FreeHuntAndGather ||
+            activity == NpcScheduleActivity.Hunt ||
+            activity == NpcScheduleActivity.Gather ||
             activity == NpcScheduleActivity.Cultivate ||
             activity == NpcScheduleActivity.TradeBuySell ||
             activity == NpcScheduleActivity.BuyGoods ||
@@ -918,6 +921,7 @@ public partial class SmartNpcAI
         ClearHelpRequestState();
         StopMonsterRetreat();
         ClearTaskProviderVisitState();
+        ClearScheduledTask();
         currentMonsterTarget = null;
 
         if (resourceGatherer != null)

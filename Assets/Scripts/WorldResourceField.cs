@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 [System.Serializable]
 public class ResourceFieldItemEntry
@@ -29,8 +30,9 @@ public class SavedWorldResourceField
 }
 
 [RequireComponent(typeof(SpawnRegion))]
-public class WorldResourceField : MonoBehaviour
+public class WorldResourceField : MonoBehaviour, ISerializationCallbackReceiver
 {
+    const int CurrentTimeDomainVersion = 1;
     static readonly List<WorldResourceField> fields = new List<WorldResourceField>();
 
     sealed class ResolvedSavedResourceNode
@@ -63,7 +65,8 @@ public class WorldResourceField : MonoBehaviour
     public int sortingOrder = 20;
     public float visualSize = 0.45f;
     public bool requireNpcHarvestAction = true;
-    public float harvestDuration = 8f;
+    [FormerlySerializedAs("harvestDuration")]
+    public float harvestDurationScaledSeconds = 8f;
 
     [Header("Visual")]
     [Tooltip("Bật nếu muốn item spawn ra tự hiện icon đứng yên. Tắt để ẩn icon item nhưng vẫn giữ logic nhặt/thu hoạch.")]
@@ -74,24 +77,30 @@ public class WorldResourceField : MonoBehaviour
 
     [Header("Respawn")]
     public int respawnAmount = 1;
-    public float respawnDelay = 30f;
+    [FormerlySerializedAs("respawnDelay")]
+    [Tooltip("World hours before a depleted resource respawns.")]
+    public float respawnDurationWorldHours = 30f;
     public ResourceRespawnMode respawnMode = ResourceRespawnMode.AutomaticByGrade;
 
     [Header("Save")]
     public bool saveResourceState = true;
     public bool loadSavedResourceState = true;
     public string resourceSaveKey = "";
-    public float autoSaveInterval = 10f;
+    [FormerlySerializedAs("autoSaveInterval")]
+    public float autoSaveIntervalUnscaledSeconds = 10f;
 
     const string ResourceSavePrefix = "ThienMenh.Save.ResourceField.";
 
     SpawnRegion region;
     float autoSaveTimer;
+    [SerializeField, HideInInspector]
+    int timeDomainVersion;
 
     public static IReadOnlyList<WorldResourceField> Fields => fields;
 
     void OnEnable()
     {
+        MigrateTimeDomains();
         if (!fields.Contains(this))
             fields.Add(this);
     }
@@ -115,12 +124,12 @@ public class WorldResourceField : MonoBehaviour
 
     void Update()
     {
-        if (!saveResourceState || autoSaveInterval <= 0f)
+        if (!saveResourceState || autoSaveIntervalUnscaledSeconds <= 0f)
             return;
 
-        autoSaveTimer += Time.deltaTime;
+        autoSaveTimer += GameTime.UnscaledDeltaSeconds;
 
-        if (autoSaveTimer < autoSaveInterval)
+        if (autoSaveTimer < autoSaveIntervalUnscaledSeconds)
             return;
 
         autoSaveTimer = 0f;
@@ -140,16 +149,42 @@ public class WorldResourceField : MonoBehaviour
 
     void OnValidate()
     {
+        MigrateTimeDomains();
         initialSpawnCount = Mathf.Max(0, initialSpawnCount);
         colliderRadius = Mathf.Max(0.01f, colliderRadius);
         visualSize = Mathf.Max(0.05f, visualSize);
         respawnAmount = Mathf.Max(1, respawnAmount);
-        respawnDelay = Mathf.Max(0f, respawnDelay);
-        harvestDuration = Mathf.Max(0.1f, harvestDuration);
-        autoSaveInterval = Mathf.Max(0f, autoSaveInterval);
+        respawnDurationWorldHours =
+            Mathf.Max(0f, respawnDurationWorldHours);
+        harvestDurationScaledSeconds =
+            Mathf.Max(0.1f, harvestDurationScaledSeconds);
+        autoSaveIntervalUnscaledSeconds =
+            Mathf.Max(0f, autoSaveIntervalUnscaledSeconds);
 
         if (region == null)
             region = GetComponent<SpawnRegion>();
+    }
+
+    void MigrateTimeDomains()
+    {
+        if (timeDomainVersion >= CurrentTimeDomainVersion)
+        {
+            return;
+        }
+
+        respawnDurationWorldHours =
+            GameTime.LegacyScaledSecondsToWorldHours(
+                respawnDurationWorldHours);
+        timeDomainVersion = CurrentTimeDomainVersion;
+    }
+
+    public void OnBeforeSerialize()
+    {
+    }
+
+    public void OnAfterDeserialize()
+    {
+        MigrateTimeDomains();
     }
 
     void ConfigureExistingResources()
@@ -166,7 +201,8 @@ public class WorldResourceField : MonoBehaviour
             pickup.allowPlayerPickup = allowPlayerPickup;
             pickup.requireNpcHarvestAction = requireNpcHarvestAction;
             pickup.treatAsDroppedWorldItem = false;
-            pickup.harvestDuration = Mathf.Max(0.1f, harvestDuration);
+            pickup.harvestDurationScaledSeconds =
+                Mathf.Max(0.1f, harvestDurationScaledSeconds);
             pickup.destroyWhenEmpty = false;
             pickup.OnDepleted -= SaveResourceState;
             pickup.OnDepleted += SaveResourceState;
@@ -180,7 +216,8 @@ public class WorldResourceField : MonoBehaviour
 
             worldNode.SetPickup(pickup);
             worldNode.respawnAmount = Mathf.Max(1, respawnAmount);
-            worldNode.respawnDelay = respawnDelay;
+            worldNode.respawnDurationWorldHours =
+                respawnDurationWorldHours;
             worldNode.respawnMode = respawnMode;
             worldNode.respawnRegion = region;
 
@@ -272,7 +309,8 @@ public class WorldResourceField : MonoBehaviour
         pickup.allowPlayerPickup = allowPlayerPickup;
         pickup.requireNpcHarvestAction = requireNpcHarvestAction;
         pickup.treatAsDroppedWorldItem = false;
-        pickup.harvestDuration = Mathf.Max(0.1f, harvestDuration);
+        pickup.harvestDurationScaledSeconds =
+            Mathf.Max(0.1f, harvestDurationScaledSeconds);
         pickup.destroyWhenEmpty = false;
 
         WorldResourceNode node = resourceObject.GetComponent<WorldResourceNode>();
@@ -282,7 +320,7 @@ public class WorldResourceField : MonoBehaviour
 
         node.SetPickup(pickup);
         node.respawnAmount = Mathf.Max(1, respawnAmount);
-        node.respawnDelay = respawnDelay;
+        node.respawnDurationWorldHours = respawnDurationWorldHours;
         node.respawnMode = respawnMode;
         node.respawnRegion = region;
 

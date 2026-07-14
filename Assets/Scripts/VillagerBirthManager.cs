@@ -9,6 +9,7 @@ public class VillagerBirthManager : MonoBehaviour
 
     [Header("Birth")]
     public GameObject childPrefab;
+    public string childPrefabKey = "villager-child:default";
     public float dailyConceptionChance = 0.08f;
     public int pregnancyDurationDays = 3;
     public int birthCooldownDays = 90;
@@ -50,6 +51,8 @@ public class VillagerBirthManager : MonoBehaviour
 
     void Awake()
     {
+        RegisterChildPrefab();
+
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -58,6 +61,11 @@ public class VillagerBirthManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+    }
+
+    void OnValidate()
+    {
+        RegisterChildPrefab();
     }
 
     void OnDestroy()
@@ -247,9 +255,20 @@ public class VillagerBirthManager : MonoBehaviour
         NPCIdentity motherIdentity = GetIdentity(mother);
         NPCIdentity fatherIdentity = GetIdentity(father);
 
+        SpawnedWorldActor childActor =
+            spawned.GetComponent<SpawnedWorldActor>() ??
+            spawned.AddComponent<SpawnedWorldActor>();
+        string resolvedChildPrefabKey = childPrefab != null
+            ? ResolveChildPrefabKey()
+            : string.Empty;
+        childActor.ConfigureRuntimeRespawn(
+            resolvedChildPrefabKey,
+            childPrefab,
+            motherIdentity != null ? motherIdentity.npcId : string.Empty);
+
         childIdentity.gender =
             Random.value < 0.5f ? Gender.Male : Gender.Female;
-        childIdentity.age = 0;
+        childIdentity.SetCurrentAge(0);
         childIdentity.lifeStage = LifeStage.Baby;
         childIdentity.fatherId =
             fatherIdentity != null ? fatherIdentity.npcId : string.Empty;
@@ -262,6 +281,11 @@ public class VillagerBirthManager : MonoBehaviour
                 : fatherIdentity != null
                     ? fatherIdentity.homeId
                     : string.Empty;
+
+        if (childProfile.identity != null)
+        {
+            NpcAgeUtility.SetCurrentAge(childProfile.identity, 0);
+        }
 
         if (motherIdentity != null &&
             motherIdentity.visualProfile != null)
@@ -343,6 +367,27 @@ public class VillagerBirthManager : MonoBehaviour
             " và " +
             FormatName(father) +
             " vừa có thêm một đứa trẻ.");
+    }
+
+    void RegisterChildPrefab()
+    {
+        if (childPrefab == null)
+        {
+            return;
+        }
+
+        SpawnedWorldActor.RegisterRespawnPrefab(
+            ResolveChildPrefabKey(),
+            childPrefab);
+    }
+
+    string ResolveChildPrefabKey()
+    {
+        return !string.IsNullOrWhiteSpace(childPrefabKey)
+            ? childPrefabKey.Trim()
+            : SpawnedWorldActor.BuildDefaultPrefabKey(
+                "villager-child",
+                childPrefab);
     }
 
     VillagerRelationship GetOrAddRelationship(VillagerAI villager)

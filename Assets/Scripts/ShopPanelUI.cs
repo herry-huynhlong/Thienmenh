@@ -2555,7 +2555,10 @@ public class ShopPanelUI : MonoBehaviour
         if (item.isTemporary)
         {
             builder.AppendLine(
-                ItemText.Format("stats", "duration", item.duration));
+                ItemText.Format(
+                    "stats",
+                    "duration",
+                    item.durationScaledSeconds));
         }
 
         AppendUseConversionText(builder, item);

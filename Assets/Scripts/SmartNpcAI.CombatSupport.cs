@@ -24,10 +24,31 @@ public partial class SmartNpcAI
             }
             else
             {
-                currentAction = NpcText.Action("fleeMonsterArea");
                 currentTarget = null;
-                hasWanderTarget = true;
-                wanderTarget = retreatTarget;
+                float safeArrivalDistance =
+                    Mathf.Max(
+                        0.25f,
+                        escapeTargetReachDistance,
+                        targetClearRadius);
+                if (Vector2.Distance(transform.position, retreatTarget) <=
+                    safeArrivalDistance)
+                {
+                    // The NPC has reached safety. Keep the retreat lock until
+                    // its timer expires, but do not advertise a movement state
+                    // or repeatedly recreate an already completed target.
+                    hasWanderTarget = false;
+                    currentAction = NpcText.Action("rest");
+                    if (rb != null)
+                    {
+                        rb.linearVelocity = Vector2.zero;
+                    }
+                }
+                else
+                {
+                    currentAction = NpcText.Action("fleeMonsterArea");
+                    hasWanderTarget = true;
+                    wanderTarget = retreatTarget;
+                }
                 return true;
             }
         }
@@ -331,6 +352,7 @@ public partial class SmartNpcAI
             TargetReservationSystem.Instance;
         if (reservationSystem == null)
         {
+            currentMonsterTarget = monster;
             return true;
         }
 

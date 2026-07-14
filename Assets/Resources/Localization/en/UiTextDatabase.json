@@ -379,6 +379,104 @@
       "lists": []
     },
     {
+      "name": "inGameMenu",
+      "entries": [
+        {
+          "key": "panelTitle",
+          "value": "Control Panel"
+        },
+        {
+          "key": "settingsButton",
+          "value": "Settings"
+        },
+        {
+          "key": "infoButton",
+          "value": "About"
+        },
+        {
+          "key": "exitButton",
+          "value": "Save Game"
+        },
+        {
+          "key": "settingsTitle",
+          "value": "Settings"
+        },
+        {
+          "key": "languageLabel",
+          "value": "Language"
+        },
+        {
+          "key": "audioLabel",
+          "value": "Audio"
+        },
+        {
+          "key": "languageVietnamese",
+          "value": "Vietnamese"
+        },
+        {
+          "key": "languageChinese",
+          "value": "Chinese"
+        },
+        {
+          "key": "languageEnglish",
+          "value": "English"
+        },
+        {
+          "key": "muteButton",
+          "value": "Mute"
+        },
+        {
+          "key": "unmuteButton",
+          "value": "Unmute"
+        },
+        {
+          "key": "closeButton",
+          "value": "Close"
+        },
+        {
+          "key": "aboutTitle",
+          "value": "About"
+        },
+        {
+          "key": "aboutBody",
+          "value": "Destined One of Heaven - Cultivation RPG"
+        },
+        {
+          "key": "exitTitle",
+          "value": "Confirm Save"
+        },
+        {
+          "key": "exitQuestion",
+          "value": "Save your progress now?"
+        },
+        {
+          "key": "yesButton",
+          "value": "Yes"
+        },
+        {
+          "key": "noButton",
+          "value": "No"
+        },
+        {
+          "key": "bottomShop",
+          "value": "Shop"
+        },
+        {
+          "key": "bottomInventory",
+          "value": "Inventory"
+        },
+        {
+          "key": "bottomJournal",
+          "value": "Journal"
+        },
+        {
+          "key": "bottomMap",
+          "value": "Map"
+        }
+      ],
+      "lists": []
+    },
+    {
       "name": "mainMenu",
       "entries": [
         {

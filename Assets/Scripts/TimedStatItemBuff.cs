@@ -3,7 +3,7 @@ using UnityEngine;
 public class TimedStatItemBuff : MonoBehaviour
 {
     StatItemData item;
-    float endTime;
+    float endTimeScaledSeconds;
     bool active;
 
     public void StartBuff(StatItemData newItem)
@@ -15,7 +15,8 @@ public class TimedStatItemBuff : MonoBehaviour
         }
 
         item = newItem;
-        endTime = Time.time + item.duration;
+        endTimeScaledSeconds =
+            GameTime.ScaledNowSeconds + item.durationScaledSeconds;
         active = item.ApplyTo(gameObject, 1);
 
         if (!active)
@@ -31,7 +32,7 @@ public class TimedStatItemBuff : MonoBehaviour
             return;
         }
 
-        if (Time.time < endTime)
+        if (GameTime.ScaledNowSeconds < endTimeScaledSeconds)
         {
             return;
         }

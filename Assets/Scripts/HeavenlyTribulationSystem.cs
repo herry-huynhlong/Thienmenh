@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public enum TribulationTargetMotionMode
 {
@@ -15,7 +16,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 
     struct PillProtectionState
     {
-        public float expiresAt;
+        public float expiresAtScaledSeconds;
         public float damageReduction;
     }
 
@@ -35,13 +36,15 @@ public class HeavenlyTribulationSystem : MonoBehaviour
     public TribulationTargetMotionMode targetMotionMode = TribulationTargetMotionMode.KeepTargetStill;
     public int baseLightningCount = 2;
     public int lightningCountPerMajorRealm = 1;
-    public float lightningInterval = 0.45f;
+    [FormerlySerializedAs("lightningInterval")]
+    public float lightningIntervalScaledSeconds = 0.45f;
     public float strikeRadius = 1.8f;
     public float openAreaSearchRadius = 8f;
     public float openAreaClearRadius = 0.9f;
     public int damagePerStrike = 35;
     public int finalStrikeDamage = 70;
-    public float pillProtectionDuration = 30f;
+    [FormerlySerializedAs("pillProtectionDuration")]
+    public float pillProtectionDurationScaledSeconds = 30f;
     public float damageGrowthPerMajorRealm = 0.35f;
     public float finalStrikeGrowthPerMajorRealm = 0.45f;
 
@@ -52,7 +55,8 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 
     [Header("Visual Fallback Cũ")]
     public float cloudHeight = 3.2f;
-    public float boltLife = 0.22f;
+    [FormerlySerializedAs("boltLife")]
+    public float boltLifetimeScaledSeconds = 0.22f;
     public float boltWidth = 0.1f;
     public Color boltCoreColor = Color.white;
     public Color boltOuterColor = new Color(0.25f, 0.85f, 1f, 1f);
@@ -177,14 +181,16 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 
         HeavenlyTribulationSystem system = Instance;
 
-        float duration = system != null
-            ? system.pillProtectionDuration
+        float durationScaledSeconds = system != null
+            ? system.pillProtectionDurationScaledSeconds
             : 30f;
 
         pillProtectionUntil[target.GetInstanceID()] =
             new PillProtectionState
             {
-                expiresAt = Time.time + Mathf.Max(1f, duration),
+                expiresAtScaledSeconds =
+                    GameTime.ScaledNowSeconds +
+                    Mathf.Max(1f, durationScaledSeconds),
                 damageReduction = GetPillDamageReduction(item)
             };
     }
@@ -257,7 +263,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 
         yield return PlayCloudGathering(center, runtime);
 
-        yield return new WaitForSeconds(0.35f);
+        yield return GameTime.WaitForScaledSeconds(0.35f);
 
         HeavenSystem heaven = HeavenSystem.Instance;
         int count = Mathf.Max(1, runtime.lightningCount);
@@ -277,7 +283,8 @@ public class HeavenlyTribulationSystem : MonoBehaviour
                 strikeCenter,
                 runtime.damagePerStrike);
 
-            yield return new WaitForSeconds(Mathf.Max(0.05f, lightningInterval));
+            yield return GameTime.WaitForScaledSeconds(
+                Mathf.Max(0.05f, lightningIntervalScaledSeconds));
         }
 
         if (target == null || damageable.IsDead)
@@ -293,7 +300,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
             strikeCenter,
             runtime.finalStrikeDamage);
 
-        yield return new WaitForSeconds(0.1f);
+        yield return GameTime.WaitForScaledSeconds(0.1f);
 
         if (target == null || damageable.IsDead)
         {
@@ -699,7 +706,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
             return false;
         }
 
-        if (Time.time > state.expiresAt)
+        if (GameTime.ScaledNowSeconds > state.expiresAtScaledSeconds)
         {
             pillProtectionUntil.Remove(key);
             return false;
@@ -750,7 +757,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
                     0f));
         }
 
-        yield return new WaitForSeconds(0.45f);
+        yield return GameTime.WaitForScaledSeconds(0.45f);
 
         if (cloudObject != null)
         {
@@ -842,7 +849,13 @@ public class HeavenlyTribulationSystem : MonoBehaviour
                 continue;
             }
 
-            damageable.TakeDamage(Mathf.Max(1, damage));
+            DamageContext context = DamageContext.Environment(
+                Mathf.Max(1, damage),
+                this,
+                DamageType.HeavenlyTribulation,
+                "heavenly_tribulation_strike",
+                position);
+            DamageSystem.Apply(damageable, context);
         }
     }
 
@@ -917,7 +930,8 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 
         PlayImpactRing(impactPosition);
 
-        yield return new WaitForSeconds(Mathf.Max(0.05f, boltLife));
+        yield return GameTime.WaitForScaledSeconds(
+            Mathf.Max(0.05f, boltLifetimeScaledSeconds));
 
         if (lightningObject != null)
         {
@@ -1011,7 +1025,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
                     0f));
         }
 
-        Destroy(ringObject, boltLife);
+        Destroy(ringObject, boltLifetimeScaledSeconds);
     }
 
     void SetupLineRenderer(

@@ -68,6 +68,10 @@
           "value": "Item"
         },
         {
+          "key": "resource",
+          "value": "resource"
+        },
+        {
           "key": "realmStageFormat",
           "value": "{0} Stage {1}"
         }
@@ -573,6 +577,22 @@
         {
           "key": "fixedBlacksmithBuyingMaterials",
           "value": "Buying forging materials"
+        },
+        {
+          "key": "gatherResourceCountdown",
+          "value": "Gathering {0} ({1}s)"
+        },
+        {
+          "key": "catchFishCountdown",
+          "value": "Catching {0} ({1}s)"
+        },
+        {
+          "key": "harvestResourceCountdown",
+          "value": "Harvesting {0} ({1}s)"
+        },
+        {
+          "key": "butcherResourceCountdown",
+          "value": "Butchering {0} ({1}s)"
         },
         {
           "key": "fixedBlacksmithNotEnoughMoneyToBuy",

@@ -1,15 +1,18 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Collider2D))]
+[RequireComponent(typeof(BoxCollider2D))]
 public class NpcTeleportGate : MonoBehaviour
 {
     static readonly List<NpcTeleportGate> gates =
         new List<NpcTeleportGate>();
-    static readonly Dictionary<int, float> npcTeleportCooldowns =
-        new Dictionary<int, float>();
-    static readonly Dictionary<int, float> npcTeleportReentryLocks =
-        new Dictionary<int, float>();
+    // Cooldowns must be scoped to one actor + one gate. An actor-only key
+    // blocks the next gate in a valid multi-hop route and leaves the NPC
+    // standing at that gate until the global cooldown expires.
+    static readonly Dictionary<long, float> npcTeleportCooldowns =
+        new Dictionary<long, float>();
+    static readonly Dictionary<long, float> npcTeleportReentryLocks =
+        new Dictionary<long, float>();
     static readonly Dictionary<int, float> npcGateDebugTimes =
         new Dictionary<int, float>();
     static readonly Dictionary<int, string> npcGateDebugSignatures =
@@ -185,8 +188,8 @@ public class NpcTeleportGate : MonoBehaviour
             return false;
         }
 
-        int cooldownKey = GetNpcCooldownKey(actor);
-        if (IsNpcReentryLocked(cooldownKey))
+        long cooldownKey = GetNpcCooldownKey(actor);
+        if (IsNpcReentryLocked(cooldownKey, actor))
         {
             LogGateDebug(
                 actor,
@@ -436,8 +439,8 @@ public class NpcTeleportGate : MonoBehaviour
             return;
         }
 
-        int cooldownKey = GetNpcCooldownKey(actor);
-        if (IsNpcReentryLocked(cooldownKey))
+        long cooldownKey = GetNpcCooldownKey(actor);
+        if (IsNpcReentryLocked(cooldownKey, actor))
         {
             return;
         }
@@ -535,25 +538,65 @@ public class NpcTeleportGate : MonoBehaviour
             out _);
     }
 
-    static int GetNpcCooldownKey(GameObject actor)
+    long GetNpcCooldownKey(GameObject actor)
     {
-        return actor != null ? actor.GetInstanceID() : 0;
+        if (actor == null)
+        {
+            return 0L;
+        }
+
+        return ((long)(uint)actor.GetInstanceID() << 32) |
+            (uint)GetInstanceID();
     }
 
-    static bool IsNpcReentryLocked(int cooldownKey)
+    bool IsNpcReentryLocked(long cooldownKey, GameObject actor)
     {
         if (npcTeleportReentryLocks.TryGetValue(
                 cooldownKey,
-                out float reentryUnlockedAt) &&
-            Time.time < reentryUnlockedAt)
+                out float reentryUnlockedAt))
+        {
+            // The lock is a short debounce, not an occupancy lock. The latter
+            // becomes permanent when an NPC returns to this gate later: no
+            // check occurs while it is away, so the old entry is never cleared.
+            // The longer per-gate cooldown still protects repeated use.
+            if (Time.time < reentryUnlockedAt)
+            {
+                return true;
+            }
+
+            npcTeleportReentryLocks.Remove(cooldownKey);
+        }
+
+        return false;
+    }
+
+    bool IsActorInsideGate(GameObject actor)
+    {
+        Collider2D gateCollider = GetComponent<Collider2D>();
+        if (actor == null || gateCollider == null || !gateCollider.enabled)
+        {
+            return false;
+        }
+
+        if (gateCollider.OverlapPoint(actor.transform.position))
         {
             return true;
         }
 
-        if (npcTeleportReentryLocks.ContainsKey(cooldownKey) &&
-            Time.time >= npcTeleportReentryLocks[cooldownKey])
+        Collider2D[] actorColliders =
+            actor.GetComponentsInChildren<Collider2D>();
+        for (int i = 0; i < actorColliders.Length; i++)
         {
-            npcTeleportReentryLocks.Remove(cooldownKey);
+            Collider2D actorCollider = actorColliders[i];
+            if (actorCollider == null || !actorCollider.enabled)
+            {
+                continue;
+            }
+
+            if (gateCollider.Distance(actorCollider).isOverlapped)
+            {
+                return true;
+            }
         }
 
         return false;
@@ -731,6 +774,43 @@ public class NpcTeleportGate : MonoBehaviour
     void OnDisable()
     {
         gates.Remove(this);
+        RemoveRuntimeStateForGate(GetInstanceID());
+    }
+
+    static void RemoveRuntimeStateForGate(int gateInstanceId)
+    {
+        uint gateKey = (uint)gateInstanceId;
+        RemoveKeysForGate(npcTeleportCooldowns, gateKey);
+        RemoveKeysForGate(npcTeleportReentryLocks, gateKey);
+    }
+
+    static void RemoveKeysForGate(
+        Dictionary<long, float> source,
+        uint gateKey)
+    {
+        List<long> remove = new List<long>();
+        foreach (KeyValuePair<long, float> pair in source)
+        {
+            if ((uint)pair.Key == gateKey)
+            {
+                remove.Add(pair.Key);
+            }
+        }
+
+        for (int i = 0; i < remove.Count; i++)
+        {
+            source.Remove(remove[i]);
+        }
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetRuntimeState()
+    {
+        gates.Clear();
+        npcTeleportCooldowns.Clear();
+        npcTeleportReentryLocks.Clear();
+        npcGateDebugTimes.Clear();
+        npcGateDebugSignatures.Clear();
     }
 
 }

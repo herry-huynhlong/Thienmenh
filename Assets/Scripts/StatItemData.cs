@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -258,7 +259,8 @@ public class StatItemData : ScriptableObject
 
     [Header("Buff Tạm Thời")]
     public bool isTemporary;
-    public float duration = 10f;
+    [FormerlySerializedAs("duration")]
+    public float durationScaledSeconds = 10f;
 
     [Header("Tùy Chỉnh Thêm")]
     public List<StatModifier> modifiers =

@@ -215,21 +215,19 @@ public partial class MonsterAI
 
         Transform damagedTarget = currentTarget;
         IDamageable damagedTargetDamageable = currentTargetDamageable;
-        int finalDamage =
-            NpcCombatTechniqueSystem.ModifyOutgoingDamage(
-                gameObject,
-                damagedTarget != null ? damagedTarget.gameObject : null,
-                damage);
-
-        if (damagedTarget != null)
-        {
-            NpcSocialEventBus.PublishHostility(
-                gameObject,
-                damagedTarget.gameObject,
-                Mathf.Clamp(finalDamage, 1, 100),
-                damagedTarget.position,
-                NpcText.Dialogue("combatBeastReason"));
-        }
+        DamageContext context = DamageContext.Attack(
+            damage,
+            gameObject,
+            this,
+            DamageSourceCategory.Monster,
+            DamageType.Physical,
+            NpcText.Dialogue("combatBeastReason"),
+            damagedTarget != null ? damagedTarget.position : transform.position,
+            true);
+        DamageResult result = DamageSystem.Apply(
+            damagedTargetDamageable,
+            context);
+        int finalDamage = result.finalDamage;
 
         DebugFlow(
             "Combat",
@@ -241,17 +239,6 @@ public partial class MonsterAI
             surfaceDistance.ToString("0.00") +
             " centerDistance=" +
             centerDistance.ToString("0.00"));
-
-        SmartNpcAI smartNpc =
-            damagedTargetDamageable as SmartNpcAI;
-        if (smartNpc != null)
-        {
-            smartNpc.TakeDamage(finalDamage, gameObject);
-        }
-        else
-        {
-            damagedTargetDamageable.TakeDamage(finalDamage);
-        }
 
         if (damagedTargetDamageable.IsDead)
         {
@@ -290,27 +277,51 @@ public partial class MonsterAI
 
     public void TakeDamage(int damageAmount)
     {
-        TakeDamage(damageAmount, null);
+        DamageSystem.Apply(
+            this,
+            DamageContext.Legacy(damageAmount));
     }
 
     public void TakeDamage(int damageAmount, GameObject attackerObject)
     {
+        DamageSystem.Apply(
+            this,
+            DamageContext.Legacy(damageAmount, attackerObject));
+    }
+
+    public DamageResult ReceiveDamage(DamageContext context)
+    {
         if (isDead ||
             isRespawning)
         {
-            return;
+            return DamageResult.Blocked(
+                context,
+                this,
+                gameObject,
+                DamageBlockReason.TargetAlreadyDead);
         }
 
-        lastDamageSource = attackerObject;
+        lastDamageSource = context.attacker;
         lastSmartNpcAttacker =
-            attackerObject != null
-                ? attackerObject.GetComponentInParent<SmartNpcAI>()
+            context.attacker != null
+                ? context.attacker.GetComponentInParent<SmartNpcAI>()
                 : null;
 
+        int healthBefore = currentHP;
         int finalDamage =
-            CombatStatCalculator.CalculateFinalDamageInt(
-                damageAmount,
+            DamageSystem.CalculateFinalDamage(
+                context,
                 defense);
+
+        if (finalDamage <= 0)
+        {
+            return DamageResult.Blocked(
+                context,
+                this,
+                gameObject,
+                DamageBlockReason.InvalidAmount);
+        }
+
         currentHP = Mathf.Clamp(currentHP - finalDamage, 0, maxHP);
 
         if (entityProfile != null)
@@ -323,7 +334,7 @@ public partial class MonsterAI
         {
             NpcCombatTechniqueSystem.ReactToDamageTaken(
                 gameObject,
-                damageAmount);
+                finalDamage);
         }
 
         if (animator != null &&
@@ -337,5 +348,13 @@ public partial class MonsterAI
         {
             Die();
         }
+
+        return DamageResult.Applied(
+            context,
+            this,
+            gameObject,
+            finalDamage,
+            healthBefore,
+            currentHP);
     }
 }

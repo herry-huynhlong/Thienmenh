@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class HeavenSystem : MonoBehaviour
@@ -73,19 +74,34 @@ public class HeavenSystem : MonoBehaviour
                 position,
                 punishmentRadius,
                 damageLayers);
+        HashSet<GameObject> damagedTargets = new HashSet<GameObject>();
 
         foreach (Collider2D hit in hits)
         {
-            IDamageable damageable =
-                hit.GetComponentInParent<IDamageable>();
-
-            if (damageable == null ||
+            if (hit == null ||
+                !DamageSystem.TryResolveReceiver(
+                    hit.gameObject,
+                    out IDamageable damageable) ||
                 damageable.IsDead)
             {
                 continue;
             }
 
-            damageable.TakeDamage(damage);
+            GameObject target = damageable.DamageTransform != null
+                ? damageable.DamageTransform.gameObject
+                : hit.gameObject;
+            if (target == null || !damagedTargets.Add(target))
+            {
+                continue;
+            }
+
+            DamageContext context = DamageContext.Environment(
+                damage,
+                this,
+                DamageType.HeavenlyTribulation,
+                "heaven_punishment",
+                position);
+            DamageSystem.Apply(damageable, context);
         }
     }
 

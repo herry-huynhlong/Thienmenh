@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Collider2D))]
@@ -34,6 +35,7 @@ public class RangedProjectile2D : MonoBehaviour
     private Vector2 moveDir;
     private GameObject owner;
     private bool initialized;
+    readonly HashSet<GameObject> damagedTargets = new HashSet<GameObject>();
 
     public void Init(Vector2 direction, GameObject ownerObject, int skillDamage)
     {
@@ -106,6 +108,8 @@ public class RangedProjectile2D : MonoBehaviour
 
     private void Explode(Vector3 hitPosition)
     {
+        damagedTargets.Clear();
+
         if (impactPrefab != null)
         {
             Instantiate(impactPrefab, hitPosition, Quaternion.identity);
@@ -161,34 +165,30 @@ public class RangedProjectile2D : MonoBehaviour
             return;
         }
 
-        IDamageable damageable =
-            target.GetComponentInParent<IDamageable>();
-
-        if (damageable != null && !damageable.IsDead)
+        if (DamageSystem.TryResolveReceiver(
+                target,
+                out IDamageable damageable) &&
+            !damageable.IsDead)
         {
-            if (owner != null &&
-                BicanhSessionManager.AreDungeonParticipantsAllies(owner, target))
+            GameObject targetObject = damageable.DamageTransform != null
+                ? damageable.DamageTransform.gameObject
+                : target;
+            if (targetObject == null || !damagedTargets.Add(targetObject))
             {
                 return;
             }
 
-            MonsterAI monster = damageable as MonsterAI;
-            if (monster != null)
-            {
-                monster.TakeDamage(damage, owner);
-                return;
-            }
-
-            damageable.TakeDamage(damage);
+            DamageContext context = DamageContext.Attack(
+                damage,
+                owner,
+                this,
+                DamageSourceCategory.Unknown,
+                DamageType.Magical,
+                NpcText.Dialogue("combatSpellReason"),
+                transform.position,
+                owner != null);
+            DamageSystem.Apply(damageable, context);
             return;
-        }
-
-        CharacterStats stats =
-            target.GetComponentInParent<CharacterStats>();
-
-        if (stats != null)
-        {
-            stats.TakeDamage(damage);
         }
     }
 

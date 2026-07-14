@@ -1,12 +1,22 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-[DefaultExecutionOrder(1100)]
-public class WeatherAccumulationSystem : MonoBehaviour
+[System.Serializable]
+public class WeatherAccumulationPersistentState
 {
+    public bool hasState = true;
+    public float rainAccumulation;
+    public float snowAccumulation;
+}
+
+[DefaultExecutionOrder(1100)]
+public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackReceiver
+{
+    const int CurrentTimeDomainVersion = 1;
     class PuddleEntry
     {
         public GameObject gameObject;
@@ -34,8 +44,10 @@ public class WeatherAccumulationSystem : MonoBehaviour
 
     [Header("Rain Accumulation")]
     public int maxPuddles = 8;
-    public float rainBuildSeconds = 18f;
-    public float rainFadeSeconds = 10f;
+    [FormerlySerializedAs("rainBuildSeconds")]
+    public float rainBuildDurationWorldHours = 18f;
+    [FormerlySerializedAs("rainFadeSeconds")]
+    public float rainFadeDurationWorldHours = 10f;
     public float thunderBuildMultiplier = 1.5f;
     public float puddleSpawnPadding = 0.8f;
     public float puddleMinSpacing = 1.4f;
@@ -48,8 +60,10 @@ public class WeatherAccumulationSystem : MonoBehaviour
 
     [Header("Snow Accumulation")]
     public int maxSnowCaps = 10;
-    public float snowBuildSeconds = 22f;
-    public float snowFadeSeconds = 16f;
+    [FormerlySerializedAs("snowBuildSeconds")]
+    public float snowBuildDurationWorldHours = 22f;
+    [FormerlySerializedAs("snowFadeSeconds")]
+    public float snowFadeDurationWorldHours = 16f;
     public float snowCapMaxAlpha = 0.92f;
     public float snowTopInsetNormalized = 0.08f;
     public int snowObjectLayer = 1;
@@ -64,7 +78,38 @@ public class WeatherAccumulationSystem : MonoBehaviour
     Sprite[] snowSprites;
     float rainAccumulation;
     float snowAccumulation;
-    float refreshTimer;
+    float refreshTimerScaledSeconds;
+    double lastObservedWorldHour;
+    bool hasObservedWorldHour;
+    [SerializeField, HideInInspector]
+    int timeDomainVersion;
+
+    public float RainAccumulation => rainAccumulation;
+    public float SnowAccumulation => snowAccumulation;
+
+    public WeatherAccumulationPersistentState CapturePersistentState()
+    {
+        return new WeatherAccumulationPersistentState
+        {
+            hasState = true,
+            rainAccumulation = rainAccumulation,
+            snowAccumulation = snowAccumulation
+        };
+    }
+
+    public void RestorePersistentState(
+        WeatherAccumulationPersistentState saved)
+    {
+        if (saved == null || !saved.hasState)
+        {
+            return;
+        }
+
+        rainAccumulation = Mathf.Clamp01(saved.rainAccumulation);
+        snowAccumulation = Mathf.Clamp01(saved.snowAccumulation);
+        refreshTimerScaledSeconds = 0f;
+        ResetWorldHourCursor();
+    }
 
     public void MarkCreatedAtRuntime()
     {
@@ -73,6 +118,8 @@ public class WeatherAccumulationSystem : MonoBehaviour
 
     void Awake()
     {
+        MigrateTimeDomains();
+
         if (Instance != null && Instance != this)
         {
             if (Instance.createdAtRuntime && !createdAtRuntime)
@@ -95,11 +142,21 @@ public class WeatherAccumulationSystem : MonoBehaviour
         EnsureDefaultSnowAnchorLayers();
         puddleSprites = LoadSprites(puddleResourcePath, puddleEditorAssetPath);
         snowSprites = LoadSprites(snowResourcePath, snowEditorAssetPath);
+        ResetWorldHourCursor();
     }
 
     void OnValidate()
     {
+        MigrateTimeDomains();
         EnsureDefaultSnowAnchorLayers();
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 
     void Update()
@@ -109,26 +166,27 @@ public class WeatherAccumulationSystem : MonoBehaviour
             targetCamera = Camera.main;
         }
 
-        UpdateAccumulation();
-        UpdateEntries(Time.deltaTime);
+        UpdateAccumulation(ConsumeElapsedWorldHours());
+        UpdateEntries(GameTime.ScaledDeltaSeconds);
 
-        refreshTimer -= Time.deltaTime;
-        if (refreshTimer <= 0f)
+        refreshTimerScaledSeconds -= GameTime.ScaledDeltaSeconds;
+        if (refreshTimerScaledSeconds <= 0f)
         {
-            refreshTimer = 1.2f;
+            refreshTimerScaledSeconds = 1.2f;
             RefreshObstacleRenderers();
             SyncPuddles();
             SyncSnowCaps();
         }
     }
 
-    void UpdateAccumulation()
+    void UpdateAccumulation(float elapsedWorldHours)
     {
         WeatherSystem weather = WeatherSystem.Instance;
         WorldWeather currentWeather =
             weather != null ? weather.CurrentWeather : WorldWeather.Clear;
 
-        float rainBuildRate = 1f / Mathf.Max(1f, rainBuildSeconds);
+        float rainBuildRate =
+            1f / Mathf.Max(0.01f, rainBuildDurationWorldHours);
         if (currentWeather == WorldWeather.Thunder)
         {
             rainBuildRate *= Mathf.Max(1f, thunderBuildMultiplier);
@@ -142,21 +200,87 @@ public class WeatherAccumulationSystem : MonoBehaviour
         float rainChangeRate =
             rainTarget > rainAccumulation
                 ? rainBuildRate
-                : 1f / Mathf.Max(1f, rainFadeSeconds);
+                : 1f / Mathf.Max(0.01f, rainFadeDurationWorldHours);
         rainAccumulation = Mathf.MoveTowards(
             rainAccumulation,
             rainTarget,
-            Time.deltaTime * rainChangeRate);
+            elapsedWorldHours * rainChangeRate);
 
         float snowTarget = currentWeather == WorldWeather.Snow ? 1f : 0f;
         float snowChangeRate =
             snowTarget > snowAccumulation
-                ? 1f / Mathf.Max(1f, snowBuildSeconds)
-                : 1f / Mathf.Max(1f, snowFadeSeconds);
+                ? 1f / Mathf.Max(0.01f, snowBuildDurationWorldHours)
+                : 1f / Mathf.Max(0.01f, snowFadeDurationWorldHours);
         snowAccumulation = Mathf.MoveTowards(
             snowAccumulation,
             snowTarget,
-            Time.deltaTime * snowChangeRate);
+            elapsedWorldHours * snowChangeRate);
+    }
+
+    float ConsumeElapsedWorldHours()
+    {
+        if (GameTime.TryGetCurrentWorldHour(out double currentWorldHour))
+        {
+            if (!hasObservedWorldHour)
+            {
+                lastObservedWorldHour = currentWorldHour;
+                hasObservedWorldHour = true;
+                return 0f;
+            }
+
+            double elapsed = currentWorldHour - lastObservedWorldHour;
+            lastObservedWorldHour = currentWorldHour;
+            if (elapsed <= 0d)
+            {
+                return 0f;
+            }
+
+            return elapsed >= float.MaxValue
+                ? float.MaxValue
+                : (float)elapsed;
+        }
+
+        hasObservedWorldHour = false;
+        return GameTime.ScaledSecondsToWorldHours(
+            GameTime.ScaledDeltaSeconds,
+            GameTime.LegacyRealSecondsPerWorldDay);
+    }
+
+    void ResetWorldHourCursor()
+    {
+        hasObservedWorldHour =
+            GameTime.TryGetCurrentWorldHour(out lastObservedWorldHour);
+    }
+
+    void MigrateTimeDomains()
+    {
+        if (timeDomainVersion >= CurrentTimeDomainVersion)
+        {
+            return;
+        }
+
+        rainBuildDurationWorldHours =
+            GameTime.LegacyScaledSecondsToWorldHours(
+                rainBuildDurationWorldHours);
+        rainFadeDurationWorldHours =
+            GameTime.LegacyScaledSecondsToWorldHours(
+                rainFadeDurationWorldHours);
+        snowBuildDurationWorldHours =
+            GameTime.LegacyScaledSecondsToWorldHours(
+                snowBuildDurationWorldHours);
+        snowFadeDurationWorldHours =
+            GameTime.LegacyScaledSecondsToWorldHours(
+                snowFadeDurationWorldHours);
+        timeDomainVersion = CurrentTimeDomainVersion;
+    }
+
+    public void OnBeforeSerialize()
+    {
+    }
+
+    public void OnAfterDeserialize()
+    {
+        MigrateTimeDomains();
     }
 
     void RefreshObstacleRenderers()

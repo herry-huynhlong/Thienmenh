@@ -30,9 +30,14 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
     public void TakeDamage(int damage)
     {
+        DamageSystem.Apply(this, DamageContext.Legacy(damage));
+    }
+
+    public DamageResult ReceiveDamage(DamageContext context)
+    {
         if (characterStats != null)
         {
-            characterStats.TakeDamage(damage);
+            DamageResult result = characterStats.ReceiveDamage(context);
             SyncFromCharacterStats();
 
             if (characterStats.IsDead)
@@ -40,14 +45,36 @@ public class PlayerHealth : MonoBehaviour, IDamageable
                 Die();
             }
 
-            return;
+            result.receiver = this;
+            result.target = gameObject;
+            return result;
         }
 
-        currentHP -= damage;
+        if (IsDead)
+        {
+            return DamageResult.Blocked(
+                context,
+                this,
+                gameObject,
+                DamageBlockReason.TargetAlreadyDead);
+        }
+
+        int healthBefore = currentHP;
+        int finalDamage = DamageSystem.CalculateFinalDamage(context, 0);
+        if (finalDamage <= 0)
+        {
+            return DamageResult.Blocked(
+                context,
+                this,
+                gameObject,
+                DamageBlockReason.InvalidAmount);
+        }
+
+        currentHP = Mathf.Clamp(currentHP - finalDamage, 0, maxHP);
 
         Debug.Log(
             "Player bi tru " +
-            damage +
+            finalDamage +
             " máu");
 
         Debug.Log(
@@ -58,6 +85,14 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         {
             Die();
         }
+
+        return DamageResult.Applied(
+            context,
+            this,
+            gameObject,
+            finalDamage,
+            healthBefore,
+            currentHP);
     }
 
     public void ApplyItem(StatItemData item)

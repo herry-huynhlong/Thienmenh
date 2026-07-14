@@ -19686,12 +19686,12 @@ MonoBehaviour:
     createdTime: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
-  debugFlowLogs: 1
-  runtimeTraceEnabled: 1
+  debugFlowLogs: 0
+  runtimeTraceEnabled: 0
   runtimeTraceTarget: 
-  runtimeTraceEveryUpdate: 1
-  runtimeTraceEveryThink: 1
-  runtimeTraceScheduleChanges: 1
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 0
+  runtimeTraceScheduleChanges: 0
 --- !u!114 &263152473
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19734,7 +19734,7 @@ MonoBehaviour:
   invertSideFlip: 0
   invertVerticalFacing: 1
   directionDeadZone: 0.08
-  debugVisualLogs: 1
+  debugVisualLogs: 0
   walkDownState: 
   walkUpState: 
   walkSideState: 
@@ -20492,7 +20492,7 @@ MonoBehaviour:
   spreadVisitorsAroundProvider: 1
   providerVisitorStandRadius: 0.65
   taskTravelProgressEpsilon: 0.12
-  taskTravelNoProgressTimeout: 8
+  taskTravelNoProgressTimeout: 3
   taskTravelMinStageDuration: 10
   taskTravelMaxStageDuration: 45
   taskTravelDurationMultiplier: 4
@@ -20834,8 +20834,8 @@ MonoBehaviour:
   runtimeTraceEnabled: 0
   runtimeTraceTarget: 
   runtimeTraceEveryUpdate: 0
-  runtimeTraceEveryThink: 1
-  runtimeTraceScheduleChanges: 1
+  runtimeTraceEveryThink: 0
+  runtimeTraceScheduleChanges: 0
 --- !u!114 &283373232
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28814,7 +28814,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5195751311248428072, guid: 92958fe186ce34f4a8c491a2608f5ebb, type: 3}
       propertyPath: debugFlowLogs
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5195751311248428072, guid: 92958fe186ce34f4a8c491a2608f5ebb, type: 3}
       propertyPath: effectResistance
@@ -29522,7 +29522,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6741253222464201965, guid: 8e41f9530412aaf4a90844e9eb20d0f9, type: 3}
       propertyPath: debugFlowLogs
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6741253222464201965, guid: 8e41f9530412aaf4a90844e9eb20d0f9, type: 3}
       propertyPath: fireballPrefab
@@ -30457,7 +30457,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -32185,7 +32185,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5556605198782824549, guid: 74c520fd88f00c040b5ed9f480030e28, type: 3}
       propertyPath: debugFlowLogs
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5556605198782824549, guid: 74c520fd88f00c040b5ed9f480030e28, type: 3}
       propertyPath: territoryRadius
@@ -33322,7 +33322,7 @@ MonoBehaviour:
   currentActionKey: idle
   currentTarget: {fileID: 0}
   debugWorkTarget: 
-  debugWorkLogs: 1
+  debugWorkLogs: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &546560092
 MonoBehaviour:
@@ -43738,7 +43738,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5556605198782824549, guid: 74c520fd88f00c040b5ed9f480030e28, type: 3}
       propertyPath: debugFlowLogs
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5556605198782824549, guid: 74c520fd88f00c040b5ed9f480030e28, type: 3}
       propertyPath: territoryRadius
@@ -57520,7 +57520,7 @@ MonoBehaviour:
   currentActionKey: idle
   currentTarget: {fileID: 0}
   debugWorkTarget: 
-  debugWorkLogs: 1
+  debugWorkLogs: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &954560967
 MonoBehaviour:
@@ -58318,12 +58318,12 @@ MonoBehaviour:
     createdTime: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
-  debugFlowLogs: 1
-  runtimeTraceEnabled: 1
+  debugFlowLogs: 0
+  runtimeTraceEnabled: 0
   runtimeTraceTarget: 
-  runtimeTraceEveryUpdate: 1
-  runtimeTraceEveryThink: 1
-  runtimeTraceScheduleChanges: 1
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 0
+  runtimeTraceScheduleChanges: 0
 --- !u!114 &962538910
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -67207,12 +67207,12 @@ MonoBehaviour:
     createdTime: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
-  debugFlowLogs: 1
-  runtimeTraceEnabled: 1
+  debugFlowLogs: 0
+  runtimeTraceEnabled: 0
   runtimeTraceTarget: 
-  runtimeTraceEveryUpdate: 1
-  runtimeTraceEveryThink: 1
-  runtimeTraceScheduleChanges: 1
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 0
+  runtimeTraceScheduleChanges: 0
 --- !u!114 &1044429983
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -67413,7 +67413,7 @@ MonoBehaviour:
   invertSideFlip: 0
   invertVerticalFacing: 0
   directionDeadZone: 0.08
-  debugVisualLogs: 1
+  debugVisualLogs: 0
   walkDownState: 
   walkUpState: 
   walkSideState: 
@@ -69507,7 +69507,7 @@ MonoBehaviour:
   currentActionKey: idle
   currentTarget: {fileID: 0}
   debugWorkTarget: 
-  debugWorkLogs: 1
+  debugWorkLogs: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &1066808552
 MonoBehaviour:
@@ -97383,7 +97383,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -101841,7 +101841,7 @@ MonoBehaviour:
   currentActionKey: idle
   currentTarget: {fileID: 0}
   debugWorkTarget: 
-  debugWorkLogs: 1
+  debugWorkLogs: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &1243343401
 MonoBehaviour:
@@ -103922,7 +103922,7 @@ MonoBehaviour:
   currentActionKey: idle
   currentTarget: {fileID: 0}
   debugWorkTarget: 
-  debugWorkLogs: 1
+  debugWorkLogs: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &1275826754
 MonoBehaviour:
@@ -106537,7 +106537,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3201119476251412231, guid: afa77975feceb5d4da429fc22403760e, type: 3}
       propertyPath: debugLogs
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3201119476251412231, guid: afa77975feceb5d4da429fc22403760e, type: 3}
       propertyPath: buyPointOverride
@@ -106971,8 +106971,8 @@ MonoBehaviour:
   runtimeTraceEnabled: 0
   runtimeTraceTarget: 
   runtimeTraceEveryUpdate: 0
-  runtimeTraceEveryThink: 1
-  runtimeTraceScheduleChanges: 1
+  runtimeTraceEveryThink: 0
+  runtimeTraceScheduleChanges: 0
 --- !u!4 &1348486205 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8002957989317268842, guid: 52234395ac81e954b8415221c10525ea, type: 3}
@@ -108006,12 +108006,12 @@ MonoBehaviour:
     createdTime: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
-  debugFlowLogs: 1
-  runtimeTraceEnabled: 1
+  debugFlowLogs: 0
+  runtimeTraceEnabled: 0
   runtimeTraceTarget: 
-  runtimeTraceEveryUpdate: 1
-  runtimeTraceEveryThink: 1
-  runtimeTraceScheduleChanges: 1
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 0
+  runtimeTraceScheduleChanges: 0
 --- !u!114 &1356436473
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -108054,7 +108054,7 @@ MonoBehaviour:
   invertSideFlip: 0
   invertVerticalFacing: 1
   directionDeadZone: 0.08
-  debugVisualLogs: 1
+  debugVisualLogs: 0
   walkDownState: 
   walkUpState: 
   walkSideState: 
@@ -109912,8 +109912,8 @@ MonoBehaviour:
   runtimeTraceEnabled: 0
   runtimeTraceTarget: 
   runtimeTraceEveryUpdate: 0
-  runtimeTraceEveryThink: 1
-  runtimeTraceScheduleChanges: 1
+  runtimeTraceEveryThink: 0
+  runtimeTraceScheduleChanges: 0
 --- !u!114 &1375171533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -109950,7 +109950,7 @@ MonoBehaviour:
   useKinematicBodyWhileStationary: 1
   disableBoundaryClampWhileStationary: 1
   disableMovementAnimatorWhileStationary: 1
-  debugCounterChecks: 1
+  debugCounterChecks: 0
   forceCustomerZoneTrigger: 1
   startingMoney: 100000
   minimumMoneyReserve: 50000
@@ -110418,7 +110418,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5195751311248428072, guid: 92958fe186ce34f4a8c491a2608f5ebb, type: 3}
       propertyPath: debugFlowLogs
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5195751311248428072, guid: 92958fe186ce34f4a8c491a2608f5ebb, type: 3}
       propertyPath: effectResistance
@@ -111784,7 +111784,7 @@ MonoBehaviour:
   currentActionKey: idle
   currentTarget: {fileID: 0}
   debugWorkTarget: 
-  debugWorkLogs: 1
+  debugWorkLogs: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &1408745015
 MonoBehaviour:
@@ -112144,7 +112144,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8077377334598161684, guid: 2c0d34cd5aa06714784e6b1a3c9358cb, type: 3}
       propertyPath: debugFlowLogs
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8077377334598161684, guid: 2c0d34cd5aa06714784e6b1a3c9358cb, type: 3}
       propertyPath: effectResistance
@@ -134308,7 +134308,7 @@ MonoBehaviour:
   currentActionKey: idle
   currentTarget: {fileID: 0}
   debugWorkTarget: 
-  debugWorkLogs: 1
+  debugWorkLogs: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
 --- !u!114 &1668547563
 MonoBehaviour:
@@ -142267,7 +142267,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -148424,8 +148424,8 @@ MonoBehaviour:
   runtimeTraceEnabled: 0
   runtimeTraceTarget: 
   runtimeTraceEveryUpdate: 0
-  runtimeTraceEveryThink: 1
-  runtimeTraceScheduleChanges: 1
+  runtimeTraceEveryThink: 0
+  runtimeTraceScheduleChanges: 0
 --- !u!114 &1776821969
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -149171,8 +149171,8 @@ MonoBehaviour:
   runtimeTraceEnabled: 0
   runtimeTraceTarget: 
   runtimeTraceEveryUpdate: 0
-  runtimeTraceEveryThink: 1
-  runtimeTraceScheduleChanges: 1
+  runtimeTraceEveryThink: 0
+  runtimeTraceScheduleChanges: 0
 --- !u!70 &1783360640
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -151421,12 +151421,12 @@ MonoBehaviour:
     createdTime: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
-  debugFlowLogs: 1
-  runtimeTraceEnabled: 1
+  debugFlowLogs: 0
+  runtimeTraceEnabled: 0
   runtimeTraceTarget: 
-  runtimeTraceEveryUpdate: 1
-  runtimeTraceEveryThink: 1
-  runtimeTraceScheduleChanges: 1
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 0
+  runtimeTraceScheduleChanges: 0
 --- !u!114 &1824737303
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -155167,7 +155167,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -157133,7 +157133,7 @@ MonoBehaviour:
   stateStartedAtRealtime: -1
   lastPurchaseDay: -1
   lastSaleDay: -1
-  debugLogs: 1
+  debugLogs: 0
 --- !u!70 &1980755082
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -168772,12 +168772,12 @@ MonoBehaviour:
     createdTime: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
-  debugFlowLogs: 1
-  runtimeTraceEnabled: 1
+  debugFlowLogs: 0
+  runtimeTraceEnabled: 0
   runtimeTraceTarget: 
-  runtimeTraceEveryUpdate: 1
-  runtimeTraceEveryThink: 1
-  runtimeTraceScheduleChanges: 1
+  runtimeTraceEveryUpdate: 0
+  runtimeTraceEveryThink: 0
+  runtimeTraceScheduleChanges: 0
 --- !u!114 &2109649317
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -168882,7 +168882,7 @@ MonoBehaviour:
   invertSideFlip: 0
   invertVerticalFacing: 1
   directionDeadZone: 0.08
-  debugVisualLogs: 1
+  debugVisualLogs: 0
   walkDownState: 
   walkUpState: 
   walkSideState: 
@@ -180716,7 +180716,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6741253222464201965, guid: 8e41f9530412aaf4a90844e9eb20d0f9, type: 3}
       propertyPath: debugFlowLogs
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6741253222464201965, guid: 8e41f9530412aaf4a90844e9eb20d0f9, type: 3}
       propertyPath: fireballPrefab

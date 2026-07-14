@@ -206,10 +206,11 @@ public partial class MonsterAI
             {
                 entityProfile.identity.kind = EntityKind.Animal;
                 entityProfile.identity.gender = EntityGender.Unknown;
-                entityProfile.identity.age = Mathf.Clamp(
-                    entityProfile.identity.age <= 0 ? 8 : entityProfile.identity.age,
-                    1,
-                    25);
+                int currentAge =
+                    NpcAgeUtility.GetCurrentAge(entityProfile.identity);
+                NpcAgeUtility.SetCurrentAge(
+                    entityProfile.identity,
+                    Mathf.Clamp(currentAge <= 0 ? 8 : currentAge, 1, 25));
                 entityProfile.identity.entityName = string.IsNullOrWhiteSpace(monsterName) ? "Phàm thú" : monsterName;
             }
 

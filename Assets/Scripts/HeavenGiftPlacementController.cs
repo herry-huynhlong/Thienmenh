@@ -887,18 +887,22 @@ public class HeavenGiftPlacementController : MonoBehaviour
             damagedTargets.Add(targetRoot);
 
             int hpBefore = ReadCurrentHp(targetRoot);
-            NpcRoleUtility.Damage(
-                null,
-                targetRoot,
+            DamageContext context = DamageContext.Environment(
                 damage,
-                "Thiên kiếp giáng lôi");
+                this,
+                DamageType.HeavenlyTribulation,
+                "heaven_gift_lightning",
+                position);
+            DamageResult result = DamageSystem.Apply(
+                targetRoot,
+                context);
             int hpAfter = ReadCurrentHp(targetRoot);
 
             Debug.LogWarning(
                 "[HeavenGiftLightning] target=" +
                 NpcRoleUtility.GetDisplayName(targetRoot) +
                 " damage=" +
-                damage +
+                result.finalDamage +
                 " hp=" +
                 hpBefore +
                 "->" +

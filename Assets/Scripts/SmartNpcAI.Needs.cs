@@ -52,23 +52,7 @@ public partial class SmartNpcAI
 
         fatigue = 0;
 
-        if (characterStats != null)
-        {
-            characterStats.currentHP =
-                Mathf.Min(
-                    characterStats.finalHP,
-                    characterStats.currentHP + 30);
-            SyncFromCharacterStats();
-        }
-        else
-        {
-            currentHP += 30;
-
-            if (currentHP > maxHP)
-            {
-                currentHP = maxHP;
-            }
-        }
+        Heal(30);
 
         if (currentHP > Mathf.Max(1, maxHP / 2))
         {

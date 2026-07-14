@@ -23,7 +23,10 @@ public class WorldEventManager : MonoBehaviour
 {
     public static WorldEventManager Instance;
 
-    private List<LogEntry> worldLogs = new List<LogEntry>();
+    [Header("World Log")]
+    [Min(1)] public int maxLogEntries = 200;
+
+    private readonly List<LogEntry> worldLogs = new List<LogEntry>();
 
     public static event Action OnLogUpdated;
     public static event Action<LogEntry> LogAdded;
@@ -46,16 +49,26 @@ public class WorldEventManager : MonoBehaviour
         AddLog(UiText.Get("worldStory", "introLogBeastWave"), 2, true);
     }
 
+    void OnValidate()
+    {
+        maxLogEntries = Mathf.Max(1, maxLogEntries);
+        TrimToLimit();
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+    }
+
     public void AddLog(string content, int colorType, bool isStoryLog = false)
     {
         string timeStr = GetWorldTimeFormatted();
 
         LogEntry newLog = new LogEntry(timeStr, content, colorType, isStoryLog);
-
-        worldLogs.Insert(0, newLog);
-
-        LogAdded?.Invoke(newLog);
-        OnLogUpdated?.Invoke();
+        AddEntry(newLog);
     }
 
     public void AddLog(string content, WorldEventType eventType, bool isStoryLog = true)
@@ -77,11 +90,7 @@ public class WorldEventManager : MonoBehaviour
         string timeStr = GetWorldTimeFormatted();
 
         LogEntry newLog = new LogEntry(timeStr, content, convertedColor, isStoryLog);
-
-        worldLogs.Insert(0, newLog);
-
-        LogAdded?.Invoke(newLog);
-        OnLogUpdated?.Invoke();
+        AddEntry(newLog);
     }
 
     public void AddLog(string content, WorldEventType eventType)
@@ -140,6 +149,73 @@ public class WorldEventManager : MonoBehaviour
 
     public List<LogEntry> GetLogs()
     {
-        return worldLogs;
+        return CaptureLogs();
+    }
+
+    public List<LogEntry> CaptureLogs()
+    {
+        List<LogEntry> captured = new List<LogEntry>(worldLogs.Count);
+        for (int i = 0; i < worldLogs.Count; i++)
+        {
+            LogEntry entry = worldLogs[i];
+            if (entry != null)
+            {
+                captured.Add(CloneEntry(entry));
+            }
+        }
+
+        return captured;
+    }
+
+    public void RestoreLogs(IList<LogEntry> savedLogs)
+    {
+        worldLogs.Clear();
+
+        int limit = Mathf.Max(1, maxLogEntries);
+        if (savedLogs != null)
+        {
+            for (int i = 0; i < savedLogs.Count && worldLogs.Count < limit; i++)
+            {
+                LogEntry entry = savedLogs[i];
+                if (entry != null)
+                {
+                    worldLogs.Add(CloneEntry(entry));
+                }
+            }
+        }
+
+        OnLogUpdated?.Invoke();
+    }
+
+    void AddEntry(LogEntry entry)
+    {
+        if (entry == null)
+        {
+            return;
+        }
+
+        worldLogs.Insert(0, entry);
+        TrimToLimit();
+
+        LogAdded?.Invoke(entry);
+        OnLogUpdated?.Invoke();
+    }
+
+    void TrimToLimit()
+    {
+        int limit = Mathf.Max(1, maxLogEntries);
+        if (worldLogs.Count > limit)
+        {
+            worldLogs.RemoveRange(limit, worldLogs.Count - limit);
+        }
+    }
+
+    static LogEntry CloneEntry(LogEntry entry)
+    {
+        return new LogEntry(
+            entry.timestamp ?? "",
+            entry.content ?? "",
+            entry.logColorType,
+            entry.isStoryLog);
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Fireball : MonoBehaviour
@@ -74,90 +75,38 @@ public class Fireball : MonoBehaviour
                 transform.position,
                 explosionRadius,
                 hitLayers);
+        HashSet<GameObject> damagedTargets = new HashSet<GameObject>();
 
         foreach (Collider2D hit in hits)
         {
-            IDamageable damageable =
-                hit.GetComponentInParent<IDamageable>();
-
-            if (damageable == null ||
-                damageable.IsDead)
+            if (hit == null ||
+                !DamageSystem.TryResolveReceiver(
+                    hit.gameObject,
+                    out IDamageable damageable))
             {
                 continue;
             }
 
-            if (NpcPetCompanion.BlocksMonsterAttacks(damageable.DamageTransform != null
+            GameObject target = damageable.DamageTransform != null
                 ? damageable.DamageTransform.gameObject
-                : hit.gameObject))
+                : hit.gameObject;
+            if (damageable.IsDead ||
+                target == null ||
+                !damagedTargets.Add(target))
             {
                 continue;
             }
 
-            if (owner != null &&
-                damageable.DamageTransform != null &&
-                damageable.DamageTransform.gameObject == owner)
-            {
-                continue;
-            }
-
-            if (owner != null &&
-                damageable.DamageTransform != null &&
-                BicanhSessionManager.AreDungeonParticipantsAllies(
-                    owner,
-                    damageable.DamageTransform.gameObject))
-            {
-                continue;
-            }
-
-            if (owner != null && damageable.DamageTransform != null)
-            {
-                int modifiedDamage =
-                    NpcCombatTechniqueSystem.ModifyOutgoingDamage(
-                        owner,
-                        damageable.DamageTransform.gameObject,
-                        damage);
-
-                NpcSocialEventBus.PublishHostility(
-                    owner,
-                    damageable.DamageTransform.gameObject,
-                    Mathf.Clamp(modifiedDamage, 1, 100),
-                    damageable.DamageTransform.position,
-                    NpcText.Dialogue("combatSpellReason"));
-
-                SmartNpcAI smartNpc =
-                    damageable as SmartNpcAI;
-                if (smartNpc != null)
-                {
-                    smartNpc.TakeDamage(modifiedDamage, owner);
-                    continue;
-                }
-
-                MonsterAI monster = damageable as MonsterAI;
-                if (monster != null)
-                {
-                    monster.TakeDamage(modifiedDamage, owner);
-                    continue;
-                }
-
-                damageable.TakeDamage(modifiedDamage);
-                continue;
-            }
-
-            SmartNpcAI fallbackSmartNpc = damageable as SmartNpcAI;
-            if (fallbackSmartNpc != null)
-            {
-                fallbackSmartNpc.TakeDamage(damage, owner);
-                continue;
-            }
-
-            MonsterAI fallbackMonster = damageable as MonsterAI;
-            if (fallbackMonster != null)
-            {
-                fallbackMonster.TakeDamage(damage, owner);
-                continue;
-            }
-
-            damageable.TakeDamage(damage);
+            DamageContext context = DamageContext.Attack(
+                damage,
+                owner,
+                this,
+                DamageSourceCategory.Unknown,
+                DamageType.Magical,
+                NpcText.Dialogue("combatSpellReason"),
+                transform.position,
+                owner != null);
+            DamageSystem.Apply(damageable, context);
         }
 
         Destroy(gameObject);

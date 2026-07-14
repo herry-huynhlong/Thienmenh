@@ -214,52 +214,31 @@ public static class NpcCombatTechniqueSystem
         CharacterStats stats = target.GetComponent<CharacterStats>();
         if (stats != null)
         {
-            int before = stats.currentHP;
-            stats.currentHP = Mathf.Clamp(
-                stats.currentHP + amount,
-                0,
-                Mathf.Max(1, stats.finalHP));
-
-            if (stats.entityProfile != null)
+            SmartNpcAI smartNpcWithStats = target.GetComponent<SmartNpcAI>();
+            if (smartNpcWithStats != null)
             {
-                stats.entityProfile.stats.currentHP = stats.currentHP;
+                return smartNpcWithStats.Heal(amount);
             }
 
-            return stats.currentHP - before;
+            VillagerAI villagerWithStats = target.GetComponent<VillagerAI>();
+            if (villagerWithStats != null)
+            {
+                return villagerWithStats.Heal(amount);
+            }
+
+            return stats.Heal(amount);
         }
 
         SmartNpcAI smartNpc = target.GetComponent<SmartNpcAI>();
         if (smartNpc != null)
         {
-            int before = smartNpc.currentHP;
-            smartNpc.currentHP = Mathf.Clamp(
-                smartNpc.currentHP + amount,
-                0,
-                Mathf.Max(1, smartNpc.maxHP));
-
-            if (smartNpc.entityProfile != null)
-            {
-                smartNpc.entityProfile.stats.currentHP = smartNpc.currentHP;
-            }
-
-            return smartNpc.currentHP - before;
+            return smartNpc.Heal(amount);
         }
 
         VillagerAI villager = target.GetComponent<VillagerAI>();
         if (villager != null)
         {
-            int before = villager.currentHP;
-            villager.currentHP = Mathf.Clamp(
-                villager.currentHP + amount,
-                0,
-                Mathf.Max(1, villager.maxHP));
-
-            if (villager.entityProfile != null)
-            {
-                villager.entityProfile.stats.currentHP = villager.currentHP;
-            }
-
-            return villager.currentHP - before;
+            return villager.Heal(amount);
         }
 
         MonsterAI monster = target.GetComponent<MonsterAI>();

@@ -1,80 +1,74 @@
 {
   "scene": "Assets/Lang.unity",
   "gameHours": 24,
-  "startWorldHour": 15.98,
+  "startWorldHour": 8.249,
   "issues": [
   ],
   "samples": [
     {
-      "name": "farm/Người dân",
+      "name": "farm (3)/Hàn Vũ",
       "type": "VillagerAI",
       "job": "Farmer",
-      "totalDistance": 19.234,
-      "maxStationarySeconds": 0.75,
+      "totalDistance": 16.268,
+      "maxStationarySeconds": 0.5,
       "transitions": [
-        "17.30h farm/Người dân job=Farmer activity=ReturnHome action=Đi thu hoạch Linh Mễ pos=(3.98,3.56,0.00)",
-        "18.90h farm/Người dân job=Farmer activity=ReturnHome action=<empty> pos=(2.09,3.84,0.00)",
-        "20.50h farm/Người dân job=Farmer activity=Sleep action=Về nhà nghỉ ngơi pos=(2.07,3.84,0.00)",
-        "22.10h farm/Người dân job=Farmer activity=Sleep action=<empty> pos=(3.95,3.62,0.00)",
-        "23.70h farm/Người dân job=Farmer activity=Sleep action=Về nhà nghỉ ngơi pos=(3.97,3.62,0.00)",
-        "28.50h farm/Người dân job=Farmer activity=Sleep action=Đang nghỉ ngơi pos=(9.80,3.84,0.00)",
-        "30.10h farm/Người dân job=Farmer activity=Work action=Đang nghỉ ngơi pos=(9.80,3.84,0.00)",
-        "31.70h farm/Người dân job=Farmer activity=Work action=<empty> pos=(9.80,3.84,0.00)",
-        "33.30h farm/Người dân job=Farmer activity=Work action=Đi thu hoạch Linh Mễ pos=(9.80,3.84,0.00)",
-        "36.50h farm/Người dân job=Farmer activity=ReturnHome action=Đi thu hoạch Linh Mễ pos=(5.83,3.99,0.00)",
-        "38.10h farm/Người dân job=Farmer activity=Work action=Về nhà nghỉ ngơi pos=(3.91,3.57,0.00)",
-        "39.70h farm/Người dân job=Farmer activity=Work action=<empty> pos=(5.81,3.66,0.00)",
-        "41.30h farm/Người dân job=Farmer activity=ReturnHome action=Đi thu hoạch Linh Mễ pos=(5.84,3.66,0.00)"
+        "9.85h farm (3)/Hàn Vũ job=Farmer activity=Work action=Đang trồng lúa (5s) pos=(-2.88,3.98,0.00)",
+        "11.45h farm (3)/Hàn Vũ job=Farmer activity=ReturnHome action=<empty> pos=(-2.88,3.98,0.00)",
+        "13.05h farm (3)/Hàn Vũ job=Farmer activity=Work action=Đi làm việc pos=(-2.88,3.98,0.00)",
+        "17.85h farm (3)/Hàn Vũ job=Farmer activity=ReturnHome action=<empty> pos=(0.55,0.16,0.00)",
+        "19.45h farm (3)/Hàn Vũ job=Farmer activity=ReturnHome action=Về nhà nghỉ ngơi pos=(0.55,0.16,0.00)",
+        "21.05h farm (3)/Hàn Vũ job=Farmer activity=Sleep action=<empty> pos=(2.54,0.94,0.00)",
+        "22.65h farm (3)/Hàn Vũ job=Farmer activity=Sleep action=Về nhà nghỉ ngơi pos=(2.57,0.95,0.00)",
+        "29.05h farm (3)/Hàn Vũ job=Farmer activity=Work action=Đang nghỉ ngơi pos=(9.81,3.77,0.00)",
+        "30.65h farm (3)/Hàn Vũ job=Farmer activity=Work action=Đứng yên pos=(9.81,3.77,0.00)",
+        "32.25h farm (3)/Hàn Vũ job=Farmer activity=Work action=Đi trồng lúa pos=(9.81,3.77,0.00)"
       ]
     },
     {
       "name": "hunt/Ngọc Dao",
       "type": "VillagerAI",
       "job": "Hunter",
-      "totalDistance": 19.22,
-      "maxStationarySeconds": 1.5,
+      "totalDistance": 22.125,
+      "maxStationarySeconds": 0.75,
       "transitions": [
-        "17.30h hunt/Ngọc Dao job=Hunter activity=ReturnHome action=Về nhà nghỉ ngơi pos=(3.87,-0.33,0.00)",
-        "20.50h hunt/Ngọc Dao job=Hunter activity=Sleep action=Về nhà nghỉ ngơi pos=(7.24,1.97,0.00)",
-        "23.70h hunt/Ngọc Dao job=Hunter activity=Sleep action=Đang nghỉ ngơi pos=(9.82,3.72,0.00)",
-        "30.10h hunt/Ngọc Dao job=Hunter activity=Work action=Đang nghỉ ngơi pos=(9.82,3.72,0.00)",
-        "31.70h hunt/Ngọc Dao job=Hunter activity=Work action=goHomeRest pos=(9.82,3.72,0.00)",
-        "33.30h hunt/Ngọc Dao job=Hunter activity=Work action=Truy đuổi nai_0 (2) pos=(9.82,3.72,0.00)",
-        "36.50h hunt/Ngọc Dao job=Hunter activity=ReturnHome action=Truy đuổi nai_0 (2) pos=(7.51,0.29,0.00)",
-        "38.10h hunt/Ngọc Dao job=Hunter activity=Work action=Về nhà nghỉ ngơi pos=(6.32,-1.47,0.00)",
-        "41.30h hunt/Ngọc Dao job=Hunter activity=ReturnHome action=Về nhà nghỉ ngơi pos=(8.61,1.84,0.00)"
+        "11.45h hunt/Ngọc Dao job=Hunter activity=ReturnHome action=goHomeRest pos=(0.08,-8.76,0.00)",
+        "13.05h hunt/Ngọc Dao job=Hunter activity=Work action=Về nhà nghỉ ngơi pos=(0.07,-8.78,0.00)",
+        "17.85h hunt/Ngọc Dao job=Hunter activity=ReturnHome action=Về nhà nghỉ ngơi pos=(3.94,-3.86,0.00)",
+        "21.05h hunt/Ngọc Dao job=Hunter activity=Sleep action=Về nhà nghỉ ngơi pos=(6.51,-0.60,0.00)",
+        "25.85h hunt/Ngọc Dao job=Hunter activity=Sleep action=Đang nghỉ ngơi pos=(9.87,3.67,0.00)",
+        "29.05h hunt/Ngọc Dao job=Hunter activity=Work action=goHomeRest pos=(9.87,3.67,0.00)",
+        "30.65h hunt/Ngọc Dao job=Hunter activity=Work action=Truy đuổi nai_0 (1) pos=(9.87,3.67,0.00)"
       ]
     },
     {
       "name": "fish/Lý Thanh",
       "type": "VillagerAI",
       "job": "Fisher",
-      "totalDistance": 13.345,
-      "maxStationarySeconds": 2.5,
+      "totalDistance": 32.58,
+      "maxStationarySeconds": 0.5,
       "transitions": [
-        "17.30h fish/Lý Thanh job=Fisher activity=ReturnHome action=Đang nghỉ ngơi pos=(9.35,3.74,0.00)",
-        "20.50h fish/Lý Thanh job=Fisher activity=Sleep action=Đang nghỉ ngơi pos=(9.35,3.74,0.00)",
-        "30.10h fish/Lý Thanh job=Fisher activity=Work action=Đang nghỉ ngơi pos=(9.35,3.74,0.00)",
-        "31.70h fish/Lý Thanh job=Fisher activity=Work action=<empty> pos=(9.35,3.74,0.00)",
-        "33.30h fish/Lý Thanh job=Fisher activity=Work action=Đi câu cá pos=(9.35,3.74,0.00)",
-        "36.50h fish/Lý Thanh job=Fisher activity=ReturnHome action=Đi câu cá pos=(4.75,0.72,0.00)",
-        "38.10h fish/Lý Thanh job=Fisher activity=Work action=Về nhà nghỉ ngơi pos=(2.37,-0.84,0.00)",
-        "39.70h fish/Lý Thanh job=Fisher activity=Work action=<empty> pos=(4.60,0.53,0.00)",
-        "41.30h fish/Lý Thanh job=Fisher activity=ReturnHome action=Đi câu cá pos=(4.62,0.54,0.00)"
+        "11.45h fish/Lý Thanh job=Fisher activity=ReturnHome action=Về nhà nghỉ ngơi pos=(-1.73,-2.70,0.00)",
+        "13.05h fish/Lý Thanh job=Fisher activity=Work action=<empty> pos=(0.55,-1.43,0.00)",
+        "14.65h fish/Lý Thanh job=Fisher activity=Work action=Đi câu cá pos=(0.58,-1.42,0.00)",
+        "17.85h fish/Lý Thanh job=Fisher activity=ReturnHome action=Về nhà nghỉ ngơi pos=(-3.91,-4.59,0.00)",
+        "21.05h fish/Lý Thanh job=Fisher activity=Sleep action=Về nhà nghỉ ngơi pos=(0.73,-1.71,0.00)",
+        "27.45h fish/Lý Thanh job=Fisher activity=Sleep action=Đang nghỉ ngơi pos=(9.84,3.75,0.00)",
+        "29.05h fish/Lý Thanh job=Fisher activity=Work action=<empty> pos=(9.84,3.75,0.00)",
+        "30.65h fish/Lý Thanh job=Fisher activity=Work action=Đi câu cá pos=(9.84,3.75,0.00)"
       ]
     },
     {
-      "name": "NPC_C/Tu sĩ",
+      "name": "tusinu (1)/Lan Anh",
       "type": "SmartNpcAI",
       "job": "SmartNpcAI",
-      "totalDistance": 0,
-      "maxStationarySeconds": 3.75,
+      "totalDistance": 7.857,
+      "maxStationarySeconds": 2.5,
       "transitions": [
-        "18.90h NPC_C/Tu sĩ job=SmartNpcAI activity=DoMission action=Tạm dừng nhiệm vụ pos=(55.09,-32.75,0.00)",
-        "22.10h NPC_C/Tu sĩ job=SmartNpcAI activity=TradeBuySell action=Tạm dừng nhiệm vụ pos=(55.09,-32.75,0.00)",
-        "25.30h NPC_C/Tu sĩ job=SmartNpcAI activity=Cultivate action=Tạm dừng nhiệm vụ pos=(55.09,-32.75,0.00)",
-        "31.70h NPC_C/Tu sĩ job=SmartNpcAI activity=DoMission action=Tạm dừng nhiệm vụ pos=(55.09,-32.75,0.00)",
-        "38.10h NPC_C/Tu sĩ job=SmartNpcAI activity=FreeHuntAndGather action=Tạm dừng nhiệm vụ pos=(55.09,-32.75,0.00)"
+        "9.85h tusinu (1)/Lan Anh job=SmartNpcAI activity=Cultivate action=Tu luyện hấp thụ linh khí pos=(3.31,1.19,0.00)",
+        "19.45h tusinu (1)/Lan Anh job=SmartNpcAI activity=DoMission action=waitScheduleDoMission pos=(3.31,1.19,0.00)",
+        "25.85h tusinu (1)/Lan Anh job=SmartNpcAI activity=FreeHuntAndGather action=Săn Yêu Hồ pos=(3.31,1.19,0.00)",
+        "30.65h tusinu (1)/Lan Anh job=SmartNpcAI activity=TradeBuySell action=Đến Vạn Bảo Lâu gặp tạp hóa pos=(2.67,-3.91,0.00)",
+        "32.25h tusinu (1)/Lan Anh job=SmartNpcAI activity=Cultivate action=<empty> pos=(2.95,-2.13,0.00)"
       ]
     }
   ]

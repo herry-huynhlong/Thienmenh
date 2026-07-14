@@ -11,7 +11,10 @@ public class NPCLifecycle : MonoBehaviour
     public int middleMaxAge = 45;
 
     public NPCIdentity identity;
+    public EntityProfile entityProfile;
     public NPCVisualResolver visualResolver;
+
+    WorldTimeSystem subscribedTimeSystem;
 
     void Reset()
     {
@@ -24,9 +27,20 @@ public class NPCLifecycle : MonoBehaviour
         SyncLifeStageFromAge(true);
     }
 
+    void OnEnable()
+    {
+        SubscribeToWorldTime(false);
+    }
+
     void Start()
     {
+        SubscribeToWorldTime(true);
         SyncLifeStageFromAge(true);
+    }
+
+    void OnDisable()
+    {
+        UnsubscribeFromWorldTime();
     }
 
     void OnValidate()
@@ -44,8 +58,13 @@ public class NPCLifecycle : MonoBehaviour
             return;
         }
 
-        identity.age = Mathf.Max(0, newAge);
+        identity.SetCurrentAge(newAge);
         SyncLifeStageFromAge(true);
+    }
+
+    public void RefreshAgeNow(bool forceRefresh = false)
+    {
+        SyncLifeStageFromAge(forceRefresh);
     }
 
     public LifeStage ResolveLifeStage(int age)
@@ -84,7 +103,34 @@ public class NPCLifecycle : MonoBehaviour
             return;
         }
 
-        LifeStage newStage = ResolveLifeStage(identity.age);
+        bool identityHasAgeSource = HasIdentityAgeSource();
+        bool profileHasAgeSource = HasProfileAgeSource();
+        if (!identityHasAgeSource && profileHasAgeSource)
+        {
+            identity.age = entityProfile.identity.age;
+            identity.birthAbsoluteDay =
+                entityProfile.identity.birthAbsoluteDay;
+            identity.hasBirthAbsoluteDay =
+                entityProfile.identity.hasBirthAbsoluteDay;
+            identityHasAgeSource = true;
+        }
+
+        if (!identityHasAgeSource)
+        {
+            return;
+        }
+
+        int currentAge = identity.GetCurrentAge();
+        if (entityProfile != null &&
+            entityProfile.identity != null)
+        {
+            entityProfile.identity.age = currentAge;
+            entityProfile.identity.birthAbsoluteDay =
+                identity.birthAbsoluteDay;
+            entityProfile.identity.hasBirthAbsoluteDay = true;
+        }
+
+        LifeStage newStage = ResolveLifeStage(currentAge);
         bool changed = identity.lifeStage != newStage;
         identity.lifeStage = newStage;
 
@@ -108,6 +154,62 @@ public class NPCLifecycle : MonoBehaviour
         }
     }
 
+    bool HasIdentityAgeSource()
+    {
+        return identity != null &&
+            (identity.hasBirthAbsoluteDay ||
+             identity.age > 0 ||
+             identity.lifeStage != LifeStage.Youth ||
+             !string.IsNullOrWhiteSpace(identity.npcName) ||
+             !string.IsNullOrWhiteSpace(identity.fatherId) ||
+             !string.IsNullOrWhiteSpace(identity.motherId));
+    }
+
+    bool HasProfileAgeSource()
+    {
+        return entityProfile != null &&
+            entityProfile.identity != null &&
+            (entityProfile.identity.hasBirthAbsoluteDay ||
+             entityProfile.identity.age > 0 ||
+             !string.IsNullOrWhiteSpace(
+                 entityProfile.identity.entityName));
+    }
+
+    void SubscribeToWorldTime(bool ensureInstance)
+    {
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        if (timeSystem == null && ensureInstance && Application.isPlaying)
+        {
+            timeSystem = WorldTimeSystem.EnsureInstance();
+        }
+
+        if (subscribedTimeSystem == timeSystem)
+        {
+            return;
+        }
+
+        UnsubscribeFromWorldTime();
+        subscribedTimeSystem = timeSystem;
+        if (subscribedTimeSystem != null)
+        {
+            subscribedTimeSystem.OnDayChanged += HandleDayChanged;
+        }
+    }
+
+    void UnsubscribeFromWorldTime()
+    {
+        if (subscribedTimeSystem != null)
+        {
+            subscribedTimeSystem.OnDayChanged -= HandleDayChanged;
+            subscribedTimeSystem = null;
+        }
+    }
+
+    void HandleDayChanged(int absoluteDay)
+    {
+        SyncLifeStageFromAge(false);
+    }
+
     void CacheReferences()
     {
         if (identity == null)
@@ -116,6 +218,14 @@ public class NPCLifecycle : MonoBehaviour
                 GetComponent<NPCIdentity>() ??
                 GetComponentInParent<NPCIdentity>(true) ??
                 GetComponentInChildren<NPCIdentity>(true);
+        }
+
+        if (entityProfile == null)
+        {
+            entityProfile =
+                GetComponent<EntityProfile>() ??
+                GetComponentInParent<EntityProfile>(true) ??
+                GetComponentInChildren<EntityProfile>(true);
         }
 
         if (visualResolver == null)

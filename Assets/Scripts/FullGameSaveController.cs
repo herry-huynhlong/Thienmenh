@@ -3,11 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 [Serializable]
 public class FullGameSaveData
 {
-    public int saveVersion = 1;
+    public int saveVersion = 4;
     public long savedAtUtcTicks;
     public string sceneName;
     public bool hasPlayer;
@@ -25,6 +26,14 @@ public class FullGameSaveData
     public List<SavedFavoriteNpcData> favoriteNpcs = new List<SavedFavoriteNpcData>();
     public List<SavedNpcStateData> npcStates = new List<SavedNpcStateData>();
     public BicanhSessionSaveData bicanhSession;
+    public bool hasFarmPlotState;
+    public List<FarmPlotPersistentState> farmPlots =
+        new List<FarmPlotPersistentState>();
+    public WeatherPersistentState weatherState;
+    public WeatherAccumulationPersistentState weatherAccumulationState;
+    public WorldEventPersistentState worldEventState;
+    public bool hasWorldLogState;
+    public List<LogEntry> worldLogs = new List<LogEntry>();
 }
 
 [Serializable]
@@ -53,10 +62,18 @@ public class SavedNpcStateData
     public Vector3 position;
     public bool activeSelf;
 
+    public bool isRuntimeSpawn;
+    public bool respawnFromFullSave;
+    public string prefabKey;
+    public string respawnTemplateNpcId;
+    public string savedObjectName;
+
     public bool hasIdentity;
     public string npcName;
     public int gender;
     public int age;
+    public int birthAbsoluteDay;
+    public bool hasBirthAbsoluteDay;
     public int lifeStage;
     public string homeId;
     public string fatherId;
@@ -116,13 +133,14 @@ public class SavedNpcStateData
 
 public class FullGameSaveController : MonoBehaviour
 {
-    const int CurrentSaveVersion = 1;
+    const int CurrentSaveVersion = 4;
     const string FullSaveKey = "ThienMenh.Save.FullGame";
     const string FullSaveBackupKey = "ThienMenh.Save.FullGame.Backup";
     static FullGameSaveController instance;
 
     [Header("Auto Save")]
-    public float autoSaveInterval = 30f;
+    [FormerlySerializedAs("autoSaveInterval")]
+    public float autoSaveIntervalUnscaledSeconds = 30f;
     public bool saveOnPause = true;
     public bool saveOnQuit = true;
     public bool debugLog;
@@ -182,13 +200,13 @@ public class FullGameSaveController : MonoBehaviour
 
     void Update()
     {
-        if (autoSaveInterval <= 0f || IsMenuScene())
+        if (autoSaveIntervalUnscaledSeconds <= 0f || IsMenuScene())
         {
             return;
         }
 
-        saveTimer += Time.unscaledDeltaTime;
-        if (saveTimer >= autoSaveInterval)
+        saveTimer += GameTime.UnscaledDeltaSeconds;
+        if (saveTimer >= autoSaveIntervalUnscaledSeconds)
         {
             saveTimer = 0f;
             SaveFullGame(true);
@@ -253,6 +271,7 @@ public class FullGameSaveController : MonoBehaviour
         SaveNpcStates(data);
         SaveBicanhSession(data);
         SaveWorldTime();
+        SaveWorldSimulation(data);
         SaveWallets();
 
         string existingPrimary = PlayerPrefs.GetString(FullSaveKey, "");
@@ -309,6 +328,7 @@ public class FullGameSaveController : MonoBehaviour
             if (TryReadSaveData(out FullGameSaveData data))
             {
                 ApplyWorldTime();
+                ApplyWorldSimulation(data);
                 ApplyPlayer(data);
                 ApplyCamera(data);
                 yield return null;
@@ -665,6 +685,16 @@ public class FullGameSaveController : MonoBehaviour
             socialIdentity.Refresh();
         }
 
+        bool inferredRuntimeSpawn =
+            IsLikelyRuntimeBornIdentity(identity);
+        bool isRuntimeSpawn =
+            (actor != null && actor.spawnedAtRuntime) ||
+            inferredRuntimeSpawn;
+        bool respawnFromFullSave =
+            actor != null && actor.spawnedAtRuntime
+                ? actor.respawnFromFullSave
+                : inferredRuntimeSpawn;
+
         SavedNpcStateData saved =
             new SavedNpcStateData
             {
@@ -675,7 +705,18 @@ public class FullGameSaveController : MonoBehaviour
                 socialId = socialIdentity != null ? socialIdentity.socialId : "",
                 displayName = NpcRoleUtility.GetDisplayName(npcObject),
                 position = npcObject.transform.position,
-                activeSelf = npcObject.activeSelf
+                activeSelf = npcObject.activeSelf,
+                isRuntimeSpawn = isRuntimeSpawn,
+                respawnFromFullSave = respawnFromFullSave,
+                prefabKey = actor != null ? actor.prefabKey : "",
+                respawnTemplateNpcId =
+                    actor != null &&
+                    !string.IsNullOrWhiteSpace(actor.respawnTemplateNpcId)
+                        ? actor.respawnTemplateNpcId
+                        : identity != null
+                            ? identity.motherId
+                            : "",
+                savedObjectName = npcObject.name
             };
 
         SaveIdentityState(saved, identity);
@@ -686,6 +727,13 @@ public class FullGameSaveController : MonoBehaviour
         SaveSocialState(saved, relationshipGraph, memory);
 
         data.npcStates.Add(saved);
+    }
+
+    bool IsLikelyRuntimeBornIdentity(NPCIdentity identity)
+    {
+        return identity != null &&
+            (!string.IsNullOrWhiteSpace(identity.fatherId) ||
+             !string.IsNullOrWhiteSpace(identity.motherId));
     }
 
     void SaveIdentityState(
@@ -700,7 +748,9 @@ public class FullGameSaveController : MonoBehaviour
         saved.hasIdentity = true;
         saved.npcName = identity.npcName;
         saved.gender = (int)identity.gender;
-        saved.age = identity.age;
+        saved.age = identity.GetCurrentAge();
+        saved.birthAbsoluteDay = identity.birthAbsoluteDay;
+        saved.hasBirthAbsoluteDay = identity.hasBirthAbsoluteDay;
         saved.lifeStage = (int)identity.lifeStage;
         saved.homeId = identity.homeId;
         saved.fatherId = identity.fatherId;
@@ -737,8 +787,8 @@ public class FullGameSaveController : MonoBehaviour
         saved.hasVillager = true;
         saved.villagerEnabled = villager.enabled;
         saved.villagerJob = (int)villager.job;
-        saved.villagerCurrentHP = villager.currentHP;
-        saved.villagerMaxHP = villager.maxHP;
+        saved.villagerCurrentHP = villager.AuthoritativeCurrentHP;
+        saved.villagerMaxHP = villager.AuthoritativeMaxHP;
         saved.villagerMoney = villager.money;
         saved.villagerSpiritStone = villager.spiritStone;
         NpcActionState villagerActionState =
@@ -762,8 +812,8 @@ public class FullGameSaveController : MonoBehaviour
         saved.smartRealm = (int)smartNpc.realm;
         saved.smartRealmStage = smartNpc.realmStage;
         saved.smartCultivation = smartNpc.cultivation;
-        saved.smartCurrentHP = smartNpc.currentHP;
-        saved.smartMaxHP = smartNpc.maxHP;
+        saved.smartCurrentHP = smartNpc.AuthoritativeCurrentHP;
+        saved.smartMaxHP = smartNpc.AuthoritativeMaxHP;
         saved.smartMoney = smartNpc.money;
         saved.smartSpiritStone = smartNpc.spiritStone;
         saved.smartCanCultivate = smartNpc.canCultivate;
@@ -833,6 +883,8 @@ public class FullGameSaveController : MonoBehaviour
             return;
         }
 
+        RestoreMissingRuntimeNpcs(data.npcStates);
+
         foreach (SavedNpcStateData saved in data.npcStates)
         {
             GameObject npcObject = FindNpcByStateData(saved);
@@ -842,6 +894,145 @@ public class FullGameSaveController : MonoBehaviour
             }
 
             ApplyNpcState(saved, npcObject);
+        }
+    }
+
+    void RestoreMissingRuntimeNpcs(
+        List<SavedNpcStateData> savedStates)
+    {
+        if (savedStates == null || savedStates.Count == 0)
+        {
+            return;
+        }
+
+        int maxPasses = Mathf.Max(1, savedStates.Count);
+        for (int pass = 0; pass < maxPasses; pass++)
+        {
+            bool restoredAny = false;
+
+            for (int i = 0; i < savedStates.Count; i++)
+            {
+                SavedNpcStateData saved = savedStates[i];
+                if (saved == null ||
+                    !saved.isRuntimeSpawn ||
+                    !saved.respawnFromFullSave ||
+                    FindNpcByStateData(saved) != null)
+                {
+                    continue;
+                }
+
+                GameObject restored = CreateMissingRuntimeNpc(saved);
+                if (restored != null)
+                {
+                    restoredAny = true;
+                }
+            }
+
+            if (!restoredAny)
+            {
+                break;
+            }
+        }
+    }
+
+    GameObject CreateMissingRuntimeNpc(SavedNpcStateData saved)
+    {
+        if (saved == null)
+        {
+            return null;
+        }
+
+        GameObject source =
+            SpawnedWorldActor.ResolveRespawnPrefab(saved.prefabKey);
+        if (source == null &&
+            !string.IsNullOrWhiteSpace(saved.respawnTemplateNpcId))
+        {
+            source = FindNpcById(saved.respawnTemplateNpcId);
+            source = ResolveNpcRoot(source);
+        }
+
+        if (source == null)
+        {
+            if (debugLog)
+            {
+                Debug.LogWarning(
+                    "FullGameSaveController could not respawn runtime NPC '" +
+                    saved.displayName +
+                    "': prefab key and template NPC were unavailable.");
+            }
+
+            return null;
+        }
+
+        GameObject restored = Instantiate(
+            source,
+            saved.position,
+            source.transform.rotation);
+        if (restored == null)
+        {
+            return null;
+        }
+
+        if (!string.IsNullOrWhiteSpace(saved.savedObjectName))
+        {
+            restored.name = saved.savedObjectName;
+        }
+
+        PrepareRespawnedNpc(saved, restored);
+        return restored;
+    }
+
+    void PrepareRespawnedNpc(
+        SavedNpcStateData saved,
+        GameObject restored)
+    {
+        if (saved == null || restored == null)
+        {
+            return;
+        }
+
+        restored = ResolveNpcRoot(restored);
+        if (restored == null)
+        {
+            return;
+        }
+
+        SpawnedWorldActor actor =
+            ResolveComponent<SpawnedWorldActor>(restored);
+        if (actor == null)
+        {
+            actor = restored.AddComponent<SpawnedWorldActor>();
+        }
+
+        actor.spawnedAtRuntime = true;
+        actor.respawnFromFullSave = saved.respawnFromFullSave;
+        actor.prefabKey = saved.prefabKey ?? "";
+        actor.respawnTemplateNpcId =
+            saved.respawnTemplateNpcId ?? "";
+        if (!string.IsNullOrWhiteSpace(saved.worldActorPersistentId))
+        {
+            actor.persistentId = saved.worldActorPersistentId;
+        }
+        actor.EnsurePersistentId();
+
+        NPCIdentity identity = ResolveComponent<NPCIdentity>(restored);
+        if (identity == null && saved.hasIdentity)
+        {
+            identity = restored.AddComponent<NPCIdentity>();
+        }
+
+        if (identity != null &&
+            !string.IsNullOrWhiteSpace(saved.npcId))
+        {
+            identity.npcId = saved.npcId;
+        }
+
+        NpcData npcData = ResolveComponent<NpcData>(restored);
+        if (npcData != null &&
+            !string.IsNullOrWhiteSpace(saved.npcDataPersistentId))
+        {
+            npcData.persistentId = saved.npcDataPersistentId;
+            npcData.EnsurePersistentId();
         }
     }
 
@@ -880,6 +1071,11 @@ public class FullGameSaveController : MonoBehaviour
             ResolveComponent<VillagerAI>(npcObject);
         SmartNpcAI smartNpc =
             ResolveComponent<SmartNpcAI>(npcObject);
+
+        if (saved.hasVillager && villager == null)
+        {
+            villager = npcObject.AddComponent<VillagerAI>();
+        }
 
         if (saved.hasSmartNpc && smartNpc == null)
         {
@@ -933,6 +1129,8 @@ public class FullGameSaveController : MonoBehaviour
             0,
             Enum.GetValues(typeof(Gender)).Length - 1);
         identity.age = Mathf.Max(0, saved.age);
+        identity.birthAbsoluteDay = saved.birthAbsoluteDay;
+        identity.hasBirthAbsoluteDay = saved.hasBirthAbsoluteDay;
         identity.lifeStage = (LifeStage)Mathf.Clamp(
             saved.lifeStage,
             0,
@@ -941,6 +1139,16 @@ public class FullGameSaveController : MonoBehaviour
         identity.fatherId = saved.fatherId;
         identity.motherId = saved.motherId;
         identity.spouseId = saved.spouseId;
+
+        identity.EnsureBirthAbsoluteDay();
+        identity.age = identity.GetCurrentAge();
+
+        NPCLifecycle lifecycle =
+            ResolveComponent<NPCLifecycle>(identity.gameObject);
+        if (lifecycle != null)
+        {
+            lifecycle.RefreshAgeNow(true);
+        }
     }
 
     void ApplyPersistentIds(
@@ -954,6 +1162,20 @@ public class FullGameSaveController : MonoBehaviour
 
         SpawnedWorldActor actor =
             ResolveComponent<SpawnedWorldActor>(npcObject);
+        if (actor == null && saved.isRuntimeSpawn)
+        {
+            actor = npcObject.AddComponent<SpawnedWorldActor>();
+        }
+
+        if (actor != null && saved.isRuntimeSpawn)
+        {
+            actor.spawnedAtRuntime = true;
+            actor.respawnFromFullSave = saved.respawnFromFullSave;
+            actor.prefabKey = saved.prefabKey ?? "";
+            actor.respawnTemplateNpcId =
+                saved.respawnTemplateNpcId ?? "";
+        }
+
         if (actor != null &&
             !string.IsNullOrWhiteSpace(saved.worldActorPersistentId))
         {
@@ -1010,11 +1232,9 @@ public class FullGameSaveController : MonoBehaviour
             saved.villagerJob,
             0,
             Enum.GetValues(typeof(VillagerJob)).Length - 1);
-        villager.maxHP = Mathf.Max(1, saved.villagerMaxHP);
-        villager.currentHP = Mathf.Clamp(
-            saved.villagerCurrentHP,
-            0,
-            villager.maxHP);
+        villager.RestoreHealthState(
+            Mathf.Max(1, saved.villagerMaxHP),
+            saved.villagerCurrentHP);
         villager.money = Mathf.Max(0, saved.villagerMoney);
         villager.spiritStone = Mathf.Max(0, saved.villagerSpiritStone);
         villager.SetCurrentActionState(
@@ -1042,11 +1262,6 @@ public class FullGameSaveController : MonoBehaviour
             1,
             CultivationProgression.MaxStage);
         smartNpc.cultivation = Math.Max(0L, saved.smartCultivation);
-        smartNpc.maxHP = Mathf.Max(1, saved.smartMaxHP);
-        smartNpc.currentHP = Mathf.Clamp(
-            saved.smartCurrentHP,
-            0,
-            smartNpc.maxHP);
         smartNpc.money = Mathf.Max(0, saved.smartMoney);
         smartNpc.spiritStone = Mathf.Max(0, saved.smartSpiritStone);
         smartNpc.canCultivate = saved.smartCanCultivate;
@@ -1060,6 +1275,14 @@ public class FullGameSaveController : MonoBehaviour
 
         CharacterStats stats =
             ResolveComponent<CharacterStats>(smartNpc.gameObject);
+        if (stats == null)
+        {
+            smartNpc.RestoreHealthState(
+                Mathf.Max(1, saved.smartMaxHP),
+                saved.smartCurrentHP);
+            stats = smartNpc.characterStats;
+        }
+
         if (stats != null)
         {
             stats.realm = smartNpc.realm;
@@ -1068,11 +1291,11 @@ public class FullGameSaveController : MonoBehaviour
             stats.waitingForHeavenlyTribulation =
                 smartNpc.waitingForHeavenlyTribulation;
             stats.RecalculateStats(false);
-            stats.currentHP = Mathf.Clamp(
-                smartNpc.currentHP,
-                0,
-                stats.finalHP);
         }
+
+        smartNpc.RestoreHealthState(
+            Mathf.Max(1, saved.smartMaxHP),
+            saved.smartCurrentHP);
     }
 
     NpcActionState ResolveSavedActionState(
@@ -1191,6 +1414,29 @@ public class FullGameSaveController : MonoBehaviour
             memory.memories = CloneMemories(saved.memories);
             memory.Prune();
         }
+    }
+
+    GameObject FindNpcById(string npcId)
+    {
+        if (string.IsNullOrWhiteSpace(npcId))
+        {
+            return null;
+        }
+
+        foreach (NPCIdentity identity in
+                 FindObjectsByType<NPCIdentity>(FindObjectsInactive.Include))
+        {
+            if (identity != null &&
+                string.Equals(
+                    identity.npcId,
+                    npcId,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return identity.gameObject;
+            }
+        }
+
+        return null;
     }
 
     GameObject FindNpcByStateData(SavedNpcStateData saved)
@@ -1577,6 +1823,193 @@ public class FullGameSaveController : MonoBehaviour
             target.GetComponentInChildren<T>(true);
     }
 
+    void SaveWorldSimulation(FullGameSaveData data)
+    {
+        if (data == null)
+        {
+            return;
+        }
+
+        TryReadSaveData(out FullGameSaveData previous);
+        SaveFarmPlots(data, previous);
+
+        WeatherSystem weather = WeatherSystem.Instance;
+        data.weatherState = weather != null
+            ? weather.CapturePersistentState()
+            : previous != null
+                ? previous.weatherState
+                : null;
+
+        WeatherAccumulationSystem accumulation =
+            WeatherAccumulationSystem.Instance;
+        data.weatherAccumulationState = accumulation != null
+            ? accumulation.CapturePersistentState()
+            : previous != null
+                ? previous.weatherAccumulationState
+                : null;
+
+        WorldEventSystem worldEvents = WorldEventSystem.Instance;
+        data.worldEventState = worldEvents != null
+            ? worldEvents.CapturePersistentState()
+            : previous != null
+                ? previous.worldEventState
+                : null;
+
+        WorldEventManager logManager = WorldEventManager.Instance;
+        if (logManager != null)
+        {
+            data.hasWorldLogState = true;
+            data.worldLogs = logManager.CaptureLogs();
+        }
+        else if (previous != null && previous.hasWorldLogState)
+        {
+            data.hasWorldLogState = true;
+            data.worldLogs = previous.worldLogs ?? new List<LogEntry>();
+        }
+    }
+
+    void SaveFarmPlots(
+        FullGameSaveData data,
+        FullGameSaveData previous)
+    {
+        Dictionary<string, FarmPlotPersistentState> states =
+            new Dictionary<string, FarmPlotPersistentState>(
+                StringComparer.Ordinal);
+
+        if (previous != null &&
+            previous.hasFarmPlotState &&
+            previous.farmPlots != null)
+        {
+            for (int i = 0; i < previous.farmPlots.Count; i++)
+            {
+                FarmPlotPersistentState saved = previous.farmPlots[i];
+                if (saved != null &&
+                    !string.IsNullOrWhiteSpace(saved.persistentKey))
+                {
+                    states[saved.persistentKey] = saved;
+                }
+            }
+        }
+
+        FarmPlot[] plots = FindObjectsByType<FarmPlot>(
+            FindObjectsInactive.Include);
+        HashSet<string> capturedKeys = new HashSet<string>(
+            StringComparer.Ordinal);
+        for (int i = 0; i < plots.Length; i++)
+        {
+            FarmPlot plot = plots[i];
+            if (plot == null)
+            {
+                continue;
+            }
+
+            FarmPlotPersistentState captured =
+                plot.CapturePersistentState();
+            if (captured == null ||
+                string.IsNullOrWhiteSpace(captured.persistentKey))
+            {
+                continue;
+            }
+
+            bool duplicateCurrentKey =
+                !capturedKeys.Add(captured.persistentKey);
+            if (debugLog && duplicateCurrentKey)
+            {
+                Debug.LogWarning(
+                    "FullGameSaveController replaced duplicate farm key: " +
+                    captured.persistentKey,
+                    plot);
+            }
+
+            states[captured.persistentKey] = captured;
+        }
+
+        List<string> orderedKeys = new List<string>(states.Keys);
+        orderedKeys.Sort(StringComparer.Ordinal);
+
+        data.hasFarmPlotState =
+            plots.Length > 0 ||
+            (previous != null && previous.hasFarmPlotState);
+        data.farmPlots = new List<FarmPlotPersistentState>(
+            orderedKeys.Count);
+        for (int i = 0; i < orderedKeys.Count; i++)
+        {
+            data.farmPlots.Add(states[orderedKeys[i]]);
+        }
+    }
+
+    void ApplyWorldSimulation(FullGameSaveData data)
+    {
+        if (data == null)
+        {
+            return;
+        }
+
+        ApplyFarmPlots(data);
+
+        if (WeatherSystem.Instance != null)
+        {
+            WeatherSystem.Instance.RestorePersistentState(
+                data.weatherState);
+        }
+
+        if (WeatherAccumulationSystem.Instance != null)
+        {
+            WeatherAccumulationSystem.Instance.RestorePersistentState(
+                data.weatherAccumulationState);
+        }
+
+        if (WorldEventSystem.Instance != null)
+        {
+            WorldEventSystem.Instance.RestorePersistentState(
+                data.worldEventState);
+        }
+
+        if (data.hasWorldLogState &&
+            WorldEventManager.Instance != null)
+        {
+            WorldEventManager.Instance.RestoreLogs(data.worldLogs);
+        }
+    }
+
+    void ApplyFarmPlots(FullGameSaveData data)
+    {
+        if (data == null ||
+            !data.hasFarmPlotState ||
+            data.farmPlots == null ||
+            data.farmPlots.Count == 0)
+        {
+            return;
+        }
+
+        Dictionary<string, FarmPlotPersistentState> states =
+            new Dictionary<string, FarmPlotPersistentState>(
+                StringComparer.Ordinal);
+        for (int i = 0; i < data.farmPlots.Count; i++)
+        {
+            FarmPlotPersistentState saved = data.farmPlots[i];
+            if (saved != null &&
+                !string.IsNullOrWhiteSpace(saved.persistentKey))
+            {
+                states[saved.persistentKey] = saved;
+            }
+        }
+
+        FarmPlot[] plots = FindObjectsByType<FarmPlot>(
+            FindObjectsInactive.Include);
+        for (int i = 0; i < plots.Length; i++)
+        {
+            FarmPlot plot = plots[i];
+            if (plot != null &&
+                states.TryGetValue(
+                    plot.GetPersistentSaveKey(),
+                    out FarmPlotPersistentState saved))
+            {
+                plot.RestorePersistentState(saved);
+            }
+        }
+    }
+
     void SaveWorldTime()
     {
         WorldTimeSystem time = WorldTimeSystem.Instance;
@@ -1596,7 +2029,7 @@ public class FullGameSaveController : MonoBehaviour
 
         if (GameSaveSystem.TryLoadWorldTime(out int year, out int month, out int day, out float hour))
         {
-            time.SetTime(year, month, day, hour);
+            time.RestoreTime(year, month, day, hour);
         }
     }
 
@@ -1684,7 +2117,57 @@ public class FullGameSaveController : MonoBehaviour
             data.npcStates = new List<SavedNpcStateData>();
         }
 
+        if (data.farmPlots == null)
+        {
+            data.farmPlots = new List<FarmPlotPersistentState>();
+        }
+
+        if (data.worldLogs == null)
+        {
+            data.worldLogs = new List<LogEntry>();
+        }
+
+        MigrateSaveData(data);
+
         return true;
+    }
+
+    void MigrateSaveData(FullGameSaveData data)
+    {
+        if (data == null)
+        {
+            return;
+        }
+
+        if (data.saveVersion < 3 && data.npcStates != null)
+        {
+            for (int i = 0; i < data.npcStates.Count; i++)
+            {
+                SavedNpcStateData saved = data.npcStates[i];
+                if (saved == null ||
+                    !saved.hasIdentity ||
+                    (string.IsNullOrWhiteSpace(saved.motherId) &&
+                     string.IsNullOrWhiteSpace(saved.fatherId)))
+                {
+                    continue;
+                }
+
+                saved.isRuntimeSpawn = true;
+                saved.respawnFromFullSave = true;
+                saved.respawnTemplateNpcId =
+                    !string.IsNullOrWhiteSpace(saved.motherId)
+                        ? saved.motherId
+                        : saved.fatherId;
+                if (string.IsNullOrWhiteSpace(saved.savedObjectName))
+                {
+                    saved.savedObjectName = saved.displayName;
+                }
+            }
+        }
+
+        data.saveVersion = Mathf.Max(
+            data.saveVersion,
+            CurrentSaveVersion);
     }
 
     GameObject FindPlayerObject()

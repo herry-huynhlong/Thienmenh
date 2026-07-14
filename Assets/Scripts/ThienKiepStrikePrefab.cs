@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class ThienKiepStrikePrefab : MonoBehaviour
 {
@@ -11,7 +12,8 @@ public class ThienKiepStrikePrefab : MonoBehaviour
     public AudioSource cloudRumbleAudio;
 
     [Header("Hiệu ứng mây hiện dần")]
-    public float cloudFadeInTime = 0.8f;
+    [FormerlySerializedAs("cloudFadeInTime")]
+    public float cloudFadeInDurationScaledSeconds = 0.8f;
     public float cloudStartScale = 0.65f;
     public float cloudEndScale = 1f;
 
@@ -35,18 +37,24 @@ public class ThienKiepStrikePrefab : MonoBehaviour
     public int hitBurstRayCount = 18;
     public float hitBurstMinLength = 0.35f;
     public float hitBurstMaxLength = 2f;
-    public float hitBurstLifeTime = 0.18f;
+    [FormerlySerializedAs("hitBurstLifeTime")]
+    public float hitBurstLifetimeScaledSeconds = 0.18f;
     public float hitBurstStartWidth = 0.08f;
     public float hitBurstEndWidth = 0.008f;
     public float hitBurstJaggedOffset = 0.15f;
 
     [Header("Thời gian")]
-    public float cloudGatherTime = 0.4f;
-    public float cloudFlashInterval = 0.18f;
+    [FormerlySerializedAs("cloudGatherTime")]
+    public float cloudGatherDurationScaledSeconds = 0.4f;
+    [FormerlySerializedAs("cloudFlashInterval")]
+    public float cloudFlashIntervalScaledSeconds = 0.18f;
     public int cloudFlashCount = 5;
-    public float warningTime = 0.45f;
-    public float lightningLifeTime = 0.16f;
-    public float destroyDelay = 1f;
+    [FormerlySerializedAs("warningTime")]
+    public float warningDurationScaledSeconds = 0.45f;
+    [FormerlySerializedAs("lightningLifeTime")]
+    public float lightningLifetimeScaledSeconds = 0.16f;
+    [FormerlySerializedAs("destroyDelay")]
+    public float destroyDelayScaledSeconds = 1f;
 
     [Header("Sét chính")]
     public float skyHeight = 7f;
@@ -146,22 +154,22 @@ public class ThienKiepStrikePrefab : MonoBehaviour
 
         yield return StartCoroutine(FadeCloudIn());
 
-        yield return new WaitForSeconds(cloudGatherTime);
+        yield return GameTime.WaitForScaledSeconds(cloudGatherDurationScaledSeconds);
 
         for (int i = 0; i < cloudFlashCount; i++)
         {
             DrawCloudFlash();
 
-            yield return new WaitForSeconds(cloudFlashInterval);
+            yield return GameTime.WaitForScaledSeconds(cloudFlashIntervalScaledSeconds);
 
             SetLineActive(cloudFlashLine, false);
 
-            yield return new WaitForSeconds(cloudFlashInterval);
+            yield return GameTime.WaitForScaledSeconds(cloudFlashIntervalScaledSeconds);
         }
 
         SetObjectActive(warningCircle, true);
 
-        yield return new WaitForSeconds(warningTime);
+        yield return GameTime.WaitForScaledSeconds(warningDurationScaledSeconds);
 
         SetObjectActive(warningCircle, false);
 
@@ -185,12 +193,12 @@ public class ThienKiepStrikePrefab : MonoBehaviour
             thunderAudio.Play();
         }
 
-        yield return new WaitForSeconds(lightningLifeTime);
+        yield return GameTime.WaitForScaledSeconds(lightningLifetimeScaledSeconds);
 
         SetLineActive(lightningLine, false);
         SetLineActive(cloudFlashLine, false);
 
-        Destroy(gameObject, destroyDelay);
+        Destroy(gameObject, destroyDelayScaledSeconds);
     }
 
     private IEnumerator FadeCloudIn()
@@ -200,11 +208,11 @@ public class ThienKiepStrikePrefab : MonoBehaviour
 
         float timer = 0f;
 
-        while (timer < cloudFadeInTime)
+        while (timer < cloudFadeInDurationScaledSeconds)
         {
-            timer += Time.deltaTime;
+            timer += GameTime.ScaledDeltaSeconds;
 
-            float t = timer / cloudFadeInTime;
+            float t = timer / cloudFadeInDurationScaledSeconds;
             t = Mathf.Clamp01(t);
 
             SetCloudAlpha(t);
@@ -361,7 +369,7 @@ public class ThienKiepStrikePrefab : MonoBehaviour
             line.startWidth = hitBurstStartWidth;
             line.endWidth = hitBurstEndWidth;
 
-            Destroy(line.gameObject, hitBurstLifeTime);
+            Destroy(line.gameObject, hitBurstLifetimeScaledSeconds);
         }
     }
 
@@ -377,16 +385,29 @@ public class ThienKiepStrikePrefab : MonoBehaviour
 
         foreach (Collider2D hit in hits)
         {
-            GameObject root = hit.attachedRigidbody != null
-                ? hit.attachedRigidbody.gameObject
+            if (hit == null ||
+                !DamageSystem.TryResolveReceiver(
+                    hit.gameObject,
+                    out IDamageable damageable) ||
+                damageable.IsDead)
+            {
+                continue;
+            }
+
+            GameObject root = damageable.DamageTransform != null
+                ? damageable.DamageTransform.gameObject
                 : hit.gameObject;
 
-            if (damagedObjects.Contains(root))
+            if (root == null || !damagedObjects.Add(root))
                 continue;
 
-            damagedObjects.Add(root);
-
-            root.SendMessage("TakeDamage", damage, SendMessageOptions.DontRequireReceiver);
+            DamageContext context = DamageContext.Environment(
+                damage,
+                this,
+                DamageType.HeavenlyTribulation,
+                "thien_kiep_strike_prefab",
+                GetImpactPosition());
+            DamageSystem.Apply(damageable, context);
         }
     }
 

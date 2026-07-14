@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Serialization;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -36,8 +37,10 @@ public class WeatherVisualSystem : MonoBehaviour
     public Color qiColor = new Color(0.54f, 1f, 0.82f, 0.55f);
 
     [Header("Thunder")]
-    public float thunderFlashMinDelay = 4f;
-    public float thunderFlashMaxDelay = 8f;
+    [FormerlySerializedAs("thunderFlashMinDelay")]
+    public float thunderFlashMinDelayUnscaledSeconds = 4f;
+    [FormerlySerializedAs("thunderFlashMaxDelay")]
+    public float thunderFlashMaxDelayUnscaledSeconds = 8f;
     public float thunderFlashFadeSpeed = 3.8f;
 
     ParticleSystem rainParticles;
@@ -46,7 +49,7 @@ public class WeatherVisualSystem : MonoBehaviour
     Image flashImage;
     WeatherSystem subscribedWeather;
     WorldWeather activeWeather = (WorldWeather)(-1);
-    float thunderTimer;
+    float thunderTimerUnscaledSeconds;
     float thunderFlashAlpha;
     Sprite[] rainSprites;
     Sprite[] snowSprites;
@@ -143,7 +146,7 @@ public class WeatherVisualSystem : MonoBehaviour
 
         if (weather != WorldWeather.Thunder)
         {
-            thunderTimer = 0f;
+            thunderTimerUnscaledSeconds = 0f;
             thunderFlashAlpha = 0f;
             SetFlashAlpha(0f);
         }
@@ -423,12 +426,14 @@ public class WeatherVisualSystem : MonoBehaviour
     {
         if (activeWeather == WorldWeather.Thunder)
         {
-            thunderTimer -= Time.unscaledDeltaTime;
-            if (thunderTimer <= 0f)
+            thunderTimerUnscaledSeconds -= GameTime.UnscaledDeltaSeconds;
+            if (thunderTimerUnscaledSeconds <= 0f)
             {
-                thunderTimer = Random.Range(
-                    Mathf.Max(0.5f, thunderFlashMinDelay),
-                    Mathf.Max(thunderFlashMinDelay + 0.5f, thunderFlashMaxDelay));
+                thunderTimerUnscaledSeconds = Random.Range(
+                    Mathf.Max(0.5f, thunderFlashMinDelayUnscaledSeconds),
+                    Mathf.Max(
+                        thunderFlashMinDelayUnscaledSeconds + 0.5f,
+                        thunderFlashMaxDelayUnscaledSeconds));
                 thunderFlashAlpha = Random.Range(0.28f, 0.46f);
             }
         }
@@ -436,7 +441,7 @@ public class WeatherVisualSystem : MonoBehaviour
         thunderFlashAlpha = Mathf.MoveTowards(
             thunderFlashAlpha,
             0f,
-            Time.unscaledDeltaTime * thunderFlashFadeSpeed);
+            GameTime.UnscaledDeltaSeconds * thunderFlashFadeSpeed);
 
         SetFlashAlpha(thunderFlashAlpha);
     }

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public enum ResourceRespawnMode
 {
@@ -9,15 +10,19 @@ public enum ResourceRespawnMode
 }
 
 [RequireComponent(typeof(WorldStatItemPickup))]
-public class WorldResourceNode : MonoBehaviour
+public class WorldResourceNode : MonoBehaviour, ISerializationCallbackReceiver
 {
+    const int CurrentTimeDomainVersion = 1;
+
     public event System.Action OnRespawnStarted;
     public event System.Action OnRespawnCompleted;
 
     [Header("Resource")]
     public WorldStatItemPickup pickup;
     public int respawnAmount = 1;
-    public float respawnDelay = 30f;
+    [FormerlySerializedAs("respawnDelay")]
+    [Tooltip("World hours before this depleted resource respawns.")]
+    public float respawnDurationWorldHours = 30f;
     public ResourceRespawnMode respawnMode = ResourceRespawnMode.AutomaticByGrade;
 
     [Header("Relocation")]
@@ -37,9 +42,19 @@ public class WorldResourceNode : MonoBehaviour
     Collider2D[] colliders;
     Vector3 startPosition;
     bool respawning;
+    bool respawnUsesWorldClock;
+    double respawnAtWorldHour;
+    float respawnAtScaledSeconds;
+    WorldTimeSystem subscribedTimeSystem;
+    [SerializeField, HideInInspector]
+    int timeDomainVersion;
+
+    public bool IsRespawning => respawning;
+    public double RespawnAtWorldHour => respawnAtWorldHour;
 
     void Awake()
     {
+        MigrateTimeDomains();
         CacheReferences();
         startPosition = transform.position;
         EnsurePickupSubscription();
@@ -48,22 +63,61 @@ public class WorldResourceNode : MonoBehaviour
     void OnEnable()
     {
         EnsurePickupSubscription();
+        BindWorldTimeSystem();
+    }
+
+    void OnDisable()
+    {
+        UnbindWorldTimeSystem();
+    }
+
+    void Update()
+    {
+        BindWorldTimeSystem();
+        TryCompleteRespawn();
+    }
+
+    void TryCompleteRespawn()
+    {
+        if (!respawning)
+        {
+            return;
+        }
+
+        if (respawnUsesWorldClock)
+        {
+            if (!GameTime.TryGetCurrentWorldHour(out double currentWorldHour) ||
+                currentWorldHour < respawnAtWorldHour)
+            {
+                return;
+            }
+        }
+        else if (GameTime.ScaledNowSeconds < respawnAtScaledSeconds)
+        {
+            return;
+        }
+
+        CompleteRespawn();
     }
 
     void OnDestroy()
     {
+        UnbindWorldTimeSystem();
         RemovePickupSubscription();
     }
 
     void OnValidate()
     {
+        MigrateTimeDomains();
+
         if (pickup == null)
         {
             pickup = GetComponent<WorldStatItemPickup>();
         }
 
         respawnAmount = Mathf.Max(1, respawnAmount);
-        respawnDelay = Mathf.Max(0f, respawnDelay);
+        respawnDurationWorldHours =
+            Mathf.Max(0f, respawnDurationWorldHours);
         fallbackRandomRadius = Mathf.Max(0f, fallbackRandomRadius);
     }
 
@@ -74,10 +128,10 @@ public class WorldResourceNode : MonoBehaviour
             return;
         }
 
-        StartCoroutine(RespawnRoutine());
+        BeginRespawn();
     }
 
-    IEnumerator RespawnRoutine()
+    void BeginRespawn()
     {
         respawning = true;
         OnRespawnStarted?.Invoke();
@@ -95,12 +149,30 @@ public class WorldResourceNode : MonoBehaviour
             SetRendererAlpha(depletedAlpha);
         }
 
-        if (respawnDelay > 0f)
+        float durationWorldHours =
+            Mathf.Max(0f, respawnDurationWorldHours);
+        if (durationWorldHours <= 0f)
         {
-            yield return new WaitForSeconds(respawnDelay);
+            CompleteRespawn();
+            return;
         }
 
-        if (relocate)
+        if (GameTime.TryGetCurrentWorldHour(out double currentWorldHour))
+        {
+            respawnUsesWorldClock = true;
+            respawnAtWorldHour = currentWorldHour + durationWorldHours;
+            return;
+        }
+
+        respawnUsesWorldClock = false;
+        respawnAtScaledSeconds =
+            GameTime.ScaledNowSeconds +
+            GameTime.WorldHoursToScaledSeconds(durationWorldHours);
+    }
+
+    void CompleteRespawn()
+    {
+        if (ShouldRelocate())
         {
             transform.position = GetRespawnPosition();
         }
@@ -115,6 +187,58 @@ public class WorldResourceNode : MonoBehaviour
         SetVisualActive(true);
         SetCollidersActive(true);
         respawning = false;
+    }
+
+    void MigrateTimeDomains()
+    {
+        if (timeDomainVersion >= CurrentTimeDomainVersion)
+        {
+            return;
+        }
+
+        respawnDurationWorldHours =
+            GameTime.LegacyScaledSecondsToWorldHours(
+                respawnDurationWorldHours);
+        timeDomainVersion = CurrentTimeDomainVersion;
+    }
+
+    public void OnBeforeSerialize()
+    {
+    }
+
+    public void OnAfterDeserialize()
+    {
+        MigrateTimeDomains();
+    }
+
+    void BindWorldTimeSystem()
+    {
+        WorldTimeSystem found = WorldTimeSystem.Instance;
+        if (subscribedTimeSystem == found)
+        {
+            return;
+        }
+
+        UnbindWorldTimeSystem();
+        subscribedTimeSystem = found;
+        if (subscribedTimeSystem != null)
+        {
+            subscribedTimeSystem.OnHourChanged += HandleWorldHourChanged;
+        }
+    }
+
+    void UnbindWorldTimeSystem()
+    {
+        if (subscribedTimeSystem != null)
+        {
+            subscribedTimeSystem.OnHourChanged -= HandleWorldHourChanged;
+            subscribedTimeSystem = null;
+        }
+    }
+
+    void HandleWorldHourChanged(int hour)
+    {
+        TryCompleteRespawn();
     }
 
     public void SetPickup(WorldStatItemPickup configuredPickup)

@@ -49,8 +49,18 @@ public class WorldSimulationBootstrapRuntimeTests
                 systemType.Name +
                 " should keep the scene-configured instance instead of the bootstrap fallback.");
 
-            UnityEngine.Object.Destroy(sceneConfigured.gameObject);
-            UnityEngine.Object.Destroy(runtimeFallback.gameObject);
+            if (sceneConfigured != null)
+            {
+                UnityEngine.Object.Destroy(sceneConfigured.gameObject);
+            }
+
+            // The scene-configured instance intentionally destroys the
+            // bootstrap fallback during Awake, so it can already compare as
+            // null by the time cleanup runs.
+            if (runtimeFallback != null)
+            {
+                UnityEngine.Object.Destroy(runtimeFallback.gameObject);
+            }
             yield return null;
             ClearBootstrapInstances();
         }
