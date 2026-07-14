@@ -520,6 +520,22 @@
           "value": "Năm {0} - {1}"
         },
         {
+          "key": "yearOnlyFormat",
+          "value": "N\u0103m {0}"
+        },
+        {
+          "key": "dayOnlyFormat",
+          "value": "Ng\u00E0y {0}"
+        },
+        {
+          "key": "monthDayFormat",
+          "value": "Th\u00E1ng {0} - Ng\u00E0y {1}"
+        },
+        {
+          "key": "timeOnlyFormat",
+          "value": "{0:00}:{1:00}"
+        },
+        {
           "key": "clockFormat",
           "value": "{0}\n{1}\n{2:00}h{3:00}"
         }

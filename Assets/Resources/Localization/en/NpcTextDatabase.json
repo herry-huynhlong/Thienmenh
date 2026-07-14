@@ -1302,6 +1302,22 @@
           "value": "Hunt Dangerous Monsters"
         },
         {
+          "key": "pickItemFormat",
+          "value": "Pick {0}"
+        },
+        {
+          "key": "gatherItemFormat",
+          "value": "Gather {0}"
+        },
+        {
+          "key": "harvestItemFormat",
+          "value": "Harvest {0}"
+        },
+        {
+          "key": "huntRealmStageBelowFormat",
+          "value": "Eliminate {0} Stage {1} Beasts or Below"
+        },
+        {
           "key": "gatherHerbsAroundForest",
           "value": "Gather Spirit Herbs Around the Forest"
         },
@@ -1471,6 +1487,10 @@
         {
           "key": "huntObjective",
           "value": "Slay Monsters x{0}"
+        },
+        {
+          "key": "huntRealmObjective",
+          "value": "Defeat {0} beasts at {1} or below"
         },
         {
           "key": "escortObjective",

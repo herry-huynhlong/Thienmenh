@@ -45,7 +45,7 @@ public enum TavernMealStage
 [System.Serializable]
 public class NpcTaskOffer
 {
-    public string taskName = "Thu thập tài nguyên";
+    public string taskName = "";
     public NpcTaskType taskType = NpcTaskType.GatherResource;
     public NpcTaskRank rank = NpcTaskRank.Ha;
     public CultivationRealm minRealm = CultivationRealm.QiRefining;
@@ -54,11 +54,13 @@ public class NpcTaskOffer
     public int rewardSpiritStone = 20;
     public int rewardCultivationExp;
     public StatItemData rewardItem;
+    public string rewardItemId;
     public int rewardItemAmount;
     public float workDuration = 12f;
 
     [Header("Objective")]
     public StatItemData requiredItem;
+    public string requiredItemId;
     [Min(1)] public int requiredAmount = 1;
     public bool randomizeRequiredItemAmount = true;
     [Min(1)] public int requiredItemAmountMin = 5;
@@ -76,6 +78,36 @@ public class NpcTaskOffer
     [Range(1, CultivationProgression.MaxStage)]
     public int requiredMonsterMaxStage = 1;
     public bool matchMonsterRealmExactly = true;
+
+    public void ResolveItemReferences()
+    {
+        requiredItemId = NormalizeItemKey(requiredItem, requiredItemId);
+        rewardItemId = NormalizeItemKey(rewardItem, rewardItemId);
+
+        if (requiredItem == null &&
+            !string.IsNullOrWhiteSpace(requiredItemId))
+        {
+            requiredItem = GameSaveSystem.FindItem(requiredItemId);
+        }
+
+        if (rewardItem == null &&
+            !string.IsNullOrWhiteSpace(rewardItemId))
+        {
+            rewardItem = GameSaveSystem.FindItem(rewardItemId);
+        }
+    }
+
+    static string NormalizeItemKey(StatItemData item, string itemKey)
+    {
+        if (item != null)
+        {
+            return GameSaveSystem.GetItemKey(item);
+        }
+
+        return string.IsNullOrWhiteSpace(itemKey)
+            ? string.Empty
+            : itemKey.Trim();
+    }
 
 }
 
@@ -726,7 +758,7 @@ public partial class NpcTaskProvider : MonoBehaviour
     {
         new NpcTaskOffer
         {
-            taskName = "Thu thập linh thảo hạ phẩm",
+            taskName = "",
             taskType = NpcTaskType.GatherResource,
             rank = NpcTaskRank.Ha,
             minRealm = CultivationRealm.QiRefining,
@@ -737,7 +769,7 @@ public partial class NpcTaskProvider : MonoBehaviour
         },
         new NpcTaskOffer
         {
-            taskName = "Tuần tra ngoài làng",
+            taskName = "",
             taskType = NpcTaskType.Patrol,
             rank = NpcTaskRank.Trung,
             minRealm = CultivationRealm.GoldenCore,
@@ -748,7 +780,7 @@ public partial class NpcTaskProvider : MonoBehaviour
         },
         new NpcTaskOffer
         {
-            taskName = "Săn yêu thú nguy hiểm",
+            taskName = "",
             taskType = NpcTaskType.HuntMonster,
             rank = NpcTaskRank.Thuong,
             requiredMonsterKills = 1,
@@ -791,9 +823,37 @@ public partial class NpcTaskProvider : MonoBehaviour
         }
     }
 
+    void ResolveConfiguredOfferItemReferences()
+    {
+        if (offers == null)
+        {
+            return;
+        }
+
+        foreach (NpcTaskOffer offer in offers)
+        {
+            ResolveOfferItemReferences(offer);
+        }
+    }
+
+    static void ResolveOfferItemReferences(NpcTaskOffer offer)
+    {
+        if (offer == null)
+        {
+            return;
+        }
+
+        offer.ResolveItemReferences();
+    }
+
     string TaskName(string key)
     {
         return NpcText.Get("taskNames", key, key);
+    }
+
+    string TaskNameFormat(string key, params object[] args)
+    {
+        return NpcText.Format(TaskName(key), args);
     }
 
     string TaskAction(string key)
@@ -1433,7 +1493,7 @@ public partial class NpcTaskProvider : MonoBehaviour
         string itemName = ItemText.Name(item);
         if (item.itemType == ItemType.DanDuoc)
         {
-            return "Hai " + itemName;
+            return TaskNameFormat("pickItemFormat", itemName);
         }
 
         if (item.itemType == ItemType.ThucPham)
@@ -1441,23 +1501,22 @@ public partial class NpcTaskProvider : MonoBehaviour
             return BuildHarvestTaskName(item);
         }
 
-        return "Thu thap " + itemName;
+        return TaskNameFormat("gatherItemFormat", itemName);
     }
 
     string BuildHarvestTaskName(StatItemData item)
     {
         return item == null
             ? TaskName("harvestLinhRice")
-            : "Thu hoach " + ItemText.Name(item);
+            : TaskNameFormat("harvestItemFormat", ItemText.Name(item));
     }
 
     string BuildHuntTaskName(CultivationRealm realm, int stage)
     {
-        return "Tieu diet yeu thu " +
-            NpcText.Realm(realm) +
-            " tang " +
-            Mathf.Clamp(stage, 1, CultivationProgression.MaxStage) +
-            " tro xuong";
+        return TaskNameFormat(
+            "huntRealmStageBelowFormat",
+            NpcText.Realm(realm),
+            Mathf.Clamp(stage, 1, CultivationProgression.MaxStage));
     }
 
     void ResolveSafeHuntNpcRequirement(
@@ -1513,6 +1572,7 @@ public partial class NpcTaskProvider : MonoBehaviour
         ConfigureStationaryProvider();
         EnsureExpandedDefaultOffers();
         NormalizeConfiguredOfferText();
+        ResolveConfiguredOfferItemReferences();
     }
 
     void OnDisable()
@@ -1652,6 +1712,7 @@ public partial class NpcTaskProvider : MonoBehaviour
         ConfigureStationaryProvider();
         EnsureExpandedDefaultOffers();
         NormalizeConfiguredOfferText();
+        ResolveConfiguredOfferItemReferences();
 
         NpcSpecialProfession profession =
             GetComponent<NpcSpecialProfession>();
@@ -1817,6 +1878,7 @@ public partial class NpcTaskProvider : MonoBehaviour
 
         foreach (NpcTaskOffer offer in offers)
         {
+            ResolveOfferItemReferences(offer);
             if (!IsOfferWorldAvailable(offer))
             {
                 continue;
@@ -1835,6 +1897,8 @@ public partial class NpcTaskProvider : MonoBehaviour
         {
             return null;
         }
+
+        ResolveOfferItemReferences(offer);
 
         if (offer.requiredItem != null)
         {
@@ -2135,6 +2199,8 @@ public partial class NpcTaskProvider : MonoBehaviour
         {
             return null;
         }
+
+        ResolveOfferItemReferences(offer);
 
         if (offer.requiredItem != null)
         {
@@ -2546,6 +2612,7 @@ public partial class NpcTaskProvider : MonoBehaviour
             : Mathf.Max(0, offer.rewardSpiritStone);
 
         PayRewardMoney(npc, rewardSpiritStone);
+        ResolveOfferItemReferences(offer);
 
         if (offer.rewardItem != null &&
             offer.rewardItemAmount > 0)

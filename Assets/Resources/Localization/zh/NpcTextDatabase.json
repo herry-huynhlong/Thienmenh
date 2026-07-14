@@ -1406,6 +1406,22 @@
           "value": "猎杀危险妖兽"
         },
         {
+          "key": "pickItemFormat",
+          "value": "采摘{0}"
+        },
+        {
+          "key": "gatherItemFormat",
+          "value": "收集{0}"
+        },
+        {
+          "key": "harvestItemFormat",
+          "value": "收获{0}"
+        },
+        {
+          "key": "huntRealmStageBelowFormat",
+          "value": "剿灭{0}{1}层及以下妖兽"
+        },
+        {
           "key": "gatherHerbsAroundForest",
           "value": "采集林边灵草"
         },
@@ -1575,6 +1591,10 @@
         {
           "key": "huntObjective",
           "value": "击杀妖兽 x{0}"
+        },
+        {
+          "key": "huntRealmObjective",
+          "value": "击败 {0} 只 {1} 及以下妖兽"
         },
         {
           "key": "escortObjective",

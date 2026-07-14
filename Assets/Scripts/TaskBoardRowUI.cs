@@ -150,27 +150,10 @@ public class TaskBoardRowUI : MonoBehaviour
         int requiredMonsterKills,
         string realmWithStage)
     {
-        switch (LocalizationSettings.CurrentLanguageCode)
-        {
-            case "en":
-                return "Defeat " +
-                    requiredMonsterKills +
-                    " beasts at " +
-                    realmWithStage +
-                    " or below";
-            case "zh":
-                return "\u51fb\u8d25 " +
-                    requiredMonsterKills +
-                    " \u53ea " +
-                    realmWithStage +
-                    " \u53ca\u4ee5\u4e0b\u5996\u517d";
-            default:
-                return "Di\u1ec7t " +
-                    requiredMonsterKills +
-                    " y\u00eau th\u00fa " +
-                    realmWithStage +
-                    " tr\u1edf xu\u1ed1ng";
-        }
+        return Format(
+            "huntRealmObjective",
+            requiredMonsterKills,
+            realmWithStage);
     }
 
     static string Text(string key)

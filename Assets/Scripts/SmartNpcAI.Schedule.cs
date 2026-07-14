@@ -888,24 +888,11 @@ public partial class SmartNpcAI
             return false;
         }
 
-        bool shouldResetForSchedule =
-            activity == NpcScheduleActivity.Idle ||
-            activity == NpcScheduleActivity.Work ||
-            activity == NpcScheduleActivity.FreeHuntAndGather ||
-            activity == NpcScheduleActivity.Hunt ||
-            activity == NpcScheduleActivity.Gather ||
-            activity == NpcScheduleActivity.Cultivate ||
-            activity == NpcScheduleActivity.TradeBuySell ||
-            activity == NpcScheduleActivity.BuyGoods ||
-            activity == NpcScheduleActivity.SellGoods ||
-            activity == NpcScheduleActivity.Eat ||
-            activity == NpcScheduleActivity.Sleep ||
-            activity == NpcScheduleActivity.ReturnHome ||
-            activity == NpcScheduleActivity.Alchemy ||
-            activity == NpcScheduleActivity.Forge;
-
-        if (!shouldResetForSchedule &&
-            !hasStaleDirectedActionOnly)
+        // This cleanup pass is meant to recover from orphaned directed
+        // schedule actions such as a travel intent that no longer has a
+        // target. Let the normal schedule/task flow continue unchanged when
+        // there is no stale directed action to clear.
+        if (!hasStaleDirectedActionOnly)
         {
             return false;
         }

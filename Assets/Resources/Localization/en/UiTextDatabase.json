@@ -342,6 +342,22 @@
           "value": "Year {0} - {1}"
         },
         {
+          "key": "yearOnlyFormat",
+          "value": "Year {0}"
+        },
+        {
+          "key": "dayOnlyFormat",
+          "value": "Day {0}"
+        },
+        {
+          "key": "monthDayFormat",
+          "value": "Month {0} - Day {1}"
+        },
+        {
+          "key": "timeOnlyFormat",
+          "value": "{0:00}:{1:00}"
+        },
+        {
           "key": "clockFormat",
           "value": "{0}\n{1}\n{2:00}h{3:00}"
         }

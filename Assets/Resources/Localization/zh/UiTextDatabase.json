@@ -520,6 +520,22 @@
           "value": "第{0}年 - {1}"
         },
         {
+          "key": "yearOnlyFormat",
+          "value": "\u7B2C{0}\u5E74"
+        },
+        {
+          "key": "dayOnlyFormat",
+          "value": "\u7B2C{0}\u5929"
+        },
+        {
+          "key": "monthDayFormat",
+          "value": "\u7B2C{0}\u6708 - \u7B2C{1}\u5929"
+        },
+        {
+          "key": "timeOnlyFormat",
+          "value": "{0:00}:{1:00}"
+        },
+        {
           "key": "clockFormat",
           "value": "{0}\n{1}\n{2:00}时{3:00}分"
         }

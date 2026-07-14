@@ -1406,6 +1406,22 @@
           "value": "Săn yêu thú nguy hiểm"
         },
         {
+          "key": "pickItemFormat",
+          "value": "Hái {0}"
+        },
+        {
+          "key": "gatherItemFormat",
+          "value": "Thu thập {0}"
+        },
+        {
+          "key": "harvestItemFormat",
+          "value": "Thu hoạch {0}"
+        },
+        {
+          "key": "huntRealmStageBelowFormat",
+          "value": "Tiêu diệt yêu thú {0} tầng {1} trở xuống"
+        },
+        {
           "key": "gatherHerbsAroundForest",
           "value": "Thu thập linh thảo quanh rừng"
         },
@@ -1575,6 +1591,10 @@
         {
           "key": "huntObjective",
           "value": "Diệt yêu thú x{0}"
+        },
+        {
+          "key": "huntRealmObjective",
+          "value": "Diệt {0} yêu thú {1} trở xuống"
         },
         {
           "key": "escortObjective",
