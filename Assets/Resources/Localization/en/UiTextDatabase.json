@@ -520,6 +520,24 @@
       ]
     },
     {
+      "name": "worldItemInfo",
+      "entries": [
+        {
+          "key": "growthDaysHoursFormat",
+          "value": "{0}d {1}h"
+        },
+        {
+          "key": "growthHoursFormat",
+          "value": "{0}h"
+        },
+        {
+          "key": "growthProgressFormat",
+          "value": "{0}/{1}"
+        }
+      ],
+      "lists": []
+    },
+    {
       "name": "touchSelect",
       "entries": [
         {

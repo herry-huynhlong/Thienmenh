@@ -26,6 +26,10 @@ public class WorldItemInfoPanelUI : MonoBehaviour
 
     public TMP_Text loreQuoteText;
 
+    public GameObject namtuoiRoot;
+
+    public TMP_Text namtuoiText;
+
     public Image panelIcon;
 
     [Header("Cards")]
@@ -115,6 +119,20 @@ public class WorldItemInfoPanelUI : MonoBehaviour
             panelRoot.transform,
             "ExtraInfo");
 
+        if (namtuoiRoot == null)
+        {
+            Transform growthRoot = FindChildByName(panelRoot.transform, "namtuoi");
+            if (growthRoot != null)
+            {
+                namtuoiRoot = growthRoot.gameObject;
+            }
+        }
+
+        namtuoiText = EnsureText(
+            namtuoiText,
+            panelRoot.transform,
+            "namtuoi");
+
         loreQuoteText = EnsureLoreQuoteContentText(
             loreQuoteText,
             panelRoot.transform);
@@ -168,6 +186,7 @@ public class WorldItemInfoPanelUI : MonoBehaviour
         SetText(infoText, BuildInfoText(item, pickup.amount));
         SetText(extraInfoText, BuildExtraInfoText(item, pickup.amount));
         SetText(loreQuoteText, BuildLoreQuoteText(item));
+        SetOptionalText(namtuoiRoot, namtuoiText, BuildGrowthDurationText(pickup));
 
         if (qualityText != null)
         {
@@ -1201,6 +1220,94 @@ public class WorldItemInfoPanelUI : MonoBehaviour
 
         text.text = value ?? string.Empty;
         text.gameObject.SetActive(!string.IsNullOrWhiteSpace(text.text));
+    }
+
+    static void SetOptionalText(
+        GameObject root,
+        TMP_Text text,
+        string value)
+    {
+        if (text != null)
+        {
+            text.text = value ?? string.Empty;
+            text.gameObject.SetActive(!string.IsNullOrWhiteSpace(text.text));
+        }
+
+        if (root != null)
+        {
+            root.SetActive(!string.IsNullOrWhiteSpace(value));
+        }
+    }
+
+    static string BuildGrowthDurationText(WorldStatItemPickup pickup)
+    {
+        GrowingHerbNode herbNode = FindGrowingHerbNode(pickup);
+        if (herbNode == null)
+        {
+            return "";
+        }
+
+        int matureHours = Mathf.Max(1, Mathf.CeilToInt(herbNode.MatureAfterGameHours));
+        int currentHours = Mathf.Clamp(
+            Mathf.FloorToInt(Mathf.Max(0f, herbNode.AccumulatedGrowthHours)),
+            0,
+            matureHours);
+
+        string matureText = FormatGrowthHours(matureHours);
+        if (currentHours <= 0 ||
+            currentHours >= matureHours)
+        {
+            return matureText;
+        }
+
+        return UiText.Format(
+            "worldItemInfo",
+            "growthProgressFormat",
+            FormatGrowthHours(currentHours),
+            matureText);
+    }
+
+    static GrowingHerbNode FindGrowingHerbNode(WorldStatItemPickup pickup)
+    {
+        if (pickup == null)
+        {
+            return null;
+        }
+
+        GrowingHerbNode herbNode = pickup.GetComponent<GrowingHerbNode>();
+        if (herbNode != null)
+        {
+            return herbNode;
+        }
+
+        herbNode = pickup.GetComponentInParent<GrowingHerbNode>();
+        if (herbNode != null)
+        {
+            return herbNode;
+        }
+
+        return pickup.GetComponentInChildren<GrowingHerbNode>(true);
+    }
+
+    static string FormatGrowthHours(int totalHours)
+    {
+        totalHours = Mathf.Max(0, totalHours);
+        int days = totalHours / 24;
+        int hours = totalHours % 24;
+
+        if (days > 0)
+        {
+            return UiText.Format(
+                "worldItemInfo",
+                "growthDaysHoursFormat",
+                days,
+                hours);
+        }
+
+        return UiText.Format(
+            "worldItemInfo",
+            "growthHoursFormat",
+            totalHours);
     }
 
     static TMP_Text EnsureText(

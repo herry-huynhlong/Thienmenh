@@ -126,6 +126,10 @@ public class BicanhSessionManager : MonoBehaviour
     [Min(1)] public int maxParticipantDeaths = 6;
     public bool restoreDeadParticipantsOnEnd = true;
 
+    [Header("Elimination")]
+    [Range(0f, 1f)] public float eliminationHpRatio = 0.05f;
+    [Min(1)] public int minimumReturnHp = 1;
+
     [Header("Runtime")]
     public bool sessionRunning;
     public string activeEventName = "";
@@ -189,6 +193,7 @@ public class BicanhSessionManager : MonoBehaviour
             return;
         }
 
+        ProcessParticipantEliminations();
         ProcessDungeonDeaths();
 
         if (sessionDeathCount >= maxParticipantDeaths)
@@ -522,6 +527,31 @@ public class BicanhSessionManager : MonoBehaviour
         }
     }
 
+    void ProcessParticipantEliminations()
+    {
+        if (eliminationHpRatio <= 0f)
+        {
+            return;
+        }
+
+        for (int i = snapshots.Count - 1; i >= 0; i--)
+        {
+            ParticipantSnapshot snapshot = snapshots[i];
+            if (snapshot == null ||
+                snapshot.entity == null ||
+                IsDead(snapshot.entity) ||
+                !ShouldEliminateParticipant(snapshot))
+            {
+                continue;
+            }
+
+            ReturnParticipantToPreviousMap(
+                snapshot,
+                "near-death");
+            snapshots.RemoveAt(i);
+        }
+    }
+
     void HandleMonsterDefeated(
         MonsterAI monster,
         Vector3 position,
@@ -573,6 +603,60 @@ public class BicanhSessionManager : MonoBehaviour
             return;
         }
 
+        ReturnParticipantToPreviousMap(snapshot, "defeated");
+    }
+
+    bool ShouldEliminateParticipant(ParticipantSnapshot snapshot)
+    {
+        if (snapshot == null ||
+            snapshot.entity == null)
+        {
+            return false;
+        }
+
+        float hpRatio =
+            CombatPowerUtility.GetCurrentHpRatio(snapshot.entity);
+        return hpRatio > 0f &&
+            hpRatio <= eliminationHpRatio;
+    }
+
+    public bool TryEliminateParticipant(
+        GameObject entity,
+        string reason = "eliminated")
+    {
+        if (!sessionRunning || entity == null)
+        {
+            return false;
+        }
+
+        for (int i = snapshots.Count - 1; i >= 0; i--)
+        {
+            ParticipantSnapshot snapshot = snapshots[i];
+            if (snapshot == null ||
+                snapshot.entity != entity)
+            {
+                continue;
+            }
+
+            ReturnParticipantToPreviousMap(snapshot, reason);
+            snapshots.RemoveAt(i);
+            return true;
+        }
+
+        return false;
+    }
+
+    void ReturnParticipantToPreviousMap(
+        ParticipantSnapshot snapshot,
+        string reason)
+    {
+        if (snapshot == null || snapshot.entity == null)
+        {
+            return;
+        }
+
+        GameObject entity = snapshot.entity;
+        bool wasDead = IsDead(entity);
         bool countTowardLimit =
             snapshot.smartNpc != null ||
             snapshot.villager != null;
@@ -583,7 +667,26 @@ public class BicanhSessionManager : MonoBehaviour
         }
 
         RestoreParticipant(snapshot, true);
-        spawnedThisSession.Remove(snapshot.entity);
+
+        if (wasDead)
+        {
+            ApplyReturnRecoveryState(snapshot);
+        }
+        else
+        {
+            ApplyReturnActionState(snapshot);
+        }
+
+        spawnedThisSession.Remove(entity);
+
+        Vector3 returnPosition = ResolveReturnPosition(snapshot);
+        Debug.Log(
+            "[Bicanh] " +
+            entity.name +
+            " bi loai (" +
+            reason +
+            "), tra ve " +
+            returnPosition + ".");
     }
 
     List<GameObject> CollectEligibleParticipants()
@@ -1485,6 +1588,138 @@ public class BicanhSessionManager : MonoBehaviour
                 snapshot.rb.simulated = true;
             }
         }
+    }
+
+    void ApplyReturnRecoveryState(ParticipantSnapshot snapshot)
+    {
+        if (snapshot == null)
+        {
+            return;
+        }
+
+        int returnHp = ResolveMinimumReturnHp(snapshot.entity);
+
+        if (snapshot.smartNpc != null)
+        {
+            snapshot.smartNpc.currentHP =
+                Mathf.Clamp(
+                    returnHp,
+                    1,
+                    Mathf.Max(1, snapshot.smartNpc.maxHP));
+            if (snapshot.smartNpc.characterStats != null)
+            {
+                snapshot.smartNpc.characterStats.currentHP =
+                    snapshot.smartNpc.currentHP;
+            }
+
+            SetPrivateBool(snapshot.smartNpc, "isDead", false);
+        }
+
+        if (snapshot.villager != null)
+        {
+            snapshot.villager.currentHP =
+                Mathf.Clamp(
+                    returnHp,
+                    1,
+                    Mathf.Max(1, snapshot.villager.maxHP));
+            if (snapshot.villager.characterStats != null)
+            {
+                snapshot.villager.characterStats.currentHP =
+                    snapshot.villager.currentHP;
+            }
+        }
+
+        if (snapshot.monster != null)
+        {
+            snapshot.monster.currentHP =
+                Mathf.Clamp(
+                    returnHp,
+                    1,
+                    Mathf.Max(1, snapshot.monster.maxHP));
+            if (snapshot.monster.entityProfile != null)
+            {
+                snapshot.monster.entityProfile.stats.currentHP =
+                    snapshot.monster.currentHP;
+            }
+
+            SetPrivateBool(snapshot.monster, "isDead", false);
+            SetPrivateBool(snapshot.monster, "isRespawning", false);
+        }
+
+        ApplyReturnActionState(snapshot);
+    }
+
+    void ApplyReturnActionState(ParticipantSnapshot snapshot)
+    {
+        if (snapshot == null)
+        {
+            return;
+        }
+
+        if (snapshot.smartNpc != null)
+        {
+            snapshot.smartNpc.ForceSetCurrentAction(
+                NpcText.Action("injured"));
+        }
+
+        if (snapshot.villager != null)
+        {
+            snapshot.villager.SetCurrentActionState(
+                NpcActionState.FromDisplayText(
+                    NpcText.Action("injured")));
+        }
+
+        if (snapshot.monster != null)
+        {
+            snapshot.monster.SetCurrentActionState(
+                NpcActionState.FromDisplayText(
+                    NpcText.Action("idle")));
+        }
+    }
+
+    int ResolveMinimumReturnHp(GameObject entity)
+    {
+        int maxHp = ResolveParticipantMaxHp(entity);
+        int ratioHp = maxHp > 0
+            ? Mathf.CeilToInt(maxHp * Mathf.Clamp01(eliminationHpRatio))
+            : 0;
+        return Mathf.Max(1, minimumReturnHp, ratioHp);
+    }
+
+    int ResolveParticipantMaxHp(GameObject entity)
+    {
+        if (entity == null)
+        {
+            return 0;
+        }
+
+        CharacterStats characterStats =
+            entity.GetComponent<CharacterStats>();
+        if (characterStats != null &&
+            characterStats.finalHP > 0)
+        {
+            return characterStats.finalHP;
+        }
+
+        SmartNpcAI smartNpc = entity.GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            return smartNpc.maxHP;
+        }
+
+        VillagerAI villager = entity.GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            return villager.maxHP;
+        }
+
+        MonsterAI monster = entity.GetComponent<MonsterAI>();
+        if (monster != null)
+        {
+            return monster.maxHP;
+        }
+
+        return 0;
     }
 
     static void SetPrivateBool(object target, string fieldName, bool value)

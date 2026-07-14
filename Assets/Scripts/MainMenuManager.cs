@@ -196,6 +196,11 @@ public class MainMenuManager : MonoBehaviour
                 continue;
             }
 
+            if (button.GetComponent<ShopToggleUI>() != null)
+            {
+                continue;
+            }
+
             if (IsIntroPanelButton(button))
             {
                 continue;
@@ -434,6 +439,21 @@ public class MainMenuManager : MonoBehaviour
         Debug.Log(UiText.Get("mainMenu", "aboutLog"));
     }
 
+    public void SetLanguageVietnamese()
+    {
+        LocalizationSettings.SetLanguage("vi");
+    }
+
+    public void SetLanguageChinese()
+    {
+        LocalizationSettings.SetLanguage("zh");
+    }
+
+    public void SetLanguageEnglish()
+    {
+        LocalizationSettings.SetLanguage("en");
+    }
+
     public void Settings()
     {
         OpenSettings();
@@ -618,6 +638,7 @@ public class MainMenuManager : MonoBehaviour
         foreach (Button button in buttons)
         {
             if (button == null ||
+                button.GetComponent<ShopToggleUI>() != null ||
                 IsIntroPanelButton(button) ||
                 !IsSettingsButtonKey(GetButtonKey(button)))
             {

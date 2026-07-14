@@ -52,6 +52,8 @@ public class GrowingHerbNode : MonoBehaviour, IWorldResourcePersistentState
     bool configuredAllowPlayerPickup;
     bool isDepleted;
 
+    public float MatureAfterGameHours => Mathf.Max(0.5f, matureAfterGameHours);
+    public float AccumulatedGrowthHours => Mathf.Clamp(accumulatedGrowthHours, 0f, MatureAfterGameHours);
     public bool IsHarvestAvailable => GetGrowthProgress01() >= 1f;
 
     void Awake()

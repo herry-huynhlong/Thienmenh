@@ -537,6 +537,96 @@
       ]
     },
     {
+      "id": "bicanh_entry_001",
+      "category": "bicanh_entry",
+      "channel": "BichAnh",
+      "duration": 2.2,
+      "cooldownSeconds": 18,
+      "priority": 50,
+      "mode": "DisplayOnly",
+      "requiredSpeakerTags": ["Cultivator"],
+      "texts": [
+        "Thiên Đạo đã mở lối, chư vị giữ vững tâm thần!",
+        "No Bích Anh đã khai, theo ta quét sạch yêu tà!",
+        "Thiên Đạo ở trên, hôm nay phá sạch bí cảnh này!"
+      ]
+    },
+    {
+      "id": "bicanh_engage_low_001",
+      "category": "bicanh_engage_low",
+      "channel": "BichAnh",
+      "duration": 1.8,
+      "cooldownSeconds": 12,
+      "priority": 42,
+      "mode": "DisplayOnly",
+      "requiredSpeakerTags": ["Cultivator"],
+      "texts": [
+        "{monster} cấp {monsterLevel} thôi, đừng loạn trận hình!",
+        "Quái này còn non, tiến đều rồi ép lên!",
+        "{monster} chưa đáng ngại, giữ nhịp và kết liễu!"
+      ]
+    },
+    {
+      "id": "bicanh_engage_high_001",
+      "category": "bicanh_engage_high",
+      "channel": "BichAnh",
+      "duration": 2.1,
+      "cooldownSeconds": 14,
+      "priority": 46,
+      "mode": "DisplayOnly",
+      "requiredSpeakerTags": ["Cultivator"],
+      "texts": [
+        "{monster} cấp {monsterLevel}, đừng ham truy kích một mình!",
+        "Con {monster} này khí tức quá nặng, co cụm rồi đánh!",
+        "Giữ đội hình! {monster} cấp {monsterLevel} không thể khinh suất!"
+      ]
+    },
+    {
+      "id": "bicanh_retreat_001",
+      "category": "bicanh_retreat",
+      "channel": "BichAnh",
+      "duration": 1.9,
+      "cooldownSeconds": 12,
+      "priority": 65,
+      "mode": "DisplayOnly",
+      "requiredSpeakerTags": ["Cultivator"],
+      "texts": [
+        "Đừng tham chiến, lui về chỗ Thiên Đạo mở lối!",
+        "Huyết khí đã loạn, lùi về điểm an toàn trước!",
+        "Giữ mạng trước, co về cửa vào bí cảnh!"
+      ]
+    },
+    {
+      "id": "bicanh_avoid_001",
+      "category": "bicanh_avoid",
+      "channel": "BichAnh",
+      "duration": 1.8,
+      "cooldownSeconds": 10,
+      "priority": 62,
+      "mode": "DisplayOnly",
+      "requiredSpeakerTags": ["Cultivator"],
+      "texts": [
+        "Con này quá hung, tránh mép giao tranh!",
+        "Không ổn, né sang ngoài rồi đổi mục tiêu!",
+        "Đừng nhận đòn chính diện, giãn đội hình ra!"
+      ]
+    },
+    {
+      "id": "bicanh_cleared_001",
+      "category": "bicanh_cleared",
+      "channel": "BichAnh",
+      "duration": 2.4,
+      "cooldownSeconds": 20,
+      "priority": 55,
+      "mode": "DisplayOnly",
+      "requiredSpeakerTags": ["Cultivator"],
+      "texts": [
+        "No Bích Anh đã tịnh, thỉnh Thiên Đạo mở đường hồi quy!",
+        "Yêu tà đã sạch, xin Thiên Đạo cho chúng ta trở lại!",
+        "Bí cảnh đã dọn xong, mong Thiên Đạo dẫn chúng ta hồi giới!"
+      ]
+    },
+    {
       "id": "flee_self_001",
       "category": "flee_self",
       "channel": "Emergency",
