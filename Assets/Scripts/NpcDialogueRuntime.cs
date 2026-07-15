@@ -776,6 +776,16 @@ static class NpcDialogueContextBuilder
         GameObject npc,
         NPCIdentity identity)
     {
+        if (npc != null && npc.GetComponent<VillagerAI>() != null)
+        {
+            tags.Add("Villager");
+        }
+
+        if (npc != null && npc.GetComponent<SmartNpcAI>() != null)
+        {
+            tags.Add("SmartNpc");
+        }
+
         if (NpcRoleUtility.IsCommoner(npc))
         {
             tags.Add("Commoner");

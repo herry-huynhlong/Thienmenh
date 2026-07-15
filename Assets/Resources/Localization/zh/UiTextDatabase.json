@@ -584,12 +584,16 @@
           "value": "设置"
         },
         {
+          "key": "saveButton",
+          "value": "保存游戏"
+        },
+        {
           "key": "infoButton",
           "value": "介绍"
         },
         {
           "key": "exitButton",
-          "value": "保存游戏"
+          "value": "退出游戏"
         },
         {
           "key": "settingsTitle",
@@ -907,6 +911,56 @@
         {
           "key": "inventorySummaryFormat",
           "value": "{0}种 / {1}件"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "frontierDefense",
+      "entries": [
+        {
+          "key": "watcherDeathAlert",
+          "value": "马兽山脉急报：{0}的守望者已经阵亡。妖气正在攀升，当前危险度 {1}%。"
+        },
+        {
+          "key": "vacancyAlert",
+          "value": "马兽山脉急报：{0}哨点空缺过久。边线正在动摇，当前危险度 {1}%。"
+        },
+        {
+          "key": "vacancyEscalationAlert",
+          "value": "马兽山脉急报：{0}哨点至今无人镇守。妖兽仍在聚集，当前危险度 {1}%。"
+        },
+        {
+          "key": "beastWaveWarning",
+          "value": "{0} 急报：妖兽正在暴动并集结成潮。{1} 名修士正在布设防线，预计约 {3} 小时后爆发正面冲突。当前观测到的妖兽数量：{2}。"
+        },
+        {
+          "key": "beastWaveStarted",
+          "value": "马兽山脉 {0} 的兽潮已经正式进入交战。{1} 名修士已经奔赴防线，迎战 {2} 头妖兽。"
+        },
+        {
+          "key": "beastWaveRepelled",
+          "value": "{0} 防线已将兽潮击退。仍站在阵线上的守军：{1}。"
+        },
+        {
+          "key": "beastWaveBreached",
+          "value": "{0} 防线已经被突破。仍有 {1} 头妖兽越过战线。"
+        },
+        {
+          "key": "manualTriggerButton",
+          "value": "触发兽潮"
+        },
+        {
+          "key": "manualTriggerAlreadyActive",
+          "value": "兽潮已经在进行中，不能重复触发。"
+        },
+        {
+          "key": "manualTriggerMissingLine",
+          "value": "尚未配置马兽山脉的交战区域，无法触发兽潮。"
+        },
+        {
+          "key": "manualTriggerNoMonsters",
+          "value": "马兽山脉当前没有可用于组成兽潮的现存妖兽。"
         }
       ],
       "lists": []

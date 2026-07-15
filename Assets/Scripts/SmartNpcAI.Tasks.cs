@@ -457,6 +457,11 @@ public partial class SmartNpcAI
             case SmartAITaskGoal.Combat:
             case SmartAITaskGoal.SupportAlly:
             case SmartAITaskGoal.Pursued:
+                if (TryContinueFrontierDefenseTravel())
+                {
+                    return true;
+                }
+
                 if (TryHandleCombatSupport())
                 {
                     return true;

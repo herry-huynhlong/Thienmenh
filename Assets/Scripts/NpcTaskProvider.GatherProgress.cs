@@ -364,6 +364,13 @@ public partial class NpcTaskProvider
             task.offer.taskType == NpcTaskType.Patrol;
     }
 
+    bool IsFrontierWatchTask(RunningNpcTask task)
+    {
+        return task != null &&
+            task.offer != null &&
+            task.offer.taskType == NpcTaskType.FrontierWatch;
+    }
+
     bool IsGatherTaskType(NpcTaskType taskType)
     {
         return taskType == NpcTaskType.GatherResource ||
@@ -421,6 +428,11 @@ public partial class NpcTaskProvider
         if (IsPatrolTask(task))
         {
             return task.patrolReachedEnd;
+        }
+
+        if (IsFrontierWatchTask(task))
+        {
+            return task.remainingTime <= 0f;
         }
 
         return true;
@@ -693,6 +705,22 @@ public partial class NpcTaskProvider
                     levelText,
                     GetRequiredMonsterKills(task.offer));
             }
+        }
+        else if (IsFrontierWatchTask(task))
+        {
+            float worldHours =
+                task.remainingTime > 0f
+                    ? GameTime.ScaledSecondsToWorldHours(
+                        task.remainingTime,
+                        WorldTimeSystem.Instance != null
+                            ? WorldTimeSystem.Instance.realSecondsPerGameDay
+                            : GameTime.LegacyRealSecondsPerWorldDay)
+                    : 0f;
+            int worldDaysRemaining =
+                Mathf.Max(
+                    0,
+                    Mathf.CeilToInt(worldHours / 24f));
+            text += " (" + worldDaysRemaining + "d)";
         }
 
         int rewardSpiritStone =

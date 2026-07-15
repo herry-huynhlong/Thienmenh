@@ -43,6 +43,15 @@ public partial class NpcTaskProvider
             return;
         }
 
+        if (IsFrontierWatchTask(task))
+        {
+            task.frontierPatrolIndex = 0;
+            task.frontierPatrolDirection = 1;
+            task.workPosition = GetWorkPosition(task.offer);
+            task.patrolEndPosition = GetPatrolEndPosition(task.offer);
+            return;
+        }
+
         if (IsHuntTask(task))
         {
             task.defeatedMonsterCount = Mathf.Clamp(
@@ -387,6 +396,46 @@ public partial class NpcTaskProvider
         {
             task.patrolReachedEnd = true;
             task.stage = TavernTaskStage.ReturningToTurnIn;
+        }
+    }
+
+    void UpdateFrontierWatchWork(RunningNpcTask task)
+    {
+        if (task == null ||
+            task.npc == null ||
+            task.offer == null)
+        {
+            return;
+        }
+
+        task.remainingTime -= Time.deltaTime;
+        if (task.remainingTime <= 0f)
+        {
+            task.stage = TavernTaskStage.ReturningToTurnIn;
+            return;
+        }
+
+        Vector3 patrolTarget =
+            FrontierDefenseCoordinator.GetNextPatrolTarget(
+                task.offer.customTargetId,
+                ref task.frontierPatrolIndex,
+                ref task.frontierPatrolDirection,
+                task.npc.transform.position);
+
+        task.workPosition = patrolTarget;
+        MoveNpcToWork(task, patrolTarget);
+        NpcRoleUtility.SetAction(
+            task.npc,
+            TaskActionFormat("workingTask", GetTaskDisplayText(task)));
+
+        if (Vector2.Distance(
+                task.npc.transform.position,
+                patrolTarget) <= arriveDistance)
+        {
+            FrontierDefenseCoordinator.AdvancePatrolIndex(
+                task.offer.customTargetId,
+                ref task.frontierPatrolIndex,
+                ref task.frontierPatrolDirection);
         }
     }
 

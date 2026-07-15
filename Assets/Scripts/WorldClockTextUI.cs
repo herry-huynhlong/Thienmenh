@@ -287,6 +287,14 @@ public class WorldClockTextUI : MonoBehaviour
                 FindComponentInChildren<TMP_Text>(
                     timeHudRoot,
                     "TimeText");
+
+            if (timeText == null)
+            {
+                timeText =
+                    FindComponentInChildren<TMP_Text>(
+                        timeHudRoot,
+                        "time");
+            }
         }
 
         if (dayNightIcon == null)

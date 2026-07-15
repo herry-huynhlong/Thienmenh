@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using UnityEngine.Serialization;
 
 [DisallowMultipleComponent]
 public sealed class InGameMenuController : MonoBehaviour
@@ -19,7 +20,10 @@ public sealed class InGameMenuController : MonoBehaviour
     [Header("Open / Main")]
     [SerializeField] Button openMenuButton;
     [SerializeField] Button settingsButton;
+    [FormerlySerializedAs("infoButton")]
+    [SerializeField] Button saveButton;
     [SerializeField] Button infoButton;
+    [FormerlySerializedAs("exitButton")]
     [SerializeField] Button exitButton;
 
     [Header("Settings")]
@@ -179,6 +183,11 @@ public sealed class InGameMenuController : MonoBehaviour
         CloseMenu();
     }
 
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
+
     public void RefreshLocalizedText()
     {
         ResolveReferences();
@@ -189,8 +198,9 @@ public sealed class InGameMenuController : MonoBehaviour
             "panelTitle",
             "Bảng Điều Khiển");
         SetButtonText(settingsButton, "settingsButton", "Cài đặt");
+        SetButtonText(saveButton, "saveButton", "Lưu game");
         SetButtonText(infoButton, "infoButton", "Giới thiệu");
-        SetButtonText(exitButton, "exitButton", "Lưu game");
+        SetButtonText(exitButton, "exitButton", "Đóng Game");
 
         SetNamedText(
             settingsPanel,
@@ -274,6 +284,7 @@ public sealed class InGameMenuController : MonoBehaviour
 
         openMenuButton = ResolveSceneButton(openMenuButton, "Setting");
         settingsButton = ResolveButton(settingsButton, menuRoot, "BtnSetting");
+        saveButton = ResolveButton(saveButton, menuRoot, "Luugame");
         infoButton = ResolveButton(infoButton, menuRoot, "BtnInfo");
         exitButton = ResolveButton(exitButton, menuRoot, "BtnCloseGame");
 
@@ -326,11 +337,12 @@ public sealed class InGameMenuController : MonoBehaviour
     {
         BindButton(openMenuButton, ToggleMenu, nameof(ToggleMenu));
         BindButton(settingsButton, OpenSettings, nameof(OpenSettings));
-        BindButton(infoButton, OpenAbout, nameof(OpenAbout));
         BindButton(
-            exitButton,
+            saveButton,
             OpenExitConfirmation,
             nameof(OpenExitConfirmation));
+        BindButton(infoButton, OpenAbout, nameof(OpenAbout));
+        BindButton(exitButton, QuitGame, nameof(QuitGame));
         BindButton(
             vietnameseButton,
             SetLanguageVietnamese,

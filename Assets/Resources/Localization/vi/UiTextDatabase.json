@@ -584,12 +584,16 @@
           "value": "Cài đặt"
         },
         {
+          "key": "saveButton",
+          "value": "Lưu game"
+        },
+        {
           "key": "infoButton",
           "value": "Giới thiệu"
         },
         {
           "key": "exitButton",
-          "value": "Lưu game"
+          "value": "Đóng Game"
         },
         {
           "key": "settingsTitle",
@@ -907,6 +911,56 @@
         {
           "key": "inventorySummaryFormat",
           "value": "{0} loại / {1} món"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "frontierDefense",
+      "entries": [
+        {
+          "key": "watcherDeathAlert",
+          "value": "Khẩn báo Mã Thú Sơn Mạch: người canh gác tại {0} đã ngã xuống. Yêu khí dâng cao, mức nguy cấp hiện tại {1}%."
+        },
+        {
+          "key": "vacancyAlert",
+          "value": "Khẩn báo Mã Thú Sơn Mạch: chốt {0} đã bị bỏ trống quá lâu. Biên tuyến đang dao động, mức nguy cấp hiện tại {1}%."
+        },
+        {
+          "key": "vacancyEscalationAlert",
+          "value": "Khẩn báo Mã Thú Sơn Mạch: chốt {0} vẫn chưa có người trấn thủ. Yêu thú đang tiếp tục tụ lại, mức nguy cấp hiện tại {1}%."
+        },
+        {
+          "key": "beastWaveWarning",
+          "value": "Khẩn báo {0}: yêu thú đang bạo động và tụ triều. {1} vị tu sĩ đang lập phòng tuyến, phát xung đột dự kiến sau khoảng {3} giờ. Quy mô yêu thú quan sát được: {2}."
+        },
+        {
+          "key": "beastWaveStarted",
+          "value": "Thú triều Mã Thú Sơn Mạch chính thức xung trận tại {0}. {1} vị tu sĩ đã lao ra phòng tuyến, đối đầu {2} đầu yêu thú."
+        },
+        {
+          "key": "beastWaveRepelled",
+          "value": "Phòng tuyến {0} đã đẩy lui thú triều. Người còn đứng vững trên trận địa: {1}."
+        },
+        {
+          "key": "beastWaveBreached",
+          "value": "Phòng tuyến {0} đã bị xuyên thủng. Vẫn còn {1} đầu yêu thú tràn qua chiến tuyến."
+        },
+        {
+          "key": "manualTriggerButton",
+          "value": "Kích Hoạt Thú Triều"
+        },
+        {
+          "key": "manualTriggerAlreadyActive",
+          "value": "Thú triều đang diễn ra, không thể kích hoạt chồng thêm."
+        },
+        {
+          "key": "manualTriggerMissingLine",
+          "value": "Chưa có vùng giao tranh Mã Thú Sơn Mạch để kích hoạt thú triều."
+        },
+        {
+          "key": "manualTriggerNoMonsters",
+          "value": "Không có yêu thú sẵn có trong Mã Thú Sơn Mạch để khai hỏa thú triều."
         }
       ],
       "lists": []

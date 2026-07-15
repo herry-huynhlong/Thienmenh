@@ -129,6 +129,42 @@
       ]
     },
     {
+      "id": "ambient_villager_respect_smart_open_001",
+      "category": "ambient_opening",
+      "channel": "Ambient",
+      "duration": 1.9,
+      "cooldownSeconds": 18,
+      "priority": 30,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working", "Idle"],
+      "requiredSpeakerTags": ["Villager"],
+      "requiredTargetTags": ["SmartNpc"],
+      "texts": [
+        "Kính chào tiền bối.",
+        "Tiền bối đi đường bình an.",
+        "Vãn bối xin hành lễ với tiền bối.",
+        "Được gặp tiền bối, thật là vinh hạnh."
+      ]
+    },
+    {
+      "id": "ambient_smart_reply_villager_respect_001",
+      "category": "ambient_reply",
+      "channel": "Ambient",
+      "duration": 1.8,
+      "cooldownSeconds": 18,
+      "priority": 30,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working", "Idle", "Cultivating"],
+      "requiredSpeakerTags": ["SmartNpc"],
+      "requiredTargetTags": ["Villager"],
+      "texts": [
+        "Không cần đa lễ, cứ an tâm làm việc.",
+        "Ừ, giữ vững tâm là được.",
+        "Miễn trong lòng ngay chính là tốt.",
+        "Cứ sống yên ổn, chớ quá lo sợ."
+      ]
+    },
+    {
       "id": "ambient_hostile_open_001",
       "category": "ambient_opening",
       "channel": "Ambient",

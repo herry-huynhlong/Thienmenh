@@ -1360,11 +1360,15 @@ public class NpcConversationAgent : MonoBehaviour
 
         other.EnsureReferences();
 
+        bool respectfulVillagerSmartPair =
+            IsRespectfulVillagerSmartPair(other);
+
         bool firstMeeting = IsFirstMeetingWith(other);
         if (!force &&
             firstMeeting &&
             (!allowFirstMeetingConversation ||
-                UnityEngine.Random.value > firstMeetingTalkChance))
+                (!respectfulVillagerSmartPair &&
+                UnityEngine.Random.value > firstMeetingTalkChance)))
         {
             return false;
         }
@@ -1372,8 +1376,8 @@ public class NpcConversationAgent : MonoBehaviour
         if (!force &&
             (Time.time < nextConversationTime ||
             Time.time < other.nextConversationTime ||
-            !IsSocialContextAllowed() ||
-            !other.IsSocialContextAllowed() ||
+            !IsSocialContextAllowed(other) ||
+            !other.IsSocialContextAllowed(this) ||
             !CanSocializeWith(other) ||
             !other.CanSocializeWith(this)))
         {
@@ -1533,6 +1537,11 @@ public class NpcConversationAgent : MonoBehaviour
             return false;
         }
 
+        if (IsRespectfulVillagerSmartPair(other))
+        {
+            return true;
+        }
+
         NpcSocialRelationship relation = relationships.Find(other.gameObject);
 
         if (IsHostileBlocked(relation))
@@ -1567,19 +1576,19 @@ public class NpcConversationAgent : MonoBehaviour
             relation.trust >= 0;
     }
 
-    bool IsSocialContextAllowed()
+    bool IsSocialContextAllowed(NpcConversationAgent other = null)
     {
         if (!respectSocialContext)
         {
             return true;
         }
 
-        if (!allowNightConversation && IsQuietTime())
-        {
-            return false;
-        }
-
-        if (!allowDangerZoneConversation && IsDangerZone())
+        bool smartPair =
+            IsSmartNpc(gameObject) ||
+            (other != null && IsSmartNpc(other.gameObject));
+        if (!allowNightConversation &&
+            !smartPair &&
+            IsQuietTime())
         {
             return false;
         }
@@ -1618,7 +1627,7 @@ public class NpcConversationAgent : MonoBehaviour
             !NpcScheduleController.AllowsSocial(
                 other.gameObject,
                 NpcSocialChannel.AmbientConversation) ||
-            !IsSocialContextAllowed() ||
+            !IsSocialContextAllowed(other) ||
             !CanSocializeWith(other))
         {
             return 0f;
@@ -1631,11 +1640,24 @@ public class NpcConversationAgent : MonoBehaviour
             ? GetComponent<NpcNeeds>().social
             : 40f;
 
-        return socialNeed +
+        float score = socialNeed +
             personality.sociability * 0.5f +
             personality.curiosity * 0.15f +
             Mathf.Abs(affection) * 0.2f +
             grudge * 0.3f;
+
+        if (IsVillagerNpc(gameObject) &&
+            IsSmartNpc(other.gameObject))
+        {
+            score += 45f;
+        }
+        else if (IsSmartNpc(gameObject) &&
+            IsVillagerNpc(other.gameObject))
+        {
+            score += 15f;
+        }
+
+        return score;
     }
 
     void TryFindConversation()
@@ -2186,6 +2208,27 @@ public class NpcConversationAgent : MonoBehaviour
         {
             legacy.enabled = false;
         }
+    }
+
+    bool IsRespectfulVillagerSmartPair(NpcConversationAgent other)
+    {
+        return other != null &&
+            ((IsVillagerNpc(gameObject) &&
+                IsSmartNpc(other.gameObject)) ||
+            (IsSmartNpc(gameObject) &&
+                IsVillagerNpc(other.gameObject)));
+    }
+
+    static bool IsSmartNpc(GameObject npc)
+    {
+        return npc != null &&
+            npc.GetComponent<SmartNpcAI>() != null;
+    }
+
+    static bool IsVillagerNpc(GameObject npc)
+    {
+        return npc != null &&
+            npc.GetComponent<VillagerAI>() != null;
     }
 
     static void CleanupSessions()

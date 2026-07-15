@@ -71,6 +71,11 @@ public class VillageHomeManager : MonoBehaviour
             return false;
         }
 
+        if (FrontierDefenseCoordinator.IsVillageShelterAlertActive)
+        {
+            return true;
+        }
+
         if (returnVillagersHomeWhenTired &&
             villager.fatigue >= tiredReturnThreshold)
         {
@@ -100,6 +105,11 @@ public class VillageHomeManager : MonoBehaviour
 
     bool ShouldLeaveHome(VillagerAI villager, WorldTimeSystem timeSystem)
     {
+        if (FrontierDefenseCoordinator.IsVillageShelterAlertActive)
+        {
+            return false;
+        }
+
         if (villager != null)
         {
             NpcScheduleController schedule =

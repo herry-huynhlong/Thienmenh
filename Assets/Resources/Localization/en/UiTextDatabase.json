@@ -406,12 +406,16 @@
           "value": "Settings"
         },
         {
+          "key": "saveButton",
+          "value": "Save Game"
+        },
+        {
           "key": "infoButton",
           "value": "About"
         },
         {
           "key": "exitButton",
-          "value": "Save Game"
+          "value": "Exit Game"
         },
         {
           "key": "settingsTitle",
@@ -725,6 +729,56 @@
         {
           "key": "inventorySummaryFormat",
           "value": "{0} types / {1} items"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "frontierDefense",
+      "entries": [
+        {
+          "key": "watcherDeathAlert",
+          "value": "Urgent report from Ma Thu Son Mach: the watcher at {0} has fallen. Demonic pressure is rising, current danger {1}%."
+        },
+        {
+          "key": "vacancyAlert",
+          "value": "Urgent report from Ma Thu Son Mach: watch post {0} has been left uncovered for too long. The frontier is wavering, current danger {1}%."
+        },
+        {
+          "key": "vacancyEscalationAlert",
+          "value": "Urgent report from Ma Thu Son Mach: watch post {0} is still without a defender. Beasts continue to gather, current danger {1}%."
+        },
+        {
+          "key": "beastWaveWarning",
+          "value": "Urgent report from {0}: beasts are rioting and gathering. {1} cultivators are forming a defense line, with open conflict expected in about {3} hours. Observed beast count: {2}."
+        },
+        {
+          "key": "beastWaveStarted",
+          "value": "The beast wave at {0} in Ma Thu Son Mach has entered open battle. {1} cultivators rushed to the line against {2} beasts."
+        },
+        {
+          "key": "beastWaveRepelled",
+          "value": "The defense line at {0} has repelled the beast wave. Defenders still standing: {1}."
+        },
+        {
+          "key": "beastWaveBreached",
+          "value": "The defense line at {0} has been breached. {1} beasts remain beyond the line."
+        },
+        {
+          "key": "manualTriggerButton",
+          "value": "Trigger Beast Wave"
+        },
+        {
+          "key": "manualTriggerAlreadyActive",
+          "value": "A beast wave is already active."
+        },
+        {
+          "key": "manualTriggerMissingLine",
+          "value": "No Ma Thu Son Mach battle area is configured for a beast wave."
+        },
+        {
+          "key": "manualTriggerNoMonsters",
+          "value": "There are no existing beasts in Ma Thu Son Mach to form a beast wave."
         }
       ],
       "lists": []

@@ -199,8 +199,7 @@ public class NpcTavernEntrance : MonoBehaviour
             return villager.hunger >= hungerThreshold;
         }
 
-        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
-        return smartNpc != null && smartNpc.hunger >= hungerThreshold;
+        return false;
     }
 
     bool HasAvailableTaskFor(GameObject npc)

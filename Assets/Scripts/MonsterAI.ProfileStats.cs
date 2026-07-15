@@ -277,6 +277,45 @@ public partial class MonsterAI
         }
     }
 
+    public int GetAge()
+    {
+        if (entityProfile != null &&
+            entityProfile.identity != null)
+        {
+            return Mathf.Max(
+                0,
+                NpcAgeUtility.GetCurrentAge(entityProfile.identity));
+        }
+
+        return 0;
+    }
+
+    public int GetLifespan()
+    {
+        return GetLifespanForRealm(realm);
+    }
+
+    int GetLifespanForRealm(CultivationRealm targetRealm)
+    {
+        switch (targetRealm)
+        {
+            case CultivationRealm.QiRefining:
+                return 120;
+            case CultivationRealm.Foundation:
+                return 220;
+            case CultivationRealm.GoldenCore:
+                return 500;
+            case CultivationRealm.NascentSoul:
+                return 1200;
+            case CultivationRealm.SoulFormation:
+                return 3000;
+            case CultivationRealm.Tribulation:
+                return 10000;
+            default:
+                return 80;
+        }
+    }
+
     void OnValidate()
     {
         realmStage =

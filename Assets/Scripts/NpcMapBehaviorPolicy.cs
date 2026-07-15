@@ -3,8 +3,56 @@ using UnityEngine;
 
 public static class NpcMapBehaviorPolicy
 {
+    struct ForcedCombatZoneState
+    {
+        public NpcMapZone zone;
+        public float expiresAt;
+    }
+
     static readonly Dictionary<NpcMapZone, MonsterAI> sharedCombatTargets =
         new Dictionary<NpcMapZone, MonsterAI>();
+    static readonly Dictionary<GameObject, ForcedCombatZoneState> forcedCombatZones =
+        new Dictionary<GameObject, ForcedCombatZoneState>();
+
+    public static void RegisterForcedCombatZone(
+        GameObject actor,
+        NpcMapZone zone,
+        float duration)
+    {
+        if (actor == null)
+        {
+            return;
+        }
+
+        forcedCombatZones[actor] = new ForcedCombatZoneState
+        {
+            zone = zone,
+            expiresAt = Time.time + Mathf.Max(0.1f, duration)
+        };
+    }
+
+    public static void ClearForcedCombatZone(GameObject actor)
+    {
+        if (actor == null)
+        {
+            return;
+        }
+
+        forcedCombatZones.Remove(actor);
+    }
+
+    public static bool HasForcedCombatZone(
+        GameObject actor,
+        NpcMapZone? expectedZone = null)
+    {
+        if (!TryGetForcedCombatZone(actor, out NpcMapZone zone))
+        {
+            return false;
+        }
+
+        return !expectedZone.HasValue ||
+            zone == expectedZone.Value;
+    }
 
     public static bool IsRestrictedSessionParticipant(GameObject actor)
     {
@@ -13,6 +61,11 @@ public static class NpcMapBehaviorPolicy
 
     public static bool IsRestrictedCombatMap(GameObject actor)
     {
+        if (HasForcedCombatZone(actor))
+        {
+            return true;
+        }
+
         NpcMapZone? zone = NpcMapNavigator.ResolveActorZone(actor);
         return zone.HasValue && zone.Value == NpcMapZone.BichAnh;
     }
@@ -42,7 +95,8 @@ public static class NpcMapBehaviorPolicy
 
     public static bool ForcesCombatLoop(GameObject actor)
     {
-        return IsRestrictedSessionParticipant(actor) ||
+        return HasForcedCombatZone(actor) ||
+            IsRestrictedSessionParticipant(actor) ||
             IsRestrictedCombatMap(actor);
     }
 
@@ -70,6 +124,11 @@ public static class NpcMapBehaviorPolicy
 
     public static NpcMapZone? GetAllowedCombatZone(GameObject actor)
     {
+        if (TryGetForcedCombatZone(actor, out NpcMapZone forcedZone))
+        {
+            return forcedZone;
+        }
+
         if (!IsRestrictedSessionParticipant(actor) &&
             !IsRestrictedCombatMap(actor))
         {
@@ -201,6 +260,28 @@ public static class NpcMapBehaviorPolicy
             NpcMapNavigator.ResolveActorZone(monster.gameObject);
         return monsterZone.HasValue &&
             monsterZone.Value == allowedZone.Value;
+    }
+
+    static bool TryGetForcedCombatZone(
+        GameObject actor,
+        out NpcMapZone zone)
+    {
+        zone = default;
+
+        if (actor == null ||
+            !forcedCombatZones.TryGetValue(actor, out ForcedCombatZoneState state))
+        {
+            return false;
+        }
+
+        if (Time.time >= state.expiresAt)
+        {
+            forcedCombatZones.Remove(actor);
+            return false;
+        }
+
+        zone = state.zone;
+        return true;
     }
 
     public static bool CanUseHelpRequest(

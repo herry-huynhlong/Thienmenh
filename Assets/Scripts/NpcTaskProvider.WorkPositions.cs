@@ -8,6 +8,14 @@ public partial class NpcTaskProvider
 {
     Vector3 GetPatrolStartPosition(NpcTaskOffer offer)
     {
+        if (offer != null &&
+            offer.taskType == NpcTaskType.FrontierWatch)
+        {
+            return FrontierDefenseCoordinator.GetPrimaryPosition(
+                offer.customTargetId,
+                GetFallbackWorkPosition());
+        }
+
         if (patrolPoint != null)
         {
             return patrolPoint.position;
@@ -18,6 +26,14 @@ public partial class NpcTaskProvider
 
     Vector3 GetPatrolEndPosition(NpcTaskOffer offer)
     {
+        if (offer != null &&
+            offer.taskType == NpcTaskType.FrontierWatch)
+        {
+            return FrontierDefenseCoordinator.GetSecondaryPatrolPosition(
+                offer.customTargetId,
+                GetPatrolStartPosition(offer));
+        }
+
         if (patrolPointB != null)
         {
             return patrolPointB.position;
@@ -103,6 +119,9 @@ public partial class NpcTaskProvider
                     return GetFallbackWorkPosition();
 
                 case NpcTaskType.Patrol:
+                    return GetPatrolStartPosition(offer);
+
+                case NpcTaskType.FrontierWatch:
                     return GetPatrolStartPosition(offer);
 
                 case NpcTaskType.Deliver:
