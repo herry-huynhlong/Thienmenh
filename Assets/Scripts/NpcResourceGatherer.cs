@@ -1471,10 +1471,20 @@ public class NpcResourceGatherer : MonoBehaviour
 
     static bool ActionStartsWith(string action, string prefix)
     {
-        return !string.IsNullOrWhiteSpace(action) &&
-            !string.IsNullOrWhiteSpace(prefix) &&
+        if (string.IsNullOrWhiteSpace(action) ||
+            string.IsNullOrWhiteSpace(prefix))
+        {
+            return false;
+        }
+
+        int placeholderIndex = prefix.IndexOf('{');
+        string resolvedPrefix = placeholderIndex >= 0
+            ? prefix.Substring(0, placeholderIndex).Trim()
+            : prefix.Trim();
+
+        return !string.IsNullOrWhiteSpace(resolvedPrefix) &&
             action.StartsWith(
-                prefix,
+                resolvedPrefix,
                 System.StringComparison.OrdinalIgnoreCase);
     }
 

@@ -131,6 +131,64 @@ public class FrontierDefenseCoordinator : MonoBehaviour
             !post.assignmentInProgress;
     }
 
+    public static void AppendVisibleOffersForProvider(
+        NpcTaskProvider provider,
+        List<NpcTaskOffer> targetOffers)
+    {
+        FrontierDefenseCoordinator coordinator = EnsureInstance();
+        if (coordinator == null ||
+            provider == null ||
+            targetOffers == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < posts.Count; i++)
+        {
+            FrontierWatchPost post = posts[i];
+            if (post == null ||
+                !post.isActiveAndEnabled ||
+                post.IsOccupied ||
+                post.assignmentInProgress)
+            {
+                continue;
+            }
+
+            NpcTaskProvider resolvedProvider =
+                post.assignedProvider != null
+                    ? post.assignedProvider
+                    : NpcTaskProvider.FindNearestProvider(
+                        post.transform.position);
+            if (resolvedProvider != provider)
+            {
+                continue;
+            }
+
+            string postId = GetResolvedPostId(post);
+            bool alreadyAdded = false;
+            for (int j = 0; j < targetOffers.Count; j++)
+            {
+                NpcTaskOffer existing = targetOffers[j];
+                if (!IsFrontierWatchOffer(existing) ||
+                    !string.Equals(
+                        existing.customTargetId,
+                        postId,
+                        System.StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                alreadyAdded = true;
+                break;
+            }
+
+            if (!alreadyAdded)
+            {
+                targetOffers.Add(coordinator.BuildOffer(post));
+            }
+        }
+    }
+
     public static Vector3 GetPrimaryPosition(
         string postId,
         Vector3 fallbackPosition)

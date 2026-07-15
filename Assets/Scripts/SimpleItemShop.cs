@@ -445,13 +445,24 @@ public class SimpleItemShop : MonoBehaviour
 
         int itemIndex =
             FindItemIndex(item);
+        ItemInventory shopInventory =
+            this.sellerInventory;
+        bool usesShopInventory =
+            sellFromNpcInventory &&
+            shopInventory != null;
+        bool appendedNewSlot = false;
 
-        if (itemIndex >= 0)
+        if (usesShopInventory)
+        {
+            shopInventory.AddItem(item, soldAmount);
+        }
+        else if (itemIndex >= 0)
         {
             items[itemIndex].amount += soldAmount;
         }
         else
         {
+            appendedNewSlot = true;
             items.Add(
                 new ShopItemSlot
                 {
@@ -462,10 +473,54 @@ public class SimpleItemShop : MonoBehaviour
 
         totalPrice =
             unitPrice * soldAmount;
+        if (!TryPaySellerFromShopFunds(totalPrice))
+        {
+            if (usesShopInventory)
+            {
+                shopInventory.RemoveItem(item, soldAmount);
+                sellerInventory.AddItem(item, soldAmount);
+            }
+            else
+            {
+                sellerInventory.AddItem(item, soldAmount);
+
+                if (appendedNewSlot)
+                {
+                    int rollbackIndex =
+                        FindItemIndex(item);
+                    if (rollbackIndex >= 0)
+                    {
+                        items.RemoveAt(rollbackIndex);
+                    }
+                }
+                else if (itemIndex >= 0 &&
+                    itemIndex < items.Count)
+                {
+                    items[itemIndex].amount -= soldAmount;
+                    if (items[itemIndex].amount <= 0)
+                    {
+                        items.RemoveAt(itemIndex);
+                    }
+                }
+            }
+            soldAmount = 0;
+            totalPrice = 0;
+            RefreshFromSellerInventory();
+            return false;
+        }
+
         NpcEconomy.AddNpcMoney(
             sellerObject,
             totalPrice);
-        SaveRuntimeStock();
+
+        if (usesShopInventory)
+        {
+            RefreshFromSellerInventory();
+        }
+        else
+        {
+            SaveRuntimeStock();
+        }
         return true;
     }
 
@@ -535,6 +590,13 @@ public class SimpleItemShop : MonoBehaviour
             return;
         }
 
+        NpcCounterBroker broker = GetSellerBroker();
+        if (broker != null)
+        {
+            broker.AddBrokerRevenue(amount);
+            return;
+        }
+
         GameObject target =
             sellerObject != null
             ? sellerObject
@@ -548,6 +610,22 @@ public class SimpleItemShop : MonoBehaviour
         }
 
         NpcEconomy.AddNpcMoney(target, amount);
+    }
+
+    bool TryPaySellerFromShopFunds(int amount)
+    {
+        if (amount <= 0)
+        {
+            return true;
+        }
+
+        NpcCounterBroker broker = GetSellerBroker();
+        if (broker != null)
+        {
+            return broker.TrySpendBrokerMoney(amount);
+        }
+
+        return true;
     }
 
     void LoadRuntimeStock()

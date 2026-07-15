@@ -404,6 +404,27 @@ public partial class SmartNpcAI
             return;
         }
 
+        // Never let a stale gather heartbeat steal control back from an
+        // already-active combat intent.
+        SmartAITask task = currentSmartTask;
+        bool hasCombatTask =
+            task != null &&
+            task.IsValid &&
+            (task.goal == SmartAITaskGoal.Combat ||
+            task.goal == SmartAITaskGoal.Pursued ||
+            task.goal == SmartAITaskGoal.SupportAlly);
+        bool hasCombatIntent =
+            currentMonsterTarget != null ||
+            HasCombatSupportIntent() ||
+            hasCombatTask ||
+            currentAction == NpcText.Action("goHunt") ||
+            MatchesSmartAction("huntMonsterNamed", true) ||
+            MatchesSmartAction("attackMonsterNamed", true);
+        if (hasCombatIntent)
+        {
+            return;
+        }
+
         // NpcResourceGatherer refreshes the same reservation every Update.
         // Treat that as a heartbeat, not a new order; otherwise it clears the
         // detour and recovery counters before the anti-stuck logic can finish.

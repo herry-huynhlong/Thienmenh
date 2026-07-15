@@ -404,6 +404,35 @@ public partial class NpcTaskProvider : MonoBehaviour
         }
     }
 
+    public static void NotifyNpcTeleported(
+        GameObject npc,
+        GameObject gateObject)
+    {
+        if (npc == null)
+        {
+            return;
+        }
+
+        CleanupBusyNpcEntries();
+        if (!busyNpcCounts.ContainsKey(npc))
+        {
+            return;
+        }
+
+        NpcTaskProvider[] providers =
+            FindObjectsByType<NpcTaskProvider>(FindObjectsInactive.Exclude);
+        for (int i = 0; i < providers.Length; i++)
+        {
+            NpcTaskProvider provider = providers[i];
+            if (provider == null)
+            {
+                continue;
+            }
+
+            provider.HandleNpcTeleportedInternal(npc, gateObject);
+        }
+    }
+
     bool ReleaseNpcForCombatInternal(GameObject npc)
     {
         bool released = false;

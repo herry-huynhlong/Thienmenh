@@ -45,6 +45,101 @@ public partial class NpcTaskProvider
         task.maxTravelDuration = 0f;
     }
 
+    void HandleNpcTeleportedInternal(
+        GameObject npc,
+        GameObject gateObject)
+    {
+        if (npc == null ||
+            runningTasks == null ||
+            runningTasks.Count == 0)
+        {
+            return;
+        }
+
+        NpcTeleportGate gate = gateObject != null
+            ? gateObject.GetComponent<NpcTeleportGate>()
+            : null;
+
+        for (int i = 0; i < runningTasks.Count; i++)
+        {
+            RunningNpcTask task = runningTasks[i];
+            if (task == null ||
+                task.npc != npc ||
+                !task.travelWatchdogArmed ||
+                !ShouldRearmTaskTravelWatchdogAfterTeleport(task))
+            {
+                continue;
+            }
+
+            RearmTaskTravelWatchdogAfterTeleport(task, gate);
+        }
+    }
+
+    bool ShouldRearmTaskTravelWatchdogAfterTeleport(
+        RunningNpcTask task)
+    {
+        if (task == null)
+        {
+            return false;
+        }
+
+        switch (task.stage)
+        {
+            case TavernTaskStage.GoingToCounter:
+            case TavernTaskStage.GoingToBoard:
+            case TavernTaskStage.ReturningToProvider:
+            case TavernTaskStage.GoingToWork:
+            case TavernTaskStage.ReturningToTurnIn:
+            case TavernTaskStage.WaitingForTargetRespawn:
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    void RearmTaskTravelWatchdogAfterTeleport(
+        RunningNpcTask task,
+        NpcTeleportGate gate)
+    {
+        if (task == null ||
+            task.npc == null)
+        {
+            return;
+        }
+
+        Vector3 refreshedTarget =
+            ResolveTaskRecoveryTarget(
+                task,
+                task.travelWatchdogTarget);
+
+        task.travelWatchdogStage = task.stage;
+        task.travelWatchdogTarget = refreshedTarget;
+        task.travelWatchdogLastPosition = task.npc.transform.position;
+        task.travelStageStartedAt = Time.time;
+        task.travelLastProgressAt = Time.time;
+        task.travelLastDistanceToTarget =
+            Vector2.Distance(
+                task.npc.transform.position,
+                refreshedTarget);
+        task.maxTravelDuration =
+            ComputeTravelWatchdogDuration(
+                task.npc,
+                task.travelLastDistanceToTarget);
+
+        Debug.LogWarning(
+            "[NpcTaskProvider] Re-arm travel after teleport npc=" +
+            task.npc.name +
+            " stage=" +
+            task.stage +
+            " gate=" +
+            (gate != null ? gate.name : "null") +
+            " target=" +
+            refreshedTarget +
+            " retries=" +
+            task.travelRetryCount);
+    }
+
     bool UpdateTaskTravelWatchdog(
         RunningNpcTask task,
         Vector3 target,

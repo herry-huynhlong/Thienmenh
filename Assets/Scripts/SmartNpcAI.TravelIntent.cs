@@ -138,6 +138,48 @@ public partial class SmartNpcAI
         return false;
     }
 
+    bool TryRecoverTeleportRouteActionWithoutTarget()
+    {
+        if (!IsTeleportRouteAction(currentAction) ||
+            currentTarget != null ||
+            hasWanderTarget ||
+            hasEscapeTarget ||
+            hasObstacleAvoidTarget)
+        {
+            return false;
+        }
+
+        string restoredAction =
+            ResolvePostTeleportTravelAction();
+        if (string.IsNullOrWhiteSpace(restoredAction) ||
+            IsTeleportRouteAction(restoredAction))
+        {
+            restoredAction = NpcText.Action("idle");
+        }
+
+        movementPausedUntil = 0f;
+        crowdYieldUntil = 0f;
+        blockedMoveTimer = 0f;
+        stuckMoveTimer = 0f;
+        lastUnstuckPosition = transform.position;
+
+        if (TryRebuildPostTeleportTravelIntent(restoredAction))
+        {
+            DebugFlow(
+                "MoveRoute",
+                "Recovered teleport route intent -> " +
+                restoredAction);
+            return true;
+        }
+
+        currentAction = restoredAction;
+        DebugFlow(
+            "MoveRoute",
+            "Recovered teleport route fallback -> " +
+            currentAction);
+        return false;
+    }
+
     string GetRuntimeActionForSmartTask(SmartAITask task)
     {
         if (task == null ||

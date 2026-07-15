@@ -94,6 +94,11 @@ public class TaskBoardRowUI : MonoBehaviour
             result += Text("escortObjective");
             hasRequire = true;
         }
+        else if (offer.taskType == NpcTaskType.FrontierWatch)
+        {
+            result += "Trấn thủ Ma Thú Sơn Mạch";
+            hasRequire = true;
+        }
 
         if (!hasRequire)
         {

@@ -549,16 +549,16 @@ MonoBehaviour:
   damage: 15
   defense: 8
   effectResistance: 0
-  beastInstinct: 16.698467
-  aggression: 5.744442
-  fear: 21.124128
-  hunger: 9.246163
+  beastInstinct: 17.33199
+  aggression: 15.693531
+  fear: 27.683651
+  hunger: 10.80588
   retreatChanceWhenSuppressed: 0.2
   retreatDuration: 1.25
   retreatRetryDelay: 0.75
-  territorial: 15.659604
-  bloodlust: 0.8531618
-  survivalInstinct: 82.82838
+  territorial: 13.757453
+  bloodlust: 6.3501873
+  survivalInstinct: 87.85335
   aggressionResponsePerSecond: 18
   bloodlustResponsePerSecond: 16
   aggressionSurgeDecayPerSecond: 1
@@ -19692,12 +19692,12 @@ MonoBehaviour:
     createdTime: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
-  debugFlowLogs: 0
-  runtimeTraceEnabled: 0
+  debugFlowLogs: 1
+  runtimeTraceEnabled: 1
   runtimeTraceTarget: 
-  runtimeTraceEveryUpdate: 0
-  runtimeTraceEveryThink: 0
-  runtimeTraceScheduleChanges: 0
+  runtimeTraceEveryUpdate: 1
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!114 &263152473
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -58559,12 +58559,12 @@ MonoBehaviour:
     createdTime: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
-  debugFlowLogs: 0
-  runtimeTraceEnabled: 0
+  debugFlowLogs: 1
+  runtimeTraceEnabled: 1
   runtimeTraceTarget: 
-  runtimeTraceEveryUpdate: 0
-  runtimeTraceEveryThink: 0
-  runtimeTraceScheduleChanges: 0
+  runtimeTraceEveryUpdate: 1
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!114 &962538910
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -67491,12 +67491,12 @@ MonoBehaviour:
     createdTime: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
-  debugFlowLogs: 0
-  runtimeTraceEnabled: 0
+  debugFlowLogs: 1
+  runtimeTraceEnabled: 1
   runtimeTraceTarget: 
-  runtimeTraceEveryUpdate: 0
-  runtimeTraceEveryThink: 0
-  runtimeTraceScheduleChanges: 0
+  runtimeTraceEveryUpdate: 1
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!114 &1044429983
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -106849,7 +106849,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3201119476251412231, guid: afa77975feceb5d4da429fc22403760e, type: 3}
       propertyPath: debugLogs
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3201119476251412231, guid: afa77975feceb5d4da429fc22403760e, type: 3}
       propertyPath: buyPointOverride
@@ -108320,12 +108320,12 @@ MonoBehaviour:
     createdTime: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
-  debugFlowLogs: 0
-  runtimeTraceEnabled: 0
+  debugFlowLogs: 1
+  runtimeTraceEnabled: 1
   runtimeTraceTarget: 
-  runtimeTraceEveryUpdate: 0
-  runtimeTraceEveryThink: 0
-  runtimeTraceScheduleChanges: 0
+  runtimeTraceEveryUpdate: 1
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!114 &1356436473
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -110506,6 +110506,9 @@ MonoBehaviour:
   middleGradeKinds: 10
   upperGradeKinds: 1
   amountPerKind: 1
+  haGradeStockAmount: 100
+  trungGradeStockAmount: 50
+  thuongGradeStockAmount: 10
   refillOnStart: 1
   replaceStockOnRefill: 1
   excludeImmortalGrade: 1
@@ -121838,16 +121841,16 @@ MonoBehaviour:
   damage: 8
   defense: 3
   effectResistance: 0
-  beastInstinct: 24.753424
-  aggression: 17.837147
-  fear: 39.048717
-  hunger: 9.232544
+  beastInstinct: 20.319435
+  aggression: 16.204346
+  fear: 38.351406
+  hunger: 29.314913
   retreatChanceWhenSuppressed: 0.2
   retreatDuration: 1.25
   retreatRetryDelay: 0.75
-  territorial: 30.33302
-  bloodlust: 7.054436
-  survivalInstinct: 92.26578
+  territorial: 34.865303
+  bloodlust: 3.7446184
+  survivalInstinct: 92.5995
   aggressionResponsePerSecond: 18
   bloodlustResponsePerSecond: 16
   aggressionSurgeDecayPerSecond: 1
@@ -157566,7 +157569,7 @@ MonoBehaviour:
   stateStartedAtRealtime: -1
   lastPurchaseDay: -1
   lastSaleDay: -1
-  debugLogs: 0
+  debugLogs: 1
 --- !u!70 &1980755082
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -159912,7 +159915,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -169296,12 +169299,12 @@ MonoBehaviour:
     createdTime: 0
   cultivationEffectPrefab: {fileID: 307498543186552981, guid: 67792d4c1ce0cab4d9cb365508dedb57, type: 3}
   thinkDelay: 2
-  debugFlowLogs: 0
-  runtimeTraceEnabled: 0
+  debugFlowLogs: 1
+  runtimeTraceEnabled: 1
   runtimeTraceTarget: 
-  runtimeTraceEveryUpdate: 0
-  runtimeTraceEveryThink: 0
-  runtimeTraceScheduleChanges: 0
+  runtimeTraceEveryUpdate: 1
+  runtimeTraceEveryThink: 1
+  runtimeTraceScheduleChanges: 1
 --- !u!114 &2109649317
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1159,6 +1159,34 @@ public class NpcCounterBroker : MonoBehaviour
         return serviceMoney;
     }
 
+    public bool TrySpendBrokerMoney(int amount)
+    {
+        amount = Mathf.Max(0, amount);
+        if (amount <= 0)
+        {
+            return true;
+        }
+
+        EnsureMoney(amount);
+        if (GetBrokerMoney() < amount)
+        {
+            return false;
+        }
+
+        AddBrokerMoney(-amount);
+        return true;
+    }
+
+    public void AddBrokerRevenue(int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        AddBrokerMoney(amount);
+    }
+
     void AddBrokerMoney(int amount)
     {
         if (useSpiritStoneCurrency)
@@ -1194,6 +1222,11 @@ public class NpcCounterBroker : MonoBehaviour
 
         if (useSpiritStoneCurrency)
         {
+            if (refillMoneyWhenLow &&
+                serviceSpiritStone < target)
+            {
+                serviceSpiritStone = target;
+            }
             return;
         }
 

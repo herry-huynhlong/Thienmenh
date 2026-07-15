@@ -235,22 +235,23 @@ public partial class NpcTaskProvider
 
         List<NpcTaskOffer> result = new List<NpcTaskOffer>();
 
-        if (offers == null ||
-            offers.Length == 0)
+        if (offers != null)
         {
-            return result;
-        }
-
-        foreach (NpcTaskOffer offer in offers)
-        {
-            ResolveOfferItemReferences(offer);
-            if (!IsOfferWorldAvailable(offer))
+            foreach (NpcTaskOffer offer in offers)
             {
-                continue;
-            }
+                ResolveOfferItemReferences(offer);
+                if (!IsOfferWorldAvailable(offer))
+                {
+                    continue;
+                }
 
-            result.Add(offer);
+                result.Add(offer);
+            }
         }
+
+        FrontierDefenseCoordinator.AppendVisibleOffersForProvider(
+            this,
+            result);
 
         SortOffersByDisplayOrder(result);
         return result;

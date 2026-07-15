@@ -361,6 +361,11 @@ public partial class SmartNpcAI
             return false;
         }
 
+        if (TryRecoverTeleportRouteActionWithoutTarget())
+        {
+            return true;
+        }
+
         bool isRecoverableTravelAction =
             currentAction == NpcText.Action("goTaskProviderDaily") ||
             currentAction == NpcText.Action("goVanBaoLauTask") ||

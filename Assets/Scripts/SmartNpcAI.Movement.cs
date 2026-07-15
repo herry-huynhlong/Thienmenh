@@ -181,6 +181,16 @@ public partial class SmartNpcAI
 
             if (IsTeleportRouteAction(currentAction))
             {
+                if (TryRecoverTeleportRouteActionWithoutTarget())
+                {
+                    return;
+                }
+
+                if (!IsTeleportRouteAction(currentAction))
+                {
+                    return;
+                }
+
                 if (ShouldLogStateTransition(
                         ref lastMoveHoldDebugSignature,
                         ref lastMoveHoldDebugTime,

@@ -43,10 +43,6 @@ public class WorldEventManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
-        AddLog(UiText.Get("worldStory", "introLogWelcome"), 0, true);
-        AddLog(UiText.Get("worldStory", "introLogSecretRealm"), 1, true);
-        AddLog(UiText.Get("worldStory", "introLogBeastWave"), 2, true);
     }
 
     void OnValidate()
@@ -158,7 +154,8 @@ public class WorldEventManager : MonoBehaviour
         for (int i = 0; i < worldLogs.Count; i++)
         {
             LogEntry entry = worldLogs[i];
-            if (entry != null)
+            if (entry != null &&
+                ShouldPersistLogEntry(entry))
             {
                 captured.Add(CloneEntry(entry));
             }
@@ -177,7 +174,8 @@ public class WorldEventManager : MonoBehaviour
             for (int i = 0; i < savedLogs.Count && worldLogs.Count < limit; i++)
             {
                 LogEntry entry = savedLogs[i];
-                if (entry != null)
+                if (entry != null &&
+                    ShouldPersistLogEntry(entry))
                 {
                     worldLogs.Add(CloneEntry(entry));
                 }
@@ -217,5 +215,38 @@ public class WorldEventManager : MonoBehaviour
             entry.content ?? "",
             entry.logColorType,
             entry.isStoryLog);
+    }
+
+    static bool ShouldPersistLogEntry(LogEntry entry)
+    {
+        if (entry == null ||
+            string.IsNullOrWhiteSpace(entry.content))
+        {
+            return false;
+        }
+
+        string content = entry.content.Trim();
+        return !IsBootstrapIntroLog(content);
+    }
+
+    static bool IsBootstrapIntroLog(string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            return false;
+        }
+
+        return string.Equals(
+                content,
+                UiText.Get("worldStory", "introLogWelcome"),
+                StringComparison.Ordinal) ||
+            string.Equals(
+                content,
+                UiText.Get("worldStory", "introLogSecretRealm"),
+                StringComparison.Ordinal) ||
+            string.Equals(
+                content,
+                UiText.Get("worldStory", "introLogBeastWave"),
+                StringComparison.Ordinal);
     }
 }

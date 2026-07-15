@@ -719,6 +719,7 @@ public class NpcTeleportGate : MonoBehaviour
             "OnNpcMapTeleported",
             gameObject,
             SendMessageOptions.DontRequireReceiver);
+        NpcTaskProvider.NotifyNpcTeleported(actor, gameObject);
 
         return true;
     }

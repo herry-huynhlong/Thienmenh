@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_EDITOR
@@ -24,6 +25,9 @@ public class NpcShopStockRefill : MonoBehaviour
     public int middleGradeKinds = 10;
     public int upperGradeKinds = 1;
     public int amountPerKind = 1;
+    public int haGradeStockAmount = 100;
+    public int trungGradeStockAmount = 50;
+    public int thuongGradeStockAmount = 10;
     public bool refillOnStart = true;
     public bool replaceStockOnRefill = true;
     public bool excludeImmortalGrade = true;
@@ -43,7 +47,27 @@ public class NpcShopStockRefill : MonoBehaviour
         if (refillOnStart)
         {
             EnsureStock();
+            StartCoroutine(EnsureMirroredStockAfterStartup());
         }
+    }
+
+    IEnumerator EnsureMirroredStockAfterStartup()
+    {
+        yield return null;
+
+        if (!refillOnStart)
+        {
+            yield break;
+        }
+
+        AutoBind();
+        if (!ShouldMirrorConfiguredNpcShopItems())
+        {
+            yield break;
+        }
+
+        stockReady = false;
+        EnsureStock();
     }
 
     [ContextMenu("Ensure NPC Shop Stock")]
@@ -277,10 +301,37 @@ public class NpcShopStockRefill : MonoBehaviour
 
             sellerInventory.AddItem(
                 slot.item,
-                Mathf.Max(1, slot.amount));
+                GetConfiguredStockAmountForGrade(
+                    slot.item,
+                    slot.amount));
         }
 
         sellerInventory.MarkDirty();
+    }
+
+    int GetConfiguredStockAmountForGrade(
+        StatItemData item,
+        int fallbackAmount)
+    {
+        if (item == null)
+        {
+            return Mathf.Max(1, fallbackAmount);
+        }
+
+        switch (item.grade)
+        {
+            case ItemGrade.Ha:
+                return Mathf.Max(1, haGradeStockAmount);
+
+            case ItemGrade.Trung:
+                return Mathf.Max(1, trungGradeStockAmount);
+
+            case ItemGrade.Thuong:
+                return Mathf.Max(1, thuongGradeStockAmount);
+
+            default:
+                return Mathf.Max(1, fallbackAmount);
+        }
     }
 
     int GetCatalogSignature()
