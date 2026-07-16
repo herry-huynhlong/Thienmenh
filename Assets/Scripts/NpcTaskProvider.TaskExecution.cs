@@ -45,10 +45,7 @@ public partial class NpcTaskProvider
 
         if (IsFrontierWatchTask(task))
         {
-            task.frontierPatrolIndex = 0;
-            task.frontierPatrolDirection = 1;
-            task.workPosition = GetWorkPosition(task.offer);
-            task.patrolEndPosition = GetPatrolEndPosition(task.offer);
+            PrepareFrontierWatchDuty(task);
             return;
         }
 
@@ -408,35 +405,31 @@ public partial class NpcTaskProvider
             return;
         }
 
-        task.remainingTime -= Time.deltaTime;
-        if (task.remainingTime <= 0f)
+        FrontierWatchDutyAgent dutyAgent =
+            GetOrCreateFrontierWatchDutyAgent(task);
+        if (dutyAgent == null)
         {
             task.stage = TavernTaskStage.ReturningToTurnIn;
             return;
         }
 
-        Vector3 patrolTarget =
-            FrontierDefenseCoordinator.GetNextPatrolTarget(
-                task.offer.customTargetId,
-                ref task.frontierPatrolIndex,
-                ref task.frontierPatrolDirection,
-                task.npc.transform.position);
+        bool dutyCompleted =
+            dutyAgent.TickDuty(
+                this,
+                task,
+                arriveDistance,
+                Time.deltaTime);
+        if (dutyCompleted)
+        {
+            task.stage = TavernTaskStage.ReturningToTurnIn;
+            return;
+        }
 
-        task.workPosition = patrolTarget;
-        MoveNpcToWork(task, patrolTarget);
         NpcRoleUtility.SetAction(
             task.npc,
-            TaskActionFormat("workingTask", GetTaskDisplayText(task)));
-
-        if (Vector2.Distance(
-                task.npc.transform.position,
-                patrolTarget) <= arriveDistance)
-        {
-            FrontierDefenseCoordinator.AdvancePatrolIndex(
-                task.offer.customTargetId,
-                ref task.frontierPatrolIndex,
-                ref task.frontierPatrolDirection);
-        }
+            dutyAgent.IsResting
+                ? NpcText.Action("rest")
+                : TaskActionFormat("workingTask", GetTaskDisplayText(task)));
     }
 
     void UpdateEscortMeeting(RunningNpcTask task)
@@ -551,6 +544,8 @@ public partial class NpcTaskProvider
                 task.escortDeliveryConversationStep = 0;
                 task.remainingTime = 0f;
             }
+
+            HoldEscortCompletionNpc(task);
 
             if (!UpdateEscortDeliveryDialogue(task))
             {
@@ -828,6 +823,27 @@ public partial class NpcTaskProvider
         }
 
         task.stage = TavernTaskStage.ReturningToTurnIn;
+    }
+
+    void HoldEscortCompletionNpc(RunningNpcTask task)
+    {
+        if (task == null ||
+            task.escortCompletionNpc == null)
+        {
+            return;
+        }
+
+        NpcRoleUtility.StopForConversation(
+            task.escortCompletionNpc,
+            Mathf.Max(0.5f, escortGreetingDuration));
+
+        FrontierWatchDutyAgent dutyAgent =
+            task.escortCompletionNpc.GetComponent<FrontierWatchDutyAgent>();
+        if (dutyAgent != null)
+        {
+            dutyAgent.HoldPosition(
+                Mathf.Max(0.5f, escortGreetingDuration));
+        }
     }
 
 }

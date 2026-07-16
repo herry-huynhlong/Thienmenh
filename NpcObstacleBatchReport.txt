@@ -1,0 +1,14 @@
+[20:27:33] Open scene: Assets/Lang.unity
+[20:27:44] Entered Play Mode
+[20:32:09] Init context begin
+[20:32:09] Init context created dictionary
+[20:32:09] Init context cleared dictionary
+[20:32:09] Init context found SmartNpcAI count=9
+[20:32:09] Init matched key=satthu1 object=satthu (1) npcName=Linh Nhi
+[20:32:09] Init matched key=daocot object=daocot npcName=Lâm Kiệt
+[20:32:09] Tracked NPCs: satthu1, daocot
+[20:32:09] Scenario start [daocot] bodyType=Kinematic kinematicContacts=True collisionMode=Continuous start=(93.53, -34.88, 0.00) wallX=94.78 target=(97.28, -34.88, 0.00)
+[20:32:14] Scenario result [daocot] -> PASS final=(93.84, -34.03, 0.00) maxX=93.84 thresholdX=95.20
+[20:32:14] Scenario start [satthu (1)] bodyType=Kinematic kinematicContacts=True collisionMode=Continuous start=(-4.45, -0.74, 0.00) wallX=-3.20 target=(-0.70, -0.74, 0.00)
+[20:32:19] Scenario result [satthu (1)] -> PASS final=(-4.00, -2.29, 0.00) maxX=-4.00 thresholdX=-2.78
+[20:32:19] Obstacle batch verification complete.

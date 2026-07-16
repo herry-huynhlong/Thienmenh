@@ -590,7 +590,14 @@ public partial class NpcTaskProvider
         PauseBaseAi(task);
         runningTasks.Add(task);
         MarkNpcBusyWithProvider(npc);
-        NotifyTaskStarted(task);
+
+        bool shouldDelayStartNotification =
+            offer.taskType == NpcTaskType.FrontierWatch &&
+            startAtProvider;
+        if (!shouldDelayStartNotification)
+        {
+            NotifyTaskStarted(task);
+        }
 
         if (offer.taskType == NpcTaskType.Escort)
         {
@@ -762,6 +769,7 @@ public partial class NpcTaskProvider
                             1f,
                             ResolveTaskRuntimeDurationSeconds(task.offer));
                         PrepareTaskWork(task);
+                        NotifyTaskStarted(task);
                     }
                     break;
 

@@ -16,6 +16,7 @@ public partial class VillagerAI
         rb.gravityScale = 0f;
         rb.freezeRotation = true;
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+        rb.useFullKinematicContacts = useKinematicNpcMovement;
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
     }
 

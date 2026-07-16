@@ -215,7 +215,7 @@ public partial class NpcTaskProvider
             counterTarget) <= arriveDistance;
     }
 
-    void MoveNpcToWork(RunningNpcTask task, Vector3 target)
+    internal void MoveNpcToWork(RunningNpcTask task, Vector3 target)
     {
         if (task == null)
         {

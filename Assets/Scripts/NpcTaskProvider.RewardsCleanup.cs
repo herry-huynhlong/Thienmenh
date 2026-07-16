@@ -302,6 +302,7 @@ public partial class NpcTaskProvider
         ReleaseTaskOffer(task != null ? task.offer : null);
         RestoreEscortCompanionHome(task);
         ResumeEscortCompanion(task);
+        CleanupFrontierWatchDuty(task);
         if (task != null &&
             task.offer != null &&
             task.offer.taskType == NpcTaskType.Escort)
@@ -317,11 +318,13 @@ public partial class NpcTaskProvider
     {
         if (task == null ||
             task.npc == null ||
-            task.offer == null)
+            task.offer == null ||
+            task.startNotified)
         {
             return;
         }
 
+        task.startNotified = true;
         TaskStarted?.Invoke(task.npc, task.offer);
     }
 

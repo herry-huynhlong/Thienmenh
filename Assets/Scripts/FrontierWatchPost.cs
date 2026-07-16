@@ -14,13 +14,15 @@ public class FrontierWatchPost : MonoBehaviour
     [Header("Positions")]
     public Transform primaryPoint;
     public Transform secondaryPoint;
+    public Transform restPoint;
     public Transform[] patrolPoints;
 
     [Header("Requirements")]
     public CultivationRealm minimumRealm = CultivationRealm.Foundation;
     [Range(1, CultivationProgression.MaxStage)]
     public int minimumRealmStage = 1;
-    [Min(1f)] public float shiftDurationDays = 7f;
+    [Min(1f)] public float shiftDurationDays = 3f;
+    [Min(0.25f)] public float restDurationWorldHours = 6f;
 
     [Header("Rewards")]
     public NpcTaskRank rewardRank = NpcTaskRank.Thuong;
@@ -111,6 +113,21 @@ public class FrontierWatchPost : MonoBehaviour
             : fallbackPosition;
     }
 
+    public Vector3 GetRestPosition(Vector3 fallbackPosition)
+    {
+        if (restPoint != null)
+        {
+            return restPoint.position;
+        }
+
+        if (secondaryPoint != null)
+        {
+            return secondaryPoint.position;
+        }
+
+        return fallbackPosition;
+    }
+
     void OnEnable()
     {
         FrontierDefenseCoordinator.RegisterPost(this);
@@ -129,6 +146,7 @@ public class FrontierWatchPost : MonoBehaviour
                 1,
                 CultivationProgression.MaxStage);
         shiftDurationDays = Mathf.Max(1f, shiftDurationDays);
+        restDurationWorldHours = Mathf.Max(0.25f, restDurationWorldHours);
         rewardSpiritStone = Mathf.Max(0, rewardSpiritStone);
         rewardItemAmount = Mathf.Max(0, rewardItemAmount);
     }

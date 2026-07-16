@@ -114,6 +114,7 @@ public partial class NpcTaskProvider
 
         if (autoAssigned &&
             autoAssignRequiresTaskIntent &&
+            !ShouldBypassAutoAssignTaskIntent(offer) &&
             !HasNpcTaskIntent(npc))
         {
             return 0f;
@@ -125,6 +126,12 @@ public partial class NpcTaskProvider
         }
 
         return Mathf.Max(0f, score + GetNpcTaskWillingnessBonus(npc, offer));
+    }
+
+    static bool ShouldBypassAutoAssignTaskIntent(NpcTaskOffer offer)
+    {
+        return offer != null &&
+            offer.taskType == NpcTaskType.FrontierWatch;
     }
 
     float GetMinAcceptanceScore(bool autoAssigned)

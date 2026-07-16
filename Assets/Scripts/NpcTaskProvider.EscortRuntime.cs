@@ -18,7 +18,15 @@ public partial class NpcTaskProvider
         return offer != null &&
             offer.taskType == NpcTaskType.Escort &&
             escortMeetPoint != null &&
-            escortCompletionPoint != null;
+            (IsFrontierWatcherEscortOffer(offer) ||
+                escortCompletionPoint != null);
+    }
+
+    bool IsFrontierWatcherEscortOffer(NpcTaskOffer offer)
+    {
+        return offer != null &&
+            offer.taskType == NpcTaskType.Escort &&
+            !string.IsNullOrWhiteSpace(offer.customTargetId);
     }
 
     Vector3 GetEscortCompanionPosition(NpcTaskOffer offer)
@@ -63,6 +71,17 @@ public partial class NpcTaskProvider
 
     Vector3 GetEscortCompletionPosition(NpcTaskOffer offer)
     {
+        if (IsFrontierWatcherEscortOffer(offer))
+        {
+            Vector3 fallback =
+                escortCompletionPoint != null
+                    ? escortCompletionPoint.position
+                    : GetFallbackWorkPosition();
+            return FrontierDefenseCoordinator.GetCurrentAssigneePosition(
+                offer.customTargetId,
+                fallback);
+        }
+
         if (escortAnchorPositionsCaptured)
         {
             return escortCompletionAnchorPosition;
@@ -74,6 +93,26 @@ public partial class NpcTaskProvider
         }
 
         return GetProviderPosition();
+    }
+
+    GameObject ResolveEscortCompletionNpc(
+        NpcTaskOffer offer,
+        GameObject exclude = null)
+    {
+        if (IsFrontierWatcherEscortOffer(offer))
+        {
+            GameObject watcher =
+                FrontierDefenseCoordinator.GetCurrentAssignee(
+                    offer.customTargetId);
+            return watcher != null &&
+                watcher != exclude &&
+                watcher.activeInHierarchy &&
+                !NpcRoleUtility.IsDead(watcher)
+                ? watcher
+                : null;
+        }
+
+        return FindEscortNpcAtPoint(escortCompletionPoint, exclude);
     }
 
     Vector3 GetEscortCompletionGreetingPosition(RunningNpcTask task)
@@ -198,15 +237,19 @@ public partial class NpcTaskProvider
 
         if (task.escortDeliveryConversationStep == 0)
         {
+            string deliveryCategory =
+                GetEscortDeliveryCategory(task);
+            string replyCategory =
+                GetEscortDeliveryReplyCategory(task);
             TryShowEscortDialogue(
                 task.escortCompanionNpc,
                 task.escortCompletionNpc,
-                "escort_delivery",
+                deliveryCategory,
                 out _);
             TryShowEscortDialogue(
                 task.escortCompletionNpc,
                 task.escortCompanionNpc,
-                "escort_delivery_reply",
+                replyCategory,
                 out _);
             task.remainingTime = Mathf.Max(1.0f, escortGreetingDuration * 0.42f);
             task.escortDeliveryConversationStep = 1;
@@ -220,15 +263,19 @@ public partial class NpcTaskProvider
                 return true;
             }
 
+            string deliveryCategory =
+                GetEscortDeliveryCategory(task);
+            string replyCategory =
+                GetEscortDeliveryReplyCategory(task);
             TryShowEscortDialogue(
                 task.escortCompanionNpc,
                 task.escortCompletionNpc,
-                "escort_delivery",
+                deliveryCategory,
                 out _);
             TryShowEscortDialogue(
                 task.escortCompletionNpc,
                 task.escortCompanionNpc,
-                "escort_delivery_reply",
+                replyCategory,
                 out _);
             task.remainingTime = Mathf.Max(1.0f, escortGreetingDuration * 0.42f);
             task.escortDeliveryConversationStep = 2;
@@ -247,6 +294,22 @@ public partial class NpcTaskProvider
         }
 
         return task.escortDeliveryConversationStep < 3;
+    }
+
+    string GetEscortDeliveryCategory(RunningNpcTask task)
+    {
+        return task != null &&
+            IsFrontierWatcherEscortOffer(task.offer)
+            ? "frontier_watch_delivery"
+            : "escort_delivery";
+    }
+
+    string GetEscortDeliveryReplyCategory(RunningNpcTask task)
+    {
+        return task != null &&
+            IsFrontierWatcherEscortOffer(task.offer)
+            ? "frontier_watch_delivery_reply"
+            : "escort_delivery_reply";
     }
 
     void CaptureEscortAnchorPositions()
@@ -410,7 +473,7 @@ public partial class NpcTaskProvider
     bool HasEscortParticipantsAvailable(NpcTaskOffer offer)
     {
         return FindEscortNpcAtPoint(GetEscortCompanionPosition(offer)) != null &&
-            FindEscortNpcAtPoint(GetEscortCompletionPosition(offer)) != null;
+            ResolveEscortCompletionNpc(offer) != null;
     }
 
     Vector3 GetEscortFollowPosition(RunningNpcTask task)
@@ -453,7 +516,8 @@ public partial class NpcTaskProvider
         task.escortDeliveryConversationStep = 0;
         task.escortDepartedFromCompanion = false;
         task.escortCompanionNpc = FindEscortNpcAtPoint(escortMeetPoint, task.npc);
-        task.escortCompletionNpc = FindEscortNpcAtPoint(escortCompletionPoint, task.npc);
+        task.escortCompletionNpc =
+            ResolveEscortCompletionNpc(task.offer, task.npc);
         task.escortCompanionHomePosition = GetEscortCompanionPosition(task.offer);
         task.workPosition = GetEscortCompanionPosition(task.offer);
         task.escortAvoidUntilTime = 0f;

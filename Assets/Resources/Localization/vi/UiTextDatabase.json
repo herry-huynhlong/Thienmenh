@@ -683,11 +683,11 @@
         },
         {
           "key": "settingsTitle",
-          "value": "Cài đặt"
+          "value": "CÀI ĐẶT"
         },
         {
           "key": "settingsVolume",
-          "value": "Âm lượng"
+          "value": "Âm Thanh"
         },
         {
           "key": "settingsFullscreen",
@@ -707,31 +707,31 @@
         },
         {
           "key": "settingsSave",
-          "value": "Lưu"
+          "value": "LƯU"
         },
         {
           "key": "settingsClose",
-          "value": "Đóng"
+          "value": "ĐÓNG"
         },
         {
           "key": "newGame",
-          "value": "Bắt đầu"
+          "value": "BẮT ĐẦU"
         },
         {
           "key": "continueGame",
-          "value": "Tiếp tục"
+          "value": "TIẾP TỤC"
         },
         {
           "key": "settingsMenu",
-          "value": "Cài đặt"
+          "value": "CÀI ĐẶT"
         },
         {
           "key": "aboutMenu",
-          "value": "Giới thiệu"
+          "value": "GIỚI THIỆU"
         },
         {
           "key": "exitGame",
-          "value": "Thoát"
+          "value": "THOÁT"
         },
         {
           "key": "menuMap",

@@ -573,6 +573,69 @@
       ]
     },
     {
+      "id": "frontier_watch_patrol_self_001",
+      "category": "frontier_watch_patrol_self",
+      "channel": "Frontier",
+      "duration": 1.8,
+      "cooldownSeconds": 14,
+      "priority": 28,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working"],
+      "requiredSpeakerTags": ["SmartNpc"],
+      "texts": [
+        "Gió núi hôm nay yên, nhưng vẫn không thể lơi mắt.",
+        "Ma Thú Sơn Mạch im quá, càng phải đề phòng.",
+        "Giữ chốt thêm một vòng nữa, chớ để sinh biến."
+      ]
+    },
+    {
+      "id": "frontier_watch_rest_self_001",
+      "category": "frontier_watch_rest_self",
+      "channel": "Frontier",
+      "duration": 1.8,
+      "cooldownSeconds": 14,
+      "priority": 28,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Idle"],
+      "requiredSpeakerTags": ["SmartNpc"],
+      "texts": [
+        "Nghỉ chân một lát rồi đi tiếp.",
+        "Tạm lắng khí tức, lát nữa tuần tra thêm vòng nữa.",
+        "Canh ba chưa hết, không được ngủ quên."
+      ]
+    },
+    {
+      "id": "frontier_watch_delivery_001",
+      "category": "frontier_watch_delivery",
+      "channel": "Frontier",
+      "duration": 2.0,
+      "cooldownSeconds": 0.9,
+      "priority": 30,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working", "Idle"],
+      "texts": [
+        "Ta đưa người tới đúng chốt canh như đã dặn.",
+        "Người và vật đều đã đưa tới, xin điểm nhận.",
+        "Chuyến giao tới đây là đủ, xin đạo hữu xác nhận."
+      ]
+    },
+    {
+      "id": "frontier_watch_delivery_reply_001",
+      "category": "frontier_watch_delivery_reply",
+      "channel": "Frontier",
+      "duration": 2.0,
+      "cooldownSeconds": 0.9,
+      "priority": 30,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Working", "Idle"],
+      "requiredSpeakerTags": ["SmartNpc"],
+      "texts": [
+        "Ta đã nhận, chốt này tạm ổn.",
+        "Tốt, để người ở đây cho ta. Ngươi về báo lại đi.",
+        "Xác nhận đủ người đủ việc, đường về nhớ cẩn thận."
+      ]
+    },
+    {
       "id": "bicanh_entry_001",
       "category": "bicanh_entry",
       "channel": "BichAnh",

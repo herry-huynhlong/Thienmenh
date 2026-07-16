@@ -393,6 +393,13 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             rb.gravityScale = 0f;
             rb.freezeRotation = true;
             rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+            rb.useFullKinematicContacts = true;
+            rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+        }
+        else if (rb != null)
+        {
+            rb.useFullKinematicContacts = false;
+            rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         }
 
         selfColliders = GetComponentsInChildren<Collider2D>();

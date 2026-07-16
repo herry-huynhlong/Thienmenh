@@ -148,8 +148,7 @@ public class FrontierDefenseCoordinator : MonoBehaviour
             FrontierWatchPost post = posts[i];
             if (post == null ||
                 !post.isActiveAndEnabled ||
-                post.IsOccupied ||
-                post.assignmentInProgress)
+                post.IsOccupied)
             {
                 continue;
             }
@@ -206,6 +205,51 @@ public class FrontierDefenseCoordinator : MonoBehaviour
         FrontierWatchPost post = FindPost(postId);
         return post != null
             ? post.GetSecondaryPosition()
+            : fallbackPosition;
+    }
+
+    public static Vector3 GetRestPosition(
+        string postId,
+        Vector3 fallbackPosition)
+    {
+        FrontierWatchPost post = FindPost(postId);
+        return post != null
+            ? post.GetRestPosition(fallbackPosition)
+            : fallbackPosition;
+    }
+
+    public static float GetRestDurationSeconds(string postId)
+    {
+        FrontierWatchPost post = FindPost(postId);
+        float worldHours =
+            post != null
+                ? Mathf.Max(0.25f, post.restDurationWorldHours)
+                : 1f;
+        return Mathf.Max(
+            1f,
+            GameTime.WorldHoursToScaledSeconds(worldHours));
+    }
+
+    public static GameObject GetCurrentAssignee(string postId)
+    {
+        FrontierWatchPost post = FindPost(postId);
+        if (post == null ||
+            post.currentAssignee == null ||
+            NpcRoleUtility.IsDead(post.currentAssignee))
+        {
+            return null;
+        }
+
+        return post.currentAssignee;
+    }
+
+    public static Vector3 GetCurrentAssigneePosition(
+        string postId,
+        Vector3 fallbackPosition)
+    {
+        GameObject assignee = GetCurrentAssignee(postId);
+        return assignee != null
+            ? assignee.transform.position
             : fallbackPosition;
     }
 
@@ -427,57 +471,84 @@ public class FrontierDefenseCoordinator : MonoBehaviour
             return;
         }
 
-        SmartNpcAI candidate =
-            FindBestCandidate(post);
-        if (candidate == null)
+        NpcTaskOffer offer = BuildOffer(post);
+        List<SmartNpcAI> candidates =
+            FindCandidateOrder(post);
+        if (candidates.Count == 0)
         {
+            post.assignmentInProgress = false;
             SetRetry(post);
             return;
         }
 
-        NpcTaskOffer offer = BuildOffer(post);
+        post.assignmentInProgress = true;
 
-        if (!provider.TryStartPlannedTask(candidate.gameObject, offer))
+        for (int i = 0; i < candidates.Count; i++)
         {
-            SetRetry(post);
-        }
-    }
-
-    SmartNpcAI FindBestCandidate(FrontierWatchPost post)
-    {
-        SmartNpcAI[] npcs =
-            FindObjectsByType<SmartNpcAI>(FindObjectsInactive.Exclude);
-        SmartNpcAI best = null;
-        float bestScore = float.NegativeInfinity;
-
-        for (int i = 0; i < npcs.Length; i++)
-        {
-            SmartNpcAI npc = npcs[i];
-            if (!IsEligibleCandidate(npc, post))
+            SmartNpcAI candidate = candidates[i];
+            if (candidate == null)
             {
                 continue;
             }
 
-            float distance =
-                Vector2.Distance(
-                    npc.transform.position,
-                    post.GetPrimaryPosition());
-            float score =
-                npc.bravery * 0.6f +
-                CultivationProgression.GetRealmPower(
-                    npc.realm,
-                    npc.realmStage) *
-                0.02f -
-                distance * 0.12f;
-
-            if (score > bestScore)
+            if (provider.TryStartPlannedTask(candidate.gameObject, offer))
             {
-                bestScore = score;
-                best = npc;
+                return;
             }
         }
 
-        return best;
+        post.assignmentInProgress = false;
+        SetRetry(post);
+    }
+
+    List<SmartNpcAI> FindCandidateOrder(FrontierWatchPost post)
+    {
+        List<SmartNpcAI> candidates =
+            new List<SmartNpcAI>();
+        if (post == null)
+        {
+            return candidates;
+        }
+
+        SmartNpcAI[] npcs =
+            FindObjectsByType<SmartNpcAI>(FindObjectsInactive.Exclude);
+
+        for (int i = 0; i < npcs.Length; i++)
+        {
+            SmartNpcAI npc = npcs[i];
+            if (IsEligibleCandidate(npc, post))
+            {
+                candidates.Add(npc);
+            }
+        }
+
+        candidates.Sort((left, right) =>
+            ScoreCandidate(right, post).CompareTo(
+                ScoreCandidate(left, post)));
+
+        return candidates;
+    }
+
+    float ScoreCandidate(
+        SmartNpcAI npc,
+        FrontierWatchPost post)
+    {
+        if (npc == null ||
+            post == null)
+        {
+            return float.NegativeInfinity;
+        }
+
+        float distance =
+            Vector2.Distance(
+                npc.transform.position,
+                post.GetPrimaryPosition());
+        return npc.bravery * 0.6f +
+            CultivationProgression.GetRealmPower(
+                npc.realm,
+                npc.realmStage) *
+            0.02f -
+            distance * 0.12f;
     }
 
     bool IsEligibleCandidate(

@@ -127,6 +127,7 @@ class RunningNpcTask
 {
     public GameObject npc;
     public NpcTaskOffer offer;
+    public bool startNotified;
     public TavernTaskStage stage;
     public Vector3 counterPosition;
     public Vector3 boardPosition;
@@ -158,6 +159,7 @@ class RunningNpcTask
     public bool escortDeliveryConversationStarted;
     public int escortGreetingConversationStep;
     public int escortDeliveryConversationStep;
+    public FrontierWatchDutyAgent frontierDutyAgent;
     public MonsterAI escortThreatMonster;
     public Vector3 escortAvoidPosition;
     public float escortAvoidUntilTime;

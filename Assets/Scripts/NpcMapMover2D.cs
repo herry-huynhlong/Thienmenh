@@ -1777,6 +1777,8 @@ public class NpcMapMover2D : MonoBehaviour, INpcMovementResultProvider
         rb.gravityScale = 0f;
         rb.freezeRotation = true;
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+        rb.useFullKinematicContacts = useKinematicNpcMovement;
+        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 
         if ((rb.constraints & RigidbodyConstraints2D.FreezePositionX) != 0 ||
             (rb.constraints & RigidbodyConstraints2D.FreezePositionY) != 0)
