@@ -630,6 +630,12 @@ public partial class SmartNpcAI
             multiplier *= weather.CultivationMultiplier();
         }
 
+        HeavenDaoSystem heavenDao = HeavenDaoSystem.Instance;
+        if (heavenDao != null)
+        {
+            multiplier *= heavenDao.GetWorldSpiritQiMultiplier();
+        }
+
         return multiplier;
     }
 

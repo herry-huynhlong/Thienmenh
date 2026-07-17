@@ -169,6 +169,56 @@
       "lists": []
     },
     {
+      "name": "spiritQiPanel",
+      "entries": [
+        {
+          "key": "title",
+          "value": "SPIRIT QI"
+        },
+        {
+          "key": "qiLabel",
+          "value": "World Spirit Qi"
+        },
+        {
+          "key": "cultivationMultiplierLabel",
+          "value": "Cultivation Multiplier"
+        },
+        {
+          "key": "upgradeTitle",
+          "value": "Upgrade Spirit Qi"
+        },
+        {
+          "key": "upgradeDescription",
+          "value": "Spend 1000 Origin to increase World Spirit Qi by 50."
+        },
+        {
+          "key": "costLabel",
+          "value": "Cost"
+        },
+        {
+          "key": "upgradeButton",
+          "value": "Upgrade"
+        },
+        {
+          "key": "resourceLabel",
+          "value": "Origin"
+        },
+        {
+          "key": "upgradeArrow",
+          "value": "->"
+        },
+        {
+          "key": "notEnoughOriginMessage",
+          "value": "Not enough Origin."
+        },
+        {
+          "key": "upgradeLockedMessage",
+          "value": "Unlock Regional Spirit Gathering first."
+        }
+      ],
+      "lists": []
+    },
+    {
       "name": "rewardedAds",
       "entries": [
         {
@@ -1130,6 +1180,20 @@
         {
           "key": "clear",
           "value": "Clear Sky"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "worldSigns",
+      "entries": [
+        {
+          "key": "vanbaolau",
+          "value": "Van Bao Lau"
+        },
+        {
+          "key": "nhiemvubang",
+          "value": "Quest Board"
         }
       ],
       "lists": []

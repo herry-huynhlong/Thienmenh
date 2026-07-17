@@ -496,6 +496,9 @@ public class NpcTradeAgent : MonoBehaviour
             score += IsCombatRole() ? 25f : 3f;
             score += Mathf.Max(0, item.damageBonus) * 1.5f;
             score += Mathf.Max(0, item.armorBonus) * 1.2f;
+            score += Mathf.Max(0, item.damageBonusPercent) * 3.2f;
+            score += Mathf.Max(0, item.armorBonusPercent) * 2.6f;
+            score += Mathf.Max(0, item.maxHpBonusPercent) * 2f;
 
             if (AlreadyHasUsefulEquipment(item))
             {
@@ -671,9 +674,15 @@ public class NpcTradeAgent : MonoBehaviour
                 continue;
             }
 
-            bool sameRole = item.damageBonus > 0
-                ? stack.item.damageBonus >= item.damageBonus
-                : stack.item.armorBonus >= item.armorBonus;
+            bool targetOffensive =
+                item.damageBonus > 0 ||
+                item.damageBonusPercent > 0;
+            bool sameRole = targetOffensive
+                ? stack.item.damageBonus >= item.damageBonus &&
+                    stack.item.damageBonusPercent >= item.damageBonusPercent
+                : stack.item.armorBonus >= item.armorBonus &&
+                    stack.item.armorBonusPercent >= item.armorBonusPercent &&
+                    stack.item.maxHpBonusPercent >= item.maxHpBonusPercent;
 
             if (sameRole)
             {

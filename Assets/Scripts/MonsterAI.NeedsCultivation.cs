@@ -141,6 +141,7 @@ public partial class MonsterAI
             hungerEfficiency *
             Mathf.Max(0.05f, realmEfficiency) *
             Mathf.Max(0.1f, realmMultiplier) *
+            ResolveWorldSpiritQiMultiplier() *
             Time.deltaTime;
 
         int wholeExp =
@@ -183,6 +184,14 @@ public partial class MonsterAI
         }
 
         SyncEntityProfileStats();
+    }
+
+    float ResolveWorldSpiritQiMultiplier()
+    {
+        HeavenDaoSystem heavenDao = HeavenDaoSystem.Instance;
+        return heavenDao != null
+            ? heavenDao.GetWorldSpiritQiMultiplier()
+            : 1f;
     }
 
     public void Breakthrough()

@@ -2050,10 +2050,25 @@ public class InventoryPanelUI : MonoBehaviour
                 ItemText.Format("stats", "damageBonus", item.damageBonus));
         }
 
+        if (item.damageBonusPercent != 0)
+        {
+            builder.AppendLine("Tăng công: +" + item.damageBonusPercent + "%");
+        }
+
         if (item.armorBonus != 0)
         {
             builder.AppendLine(
                 ItemText.Format("stats", "armorBonus", item.armorBonus));
+        }
+
+        if (item.armorBonusPercent != 0)
+        {
+            builder.AppendLine("Tăng thủ: +" + item.armorBonusPercent + "%");
+        }
+
+        if (item.maxHpBonusPercent != 0)
+        {
+            builder.AppendLine("Tăng máu: +" + item.maxHpBonusPercent + "%");
         }
 
         if (item.effectResistanceBonus != 0)
@@ -2732,24 +2747,66 @@ public class InventoryPanelUI : MonoBehaviour
     void ApplyAttributeValues(
         StatItemData item)
     {
-        SetAttributeValue(
+        SetAttributeText(
             attackValueText,
             item != null
-                ? item.damageBonus
-                : (int?)null);
-        SetAttributeValue(
+                ? ResolvePrimaryAttributeText(
+                    item.damageBonus,
+                    item.damageBonusPercent,
+                    "ATK")
+                : null);
+        SetAttributeText(
             defenseValueText,
             item != null
-                ? item.armorBonus
-                : (int?)null);
-        SetAttributeValue(
+                ? ResolvePrimaryAttributeText(
+                    item.armorBonus,
+                    item.armorBonusPercent,
+                    "DEF")
+                : null);
+        SetAttributeText(
             hpValueText,
             item != null
-                ? item.hpBonus
-                : (int?)null);
+                ? ResolvePrimaryAttributeText(
+                    item.hpBonus,
+                    item.maxHpBonusPercent,
+                    "HP")
+                : null);
         SetAttributeValue(
             speedValueText,
             null);
+    }
+
+    string ResolvePrimaryAttributeText(
+        int flatValue,
+        int percentValue,
+        string percentLabel)
+    {
+        if (percentValue != 0)
+        {
+            return "+" + percentValue + "% " + percentLabel;
+        }
+
+        if (flatValue != 0)
+        {
+            return FormatSignedValue(flatValue);
+        }
+
+        return null;
+    }
+
+    void SetAttributeText(
+        TMP_Text text,
+        string value)
+    {
+        if (text == null)
+        {
+            return;
+        }
+
+        text.text =
+            !string.IsNullOrEmpty(value)
+                ? value
+                : "-";
     }
 
     void SetAttributeValue(

@@ -347,6 +347,56 @@
       "lists": []
     },
     {
+      "name": "spiritQiPanel",
+      "entries": [
+        {
+          "key": "title",
+          "value": "LINH KHÍ"
+        },
+        {
+          "key": "qiLabel",
+          "value": "Linh khí thế giới"
+        },
+        {
+          "key": "cultivationMultiplierLabel",
+          "value": "Hệ số tu luyện"
+        },
+        {
+          "key": "upgradeTitle",
+          "value": "Nâng linh khí"
+        },
+        {
+          "key": "upgradeDescription",
+          "value": "Tieu 1000 Ban Nguyen de tang 50 Linh Khi The Gioi."
+        },
+        {
+          "key": "costLabel",
+          "value": "Chi phí"
+        },
+        {
+          "key": "upgradeButton",
+          "value": "Nâng cấp"
+        },
+        {
+          "key": "resourceLabel",
+          "value": "Bản Nguyên"
+        },
+        {
+          "key": "upgradeArrow",
+          "value": "->"
+        },
+        {
+          "key": "notEnoughOriginMessage",
+          "value": "Khong du Ban Nguyen."
+        },
+        {
+          "key": "upgradeLockedMessage",
+          "value": "Hay mo quyen Tu Linh Khu Vuc truoc."
+        }
+      ],
+      "lists": []
+    },
+    {
       "name": "rewardedAds",
       "entries": [
         {
@@ -1313,6 +1363,20 @@
         {
           "key": "clear",
           "value": "Tr\u1eddi Quang"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "worldSigns",
+      "entries": [
+        {
+          "key": "vanbaolau",
+          "value": "Van Bao Lau"
+        },
+        {
+          "key": "nhiemvubang",
+          "value": "Nhiem Vu Bang"
         }
       ],
       "lists": []

@@ -58,6 +58,9 @@ public partial class SmartNpcAI
     public void EnterRestrictedMapSessionMode()
     {
         isBicanhParticipant = true;
+        ExitFrontierDefenseMode();
+        NpcMapNavigator.ClearNpcState(gameObject);
+        NpcMapBehaviorPolicy.ClearForcedCombatZone(gameObject);
 
         NpcTaskProvider.ReleaseNpcFromProviderTasksForCombat(gameObject);
         ClearTaskProviderVisitState();

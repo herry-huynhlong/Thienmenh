@@ -119,9 +119,22 @@ public partial class MonsterAI
                 Mathf.Max(0, (int)realm),
                 Mathf.Clamp(realmStage, 1, CultivationProgression.MaxStage) - 1);
 
-        maxHP = Mathf.Max(1, CombatStatCalculator.ClampToInt(Mathf.Max(1, baseMaxHP) * power));
-        damage = Mathf.Max(1, CombatStatCalculator.ClampToInt(Mathf.Max(1, baseDamage) * power));
-        defense = Mathf.Max(0, CombatStatCalculator.ClampToInt(Mathf.Max(0, baseDefense) * power));
+        double scaledMaxHp =
+            CombatStatCalculator.ClampToInt(
+                Mathf.Max(1, baseMaxHP) * power) *
+            (1d + bonusMaxHPPercent);
+        double scaledDamage =
+            CombatStatCalculator.ClampToInt(
+                Mathf.Max(1, baseDamage) * power) *
+            (1d + bonusDamagePercent);
+        double scaledDefense =
+            CombatStatCalculator.ClampToInt(
+                Mathf.Max(0, baseDefense) * power) *
+            (1d + bonusDefensePercent);
+
+        maxHP = Mathf.Max(1, CombatStatCalculator.ClampToInt(scaledMaxHp));
+        damage = Mathf.Max(1, CombatStatCalculator.ClampToInt(scaledDamage));
+        defense = Mathf.Max(0, CombatStatCalculator.ClampToInt(scaledDefense));
         effectResistance =
             Mathf.Max(
                 0,

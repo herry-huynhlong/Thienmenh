@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b08bed6de7e10784b8d511e57aa1b81d
+guid: 10fe6d3f274acc84fa3d93a92ad2e3f4
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 522034775772730102
-    second: nvb_0
+      213: 3335516694846915582
+    second: manhvo_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -97,19 +97,6 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
-    buildTarget: Android
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
     buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -126,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: nvb_0
+      name: manhvo_0
       rect:
         serializedVersion: 2
-        x: 6
-        y: 77
-        width: 601
-        height: 291
+        x: 116
+        y: 19
+        width: 226
+        height: 399
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6f2955adcd3ae3700800000000000000
-      internalID: 522034775772730102
+      spriteID: ef34cbaf2c22a4e20800000000000000
+      internalID: 3335516694846915582
       vertices: []
       indices: 
       edges: []
@@ -161,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      nvb_0: 522034775772730102
+      manhvo_0: 3335516694846915582
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

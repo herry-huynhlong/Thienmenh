@@ -548,9 +548,20 @@ public partial class NpcTaskProvider
         int requiredAmount = ResolveTaskRequiredAmount(offer, requiredItem);
         int rewardSpiritStone =
             ResolveTaskRewardSpiritStone(offer, requiredItem, requiredAmount);
+        bool hasConfiguredTaskBoard =
+            taskBoardPoint != null;
+        bool hasConfiguredCounterFlow =
+            counterPoint != null ||
+            (NpcCounterBroker.Active != null &&
+            NpcCounterBroker.Active.receiveAllNpcRequests);
         bool formalFlow =
             useFormalTaskReceiveFlow &&
-            !startAtProvider;
+            !startAtProvider &&
+            hasConfiguredTaskBoard;
+        bool useCounterCheck =
+            formalFlow &&
+            requireCounterCheckBeforeTask &&
+            hasConfiguredCounterFlow;
 
         RunningNpcTask task = new RunningNpcTask
         {
@@ -559,7 +570,7 @@ public partial class NpcTaskProvider
             stage = startAtProvider
                 ? TavernTaskStage.ReceivingTask
                 : formalFlow
-                ? (requireCounterCheckBeforeTask
+                ? (useCounterCheck
                     ? TavernTaskStage.GoingToCounter
                     : TavernTaskStage.GoingToBoard)
                 : TavernTaskStage.GoingToWork,

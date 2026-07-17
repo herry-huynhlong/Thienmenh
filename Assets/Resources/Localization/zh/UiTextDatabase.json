@@ -347,6 +347,56 @@
       "lists": []
     },
     {
+      "name": "spiritQiPanel",
+      "entries": [
+        {
+          "key": "title",
+          "value": "灵气"
+        },
+        {
+          "key": "qiLabel",
+          "value": "天地灵气"
+        },
+        {
+          "key": "cultivationMultiplierLabel",
+          "value": "修炼倍率"
+        },
+        {
+          "key": "upgradeTitle",
+          "value": "提升灵气"
+        },
+        {
+          "key": "upgradeDescription",
+          "value": "Xiao hao 1000 Ben Yuan, zeng jia 50 Tian Di Ling Qi."
+        },
+        {
+          "key": "costLabel",
+          "value": "消耗"
+        },
+        {
+          "key": "upgradeButton",
+          "value": "升级"
+        },
+        {
+          "key": "resourceLabel",
+          "value": "本源"
+        },
+        {
+          "key": "upgradeArrow",
+          "value": "->"
+        },
+        {
+          "key": "notEnoughOriginMessage",
+          "value": "Ben yuan bu gou."
+        },
+        {
+          "key": "upgradeLockedMessage",
+          "value": "Qing xian kai qi Qu Yu Ju Ling."
+        }
+      ],
+      "lists": []
+    },
+    {
       "name": "rewardedAds",
       "entries": [
         {
@@ -1313,6 +1363,20 @@
         {
           "key": "clear",
           "value": "\u6674\u6717"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "worldSigns",
+      "entries": [
+        {
+          "key": "vanbaolau",
+          "value": "Wan Bao Lou"
+        },
+        {
+          "key": "nhiemvubang",
+          "value": "Ren Wu Bang"
         }
       ],
       "lists": []

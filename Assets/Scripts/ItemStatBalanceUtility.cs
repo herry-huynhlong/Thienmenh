@@ -61,6 +61,9 @@ public static class ItemStatBalanceUtility
         item.breakthroughRealm = false;
         item.damageBonus = 0;
         item.armorBonus = 0;
+        item.damageBonusPercent = 0;
+        item.armorBonusPercent = 0;
+        item.maxHpBonusPercent = 0;
         item.effectResistanceBonus = 0;
         item.isTemporary = false;
         item.durationScaledSeconds =
@@ -107,6 +110,9 @@ public static class ItemStatBalanceUtility
                 item.consumeOnUse = false;
                 item.useStyle = ItemUseStyle.StudyManual;
                 item.manualKind = ManualKind.Mixed;
+                item.attackTechniqueCooldown = 4.5f;
+                item.defenseTechniqueCooldown = 8f;
+                item.movementTechniqueCooldown = 6f;
                 break;
             case ItemType.VatLieu:
                 item.consumeOnUse = true;
@@ -133,14 +139,44 @@ public static class ItemStatBalanceUtility
 
     static void RollArtifact(StatItemData item, System.Random rng)
     {
-        item.damageBonus = Roll(item.grade, new IntRange(8, 16), new IntRange(18, 35), new IntRange(45, 80), new IntRange(140, 260), rng);
-        item.armorBonus = Roll(item.grade, new IntRange(2, 6), new IntRange(6, 14), new IntRange(18, 35), new IntRange(60, 120), rng);
-        item.effectResistanceBonus = Roll(item.grade, new IntRange(0, 3), new IntRange(3, 8), new IntRange(8, 18), new IntRange(25, 50), rng);
+        item.damageBonusPercent = Roll(
+            item.grade,
+            new IntRange(20, 30),
+            new IntRange(35, 50),
+            new IntRange(60, 80),
+            new IntRange(100, 140),
+            rng);
+        item.armorBonusPercent = Roll(
+            item.grade,
+            new IntRange(15, 25),
+            new IntRange(30, 45),
+            new IntRange(50, 70),
+            new IntRange(80, 120),
+            rng);
+        item.maxHpBonusPercent = Roll(
+            item.grade,
+            new IntRange(5, 10),
+            new IntRange(10, 18),
+            new IntRange(18, 30),
+            new IntRange(30, 50),
+            rng);
+        item.effectResistanceBonus = Roll(
+            item.grade,
+            new IntRange(0, 3),
+            new IntRange(3, 8),
+            new IntRange(8, 18),
+            new IntRange(18, 30),
+            rng);
 
-        if (item.armorBonus > item.damageBonus)
+        if (item.armorBonusPercent > item.damageBonusPercent)
         {
             item.equipmentSlot = EquipmentSlot.Armor;
             item.artifactKind = ArtifactKind.Armor;
+        }
+        else if (item.maxHpBonusPercent > item.damageBonusPercent)
+        {
+            item.equipmentSlot = EquipmentSlot.Accessory;
+            item.artifactKind = ArtifactKind.Amulet;
         }
     }
 
@@ -165,38 +201,104 @@ public static class ItemStatBalanceUtility
         {
             item.pillKind = PillKind.Breakthrough;
             item.breakthroughRealm = true;
-            item.cultivationBonus = Roll(item.grade, new IntRange(12000, 45000), new IntRange(180000, 900000), new IntRange(3000000, 15000000), new IntRange(150000000, 900000000), rng);
+            item.cultivationBonus = Roll(
+                item.grade,
+                new IntRange(10000, 35000),
+                new IntRange(150000, 600000),
+                new IntRange(2500000, 10000000),
+                new IntRange(60000000, 350000000),
+                rng);
         }
         else if (pillRoll <= 6)
         {
             item.pillKind = PillKind.Cultivation;
-            item.cultivationBonus = Roll(item.grade, new IntRange(30000, 120000), new IntRange(450000, 1800000), new IntRange(6000000, 27000000), new IntRange(300000000, 1500000000), rng);
+            item.cultivationBonus = Roll(
+                item.grade,
+                new IntRange(18000, 70000),
+                new IntRange(280000, 1200000),
+                new IntRange(4500000, 18000000),
+                new IntRange(120000000, 700000000),
+                rng);
         }
         else
         {
             item.pillKind = PillKind.Heal;
-            item.hpBonus = Roll(item.grade, new IntRange(30, 80), new IntRange(100, 250), new IntRange(400, 1000), new IntRange(2000, 6000), rng);
+            item.hpBonus = Roll(
+                item.grade,
+                new IntRange(50, 140),
+                new IntRange(180, 500),
+                new IntRange(700, 2200),
+                new IntRange(2500, 9000),
+                rng);
         }
 
         if (RollChance(item.grade, rng, 0.12f, 0.18f, 0.25f, 0.35f))
         {
-            item.damageBonus = Roll(item.grade, new IntRange(1, 3), new IntRange(3, 8), new IntRange(8, 20), new IntRange(30, 80), rng);
+            item.damageBonusPercent = Roll(
+                item.grade,
+                new IntRange(4, 8),
+                new IntRange(8, 14),
+                new IntRange(14, 22),
+                new IntRange(25, 40),
+                rng);
         }
 
         if (RollChance(item.grade, rng, 0.16f, 0.22f, 0.3f, 0.45f))
         {
-            SetIntModifier(item, StatType.MaxHP, Roll(item.grade, new IntRange(5, 20), new IntRange(20, 60), new IntRange(80, 200), new IntRange(300, 1000), rng));
+            item.maxHpBonusPercent = Roll(
+                item.grade,
+                new IntRange(3, 6),
+                new IntRange(6, 10),
+                new IntRange(10, 16),
+                new IntRange(18, 28),
+                rng);
+        }
+
+        if (RollChance(item.grade, rng, 0.08f, 0.12f, 0.18f, 0.26f))
+        {
+            item.armorBonusPercent = Roll(
+                item.grade,
+                new IntRange(3, 6),
+                new IntRange(6, 10),
+                new IntRange(10, 16),
+                new IntRange(18, 28),
+                rng);
         }
     }
 
     static void RollFood(StatItemData item, System.Random rng)
     {
-        item.hpBonus = Roll(item.grade, new IntRange(10, 30), new IntRange(30, 80), new IntRange(100, 250), new IntRange(500, 1200), rng);
-        item.cultivationBonus = Roll(item.grade, new IntRange(500, 1800), new IntRange(6000, 30000), new IntRange(120000, 600000), new IntRange(1000000, 8000000), rng);
+        item.hpBonus = Roll(
+            item.grade,
+            new IntRange(12, 40),
+            new IntRange(40, 120),
+            new IntRange(140, 400),
+            new IntRange(600, 1600),
+            rng);
+        item.cultivationBonus = Roll(
+            item.grade,
+            new IntRange(400, 1400),
+            new IntRange(4000, 18000),
+            new IntRange(70000, 320000),
+            new IntRange(700000, 4200000),
+            rng);
 
         if (RollChance(item.grade, rng, 0.2f, 0.25f, 0.3f, 0.4f))
         {
-            item.damageBonus = Roll(item.grade, new IntRange(2, 5), new IntRange(5, 12), new IntRange(15, 35), new IntRange(50, 100), rng);
+            item.damageBonusPercent = Roll(
+                item.grade,
+                new IntRange(5, 10),
+                new IntRange(10, 16),
+                new IntRange(16, 24),
+                new IntRange(25, 40),
+                rng);
+            item.maxHpBonusPercent = Roll(
+                item.grade,
+                new IntRange(3, 6),
+                new IntRange(6, 10),
+                new IntRange(10, 16),
+                new IntRange(16, 25),
+                rng);
             item.isTemporary = true;
             item.durationScaledSeconds = RollFloat(rng, 20f, 90f);
         }
@@ -209,8 +311,25 @@ public static class ItemStatBalanceUtility
         item.useSuccessChance = Mathf.Clamp(0.65f + efficiency, 0.7f, 1f);
         item.rawToxicityDamage = Roll(item.grade, new IntRange(2, 8), new IntRange(6, 18), new IntRange(15, 40), new IntRange(40, 120), rng);
 
-        int baseCultivation = Roll(item.grade, new IntRange(7500, 37500), new IntRange(150000, 750000), new IntRange(4500000, 30000000), new IntRange(300000000, 1500000000), rng);
+        int baseCultivation = Roll(
+            item.grade,
+            new IntRange(5000, 24000),
+            new IntRange(90000, 420000),
+            new IntRange(2200000, 12000000),
+            new IntRange(70000000, 420000000),
+            rng);
         item.cultivationBonus = Mathf.RoundToInt(baseCultivation * efficiency);
+
+        if (RollChance(item.grade, rng, 0.1f, 0.14f, 0.2f, 0.28f))
+        {
+            item.damageBonusPercent = Roll(
+                item.grade,
+                new IntRange(2, 5),
+                new IntRange(4, 8),
+                new IntRange(8, 14),
+                new IntRange(14, 22),
+                rng);
+        }
     }
 
 
@@ -219,11 +338,11 @@ public static class ItemStatBalanceUtility
         switch (item.itemType)
         {
             case ItemType.PhapBao:
-                item.price = RollPriceRange(item.grade, 800, 2000, 8000, 25000, 80000, 300000, 5000000, 30000000, rng);
+                item.price = RollPriceRange(item.grade, 1200, 3200, 10000, 32000, 100000, 380000, 3500000, 18000000, rng);
                 break;
 
             case ItemType.CongPhap:
-                item.price = RollPriceRange(item.grade, 3000, 10000, 50000, 180000, 700000, 3000000, 50000000, 500000000, rng);
+                item.price = RollPriceRange(item.grade, 4000, 14000, 60000, 220000, 900000, 3600000, 45000000, 280000000, rng);
                 break;
 
             case ItemType.DanDuoc:
@@ -231,17 +350,17 @@ public static class ItemStatBalanceUtility
                 break;
 
             case ItemType.ThucPham:
-                item.price = RollPriceRange(item.grade, 80, 300, 1000, 5000, 20000, 100000, 2000000, 20000000, rng);
+                item.price = RollPriceRange(item.grade, 60, 220, 600, 2800, 9000, 45000, 250000, 1600000, rng);
                 break;
 
             case ItemType.VatLieu:
                 if (item.materialKind == MaterialKind.Herb)
                 {
-                    item.price = RollPriceRange(item.grade, 500, 2500, 10000, 50000, 300000, 2000000, 20000000, 300000000, rng);
+                    item.price = RollPriceRange(item.grade, 250, 1000, 3000, 15000, 35000, 180000, 1000000, 6000000, rng);
                 }
                 else
                 {
-                    item.price = RollPriceRange(item.grade, 100, 500, 2000, 8000, 30000, 150000, 20000000, 100000000, rng);
+                    item.price = RollPriceRange(item.grade, 100, 450, 1000, 6000, 12000, 70000, 300000, 2000000, rng);
                 }
                 break;
 
@@ -256,21 +375,21 @@ public static class ItemStatBalanceUtility
         switch (item.pillKind)
         {
             case PillKind.Breakthrough:
-                item.price = RollPriceRange(item.grade, 2500, 8000, 30000, 120000, 700000, 3000000, 30000000, 150000000, rng);
+                item.price = RollPriceRange(item.grade, 3000, 10000, 40000, 160000, 900000, 3600000, 35000000, 180000000, rng);
                 break;
 
             case PillKind.Cultivation:
-                item.price = RollPriceRange(item.grade, 1000, 4000, 15000, 60000, 200000, 900000, 10000000, 50000000, rng);
+                item.price = RollPriceRange(item.grade, 1200, 5000, 18000, 70000, 260000, 1200000, 12000000, 65000000, rng);
                 break;
 
             case PillKind.PermanentAttack:
             case PillKind.PermanentDefense:
             case PillKind.PermanentMaxHP:
-                item.price = RollPriceRange(item.grade, 3000, 12000, 60000, 250000, 1000000, 5000000, 100000000, 1000000000, rng);
+                item.price = RollPriceRange(item.grade, 4000, 14000, 70000, 260000, 1200000, 5200000, 60000000, 320000000, rng);
                 break;
 
             default:
-                item.price = RollPriceRange(item.grade, 300, 1000, 4000, 15000, 50000, 180000, 10000000, 80000000, rng);
+                item.price = RollPriceRange(item.grade, 250, 900, 3500, 14000, 40000, 180000, 2000000, 12000000, rng);
                 break;
         }
     }
@@ -395,6 +514,9 @@ public static class ItemStatBalanceUtility
         item.modifiers.RemoveAll(modifier =>
             modifier != null &&
             (modifier.statType == StatType.MaxHP ||
+             modifier.statType == StatType.MaxHPPercent ||
+             modifier.statType == StatType.AttackPercent ||
+             modifier.statType == StatType.DefensePercent ||
              modifier.statType == StatType.MoveSpeed));
     }
 

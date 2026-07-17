@@ -9,10 +9,25 @@ public static class AndroidBuildRunner
 {
     const string KeystorePassEnv = "UNITY_ANDROID_KEYSTORE_PASS";
     const string KeyaliasPassEnv = "UNITY_ANDROID_KEYALIAS_PASS";
+    const string FallbackSigningPassword = "230300";
 
     [MenuItem("Tools/Build/Build Android APK")]
     public static void BuildApk()
     {
+        if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.Android, BuildTarget.Android))
+        {
+            throw new BuildFailedException(
+                "Android build target is unsupported in this Unity Editor installation. " +
+                "Open Unity Hub and add the Android Build Support module for this editor version.");
+        }
+
+        if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android &&
+            !EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android))
+        {
+            throw new BuildFailedException(
+                "Failed to switch the active build target to Android before building.");
+        }
+
         string[] scenes = EditorBuildSettings.scenes
             .Where(scene => scene.enabled)
             .Select(scene => scene.path)
@@ -65,16 +80,14 @@ public static class AndroidBuildRunner
         string keystorePass = Environment.GetEnvironmentVariable(KeystorePassEnv);
         string keyaliasPass = Environment.GetEnvironmentVariable(KeyaliasPassEnv);
 
-        if (string.IsNullOrWhiteSpace(keystorePass) ||
-            string.IsNullOrWhiteSpace(keyaliasPass))
+        if (string.IsNullOrWhiteSpace(keystorePass))
         {
-            throw new BuildFailedException(
-                "Android signing passwords are missing. " +
-                "Set environment variables " +
-                KeystorePassEnv +
-                " and " +
-                KeyaliasPassEnv +
-                " before building.");
+            keystorePass = FallbackSigningPassword;
+        }
+
+        if (string.IsNullOrWhiteSpace(keyaliasPass))
+        {
+            keyaliasPass = FallbackSigningPassword;
         }
 
         PlayerSettings.Android.keystorePass = keystorePass;

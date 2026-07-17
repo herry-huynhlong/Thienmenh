@@ -2213,11 +2213,16 @@ public class ShopPanelUI : MonoBehaviour
     {
         bool isProtective =
             item.armorBonus > 0 ||
+            item.armorBonusPercent > 0 ||
+            item.maxHpBonusPercent > 0 ||
             item.effectResistanceBonus > 0;
         bool isOffensive =
-            item.damageBonus > 0 &&
-            item.damageBonus >= item.armorBonus &&
-            item.damageBonus >= item.effectResistanceBonus;
+            (item.damageBonus > 0 ||
+            item.damageBonusPercent > 0) &&
+            Mathf.Max(item.damageBonus, item.damageBonusPercent) >=
+                Mathf.Max(
+                    item.armorBonus,
+                    Mathf.Max(item.armorBonusPercent, item.effectResistanceBonus));
 
         if (isProtective)
         {
@@ -2537,10 +2542,25 @@ public class ShopPanelUI : MonoBehaviour
                 ItemText.Format("stats", "damageBonus", item.damageBonus));
         }
 
+        if (item.damageBonusPercent != 0)
+        {
+            builder.AppendLine("Tăng công: +" + item.damageBonusPercent + "%");
+        }
+
         if (item.armorBonus != 0)
         {
             builder.AppendLine(
                 ItemText.Format("stats", "armorBonus", item.armorBonus));
+        }
+
+        if (item.armorBonusPercent != 0)
+        {
+            builder.AppendLine("Tăng thủ: +" + item.armorBonusPercent + "%");
+        }
+
+        if (item.maxHpBonusPercent != 0)
+        {
+            builder.AppendLine("Tăng máu: +" + item.maxHpBonusPercent + "%");
         }
 
         if (item.effectResistanceBonus != 0)

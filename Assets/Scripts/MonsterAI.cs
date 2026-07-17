@@ -35,6 +35,9 @@ public partial class MonsterAI : MonoBehaviour, IDamageable, INpcActionStateOwne
     public int baseMaxHP = 150;
     public int baseDamage = 15;
     public int baseDefense = 8;
+    public float bonusMaxHPPercent;
+    public float bonusDamagePercent;
+    public float bonusDefensePercent;
     public int baseEffectResistance;
     public float baseMoveSpeed = 2f;
     [Min(0f)] public float naturalCultivationExpPerSecond = 0.35f;

@@ -145,9 +145,12 @@ public enum ItemTargetType
 public enum StatType
 {
     MaxHP,
+    MaxHPPercent,
     CurrentHP,
     Attack,
+    AttackPercent,
     Defense,
+    DefensePercent,
     EffectResistance,
     MoveSpeed,
     Damage,
@@ -232,12 +235,24 @@ public class StatItemData : ScriptableObject
     [Header("Pháp Bảo")]
     public int damageBonus;
     public int armorBonus;
+    [Range(0, 1000)]
+    public int damageBonusPercent;
+    [Range(0, 1000)]
+    public int armorBonusPercent;
+    [Range(0, 1000)]
+    public int maxHpBonusPercent;
     public int effectResistanceBonus;
 
     [Header("Công Pháp")]
     public bool canBeTaught = true;
     public int studyProgressPerUse = 1;
     public float manualBreakAfterYears = 10f;
+    [Min(0.1f)]
+    public float attackTechniqueCooldown = 4.5f;
+    [Min(0.1f)]
+    public float defenseTechniqueCooldown = 8f;
+    [Min(0.1f)]
+    public float movementTechniqueCooldown = 6f;
     [Range(0f, 1f)]
     public float tieuThanhPower = 0.3f;
     [Range(0f, 1f)]
@@ -340,11 +355,23 @@ public class StatItemData : ScriptableObject
             result,
             StatType.Attack,
             Mathf.RoundToInt(damageBonus * useMultiplier));
+        AddFloatModifier(
+            result,
+            StatType.AttackPercent,
+            damageBonusPercent / 100f * useMultiplier);
 
         AddModifier(
             result,
             StatType.Defense,
             Mathf.RoundToInt(armorBonus * useMultiplier));
+        AddFloatModifier(
+            result,
+            StatType.DefensePercent,
+            armorBonusPercent / 100f * useMultiplier);
+        AddFloatModifier(
+            result,
+            StatType.MaxHPPercent,
+            maxHpBonusPercent / 100f * useMultiplier);
 
         AddModifier(
             result,
@@ -368,6 +395,24 @@ public class StatItemData : ScriptableObject
         }
 
         return result;
+    }
+
+    void AddFloatModifier(
+        List<StatModifier> targetModifiers,
+        StatType statType,
+        float value)
+    {
+        if (Mathf.Approximately(value, 0f))
+        {
+            return;
+        }
+
+        targetModifiers.Add(
+            new StatModifier
+            {
+                statType = statType,
+                floatValue = value
+            });
     }
 
     void AddModifier(
@@ -596,7 +641,10 @@ public class StatItemData : ScriptableObject
     public float GetEquipmentUseScore()
     {
         return Mathf.Max(0f, damageBonus) +
+            Mathf.Max(0f, damageBonusPercent) * 1.5f +
             Mathf.Max(0f, armorBonus) +
+            Mathf.Max(0f, armorBonusPercent) * 1.35f +
+            Mathf.Max(0f, maxHpBonusPercent) +
             Mathf.Max(0f, effectResistanceBonus);
     }
 
@@ -611,7 +659,10 @@ public class StatItemData : ScriptableObject
             Mathf.Max(0f, hpBonus) * 0.5f +
             Mathf.Max(0f, cultivationBonus) * 1.2f +
             Mathf.Max(0f, damageBonus) +
+            Mathf.Max(0f, damageBonusPercent) * 1.5f +
             Mathf.Max(0f, armorBonus) +
+            Mathf.Max(0f, armorBonusPercent) * 1.35f +
+            Mathf.Max(0f, maxHpBonusPercent) +
             Mathf.Max(0f, effectResistanceBonus);
 
         if (breakthroughRealm)
@@ -706,6 +757,13 @@ public class StatItemData : ScriptableObject
         }
 
         if (damageBonus >= Mathf.Max(armorBonus, effectResistanceBonus))
+        {
+            return EquipmentSlot.Weapon;
+        }
+
+        if (damageBonusPercent >= Mathf.Max(
+                armorBonusPercent,
+                maxHpBonusPercent))
         {
             return EquipmentSlot.Weapon;
         }

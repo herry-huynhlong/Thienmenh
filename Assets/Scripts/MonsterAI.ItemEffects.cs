@@ -54,6 +54,10 @@ public partial class MonsterAI
                 RecalculateRealmStats(false);
                 currentHP += intValue;
                 break;
+            case StatType.MaxHPPercent:
+                bonusMaxHPPercent += floatValue;
+                RecalculateRealmStats(false);
+                break;
             case StatType.CurrentHP:
                 currentHP += intValue;
                 break;
@@ -62,8 +66,16 @@ public partial class MonsterAI
                 baseDamage += intValue;
                 RecalculateRealmStats(false);
                 break;
+            case StatType.AttackPercent:
+                bonusDamagePercent += floatValue;
+                RecalculateRealmStats(false);
+                break;
             case StatType.Defense:
                 baseDefense += intValue;
+                RecalculateRealmStats(false);
+                break;
+            case StatType.DefensePercent:
+                bonusDefensePercent += floatValue;
                 RecalculateRealmStats(false);
                 break;
             case StatType.EffectResistance:

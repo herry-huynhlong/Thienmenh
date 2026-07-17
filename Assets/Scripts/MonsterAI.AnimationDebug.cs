@@ -74,6 +74,28 @@ public partial class MonsterAI
         }
     }
 
+    public void PlayCombatTechniqueAnimation(Transform target, bool offensive)
+    {
+        Vector2 direction =
+            target != null
+                ? (Vector2)(target.position - transform.position)
+                : Vector2.zero;
+
+        FaceDirection(direction);
+
+        if (directionalAnimator != null)
+        {
+            directionalAnimator.PlayAttack(direction);
+            return;
+        }
+
+        if (animator != null &&
+            useAnimation)
+        {
+            SetAnimatorTriggerIfExists("attack");
+        }
+    }
+
     void OnDrawGizmosSelected()
     {
         Vector2 center =

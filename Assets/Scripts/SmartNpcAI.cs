@@ -68,6 +68,9 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
     public int baseMaxHP = 100;
     public int baseAttack = 10;
     public int baseDefense = 5;
+    public float bonusMaxHPPercent;
+    public float bonusAttackPercent;
+    public float bonusDefensePercent;
 
     public int effectResistance = 0;
     public CharacterStats characterStats;
@@ -307,6 +310,28 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
 
         actionTimer = Mathf.Max(actionTimer, Mathf.Max(0f, durationSeconds));
         SetCurrentActionState(NpcActionState.FromDisplayText(action));
+    }
+
+    public void PlayCombatTechniqueAnimation(Transform target, bool offensive)
+    {
+        if (visualAnimation == null)
+        {
+            visualAnimation = NPCVisualAnimation.EnsureOn(gameObject);
+        }
+
+        if (visualAnimation == null)
+        {
+            return;
+        }
+
+        if (target != null)
+        {
+            visualAnimation.SetFacingTarget(target.position);
+        }
+
+        string techniqueAction = NpcText.Action("cultivate");
+        visualAnimation.ReplayActionAnimation(techniqueAction);
+        actionTimer = Mathf.Max(actionTimer, offensive ? 0.3f : 0.2f);
     }
 
     public NpcActionState CurrentActionState
@@ -1481,6 +1506,11 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
                 currentHP += intValue;
                 break;
 
+            case StatType.MaxHPPercent:
+                bonusMaxHPPercent += floatValue;
+                ApplyRealmPower();
+                break;
+
             case StatType.CurrentHP:
                 currentHP += intValue;
                 break;
@@ -1490,8 +1520,18 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
                 attack += intValue;
                 break;
 
+            case StatType.AttackPercent:
+                bonusAttackPercent += floatValue;
+                ApplyRealmPower();
+                break;
+
             case StatType.Defense:
                 defense += intValue;
+                break;
+
+            case StatType.DefensePercent:
+                bonusDefensePercent += floatValue;
+                ApplyRealmPower();
                 break;
 
             case StatType.EffectResistance:
@@ -1545,10 +1585,13 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
                 Mathf.Max(0, (int)realm),
                 Mathf.Clamp(realmStage, 1, CultivationProgression.MaxStage) - 1);
 
+        double scaledMaxHp =
+            CombatStatCalculator.ClampToInt(baseMaxHP * power) *
+            (1d + bonusMaxHPPercent);
         maxHP =
             Mathf.Max(
                 1,
-                CombatStatCalculator.ClampToInt(baseMaxHP * power));
+                CombatStatCalculator.ClampToInt(scaledMaxHp));
 
         currentHP =
             fillHP
@@ -1558,15 +1601,21 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
                     0,
                     maxHP);
 
+        double scaledAttack =
+            CombatStatCalculator.ClampToInt(baseAttack * power) *
+            (1d + bonusAttackPercent);
         attack =
             Mathf.Max(
                 1,
-                CombatStatCalculator.ClampToInt(baseAttack * power));
+                CombatStatCalculator.ClampToInt(scaledAttack));
 
+        double scaledDefense =
+            CombatStatCalculator.ClampToInt(baseDefense * power) *
+            (1d + bonusDefensePercent);
         defense =
             Mathf.Max(
                 0,
-                CombatStatCalculator.ClampToInt(baseDefense * power));
+                CombatStatCalculator.ClampToInt(scaledDefense));
 
         breakthroughNeed =
             CultivationProgression.GetExpToNextLong(

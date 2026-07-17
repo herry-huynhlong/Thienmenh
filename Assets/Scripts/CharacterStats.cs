@@ -25,6 +25,9 @@ public class CharacterStats : MonoBehaviour, IDamageable
     public int bonusMaxHP;
     public int bonusAttack;
     public int bonusDefense;
+    public float bonusMaxHPPercent;
+    public float bonusAttackPercent;
+    public float bonusDefensePercent;
     public int bonusEffectResistance;
     public float bonusMoveSpeed;
 
@@ -216,31 +219,41 @@ public class CharacterStats : MonoBehaviour, IDamageable
                 Mathf.Max(0, (int)realm),
                 Mathf.Clamp(realmStage, 1, CultivationProgression.MaxStage) - 1);
 
-        long scaledHp =
-            (long)CombatStatCalculator.ClampToInt(
+        double scaledHp =
+            (double)CombatStatCalculator.ClampToInt(
                 Mathf.Max(1, baseMaxHP) *
                 multiplier) +
             bonusMaxHP;
-        long scaledAttack =
-            (long)CombatStatCalculator.ClampToInt(
+        double scaledAttack =
+            (double)CombatStatCalculator.ClampToInt(
                 Mathf.Max(1, baseAttack) *
                 multiplier) +
             bonusAttack;
-        long scaledDefense =
-            (long)CombatStatCalculator.ClampToInt(
+        double scaledDefense =
+            (double)CombatStatCalculator.ClampToInt(
                 Mathf.Max(0, baseDefense) *
                 multiplier) +
             bonusDefense;
 
+        scaledHp *= 1d + bonusMaxHPPercent;
+        scaledAttack *= 1d + bonusAttackPercent;
+        scaledDefense *= 1d + bonusDefensePercent;
+
         finalHP = (int)System.Math.Max(
             1L,
-            System.Math.Min((long)int.MaxValue, scaledHp));
+            System.Math.Min(
+                (long)int.MaxValue,
+                (long)CombatStatCalculator.ClampToInt(scaledHp)));
         attack = (int)System.Math.Max(
             1L,
-            System.Math.Min((long)int.MaxValue, scaledAttack));
+            System.Math.Min(
+                (long)int.MaxValue,
+                (long)CombatStatCalculator.ClampToInt(scaledAttack)));
         defense = (int)System.Math.Max(
             0L,
-            System.Math.Min((long)int.MaxValue, scaledDefense));
+            System.Math.Min(
+                (long)int.MaxValue,
+                (long)CombatStatCalculator.ClampToInt(scaledDefense)));
 
         effectResistance =
             bonusEffectResistance;
@@ -407,6 +420,11 @@ public class CharacterStats : MonoBehaviour, IDamageable
                 currentHP += intValue;
                 break;
 
+            case StatType.MaxHPPercent:
+                bonusMaxHPPercent += floatValue;
+                RecalculateStats();
+                break;
+
             case StatType.CurrentHP:
                 currentHP += intValue;
                 break;
@@ -417,8 +435,18 @@ public class CharacterStats : MonoBehaviour, IDamageable
                 RecalculateStats();
                 break;
 
+            case StatType.AttackPercent:
+                bonusAttackPercent += floatValue;
+                RecalculateStats();
+                break;
+
             case StatType.Defense:
                 bonusDefense += intValue;
+                RecalculateStats();
+                break;
+
+            case StatType.DefensePercent:
+                bonusDefensePercent += floatValue;
                 RecalculateStats();
                 break;
 

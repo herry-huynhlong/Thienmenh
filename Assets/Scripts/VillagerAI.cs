@@ -60,6 +60,9 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
     public int baseMaxHP = 100;
     public int baseAttack = 5;
     public int baseDefense = 2;
+    public float bonusMaxHPPercent;
+    public float bonusAttackPercent;
+    public float bonusDefensePercent;
     public int attack = 5;
     public int defense = 2;
     public int lifespan = 80;
@@ -214,6 +217,27 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
         {
             return 0f;
         }
+    }
+
+    public void PlayCombatTechniqueAnimation(Transform target, bool offensive)
+    {
+        if (visualAnimation == null)
+        {
+            visualAnimation = NPCVisualAnimation.EnsureOn(gameObject);
+        }
+
+        if (visualAnimation == null)
+        {
+            return;
+        }
+
+        if (target != null)
+        {
+            visualAnimation.SetFacingTarget(target.position);
+        }
+
+        visualAnimation.ReplayActionAnimation(NpcText.Action("cultivate"));
+        actionTimer = Mathf.Max(actionTimer, offensive ? 0.3f : 0.2f);
     }
 
     [Header("Runtime")]
@@ -2377,24 +2401,33 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
                 Mathf.Max(0, (int)realm),
                 Mathf.Clamp(realmStage, 1, CultivationProgression.MaxStage) - 1);
 
+        double scaledMaxHp =
+            CombatStatCalculator.ClampToInt(baseMaxHP * power) *
+            (1d + bonusMaxHPPercent);
         maxHP =
             Mathf.Max(
                 1,
-                CombatStatCalculator.ClampToInt(baseMaxHP * power));
+                CombatStatCalculator.ClampToInt(scaledMaxHp));
         currentHP = fillHP
             ? maxHP
             : Mathf.Clamp(
                 CombatStatCalculator.ClampToInt(maxHP * hpPercent),
                 0,
                 maxHP);
+        double scaledAttack =
+            CombatStatCalculator.ClampToInt(baseAttack * power) *
+            (1d + bonusAttackPercent);
         attack =
             Mathf.Max(
                 1,
-                CombatStatCalculator.ClampToInt(baseAttack * power));
+                CombatStatCalculator.ClampToInt(scaledAttack));
+        double scaledDefense =
+            CombatStatCalculator.ClampToInt(baseDefense * power) *
+            (1d + bonusDefensePercent);
         defense =
             Mathf.Max(
                 0,
-                CombatStatCalculator.ClampToInt(baseDefense * power));
+                CombatStatCalculator.ClampToInt(scaledDefense));
 
         if (entityProfile != null)
         {
@@ -2425,6 +2458,11 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
                 currentHP += intValue;
                 break;
 
+            case StatType.MaxHPPercent:
+                bonusMaxHPPercent += modifier.floatValue * direction;
+                ApplyRealmPower();
+                break;
+
             case StatType.CurrentHP:
                 currentHP += intValue;
                 break;
@@ -2438,8 +2476,18 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
                 ApplyRealmPower();
                 break;
 
+            case StatType.AttackPercent:
+                bonusAttackPercent += modifier.floatValue * direction;
+                ApplyRealmPower();
+                break;
+
             case StatType.Defense:
                 baseDefense += intValue;
+                ApplyRealmPower();
+                break;
+
+            case StatType.DefensePercent:
+                bonusDefensePercent += modifier.floatValue * direction;
                 ApplyRealmPower();
                 break;
 

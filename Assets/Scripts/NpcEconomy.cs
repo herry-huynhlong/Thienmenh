@@ -364,6 +364,9 @@ public static class NpcEconomy
         value += Mathf.Max(0, item.hpBonus) * 2;
         value += Mathf.Max(0, item.damageBonus) * 16;
         value += Mathf.Max(0, item.armorBonus) * 16;
+        value += Mathf.Max(0, item.damageBonusPercent) * 42;
+        value += Mathf.Max(0, item.armorBonusPercent) * 34;
+        value += Mathf.Max(0, item.maxHpBonusPercent) * 26;
         value += Mathf.Max(0, item.effectResistanceBonus) * 12;
 
         if (item.modifiers != null)
@@ -380,7 +383,7 @@ public static class NpcEconomy
 
                 value +=
                     Mathf.RoundToInt(
-                        Mathf.Abs(modifier.floatValue) * 20f);
+                        Mathf.Abs(modifier.floatValue) * 240f);
             }
         }
 

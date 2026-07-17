@@ -156,6 +156,62 @@ public static class NpcCombatTechniqueSystem
         return Mathf.Clamp(bonus, 0f, 0.8f);
     }
 
+    internal static void PlayTechniqueAnimation(
+        GameObject owner,
+        GameObject target,
+        bool offensive)
+    {
+        if (owner == null)
+        {
+            return;
+        }
+
+        Transform targetTransform =
+            target != null
+                ? target.transform
+                : null;
+
+        SmartNpcAI smartNpc = owner.GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            smartNpc.PlayCombatTechniqueAnimation(targetTransform, offensive);
+            return;
+        }
+
+        VillagerAI villager = owner.GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            villager.PlayCombatTechniqueAnimation(targetTransform, offensive);
+            return;
+        }
+
+        MonsterAI monster = owner.GetComponent<MonsterAI>();
+        if (monster != null)
+        {
+            monster.PlayCombatTechniqueAnimation(targetTransform, offensive);
+            return;
+        }
+
+        NPCVisualAnimation visual =
+            owner.GetComponent<NPCVisualAnimation>();
+        if (visual == null)
+        {
+            visual = NPCVisualAnimation.EnsureOn(owner);
+        }
+
+        if (visual == null)
+        {
+            return;
+        }
+
+        if (targetTransform != null)
+        {
+            visual.SetFacingTarget(targetTransform.position);
+        }
+
+        visual.ReplayActionAnimation(NpcText.Action("cultivate"));
+    }
+
     internal static int GetCurrentHP(GameObject target)
     {
         CharacterStats stats = target.GetComponent<CharacterStats>();
@@ -264,13 +320,19 @@ public static class NpcCombatTechniqueSystem
 
 public sealed class NpcCombatTechniqueRuntime : MonoBehaviour
 {
-    const float AttackCooldown = 5f;
-    const float DefenseCooldown = 8f;
-    const float MovementCooldown = 6f;
+    const float AttackCadence = 1.25f;
+    const float DefenseCadence = 2.5f;
+    const float MovementCadence = 3f;
 
     float nextAttackTime;
     float nextDefenseTime;
     float nextMovementTime;
+    readonly System.Collections.Generic.Dictionary<string, float>
+        techniqueReadyTimes =
+            new System.Collections.Generic.Dictionary<string, float>();
+    readonly System.Collections.Generic.Dictionary<ManualTechniqueCategory, string>
+        lastUsedTechniqueKeys =
+            new System.Collections.Generic.Dictionary<ManualTechniqueCategory, string>();
 
     public int ModifyOutgoingDamage(
         GameObject target,
@@ -284,7 +346,9 @@ public sealed class NpcCombatTechniqueRuntime : MonoBehaviour
         }
 
         ItemStack stack =
-            FindBestManual(GetAttackScore);
+            FindBestManual(
+                GetAttackScore,
+                ManualTechniqueCategory.Attack);
 
         if (stack == null)
         {
@@ -306,7 +370,14 @@ public sealed class NpcCombatTechniqueRuntime : MonoBehaviour
             return damage;
         }
 
-        nextAttackTime = Time.time + AttackCooldown;
+        nextAttackTime = Time.time + AttackCadence;
+        MarkManualUsed(
+            stack,
+            ManualTechniqueCategory.Attack);
+        NpcCombatTechniqueSystem.PlayTechniqueAnimation(
+            gameObject,
+            target,
+            true);
         PlayTechniqueEffect(stack.item);
 
         return Mathf.Max(1, damage + bonusDamage);
@@ -334,7 +405,10 @@ public sealed class NpcCombatTechniqueRuntime : MonoBehaviour
             return;
         }
 
-        ItemStack stack = FindBestManual(GetDefenseScore);
+        ItemStack stack =
+            FindBestManual(
+                GetDefenseScore,
+                ManualTechniqueCategory.Defense);
         if (stack == null)
         {
             return;
@@ -364,7 +438,10 @@ public sealed class NpcCombatTechniqueRuntime : MonoBehaviour
             return;
         }
 
-        nextDefenseTime = Time.time + DefenseCooldown;
+        nextDefenseTime = Time.time + DefenseCadence;
+        MarkManualUsed(
+            stack,
+            ManualTechniqueCategory.Defense);
         PlayTechniqueEffect(stack.item);
     }
 
@@ -375,7 +452,10 @@ public sealed class NpcCombatTechniqueRuntime : MonoBehaviour
             return;
         }
 
-        ItemStack stack = FindBestManual(GetMovementScore);
+        ItemStack stack =
+            FindBestManual(
+                GetMovementScore,
+                ManualTechniqueCategory.Movement);
         if (stack == null)
         {
             return;
@@ -408,11 +488,16 @@ public sealed class NpcCombatTechniqueRuntime : MonoBehaviour
             speedBonus,
             3f + 3f * Mathf.Clamp01(masteryPower));
 
-        nextMovementTime = Time.time + MovementCooldown;
+        nextMovementTime = Time.time + MovementCadence;
+        MarkManualUsed(
+            stack,
+            ManualTechniqueCategory.Movement);
         PlayTechniqueEffect(stack.item);
     }
 
-    ItemStack FindBestManual(System.Func<ItemStack, float> scoreGetter)
+    ItemStack FindBestManual(
+        System.Func<ItemStack, float> scoreGetter,
+        ManualTechniqueCategory category)
     {
         ItemInventory inventory = GetComponent<ItemInventory>();
         if (inventory == null)
@@ -420,8 +505,8 @@ public sealed class NpcCombatTechniqueRuntime : MonoBehaviour
             return null;
         }
 
-        ItemStack best = null;
-        float bestScore = 0f;
+        System.Collections.Generic.List<ItemStack> readyStacks =
+            new System.Collections.Generic.List<ItemStack>();
 
         foreach (ItemStack stack in inventory.items)
         {
@@ -430,17 +515,152 @@ public sealed class NpcCombatTechniqueRuntime : MonoBehaviour
                 continue;
             }
 
-            float score = scoreGetter(stack);
-            if (score <= bestScore)
+            if (!IsManualReady(stack, category))
             {
                 continue;
             }
 
-            best = stack;
-            bestScore = score;
+            float score = scoreGetter(stack);
+            if (score <= 0f)
+            {
+                continue;
+            }
+
+            readyStacks.Add(stack);
         }
 
-        return best;
+        return SelectRoundRobinManual(
+            readyStacks,
+            category);
+    }
+
+    bool IsManualReady(
+        ItemStack stack,
+        ManualTechniqueCategory category)
+    {
+        string cooldownKey =
+            BuildTechniqueCooldownKey(
+                stack,
+                category);
+
+        if (string.IsNullOrEmpty(cooldownKey))
+        {
+            return true;
+        }
+
+        return !techniqueReadyTimes.TryGetValue(
+                cooldownKey,
+                out float readyTime) ||
+            Time.time >= readyTime;
+    }
+
+    void MarkManualUsed(
+        ItemStack stack,
+        ManualTechniqueCategory category)
+    {
+        string cooldownKey =
+            BuildTechniqueCooldownKey(
+                stack,
+                category);
+
+        if (string.IsNullOrEmpty(cooldownKey))
+        {
+            return;
+        }
+
+        float cooldown = GetTechniqueCooldown(stack, category);
+        techniqueReadyTimes[cooldownKey] =
+            Time.time + cooldown;
+        lastUsedTechniqueKeys[category] =
+            stack.item.ItemId;
+    }
+
+    ItemStack SelectRoundRobinManual(
+        System.Collections.Generic.List<ItemStack> readyStacks,
+        ManualTechniqueCategory category)
+    {
+        if (readyStacks == null ||
+            readyStacks.Count <= 0)
+        {
+            return null;
+        }
+
+        if (!lastUsedTechniqueKeys.TryGetValue(
+                category,
+                out string lastUsedItemId) ||
+            string.IsNullOrEmpty(lastUsedItemId))
+        {
+            return readyStacks[0];
+        }
+
+        int lastIndex = -1;
+        for (int i = 0; i < readyStacks.Count; i++)
+        {
+            ItemStack stack = readyStacks[i];
+            if (stack != null &&
+                stack.item != null &&
+                string.Equals(
+                    stack.item.ItemId,
+                    lastUsedItemId,
+                    System.StringComparison.Ordinal))
+            {
+                lastIndex = i;
+                break;
+            }
+        }
+
+        if (lastIndex < 0)
+        {
+            return readyStacks[0];
+        }
+
+        int nextIndex = (lastIndex + 1) % readyStacks.Count;
+        return readyStacks[nextIndex];
+    }
+
+    string BuildTechniqueCooldownKey(
+        ItemStack stack,
+        ManualTechniqueCategory category)
+    {
+        if (stack == null ||
+            stack.item == null)
+        {
+            return string.Empty;
+        }
+
+        return stack.item.ItemId + ":" + category;
+    }
+
+    float GetTechniqueCooldown(
+        ItemStack stack,
+        ManualTechniqueCategory category)
+    {
+        if (stack == null ||
+            stack.item == null)
+        {
+            return 1f;
+        }
+
+        switch (category)
+        {
+            case ManualTechniqueCategory.Attack:
+                return Mathf.Max(
+                    AttackCadence,
+                    stack.item.attackTechniqueCooldown);
+
+            case ManualTechniqueCategory.Defense:
+                return Mathf.Max(
+                    DefenseCadence,
+                    stack.item.defenseTechniqueCooldown);
+
+            case ManualTechniqueCategory.Movement:
+                return Mathf.Max(
+                    MovementCadence,
+                    stack.item.movementTechniqueCooldown);
+
+            default:
+                return 1f;
+        }
     }
 
     float GetAttackScore(ItemStack stack)
@@ -495,6 +715,13 @@ public sealed class NpcCombatTechniqueRuntime : MonoBehaviour
     {
         ItemEffectSpawner.PlayUseEffect(item, transform);
     }
+}
+
+enum ManualTechniqueCategory
+{
+    Attack,
+    Defense,
+    Movement
 }
 
 public sealed class NpcCombatTechniqueBuff : MonoBehaviour
