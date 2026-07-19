@@ -287,6 +287,11 @@ public partial class NpcTaskProvider
         }
 
         StatItemData item = task.targetPickup.item;
+        if (!task.targetPickup.CanNpcActorCollect(task.npc))
+        {
+            return false;
+        }
+
         if (!task.targetPickup.TryTake(1))
         {
             return false;
@@ -346,6 +351,7 @@ public partial class NpcTaskProvider
             pickup.item != null &&
             pickup.amount > 0 &&
             pickup.allowNpcPickup &&
+            pickup.HasValidNpcPickupArea() &&
             !pickup.IsReservedByOther(requester) &&
             (requiredItem == null || pickup.item == requiredItem);
     }

@@ -1,0 +1,387 @@
+fileFormatVersion: 2
+guid: a6a979d49bc88a84e9b890222508382d
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -9109525112770069067
+    second: vongtrungpham_0
+  - first:
+      213: 2854616379256366333
+    second: vongtrungpham_1
+  - first:
+      213: 7917637168233677887
+    second: vongtrungpham_2
+  - first:
+      213: 2348530009533926355
+    second: vongtrungpham_3
+  - first:
+      213: 8707247726290310024
+    second: vongtrungpham_4
+  - first:
+      213: -3478336500133183225
+    second: vongtrungpham_5
+  - first:
+      213: -1498615085838792073
+    second: vongtrungpham_6
+  - first:
+      213: 8644314614660611527
+    second: vongtrungpham_7
+  - first:
+      213: 1055177174250657
+    second: vongtrungpham_8
+  - first:
+      213: 8539812270776811370
+    second: vongtrungpham_9
+  - first:
+      213: -3603925031422126280
+    second: vongtrungpham_10
+  - first:
+      213: -6766272347904386552
+    second: vongtrungpham_11
+  - first:
+      213: 8895568053634071678
+    second: vongtrungpham_12
+  - first:
+      213: -7755034020892613846
+    second: vongtrungpham_13
+  - first:
+      213: 1388397969637069710
+    second: vongtrungpham_14
+  - first:
+      213: -3267566693181379984
+    second: vongtrungpham_15
+  - first:
+      213: 8594764427092360549
+    second: vongtrungpham_16
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: vongtrungpham_0
+      rect:
+        serializedVersion: 2
+        x: 88
+        y: 703
+        width: 170
+        height: 156
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5bdf6dc9c27749180800000000000000
+      internalID: -9109525112770069067
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: vongtrungpham_1
+      rect:
+        serializedVersion: 2
+        x: 350
+        y: 670
+        width: 261
+        height: 248
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df46697f872ad9720800000000000000
+      internalID: 2854616379256366333
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: vongtrungpham_2
+      rect:
+        serializedVersion: 2
+        x: 662
+        y: 625
+        width: 318
+        height: 305
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f348ff81e0911ed60800000000000000
+      internalID: 7917637168233677887
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: vongtrungpham_3
+      rect:
+        serializedVersion: 2
+        x: 1010
+        y: 608
+        width: 399
+        height: 369
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3db4d92c997a79020800000000000000
+      internalID: 2348530009533926355
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: vongtrungpham_4
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 176
+        width: 313
+        height: 340
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8839cd09cab56d870800000000000000
+      internalID: 8707247726290310024
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: vongtrungpham_5
+      rect:
+        serializedVersion: 2
+        x: 337
+        y: 164
+        width: 330
+        height: 371
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7014944d1677abfc0800000000000000
+      internalID: -3478336500133183225
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: vongtrungpham_6
+      rect:
+        serializedVersion: 2
+        x: 684
+        y: 157
+        width: 345
+        height: 395
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 77a8989f489d33be0800000000000000
+      internalID: -1498615085838792073
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: vongtrungpham_7
+      rect:
+        serializedVersion: 2
+        x: 1039
+        y: 142
+        width: 380
+        height: 420
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7cd309da756c6f770800000000000000
+      internalID: 8644314614660611527
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: b9c36cee1b7cb9a42b51f9bcf2b0aa1d
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      vongtrungpham_0: -9109525112770069067
+      vongtrungpham_1: 2854616379256366333
+      vongtrungpham_10: -3603925031422126280
+      vongtrungpham_11: -6766272347904386552
+      vongtrungpham_12: 8895568053634071678
+      vongtrungpham_13: -7755034020892613846
+      vongtrungpham_14: 1388397969637069710
+      vongtrungpham_15: -3267566693181379984
+      vongtrungpham_16: 8594764427092360549
+      vongtrungpham_2: 7917637168233677887
+      vongtrungpham_3: 2348530009533926355
+      vongtrungpham_4: 8707247726290310024
+      vongtrungpham_5: -3478336500133183225
+      vongtrungpham_6: -1498615085838792073
+      vongtrungpham_7: 8644314614660611527
+      vongtrungpham_8: 1055177174250657
+      vongtrungpham_9: 8539812270776811370
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

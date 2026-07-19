@@ -9,6 +9,19 @@ public partial class VillagerAI
             return false;
         }
 
+        if (ageGroup == VillagerAgeGroup.Child ||
+            ageGroup == VillagerAgeGroup.Teen)
+        {
+            WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+            if (timeSystem == null)
+            {
+                return true;
+            }
+
+            return timeSystem.CurrentPhase != WorldTimePhase.Night &&
+                timeSystem.CurrentPhase != WorldTimePhase.Dawn;
+        }
+
         NpcScheduleController schedule =
             NpcScheduleController.GetSchedule(gameObject);
         if (schedule == null ||

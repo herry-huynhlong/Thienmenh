@@ -23,6 +23,8 @@ public class HarvestJob : MonoBehaviour
     float retryTimer;
     int lastRetrySeconds = -1;
     bool waitingForRetry;
+    string waitingAction;
+    float waitingStandbyRadius = 1.4f;
 
     public bool IsWaitingForRetry => waitingForRetry;
     public int RetrySecondsRemaining =>
@@ -63,6 +65,8 @@ public class HarvestJob : MonoBehaviour
         waitingForRetry = false;
         retryTimer = 0f;
         lastRetrySeconds = -1;
+        waitingAction = string.Empty;
+        waitingStandbyRadius = 1.4f;
         currentState = NpcJobState.Idle;
     }
 
@@ -168,6 +172,7 @@ public class HarvestJob : MonoBehaviour
         {
             currentState = NpcJobState.Returning;
             waitingForRetry = false;
+            waitingAction = string.Empty;
             SetActionStable(NpcText.Action("returnStorage"));
             return true;
         }
@@ -179,6 +184,7 @@ public class HarvestJob : MonoBehaviour
             waitingForRetry = false;
             retryTimer = 0f;
             lastRetrySeconds = -1;
+            waitingAction = string.Empty;
             return false;
         }
 
@@ -198,6 +204,7 @@ public class HarvestJob : MonoBehaviour
             VillageStorage.Instance.Store(inventory);
             currentState = NpcJobState.Returning;
             waitingForRetry = false;
+            waitingAction = string.Empty;
             SetActionStable(NpcText.Action("returnStorage"));
             return true;
         }
@@ -206,6 +213,7 @@ public class HarvestJob : MonoBehaviour
         waitingForRetry = false;
         retryTimer = 0f;
         lastRetrySeconds = -1;
+        waitingAction = string.Empty;
         LogHarvestDebug(
             "NoTarget",
             "item=" + ItemText.Name(targetItem));
@@ -380,23 +388,33 @@ public class HarvestJob : MonoBehaviour
     void BeginWaitingCycle()
     {
         waitingForRetry = true;
-        retryTimer = Mathf.Max(0.5f, retryHarvestDelaySeconds);
+        retryTimer = ResolveWaitingRetryDuration();
         lastRetrySeconds = -1;
+        waitingAction = BuildWaitingAction();
+        waitingStandbyRadius = ResolveWaitingStandbyRadius();
         RefreshWaitingAction();
     }
 
     void RefreshWaitingAction()
     {
-        string itemName = GetTargetItemName();
-
-        int seconds = Mathf.CeilToInt(Mathf.Max(0f, retryTimer));
-        if (seconds == lastRetrySeconds)
+        if (villager == null)
         {
             return;
         }
 
-        lastRetrySeconds = seconds;
-        SetActionStable(GetWaitingVerb() + itemName + " (" + seconds + "s)");
+        if (string.IsNullOrWhiteSpace(waitingAction))
+        {
+            waitingAction = BuildWaitingAction();
+        }
+
+        if (villager.TryRunWorkStandby(
+                waitingAction,
+                waitingStandbyRadius))
+        {
+            return;
+        }
+
+        SetActionStable(waitingAction);
     }
 
     string GetWaitingVerb()
@@ -416,6 +434,98 @@ public class HarvestJob : MonoBehaviour
                 return "Đang chờ thu thịt ";
             default:
                 return "Đang chờ hái ";
+        }
+    }
+
+    float ResolveWaitingRetryDuration()
+    {
+        float baseDelay = Mathf.Max(0.5f, retryHarvestDelaySeconds);
+
+        switch (villager != null ? villager.job : VillagerJob.None)
+        {
+            case VillagerJob.Farmer:
+                return Random.Range(
+                    Mathf.Max(2.5f, baseDelay * 2.5f),
+                    Mathf.Max(6f, baseDelay * 5f));
+
+            case VillagerJob.Fisher:
+                return Random.Range(
+                    Mathf.Max(2f, baseDelay * 2f),
+                    Mathf.Max(4.5f, baseDelay * 4f));
+
+            default:
+                return Random.Range(
+                    baseDelay,
+                    Mathf.Max(baseDelay + 0.5f, baseDelay * 2f));
+        }
+    }
+
+    float ResolveWaitingStandbyRadius()
+    {
+        switch (villager != null ? villager.job : VillagerJob.None)
+        {
+            case VillagerJob.Farmer:
+                return 1.35f;
+
+            case VillagerJob.Fisher:
+                return 1.8f;
+
+            case VillagerJob.Hunter:
+                return 2.2f;
+
+            default:
+                return 1.4f;
+        }
+    }
+
+    string BuildWaitingAction()
+    {
+        string itemName = GetTargetItemName();
+        int variant = Random.Range(0, 4);
+
+        switch (villager != null ? villager.job : VillagerJob.None)
+        {
+            case VillagerJob.Farmer:
+                switch (variant)
+                {
+                    case 0:
+                        return "Cham soc " + itemName;
+                    case 1:
+                        return "Don co quanh " + itemName;
+                    case 2:
+                        return "Kiem tra luong " + itemName;
+                    default:
+                        return "Xoi dat quanh " + itemName;
+                }
+
+            case VillagerJob.Fisher:
+                switch (variant)
+                {
+                    case 0:
+                        return "Kiem tra be ca";
+                    case 1:
+                        return "Sua luoi ca";
+                    case 2:
+                        return "Don ben nuoc";
+                    default:
+                        return "Canh diem cau";
+                }
+
+            case VillagerJob.Hunter:
+                switch (variant)
+                {
+                    case 0:
+                        return "Kiem tra duong san";
+                    case 1:
+                        return "Lan dau vet thu";
+                    case 2:
+                        return "Canh bai san";
+                    default:
+                        return "Quan sat dau vet quai";
+                }
+
+            default:
+                return "Chuan bi thu hoach " + itemName;
         }
     }
 
@@ -452,6 +562,7 @@ public class HarvestJob : MonoBehaviour
         waitingForRetry = false;
         retryTimer = 0f;
         lastRetrySeconds = -1;
+        waitingAction = string.Empty;
         LogHarvestDebug(
             "GatherOk",
             "item=" + ItemText.Name(targetItem));

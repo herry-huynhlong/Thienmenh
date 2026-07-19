@@ -82,7 +82,8 @@ public partial class NpcTaskProvider
             return GetClearTaskPositionNear(center, npc);
         }
 
-        int hash = Mathf.Abs(npc.GetInstanceID());
+        int hash = Mathf.Abs(
+            UnityObjectIdUtility.GetRuntimeId(npc));
         float angle = (hash % 360) * Mathf.Deg2Rad;
         float standRadius = Mathf.Max(
             providerVisitorStandRadius,
@@ -279,6 +280,17 @@ public partial class NpcTaskProvider
             NpcRoleUtility.SetAction(npc, routeAction);
         }
 
+        NpcMapZone? currentZone =
+            NpcMapNavigator.ResolveActorZone(npc);
+        if (usingTeleportRoute &&
+            TryForceTaskTeleportRouteProgress(
+                npc,
+                moveTarget,
+                currentZone))
+        {
+            return;
+        }
+
         NpcMapMover2D mover = npc.GetComponent<NpcMapMover2D>();
         if (mover != null && mover.enabled)
         {
@@ -307,10 +319,18 @@ public partial class NpcTaskProvider
         Vector3 moveTarget,
         float maxDistanceDelta)
     {
+        Rigidbody2D npcRb = npc.GetComponent<Rigidbody2D>();
         Vector3 current = npc.transform.position;
         if (IsTaskPositionBlocked(current, npc))
         {
-            npc.transform.position = GetClearTaskPositionNear(current, npc);
+            Vector3 clearCurrent = GetClearTaskPositionNear(current, npc);
+            if (npcRb != null)
+            {
+                npcRb.position = clearCurrent;
+                npcRb.linearVelocity = Vector2.zero;
+            }
+
+            npc.transform.position = clearCurrent;
             return;
         }
 
@@ -322,7 +342,16 @@ public partial class NpcTaskProvider
 
         if (!IsTaskPositionBlocked(next, npc))
         {
-            npc.transform.position = next;
+            if (npcRb != null)
+            {
+                npcRb.linearVelocity = Vector2.zero;
+                npcRb.MovePosition(next);
+            }
+            else
+            {
+                npc.transform.position = next;
+            }
+
             return;
         }
 
@@ -344,10 +373,60 @@ public partial class NpcTaskProvider
 
             if (!IsTaskPositionBlocked(candidate, npc))
             {
-                npc.transform.position = candidate;
+                if (npcRb != null)
+                {
+                    npcRb.linearVelocity = Vector2.zero;
+                    npcRb.MovePosition(candidate);
+                }
+                else
+                {
+                    npc.transform.position = candidate;
+                }
+
                 return;
             }
         }
+    }
+
+    bool TryForceTaskTeleportRouteProgress(
+        GameObject npc,
+        Vector3 moveTarget,
+        NpcMapZone? currentZone)
+    {
+        if (npc == null ||
+            !currentZone.HasValue)
+        {
+            return false;
+        }
+
+        float forceDistance =
+            Mathf.Max(
+                1.05f,
+                arriveDistance * 4f,
+                NpcRoleUtility.GetMoveSpeed(npc, fallbackMoveSpeed) * 0.5f);
+
+        if (Vector2.Distance(npc.transform.position, moveTarget) > forceDistance)
+        {
+            return false;
+        }
+
+        foreach (NpcTeleportGate gate in NpcTeleportGate.Gates)
+        {
+            if (gate == null ||
+                !gate.TryGetTeleportRouteForZone(
+                    currentZone.Value,
+                    out Vector3 gateApproach,
+                    out _,
+                    out _) ||
+                Vector2.Distance(gateApproach, moveTarget) > 0.2f)
+            {
+                continue;
+            }
+
+            return gate.TryForceNpcUse(npc);
+        }
+
+        return false;
     }
 
     bool IsNpcRecoveringFromDamage(GameObject npc)

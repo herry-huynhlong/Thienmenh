@@ -26,11 +26,6 @@ public class NPCVisualResolver : MonoBehaviour
     void OnValidate()
     {
         CacheReferences();
-
-        if (Application.isPlaying)
-        {
-            RefreshVisual();
-        }
     }
 
     public void RefreshVisual()

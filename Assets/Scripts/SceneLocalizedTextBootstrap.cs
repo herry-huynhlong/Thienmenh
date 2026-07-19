@@ -372,8 +372,7 @@ public class SceneLocalizedTextBootstrap : MonoBehaviour
 
         TMP_Text[] texts =
             FindObjectsByType<TMP_Text>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
 
         foreach (TMP_Text text in texts)
         {

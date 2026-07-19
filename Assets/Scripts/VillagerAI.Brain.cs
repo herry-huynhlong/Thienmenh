@@ -16,6 +16,8 @@ public partial class VillagerAI
             fixedAlchemist != null &&
             fixedAlchemist.enabled &&
             fixedAlchemist.UseDedicatedRoutine;
+        bool useDedicatedSupplyMerchantRoutine =
+            HasDedicatedSupplyMerchantRoutine();
 
         if (WorldTimeSystem.Instance != null)
         {
@@ -66,6 +68,11 @@ public partial class VillagerAI
             return;
         }
 
+        if (useDedicatedSupplyMerchantRoutine)
+        {
+            return;
+        }
+
         if (ShouldForceReturnHomeFromSchedule())
         {
             GoHomeToRest();
@@ -94,6 +101,12 @@ public partial class VillagerAI
             return;
         }
 
+        if (ageGroup == VillagerAgeGroup.Teen)
+        {
+            ThinkTeen();
+            return;
+        }
+
         ThinkAdult();
     }
 
@@ -108,13 +121,88 @@ public partial class VillagerAI
             return;
         }
 
-        if (fun <= 70f)
+        if (fatigue >= 65f)
+        {
+            GoHomeToRest();
+            return;
+        }
+
+        if (TryWanderNearAnchor(
+                homePoint != null ? homePoint.position : GetHomePosition(),
+                Mathf.Max(0.75f, childHomeWanderRadius),
+                NpcText.Action("stayNearHome")))
+        {
+            return;
+        }
+
+        if (fun <= 70f && playPoint != null)
         {
             GatherAndPlay();
             return;
         }
 
         GoHomeIdle(NpcText.Action("stayNearHome"));
+    }
+
+    void ThinkTeen()
+    {
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        if (timeSystem != null &&
+            (timeSystem.CurrentPhase == WorldTimePhase.Night ||
+            timeSystem.CurrentPhase == WorldTimePhase.Dawn))
+        {
+            GoHomeToRest();
+            return;
+        }
+
+        if (fatigue >= 80f)
+        {
+            GoHomeToRest();
+            return;
+        }
+
+        if (fun <= 55f && playPoint != null)
+        {
+            GatherAndPlay();
+            return;
+        }
+
+        Vector3 teenAnchor = GetTeenVillageAnchor();
+        if (TryWanderNearAnchor(
+                teenAnchor,
+                Mathf.Max(1.5f, teenVillageWanderRadius),
+                NpcText.Action("wanderVillage")))
+        {
+            return;
+        }
+
+        IdleOrGoHome(NpcText.Action("wanderVillage"));
+    }
+
+    Vector3 GetTeenVillageAnchor()
+    {
+        if (playPoint != null)
+        {
+            return playPoint.position;
+        }
+
+        if (marketPoint != null)
+        {
+            return marketPoint.position;
+        }
+
+        if (currentMapArea != null &&
+            currentMapArea.areaBounds != null)
+        {
+            return currentMapArea.areaBounds.bounds.center;
+        }
+
+        if (homePoint != null)
+        {
+            return homePoint.position;
+        }
+
+        return transform.position;
     }
 
     void ThinkAdult()

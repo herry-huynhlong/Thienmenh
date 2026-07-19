@@ -2,9 +2,68 @@ using UnityEngine;
 
 public partial class VillagerAI
 {
+    VillagerMarketRole EnsureMarketRole()
+    {
+        VillagerMarketRole marketRole =
+            GetComponent<VillagerMarketRole>();
+
+        if (marketRole == null)
+        {
+            marketRole = gameObject.AddComponent<VillagerMarketRole>();
+        }
+
+        return marketRole;
+    }
+
+    VillagerDailyTradePlan EnsureDailyTradePlan()
+    {
+        VillagerDailyTradePlan tradePlan =
+            GetComponent<VillagerDailyTradePlan>();
+
+        if (tradePlan == null)
+        {
+            tradePlan =
+                gameObject.AddComponent<VillagerDailyTradePlan>();
+        }
+
+        return tradePlan;
+    }
+
+    VillagerProduceSeller EnsureProduceSeller()
+    {
+        VillagerProduceSeller produceSeller =
+            GetComponent<VillagerProduceSeller>();
+
+        if (produceSeller == null)
+        {
+            produceSeller =
+                gameObject.AddComponent<VillagerProduceSeller>();
+        }
+
+        return produceSeller;
+    }
+
+    NpcVillageSupplyMerchant GetDedicatedSupplyMerchant()
+    {
+        NpcVillageSupplyMerchant supplyMerchant =
+            GetComponent<NpcVillageSupplyMerchant>();
+
+        return supplyMerchant != null &&
+            supplyMerchant.enabled &&
+            supplyMerchant.isActiveAndEnabled
+                ? supplyMerchant
+                : null;
+    }
+
+    bool HasDedicatedSupplyMerchantRoutine()
+    {
+        return GetDedicatedSupplyMerchant() != null;
+    }
+
     bool TryRunScheduledActivity()
     {
-        if (ageGroup == VillagerAgeGroup.Child)
+        if (ageGroup == VillagerAgeGroup.Child ||
+            ageGroup == VillagerAgeGroup.Teen)
         {
             return false;
         }
@@ -81,19 +140,40 @@ public partial class VillagerAI
                 }
                 else if (job == VillagerJob.Trader)
                 {
-                    GoTrade();
-                }
-                else if (activity == NpcScheduleActivity.BuyGoods)
-                {
-                    GoBuyGoods();
-                }
-                else if (activity == NpcScheduleActivity.SellGoods)
-                {
-                    GoSellGoods();
+                    VillagerMarketRole marketRole =
+                        EnsureMarketRole();
+                    if (marketRole != null &&
+                        marketRole.TryRunScheduledActivity(activity))
+                    {
+                        return true;
+                    }
                 }
                 else
                 {
-                    GoTrade();
+                    VillagerDailyTradePlan tradePlan =
+                        EnsureDailyTradePlan();
+                    bool shouldTradeToday =
+                        tradePlan != null &&
+                        tradePlan.ShouldParticipateToday();
+
+                    if (!shouldTradeToday)
+                    {
+                        GoHomeIdle(NpcText.Action("restNearHome"));
+                        return true;
+                    }
+
+                    if (HasProducedGoodsForSale())
+                    {
+                        VillagerProduceSeller produceSeller =
+                            EnsureProduceSeller();
+                        if (produceSeller != null &&
+                            produceSeller.TryRun())
+                        {
+                            return true;
+                        }
+                    }
+
+                    GoBuyGoods();
                 }
                 return true;
 
@@ -108,7 +188,13 @@ public partial class VillagerAI
                 }
                 else if (job == VillagerJob.Trader)
                 {
-                    GoTrade();
+                    VillagerMarketRole marketRole =
+                        EnsureMarketRole();
+                    if (marketRole != null &&
+                        marketRole.TryRunScheduledActivity(activity))
+                    {
+                        return true;
+                    }
                 }
                 else if (!autonomousWorkEnabled)
                 {
@@ -188,7 +274,7 @@ public partial class VillagerAI
         treasureHuntTarget = null;
         treasureHuntItem = null;
         actionTimer = 0f;
-        currentAction = string.Empty;
+        SetCurrentActionState(NpcActionState.FromKey("idle"));
 
         hasWorkTarget = false;
         currentWorkTarget = Vector3.zero;

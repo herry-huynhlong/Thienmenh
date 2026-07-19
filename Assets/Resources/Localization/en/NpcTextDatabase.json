@@ -910,7 +910,15 @@
           "values": [
             "Ask directly if you want to see anything.",
             "Goods are not lacking today; quick buyers are.",
-            "If you have something valuable, I am ready to trade."
+            "If you have something valuable, I am ready to trade.",
+            "Honored customer, come in and take a look.",
+            "The shop received many new goods today.",
+            "Are you looking for artifacts, pills, or materials?",
+            "Browse as you like. If something catches your eye, call for me.",
+            "Good goods at fair prices. I will not disappoint a customer.",
+            "What do you need, fellow Daoist? I can help you find it.",
+            "Take a look first. You may come across something fated.",
+            "This shop is small, but the goods are far from ordinary."
           ]
         },
         {
@@ -918,7 +926,17 @@
           "values": [
             "This price is already fair; I cannot lower it much more.",
             "A finished trade leaves both sides at ease.",
-            "Give and take; next time I will keep a better price for you."
+            "Give and take; next time I will keep a better price for you.",
+            "You truly have a good eye for goods.",
+            "Many thanks for supporting the shop.",
+            "If you need anything else, come by again next time.",
+            "Show me the item. Let me judge its worth.",
+            "The quality is not bad. I can buy it.",
+            "The shop needs these materials. I can offer a good price.",
+            "This price is already very fair.",
+            "Very well, we have a deal. I will take this item.",
+            "You are still a little short. Would you like a different item instead?",
+            "Come back when you have prepared enough spirit stones."
           ]
         },
         {

@@ -601,6 +601,7 @@ public partial class SmartNpcAI
     void ClearMonsterCombatState()
     {
         isCounterAttackingMonster = false;
+        ResetMonsterProgressWatch(null);
     }
 
     void TryCounterAttackFromDamage(

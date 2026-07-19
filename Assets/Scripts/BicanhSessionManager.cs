@@ -166,7 +166,10 @@ public partial class BicanhSessionManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+        if (transform.parent == null)
+        {
+            DontDestroyOnLoad(gameObject);
+        }
     }
 
     void OnEnable()

@@ -1,0 +1,447 @@
+fileFormatVersion: 2
+guid: a184bb32efe70de4d8291774cd57dfb9
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1131460760157755374
+    second: thienkiep_0
+  - first:
+      213: -1615600185783899387
+    second: thienkiep_1
+  - first:
+      213: -3092965580835550823
+    second: thienkiep_2
+  - first:
+      213: -3972448003772165177
+    second: thienkiep_3
+  - first:
+      213: 5853604276726097919
+    second: thienkiep_4
+  - first:
+      213: -805619260337461322
+    second: thienkiep_5
+  - first:
+      213: 3742143695416815339
+    second: thienkiep_6
+  - first:
+      213: -5147452725213400942
+    second: thienkiep_7
+  - first:
+      213: -6075584912150173687
+    second: thienkiep_8
+  - first:
+      213: 667741710272849451
+    second: thienkiep_9
+  - first:
+      213: 4487185191467059597
+    second: thienkiep_10
+  - first:
+      213: -2210951235584568714
+    second: thienkiep_11
+  - first:
+      213: -6808515834322762929
+    second: thienkiep_12
+  - first:
+      213: -5111973958370541922
+    second: thienkiep_13
+  - first:
+      213: 8291999673657919864
+    second: thienkiep_14
+  - first:
+      213: -2308571912005495547
+    second: thienkiep_15
+  - first:
+      213: -3478195863277735254
+    second: thienkiep_16
+  - first:
+      213: -6710763185799152057
+    second: thienkiep_17
+  - first:
+      213: 7908847239072472018
+    second: thienkiep_18
+  - first:
+      213: 2274937961582519376
+    second: thienkiep_19
+  - first:
+      213: 6915099179517570516
+    second: thienkiep_20
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: thienkiep_0
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 807
+        width: 263
+        height: 185
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 218e081fe6e3c40f0800000000000000
+      internalID: -1131460760157755374
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thienkiep_1
+      rect:
+        serializedVersion: 2
+        x: 365
+        y: 796
+        width: 309
+        height: 230
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 50bab4bd03c3499e0800000000000000
+      internalID: -1615600185783899387
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thienkiep_2
+      rect:
+        serializedVersion: 2
+        x: 729
+        y: 782
+        width: 313
+        height: 269
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 99989c301349315d0800000000000000
+      internalID: -3092965580835550823
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thienkiep_3
+      rect:
+        serializedVersion: 2
+        x: 1076
+        y: 774
+        width: 362
+        height: 274
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c3537666970fd8c0800000000000000
+      internalID: -3972448003772165177
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thienkiep_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 468
+        width: 342
+        height: 286
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff767f1731e2c3150800000000000000
+      internalID: 5853604276726097919
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thienkiep_5
+      rect:
+        serializedVersion: 2
+        x: 358
+        y: 460
+        width: 337
+        height: 295
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b76f531d8dd1d4f0800000000000000
+      internalID: -805619260337461322
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thienkiep_6
+      rect:
+        serializedVersion: 2
+        x: 716
+        y: 457
+        width: 350
+        height: 299
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bee69cf3dd3cee330800000000000000
+      internalID: 3742143695416815339
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thienkiep_7
+      rect:
+        serializedVersion: 2
+        x: 1077
+        y: 448
+        width: 351
+        height: 307
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 290f98fc4039098b0800000000000000
+      internalID: -5147452725213400942
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thienkiep_8
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 91
+        width: 344
+        height: 321
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 908e09456bf2faba0800000000000000
+      internalID: -6075584912150173687
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: thienkiep_9
+      rect:
+        serializedVersion: 2
+        x: 357
+        y: 61
+        width: 342
+        height: 355
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b2666823c8b444900800000000000000
+      internalID: 667741710272849451
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: ea3f1d1b6525ca346b6d5f53bcc4687e
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      thienkiep_0: -1131460760157755374
+      thienkiep_1: -1615600185783899387
+      thienkiep_10: 4487185191467059597
+      thienkiep_11: -2210951235584568714
+      thienkiep_12: -6808515834322762929
+      thienkiep_13: -5111973958370541922
+      thienkiep_14: 8291999673657919864
+      thienkiep_15: -2308571912005495547
+      thienkiep_16: -3478195863277735254
+      thienkiep_17: -6710763185799152057
+      thienkiep_18: 7908847239072472018
+      thienkiep_19: 2274937961582519376
+      thienkiep_2: -3092965580835550823
+      thienkiep_20: 6915099179517570516
+      thienkiep_3: -3972448003772165177
+      thienkiep_4: 5853604276726097919
+      thienkiep_5: -805619260337461322
+      thienkiep_6: 3742143695416815339
+      thienkiep_7: -5147452725213400942
+      thienkiep_8: -6075584912150173687
+      thienkiep_9: 667741710272849451
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

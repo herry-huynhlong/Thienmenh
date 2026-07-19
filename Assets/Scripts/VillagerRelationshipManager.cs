@@ -7,6 +7,11 @@ public class VillagerRelationshipManager : MonoBehaviour
 {
     public static VillagerRelationshipManager Instance;
 
+    const float MinimumDailyMatchChance = 0.08f;
+    const int MaximumDatingDaysToMarry = 3;
+    const int MaximumAffectionToMarry = 30;
+    const int MinimumAffectionGainPerDay = 4;
+
     [Header("Matching")]
     [Range(0f, 1f)] public float dailyMatchChance = 0.02f;
     public int minAdultAge = 18;
@@ -49,6 +54,8 @@ public class VillagerRelationshipManager : MonoBehaviour
 
     void Awake()
     {
+        ApplyBaselinePacing();
+
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -65,6 +72,11 @@ public class VillagerRelationshipManager : MonoBehaviour
         {
             Instance = null;
         }
+    }
+
+    void OnValidate()
+    {
+        ApplyBaselinePacing();
     }
 
     public void DailyRelationshipTick()
@@ -336,6 +348,7 @@ public class VillagerRelationshipManager : MonoBehaviour
         secondRelationship.Marry(firstIdentity.npcId);
         firstRelationship.SyncIdentityState();
         secondRelationship.SyncIdentityState();
+        MarriageHomeManager.NotifyPairMarried(first, second);
 
         LogRelationship(
             FormatName(first) +
@@ -733,5 +746,34 @@ public class VillagerRelationshipManager : MonoBehaviour
         }
 
         Debug.Log("[VillagerRelationship] " + message);
+    }
+
+    void ApplyBaselinePacing()
+    {
+        dailyMatchChance =
+            Mathf.Clamp(
+                Mathf.Max(dailyMatchChance, MinimumDailyMatchChance),
+                0f,
+                1f);
+        minDatingDaysToMarry =
+            Mathf.Max(
+                1,
+                Mathf.Min(
+                    minDatingDaysToMarry,
+                    MaximumDatingDaysToMarry));
+        minAffectionToMarry =
+            Mathf.Clamp(
+                Mathf.Min(
+                    minAffectionToMarry,
+                    MaximumAffectionToMarry),
+                0,
+                100);
+        affectionGainPerDay =
+            Mathf.Clamp(
+                Mathf.Max(
+                    affectionGainPerDay,
+                    MinimumAffectionGainPerDay),
+                0,
+                100);
     }
 }

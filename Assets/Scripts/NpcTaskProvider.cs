@@ -236,6 +236,10 @@ public partial class NpcTaskProvider : MonoBehaviour
         new HashSet<NpcTaskOffer>();
     static readonly List<NpcTaskOffer> staleClaimedTaskOffers =
         new List<NpcTaskOffer>();
+    static readonly HashSet<string> claimedFrontierWatchTargets =
+        new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+    static readonly List<string> staleClaimedFrontierWatchTargets =
+        new List<string>();
     readonly Dictionary<GameObject, NpcTaskOffer> lastCompletedOfferByNpc =
         new Dictionary<GameObject, NpcTaskOffer>();
     readonly List<GameObject> staleCompletedOfferNpcs =
@@ -258,8 +262,12 @@ public partial class NpcTaskProvider : MonoBehaviour
         Vector3 position,
         bool autoAssigned)
     {
+        NpcMapZone? actorZone =
+            ResolveProviderSearchZone(npc, position);
         NpcTaskProvider best = null;
         float bestDistance = float.PositiveInfinity;
+        NpcTaskProvider bestSameZone = null;
+        float bestSameZoneDistance = float.PositiveInfinity;
 
         foreach (NpcTaskProvider provider in providers)
         {
@@ -278,7 +286,22 @@ public partial class NpcTaskProvider : MonoBehaviour
                 continue;
             }
 
-            float distance = Vector2.Distance(position, provider.transform.position);
+            Vector3 providerPosition =
+                provider.GetProviderPositionFor(npc);
+            float distance =
+                Vector2.Distance(position, providerPosition);
+
+            NpcMapZone? providerZone =
+                ResolveProviderZone(provider, providerPosition);
+            if (actorZone.HasValue &&
+                providerZone.HasValue &&
+                actorZone.Value == providerZone.Value &&
+                distance < bestSameZoneDistance)
+            {
+                bestSameZone = provider;
+                bestSameZoneDistance = distance;
+            }
+
             if (distance < bestDistance)
             {
                 best = provider;
@@ -286,7 +309,74 @@ public partial class NpcTaskProvider : MonoBehaviour
             }
         }
 
-        return best;
+        return bestSameZone != null
+            ? bestSameZone
+            : best;
+    }
+
+    static NpcMapZone? ResolveProviderSearchZone(
+        GameObject npc,
+        Vector3 position)
+    {
+        NpcMapZone? actorZone =
+            npc != null
+                ? NpcMapNavigator.ResolveActorZone(npc)
+                : (NpcMapZone?)null;
+        if (actorZone.HasValue)
+        {
+            return actorZone;
+        }
+
+        NpcMapArea area =
+            NpcMapArea.FindArea(position);
+        if (area == null)
+        {
+            area = NpcMapArea.FindNearestArea(position);
+        }
+
+        return area != null
+            ? area.zone
+            : (NpcMapZone?)null;
+    }
+
+    static NpcMapZone? ResolveProviderZone(
+        NpcTaskProvider provider,
+        Vector3 providerPosition)
+    {
+        if (provider == null)
+        {
+            return null;
+        }
+
+        if (provider.providerStandPoint != null)
+        {
+            NpcMapZone? standZone =
+                NpcMapNavigator.GetDestinationZone(
+                    provider.providerStandPoint);
+            if (standZone.HasValue)
+            {
+                return standZone;
+            }
+        }
+
+        NpcMapZone? providerDestinationZone =
+            NpcMapNavigator.GetDestinationZone(
+                provider.transform);
+        if (providerDestinationZone.HasValue)
+        {
+            return providerDestinationZone;
+        }
+
+        NpcMapArea area =
+            NpcMapArea.FindArea(providerPosition);
+        if (area == null)
+        {
+            area = NpcMapArea.FindNearestArea(providerPosition);
+        }
+
+        return area != null
+            ? area.zone
+            : (NpcMapZone?)null;
     }
 
     public bool HasAnyOfferForNpc(GameObject npc)
@@ -299,9 +389,7 @@ public partial class NpcTaskProvider : MonoBehaviour
         bool autoAssigned)
     {
         if (npc == null ||
-            !provideTasks ||
-            offers == null ||
-            offers.Length == 0)
+            !provideTasks)
         {
             return false;
         }
@@ -346,6 +434,25 @@ public partial class NpcTaskProvider : MonoBehaviour
             {
                 releasedAny = true;
             }
+        }
+
+        return releasedAny;
+    }
+
+    public static bool ReleaseNpcFromProviderTasksForSchedule(GameObject npc)
+    {
+        if (npc == null)
+        {
+            return false;
+        }
+
+        bool releasedAny = ReleaseNpcFromProviderTasksForCombat(npc);
+        CleanupBusyNpcEntries();
+
+        if (busyNpcCounts.ContainsKey(npc))
+        {
+            busyNpcCounts.Remove(npc);
+            releasedAny = true;
         }
 
         return releasedAny;
@@ -508,7 +615,14 @@ public partial class NpcTaskProvider : MonoBehaviour
         }
 
         CleanupClaimedTaskOffers();
-        return claimedTaskOffers.Contains(offer);
+        if (claimedTaskOffers.Contains(offer))
+        {
+            return true;
+        }
+
+        string frontierWatchTargetKey = GetFrontierWatchTargetClaimKey(offer);
+        return !string.IsNullOrWhiteSpace(frontierWatchTargetKey) &&
+            claimedFrontierWatchTargets.Contains(frontierWatchTargetKey);
     }
 
     static bool ClaimTaskOffer(NpcTaskOffer offer)
@@ -524,7 +638,19 @@ public partial class NpcTaskProvider : MonoBehaviour
             return false;
         }
 
+        string frontierWatchTargetKey = GetFrontierWatchTargetClaimKey(offer);
+        if (!string.IsNullOrWhiteSpace(frontierWatchTargetKey) &&
+            claimedFrontierWatchTargets.Contains(frontierWatchTargetKey))
+        {
+            return false;
+        }
+
         claimedTaskOffers.Add(offer);
+        if (!string.IsNullOrWhiteSpace(frontierWatchTargetKey))
+        {
+            claimedFrontierWatchTargets.Add(frontierWatchTargetKey);
+        }
+
         return true;
     }
 
@@ -536,6 +662,11 @@ public partial class NpcTaskProvider : MonoBehaviour
         }
 
         claimedTaskOffers.Remove(offer);
+        string frontierWatchTargetKey = GetFrontierWatchTargetClaimKey(offer);
+        if (!string.IsNullOrWhiteSpace(frontierWatchTargetKey))
+        {
+            claimedFrontierWatchTargets.Remove(frontierWatchTargetKey);
+        }
     }
 
     static void CleanupClaimedTaskOffers()
@@ -553,6 +684,53 @@ public partial class NpcTaskProvider : MonoBehaviour
         {
             claimedTaskOffers.Remove(offer);
         }
+
+        staleClaimedFrontierWatchTargets.Clear();
+        foreach (string targetKey in claimedFrontierWatchTargets)
+        {
+            if (!IsFrontierWatchTargetClaimStillActive(targetKey))
+            {
+                staleClaimedFrontierWatchTargets.Add(targetKey);
+            }
+        }
+
+        foreach (string targetKey in staleClaimedFrontierWatchTargets)
+        {
+            claimedFrontierWatchTargets.Remove(targetKey);
+        }
+    }
+
+    static string GetFrontierWatchTargetClaimKey(NpcTaskOffer offer)
+    {
+        if (offer == null ||
+            offer.taskType != NpcTaskType.FrontierWatch ||
+            string.IsNullOrWhiteSpace(offer.customTargetId))
+        {
+            return string.Empty;
+        }
+
+        return offer.customTargetId.Trim();
+    }
+
+    static bool IsFrontierWatchTargetClaimStillActive(string targetKey)
+    {
+        if (string.IsNullOrWhiteSpace(targetKey))
+        {
+            return false;
+        }
+
+        foreach (NpcTaskOffer offer in claimedTaskOffers)
+        {
+            if (string.Equals(
+                    GetFrontierWatchTargetClaimKey(offer),
+                    targetKey,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     static void CleanupEscortLocks()

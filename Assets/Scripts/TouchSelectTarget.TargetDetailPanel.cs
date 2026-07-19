@@ -63,9 +63,8 @@ public partial class TouchSelectTarget
                 GetTargetMarriageStatus(target));
 
         hasAnyDetail |=
-            SetValueText(
+            SetStatusText(
                 statusText,
-                UiText.Get("touchSelect", "statusRow") +
                 FormatTargetActionText(target));
 
         hasAnyDetail |=
@@ -638,16 +637,39 @@ public partial class TouchSelectTarget
 
     TMP_Text FindRowValueText(
         Transform root,
-        string rowName)
+        params string[] rowNames)
     {
         if (root == null ||
-            string.IsNullOrEmpty(rowName))
+            rowNames == null ||
+            rowNames.Length <= 0)
         {
             return null;
         }
 
-        Transform row =
-            FindChildByName(root, rowName);
+        Transform row = null;
+
+        for (int i = 0; i < rowNames.Length && row == null; i++)
+        {
+            string rowName = rowNames[i];
+            if (string.IsNullOrWhiteSpace(rowName))
+            {
+                continue;
+            }
+
+            row = FindChildByName(root, rowName);
+        }
+
+        if (row == null)
+        {
+            TMP_Text labelText =
+                FindTextByDisplayedText(root, rowNames);
+
+            if (labelText != null &&
+                labelText.transform.parent != null)
+            {
+                row = labelText.transform.parent;
+            }
+        }
 
         if (row == null)
         {
@@ -678,6 +700,35 @@ public partial class TouchSelectTarget
         }
 
         return value.GetComponent<TMP_Text>();
+    }
+
+    bool IsRowLabelText(
+        TMP_Text text,
+        params string[] labels)
+    {
+        if (text == null ||
+            labels == null ||
+            labels.Length <= 0)
+        {
+            return false;
+        }
+
+        string current =
+            NormalizeLookupText(text.text);
+
+        for (int i = 0; i < labels.Length; i++)
+        {
+            string label =
+                NormalizeLookupText(labels[i]);
+
+            if (!string.IsNullOrEmpty(label) &&
+                current == label)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     TMP_Text FindTextByDisplayedText(
@@ -830,7 +881,59 @@ public partial class TouchSelectTarget
             return action;
         }
 
-        return UiText.Format("touchSelect", "actionFormat", action);
+        return action;
+    }
+
+    bool SetStatusText(
+        TMP_Text text,
+        string action)
+    {
+        if (text == null)
+        {
+            return false;
+        }
+
+        ConfigureStatusTextLayout(text);
+
+        string label =
+            UiText.Get("touchSelect", "statusRowAlt");
+        if (string.IsNullOrWhiteSpace(label))
+        {
+            label = UiText.Get("touchSelect", "statusRow");
+        }
+
+        label = (label ?? "").Trim();
+        action = string.IsNullOrWhiteSpace(action)
+            ? NpcText.Action("idle")
+            : action.Trim();
+
+        SetValueText(text, label + "\n" + action);
+        return true;
+    }
+
+    void ConfigureStatusTextLayout(TMP_Text text)
+    {
+        text.enableWordWrapping = true;
+        text.overflowMode = TextOverflowModes.Overflow;
+        text.enableAutoSizing = true;
+        text.fontSizeMin = 14f;
+        text.fontSizeMax =
+            Mathf.Min(
+                text.fontSize > 0f ? text.fontSize : 28f,
+                28f);
+        text.alignment = TextAlignmentOptions.TopLeft;
+
+        RectTransform rect =
+            text.rectTransform;
+        if (rect != null)
+        {
+            Vector2 size =
+                rect.sizeDelta;
+            rect.sizeDelta =
+                new Vector2(
+                    Mathf.Max(size.x, 260f),
+                    Mathf.Max(size.y, 86f));
+        }
     }
 
     bool SetValueText(

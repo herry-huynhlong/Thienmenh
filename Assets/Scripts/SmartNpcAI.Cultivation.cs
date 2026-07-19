@@ -35,6 +35,7 @@ public partial class SmartNpcAI
                     GetCultivationMultiplier());
 
             AddCultivationProgress(gain);
+            ApplyCultivationHealing(0.1f, 8);
 
             Debug.Log(NpcText.Format(NpcText.Get("logs", "absorbPill"), npcName, gain));
         }
@@ -50,6 +51,7 @@ public partial class SmartNpcAI
                     GetCultivationMultiplier());
 
             AddCultivationProgress(gain);
+            ApplyCultivationHealing(0.08f, 6);
 
             Debug.Log(NpcText.Format(NpcText.Get("logs", "absorbSpiritStone"), npcName, gain));
         }
@@ -105,6 +107,7 @@ public partial class SmartNpcAI
                     GetCultivationMultiplier()));
 
         AddCultivationProgress(gain);
+        ApplyCultivationHealing(0.05f, 4);
         float cultivateSeconds =
             GameHoursToSeconds(
                 Random.Range(
@@ -121,6 +124,31 @@ public partial class SmartNpcAI
         actionTimer = Mathf.Max(actionTimer, cultivateSeconds);
         currentAction = NpcText.Action("cultivateAbsorbQi");
         NpcSpeechController.TryShowSpeech(gameObject, null, "cultivate_self");
+    }
+
+    void ApplyCultivationHealing(float ratio, int minimumHeal)
+    {
+        if (currentHP >= AuthoritativeMaxHP)
+        {
+            return;
+        }
+
+        float boostedRatio =
+            IsLowHpRecoveryTaskActive()
+                ? ratio * 1.75f
+                : ratio;
+        int healAmount =
+            Mathf.Max(
+                minimumHeal,
+                Mathf.RoundToInt(AuthoritativeMaxHP * boostedRatio));
+        int healed = Heal(healAmount);
+        if (healed > 0)
+        {
+            DebugFlow(
+                "Cultivate",
+                "Recovered hp via cultivation heal=" + healed +
+                " hp=" + currentHP + "/" + maxHP);
+        }
     }
 
     void ClearCompletedCultivationAction()
@@ -259,19 +287,27 @@ public partial class SmartNpcAI
         if (currentAction == NpcText.Action("goCultivatePoint") &&
             hasWanderTarget)
         {
-            if (Vector2.Distance(transform.position, wanderTarget) <=
-                cultivationArriveDistance)
+            if (ShouldResetStalledCultivationTravel())
             {
-                if (TryRefreshPendingCultivationTravelTarget())
+                ClearTravelTargetsAndStop();
+                hasCultivationTarget = false;
+            }
+            else
+            {
+                if (Vector2.Distance(transform.position, wanderTarget) <=
+                    cultivationArriveDistance)
                 {
-                    return true;
+                    if (TryRefreshPendingCultivationTravelTarget())
+                    {
+                        return true;
+                    }
+
+                    return false;
                 }
 
-                return false;
+                ClearTravelTargets(false);
+                return true;
             }
-
-            ClearTravelTargets(false);
-            return true;
         }
 
         if (!TryResolveCultivationTravelDestination(
@@ -294,6 +330,7 @@ public partial class SmartNpcAI
         cultivationTarget = cultivationPosition;
         hasCultivationTarget = true;
         currentAction = NpcText.Action("goCultivatePoint");
+        ResetCultivationTravelProgressWatch();
         TraceRuntime(
             "TryGoToCultivationPoint",
             "set targetPoint=" +
@@ -562,6 +599,7 @@ public partial class SmartNpcAI
         cultivationTarget = cultivationPosition;
         hasCultivationTarget = true;
         currentAction = NpcText.Action("goCultivatePoint");
+        ResetCultivationTravelProgressWatch();
         TraceRuntime(
             "TryRefreshPendingCultivationTravelTarget",
             "refresh targetPoint=" +
@@ -571,6 +609,52 @@ public partial class SmartNpcAI
             " hasWander=" +
             hasWanderTarget);
         return true;
+    }
+
+    bool ShouldResetStalledCultivationTravel()
+    {
+        if (currentAction != NpcText.Action("goCultivatePoint") ||
+            currentTarget != null ||
+            !hasWanderTarget)
+        {
+            ResetCultivationTravelProgressWatch();
+            return false;
+        }
+
+        float moved =
+            Vector2.Distance(
+                transform.position,
+                cultivationTravelProgressPosition);
+        if (moved > Mathf.Max(unstuckMinMoveDistance * 2f, 0.08f))
+        {
+            ResetCultivationTravelProgressWatch();
+            return false;
+        }
+
+        float stallSeconds =
+            Time.time - cultivationTravelProgressTime;
+        if (stallSeconds <
+            Mathf.Max(unstuckCheckDelay * 3f, 3.5f))
+        {
+            return false;
+        }
+
+        DebugFlow(
+            "Cultivate",
+            "Reset stalled cultivation travel target=" +
+            wanderTarget +
+            " pos=" +
+            transform.position +
+            " stalledSeconds=" +
+            stallSeconds.ToString("0.00"));
+        ResetCultivationTravelProgressWatch();
+        return true;
+    }
+
+    void ResetCultivationTravelProgressWatch()
+    {
+        cultivationTravelProgressPosition = transform.position;
+        cultivationTravelProgressTime = Time.time;
     }
 
     void AddCultivationProgress(int amount)

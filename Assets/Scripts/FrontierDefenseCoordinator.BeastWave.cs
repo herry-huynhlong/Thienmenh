@@ -64,6 +64,7 @@ public partial class FrontierDefenseCoordinator
         }
 
         activeBeastWave = wave;
+        TriggerWaveWarningSignals(wave);
         float preparationHours =
             Random.Range(
                 Mathf.Max(0.5f, beastWavePreparationMinWorldHours),

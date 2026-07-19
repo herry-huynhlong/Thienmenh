@@ -17,6 +17,8 @@ public class HunterJob : MonoBehaviour
     public float retargetDistance = 18f;
     public float arriveDistance = 0.55f;
     public LayerMask monsterLayers = ~0;
+    public float unreachableTargetSeconds = 4f;
+    public float unreachableMoveEpsilon = 0.08f;
 
     [Header("Combat")]
     // Hunter targets in this project have fairly large colliders, so the
@@ -37,9 +39,13 @@ public class HunterJob : MonoBehaviour
     public WorldStatItemPickup currentLootTarget;
 
     VillagerAI villager;
+    VillagerHuntDangerResponder dangerResponder;
     NpcItemCollector collector;
     Rigidbody2D rb;
     float nextAttackTime;
+    MonsterAI progressMonsterTarget;
+    Vector3 lastProgressPosition;
+    float unreachableTargetTimer;
     bool running;
 
     void Awake()
@@ -233,6 +239,16 @@ public class HunterJob : MonoBehaviour
             villager = GetComponent<VillagerAI>();
         }
 
+        if (dangerResponder == null)
+        {
+            dangerResponder = GetComponent<VillagerHuntDangerResponder>();
+            if (dangerResponder == null)
+            {
+                dangerResponder =
+                    gameObject.AddComponent<VillagerHuntDangerResponder>();
+            }
+        }
+
         if (collector == null)
         {
             collector = GetComponent<NpcItemCollector>();
@@ -269,10 +285,11 @@ public class HunterJob : MonoBehaviour
             return;
         }
 
-        if (!IsValidMonster(currentMonsterTarget))
+        if (!IsPreferredMonster(currentMonsterTarget))
         {
             ReleaseMonsterTarget(currentMonsterTarget);
             currentMonsterTarget = FindNearestMonster();
+            ResetTargetProgressWatch();
             if (currentMonsterTarget != null &&
                 !TryReserveMonsterTarget(currentMonsterTarget))
             {
@@ -287,17 +304,34 @@ public class HunterJob : MonoBehaviour
             return;
         }
 
+        if (ShouldRetreatFromMonster(currentMonsterTarget))
+        {
+            ReactToDanger(currentMonsterTarget);
+            return;
+        }
+
         float distance = Vector2.Distance(
             transform.position,
             currentMonsterTarget.transform.position);
 
         if (distance > Mathf.Max(attackRange, arriveDistance))
         {
+            if (ShouldAbandonUnreachableMonster(currentMonsterTarget))
+            {
+                ReleaseMonsterTarget(currentMonsterTarget);
+                currentMonsterTarget = null;
+                ResetTargetProgressWatch();
+                currentState = NpcJobState.Moving;
+                MoveToHuntArea();
+                return;
+            }
+
             currentState = NpcJobState.Moving;
             MoveToMonster(currentMonsterTarget);
             return;
         }
 
+        ResetTargetProgressWatch();
         currentState = NpcJobState.Working;
         StopMotion();
         string attackAction =
@@ -536,6 +570,58 @@ public class HunterJob : MonoBehaviour
             "Truy đuổi " + GetMonsterName(monster));
     }
 
+    bool ShouldAbandonUnreachableMonster(MonsterAI monster)
+    {
+        if (monster == null)
+        {
+            ResetTargetProgressWatch();
+            return false;
+        }
+
+        if (progressMonsterTarget != monster)
+        {
+            progressMonsterTarget = monster;
+            lastProgressPosition = transform.position;
+            unreachableTargetTimer = 0f;
+            return false;
+        }
+
+        float moved =
+            Vector2.Distance(transform.position, lastProgressPosition);
+        if (moved > Mathf.Max(0.01f, unreachableMoveEpsilon))
+        {
+            lastProgressPosition = transform.position;
+            unreachableTargetTimer = 0f;
+            return false;
+        }
+
+        unreachableTargetTimer += Time.deltaTime;
+        if (unreachableTargetTimer <
+            Mathf.Max(1f, unreachableTargetSeconds))
+        {
+            return false;
+        }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        Debug.LogWarning(
+            "[HunterJob] Abandon unreachable monster -> " +
+            gameObject.name +
+            " target=" + GetMonsterName(monster) +
+            " pos=" + transform.position +
+            " targetPos=" + monster.transform.position +
+            " stuckSeconds=" + unreachableTargetTimer.ToString("0.##"),
+            gameObject);
+#endif
+        return true;
+    }
+
+    void ResetTargetProgressWatch()
+    {
+        progressMonsterTarget = null;
+        unreachableTargetTimer = 0f;
+        lastProgressPosition = transform.position;
+    }
+
     void MoveTo(
         Vector3 target,
         NpcMapZone targetZone,
@@ -593,6 +679,12 @@ public class HunterJob : MonoBehaviour
         if (!IsValidMonster(monster))
         {
             currentMonsterTarget = null;
+            return;
+        }
+
+        if (ShouldRetreatFromMonster(monster))
+        {
+            ReactToDanger(monster);
             return;
         }
 
@@ -667,6 +759,13 @@ public class HunterJob : MonoBehaviour
             return true;
         }
 
+        if (!currentLootTarget.CanNpcActorCollect(gameObject))
+        {
+            currentLootTarget = null;
+            ResumeHuntAfterKill();
+            return false;
+        }
+
         StatItemData item = currentLootTarget.item;
         if (item != null && currentLootTarget.TryTake(1))
         {
@@ -691,7 +790,7 @@ public class HunterJob : MonoBehaviour
 
         foreach (MonsterAI monster in monsters)
         {
-            if (!IsValidMonster(monster))
+            if (!IsPreferredMonster(monster))
             {
                 continue;
             }
@@ -730,6 +829,13 @@ public class HunterJob : MonoBehaviour
         return best;
     }
 
+    bool IsPreferredMonster(MonsterAI monster)
+    {
+        return dangerResponder == null
+            ? IsValidMonster(monster)
+            : dangerResponder.IsPreferredTarget(monster);
+    }
+
     bool IsValidMonster(MonsterAI monster)
     {
         return monster != null &&
@@ -738,6 +844,32 @@ public class HunterJob : MonoBehaviour
             !TargetReservationSystem.Instance.IsReservedByOther(
                 monster.gameObject,
                 gameObject);
+    }
+
+    bool ShouldRetreatFromMonster(MonsterAI monster)
+    {
+        return dangerResponder != null &&
+            dangerResponder.ShouldRetreatFrom(monster);
+    }
+
+    void ReactToDanger(MonsterAI monster)
+    {
+        if (dangerResponder != null)
+        {
+            dangerResponder.ReactToDanger(this, monster);
+            return;
+        }
+
+        ReleaseDangerousTarget(monster);
+    }
+
+    public void ReleaseDangerousTarget(MonsterAI monster)
+    {
+        ReleaseMonsterTarget(monster);
+        currentMonsterTarget = null;
+        nextAttackTime = 0f;
+        currentState = NpcJobState.Returning;
+        StopMotion();
     }
 
     bool IsMonsterInHuntZone(MonsterAI monster)
@@ -874,6 +1006,7 @@ public class HunterJob : MonoBehaviour
             pickup.item != null &&
             pickup.amount > 0 &&
             pickup.allowNpcPickup &&
+            pickup.HasValidNpcPickupArea() &&
             !pickup.IsReservedByOther(gameObject);
     }
 

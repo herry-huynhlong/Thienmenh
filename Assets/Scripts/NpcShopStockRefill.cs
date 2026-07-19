@@ -383,7 +383,9 @@ public class NpcShopStockRefill : MonoBehaviour
             return hash;
         }
 
-        hash = hash * 31 + item.GetInstanceID();
+        hash =
+            hash * 31 +
+            UnityObjectIdUtility.GetRuntimeId(item);
         hash = hash * 31 + (int)item.grade;
         return hash;
     }

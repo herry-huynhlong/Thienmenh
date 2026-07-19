@@ -158,7 +158,17 @@ public partial class SmartNpcAI
                 if (schedule.HasStartedCurrentSlotActivity(
                         NpcScheduleActivity.DoMission))
                 {
-                    if (currentAction == NpcText.Action("visitedTaskProvider") ||
+                    bool keepVisitedProviderAction =
+                        currentAction == NpcText.Action("visitedTaskProvider") &&
+                        (actionTimer > 0f ||
+                        NpcTaskProvider.IsNpcBusyWithAnyProvider(gameObject));
+                    if (currentAction == NpcText.Action("visitedTaskProvider") &&
+                        !keepVisitedProviderAction)
+                    {
+                        currentAction = string.Empty;
+                    }
+
+                    if (keepVisitedProviderAction ||
                         IsDirectedWorkCompatibleWithSchedule(
                             NpcScheduleActivity.DoMission))
                     {
@@ -799,9 +809,7 @@ public partial class SmartNpcAI
         return provider != null &&
             provider.isActiveAndEnabled &&
             provider.gameObject.activeInHierarchy &&
-            provider.provideTasks &&
-            provider.offers != null &&
-            provider.offers.Length > 0;
+            provider.provideTasks;
     }
 
     NpcTaskProvider ResolveTaskProviderVisitTarget()
@@ -1061,7 +1069,11 @@ public partial class SmartNpcAI
                         : NpcScheduleActivity.DoMission);
             }
             ClearTravelTargetsAndStop();
-            currentAction = NpcText.Action("visitedTaskProvider");
+            if (string.IsNullOrWhiteSpace(currentAction) ||
+                currentAction == NpcText.Action("goTaskProviderDaily"))
+            {
+                currentAction = NpcText.Action("visitedTaskProvider");
+            }
             actionTimer = GameHoursToSeconds(0.2f);
             DebugFlow(
                 "TaskProvider",

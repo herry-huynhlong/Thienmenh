@@ -30,7 +30,7 @@ public partial class VillagerAI
     {
         if (!autonomousWorkEnabled)
         {
-            Wander(NpcText.Action("wanderVillage"));
+            GoToAlchemyWorkPointOrWait();
             return;
         }
 
@@ -46,7 +46,7 @@ public partial class VillagerAI
         NpcAlchemyAgent alchemyAgent = GetComponent<NpcAlchemyAgent>();
         if (alchemyAgent == null)
         {
-            Wander(NpcText.Action("wanderVillage"));
+            GoToAlchemyWorkPointOrWait();
             return;
         }
 
@@ -65,10 +65,15 @@ public partial class VillagerAI
                 return;
             }
 
-            Wander(NpcText.Action("wanderVillage"));
+            GoToAlchemyWorkPointOrWait();
             return;
         }
 
+        GoToAlchemyWorkPointOrWait();
+    }
+
+    void GoToAlchemyWorkPointOrWait()
+    {
         if (workPoint != null)
         {
             currentAction = NpcText.Action("goAlchemy");
@@ -79,7 +84,10 @@ public partial class VillagerAI
             return;
         }
 
-        Wander(NpcText.Action("alchemy"));
+        ClearMovementTargets();
+        StopMoving();
+        currentAction = NpcText.Action("alchemy");
+        actionTimer = Mathf.Max(actionTimer, restDuration);
     }
 
     void GoForgeWorkOrTrade()

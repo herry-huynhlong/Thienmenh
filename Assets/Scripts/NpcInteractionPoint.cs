@@ -28,7 +28,8 @@ public class NpcInteractionPoint : MonoBehaviour
     {
         CleanupExpiredReservations();
 
-        Vector3 seed = transform.position;
+        BoxCollider2D standZone = GetStandZoneCollider();
+        Vector3 seed = GetStandSeed(npc, standZone);
         if (TryGetReservedStandSpotFor(npc, out Vector3 reservedPosition))
         {
             return reservedPosition;
@@ -37,7 +38,11 @@ public class NpcInteractionPoint : MonoBehaviour
         // A trigger box usually represents the valid service zone. Prefer
         // reserving distinct positions inside it so customers remain in
         // interaction range while still respecting body spacing.
-        if (TryFindClearStandSpotInBox(seed, npc, out Vector3 boxStandPosition))
+        if (TryFindClearStandSpotInBox(
+            seed,
+            npc,
+            standZone,
+            out Vector3 boxStandPosition))
         {
             return boxStandPosition;
         }
@@ -46,7 +51,8 @@ public class NpcInteractionPoint : MonoBehaviour
             npc != null &&
             standSpacing > 0.01f)
         {
-            int hash = Mathf.Abs(npc.GetInstanceID());
+            int hash = Mathf.Abs(
+                UnityObjectIdUtility.GetRuntimeId(npc));
             float angle = (hash % 360) * Mathf.Deg2Rad;
             Vector2 offset =
                 new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) *
@@ -68,7 +74,11 @@ public class NpcInteractionPoint : MonoBehaviour
             return standPosition;
         }
 
-        if (TryFindClearStandSpotInBox(seed, npc, out Vector3 boxPosition))
+        if (TryFindClearStandSpotInBox(
+            seed,
+            npc,
+            standZone,
+            out Vector3 boxPosition))
         {
             return boxPosition;
         }
@@ -81,6 +91,12 @@ public class NpcInteractionPoint : MonoBehaviour
         if (npc == null)
         {
             return false;
+        }
+
+        BoxCollider2D standZone = GetStandZoneCollider();
+        if (standZone != null && standZone.enabled)
+        {
+            return standZone.OverlapPoint(npc.transform.position);
         }
 
         return Vector2.Distance(
@@ -130,15 +146,10 @@ public class NpcInteractionPoint : MonoBehaviour
     bool TryFindClearStandSpotInBox(
         Vector3 seed,
         GameObject npc,
+        BoxCollider2D box,
         out Vector3 position)
     {
         position = seed;
-
-        BoxCollider2D box = GetComponent<BoxCollider2D>();
-        if (box == null)
-        {
-            box = GetComponentInParent<BoxCollider2D>();
-        }
 
         if (box == null || !box.enabled)
         {
@@ -210,6 +221,41 @@ public class NpcInteractionPoint : MonoBehaviour
         return false;
     }
 
+    BoxCollider2D GetStandZoneCollider()
+    {
+        BoxCollider2D box = GetComponent<BoxCollider2D>();
+        if (box != null)
+        {
+            return box;
+        }
+
+        return GetComponentInParent<BoxCollider2D>();
+    }
+
+    Vector3 GetStandSeed(GameObject npc, BoxCollider2D standZone)
+    {
+        Vector3 seed = transform.position;
+        if (npc == null)
+        {
+            return seed;
+        }
+
+        seed = npc.transform.position;
+        seed.z = transform.position.z;
+
+        if (standZone == null || !standZone.enabled)
+        {
+            return seed;
+        }
+
+        Vector2 projected =
+            standZone.ClosestPoint(npc.transform.position);
+        seed.x = projected.x;
+        seed.y = projected.y;
+        seed.z = transform.position.z;
+        return seed;
+    }
+
     bool IsBlocked(Vector3 position, GameObject npc, Collider2D allowedCollider = null)
     {
         Collider2D[] hits =
@@ -257,8 +303,10 @@ public class NpcInteractionPoint : MonoBehaviour
             return false;
         }
 
-        int pointId = GetInstanceID();
-        int ownerId = npc.GetInstanceID();
+        int pointId =
+            UnityObjectIdUtility.GetRuntimeId(this);
+        int ownerId =
+            UnityObjectIdUtility.GetRuntimeId(npc);
 
         if (!reservationsByPoint.TryGetValue(pointId, out List<StandReservation> reservations))
         {
@@ -304,8 +352,10 @@ public class NpcInteractionPoint : MonoBehaviour
             return false;
         }
 
-        int pointId = GetInstanceID();
-        int ownerId = npc.GetInstanceID();
+        int pointId =
+            UnityObjectIdUtility.GetRuntimeId(this);
+        int ownerId =
+            UnityObjectIdUtility.GetRuntimeId(npc);
         if (!reservationsByPoint.TryGetValue(pointId, out List<StandReservation> reservations))
         {
             reservations = new List<StandReservation>();
@@ -342,13 +392,16 @@ public class NpcInteractionPoint : MonoBehaviour
 
     bool IsReservedByAnotherNpc(Vector3 position, GameObject npc)
     {
-        int pointId = GetInstanceID();
+        int pointId =
+            UnityObjectIdUtility.GetRuntimeId(this);
         if (!reservationsByPoint.TryGetValue(pointId, out List<StandReservation> reservations))
         {
             return false;
         }
 
-        int ownerId = npc != null ? npc.GetInstanceID() : 0;
+        int ownerId = npc != null
+            ? UnityObjectIdUtility.GetRuntimeId(npc)
+            : 0;
         float minSpacing = Mathf.Max(
             0.1f,
             Mathf.Max(

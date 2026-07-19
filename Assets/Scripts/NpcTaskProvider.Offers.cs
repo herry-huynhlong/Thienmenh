@@ -27,11 +27,49 @@ public partial class NpcTaskProvider
                 continue;
             }
 
+            NormalizeConfiguredOfferMetadata(offer);
+
             if (string.IsNullOrWhiteSpace(offer.taskName) || LooksCorruptedText(offer.taskName))
             {
                 offer.taskName = GetDefaultTaskNameForOffer(offer);
             }
         }
+    }
+
+    static void NormalizeConfiguredOfferMetadata(
+        NpcTaskOffer offer)
+    {
+        if (offer == null)
+        {
+            return;
+        }
+
+        if (!IsLegacyFrontierWatchTaskId(offer.customTaskId))
+        {
+            return;
+        }
+
+        offer.taskType = NpcTaskType.FrontierWatch;
+        offer.customTaskId = "frontier_watch";
+
+        if (!string.IsNullOrWhiteSpace(offer.customTargetId))
+        {
+            offer.customTargetId =
+                FrontierDefenseCoordinator.ResolveCanonicalPostId(
+                    offer.customTargetId);
+        }
+    }
+
+    static bool IsLegacyFrontierWatchTaskId(string taskId)
+    {
+        if (string.IsNullOrWhiteSpace(taskId))
+        {
+            return false;
+        }
+
+        return taskId.Trim().StartsWith(
+            "frontier_watch",
+            System.StringComparison.OrdinalIgnoreCase);
     }
 
     void ResolveConfiguredOfferItemReferences()
@@ -75,6 +113,137 @@ public partial class NpcTaskProvider
     string TaskActionFormat(string key, params object[] args)
     {
         return NpcText.Format(TaskAction(key), args);
+    }
+
+    string TaskChoiceAction(GameObject npc, RunningNpcTask task)
+    {
+        string taskText =
+            task != null
+                ? GetTaskDisplayText(task)
+                : "";
+        string generic =
+            TaskActionFormat("chooseTask", taskText);
+        if (string.IsNullOrWhiteSpace(taskText))
+        {
+            return generic;
+        }
+
+        EntityPersonality personality =
+            GetNpcPersonality(npc);
+
+        if (personality == null)
+        {
+            return generic;
+        }
+
+        if (personality.bravery >= 70 &&
+            IsDangerousTask(task))
+        {
+            return "Chọn nhiệm vụ " + taskText +
+                " - việc hiểm mới đáng thử tay.";
+        }
+
+        if (personality.greed >= 70 &&
+            task != null &&
+            task.rewardSpiritStone >= 80)
+        {
+            return "Chọn nhiệm vụ " + taskText +
+                " - phần thưởng này không thể bỏ qua.";
+        }
+
+        if (personality.kindness >= 70 &&
+            IsHelpfulTask(task))
+        {
+            return "Chọn nhiệm vụ " + taskText +
+                " - giúp được người thì nên nhận.";
+        }
+
+        if (personality.diligence >= 70)
+        {
+            return "Chọn nhiệm vụ " + taskText +
+                " - làm chắc từng bước là ổn.";
+        }
+
+        if (personality.funSeeking >= 70)
+        {
+            return "Chọn nhiệm vụ " + taskText +
+                " - nghe có vẻ thú vị.";
+        }
+
+        return generic;
+    }
+
+    EntityPersonality GetNpcPersonality(GameObject npc)
+    {
+        if (npc == null)
+        {
+            return null;
+        }
+
+        EntityProfile profile =
+            npc.GetComponent<EntityProfile>();
+        if (profile != null &&
+            profile.personality != null)
+        {
+            return profile.personality;
+        }
+
+        SmartNpcAI smartNpc =
+            npc.GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            return new EntityPersonality
+            {
+                bravery = smartNpc.bravery,
+                greed = smartNpc.greed,
+                kindness = smartNpc.kindness,
+                diligence = 50,
+                funSeeking = 50
+            };
+        }
+
+        VillagerAI villager =
+            npc.GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            return new EntityPersonality
+            {
+                bravery = villager.bravery,
+                greed = villager.greed,
+                kindness = 50,
+                diligence = villager.diligence,
+                funSeeking = 50
+            };
+        }
+
+        return null;
+    }
+
+    bool IsDangerousTask(RunningNpcTask task)
+    {
+        if (task == null ||
+            task.offer == null)
+        {
+            return false;
+        }
+
+        return task.offer.taskType == NpcTaskType.HuntMonster ||
+            task.offer.taskType == NpcTaskType.Patrol ||
+            task.offer.taskType == NpcTaskType.Escort ||
+            task.offer.taskType == NpcTaskType.FrontierWatch;
+    }
+
+    bool IsHelpfulTask(RunningNpcTask task)
+    {
+        if (task == null ||
+            task.offer == null)
+        {
+            return false;
+        }
+
+        return task.offer.taskType == NpcTaskType.Deliver ||
+            task.offer.taskType == NpcTaskType.Escort ||
+            task.offer.taskType == NpcTaskType.HarvestAndDeliver;
     }
 
     string TaskDisplay(string key)

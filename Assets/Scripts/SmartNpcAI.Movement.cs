@@ -25,6 +25,13 @@ public partial class SmartNpcAI
 
         TryRestoreStaleTravelIntent();
 
+        if (currentMonsterTarget == null)
+        {
+            // Frontier-defense travel is an emergency override and should
+            // stay latched even if route recovery temporarily clears targets.
+            TryContinueFrontierDefenseTravel();
+        }
+
         if (ShouldHoldCombatPosition())
         {
             if (visualAnimation != null &&
@@ -153,7 +160,14 @@ public partial class SmartNpcAI
         }
         else if (hasWanderTarget)
         {
-            desiredTarget = wanderTarget;
+            NpcCounterBroker broker =
+                currentAction == NpcText.Action("goVanBaoLauBroker")
+                    ? NpcCounterBroker.FindBestBrokerForNpc(gameObject)
+                    : null;
+            desiredTarget =
+                broker != null
+                ? ResolveBrokerApproachPosition(broker)
+                : wanderTarget;
         }
         else
         {
@@ -202,6 +216,11 @@ public partial class SmartNpcAI
                         "Teleport route ended without follow target");
                 }
 
+                if (TryContinueFrontierDefenseTravel())
+                {
+                    return;
+                }
+
                 currentAction = NpcText.Action("idle");
 
                 if (rb != null)
@@ -218,6 +237,11 @@ public partial class SmartNpcAI
                 !hasEscapeTarget &&
                 !hasObstacleAvoidTarget)
             {
+                if (TryContinueFrontierDefenseTravel())
+                {
+                    return;
+                }
+
                 currentAction = NpcText.Action("idle");
                 if (rb != null)
                 {
@@ -304,7 +328,7 @@ public partial class SmartNpcAI
 
         NpcCounterBroker activeBroker =
             currentAction == NpcText.Action("goVanBaoLauBroker")
-                ? NpcCounterBroker.Active
+                ? NpcCounterBroker.FindBestBrokerForNpc(gameObject)
                 : null;
         NpcMapZone? forcedTargetZone =
             ResolveBrokerTargetZone(activeBroker);

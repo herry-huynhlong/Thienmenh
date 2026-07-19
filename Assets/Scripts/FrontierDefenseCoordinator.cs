@@ -35,6 +35,19 @@ public partial class FrontierDefenseCoordinator : MonoBehaviour
     public float assignCheckIntervalSeconds = 3f;
     public float retryAssignmentDelaySeconds = 10f;
     public bool autoCreateRuntimeInstance = true;
+    public bool autoAssignVacantPosts = false;
+
+    [Header("Watch Duty Tuning")]
+    public bool relaxFrontierWatchRequirements = true;
+    public CultivationRealm relaxedFrontierWatchMinRealm =
+        CultivationRealm.QiRefining;
+    [Range(1, CultivationProgression.MaxStage)]
+    public int relaxedFrontierWatchMinStage = 1;
+    [Range(0, 100)]
+    public int minimumFrontierWatchBravery = 0;
+    public bool urgentVacancyBypassesFatigueAndHunger = true;
+    [Min(0f)] public float urgentVacancyAcceptanceBonus = 60f;
+    [Min(0f)] public float urgentVacancyCandidateScoreBonus = 120f;
 
     [Header("Escalation")]
     [Min(0.5f)] public float vacancyAlertDelayWorldHours = 6f;

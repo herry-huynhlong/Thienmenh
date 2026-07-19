@@ -46,6 +46,14 @@ public class NpcAlchemyRole : MonoBehaviour
 
     void QueueEnsureAlchemySetup()
     {
+        if (!Application.isPlaying ||
+            !isActiveAndEnabled ||
+            !gameObject.activeInHierarchy)
+        {
+            setupQueued = false;
+            return;
+        }
+
         if (setupQueued)
         {
             return;

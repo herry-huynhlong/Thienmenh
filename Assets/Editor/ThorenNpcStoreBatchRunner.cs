@@ -192,8 +192,7 @@ public static class ThorenNpcStoreBatchRunner
         {
             VillagerAI[] villagers =
                 UnityEngine.Object.FindObjectsByType<VillagerAI>(
-                    FindObjectsInactive.Exclude,
-                    FindObjectsSortMode.None);
+                    FindObjectsInactive.Exclude);
             for (int i = 0; i < villagers.Length; i++)
             {
                 if (villagers[i] != null &&

@@ -10,6 +10,13 @@ public partial class SmartNpcAI
         bool restrictToCombatZone =
             NpcMapBehaviorPolicy.ForcesCombatLoop(gameObject) &&
             allowedCombatZone.HasValue;
+        bool actorInsideAllowedCombatZone =
+            !restrictToCombatZone ||
+            NpcMapBehaviorPolicy.IsActorInsideAllowedCombatZone(
+                gameObject,
+                allowedCombatZone);
+        float awarenessRadius =
+            GetMonsterAwarenessRadius(restrictToCombatZone);
         NpcLocationArea huntArea =
             NpcLocationArea.FindBestArea(
                 gameObject,
@@ -39,6 +46,24 @@ public partial class SmartNpcAI
                     allowedCombatZone.Value)
                 : null;
 
+        if (restrictToCombatZone &&
+            !actorInsideAllowedCombatZone)
+        {
+            if (currentMonsterTarget != null)
+            {
+                ReleaseMonsterReservation(currentMonsterTarget);
+                currentMonsterTarget = null;
+                currentTarget = null;
+                ClearMonsterCombatState();
+            }
+
+            DebugFlow(
+                "Hunt",
+                "Skip combat scan until reaching allowed zone " +
+                allowedCombatZone.Value);
+            return;
+        }
+
         if (currentMonsterTarget != null &&
             !isCounterAttackingMonster &&
             (!ShouldSmartAutoHuntMonster(currentMonsterTarget) ||
@@ -63,6 +88,9 @@ public partial class SmartNpcAI
                 sharedCombatTarget = currentMonsterTarget;
             }
             else if (currentMonsterTarget != sharedCombatTarget &&
+                Vector2.Distance(
+                    transform.position,
+                    sharedCombatTarget.transform.position) <= awarenessRadius &&
                 NpcMapBehaviorPolicy.CanUseMonsterTarget(
                     gameObject,
                     sharedCombatTarget))
@@ -237,6 +265,15 @@ public partial class SmartNpcAI
                 continue;
             }
 
+            float distance =
+                Vector2.Distance(
+                    transform.position,
+                    monster.transform.position);
+            if (distance > awarenessRadius)
+            {
+                continue;
+            }
+
             if (CombatPowerUtility.ShouldRetreat(
                     gameObject,
                     monster.gameObject))
@@ -289,12 +326,6 @@ public partial class SmartNpcAI
             {
                 continue;
             }
-
-            // Tinh khoang cach toi quai.
-            float distance =
-                Vector2.Distance(
-                    transform.position,
-                    monster.transform.position);
 
             if (!ShouldSharedCombatTeamFight(
                     monster,
@@ -554,11 +585,32 @@ void TryAttackMonster()
     // Chua toi tam danh.
     if (distance > engageRange)
     {
+        if (ShouldAbandonUnreachableMonster(currentMonsterTarget))
+        {
+            MonsterAI stalledMonster = currentMonsterTarget;
+            ReleaseMonsterReservation(currentMonsterTarget);
+            currentMonsterTarget = null;
+            currentTarget = null;
+            ClearMonsterCombatState();
+            ClearTravelTargetsAndStop();
+            currentAction = NpcText.Action("idle");
+            actionTimer = 0f;
+            DebugFlow(
+                "Combat",
+                "Abandon unreachable monster " +
+                (stalledMonster != null
+                    ? stalledMonster.monsterName
+                    : "null"));
+            return;
+        }
+
         currentAction = NpcText.ActionFormat(
             "huntMonsterNamed",
             currentMonsterTarget.monsterName);
         return;
     }
+
+    ResetMonsterProgressWatch(currentMonsterTarget);
 
     NpcRoleUtility.SetCombatAttackAction(
         gameObject,
@@ -625,6 +677,41 @@ void TryAttackMonster()
     int attackDamage = result.finalDamage;
 
     Debug.Log(NpcText.Format(NpcText.Get("logs", "attackMonster"), npcName, currentMonsterTarget.monsterName, attackDamage));
+}
+
+bool ShouldAbandonUnreachableMonster(MonsterAI monster)
+{
+    if (monster == null)
+    {
+        ResetMonsterProgressWatch(null);
+        return false;
+    }
+
+    if (progressMonsterTarget != monster)
+    {
+        ResetMonsterProgressWatch(monster);
+        return false;
+    }
+
+    float moved =
+        Vector2.Distance(
+            transform.position,
+            lastMonsterProgressPosition);
+    if (moved > Mathf.Max(unreachableMonsterMoveEpsilon, unstuckMinMoveDistance * 2f))
+    {
+        ResetMonsterProgressWatch(monster);
+        return false;
+    }
+
+    return Time.time - monsterProgressTime >=
+        Mathf.Max(unreachableMonsterSeconds, unstuckCheckDelay * 3f);
+}
+
+void ResetMonsterProgressWatch(MonsterAI monster)
+{
+    progressMonsterTarget = monster;
+    lastMonsterProgressPosition = transform.position;
+    monsterProgressTime = Time.time;
 }
 
 public void ShootFireball()

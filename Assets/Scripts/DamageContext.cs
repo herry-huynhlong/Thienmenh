@@ -129,9 +129,27 @@ public struct DamageContext
         string sourceId,
         Vector3 hitPoint)
     {
+        return Environment(
+            amount,
+            null,
+            source,
+            damageType,
+            sourceId,
+            hitPoint);
+    }
+
+    public static DamageContext Environment(
+        int amount,
+        GameObject attacker,
+        UnityEngine.Object source,
+        DamageType damageType,
+        string sourceId,
+        Vector3 hitPoint)
+    {
         return new DamageContext
         {
             amount = amount,
+            attacker = attacker,
             source = source,
             sourceId = sourceId,
             damageType = damageType,
@@ -143,7 +161,8 @@ public struct DamageContext
                 : DamageSourceCategory.Environment,
             hitPoint = hitPoint,
             hasHitPoint = true,
-            criticalMultiplier = 1f
+            criticalMultiplier = 1f,
+            publishHostility = attacker != null
         };
     }
 }

@@ -23,7 +23,8 @@ public partial class FrontierDefenseCoordinator
         {
             FrontierWatchPost post = posts[i];
             if (post == null ||
-                !post.isActiveAndEnabled)
+                !post.isActiveAndEnabled ||
+                !IsCanonicalWatchPost(post))
             {
                 continue;
             }
@@ -41,9 +42,17 @@ public partial class FrontierDefenseCoordinator
             }
 
             post.currentAssignee = null;
+            post.pendingAssignee = null;
 
             string postId = GetResolvedPostId(post);
             MarkPostVacant(postId);
+            if (!autoAssignVacantPosts)
+            {
+                post.assignmentInProgress = false;
+                nextAssignmentTimes[postId] = 0f;
+                continue;
+            }
+
             if (nextAssignmentTimes.TryGetValue(postId, out float nextTime) &&
                 Time.time < nextTime)
             {
@@ -77,7 +86,7 @@ public partial class FrontierDefenseCoordinator
         }
 
         NpcTaskOffer offer = BuildOffer(post);
-        List<SmartNpcAI> candidates =
+        List<GameObject> candidates =
             FindCandidateOrder(post);
         if (candidates.Count == 0)
         {
@@ -87,29 +96,32 @@ public partial class FrontierDefenseCoordinator
         }
 
         post.assignmentInProgress = true;
+        post.pendingAssignee = null;
 
         for (int i = 0; i < candidates.Count; i++)
         {
-            SmartNpcAI candidate = candidates[i];
+            GameObject candidate = candidates[i];
             if (candidate == null)
             {
                 continue;
             }
 
-            if (provider.TryStartPlannedTask(candidate.gameObject, offer))
+            post.pendingAssignee = candidate;
+            if (provider.TryStartPlannedTask(candidate, offer))
             {
                 return;
             }
         }
 
+        post.pendingAssignee = null;
         post.assignmentInProgress = false;
         SetRetry(post);
     }
 
-    List<SmartNpcAI> FindCandidateOrder(FrontierWatchPost post)
+    List<GameObject> FindCandidateOrder(FrontierWatchPost post)
     {
-        List<SmartNpcAI> candidates =
-            new List<SmartNpcAI>();
+        List<GameObject> candidates =
+            new List<GameObject>();
         if (post == null)
         {
             return candidates;
@@ -123,7 +135,19 @@ public partial class FrontierDefenseCoordinator
             SmartNpcAI npc = npcs[i];
             if (IsEligibleCandidate(npc, post))
             {
-                candidates.Add(npc);
+                candidates.Add(npc.gameObject);
+            }
+        }
+
+        VillagerAI[] villagers =
+            FindObjectsByType<VillagerAI>(FindObjectsInactive.Exclude);
+
+        for (int i = 0; i < villagers.Length; i++)
+        {
+            VillagerAI villager = villagers[i];
+            if (IsEligibleCandidate(villager, post))
+            {
+                candidates.Add(villager.gameObject);
             }
         }
 
@@ -135,7 +159,7 @@ public partial class FrontierDefenseCoordinator
     }
 
     float ScoreCandidate(
-        SmartNpcAI npc,
+        GameObject npc,
         FrontierWatchPost post)
     {
         if (npc == null ||
@@ -144,34 +168,98 @@ public partial class FrontierDefenseCoordinator
             return float.NegativeInfinity;
         }
 
+        float bravery = 0f;
+        CultivationRealm realm = CultivationRealm.Mortal;
+        int realmStage = 1;
+
+        SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
+        if (smartNpc != null && smartNpc.enabled)
+        {
+            bravery = smartNpc.bravery;
+            realm = smartNpc.realm;
+            realmStage = smartNpc.realmStage;
+        }
+        else
+        {
+            VillagerAI villager = npc.GetComponent<VillagerAI>();
+            if (villager != null)
+            {
+                bravery = villager.bravery;
+                realm = villager.realm;
+                realmStage = villager.realmStage;
+            }
+        }
+
         float distance =
             Vector2.Distance(
                 npc.transform.position,
                 post.GetPrimaryPosition());
-        return npc.bravery * 0.6f +
+        return bravery * 0.6f +
             CultivationProgression.GetRealmPower(
-                npc.realm,
-                npc.realmStage) *
+                realm,
+                realmStage) *
             0.02f -
-            distance * 0.12f;
+            distance * 0.12f +
+            FrontierDefenseCoordinator.GetUrgentVacancyCandidateScoreBonus(
+                GetResolvedPostId(post));
     }
 
     bool IsEligibleCandidate(
         SmartNpcAI npc,
         FrontierWatchPost post)
     {
+        CultivationRealm minimumRealm =
+            FrontierDefenseCoordinator.GetEffectiveMinimumRealm(post);
+        int minimumStage =
+            FrontierDefenseCoordinator.GetEffectiveMinimumRealmStage(post);
+
         return npc != null &&
             npc.enabled &&
             !npc.IsDead &&
             npc.canFight &&
             NpcRoleUtility.MeetsRealm(
                 npc.gameObject,
-                post.minimumRealm,
-                post.minimumRealmStage);
+                minimumRealm,
+                minimumStage);
+    }
+
+    bool IsEligibleCandidate(
+        VillagerAI npc,
+        FrontierWatchPost post)
+    {
+        if (npc == null ||
+            post == null ||
+            !npc.enabled ||
+            npc.IsDead ||
+            npc.ageGroup != VillagerAgeGroup.Adult)
+        {
+            return false;
+        }
+
+        CultivationRealm minimumRealm =
+            FrontierDefenseCoordinator.GetEffectiveMinimumRealm(post);
+        int minimumStage =
+            FrontierDefenseCoordinator.GetEffectiveMinimumRealmStage(post);
+
+        return NpcRoleUtility.MeetsRealm(
+                npc.gameObject,
+                minimumRealm,
+                minimumStage) &&
+            npc.bravery >=
+                FrontierDefenseCoordinator.GetMinimumFrontierWatchBravery();
     }
 
     NpcTaskOffer BuildOffer(FrontierWatchPost post)
     {
+        CultivationRealm minimumRealm =
+            FrontierDefenseCoordinator.GetEffectiveMinimumRealm(post);
+        int minimumStage =
+            FrontierDefenseCoordinator.GetEffectiveMinimumRealmStage(post);
+        NpcTaskRank rewardRank =
+            ResolveOfferRank(
+                post,
+                minimumRealm,
+                minimumStage);
         StatItemData rewardItem = post.rewardItem;
         if (rewardItem == null &&
             post.autoResolveLowGradeReward)
@@ -185,10 +273,10 @@ public partial class FrontierDefenseCoordinator
                 ? "Tran thu Ma Thu Son Mach"
                 : post.taskName,
             taskType = NpcTaskType.FrontierWatch,
-            audience = NpcTaskAudience.SmartNpcOnly,
-            rank = post.rewardRank,
-            minRealm = post.minimumRealm,
-            minRealmStage = post.minimumRealmStage,
+            audience = NpcTaskAudience.AnyNpc,
+            rank = rewardRank,
+            minRealm = minimumRealm,
+            minRealmStage = minimumStage,
             rewardSpiritStone = Mathf.Max(0, post.rewardSpiritStone),
             rewardItem = rewardItem,
             rewardItemAmount =
@@ -200,6 +288,28 @@ public partial class FrontierDefenseCoordinator
             customTaskId = "frontier_watch",
             customTargetId = GetResolvedPostId(post)
         };
+    }
+
+    NpcTaskRank ResolveOfferRank(
+        FrontierWatchPost post,
+        CultivationRealm minimumRealm,
+        int minimumStage)
+    {
+        if (post == null)
+        {
+            return NpcTaskRank.Ha;
+        }
+
+        // When frontier requirements are relaxed so ordinary NPCs can fill an
+        // urgent empty post, keep the offer rank low as well. Otherwise the
+        // auto-assign rank gate still treats it like a high-tier mission.
+        if (minimumRealm == CultivationRealm.Mortal &&
+            minimumStage <= 1)
+        {
+            return NpcTaskRank.Ha;
+        }
+
+        return post.rewardRank;
     }
 
     StatItemData ResolveLowGradeRewardItem()
@@ -248,6 +358,7 @@ public partial class FrontierDefenseCoordinator
         }
 
         post.currentAssignee = npc;
+        post.pendingAssignee = null;
         post.assignmentInProgress = false;
         string postId = GetResolvedPostId(post);
         nextAssignmentTimes[postId] = 0f;
@@ -281,6 +392,11 @@ public partial class FrontierDefenseCoordinator
             post.currentAssignee = null;
         }
 
+        if (post.pendingAssignee == npc)
+        {
+            post.pendingAssignee = null;
+        }
+
         post.assignmentInProgress = false;
         MarkPostVacant(GetResolvedPostId(post));
         SetRetry(post);
@@ -292,7 +408,8 @@ public partial class FrontierDefenseCoordinator
         {
             FrontierWatchPost post = posts[i];
             if (post == null ||
-                !post.isActiveAndEnabled)
+                !post.isActiveAndEnabled ||
+                !IsCanonicalWatchPost(post))
             {
                 continue;
             }
@@ -309,6 +426,8 @@ public partial class FrontierDefenseCoordinator
                 HandleWatcherDeath(post, post.currentAssignee);
                 post.currentAssignee = null;
             }
+
+            post.pendingAssignee = null;
 
             string postId = GetResolvedPostId(post);
             PostDangerState state = GetOrCreateDangerState(postId);
@@ -404,7 +523,8 @@ public partial class FrontierDefenseCoordinator
             return;
         }
 
-        int instanceId = npc.GetInstanceID();
+        int instanceId =
+            UnityObjectIdUtility.GetRuntimeId(npc);
         if (!alertedWatcherInstanceIds.Add(instanceId))
         {
             return;
@@ -412,6 +532,7 @@ public partial class FrontierDefenseCoordinator
 
         float threatPercent =
             IncreaseThreat(threatIncreaseOnWatcherDeath);
+        TriggerWatcherDeathSignal(post, npc);
         AddUrgentLog(
             UiText.Format(
                 "frontierDefense",

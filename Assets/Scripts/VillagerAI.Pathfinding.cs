@@ -919,9 +919,9 @@ public partial class VillagerAI
                 Transform root = GetNpcRoot(hit);
                 int otherId =
                     root != null
-                    ? root.gameObject.GetInstanceID()
-                    : hit.gameObject.GetInstanceID();
-                away = ((GetInstanceID() ^ otherId) & 1) == 0
+                    ? UnityObjectIdUtility.GetRuntimeId(root.gameObject)
+                    : UnityObjectIdUtility.GetRuntimeId(hit.gameObject);
+                away = ((UnityObjectIdUtility.GetRuntimeId(this) ^ otherId) & 1) == 0
                     ? Vector2.right
                     : Vector2.left;
             }

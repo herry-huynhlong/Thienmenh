@@ -136,6 +136,18 @@ public partial class TouchSelectTarget : MonoBehaviour
 
     bool hasOriginalInfoIconScale;
 
+    Vector3 infoPanelBaseScale = Vector3.one;
+
+    bool hasInfoPanelBaseScale;
+
+    Vector3 worldItemPanelBaseScale = Vector3.one;
+
+    bool hasWorldItemPanelBaseScale;
+
+    Vector3 npcInventoryPanelBaseScale = Vector3.one;
+
+    bool hasNpcInventoryPanelBaseScale;
+
     static Sprite phamNhanRealmIcon;
     static Sprite luyenKhiRealmIcon;
     static Sprite trucCoRealmIcon;
@@ -644,36 +656,89 @@ public partial class TouchSelectTarget : MonoBehaviour
             }
         }
 
-        if (damageValueText == null)
+        if (damageValueText == null ||
+            IsRowLabelText(
+                damageValueText,
+                UiText.Get("touchSelect", "damageRow"),
+                "Sát Thương"))
         {
-            damageValueText =
+            TMP_Text resolvedDamageValueText =
                 FindRowValueText(
                     detailRoot,
-                    UiText.Get("touchSelect", "damageRow"));
+                    UiText.Get("touchSelect", "damageRow"),
+                    "DamageRow",
+                    "Sát Thương",
+                    "Sat Thuong",
+                    "attack",
+                    "damage");
+
+            if (resolvedDamageValueText != null)
+            {
+                damageValueText = resolvedDamageValueText;
+            }
         }
 
-        if (defenseValueText == null)
+        if (defenseValueText == null ||
+            IsRowLabelText(
+                defenseValueText,
+                UiText.Get("touchSelect", "defenseRow"),
+                "Phòng Thủ"))
         {
-            defenseValueText =
+            TMP_Text resolvedDefenseValueText =
                 FindRowValueText(
                     detailRoot,
-                    UiText.Get("touchSelect", "defenseRow"));
+                    UiText.Get("touchSelect", "defenseRow"),
+                    "DefenseRow",
+                    "Phòng Thủ",
+                    "Phong Thu",
+                    "defense");
+
+            if (resolvedDefenseValueText != null)
+            {
+                defenseValueText = resolvedDefenseValueText;
+            }
         }
 
-        if (lifespanValueText == null)
+        if (lifespanValueText == null ||
+            IsRowLabelText(
+                lifespanValueText,
+                UiText.Get("touchSelect", "lifespanRow"),
+                "Thọ Nguyên"))
         {
-            lifespanValueText =
+            TMP_Text resolvedLifespanValueText =
                 FindRowValueText(
                     detailRoot,
-                    UiText.Get("touchSelect", "lifespanRow"));
+                    UiText.Get("touchSelect", "lifespanRow"),
+                    "LifespanRow",
+                    "Thọ Nguyên",
+                    "Tho Nguyen",
+                    "lifespan");
+
+            if (resolvedLifespanValueText != null)
+            {
+                lifespanValueText = resolvedLifespanValueText;
+            }
         }
 
-        if (jobValueText == null)
+        if (jobValueText == null ||
+            IsRowLabelText(
+                jobValueText,
+                UiText.Get("touchSelect", "jobRow"),
+                "Chức Vụ"))
         {
-            jobValueText =
+            TMP_Text resolvedJobValueText =
                 FindRowValueText(
                     detailRoot,
-                    UiText.Get("touchSelect", "jobRow"));
+                    UiText.Get("touchSelect", "jobRow"),
+                    "JobRow",
+                    "Chức Vụ",
+                    "Chuc Vu",
+                    "job");
+
+            if (resolvedJobValueText != null)
+            {
+                jobValueText = resolvedJobValueText;
+            }
         }
 
         if (maritalStatusText == null)
@@ -1208,6 +1273,42 @@ public partial class TouchSelectTarget : MonoBehaviour
         return target.gameObject.tag == tagName;
     }
 
+    static T GetTargetComponent<T>(Transform target) where T : Component
+    {
+        if (target == null)
+        {
+            return null;
+        }
+
+        T component = target.GetComponent<T>();
+        if (component != null)
+        {
+            return component;
+        }
+
+        component = target.GetComponentInParent<T>(true);
+        if (component != null)
+        {
+            return component;
+        }
+
+        return target.GetComponentInChildren<T>(true);
+    }
+
+    static CharacterStats GetCultivatorCharacterStats(Transform target)
+    {
+        CharacterStats characterStats =
+            GetTargetComponent<CharacterStats>(target);
+
+        if (characterStats == null ||
+            characterStats.generatedEntityKind == EntityKind.Commoner)
+        {
+            return null;
+        }
+
+        return characterStats;
+    }
+
     static void LoadPortraitIcons()
     {
         if (portraitIconsLoaded)
@@ -1347,7 +1448,7 @@ public partial class TouchSelectTarget : MonoBehaviour
     string GetTargetName(Transform target)
     {
         VillagerAI villager =
-            target.GetComponent<VillagerAI>();
+            GetTargetComponent<VillagerAI>(target);
 
         if (villager != null)
         {
@@ -1355,7 +1456,7 @@ public partial class TouchSelectTarget : MonoBehaviour
         }
 
         SmartNpcAI smartNpc =
-            target.GetComponent<SmartNpcAI>();
+            GetTargetComponent<SmartNpcAI>(target);
 
         if (smartNpc != null)
         {
@@ -1363,7 +1464,7 @@ public partial class TouchSelectTarget : MonoBehaviour
         }
 
         MonsterAI monster =
-            target.GetComponent<MonsterAI>();
+            GetTargetComponent<MonsterAI>(target);
 
         if (monster != null)
         {
@@ -1375,34 +1476,46 @@ public partial class TouchSelectTarget : MonoBehaviour
 
     string GetTargetRealm(Transform target)
     {
-        CharacterStats characterStats =
-            target.GetComponent<CharacterStats>();
-
-        if (characterStats != null)
-        {
-            return NpcText.RealmWithStage(
-                characterStats.realm,
-                characterStats.realmStage);
-        }
-
-        SmartNpcAI smartNpc =
-            target.GetComponent<SmartNpcAI>();
-
-        if (smartNpc != null)
-        {
-            return NpcText.RealmWithStage(smartNpc.realm, smartNpc.realmStage);
-        }
-
         VillagerAI villager =
-            target.GetComponent<VillagerAI>();
+            GetTargetComponent<VillagerAI>(target);
 
-        if (villager != null)
+        if (villager != null && villager.enabled)
         {
             return villager.GetRealmText();
         }
 
+        SmartNpcAI smartNpc =
+            GetTargetComponent<SmartNpcAI>(target);
+
+        if (smartNpc != null && smartNpc.enabled)
+        {
+            CharacterStats smartStats =
+                GetCultivatorCharacterStats(target);
+
+            if (smartStats != null)
+            {
+                return NpcText.RealmWithStage(
+                    smartStats.realm,
+                    smartStats.realmStage);
+            }
+
+            return NpcText.RealmWithStage(smartNpc.realm, smartNpc.realmStage);
+        }
+
+        CharacterStats characterStats =
+            GetTargetComponent<CharacterStats>(target);
+
+        if (characterStats != null)
+        {
+            return characterStats.generatedEntityKind == EntityKind.Commoner
+                ? NpcText.Realm(CultivationRealm.Mortal)
+                : NpcText.RealmWithStage(
+                    characterStats.realm,
+                    characterStats.realmStage);
+        }
+
         MonsterAI monster =
-            target.GetComponent<MonsterAI>();
+            GetTargetComponent<MonsterAI>(target);
 
         if (monster != null &&
             monster.entityProfile != null)
@@ -1533,35 +1646,46 @@ public partial class TouchSelectTarget : MonoBehaviour
             return false;
         }
 
-        CharacterStats characterStats =
-            target.GetComponent<CharacterStats>();
-
-        if (characterStats != null)
-        {
-            realm = characterStats.realm;
-            return true;
-        }
-
-        SmartNpcAI smartNpc =
-            target.GetComponent<SmartNpcAI>();
-
-        if (smartNpc != null)
-        {
-            realm = smartNpc.realm;
-            return true;
-        }
-
         VillagerAI villager =
-            target.GetComponent<VillagerAI>();
+            GetTargetComponent<VillagerAI>(target);
 
-        if (villager != null)
+        if (villager != null && villager.enabled)
         {
             realm = villager.realm;
             return true;
         }
 
+        SmartNpcAI smartNpc =
+            GetTargetComponent<SmartNpcAI>(target);
+
+        if (smartNpc != null && smartNpc.enabled)
+        {
+            CharacterStats smartStats =
+                GetCultivatorCharacterStats(target);
+
+            if (smartStats != null)
+            {
+                realm = smartStats.realm;
+                return true;
+            }
+
+            realm = smartNpc.realm;
+            return true;
+        }
+
+        CharacterStats characterStats =
+            GetTargetComponent<CharacterStats>(target);
+
+        if (characterStats != null)
+        {
+            realm = characterStats.generatedEntityKind == EntityKind.Commoner
+                ? CultivationRealm.Mortal
+                : characterStats.realm;
+            return true;
+        }
+
         MonsterAI monster =
-            target.GetComponent<MonsterAI>();
+            GetTargetComponent<MonsterAI>(target);
 
         if (monster != null &&
             monster.entityProfile != null)
@@ -1571,7 +1695,7 @@ public partial class TouchSelectTarget : MonoBehaviour
         }
 
         NpcData npcData =
-            target.GetComponent<NpcData>();
+            GetTargetComponent<NpcData>(target);
 
         if (npcData != null)
         {
@@ -1647,32 +1771,40 @@ public partial class TouchSelectTarget : MonoBehaviour
 
     int GetTargetCurrentHP(Transform target)
     {
+        VillagerAI villager =
+            GetTargetComponent<VillagerAI>(target);
+
+        if (villager != null && villager.enabled)
+        {
+            return villager.currentHP;
+        }
+
+        SmartNpcAI smartNpc =
+            GetTargetComponent<SmartNpcAI>(target);
+
+        if (smartNpc != null && smartNpc.enabled)
+        {
+            CharacterStats smartStats =
+                GetCultivatorCharacterStats(target);
+
+            if (smartStats != null)
+            {
+                return smartStats.currentHP;
+            }
+
+            return smartNpc.currentHP;
+        }
+
         CharacterStats characterStats =
-            target.GetComponent<CharacterStats>();
+            GetTargetComponent<CharacterStats>(target);
 
         if (characterStats != null)
         {
             return characterStats.currentHP;
         }
 
-        SmartNpcAI smartNpc =
-            target.GetComponent<SmartNpcAI>();
-
-        if (smartNpc != null)
-        {
-            return smartNpc.currentHP;
-        }
-
-        VillagerAI villager =
-            target.GetComponent<VillagerAI>();
-
-        if (villager != null)
-        {
-            return villager.currentHP;
-        }
-
         MonsterAI monster =
-            target.GetComponent<MonsterAI>();
+            GetTargetComponent<MonsterAI>(target);
 
         if (monster != null)
         {
@@ -1684,32 +1816,40 @@ public partial class TouchSelectTarget : MonoBehaviour
 
     int GetTargetMaxHP(Transform target)
     {
+        VillagerAI villager =
+            GetTargetComponent<VillagerAI>(target);
+
+        if (villager != null && villager.enabled)
+        {
+            return villager.maxHP;
+        }
+
+        SmartNpcAI smartNpc =
+            GetTargetComponent<SmartNpcAI>(target);
+
+        if (smartNpc != null && smartNpc.enabled)
+        {
+            CharacterStats smartStats =
+                GetCultivatorCharacterStats(target);
+
+            if (smartStats != null)
+            {
+                return smartStats.finalHP;
+            }
+
+            return smartNpc.maxHP;
+        }
+
         CharacterStats characterStats =
-            target.GetComponent<CharacterStats>();
+            GetTargetComponent<CharacterStats>(target);
 
         if (characterStats != null)
         {
             return characterStats.finalHP;
         }
 
-        SmartNpcAI smartNpc =
-            target.GetComponent<SmartNpcAI>();
-
-        if (smartNpc != null)
-        {
-            return smartNpc.maxHP;
-        }
-
-        VillagerAI villager =
-            target.GetComponent<VillagerAI>();
-
-        if (villager != null)
-        {
-            return villager.maxHP;
-        }
-
         MonsterAI monster =
-            target.GetComponent<MonsterAI>();
+            GetTargetComponent<MonsterAI>(target);
 
         if (monster != null)
         {
@@ -1722,23 +1862,23 @@ public partial class TouchSelectTarget : MonoBehaviour
     string GetTargetAction(Transform target)
     {
         VillagerAI villager =
-            target.GetComponent<VillagerAI>();
+            GetTargetComponent<VillagerAI>(target);
 
-        if (villager != null)
+        if (villager != null && villager.enabled)
         {
             return villager.GetPlayerActionText();
         }
 
         SmartNpcAI smartNpc =
-            target.GetComponent<SmartNpcAI>();
+            GetTargetComponent<SmartNpcAI>(target);
 
-        if (smartNpc != null)
+        if (smartNpc != null && smartNpc.enabled)
         {
             return smartNpc.GetPlayerActionText();
         }
 
         MonsterAI monster =
-            target.GetComponent<MonsterAI>();
+            GetTargetComponent<MonsterAI>(target);
 
         if (monster != null)
         {
@@ -1746,7 +1886,7 @@ public partial class TouchSelectTarget : MonoBehaviour
         }
 
         NpcData npcData =
-            target.GetComponent<NpcData>();
+            GetTargetComponent<NpcData>(target);
 
         if (npcData != null &&
             !string.IsNullOrWhiteSpace(npcData.currentAction))
@@ -1974,32 +2114,40 @@ public partial class TouchSelectTarget : MonoBehaviour
 
     int GetTargetAttack(Transform target)
     {
+        VillagerAI villager =
+            GetTargetComponent<VillagerAI>(target);
+
+        if (villager != null && villager.enabled)
+        {
+            return Mathf.Clamp(villager.attack, 1, 12);
+        }
+
+        SmartNpcAI smartNpc =
+            GetTargetComponent<SmartNpcAI>(target);
+
+        if (smartNpc != null && smartNpc.enabled)
+        {
+            CharacterStats smartStats =
+                GetCultivatorCharacterStats(target);
+
+            if (smartStats != null)
+            {
+                return smartStats.attack;
+            }
+
+            return smartNpc.attack;
+        }
+
         CharacterStats characterStats =
-            target.GetComponent<CharacterStats>();
+            GetTargetComponent<CharacterStats>(target);
 
         if (characterStats != null)
         {
             return characterStats.attack;
         }
 
-        SmartNpcAI smartNpc =
-            target.GetComponent<SmartNpcAI>();
-
-        if (smartNpc != null)
-        {
-            return smartNpc.attack;
-        }
-
-        VillagerAI villager =
-            target.GetComponent<VillagerAI>();
-
-        if (villager != null)
-        {
-            return villager.attack;
-        }
-
         MonsterAI monster =
-            target.GetComponent<MonsterAI>();
+            GetTargetComponent<MonsterAI>(target);
 
         if (monster != null)
         {
@@ -2020,39 +2168,48 @@ public partial class TouchSelectTarget : MonoBehaviour
             return false;
         }
 
-        CharacterStats characterStats =
-            target.GetComponent<CharacterStats>();
+        VillagerAI villager =
+            GetTargetComponent<VillagerAI>(target);
 
-        if (characterStats != null)
+        if (villager != null && villager.enabled)
         {
-            cultivationExp = characterStats.cultivationExp;
-            return true;
+            return false;
         }
 
         SmartNpcAI smartNpc =
-            target.GetComponent<SmartNpcAI>();
+            GetTargetComponent<SmartNpcAI>(target);
 
-        if (smartNpc != null)
+        if (smartNpc != null && smartNpc.enabled)
         {
+            CharacterStats smartStats =
+                GetCultivatorCharacterStats(target);
+
+            if (smartStats != null)
+            {
+                cultivationExp = smartStats.cultivationExp;
+                return true;
+            }
+
             cultivationExp = smartNpc.cultivation;
             return true;
         }
 
-        VillagerAI villager =
-            target.GetComponent<VillagerAI>();
-
-        if (villager != null)
-        {
-            cultivationExp = villager.cultivationExp;
-            return true;
-        }
-
         MonsterAI monster =
-            target.GetComponent<MonsterAI>();
+            GetTargetComponent<MonsterAI>(target);
 
         if (monster != null)
         {
             cultivationExp = monster.cultivationExp;
+            return true;
+        }
+
+        CharacterStats characterStats =
+            GetTargetComponent<CharacterStats>(target);
+
+        if (characterStats != null &&
+            characterStats.generatedEntityKind != EntityKind.Commoner)
+        {
+            cultivationExp = characterStats.cultivationExp;
             return true;
         }
 
@@ -2070,39 +2227,48 @@ public partial class TouchSelectTarget : MonoBehaviour
             return false;
         }
 
-        CharacterStats characterStats =
-            target.GetComponent<CharacterStats>();
+        VillagerAI villager =
+            GetTargetComponent<VillagerAI>(target);
 
-        if (characterStats != null)
+        if (villager != null && villager.enabled)
         {
-            cultivationNeed = characterStats.ExpToNextRealm();
-            return true;
+            return false;
         }
 
         SmartNpcAI smartNpc =
-            target.GetComponent<SmartNpcAI>();
+            GetTargetComponent<SmartNpcAI>(target);
 
-        if (smartNpc != null)
+        if (smartNpc != null && smartNpc.enabled)
         {
+            CharacterStats smartStats =
+                GetCultivatorCharacterStats(target);
+
+            if (smartStats != null)
+            {
+                cultivationNeed = smartStats.ExpToNextRealm();
+                return true;
+            }
+
             cultivationNeed = smartNpc.breakthroughNeed;
             return true;
         }
 
-        VillagerAI villager =
-            target.GetComponent<VillagerAI>();
-
-        if (villager != null)
-        {
-            cultivationNeed = villager.ExpToNextRealm();
-            return true;
-        }
-
         MonsterAI monster =
-            target.GetComponent<MonsterAI>();
+            GetTargetComponent<MonsterAI>(target);
 
         if (monster != null)
         {
             cultivationNeed = monster.ExpToNextRealm();
+            return true;
+        }
+
+        CharacterStats characterStats =
+            GetTargetComponent<CharacterStats>(target);
+
+        if (characterStats != null &&
+            characterStats.generatedEntityKind != EntityKind.Commoner)
+        {
+            cultivationNeed = characterStats.ExpToNextRealm();
             return true;
         }
 
@@ -2120,10 +2286,18 @@ public partial class TouchSelectTarget : MonoBehaviour
             return false;
         }
 
-        SmartNpcAI smartNpc =
-            target.GetComponent<SmartNpcAI>();
+        VillagerAI villager =
+            GetTargetComponent<VillagerAI>(target);
 
-        if (smartNpc != null)
+        if (villager != null && villager.enabled)
+        {
+            return false;
+        }
+
+        SmartNpcAI smartNpc =
+            GetTargetComponent<SmartNpcAI>(target);
+
+        if (smartNpc != null && smartNpc.enabled)
         {
             float multiplier =
                 Mathf.Max(0.1f, smartNpc.GetCultivationMultiplier());
@@ -2156,25 +2330,8 @@ public partial class TouchSelectTarget : MonoBehaviour
             return true;
         }
 
-        VillagerAI villager =
-            target.GetComponent<VillagerAI>();
-
-        if (villager != null)
-        {
-            ratePer10Seconds =
-                Mathf.Max(
-                    1,
-                    Mathf.RoundToInt(
-                        500f *
-                        CultivationProgression.GetCultivationRealmMultiplier(
-                            villager.realm,
-                            villager.realmStage) *
-                        Mathf.Max(0.5f, villager.diligence / 50f)));
-            return true;
-        }
-
         MonsterAI monster =
-            target.GetComponent<MonsterAI>();
+            GetTargetComponent<MonsterAI>(target);
 
         if (monster != null)
         {
@@ -2199,9 +2356,10 @@ public partial class TouchSelectTarget : MonoBehaviour
         }
 
         CharacterStats characterStats =
-            target.GetComponent<CharacterStats>();
+            GetTargetComponent<CharacterStats>(target);
 
-        if (characterStats != null)
+        if (characterStats != null &&
+            characterStats.generatedEntityKind != EntityKind.Commoner)
         {
             long need = characterStats.ExpToNextRealm();
             ratePer10Seconds =
@@ -2216,32 +2374,40 @@ public partial class TouchSelectTarget : MonoBehaviour
 
     int GetTargetDefense(Transform target)
     {
+        VillagerAI villager =
+            GetTargetComponent<VillagerAI>(target);
+
+        if (villager != null && villager.enabled)
+        {
+            return Mathf.Clamp(villager.defense, 0, 6);
+        }
+
+        SmartNpcAI smartNpc =
+            GetTargetComponent<SmartNpcAI>(target);
+
+        if (smartNpc != null && smartNpc.enabled)
+        {
+            CharacterStats smartStats =
+                GetCultivatorCharacterStats(target);
+
+            if (smartStats != null)
+            {
+                return smartStats.defense;
+            }
+
+            return smartNpc.defense;
+        }
+
         CharacterStats characterStats =
-            target.GetComponent<CharacterStats>();
+            GetTargetComponent<CharacterStats>(target);
 
         if (characterStats != null)
         {
             return characterStats.defense;
         }
 
-        SmartNpcAI smartNpc =
-            target.GetComponent<SmartNpcAI>();
-
-        if (smartNpc != null)
-        {
-            return smartNpc.defense;
-        }
-
-        VillagerAI villager =
-            target.GetComponent<VillagerAI>();
-
-        if (villager != null)
-        {
-            return villager.defense;
-        }
-
         MonsterAI monster =
-            target.GetComponent<MonsterAI>();
+            GetTargetComponent<MonsterAI>(target);
 
         if (monster != null)
         {
@@ -2253,16 +2419,8 @@ public partial class TouchSelectTarget : MonoBehaviour
 
     float GetTargetMoveSpeed(Transform target)
     {
-        CharacterStats characterStats =
-            target.GetComponent<CharacterStats>();
-
-        if (characterStats != null)
-        {
-            return characterStats.moveSpeed;
-        }
-
         SmartNpcAI smartNpc =
-            target.GetComponent<SmartNpcAI>();
+            GetTargetComponent<SmartNpcAI>(target);
 
         if (smartNpc != null)
         {
@@ -2270,7 +2428,7 @@ public partial class TouchSelectTarget : MonoBehaviour
         }
 
         VillagerAI villager =
-            target.GetComponent<VillagerAI>();
+            GetTargetComponent<VillagerAI>(target);
 
         if (villager != null)
         {
@@ -2278,11 +2436,19 @@ public partial class TouchSelectTarget : MonoBehaviour
         }
 
         MonsterAI monster =
-            target.GetComponent<MonsterAI>();
+            GetTargetComponent<MonsterAI>(target);
 
         if (monster != null)
         {
             return monster.moveSpeed;
+        }
+
+        CharacterStats characterStats =
+            GetTargetComponent<CharacterStats>(target);
+
+        if (characterStats != null)
+        {
+            return characterStats.moveSpeed;
         }
 
         return -1f;
@@ -2291,7 +2457,7 @@ public partial class TouchSelectTarget : MonoBehaviour
     string BuildTargetInfo(Transform target)
     {
         WorldStatItemPickup pickup =
-            target.GetComponent<WorldStatItemPickup>();
+            GetTargetComponent<WorldStatItemPickup>(target);
 
         if (pickup != null &&
             pickup.item != null)
@@ -2300,7 +2466,7 @@ public partial class TouchSelectTarget : MonoBehaviour
         }
 
         MonsterAI monster =
-            target.GetComponent<MonsterAI>();
+            GetTargetComponent<MonsterAI>(target);
 
         if (monster != null)
         {
@@ -2432,7 +2598,7 @@ public partial class TouchSelectTarget : MonoBehaviour
         }
 
         VillagerAI villager =
-            target.GetComponent<VillagerAI>();
+            GetTargetComponent<VillagerAI>(target);
 
         if (villager != null &&
             villager.GetAge() > 0)
@@ -2441,7 +2607,7 @@ public partial class TouchSelectTarget : MonoBehaviour
         }
 
         SmartNpcAI smartNpc =
-            target.GetComponent<SmartNpcAI>();
+            GetTargetComponent<SmartNpcAI>(target);
 
         if (smartNpc != null &&
             smartNpc.GetAge() > 0)
@@ -2471,7 +2637,7 @@ public partial class TouchSelectTarget : MonoBehaviour
         maxLifespan = 0;
 
         VillagerAI villager =
-            target.GetComponent<VillagerAI>();
+            GetTargetComponent<VillagerAI>(target);
 
         if (villager != null)
         {
@@ -2481,7 +2647,7 @@ public partial class TouchSelectTarget : MonoBehaviour
         }
 
         SmartNpcAI smartNpc =
-            target.GetComponent<SmartNpcAI>();
+            GetTargetComponent<SmartNpcAI>(target);
 
         if (smartNpc != null)
         {
@@ -2491,7 +2657,7 @@ public partial class TouchSelectTarget : MonoBehaviour
         }
 
         MonsterAI monster =
-            target.GetComponent<MonsterAI>();
+            GetTargetComponent<MonsterAI>(target);
 
         if (monster != null)
         {
@@ -2506,7 +2672,7 @@ public partial class TouchSelectTarget : MonoBehaviour
     string GetTargetJob(Transform target)
     {
         MonsterAI monster =
-            target.GetComponent<MonsterAI>();
+            GetTargetComponent<MonsterAI>(target);
 
         if (monster != null)
         {
@@ -2514,7 +2680,7 @@ public partial class TouchSelectTarget : MonoBehaviour
         }
 
         NpcSpecialProfession profession =
-            target.GetComponent<NpcSpecialProfession>();
+            GetTargetComponent<NpcSpecialProfession>(target);
 
         if (profession != null &&
             !string.IsNullOrEmpty(profession.professionName))
@@ -2523,7 +2689,7 @@ public partial class TouchSelectTarget : MonoBehaviour
         }
 
         VillagerAI villager =
-            target.GetComponent<VillagerAI>();
+            GetTargetComponent<VillagerAI>(target);
 
         return villager != null
             ? GetVillagerJobText(villager.job)
@@ -2566,13 +2732,7 @@ public partial class TouchSelectTarget : MonoBehaviour
         }
 
         SmartNpcAI smartNpc =
-            target.GetComponent<SmartNpcAI>();
-
-        if (smartNpc == null)
-        {
-            smartNpc =
-                target.GetComponentInParent<SmartNpcAI>();
-        }
+            GetTargetComponent<SmartNpcAI>(target);
 
         NPCIdentity identity =
             target.GetComponent<NPCIdentity>();
@@ -2707,7 +2867,7 @@ public partial class TouchSelectTarget : MonoBehaviour
     int GetTargetMoney(Transform target)
     {
         VillagerAI villager =
-            target.GetComponent<VillagerAI>();
+            GetTargetComponent<VillagerAI>(target);
 
         if (villager != null)
         {
@@ -2715,7 +2875,7 @@ public partial class TouchSelectTarget : MonoBehaviour
         }
 
         SmartNpcAI smartNpc =
-            target.GetComponent<SmartNpcAI>();
+            GetTargetComponent<SmartNpcAI>(target);
 
         return smartNpc != null
             ? smartNpc.money
@@ -2725,7 +2885,7 @@ public partial class TouchSelectTarget : MonoBehaviour
     string GetInventorySummary(Transform target)
     {
         ItemInventory inventory =
-            target.GetComponent<ItemInventory>();
+            GetTargetComponent<ItemInventory>(target);
 
         if (inventory == null)
         {
@@ -2804,46 +2964,237 @@ public partial class TouchSelectTarget : MonoBehaviour
         }
     }
 
-    Vector3 ClampPanelToScreen(
+    bool TryGetParentRect(
         RectTransform rect,
-        Vector3 screenPosition)
+        out RectTransform parent)
+    {
+        parent = rect != null
+            ? rect.parent as RectTransform
+            : null;
+
+        return parent != null;
+    }
+
+    Camera GetCanvasCamera(RectTransform rect)
     {
         if (rect == null)
         {
-            return screenPosition;
+            return null;
+        }
+
+        Canvas canvas =
+            rect.GetComponentInParent<Canvas>();
+
+        if (canvas == null ||
+            canvas.renderMode == RenderMode.ScreenSpaceOverlay)
+        {
+            return null;
+        }
+
+        return canvas.worldCamera != null
+            ? canvas.worldCamera
+            : cam;
+    }
+
+    void EnsureBaseScale(
+        RectTransform rect,
+        ref Vector3 baseScale,
+        ref bool hasBaseScale)
+    {
+        if (rect == null ||
+            hasBaseScale)
+        {
+            return;
+        }
+
+        baseScale = rect.localScale;
+        hasBaseScale = true;
+    }
+
+    void ApplyResponsiveScale(
+        RectTransform rect,
+        RectTransform parent,
+        ref Vector3 baseScale,
+        ref bool hasBaseScale)
+    {
+        if (rect == null ||
+            parent == null)
+        {
+            return;
+        }
+
+        EnsureBaseScale(
+            rect,
+            ref baseScale,
+            ref hasBaseScale);
+
+        Vector2 rectSize = rect.rect.size;
+
+        if (rectSize.x <= 0f ||
+            rectSize.y <= 0f)
+        {
+            rectSize = rect.sizeDelta;
+        }
+
+        if (rectSize.x <= 0f ||
+            rectSize.y <= 0f)
+        {
+            rect.localScale = baseScale;
+            return;
+        }
+
+        float padding = Mathf.Max(0f, panelScreenPadding);
+        float availableWidth =
+            Mathf.Max(1f, parent.rect.width - padding * 2f);
+        float availableHeight =
+            Mathf.Max(1f, parent.rect.height - padding * 2f);
+
+        float fitScale =
+            Mathf.Min(
+                1f,
+                availableWidth / rectSize.x,
+                availableHeight / rectSize.y);
+
+        rect.localScale =
+            new Vector3(
+                baseScale.x * fitScale,
+                baseScale.y * fitScale,
+                baseScale.z);
+    }
+
+    Vector2 ClampLocalPointToParent(
+        RectTransform parent,
+        RectTransform rect,
+        Vector2 localPoint)
+    {
+        if (parent == null ||
+            rect == null)
+        {
+            return localPoint;
         }
 
         Vector2 rectSize = rect.rect.size;
-        Vector3 scale = rect.lossyScale;
-        float width = Mathf.Abs(rectSize.x * scale.x);
-        float height = Mathf.Abs(rectSize.y * scale.y);
+
+        if (rectSize.x <= 0f ||
+            rectSize.y <= 0f)
+        {
+            rectSize = rect.sizeDelta;
+        }
+
+        rectSize =
+            new Vector2(
+                Mathf.Abs(rectSize.x * rect.localScale.x),
+                Mathf.Abs(rectSize.y * rect.localScale.y));
+
+        Rect parentRect = parent.rect;
         Vector2 pivot = rect.pivot;
         float padding = Mathf.Max(0f, panelScreenPadding);
 
-        float minX = padding + width * pivot.x;
-        float maxX = Screen.width - padding - width * (1f - pivot.x);
-        float minY = padding + height * pivot.y;
-        float maxY = Screen.height - padding - height * (1f - pivot.y);
+        float minX =
+            parentRect.xMin +
+            padding +
+            rectSize.x * pivot.x;
+
+        float maxX =
+            parentRect.xMax -
+            padding -
+            rectSize.x * (1f - pivot.x);
+
+        float minY =
+            parentRect.yMin +
+            padding +
+            rectSize.y * pivot.y;
+
+        float maxY =
+            parentRect.yMax -
+            padding -
+            rectSize.y * (1f - pivot.y);
 
         if (maxX < minX)
         {
-            screenPosition.x = Screen.width * 0.5f;
+            localPoint.x = parentRect.center.x;
         }
         else
         {
-            screenPosition.x = Mathf.Clamp(screenPosition.x, minX, maxX);
+            localPoint.x =
+                Mathf.Clamp(
+                    localPoint.x,
+                    minX,
+                    maxX);
         }
 
         if (maxY < minY)
         {
-            screenPosition.y = Screen.height * 0.5f;
+            localPoint.y = parentRect.center.y;
         }
         else
         {
-            screenPosition.y = Mathf.Clamp(screenPosition.y, minY, maxY);
+            localPoint.y =
+                Mathf.Clamp(
+                    localPoint.y,
+                    minY,
+                    maxY);
         }
 
-        return screenPosition;
+        return localPoint;
+    }
+
+    void PositionPanelInParent(
+        RectTransform rect,
+        Vector2 screenPosition,
+        ref Vector3 baseScale,
+        ref bool hasBaseScale,
+        bool forceCenter = false,
+        Vector2 centeredOffset = default)
+    {
+        if (rect == null)
+        {
+            return;
+        }
+
+        if (!TryGetParentRect(rect, out RectTransform parent))
+        {
+            rect.position =
+                new Vector3(
+                    screenPosition.x,
+                    screenPosition.y,
+                    rect.position.z);
+            return;
+        }
+
+        ApplyResponsiveScale(
+            rect,
+            parent,
+            ref baseScale,
+            ref hasBaseScale);
+
+        Vector2 localPoint;
+        if (forceCenter)
+        {
+            localPoint = centeredOffset;
+        }
+        else
+        {
+            Camera panelCamera =
+                GetCanvasCamera(rect);
+
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    parent,
+                    screenPosition,
+                    panelCamera,
+                    out localPoint))
+            {
+                localPoint = Vector2.zero;
+            }
+        }
+
+        localPoint =
+            ClampLocalPointToParent(
+                parent,
+                rect,
+                localPoint);
+
+        rect.anchoredPosition = localPoint;
     }
 
     void ClampNpcInventoryPanelToScreen()
@@ -2863,8 +3214,23 @@ public partial class TouchSelectTarget : MonoBehaviour
             return;
         }
 
-        inventoryRect.position =
-            ClampPanelToScreen(inventoryRect, inventoryRect.position);
+        if (panelRect != null &&
+            (inventoryRect == panelRect ||
+             inventoryRect.IsChildOf(panelRect)))
+        {
+            return;
+        }
+
+        Vector2 inventoryScreenPosition =
+            RectTransformUtility.WorldToScreenPoint(
+                GetCanvasCamera(inventoryRect),
+                inventoryRect.position);
+
+        PositionPanelInParent(
+            inventoryRect,
+            inventoryScreenPosition,
+            ref npcInventoryPanelBaseScale,
+            ref hasNpcInventoryPanelBaseScale);
     }
     void UpdatePanelPosition()
     {
@@ -2931,13 +3297,23 @@ public partial class TouchSelectTarget : MonoBehaviour
                         0f);
             }
 
-            worldItemPanelRect.position =
-                ClampPanelToScreen(worldItemPanelRect, screenPos);
+            PositionPanelInParent(
+                worldItemPanelRect,
+                screenPos,
+                ref worldItemPanelBaseScale,
+                ref hasWorldItemPanelBaseScale,
+                forcePanelToScreenCenter,
+                centeredPanelOffset);
         }
         else
         {
-            panelRect.position =
-                ClampPanelToScreen(panelRect, screenPos);
+            PositionPanelInParent(
+                panelRect,
+                screenPos,
+                ref infoPanelBaseScale,
+                ref hasInfoPanelBaseScale,
+                forcePanelToScreenCenter,
+                centeredPanelOffset);
 
             ClampNpcInventoryPanelToScreen();
         }

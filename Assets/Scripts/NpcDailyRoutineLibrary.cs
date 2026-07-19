@@ -37,7 +37,8 @@ public static class NpcDailyRoutineLibrary
         Add(slots, NpcScheduleActivity.Work, 5f, 11f);
         Add(slots, NpcScheduleActivity.ReturnHome, 11f, 13f);
         Add(slots, NpcScheduleActivity.Work, 13f, 17f);
-        Add(slots, NpcScheduleActivity.ReturnHome, 17f, 20f);
+        Add(slots, NpcScheduleActivity.TradeBuySell, 17f, 19f);
+        Add(slots, NpcScheduleActivity.ReturnHome, 19f, 20f);
     }
 
     static void BuildSemiCultivatorSchedule(
@@ -449,7 +450,8 @@ public static class NpcDailyRoutineLibrary
             return compare;
         }
 
-        return first.GetInstanceID().CompareTo(second.GetInstanceID());
+        return UnityObjectIdUtility.GetRuntimeId(first).CompareTo(
+            UnityObjectIdUtility.GetRuntimeId(second));
     }
 
     static string GetSmartNpcOrderKey(SmartNpcAI smartNpc)
@@ -472,7 +474,7 @@ public static class NpcDailyRoutineLibrary
         return "1:" +
             smartNpc.gameObject.scene.name + ":" +
             smartNpc.gameObject.name + ":" +
-            smartNpc.GetInstanceID();
+            UnityObjectIdUtility.GetRuntimeId(smartNpc);
     }
 
     static int GetCultivatorScheduleSeed(GameObject npc)

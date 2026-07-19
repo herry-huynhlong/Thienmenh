@@ -117,7 +117,8 @@ public class ShopPanelUI : MonoBehaviour
         rootCanvas =
             GetComponentInParent<Canvas>();
         detailGradePulseSeed =
-            Mathf.Abs(GetInstanceID() * 0.137f);
+            Mathf.Abs(
+                UnityObjectIdUtility.GetRuntimeId(this) * 0.137f);
 
         ClearDetail();
     }

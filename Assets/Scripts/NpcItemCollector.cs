@@ -21,6 +21,7 @@ public class NpcItemCollector : MonoBehaviour
 
     [Header("Debug")]
     public bool debugPickupLogs;
+    public bool debugItemUseReasons;
 
     readonly List<StatItemData> equippedItems =
         new List<StatItemData>();
@@ -122,12 +123,15 @@ public class NpcItemCollector : MonoBehaviour
             return false;
         }
 
-        if (pickup.RequiresNpcHarvestAction())
+        if (!pickup.HasValidNpcPickupArea())
         {
-            LogPickupSkip(
-                pickup,
-                "requiresHarvest=True dropped=" +
-                pickup.treatAsDroppedWorldItem);
+            LogPickupSkip(pickup, "validNpcPickupArea=False");
+            return false;
+        }
+
+        if (!pickup.CanNpcPassivelyCollect(gameObject))
+        {
+            LogPickupSkip(pickup, "passivePickup=False");
             return false;
         }
 
@@ -175,8 +179,7 @@ public class NpcItemCollector : MonoBehaviour
     {
         WorldStatItemPickup[] pickups =
             FindObjectsByType<WorldStatItemPickup>(
-                FindObjectsInactive.Exclude,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Exclude);
 
         WorldStatItemPickup best = null;
         float bestDistance = float.MaxValue;
@@ -189,7 +192,8 @@ public class NpcItemCollector : MonoBehaviour
                 pickup.amount <= 0 ||
                 pickup.item == null ||
                 !pickup.allowNpcPickup ||
-                pickup.RequiresNpcHarvestAction() ||
+                !pickup.HasValidNpcPickupArea() ||
+                !pickup.CanNpcPassivelyCollect(gameObject) ||
                 pickup.IsReservedByOther(gameObject))
             {
                 continue;
@@ -254,8 +258,18 @@ public class NpcItemCollector : MonoBehaviour
         ItemLifecycleSystem.Notify(source, item, gameObject);
         TreasureHeatSystem.NotifyNpcReceivedItem(gameObject, item);
 
-        if (considerUse ||
-            ShouldNpcDecideItemUse(item))
+        bool shouldUse =
+            considerUse ||
+            ShouldNpcDecideItemUse(item);
+
+        if (debugItemUseReasons && !shouldUse)
+        {
+            string reason;
+            TryGetNpcUseDecision(item, out reason);
+            LogItemUseDecision("defer", item, reason);
+        }
+
+        if (shouldUse)
         {
             TryUseOwnedItem(item);
         }
@@ -280,15 +294,37 @@ public class NpcItemCollector : MonoBehaviour
 
     bool ShouldNpcDecideItemUse(StatItemData item)
     {
-        if (item == null ||
-            inventory == null)
+        string reason;
+        return TryGetNpcUseDecision(item, out reason);
+    }
+
+    bool TryGetNpcUseDecision(
+        StatItemData item,
+        out string reason)
+    {
+        reason = string.Empty;
+
+        if (item == null)
         {
+            reason = "item=null";
             return false;
         }
 
-        if (!item.CanUseOn(gameObject) ||
-            !item.ShouldNpcUseDirectly())
+        if (inventory == null)
         {
+            reason = "inventory=null";
+            return false;
+        }
+
+        if (!item.CanUseOn(gameObject))
+        {
+            reason = "item cannot be used on this actor";
+            return false;
+        }
+
+        if (!item.ShouldNpcUseDirectly())
+        {
+            reason = ExplainDirectUseBlock(item);
             return false;
         }
 
@@ -302,21 +338,50 @@ public class NpcItemCollector : MonoBehaviour
                 brain.currentDecision == NpcDecisionKind.Work ||
                 brain.currentDecision == NpcDecisionKind.GatherResource)
             {
+                reason = "decision brain is busy: " + brain.currentDecision;
                 return false;
             }
         }
 
         if (item.itemType == ItemType.CongPhap)
         {
-            return CanStudyManualNow(item);
+            ItemStack stack = FindItemStack(item);
+            if (stack == null)
+            {
+                reason = "manual stack not found";
+                return false;
+            }
+
+            if (stack.broken)
+            {
+                reason = "manual is broken";
+                return false;
+            }
+
+            if (stack.mastery == CultivationManualMastery.DaiThanh)
+            {
+                reason = "manual already at DaiThanh";
+                return false;
+            }
+
+            reason = "manual can be studied";
+            return true;
         }
 
         if (item.itemType == ItemType.PhapBao)
         {
-            return IsItemBetterThanCurrentEquipment(item);
+            if (!IsItemBetterThanCurrentEquipment(item))
+            {
+                reason = "equipment is not better than current gear";
+                return false;
+            }
+
+            reason = "equipment upgrade";
+            return true;
         }
 
-        return item.CanUseOn(gameObject);
+        reason = "usable consumable";
+        return true;
     }
 
     bool CanStudyManualNow(StatItemData item)
@@ -534,25 +599,41 @@ public class NpcItemCollector : MonoBehaviour
 
     public bool TryUseOwnedItem(StatItemData item)
     {
-        if (item == null || inventory == null || !item.CanUseOn(gameObject))
+        if (item == null)
         {
+            LogItemUseDecision("fail-use", item, "item=null");
+            return false;
+        }
+
+        if (inventory == null)
+        {
+            LogItemUseDecision("fail-use", item, "inventory=null");
+            return false;
+        }
+
+        if (!item.CanUseOn(gameObject))
+        {
+            LogItemUseDecision("fail-use", item, "item cannot be used on this actor");
             return false;
         }
 
         if (!item.ShouldNpcUseDirectly())
         {
+            LogItemUseDecision("fail-use", item, ExplainDirectUseBlock(item));
             return false;
         }
 
         int itemIndex = FindItemIndex(item);
         if (itemIndex < 0)
         {
+            LogItemUseDecision("fail-use", item, "item is not in inventory");
             return false;
         }
 
         ItemStack stack = inventory.GetStack(itemIndex);
         if (stack == null || stack.broken)
         {
+            LogItemUseDecision("fail-use", item, stack == null ? "stack=null" : "stack is broken");
             return false;
         }
 
@@ -572,6 +653,7 @@ public class NpcItemCollector : MonoBehaviour
 
         if (!applied && !item.ConsumesWhenUsed())
         {
+            LogItemUseDecision("fail-use", item, "ApplyTo returned false");
             return false;
         }
 
@@ -585,6 +667,96 @@ public class NpcItemCollector : MonoBehaviour
         stack.applied = true;
         inventory.MarkDirty();
         return true;
+    }
+
+    string ExplainDirectUseBlock(StatItemData item)
+    {
+        if (item == null)
+        {
+            return "item=null";
+        }
+
+        if (!item.canUseDirectly)
+        {
+            return "canUseDirectly=false";
+        }
+
+        if (item.rawUsePolicy == RawUsePolicy.Forbidden)
+        {
+            return "rawUsePolicy=Forbidden";
+        }
+
+        ItemUseStyle useStyle = item.GetResolvedUseStyle();
+        if (useStyle == ItemUseStyle.Auto)
+        {
+            return "useStyle resolves to Auto";
+        }
+
+        if (item.npcIntent == NpcItemIntent.PreferRefine ||
+            item.npcIntent == NpcItemIntent.PreferSell ||
+            item.npcIntent == NpcItemIntent.Keep)
+        {
+            return "npcIntent=" + item.npcIntent;
+        }
+
+        if (item.IsRiskyRawUse())
+        {
+            return "raw use is risky";
+        }
+
+        if (useStyle == ItemUseStyle.RawMaterial &&
+            (item.canBeRefinedIntoPill ||
+            item.rawUseEfficiency < 0.75f))
+        {
+            return "raw material is better refined or low efficiency";
+        }
+
+        if (useStyle == ItemUseStyle.Consumable &&
+            item.GetNpcUseScore() <= 0f)
+        {
+            return "npc use score <= 0";
+        }
+
+        if (useStyle == ItemUseStyle.DurableEquipment &&
+            item.GetEquipmentUseScore() <= 0f)
+        {
+            return "equipment use score <= 0";
+        }
+
+        if (useStyle == ItemUseStyle.StudyManual &&
+            (!item.canBeStudied ||
+            item.GetNpcUseScore() <= 0f))
+        {
+            return "manual cannot be studied or use score <= 0";
+        }
+
+        return "ShouldNpcUseDirectly=false";
+    }
+
+    void LogItemUseDecision(
+        string phase,
+        StatItemData item,
+        string reason)
+    {
+        if (!debugItemUseReasons)
+        {
+            return;
+        }
+
+        string itemName = item != null
+            ? item.itemName
+            : "null";
+
+        Debug.Log(
+            "[NpcItemUse] " +
+            name +
+            " " +
+            phase +
+            " item=" +
+            itemName +
+            " reason=" +
+            reason,
+            gameObject);
     }
 
     ItemStack FindItemStack(StatItemData item)

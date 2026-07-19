@@ -138,6 +138,38 @@ public static class NpcMapBehaviorPolicy
         return NpcMapNavigator.ResolveActorZone(actor);
     }
 
+    public static bool IsActorInsideAllowedCombatZone(GameObject actor)
+    {
+        return IsActorInsideAllowedCombatZone(
+            actor,
+            GetAllowedCombatZone(actor));
+    }
+
+    public static bool IsActorInsideAllowedCombatZone(
+        GameObject actor,
+        NpcMapZone? allowedZone)
+    {
+        if (actor == null)
+        {
+            return false;
+        }
+
+        if (!ForcesCombatLoop(actor))
+        {
+            return true;
+        }
+
+        if (!allowedZone.HasValue)
+        {
+            return false;
+        }
+
+        NpcMapZone? actorZone =
+            NpcMapNavigator.ResolveActorZone(actor);
+        return actorZone.HasValue &&
+            actorZone.Value == allowedZone.Value;
+    }
+
     public static bool IsAllowedCombatTask(SmartAITaskGoal goal)
     {
         return goal == SmartAITaskGoal.Combat ||
@@ -256,6 +288,11 @@ public static class NpcMapBehaviorPolicy
             return false;
         }
 
+        if (!IsActorInsideAllowedCombatZone(actor, allowedZone))
+        {
+            return false;
+        }
+
         NpcMapZone? monsterZone =
             NpcMapNavigator.ResolveActorZone(monster.gameObject);
         return monsterZone.HasValue &&
@@ -304,6 +341,11 @@ public static class NpcMapBehaviorPolicy
 
         NpcMapZone? allowedZone = GetAllowedCombatZone(actor);
         if (!allowedZone.HasValue)
+        {
+            return false;
+        }
+
+        if (!IsActorInsideAllowedCombatZone(actor, allowedZone))
         {
             return false;
         }

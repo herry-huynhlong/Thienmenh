@@ -2,6 +2,66 @@ using UnityEngine;
 
 public partial class VillagerAI
 {
+    public bool TryRunWorkStandby(
+        string action,
+        float radius = 1.4f)
+    {
+        if (IsDead)
+        {
+            return false;
+        }
+
+        string resolvedAction =
+            string.IsNullOrWhiteSpace(action)
+                ? NpcText.Action("working")
+                : action;
+        Vector3 anchor = ResolveWorkStandbyAnchor();
+        float resolvedRadius =
+            Mathf.Max(
+                radius,
+                arriveDistance * 2.5f,
+                0.75f);
+
+        if (TryWanderNearAnchor(
+                anchor,
+                resolvedRadius,
+                resolvedAction))
+        {
+            return true;
+        }
+
+        ClearMovementTargets();
+        StopMoving();
+        currentAction = resolvedAction;
+        return true;
+    }
+
+    Vector3 ResolveWorkStandbyAnchor()
+    {
+        if (hasWorkTarget &&
+            currentWorkTarget != Vector3.zero)
+        {
+            return currentWorkTarget;
+        }
+
+        if (hasDirectMoveTarget)
+        {
+            return directMoveTarget;
+        }
+
+        if (currentTarget != null)
+        {
+            return GetApproachPosition(currentTarget);
+        }
+
+        if (workPoint != null)
+        {
+            return workPoint.position;
+        }
+
+        return transform.position;
+    }
+
     void GoWork()
     {
         if (IsInDungeonCombatSession())
@@ -66,27 +126,23 @@ public partial class VillagerAI
             }
         }
 
-        if (job == VillagerJob.Farmer ||
-            job == VillagerJob.Fisher)
+        if (job == VillagerJob.Farmer)
         {
-            if (job == VillagerJob.Farmer)
+            VillagerFarmJob farmJob =
+                GetComponent<VillagerFarmJob>();
+            if (farmJob == null)
             {
-                VillagerFarmJob farmJob =
-                    GetComponent<VillagerFarmJob>();
-                if (farmJob == null)
-                {
-                    farmJob = gameObject.AddComponent<VillagerFarmJob>();
-                }
+                farmJob = gameObject.AddComponent<VillagerFarmJob>();
+            }
 
-                if (farmJob.TryRun())
-                {
-                    LogWorkDebug(
-                        "Delegate",
-                        "reason=villagerFarmJob",
-                        ref lastWorkMoveLogTime,
-                        0.25f);
-                    return;
-                }
+            if (farmJob.TryRun())
+            {
+                LogWorkDebug(
+                    "Delegate",
+                    "reason=villagerFarmJob",
+                    ref lastWorkMoveLogTime,
+                    0.25f);
+                return;
             }
 
             HarvestJob harvestJob = EnsureHarvestJob();
@@ -96,6 +152,26 @@ public partial class VillagerAI
                 LogWorkDebug(
                     "Delegate",
                     "reason=harvestJob",
+                    ref lastWorkMoveLogTime,
+                    0.25f);
+                return;
+            }
+        }
+
+        if (job == VillagerJob.Fisher)
+        {
+            VillagerFishingJob fishingJob =
+                GetComponent<VillagerFishingJob>();
+            if (fishingJob == null)
+            {
+                fishingJob = gameObject.AddComponent<VillagerFishingJob>();
+            }
+
+            if (fishingJob.TryRun())
+            {
+                LogWorkDebug(
+                    "Delegate",
+                    "reason=villagerFishingJob",
                     ref lastWorkMoveLogTime,
                     0.25f);
                 return;

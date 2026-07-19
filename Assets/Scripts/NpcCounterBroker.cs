@@ -1,12 +1,17 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class NpcCounterBroker : MonoBehaviour
 {
     public static NpcCounterBroker Active { get; private set; }
+    static readonly List<NpcCounterBroker> activeBrokers =
+        new List<NpcCounterBroker>();
 
     [Header("Broker")]
     public ItemInventory inventory;
     public bool receiveAllNpcRequests = true;
+    public bool receiveVillagerRequests = true;
+    public bool receiveSmartNpcRequests = true;
     public bool buyGoodsFromNpcs = true;
     public bool sellUsefulItemsToNpcs = true;
     public bool acceptAllMaterials = true;
@@ -48,6 +53,7 @@ public class NpcCounterBroker : MonoBehaviour
     RigidbodyConstraints2D originalConstraints;
     RigidbodyType2D originalBodyType;
     bool capturedRigidbodySettings;
+    bool lastKeepBrokerStationary;
 
     public int CurrentMoney => GetBrokerMoney();
 
@@ -166,30 +172,39 @@ public class NpcCounterBroker : MonoBehaviour
         EnsureInventory();
         CaptureStationaryPosition();
         ConfigureStationaryBroker();
+        lastKeepBrokerStationary = keepBrokerStationary;
     }
 
     void OnEnable()
     {
         Active = this;
+        if (!activeBrokers.Contains(this))
+        {
+            activeBrokers.Add(this);
+        }
         EnsureInventory();
         CaptureStationaryPosition();
         ConfigureStationaryBroker();
+        lastKeepBrokerStationary = keepBrokerStationary;
     }
 
     void Start()
     {
         CaptureStationaryPosition();
         ConfigureStationaryBroker();
+        lastKeepBrokerStationary = keepBrokerStationary;
         KeepBrokerAtStation();
     }
 
     void FixedUpdate()
     {
+        UpdateStationaryMode();
         KeepBrokerAtStation();
     }
 
     void LateUpdate()
     {
+        UpdateStationaryMode();
         KeepBrokerAtStation();
     }
 
@@ -202,14 +217,106 @@ public class NpcCounterBroker : MonoBehaviour
 
         keepBrokerStationary = false;
         ReleaseStationaryBrokerLock();
+        lastKeepBrokerStationary = keepBrokerStationary;
     }
 
     void OnDisable()
     {
+        activeBrokers.Remove(this);
         if (Active == this)
         {
             Active = null;
         }
+    }
+
+    public static NpcCounterBroker FindBestBrokerForNpc(
+        GameObject npc,
+        bool requireRequests = true)
+    {
+        if (npc == null)
+        {
+            return requireRequests &&
+                Active != null &&
+                !Active.receiveAllNpcRequests
+                ? null
+                : Active;
+        }
+
+        NpcMapZone? actorZone =
+            NpcMapNavigator.ResolveActorZone(npc);
+        if (!actorZone.HasValue)
+        {
+            NpcMapArea actorArea =
+                NpcMapArea.FindArea(npc.transform.position);
+            if (actorArea == null)
+            {
+                actorArea = NpcMapArea.FindNearestArea(
+                    npc.transform.position);
+            }
+
+            if (actorArea != null)
+            {
+                actorZone = actorArea.zone;
+            }
+        }
+
+        NpcCounterBroker bestSameZone = null;
+        float bestSameZoneDistance = float.PositiveInfinity;
+        NpcCounterBroker bestAnyZone = null;
+        float bestAnyZoneDistance = float.PositiveInfinity;
+
+        for (int i = 0; i < activeBrokers.Count; i++)
+        {
+            NpcCounterBroker broker = activeBrokers[i];
+            if (broker == null ||
+                !broker.isActiveAndEnabled ||
+                !broker.gameObject.activeInHierarchy ||
+                (requireRequests &&
+                !broker.receiveAllNpcRequests) ||
+                !broker.CanReceiveRequestFrom(npc))
+            {
+                continue;
+            }
+
+            if (npc.GetComponent<VillagerAI>() != null &&
+                broker.IsVanBaoLauOnlyBroker())
+            {
+                continue;
+            }
+
+            Vector3 brokerPosition =
+                broker.GetCustomerPositionFor(npc);
+            float distance =
+                Vector2.Distance(
+                    npc.transform.position,
+                    brokerPosition);
+            NpcMapZone? brokerZone =
+                broker.ResolveBrokerZone();
+
+            if (actorZone.HasValue &&
+                brokerZone.HasValue &&
+                actorZone.Value == brokerZone.Value &&
+                distance < bestSameZoneDistance)
+            {
+                bestSameZone = broker;
+                bestSameZoneDistance = distance;
+            }
+
+            if (distance < bestAnyZoneDistance)
+            {
+                bestAnyZone = broker;
+                bestAnyZoneDistance = distance;
+            }
+        }
+
+        if (npc.GetComponent<VillagerAI>() != null)
+        {
+            return bestSameZone;
+        }
+
+        return bestSameZone != null
+            ? bestSameZone
+            : bestAnyZone;
     }
 
 
@@ -364,7 +471,8 @@ public class NpcCounterBroker : MonoBehaviour
         {
             float width = Mathf.Max(0.01f, maxX - minX);
             float height = Mathf.Max(0.01f, maxY - minY);
-            int hash = Mathf.Abs(npc.GetInstanceID());
+            int hash = Mathf.Abs(
+                UnityObjectIdUtility.GetRuntimeId(npc));
             float normalized =
                 ((hash % 1000) / 999f);
 
@@ -446,13 +554,32 @@ public class NpcCounterBroker : MonoBehaviour
     }
     public static bool TryTradeWithActiveBroker(NpcTradeAgent npc)
     {
-        if (Active == null ||
-            !Active.receiveAllNpcRequests)
+        if (npc == null)
         {
             return false;
         }
 
-        return Active.TryTradeWithNpc(npc);
+        NpcCounterBroker broker =
+            FindBestBrokerForNpc(
+                npc.gameObject,
+                true);
+        return broker != null &&
+            broker.TryTradeWithNpc(npc);
+    }
+
+    public static bool TryTradeWithBestBroker(NpcTradeAgent npc)
+    {
+        if (npc == null)
+        {
+            return false;
+        }
+
+        NpcCounterBroker broker =
+            FindBestBrokerForNpc(
+                npc.gameObject,
+                true);
+        return broker != null &&
+            broker.TryTradeWithNpc(npc);
     }
 
 
@@ -467,6 +594,17 @@ public class NpcCounterBroker : MonoBehaviour
             IsBusyForTrade(gameObject) ||
             IsBusyForTrade(npc.gameObject) ||
             !npc.CanUseCounterTrade())
+        {
+            return false;
+        }
+
+        if (npc.GetComponent<VillagerAI>() != null &&
+            IsVanBaoLauOnlyBroker())
+        {
+            return false;
+        }
+
+        if (!CanReceiveRequestFrom(npc.gameObject))
         {
             return false;
         }
@@ -1488,6 +1626,50 @@ public class NpcCounterBroker : MonoBehaviour
         }
     }
 
+    public void SetStationaryMode(bool stationary)
+    {
+        if (keepBrokerStationary == stationary &&
+            lastKeepBrokerStationary == stationary &&
+            stationary)
+        {
+            return;
+        }
+
+        keepBrokerStationary = stationary;
+
+        if (stationary)
+        {
+            CaptureStationaryPosition();
+            ConfigureStationaryBroker();
+        }
+        else
+        {
+            ReleaseStationaryBrokerLock();
+        }
+
+        lastKeepBrokerStationary = stationary;
+    }
+
+    void UpdateStationaryMode()
+    {
+        if (keepBrokerStationary == lastKeepBrokerStationary)
+        {
+            return;
+        }
+
+        if (keepBrokerStationary)
+        {
+            CaptureStationaryPosition();
+            ConfigureStationaryBroker();
+        }
+        else
+        {
+            ReleaseStationaryBrokerLock();
+        }
+
+        lastKeepBrokerStationary = keepBrokerStationary;
+    }
+
     void KeepBrokerAtStation()
     {
         if (!keepBrokerStationary)
@@ -1525,5 +1707,66 @@ public class NpcCounterBroker : MonoBehaviour
         {
             inventory = gameObject.AddComponent<ItemInventory>();
         }
+    }
+
+    public NpcMapZone? ResolveBrokerZone()
+    {
+        if (customerPoint != null)
+        {
+            NpcMapZone? customerZone =
+                NpcMapNavigator.GetDestinationZone(
+                    customerPoint);
+            if (customerZone.HasValue)
+            {
+                return customerZone;
+            }
+        }
+
+        NpcMapZone? brokerZone =
+            NpcMapNavigator.GetDestinationZone(transform);
+        if (brokerZone.HasValue)
+        {
+            return brokerZone;
+        }
+
+        NpcMapArea area =
+            NpcMapArea.FindArea(transform.position);
+        if (area == null)
+        {
+            area = NpcMapArea.FindNearestArea(
+                transform.position);
+        }
+
+        return area != null
+            ? area.zone
+            : (NpcMapZone?)null;
+    }
+
+    bool IsVanBaoLauOnlyBroker()
+    {
+        NpcMapZone? zone =
+            ResolveBrokerZone();
+        return zone.HasValue &&
+            zone.Value == NpcMapZone.VanBaoLau;
+    }
+
+    bool CanReceiveRequestFrom(GameObject npc)
+    {
+        if (npc == null)
+        {
+            return true;
+        }
+
+        if (npc.GetComponent<VillagerAI>() != null)
+        {
+            return receiveVillagerRequests;
+        }
+
+        if (npc.GetComponent<SmartNpcAI>() != null)
+        {
+            return receiveSmartNpcRequests;
+        }
+
+        return true;
     }
 }

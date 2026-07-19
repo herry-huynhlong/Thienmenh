@@ -127,4 +127,22 @@ public partial class SmartNpcAI
         currentAction = NpcText.Action("goHunt");
         return true;
     }
+
+    bool HasPendingFrontierDefenseTravel()
+    {
+        if (!IsInFrontierDefenseMode ||
+            !hasFrontierDefenseStagingPoint)
+        {
+            return false;
+        }
+
+        float arriveDistance =
+            Mathf.Max(
+                escapeTargetReachDistance,
+                targetClearRadius * 2f,
+                0.65f);
+        return Vector2.Distance(
+                transform.position,
+                frontierDefenseStagingPoint) > arriveDistance;
+    }
 }

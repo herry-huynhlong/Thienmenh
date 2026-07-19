@@ -365,6 +365,179 @@ public partial class SmartNpcAI
         return true;
     }
 
+    bool TryAbortRoutineBlockingFlowForSchedule()
+    {
+        if (!NpcMapBehaviorPolicy.AllowsSchedule(gameObject))
+        {
+            return false;
+        }
+
+        NpcScheduleController schedule =
+            GetComponent<NpcScheduleController>();
+        if (schedule == null ||
+            !schedule.enforceSchedule ||
+            schedule.CurrentSlot == null)
+        {
+            return false;
+        }
+
+        NpcScheduleActivity activity = schedule.CurrentActivity;
+        if (activity != NpcScheduleActivity.Cultivate &&
+            activity != NpcScheduleActivity.Sleep &&
+            activity != NpcScheduleActivity.ReturnHome)
+        {
+            return false;
+        }
+
+        bool hasRoutineTask =
+            IsRoutineBlockingTask(currentSmartTask) ||
+            IsRoutineBlockingTask(scheduleSmartTask);
+        bool hasRoutineCombat =
+            IsRoutineCombatBlockingSchedule(activity);
+
+        if (HasEmergencySmartTask ||
+            (currentMonsterTarget != null &&
+            !hasRoutineTask &&
+            !hasRoutineCombat) ||
+            (isRetreatingFromMonster && !hasRoutineTask) ||
+            HasCombatSupportIntent() ||
+            HeavenlyTribulationSystem.IsTargetLocked(gameObject) ||
+            waitingOutsideTreasureLightning ||
+            treasureHuntTarget != null ||
+            hasTreasureWaitPosition)
+        {
+            return false;
+        }
+
+        bool hasRoutineAction =
+            hasRoutineCombat ||
+            IsRoutineBlockingAction(currentAction) ||
+            IsRoutineProviderTarget(currentTarget);
+        bool providerBusy =
+            NpcTaskProvider.IsNpcBusyWithAnyProvider(gameObject);
+
+        if (!hasRoutineTask &&
+            !hasRoutineAction &&
+            !providerBusy)
+        {
+            return false;
+        }
+
+        if (!hasRoutineTask &&
+            !hasRoutineAction &&
+            providerBusy)
+        {
+            NpcTaskProvider.ReleaseNpcFromProviderTasksForSchedule(gameObject);
+            return false;
+        }
+
+        if (providerBusy)
+        {
+            NpcTaskProvider.ReleaseNpcFromProviderTasksForSchedule(gameObject);
+        }
+
+        if (hasRoutineCombat)
+        {
+            ClearActiveHuntFlow();
+        }
+
+        if (IsRoutineBlockingTask(currentSmartTask))
+        {
+            ClearSmartTask();
+        }
+
+        if (IsRoutineBlockingTask(scheduleSmartTask))
+        {
+            ClearScheduledTask();
+        }
+
+        ResetDirectedWorkStateForSchedule(activity);
+        EnsureScheduledTaskForCurrentActivity(activity);
+
+        if (ShouldTraceRuntime())
+        {
+            TraceRuntime(
+                "TryAbortRoutineBlockingFlowForSchedule",
+                "activity=" + activity +
+                " action=" + currentAction +
+                " providerBusy=" + providerBusy);
+        }
+
+        return true;
+    }
+
+    bool IsRoutineBlockingTask(SmartAITask task)
+    {
+        if (task == null ||
+            !task.IsValid ||
+            task.priority >= SmartAITaskPriority.Emergency)
+        {
+            return false;
+        }
+
+        return task.goal == SmartAITaskGoal.DoMission ||
+            task.goal == SmartAITaskGoal.FreeHuntAndGather ||
+            task.goal == SmartAITaskGoal.TradeBuySell ||
+            task.goal == SmartAITaskGoal.NeedPotion;
+    }
+
+    bool IsRoutineCombatBlockingSchedule(NpcScheduleActivity activity)
+    {
+        if (currentMonsterTarget == null ||
+            activity != NpcScheduleActivity.Cultivate &&
+            activity != NpcScheduleActivity.Sleep &&
+            activity != NpcScheduleActivity.ReturnHome)
+        {
+            return false;
+        }
+
+        if (HasEmergencySmartTask ||
+            HasCombatSupportIntent() ||
+            NpcMapBehaviorPolicy.ForcesCombatLoop(gameObject) ||
+            HeavenlyTribulationSystem.IsTargetLocked(gameObject))
+        {
+            return false;
+        }
+
+        return MatchesSmartAction("huntMonsterNamed", true) ||
+            MatchesSmartAction("attackMonsterNamed", true) ||
+            MatchesSmartAction("attackMonster", true) ||
+            IsRoutineBlockingTask(currentSmartTask) ||
+            IsRoutineBlockingTask(scheduleSmartTask);
+    }
+
+    bool IsRoutineBlockingAction(string action)
+    {
+        if (string.IsNullOrWhiteSpace(action))
+        {
+            return false;
+        }
+
+        return action == NpcText.Action("goTaskProviderDaily") ||
+            action == NpcText.Action("visitedTaskProvider") ||
+            action == NpcText.Action("goWorkTask") ||
+            action == NpcText.Action("pickHuntEvidence") ||
+            action == NpcText.Action("pickItem") ||
+            action == NpcText.Action("gatherResource") ||
+            action == NpcText.Action("goHunt") ||
+            action == NpcText.Action("tradeSeek") ||
+            action == NpcText.Action("goTavern") ||
+            action == NpcText.Action("goMarketTrade") ||
+            action == NpcText.Action("goVanBaoLauBroker") ||
+            action == NpcText.Action("goVanBaoLauTask") ||
+            action == NpcText.Action("buyPill") ||
+            action == NpcText.Action("checkedVanBaoLau") ||
+            MatchesSmartAction("huntMonsterNamed", true) ||
+            MatchesSmartAction("attackMonsterNamed", true) ||
+            MatchesSmartAction("attackMonster", true);
+    }
+
+    bool IsRoutineProviderTarget(Transform target)
+    {
+        return target != null &&
+            target.GetComponentInParent<NpcTaskProvider>() != null;
+    }
+
     void ResetDirectedWorkStateForSchedule(NpcScheduleActivity activity)
     {
         ReleaseMonsterReservation();

@@ -384,8 +384,7 @@ public static class NpcThreeDayAuditBatchRunner
         UnityEngine.Object[] found =
             UnityEngine.Object.FindObjectsByType(
                 componentType,
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
         for (int i = 0; i < found.Length; i++)
         {
             Component component = found[i] as Component;

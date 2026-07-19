@@ -135,6 +135,21 @@ public partial class SmartNpcAI
 
         ClearTravelTargetsAndStop();
         currentAction = NpcText.Action("idle");
+        if (IsRoutineBlockingTask(currentSmartTask))
+        {
+            ClearSmartTask();
+        }
+
+        if (IsRoutineBlockingTask(scheduleSmartTask))
+        {
+            ClearScheduledTask();
+        }
+
+        if (resourceGatherer != null)
+        {
+            resourceGatherer.CancelGatheringNow();
+        }
+
         actionTimer = 0f;
         thinkTimer = thinkDelay;
         lastUnstuckPosition = transform.position;
@@ -158,7 +173,8 @@ public partial class SmartNpcAI
         }
 
         Vector2 side = new Vector2(-direction.y, direction.x);
-        int sideSign = (GetInstanceID() & 1) == 0 ? 1 : -1;
+        int sideSign =
+            (UnityObjectIdUtility.GetRuntimeId(this) & 1) == 0 ? 1 : -1;
 
         Vector2[] directions =
         {
@@ -628,7 +644,8 @@ public partial class SmartNpcAI
         {
             if (currentAction == NpcText.Action("goVanBaoLauBroker"))
             {
-                NpcCounterBroker broker = NpcCounterBroker.Active;
+                NpcCounterBroker broker =
+                    NpcCounterBroker.FindBestBrokerForNpc(gameObject);
                 Vector3 brokerApproach =
                     broker != null
                         ? ResolveBrokerApproachPosition(broker)
@@ -684,7 +701,8 @@ public partial class SmartNpcAI
 
         if (currentAction == NpcText.Action("goVanBaoLauBroker"))
         {
-            NpcCounterBroker broker = NpcCounterBroker.Active;
+            NpcCounterBroker broker =
+                NpcCounterBroker.FindBestBrokerForNpc(gameObject);
             Vector3 brokerApproach =
                 broker != null
                     ? ResolveBrokerApproachPosition(broker)

@@ -1372,11 +1372,19 @@
       "entries": [
         {
           "key": "vanbaolau",
-          "value": "Van Bao Lau"
+          "value": "Vạn Bảo Lâu"
+        },
+        {
+          "key": "mathusonmach",
+          "value": "Ma Thú Sơn Mạch"
+        },
+        {
+          "key": "lang",
+          "value": "Làng"
         },
         {
           "key": "nhiemvubang",
-          "value": "Nhiem Vu Bang"
+          "value": "Nhiệm Vụ Bảng"
         }
       ],
       "lists": []

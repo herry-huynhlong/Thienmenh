@@ -78,8 +78,7 @@ public partial class NpcFixedBlacksmithController
 
         SimpleItemShop[] shops =
             FindObjectsByType<SimpleItemShop>(
-                FindObjectsInactive.Exclude,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Exclude);
 
         float bestDistance = float.PositiveInfinity;
         Vector3 searchOrigin =
@@ -130,8 +129,7 @@ public partial class NpcFixedBlacksmithController
 
         SimpleItemShop[] shops =
             FindObjectsByType<SimpleItemShop>(
-                FindObjectsInactive.Exclude,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Exclude);
 
         float bestDistance = float.PositiveInfinity;
         for (int i = 0; i < shops.Length; i++)
@@ -906,8 +904,7 @@ public partial class NpcFixedBlacksmithController
     {
         NpcCounterBroker[] brokers =
             FindObjectsByType<NpcCounterBroker>(
-                FindObjectsInactive.Exclude,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Exclude);
 
         NpcCounterBroker bestBroker = null;
         float bestDistance = float.PositiveInfinity;
@@ -1243,8 +1240,7 @@ public partial class NpcFixedBlacksmithController
 
         NpcCounterBroker[] brokers =
             FindObjectsByType<NpcCounterBroker>(
-                FindObjectsInactive.Exclude,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Exclude);
 
         float bestDistance = float.PositiveInfinity;
         for (int i = 0; i < brokers.Length; i++)

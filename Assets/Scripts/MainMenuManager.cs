@@ -957,8 +957,7 @@ public class MainMenuManager : MonoBehaviour
 
         Transform[] transforms =
             FindObjectsByType<Transform>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
 
         foreach (Transform candidate in transforms)
         {

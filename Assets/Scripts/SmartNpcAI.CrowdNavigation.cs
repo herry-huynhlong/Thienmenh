@@ -230,9 +230,9 @@ public partial class SmartNpcAI
                 Transform root = GetNpcRoot(hit);
                 int otherId =
                     root != null
-                    ? root.gameObject.GetInstanceID()
-                    : hit.gameObject.GetInstanceID();
-                away = ((GetInstanceID() ^ otherId) & 1) == 0
+                    ? UnityObjectIdUtility.GetRuntimeId(root.gameObject)
+                    : UnityObjectIdUtility.GetRuntimeId(hit.gameObject);
+                away = ((UnityObjectIdUtility.GetRuntimeId(this) ^ otherId) & 1) == 0
                     ? Vector2.right
                     : Vector2.left;
             }
@@ -311,17 +311,18 @@ public partial class SmartNpcAI
             return false;
         }
 
-        return GetInstanceID() > otherRoot.gameObject.GetInstanceID();
+        return UnityObjectIdUtility.GetRuntimeId(this) >
+            UnityObjectIdUtility.GetRuntimeId(otherRoot.gameObject);
     }
 
     bool ShouldUseRightSide(Collider2D other)
     {
         Transform otherRoot = GetNpcRoot(other);
         int otherId = otherRoot != null
-            ? otherRoot.gameObject.GetInstanceID()
+            ? UnityObjectIdUtility.GetRuntimeId(otherRoot.gameObject)
             : 0;
 
-        return ((GetInstanceID() ^ otherId) & 1) == 0;
+        return ((UnityObjectIdUtility.GetRuntimeId(this) ^ otherId) & 1) == 0;
     }
 
     bool IsNpcCollider(Collider2D hit)

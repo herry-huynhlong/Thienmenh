@@ -306,8 +306,7 @@ public static class NpcObstacleBatchRunner
 
         SmartNpcAI[] smartNpcs =
             UnityEngine.Object.FindObjectsByType<SmartNpcAI>(
-                FindObjectsInactive.Exclude,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Exclude);
         Report(
             "Init context found SmartNpcAI count=" +
             (smartNpcs != null ? smartNpcs.Length.ToString() : "null"));

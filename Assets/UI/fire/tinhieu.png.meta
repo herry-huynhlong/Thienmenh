@@ -1,0 +1,923 @@
+fileFormatVersion: 2
+guid: ee2f1b6c504172a4199cbd8eb8be3a93
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -7438097108470185436
+    second: tinhieu_0
+  - first:
+      213: 2072034153973707419
+    second: tinhieu_1
+  - first:
+      213: 6800396977728267748
+    second: tinhieu_2
+  - first:
+      213: -6070912367529073430
+    second: tinhieu_3
+  - first:
+      213: -2720790439022608079
+    second: tinhieu_4
+  - first:
+      213: 3418977115420003443
+    second: tinhieu_5
+  - first:
+      213: 7523987592680555678
+    second: tinhieu_6
+  - first:
+      213: 2905874096479294465
+    second: tinhieu_7
+  - first:
+      213: 1409406033527611442
+    second: tinhieu_8
+  - first:
+      213: 3113536994612205436
+    second: tinhieu_9
+  - first:
+      213: 8881548068412674325
+    second: tinhieu_10
+  - first:
+      213: 1999922428349964241
+    second: tinhieu_11
+  - first:
+      213: -1117265710894299973
+    second: tinhieu_12
+  - first:
+      213: -5656415123203981079
+    second: tinhieu_13
+  - first:
+      213: 2900304220421978147
+    second: tinhieu_14
+  - first:
+      213: -1617479219204906645
+    second: tinhieu_15
+  - first:
+      213: -5639441051915940827
+    second: tinhieu_16
+  - first:
+      213: -7024716115717259901
+    second: tinhieu_17
+  - first:
+      213: -6654939529920051663
+    second: tinhieu_18
+  - first:
+      213: 6583352398240210729
+    second: tinhieu_19
+  - first:
+      213: -1468545075504762964
+    second: tinhieu_20
+  - first:
+      213: -5893733781147348538
+    second: tinhieu_21
+  - first:
+      213: 4443343007494206232
+    second: tinhieu_22
+  - first:
+      213: 3782682123340417319
+    second: tinhieu_23
+  - first:
+      213: -2678794057978522871
+    second: tinhieu_24
+  - first:
+      213: -7115860815447477543
+    second: tinhieu_25
+  - first:
+      213: 7151324413530582672
+    second: tinhieu_26
+  - first:
+      213: 4764083145621067400
+    second: tinhieu_27
+  - first:
+      213: 5887973160196795571
+    second: tinhieu_28
+  - first:
+      213: 1815101047444617570
+    second: tinhieu_29
+  - first:
+      213: -4349773032145371691
+    second: tinhieu_30
+  - first:
+      213: 8829476369789384162
+    second: tinhieu_31
+  - first:
+      213: 3293072440779326291
+    second: tinhieu_32
+  - first:
+      213: -6477041578045552176
+    second: tinhieu_33
+  - first:
+      213: 5716999993835368813
+    second: tinhieu_34
+  - first:
+      213: -7322792142714063240
+    second: tinhieu_35
+  - first:
+      213: -6484227176026614905
+    second: tinhieu_36
+  - first:
+      213: -881309792104451279
+    second: tinhieu_37
+  - first:
+      213: -21239116880091839
+    second: tinhieu_38
+  - first:
+      213: -1470358664045949495
+    second: tinhieu_39
+  - first:
+      213: -5387722699749755206
+    second: tinhieu_40
+  - first:
+      213: -1379560872918279318
+    second: tinhieu_41
+  - first:
+      213: -4685399731189220524
+    second: tinhieu_42
+  - first:
+      213: -1179344296802150344
+    second: tinhieu_43
+  - first:
+      213: 2751526035263016719
+    second: tinhieu_44
+  - first:
+      213: -7661364152093825242
+    second: tinhieu_45
+  - first:
+      213: 6382311483455139264
+    second: tinhieu_46
+  - first:
+      213: 3502116348887599877
+    second: tinhieu_47
+  - first:
+      213: 8434462713561417240
+    second: tinhieu_48
+  - first:
+      213: 4927847650331647891
+    second: tinhieu_49
+  - first:
+      213: 2402405977273615415
+    second: tinhieu_50
+  - first:
+      213: -1954607406379027654
+    second: tinhieu_51
+  - first:
+      213: -7450030677914339733
+    second: tinhieu_52
+  - first:
+      213: 5905480794577017752
+    second: tinhieu_53
+  - first:
+      213: 7459376713995373756
+    second: tinhieu_54
+  - first:
+      213: -2436684263675729216
+    second: tinhieu_55
+  - first:
+      213: 2598897357078570099
+    second: tinhieu_56
+  - first:
+      213: -197976900369268578
+    second: tinhieu_57
+  - first:
+      213: -93680294996149057
+    second: tinhieu_58
+  - first:
+      213: -1285438932320707549
+    second: tinhieu_59
+  - first:
+      213: 2624888349347893120
+    second: tinhieu_60
+  - first:
+      213: 1288863601112920065
+    second: tinhieu_61
+  - first:
+      213: 7069438660189511978
+    second: tinhieu_62
+  - first:
+      213: 4084322319771313906
+    second: tinhieu_63
+  - first:
+      213: -855991247122123330
+    second: tinhieu_64
+  - first:
+      213: -7109680522799470571
+    second: tinhieu_65
+  - first:
+      213: 8494071241145287554
+    second: tinhieu_66
+  - first:
+      213: -9085193699026658210
+    second: tinhieu_67
+  - first:
+      213: -6993376909481499698
+    second: tinhieu_68
+  - first:
+      213: -3340107466469169037
+    second: tinhieu_69
+  - first:
+      213: -1688811210193727865
+    second: tinhieu_70
+  - first:
+      213: 2507941737678749940
+    second: tinhieu_71
+  - first:
+      213: 3147713522562680814
+    second: tinhieu_72
+  - first:
+      213: -5788696257891501561
+    second: tinhieu_73
+  - first:
+      213: -6354894468140198482
+    second: tinhieu_74
+  - first:
+      213: 5836524496148005959
+    second: tinhieu_75
+  - first:
+      213: -2283130010075081682
+    second: tinhieu_76
+  - first:
+      213: -8453040792189286498
+    second: tinhieu_77
+  - first:
+      213: -7960277731284739604
+    second: tinhieu_78
+  - first:
+      213: 5222287620700389772
+    second: tinhieu_79
+  - first:
+      213: -7619568851450033129
+    second: tinhieu_80
+  - first:
+      213: -3906024717339434833
+    second: tinhieu_81
+  - first:
+      213: -6890665750675755242
+    second: tinhieu_82
+  - first:
+      213: 2915000333009279618
+    second: tinhieu_83
+  - first:
+      213: 3982299115544995010
+    second: tinhieu_84
+  - first:
+      213: -7684235002174838058
+    second: tinhieu_85
+  - first:
+      213: -3404732122027244543
+    second: tinhieu_86
+  - first:
+      213: 9064394363315456980
+    second: tinhieu_87
+  - first:
+      213: -3169335184403802694
+    second: tinhieu_88
+  - first:
+      213: -8045140475901360388
+    second: tinhieu_89
+  - first:
+      213: 7896571397927410664
+    second: tinhieu_90
+  - first:
+      213: -3610712366312053433
+    second: tinhieu_91
+  - first:
+      213: 5897076126519184467
+    second: tinhieu_92
+  - first:
+      213: -7578499208343443194
+    second: tinhieu_93
+  - first:
+      213: -355666066104964103
+    second: tinhieu_94
+  - first:
+      213: -1647529744803780765
+    second: tinhieu_95
+  - first:
+      213: 4885001220495374804
+    second: tinhieu_96
+  - first:
+      213: -5199150358931672420
+    second: tinhieu_97
+  - first:
+      213: 2158713961777137091
+    second: tinhieu_98
+  - first:
+      213: 390897321468070467
+    second: tinhieu_99
+  - first:
+      213: -1378727056802919187
+    second: tinhieu_100
+  - first:
+      213: -4686575498610091448
+    second: tinhieu_101
+  - first:
+      213: -1470990518101586502
+    second: tinhieu_102
+  - first:
+      213: -249993609594312545
+    second: tinhieu_103
+  - first:
+      213: -8569273914896870882
+    second: tinhieu_104
+  - first:
+      213: -580981758813765272
+    second: tinhieu_105
+  - first:
+      213: 680065655019123478
+    second: tinhieu_106
+  - first:
+      213: -2347411299204921587
+    second: tinhieu_107
+  - first:
+      213: -2602978057921905948
+    second: tinhieu_108
+  - first:
+      213: 965766520565810894
+    second: tinhieu_109
+  - first:
+      213: 5830933519176435594
+    second: tinhieu_110
+  - first:
+      213: -529240727429192244
+    second: tinhieu_111
+  - first:
+      213: 6838069135717663328
+    second: tinhieu_112
+  - first:
+      213: -4352777585739448803
+    second: tinhieu_113
+  - first:
+      213: 8817431564090981421
+    second: tinhieu_114
+  - first:
+      213: 1791200732008500607
+    second: tinhieu_115
+  - first:
+      213: 1321055702180414578
+    second: tinhieu_116
+  - first:
+      213: 680132208893484654
+    second: tinhieu_117
+  - first:
+      213: -4214814173148449215
+    second: tinhieu_118
+  - first:
+      213: 5875806137331638817
+    second: tinhieu_119
+  - first:
+      213: 3094652914492175280
+    second: tinhieu_120
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: 0
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: tinhieu_0
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 541
+        width: 132
+        height: 111
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 11c5c852bfbfb22479c6bd9beec4747e
+      internalID: -7438097108470185436
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tinhieu_1
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 549
+        width: 71
+        height: 248
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e6f1e807ebd65db49aa07f1654197f39
+      internalID: 2072034153973707419
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tinhieu_2
+      rect:
+        serializedVersion: 2
+        x: 563
+        y: 537
+        width: 71
+        height: 392
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0dd23ef740dd2fe4d8ad24b4d671a25e
+      internalID: 6800396977728267748
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tinhieu_3
+      rect:
+        serializedVersion: 2
+        x: 807
+        y: 553
+        width: 73
+        height: 395
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2249ebbbdf1ab9a4fab79af86935eacf
+      internalID: -6070912367529073430
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tinhieu_4
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 549
+        width: 74
+        height: 469
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 19347c447e96c8a40a9310a8092397e8
+      internalID: -2720790439022608079
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tinhieu_5
+      rect:
+        serializedVersion: 2
+        x: 1283
+        y: 555
+        width: 60
+        height: 503
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b2516e13e008b414f8564bea5c5be5cc
+      internalID: 3418977115420003443
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tinhieu_6
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 230
+        width: 190
+        height: 212
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e37791a3e4299ac4f8a15fc5af67e2a4
+      internalID: 7523987592680555678
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tinhieu_7
+      rect:
+        serializedVersion: 2
+        x: 241
+        y: 187
+        width: 226
+        height: 283
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7d9e5b0b3340ed94e961a1b38d2690d5
+      internalID: 2905874096479294465
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tinhieu_8
+      rect:
+        serializedVersion: 2
+        x: 487
+        y: 177
+        width: 224
+        height: 283
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e6a7b47fca82f3747be0ea165fb42912
+      internalID: 1409406033527611442
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tinhieu_9
+      rect:
+        serializedVersion: 2
+        x: 719
+        y: 182
+        width: 218
+        height: 278
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7617ca58c33369844947b7d8f64e1e17
+      internalID: 3113536994612205436
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tinhieu_10
+      rect:
+        serializedVersion: 2
+        x: 962
+        y: 184
+        width: 226
+        height: 277
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fd974e42d0306bd44964acf2e991b30c
+      internalID: 8881548068412674325
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tinhieu_11
+      rect:
+        serializedVersion: 2
+        x: 1234
+        y: 180
+        width: 182
+        height: 273
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5bf65ee1b6d1e6b42b07923982e9b4d4
+      internalID: 1999922428349964241
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline:
+    - - {x: -647, y: 2}
+      - {x: -549, y: 2}
+      - {x: -549, y: 104}
+      - {x: -647, y: 104}
+    - - {x: -407, y: 8}
+      - {x: -328, y: 8}
+      - {x: -328, y: 242}
+      - {x: -407, y: 242}
+    - - {x: -161, y: 14}
+      - {x: -87, y: 14}
+      - {x: -87, y: 360}
+      - {x: -161, y: 360}
+    - - {x: 330, y: 8}
+      - {x: 378, y: 8}
+      - {x: 378, y: 471}
+      - {x: 330, y: 471}
+    - - {x: 566, y: 12}
+      - {x: 628, y: 12}
+      - {x: 628, y: 503}
+      - {x: 566, y: 503}
+    - - {x: -715, y: -315}
+      - {x: -508, y: -315}
+      - {x: -508, y: -101}
+      - {x: -715, y: -101}
+    - - {x: -486, y: -350}
+      - {x: -259, y: -350}
+      - {x: -259, y: -67}
+      - {x: -486, y: -67}
+    - - {x: -241, y: -368}
+      - {x: -6, y: -368}
+      - {x: -6, y: -79}
+      - {x: -241, y: -79}
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 1537655665
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      tinhieu_0: -7438097108470185436
+      tinhieu_1: 2072034153973707419
+      tinhieu_10: 8881548068412674325
+      tinhieu_100: -1378727056802919187
+      tinhieu_101: -4686575498610091448
+      tinhieu_102: -1470990518101586502
+      tinhieu_103: -249993609594312545
+      tinhieu_104: -8569273914896870882
+      tinhieu_105: -580981758813765272
+      tinhieu_106: 680065655019123478
+      tinhieu_107: -2347411299204921587
+      tinhieu_108: -2602978057921905948
+      tinhieu_109: 965766520565810894
+      tinhieu_11: 1999922428349964241
+      tinhieu_110: 5830933519176435594
+      tinhieu_111: -529240727429192244
+      tinhieu_112: 6838069135717663328
+      tinhieu_113: -4352777585739448803
+      tinhieu_114: 8817431564090981421
+      tinhieu_115: 1791200732008500607
+      tinhieu_116: 1321055702180414578
+      tinhieu_117: 680132208893484654
+      tinhieu_118: -4214814173148449215
+      tinhieu_119: 5875806137331638817
+      tinhieu_12: -1117265710894299973
+      tinhieu_120: 3094652914492175280
+      tinhieu_13: -5656415123203981079
+      tinhieu_14: 2900304220421978147
+      tinhieu_15: -1617479219204906645
+      tinhieu_16: -5639441051915940827
+      tinhieu_17: -7024716115717259901
+      tinhieu_18: -6654939529920051663
+      tinhieu_19: 6583352398240210729
+      tinhieu_2: 6800396977728267748
+      tinhieu_20: -1468545075504762964
+      tinhieu_21: -5893733781147348538
+      tinhieu_22: 4443343007494206232
+      tinhieu_23: 3782682123340417319
+      tinhieu_24: -2678794057978522871
+      tinhieu_25: -7115860815447477543
+      tinhieu_26: 7151324413530582672
+      tinhieu_27: 4764083145621067400
+      tinhieu_28: 5887973160196795571
+      tinhieu_29: 1815101047444617570
+      tinhieu_3: -6070912367529073430
+      tinhieu_30: -4349773032145371691
+      tinhieu_31: 8829476369789384162
+      tinhieu_32: 3293072440779326291
+      tinhieu_33: -6477041578045552176
+      tinhieu_34: 5716999993835368813
+      tinhieu_35: -7322792142714063240
+      tinhieu_36: -6484227176026614905
+      tinhieu_37: -881309792104451279
+      tinhieu_38: -21239116880091839
+      tinhieu_39: -1470358664045949495
+      tinhieu_4: -2720790439022608079
+      tinhieu_40: -5387722699749755206
+      tinhieu_41: -1379560872918279318
+      tinhieu_42: -4685399731189220524
+      tinhieu_43: -1179344296802150344
+      tinhieu_44: 2751526035263016719
+      tinhieu_45: -7661364152093825242
+      tinhieu_46: 6382311483455139264
+      tinhieu_47: 3502116348887599877
+      tinhieu_48: 8434462713561417240
+      tinhieu_49: 4927847650331647891
+      tinhieu_5: 3418977115420003443
+      tinhieu_50: 2402405977273615415
+      tinhieu_51: -1954607406379027654
+      tinhieu_52: -7450030677914339733
+      tinhieu_53: 5905480794577017752
+      tinhieu_54: 7459376713995373756
+      tinhieu_55: -2436684263675729216
+      tinhieu_56: 2598897357078570099
+      tinhieu_57: -197976900369268578
+      tinhieu_58: -93680294996149057
+      tinhieu_59: -1285438932320707549
+      tinhieu_6: 7523987592680555678
+      tinhieu_60: 2624888349347893120
+      tinhieu_61: 1288863601112920065
+      tinhieu_62: 7069438660189511978
+      tinhieu_63: 4084322319771313906
+      tinhieu_64: -855991247122123330
+      tinhieu_65: -7109680522799470571
+      tinhieu_66: 8494071241145287554
+      tinhieu_67: -9085193699026658210
+      tinhieu_68: -6993376909481499698
+      tinhieu_69: -3340107466469169037
+      tinhieu_7: 2905874096479294465
+      tinhieu_70: -1688811210193727865
+      tinhieu_71: 2507941737678749940
+      tinhieu_72: 3147713522562680814
+      tinhieu_73: -5788696257891501561
+      tinhieu_74: -6354894468140198482
+      tinhieu_75: 5836524496148005959
+      tinhieu_76: -2283130010075081682
+      tinhieu_77: -8453040792189286498
+      tinhieu_78: -7960277731284739604
+      tinhieu_79: 5222287620700389772
+      tinhieu_8: 1409406033527611442
+      tinhieu_80: -7619568851450033129
+      tinhieu_81: -3906024717339434833
+      tinhieu_82: -6890665750675755242
+      tinhieu_83: 2915000333009279618
+      tinhieu_84: 3982299115544995010
+      tinhieu_85: -7684235002174838058
+      tinhieu_86: -3404732122027244543
+      tinhieu_87: 9064394363315456980
+      tinhieu_88: -3169335184403802694
+      tinhieu_89: -8045140475901360388
+      tinhieu_9: 3113536994612205436
+      tinhieu_90: 7896571397927410664
+      tinhieu_91: -3610712366312053433
+      tinhieu_92: 5897076126519184467
+      tinhieu_93: -7578499208343443194
+      tinhieu_94: -355666066104964103
+      tinhieu_95: -1647529744803780765
+      tinhieu_96: 4885001220495374804
+      tinhieu_97: -5199150358931672420
+      tinhieu_98: 2158713961777137091
+      tinhieu_99: 390897321468070467
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

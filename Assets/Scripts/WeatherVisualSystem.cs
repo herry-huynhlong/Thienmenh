@@ -31,6 +31,8 @@ public class WeatherVisualSystem : MonoBehaviour
     public string snowResourcePath = "thoitiet/snow";
     public string snowEditorAssetPath = "Assets/UI/thoitiet/snow.png";
     public float snowSpriteAnimationFps = 10f;
+    public float snowflakeMinSize = 0.18f;
+    public float snowflakeMaxSize = 0.32f;
 
     [Header("Spiritual Qi")]
     public float qiRate = 45f;
@@ -504,7 +506,9 @@ public class WeatherVisualSystem : MonoBehaviour
         Sprite[] sprites)
     {
         ParticleSystem.MainModule main = particles.main;
-        main.startSize = new ParticleSystem.MinMaxCurve(0.32f, 0.52f);
+        main.startSize = new ParticleSystem.MinMaxCurve(
+            Mathf.Min(snowflakeMinSize, snowflakeMaxSize),
+            Mathf.Max(snowflakeMinSize, snowflakeMaxSize));
 
         renderer.renderMode = ParticleSystemRenderMode.Billboard;
         renderer.lengthScale = 1f;
@@ -562,6 +566,11 @@ public class WeatherVisualSystem : MonoBehaviour
             return sprites.ToArray();
         }
 #endif
+
+        Debug.LogWarning(
+            "WeatherVisualSystem could not load sprites at Resources/" +
+            resourcePath +
+            ". Build will fall back to generated weather visuals.");
 
         return null;
     }

@@ -27,6 +27,77 @@ public partial class VillagerAI
         MoveToPosition(wanderTarget);
     }
 
+    bool TryWanderNearAnchor(
+        Vector3 anchor,
+        float radius,
+        string action)
+    {
+        radius = Mathf.Max(0.35f, radius);
+
+        if (!hasWanderTarget ||
+            Vector2.Distance(transform.position, wanderTarget) <
+                arriveDistance ||
+            Vector2.Distance(wanderTarget, anchor) > radius + 0.1f ||
+            !IsMoveTargetFeasible(wanderTarget))
+        {
+            if (!TryPickWanderTargetAround(anchor, radius, out wanderTarget))
+            {
+                return false;
+            }
+
+            hasWanderTarget = true;
+        }
+
+        currentTarget = null;
+        hasDirectMoveTarget = false;
+        currentAction = action;
+        MoveToPosition(wanderTarget);
+        return true;
+    }
+
+    bool TryPickWanderTargetAround(
+        Vector3 anchor,
+        float radius,
+        out Vector3 target)
+    {
+        Vector3 center = ClampToCurrentMapArea(anchor);
+
+        for (int i = 0; i < maxPickTargetAttempts; i++)
+        {
+            Vector2 random =
+                Random.insideUnitCircle * Mathf.Max(0.1f, radius);
+            Vector3 candidate =
+                ClampToCurrentMapArea(
+                    center + new Vector3(random.x, random.y, 0f));
+
+            if (Vector2.Distance(transform.position, candidate) <
+                Mathf.Max(arriveDistance * 2f, minWanderTargetDistance))
+            {
+                continue;
+            }
+
+            if (!IsMoveTargetFeasible(candidate) ||
+                !HasClearLineTo(candidate))
+            {
+                continue;
+            }
+
+            target = candidate;
+            return true;
+        }
+
+        if (TryFindClearPointNear(center, out target) &&
+            Vector2.Distance(transform.position, target) >=
+                Mathf.Max(arriveDistance * 2f, minWanderTargetDistance) &&
+            HasClearLineTo(target))
+        {
+            return true;
+        }
+
+        target = transform.position;
+        return false;
+    }
+
     void IdleOrGoHome(string wanderAction)
     {
         if (IsInDungeonCombatSession())
@@ -469,8 +540,8 @@ public partial class VillagerAI
 
         int safeSlotCount = Mathf.Max(6, slotCount);
         int startSlotIndex = Mathf.Abs(
-            gameObject.GetInstanceID() ^
-            anchor.gameObject.GetInstanceID()) % safeSlotCount;
+            UnityObjectIdUtility.GetRuntimeId(gameObject) ^
+            UnityObjectIdUtility.GetRuntimeId(anchor.gameObject)) % safeSlotCount;
         float radius =
             Mathf.Max(
                 arriveDistance,
@@ -528,6 +599,7 @@ public partial class VillagerAI
         hasWanderTarget = false;
         hasDirectMoveTarget = false;
         hasObstacleAvoidTarget = false;
+        wanderUnstuckRecoveryAttempts = 0;
         movementTargetZone = null;
         directMoveTargetZone = null;
         directMoveTargetUsesRoad = true;

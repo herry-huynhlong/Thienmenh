@@ -276,6 +276,164 @@ public partial class SmartNpcAI
         }
     }
 
+    bool IsLowHpRecoveryTaskActive()
+    {
+        return currentSmartTask != null &&
+            currentSmartTask.IsValid &&
+            currentSmartTask.goal == SmartAITaskGoal.LowHpRecovery;
+    }
+
+    int GetLowHpRecoveryClearThreshold()
+    {
+        return Mathf.Max(
+            1,
+            Mathf.RoundToInt(AuthoritativeMaxHP * 0.7f));
+    }
+
+    void PrepareForLowHpRecovery()
+    {
+        bool hadCombatFlow =
+            currentMonsterTarget != null ||
+            isRetreatingFromMonster ||
+            currentAction == NpcText.Action("fleeMonsterArea") ||
+            currentAction == NpcText.Action("goHunt") ||
+            MatchesSmartAction("huntMonsterNamed", true) ||
+            MatchesSmartAction("attackMonsterNamed", true);
+
+        ReleaseMonsterReservation(currentMonsterTarget);
+        currentMonsterTarget = null;
+        ClearMonsterCombatState();
+        ClearHelpRequestState();
+        StopMonsterRetreat();
+
+        if (!hadCombatFlow)
+        {
+            return;
+        }
+
+        currentTarget = null;
+        hasWanderTarget = false;
+        hasEscapeTarget = false;
+        hasObstacleAvoidTarget = false;
+        StopNpcMovement();
+
+        if (currentAction == NpcText.Action("fleeMonsterArea") ||
+            currentAction == NpcText.Action("goHunt") ||
+            MatchesSmartAction("huntMonsterNamed", true) ||
+            MatchesSmartAction("attackMonsterNamed", true))
+        {
+            currentAction = NpcText.Action("injured");
+        }
+    }
+
+    bool TryConsumePillForLowHpRecovery()
+    {
+        if (!TryConsumeAvailablePill())
+        {
+            return false;
+        }
+
+        int healAmount =
+            Mathf.Max(
+                18,
+                Mathf.RoundToInt(AuthoritativeMaxHP * 0.32f));
+        Heal(healAmount);
+        actionTimer = Mathf.Max(
+            actionTimer,
+            GameHoursToSeconds(0.25f));
+        currentAction = NpcText.Action("rest");
+        DebugFlow(
+            "Recovery",
+            "Consumed pill for low hp heal=" + healAmount +
+            " hp=" + currentHP + "/" + maxHP);
+        return true;
+    }
+
+    bool TryCultivateForLowHpRecovery()
+    {
+        if (!canCultivate ||
+            waitingForHeavenlyTribulation ||
+            IsRestrictedMapSessionActive())
+        {
+            return false;
+        }
+
+        CultivateNaturally();
+
+        if (currentAction == NpcText.Action("goCultivatePoint"))
+        {
+            return true;
+        }
+
+        if (currentAction == NpcText.Action("cultivate") ||
+            currentAction == NpcText.Action("cultivateAbsorbQi"))
+        {
+            int healAmount =
+                Mathf.Max(
+                    8,
+                    Mathf.RoundToInt(AuthoritativeMaxHP * 0.14f));
+            Heal(healAmount);
+            actionTimer = Mathf.Max(
+                actionTimer,
+                GameHoursToSeconds(0.75f));
+            DebugFlow(
+                "Recovery",
+                "Cultivation healing heal=" + healAmount +
+                " hp=" + currentHP + "/" + maxHP);
+            return true;
+        }
+
+        return false;
+    }
+
+    bool TryRecoverAtHomeForLowHp()
+    {
+        if (homePoint == null)
+        {
+            return false;
+        }
+
+        Vector3 homePosition = GetApproachPosition(homePoint);
+        float arriveDistance =
+            Mathf.Max(targetClearRadius * 2f, 0.45f);
+        float distance =
+            Vector2.Distance(transform.position, homePosition);
+
+        if (distance > arriveDistance)
+        {
+            ClearTravelTargets();
+            currentTarget = homePoint;
+            hasWanderTarget = false;
+            currentAction = NpcText.Action("goHomeRest");
+            return true;
+        }
+
+        ClearTravelTargetsAndStop();
+
+        if (currentHP <= Mathf.Max(1, AuthoritativeMaxHP / 4) ||
+            fatigue >= 60f)
+        {
+            Sleep();
+            return true;
+        }
+
+        int healAmount =
+            Mathf.Max(
+                10,
+                Mathf.RoundToInt(AuthoritativeMaxHP * 0.18f));
+        Heal(healAmount);
+        fatigue = Mathf.Max(0f, fatigue - 20f);
+        currentAction = NpcText.Action("restNearHome");
+        actionTimer = Mathf.Max(
+            actionTimer,
+            GameHoursToSeconds(1f));
+        DebugFlow(
+            "Recovery",
+            "Rest at home heal=" + healAmount +
+            " hp=" + currentHP + "/" + maxHP);
+        return true;
+    }
+
     bool RequestSmartTask(
         SmartAITaskGoal goal,
         SmartAITaskPriority priority,
@@ -335,6 +493,10 @@ public partial class SmartNpcAI
             !currentSmartTask.IsValid)
         {
             currentSmartTask = nextTask;
+            if (nextTask.goal == SmartAITaskGoal.LowHpRecovery)
+            {
+                PrepareForLowHpRecovery();
+            }
             DebugFlow(
                 "TaskOverride",
                 "Accepted " + DescribeTask(nextTask) +
@@ -350,6 +512,10 @@ public partial class SmartNpcAI
         {
             SmartAITask previousTask = currentSmartTask.Clone();
             currentSmartTask = nextTask;
+            if (nextTask.goal == SmartAITaskGoal.LowHpRecovery)
+            {
+                PrepareForLowHpRecovery();
+            }
             DebugFlow(
                 "TaskOverride",
                 "Accepted " + DescribeTask(nextTask) +
@@ -383,10 +549,30 @@ public partial class SmartNpcAI
         switch (currentSmartTask.goal)
         {
             case SmartAITaskGoal.LowHpRecovery:
-                if (currentHP > Mathf.Max(1, maxHP / 2))
+                if (currentHP > GetLowHpRecoveryClearThreshold())
                 {
                     ClearEmergencyTaskIfMatches(SmartAITaskGoal.LowHpRecovery);
                     return false;
+                }
+
+                PrepareForLowHpRecovery();
+
+                if (HasAvailablePills() &&
+                    TryConsumePillForLowHpRecovery())
+                {
+                    return true;
+                }
+
+                if (canTrade &&
+                    money >= 50 &&
+                    GoToTavernAndBuyPill())
+                {
+                    return true;
+                }
+
+                if (TryCultivateForLowHpRecovery())
+                {
+                    return true;
                 }
 
                 if (currentMonsterTarget != null &&
@@ -407,16 +593,13 @@ public partial class SmartNpcAI
                     return true;
                 }
 
+                if (TryRecoverAtHomeForLowHp())
+                {
+                    return true;
+                }
+
                 if (IsRecoveringFromDamage)
                 {
-                    TryReactToNearbyAttackingMonster();
-                    if (currentMonsterTarget != null &&
-                        currentMonsterTarget.currentHP > 0)
-                    {
-                        SearchMonster();
-                        return true;
-                    }
-
                     currentAction = NpcText.Action("injured");
                     actionTimer = Mathf.Max(
                         actionTimer,
@@ -547,7 +730,10 @@ public partial class SmartNpcAI
             return NpcText.Action("dead");
         }
 
-        string action = NormalizeDisplayAction(currentAction);
+        string action =
+            NormalizeDisplayAction(
+                currentAction,
+                !ShouldKeepCurrentActionWithoutTravelContext(currentAction));
         if (!string.IsNullOrWhiteSpace(action))
         {
             return action;
@@ -555,7 +741,8 @@ public partial class SmartNpcAI
 
         string taskAction =
             NormalizeDisplayAction(
-                GetTaskActionTextForDisplay(currentSmartTask));
+                GetTaskActionTextForDisplay(currentSmartTask),
+                false);
         if (!string.IsNullOrWhiteSpace(taskAction))
         {
             return taskAction;
@@ -563,7 +750,8 @@ public partial class SmartNpcAI
 
         taskAction =
             NormalizeDisplayAction(
-                GetTaskActionTextForDisplay(scheduleSmartTask));
+                GetTaskActionTextForDisplay(scheduleSmartTask),
+                false);
         if (!string.IsNullOrWhiteSpace(taskAction))
         {
             return taskAction;
@@ -577,7 +765,8 @@ public partial class SmartNpcAI
             string scheduleAction =
                 NormalizeDisplayAction(
                     GetScheduleActionTextForDisplay(
-                        schedule.CurrentActivity));
+                        schedule.CurrentActivity),
+                    false);
             if (!string.IsNullOrWhiteSpace(scheduleAction))
             {
                 return scheduleAction;
@@ -595,14 +784,66 @@ public partial class SmartNpcAI
             return NpcText.Action("walkingRoad");
         }
 
+        string routineAction = GetDailyRoutineActionTextForDisplay();
+        if (!string.IsNullOrWhiteSpace(routineAction))
+        {
+            return routineAction;
+        }
+
         return NpcText.Action("idle");
     }
 
-    string NormalizeDisplayAction(string action)
+    bool ShouldKeepCurrentActionWithoutTravelContext(string action)
+    {
+        if (string.IsNullOrWhiteSpace(action))
+        {
+            return false;
+        }
+
+        if (action == NpcText.Action("visitedTaskProvider") ||
+            action == NpcText.Action("checkedVanBaoLau"))
+        {
+            return true;
+        }
+
+        return IsStationaryAction(action);
+    }
+
+    string GetDailyRoutineActionTextForDisplay()
+    {
+        if (!dailyRoutineEnabled ||
+            !NpcMapBehaviorPolicy.AllowsSchedule(gameObject))
+        {
+            return "";
+        }
+
+        if (CanVisitTaskProviderToday())
+        {
+            return NpcText.Action("goTaskProviderDaily");
+        }
+
+        if (canCultivate &&
+            IsScheduledCultivationTime())
+        {
+            return NpcText.Action("cultivate");
+        }
+
+        return "";
+    }
+
+    string NormalizeDisplayAction(
+        string action,
+        bool requireActiveContext = true)
     {
         if (string.IsNullOrWhiteSpace(action))
         {
             return "";
+        }
+
+        string waitScheduleAction;
+        if (TryGetWaitScheduleDisplayAction(action, out waitScheduleAction))
+        {
+            return waitScheduleAction;
         }
 
         if (!NpcMapBehaviorPolicy.AllowsNormalWorldTravel(gameObject) &&
@@ -616,19 +857,22 @@ public partial class SmartNpcAI
             return "";
         }
 
-        if (IsTravelIntentAction(action) &&
+        if (requireActiveContext &&
+            IsTravelIntentAction(action) &&
             !HasActiveTravelContext())
         {
             return "";
         }
 
-        if (IsGatherDisplayAction(action) &&
+        if (requireActiveContext &&
+            IsGatherDisplayAction(action) &&
             !HasActiveGatherContext())
         {
             return "";
         }
 
-        if (IsHuntDisplayAction(action) &&
+        if (requireActiveContext &&
+            IsHuntDisplayAction(action) &&
             !HasActiveHuntContext())
         {
             return "";
@@ -644,10 +888,30 @@ public partial class SmartNpcAI
             action == NpcText.Action("restNearHome") ||
             action == NpcText.Action("restVillageNoon") ||
             action == NpcText.Action("stayNearHome") ||
-            action == NpcText.Action("visitedTaskProvider") ||
-            action == NpcText.Action("checkedVanBaoLau") ||
-            action == NpcText.Action("calm") ||
-            action.StartsWith("waitSchedule", StringComparison.OrdinalIgnoreCase);
+            action == NpcText.Action("calm");
+    }
+
+    bool TryGetWaitScheduleDisplayAction(
+        string action,
+        out string displayAction)
+    {
+        displayAction = "";
+        const string prefix = "waitSchedule";
+        if (string.IsNullOrWhiteSpace(action) ||
+            !action.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        string activityName = action.Substring(prefix.Length);
+        NpcScheduleActivity activity;
+        if (!Enum.TryParse(activityName, out activity))
+        {
+            return false;
+        }
+
+        displayAction = GetScheduleActionTextForDisplay(activity);
+        return !string.IsNullOrWhiteSpace(displayAction);
     }
 
     bool IsTravelIntentAction(string action)
@@ -778,7 +1042,8 @@ public partial class SmartNpcAI
 
             case SmartAITaskGoal.NeedPotion:
             {
-                NpcCounterBroker broker = NpcCounterBroker.Active;
+                NpcCounterBroker broker =
+                    NpcCounterBroker.FindBestBrokerForNpc(gameObject);
                 if (broker != null &&
                     broker.receiveAllNpcRequests)
                 {

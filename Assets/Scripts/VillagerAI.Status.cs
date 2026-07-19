@@ -46,8 +46,6 @@ public partial class VillagerAI
             action == NpcText.Action("restNearHome") ||
             action == NpcText.Action("restVillageNoon") ||
             action == NpcText.Action("stayNearHome") ||
-            action == NpcText.Action("visitedTaskProvider") ||
-            action == NpcText.Action("checkedVanBaoLau") ||
             action == NpcText.Action("calm") ||
             action.StartsWith("waitSchedule", System.StringComparison.OrdinalIgnoreCase);
     }

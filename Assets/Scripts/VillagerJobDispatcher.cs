@@ -41,21 +41,16 @@ public class VillagerJobDispatcher : MonoBehaviour
         switch (villager.job)
         {
             case VillagerJob.Trader:
-                villager.ThinkTrader();
-                return true;
+                return TryRunMarketRole();
 
             case VillagerJob.Farmer:
+                return TryRunFarmerJob();
+
             case VillagerJob.Fisher:
-                return TryRunHarvestJob();
+                return TryRunFishingJob();
 
             case VillagerJob.Hunter:
                 return TryRunHunterJob();
-
-            case VillagerJob.Guard:
-                return TryRunGuardJob();
-
-            case VillagerJob.Healer:
-                return TryRunHealerJob();
 
             default:
                 return false;
@@ -93,8 +88,10 @@ public class VillagerJobDispatcher : MonoBehaviour
         switch (villager.job)
         {
             case VillagerJob.Farmer:
+                return TryRunFarmerJob();
+
             case VillagerJob.Fisher:
-                return TryRunHarvestJob();
+                return TryRunFishingJob();
 
             case VillagerJob.Hunter:
                 return TryRunHunterJob();
@@ -102,18 +99,12 @@ public class VillagerJobDispatcher : MonoBehaviour
             case VillagerJob.Trader:
                 return false;
 
-            case VillagerJob.Guard:
-                return TryRunGuardJob();
-
-            case VillagerJob.Healer:
-                return TryRunHealerJob();
-
             default:
                 return false;
         }
     }
 
-    bool TryRunHarvestJob()
+    bool TryRunFarmerJob()
     {
         NpcItemCollector collector = villager.GetComponent<NpcItemCollector>();
         if (collector == null)
@@ -133,6 +124,17 @@ public class VillagerJobDispatcher : MonoBehaviour
         gatherer.canGather = true;
         gatherer.useVillagerPreferredZone = true;
 
+        VillagerFarmJob farmJob = villager.GetComponent<VillagerFarmJob>();
+        if (farmJob == null)
+        {
+            farmJob = villager.gameObject.AddComponent<VillagerFarmJob>();
+        }
+
+        if (farmJob.TryRun())
+        {
+            return true;
+        }
+
         HarvestJob harvestJob = villager.GetComponent<HarvestJob>();
         if (harvestJob == null)
         {
@@ -140,6 +142,19 @@ public class VillagerJobDispatcher : MonoBehaviour
         }
 
         return harvestJob.TryRun();
+    }
+
+    bool TryRunFishingJob()
+    {
+        VillagerFishingJob fishingJob =
+            villager.GetComponent<VillagerFishingJob>();
+        if (fishingJob == null)
+        {
+            fishingJob =
+                villager.gameObject.AddComponent<VillagerFishingJob>();
+        }
+
+        return fishingJob.TryRun();
     }
 
 
@@ -175,25 +190,16 @@ public class VillagerJobDispatcher : MonoBehaviour
         return hunterJob.TryRun();
     }
 
-    bool TryRunGuardJob()
+    bool TryRunMarketRole()
     {
-        GuardJob guardJob = villager.GetComponent<GuardJob>();
-        if (guardJob == null)
+        VillagerMarketRole marketRole =
+            villager.GetComponent<VillagerMarketRole>();
+        if (marketRole == null)
         {
-            guardJob = villager.gameObject.AddComponent<GuardJob>();
+            marketRole =
+                villager.gameObject.AddComponent<VillagerMarketRole>();
         }
 
-        return guardJob.TryRun();
-    }
-
-    bool TryRunHealerJob()
-    {
-        HealerJob healerJob = villager.GetComponent<HealerJob>();
-        if (healerJob == null)
-        {
-            healerJob = villager.gameObject.AddComponent<HealerJob>();
-        }
-
-        return healerJob.TryRun();
+        return marketRole.TryHandleAdultThink();
     }
 }

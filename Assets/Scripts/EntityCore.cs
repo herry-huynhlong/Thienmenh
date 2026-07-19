@@ -2,6 +2,16 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+public static class UnityObjectIdUtility
+{
+    public static int GetRuntimeId(UnityEngine.Object obj)
+    {
+        return obj != null
+            ? obj.GetEntityId().GetHashCode()
+            : 0;
+    }
+}
+
 public enum EntityKind
 {
     Player,
@@ -403,7 +413,16 @@ public static class EntityGenerator
             baseSpiritStone = UnityEngine.Random.Range(0, 5);
         }
 
-        if (kind == EntityKind.Beast)
+        if (kind == EntityKind.Commoner)
+        {
+            stats.realm = CultivationRealm.Mortal;
+            stats.realmStage = 1;
+            stats.maxHP = UnityEngine.Random.Range(70, 131);
+            stats.attack = UnityEngine.Random.Range(2, 9);
+            stats.defense = UnityEngine.Random.Range(0, 4);
+            stats.cultivationExp = 0;
+        }
+        else if (kind == EntityKind.Beast)
         {
             stats.maxHP =
                 CombatStatCalculator.ClampToInt(
@@ -446,9 +465,84 @@ public static class EntityGenerator
         stats.currentHP = stats.maxHP;
         stats.effectResistance = Mathf.RoundToInt(UnityEngine.Random.Range(0, 8) * talentPower);
         stats.moveSpeed = baseMoveSpeed;
-        stats.cultivationExp = UnityEngine.Random.Range(0, 80) * Mathf.Max(1, (int)stats.realm + 1);
+        if (kind != EntityKind.Commoner)
+        {
+            stats.cultivationExp =
+                UnityEngine.Random.Range(0, 80) *
+                Mathf.Max(1, (int)stats.realm + 1);
+        }
         stats.money = baseMoney;
         stats.spiritStone = baseSpiritStone;
+    }
+
+    public static void NormalizeCommonerStats(EntityStats stats)
+    {
+        if (stats == null)
+        {
+            return;
+        }
+
+        stats.realm = CultivationRealm.Mortal;
+        stats.realmStage = 1;
+        stats.cultivationExp = 0;
+        stats.maxHP = Mathf.Clamp(stats.maxHP > 0 ? stats.maxHP : 100, 50, 150);
+        stats.currentHP = Mathf.Clamp(
+            stats.currentHP > 0 ? stats.currentHP : stats.maxHP,
+            0,
+            stats.maxHP);
+        stats.attack = Mathf.Clamp(stats.attack > 0 ? stats.attack : 5, 1, 12);
+        stats.defense = Mathf.Clamp(stats.defense, 0, 6);
+        stats.effectResistance = Mathf.Clamp(stats.effectResistance, 0, 3);
+    }
+
+    public static void NormalizeCultivatorCombatStats(EntityStats stats)
+    {
+        if (stats == null)
+        {
+            return;
+        }
+
+        int majorRealmIndex =
+            Mathf.Max(0, (int)stats.realm);
+        int minorStageIndex =
+            Mathf.Clamp(
+                stats.realmStage,
+                1,
+                CultivationProgression.MaxStage) - 1;
+        int expectedMaxHP =
+            Mathf.Max(
+                1,
+                CombatStatCalculator.ClampToInt(
+                    CombatStatCalculator.CalculateNpcHp(
+                        majorRealmIndex,
+                        minorStageIndex)));
+        int expectedAttack =
+            Mathf.Max(
+                1,
+                CombatStatCalculator.ClampToInt(
+                    CombatStatCalculator.CalculateNpcAttack(
+                        majorRealmIndex,
+                        minorStageIndex)));
+        int expectedDefense =
+            Mathf.Max(
+                0,
+                CombatStatCalculator.ClampToInt(
+                    CombatStatCalculator.CalculateNpcDefense(
+                        majorRealmIndex,
+                        minorStageIndex)));
+        float hpPercent =
+            stats.maxHP > 0
+                ? Mathf.Clamp01(stats.currentHP / (float)stats.maxHP)
+                : 1f;
+
+        stats.maxHP = expectedMaxHP;
+        stats.currentHP =
+            Mathf.Clamp(
+                CombatStatCalculator.ClampToInt(expectedMaxHP * hpPercent),
+                0,
+                expectedMaxHP);
+        stats.attack = expectedAttack;
+        stats.defense = expectedDefense;
     }
 
     static CultivationRealm WeightedRealm(EntityKind kind)
@@ -466,12 +560,7 @@ public static class EntityGenerator
 
         if (kind == EntityKind.Commoner)
         {
-            if (roll < 0.72f) return CultivationRealm.Mortal;
-            if (roll < 0.92f) return CultivationRealm.QiRefining;
-            if (roll < 0.985f) return CultivationRealm.Foundation;
-            if (roll < 0.997f) return CultivationRealm.GoldenCore;
-            if (roll < 0.999f) return CultivationRealm.NascentSoul;
-            return CultivationRealm.SoulFormation;
+            return CultivationRealm.Mortal;
         }
 
         if (roll < 0.70f) return CultivationRealm.QiRefining;

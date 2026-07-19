@@ -147,7 +147,19 @@ public static class NpcActionStateCatalog
         Register(NpcActionId.Dead, "dead");
         Register(NpcActionId.OldAgeDeath, "oldAgeDeath");
         Register(NpcActionId.Conversation, "talking");
-        Register(NpcActionId.Task, "goTaskProviderDaily", "visitedTaskProvider", "goWorkTask", "moveToTask", "receiveTask");
+        Register(
+            NpcActionId.Task,
+            "goTaskProviderDaily",
+            "visitedTaskProvider",
+            "askProviderFindTask",
+            "showTaskBoard",
+            "chooseTask",
+            "returnProviderReceiveTask",
+            "goWorkTask",
+            "workingTask",
+            "taskCompleted",
+            "moveToTask",
+            "receiveTask");
         Register(NpcActionId.Social, "makeFriend", "createSect", "goPlay", "playWithFriends", "wanderVillage", "eveningWalkVillage");
         Register(NpcActionId.Travel, "returnTerritory", "restTerritory", "choosePatrolPoint");
     }

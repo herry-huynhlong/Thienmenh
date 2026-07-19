@@ -4,6 +4,7 @@ using System;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
+using UnityEditor.SceneManagement;
 
 public static class AndroidBuildRunner
 {
@@ -14,6 +15,8 @@ public static class AndroidBuildRunner
     [MenuItem("Tools/Build/Build Android APK")]
     public static void BuildApk()
     {
+        SaveProjectStateBeforeBuild();
+
         if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.Android, BuildTarget.Android))
         {
             throw new BuildFailedException(
@@ -43,6 +46,12 @@ public static class AndroidBuildRunner
         Directory.CreateDirectory(outputDirectory);
 
         string apkPath = Path.Combine(outputDirectory, "Thienmenh.apk");
+        string buildInfoPath = Path.Combine(outputDirectory, "Thienmenh_build_info.txt");
+
+        if (File.Exists(apkPath))
+        {
+            File.Delete(apkPath);
+        }
 
         ApplySigningPasswordsFromEnvironment();
         EditorUserBuildSettings.buildAppBundle = false;
@@ -67,6 +76,24 @@ public static class AndroidBuildRunner
 
         UnityEngine.Debug.Log(
             "[AndroidBuildRunner] Build succeeded: " + apkPath);
+
+        File.WriteAllText(
+            buildInfoPath,
+            "BuiltAtLocal=" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + Environment.NewLine +
+            "Scenes=" + string.Join(", ", scenes) + Environment.NewLine +
+            "Output=" + apkPath + Environment.NewLine);
+    }
+
+    static void SaveProjectStateBeforeBuild()
+    {
+        if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+        {
+            throw new BuildFailedException(
+                "Android build canceled because there are modified scenes that were not saved.");
+        }
+
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
     }
 
     static void ApplySigningPasswordsFromEnvironment()

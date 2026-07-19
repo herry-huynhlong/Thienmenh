@@ -32,6 +32,7 @@ public class InventoryPanelUI : MonoBehaviour
     public ItemInventory currentNpcInventory;
 
     public ItemInventory playerInventory;
+    public PlayerWallet playerWallet;
 
     [Header("Items")]
     public Transform itemGridParent;
@@ -67,6 +68,10 @@ public class InventoryPanelUI : MonoBehaviour
     public Button useButton;
     public Button giveToSelectedNpcButton;
     public Button heavenGiftButton;
+
+    [Header("Footer")]
+    public TMP_Text footerUsedSlotText;
+    public TMP_Text footerLinhThachText;
     Transform rightPanelTransform;
     Transform previewPanelTransform;
     Image previewBackgroundImage;
@@ -74,6 +79,11 @@ public class InventoryPanelUI : MonoBehaviour
     Image previewItemIcon;
     Image previewBigIcon;
     Image previewMagicCircle;
+    Vector3 previewMagicCircleBaseScale = Vector3.one;
+    Vector3 previewMagicCircleBaseEuler = Vector3.zero;
+    Color previewMagicCircleBaseColor = Color.white;
+    bool previewMagicCircleBaseCaptured;
+    float previewMagicCirclePulseSeed;
     TMP_Text attackValueText;
     TMP_Text defenseValueText;
     TMP_Text hpValueText;
@@ -92,6 +102,7 @@ public class InventoryPanelUI : MonoBehaviour
 
     int selectedItemIndex = -1;
     ItemInventory subscribedInventory;
+    bool walletEventsBound;
     RectTransform templateRect;
     Vector2 templateAnchorMin;
     Vector2 templateAnchorMax;
@@ -136,6 +147,10 @@ public class InventoryPanelUI : MonoBehaviour
         AutoFindMissingReferences();
         BindActionButtons();
         BindCategoryTabButtons();
+        BindWalletEvents();
+        previewMagicCirclePulseSeed =
+            Mathf.Abs(
+                UnityObjectIdUtility.GetRuntimeId(this) * 0.193f);
 
         CacheTemplateTransform();
     }
@@ -148,6 +163,7 @@ public class InventoryPanelUI : MonoBehaviour
         }
 
         BindInventoryEvents();
+        BindWalletEvents();
 
         if (!hasStarted && closeOnStart && !alwaysVisible)
         {
@@ -160,6 +176,7 @@ public class InventoryPanelUI : MonoBehaviour
     void OnDisable()
     {
         UnbindInventoryEvents();
+        UnbindWalletEvents();
     }
 
     void Start()
@@ -203,6 +220,7 @@ public class InventoryPanelUI : MonoBehaviour
             }
         }
 
+        RefreshPreviewMagicCircleRarityVisuals();
     }
 
     void HandlePointerDown(Vector2 screenPosition)
@@ -299,10 +317,12 @@ public class InventoryPanelUI : MonoBehaviour
             selectedItem = null;
             ClearDetail();
             RebuildItemGrid();
+            RefreshFooter();
             return;
         }
 
         RebuildItemGrid();
+        RefreshFooter();
 
         int restoredIndex = FindRestorableItemIndex(previousIndex, previousItem);
         if (restoredIndex >= 0)
@@ -344,6 +364,76 @@ public class InventoryPanelUI : MonoBehaviour
         {
             Refresh();
         }
+    }
+
+    void RefreshFooter()
+    {
+        RefreshFooterUsedSlotText();
+        RefreshFooterLinhThachText();
+    }
+
+    void RefreshFooterUsedSlotText()
+    {
+        if (footerUsedSlotText == null)
+        {
+            return;
+        }
+
+        footerUsedSlotText.text =
+            "\u00D4 \u0111\u00E3 d\u00F9ng " +
+            GetUsedFooterCount();
+    }
+
+    void RefreshFooterLinhThachText()
+    {
+        if (footerLinhThachText == null)
+        {
+            return;
+        }
+
+        if (playerWallet == null)
+        {
+            playerWallet =
+                GetComponent<PlayerWallet>() ??
+                FindAnyObjectByType<PlayerWallet>(
+                    FindObjectsInactive.Include);
+        }
+
+        if (playerWallet == null)
+        {
+            return;
+        }
+
+        footerLinhThachText.text =
+            "Linh Th\u1EA1ch : " +
+            NpcEconomy.FormatCompactAmount(
+                playerWallet.LinhThach);
+    }
+
+    int GetUsedFooterCount()
+    {
+        if (inventory == null ||
+            inventory.items == null)
+        {
+            return 0;
+        }
+
+        int count = 0;
+
+        for (int i = 0; i < inventory.items.Count; i++)
+        {
+            ItemStack stack = inventory.items[i];
+            if (stack == null ||
+                stack.item == null ||
+                stack.amount <= 0)
+            {
+                continue;
+            }
+
+            count += stack.amount;
+        }
+
+        return count;
     }
 
     int FindRestorableItemIndex(int previousIndex, StatItemData previousItem)
@@ -1404,6 +1494,7 @@ public class InventoryPanelUI : MonoBehaviour
             false);
         ClearPreviewIcon(previewItemIcon);
         ClearPreviewIcon(previewBigIcon);
+        ResetPreviewMagicCircleVisual();
         SetImageVisible(
             previewMagicCircle,
             false);
@@ -1484,6 +1575,14 @@ public class InventoryPanelUI : MonoBehaviour
                 GetComponent<ItemInventory>();
         }
 
+        if (playerWallet == null)
+        {
+            playerWallet =
+                GetComponent<PlayerWallet>() ??
+                FindAnyObjectByType<PlayerWallet>(
+                    FindObjectsInactive.Include);
+        }
+
         if (itemGridParent == null)
         {
             Transform content =
@@ -1506,6 +1605,7 @@ public class InventoryPanelUI : MonoBehaviour
         }
 
         ResolveItemButtonTemplate();
+        BindFooterReferences();
 
         if (detailPanel == null)
         {
@@ -1737,6 +1837,34 @@ public class InventoryPanelUI : MonoBehaviour
         {
             heavenGiftButton.onClick.RemoveAllListeners();
             heavenGiftButton.onClick.AddListener(BeginHeavenGiftPlacement);
+        }
+    }
+
+    void BindFooterReferences()
+    {
+        Transform searchRoot =
+            panelRoot != null
+                ? panelRoot.transform
+                : transform;
+
+        Transform footer =
+            FindChildByName(searchRoot, "Footer");
+
+        if (footer == null)
+        {
+            return;
+        }
+
+        if (footerUsedSlotText == null)
+        {
+            footerUsedSlotText =
+                FindTextByName(footer, "SlotCount");
+        }
+
+        if (footerLinhThachText == null)
+        {
+            footerLinhThachText =
+                FindTextByName(footer, "LinhThach");
         }
     }
 
@@ -2241,6 +2369,7 @@ public class InventoryPanelUI : MonoBehaviour
             FindImageByName(
                 previewPanelTransform,
                 "MagicCircle");
+        CapturePreviewMagicCircleBaseState();
         previewGradeFrameImage =
             EnsurePreviewGradeFrameImage();
 
@@ -2586,6 +2715,8 @@ public class InventoryPanelUI : MonoBehaviour
     void ApplyPreviewIcon(
         StatItemData item)
     {
+        CapturePreviewMagicCircleBaseState();
+
         Sprite icon =
             item != null
                 ? item.icon
@@ -2603,6 +2734,11 @@ public class InventoryPanelUI : MonoBehaviour
             hasIcon &&
                 previewMagicCircle != null &&
                 previewMagicCircle.sprite != null);
+
+        if (!hasIcon)
+        {
+            ResetPreviewMagicCircleVisual();
+        }
     }
 
     void ApplyPreviewGradeFrame(
@@ -2687,6 +2823,164 @@ public class InventoryPanelUI : MonoBehaviour
 
         image.enabled = visible;
         image.gameObject.SetActive(visible);
+    }
+
+    void CapturePreviewMagicCircleBaseState()
+    {
+        if (previewMagicCircle == null ||
+            previewMagicCircleBaseCaptured)
+        {
+            return;
+        }
+
+        previewMagicCircleBaseScale =
+            previewMagicCircle.transform.localScale;
+        previewMagicCircleBaseEuler =
+            previewMagicCircle.transform.localEulerAngles;
+        previewMagicCircleBaseColor =
+            previewMagicCircle.color;
+        previewMagicCircle.raycastTarget = false;
+        previewMagicCircleBaseCaptured = true;
+    }
+
+    void ResetPreviewMagicCircleVisual()
+    {
+        if (previewMagicCircle == null)
+        {
+            return;
+        }
+
+        CapturePreviewMagicCircleBaseState();
+        previewMagicCircle.transform.localScale =
+            previewMagicCircleBaseScale;
+        previewMagicCircle.transform.localRotation =
+            Quaternion.Euler(previewMagicCircleBaseEuler);
+        previewMagicCircle.color =
+            previewMagicCircleBaseColor;
+    }
+
+    void RefreshPreviewMagicCircleRarityVisuals()
+    {
+        if (previewMagicCircle == null ||
+            !previewMagicCircle.isActiveAndEnabled ||
+            previewMagicCircle.sprite == null ||
+            selectedItem == null)
+        {
+            return;
+        }
+
+        CapturePreviewMagicCircleBaseState();
+
+        ItemGrade grade = selectedItem.grade;
+        float time =
+            Time.unscaledTime + previewMagicCirclePulseSeed;
+        float pulse =
+            0.68f +
+            0.32f * Mathf.Sin(time * 3.1f);
+        float strength =
+            GetPreviewMagicCircleStrength(grade);
+        float spinSpeed =
+            GetPreviewMagicCircleSpinSpeed(grade);
+        float amplitude =
+            GetPreviewMagicCircleRotationAmplitude(grade);
+        Color tintedColor =
+            GetPreviewMagicCircleColor(grade, pulse);
+        float rotation =
+            Mathf.Sin(time * spinSpeed) * amplitude;
+        float scale =
+            1f + strength * (0.06f + pulse * 0.08f);
+
+        previewMagicCircle.color = tintedColor;
+        previewMagicCircle.transform.localRotation =
+            Quaternion.Euler(
+                previewMagicCircleBaseEuler.x,
+                previewMagicCircleBaseEuler.y,
+                previewMagicCircleBaseEuler.z + rotation);
+        previewMagicCircle.transform.localScale =
+            new Vector3(
+                previewMagicCircleBaseScale.x * scale,
+                previewMagicCircleBaseScale.y * scale,
+                previewMagicCircleBaseScale.z);
+    }
+
+    static float GetPreviewMagicCircleStrength(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.Ha:
+                return 0.14f;
+            case ItemGrade.Trung:
+                return 0.24f;
+            case ItemGrade.Thuong:
+                return 0.38f;
+            case ItemGrade.Tien:
+                return 0.54f;
+            default:
+                return 0.16f;
+        }
+    }
+
+    static float GetPreviewMagicCircleRotationAmplitude(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.Ha:
+                return 5f;
+            case ItemGrade.Trung:
+                return 9f;
+            case ItemGrade.Thuong:
+                return 15f;
+            case ItemGrade.Tien:
+                return 22f;
+            default:
+                return 6f;
+        }
+    }
+
+    static float GetPreviewMagicCircleSpinSpeed(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.Ha:
+                return 0.95f;
+            case ItemGrade.Trung:
+                return 1.22f;
+            case ItemGrade.Thuong:
+                return 1.58f;
+            case ItemGrade.Tien:
+                return 1.96f;
+            default:
+                return 1f;
+        }
+    }
+
+    static Color GetPreviewMagicCircleColor(
+        ItemGrade grade,
+        float pulse)
+    {
+        Color baseColor =
+            ShopPanelUI.GetGradeBaseColor(grade);
+        Color accentColor =
+            ShopPanelUI.GetGradeAccentColor(grade);
+        Color mixed =
+            Color.Lerp(
+                baseColor,
+                accentColor,
+                0.54f + Mathf.Clamp01(pulse) * 0.18f);
+
+        Color.RGBToHSV(
+            mixed,
+            out float hue,
+            out float saturation,
+            out float value);
+
+        saturation = Mathf.Clamp01(saturation + 0.12f);
+        value = Mathf.Clamp01(value + 0.22f);
+
+        Color result =
+            Color.HSVToRGB(hue, saturation, value);
+        result.a = 0.46f + Mathf.Clamp01(pulse) * 0.26f;
+        return result;
     }
 
     Image EnsurePreviewGradeFrameImage()
@@ -2848,6 +3142,33 @@ public class InventoryPanelUI : MonoBehaviour
 
         inventory.OnChanged += Refresh;
         subscribedInventory = inventory;
+    }
+
+    void BindWalletEvents()
+    {
+        if (walletEventsBound)
+        {
+            return;
+        }
+
+        PlayerWallet.OnAnyWalletChanged += HandleWalletChanged;
+        walletEventsBound = true;
+    }
+
+    void UnbindWalletEvents()
+    {
+        if (!walletEventsBound)
+        {
+            return;
+        }
+
+        PlayerWallet.OnAnyWalletChanged -= HandleWalletChanged;
+        walletEventsBound = false;
+    }
+
+    void HandleWalletChanged(int amount)
+    {
+        RefreshFooterLinhThachText();
     }
 
     void UnbindInventoryEvents()

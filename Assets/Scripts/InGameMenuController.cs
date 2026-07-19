@@ -507,8 +507,7 @@ public sealed class InGameMenuController : MonoBehaviour
     Transform FindBottomMenuPanel()
     {
         Transform[] transforms = FindObjectsByType<Transform>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None);
+            FindObjectsInactive.Include);
 
         foreach (Transform candidate in transforms)
         {
@@ -596,8 +595,7 @@ public sealed class InGameMenuController : MonoBehaviour
     Transform FindBestLegacyMenuPanel()
     {
         Transform[] transforms = FindObjectsByType<Transform>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None);
+            FindObjectsInactive.Include);
         Transform fallback = null;
 
         foreach (Transform candidate in transforms)
@@ -622,8 +620,7 @@ public sealed class InGameMenuController : MonoBehaviour
     Transform FindSceneTransform(string objectName)
     {
         Transform[] transforms = FindObjectsByType<Transform>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None);
+            FindObjectsInactive.Include);
 
         foreach (Transform candidate in transforms)
         {

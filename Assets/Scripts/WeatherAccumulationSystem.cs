@@ -52,6 +52,8 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
     public float puddleSpawnPadding = 0.8f;
     public float puddleMinSpacing = 1.4f;
     public float puddleMaxAlpha = 0.72f;
+    public float puddleMinScale = 0.48f;
+    public float puddleMaxScale = 0.82f;
     public int puddleObjectLayer = 0;
     public string puddleSortingLayerName = "Default";
     public int puddleSortingOrder = 0;
@@ -66,6 +68,10 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
     public float snowFadeDurationWorldHours = 16f;
     public float snowCapMaxAlpha = 0.92f;
     public float snowTopInsetNormalized = 0.08f;
+    public float snowCapWidthMultiplierMin = 0.38f;
+    public float snowCapWidthMultiplierMax = 0.7f;
+    public float snowCapMinWidth = 0.45f;
+    public float snowCapMaxWidthNormalized = 0.72f;
     public int snowObjectLayer = 1;
     public string snowResourcePath = "thoitiet/loptuyet";
     public string snowEditorAssetPath = "Assets/UI/thoitiet/loptuyet.png";
@@ -293,8 +299,7 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
 
         SpriteRenderer[] renderers =
             FindObjectsByType<SpriteRenderer>(
-                FindObjectsInactive.Exclude,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Exclude);
 
         for (int i = 0; i < renderers.Length; i++)
         {
@@ -470,7 +475,9 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
             puddleObject.layer = Mathf.Clamp(puddleObjectLayer, 0, 31);
             puddleObject.transform.position = position;
 
-            float randomScale = Random.Range(0.7f, 1.15f);
+            float randomScale = Random.Range(
+                Mathf.Min(puddleMinScale, puddleMaxScale),
+                Mathf.Max(puddleMinScale, puddleMaxScale));
             puddleObject.transform.localScale = new Vector3(
                 randomScale,
                 randomScale,
@@ -549,12 +556,21 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
         }
 
         float random01 = Mathf.Abs(
-            Mathf.Sin(entry.anchor.GetInstanceID() * 0.173f));
-        float widthMultiplier = Mathf.Lerp(0.55f, 0.95f, random01);
+            Mathf.Sin(
+                UnityObjectIdUtility.GetRuntimeId(entry.anchor) * 0.173f));
+        float widthMultiplier = Mathf.Lerp(
+            Mathf.Min(
+                snowCapWidthMultiplierMin,
+                snowCapWidthMultiplierMax),
+            Mathf.Max(
+                snowCapWidthMultiplierMin,
+                snowCapWidthMultiplierMax),
+            random01);
         float desiredWidth = Mathf.Clamp(
             anchorBounds.size.x * widthMultiplier,
-            0.8f,
-            anchorBounds.size.x * 0.98f);
+            Mathf.Max(0.1f, snowCapMinWidth),
+            anchorBounds.size.x *
+                Mathf.Clamp01(snowCapMaxWidthNormalized));
         entry.scale = desiredWidth / spriteSize.x;
 
         float horizontalSlack =
@@ -564,7 +580,9 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
         float offsetX = Mathf.Lerp(
             -horizontalSlack * 0.55f,
             horizontalSlack * 0.55f,
-            Mathf.Abs(Mathf.Sin(entry.anchor.GetInstanceID() * 0.417f)));
+            Mathf.Abs(
+                Mathf.Sin(
+                    UnityObjectIdUtility.GetRuntimeId(entry.anchor) * 0.417f)));
 
         entry.offset = new Vector3(offsetX, 0f, 0f);
     }
@@ -753,6 +771,11 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
             return sprites.ToArray();
         }
 #endif
+
+        Debug.LogWarning(
+            "WeatherAccumulationSystem could not load sprites at Resources/" +
+            resourcePath +
+            ". Build will fall back to missing puddle/snow visuals.");
 
         return null;
     }

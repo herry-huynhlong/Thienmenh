@@ -1,0 +1,399 @@
+fileFormatVersion: 2
+guid: 4fbab232567779542b2fe59245188e72
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1031803787710378754
+    second: vongthuongpham_0
+  - first:
+      213: -609964207844860697
+    second: vongthuongpham_1
+  - first:
+      213: 3444023290565702386
+    second: vongthuongpham_2
+  - first:
+      213: 3325559863838686681
+    second: vongthuongpham_3
+  - first:
+      213: -4164480179463324250
+    second: vongthuongpham_4
+  - first:
+      213: -2499414629540917277
+    second: vongthuongpham_5
+  - first:
+      213: -755964982211668145
+    second: vongthuongpham_6
+  - first:
+      213: 1142596409637384205
+    second: vongthuongpham_7
+  - first:
+      213: -7289189488477801446
+    second: vongthuongpham_8
+  - first:
+      213: 6167471699072233568
+    second: vongthuongpham_9
+  - first:
+      213: -1269824094139333959
+    second: vongthuongpham_10
+  - first:
+      213: 1993445463416610103
+    second: vongthuongpham_11
+  - first:
+      213: 5941148880710296352
+    second: vongthuongpham_12
+  - first:
+      213: 5053028743578206096
+    second: vongthuongpham_13
+  - first:
+      213: -5980251440870574464
+    second: vongthuongpham_14
+  - first:
+      213: -2403313176202343501
+    second: vongthuongpham_15
+  - first:
+      213: -7381656658649849147
+    second: vongthuongpham_16
+  - first:
+      213: -2333034997388251507
+    second: vongthuongpham_17
+  - first:
+      213: 9015463754537681383
+    second: vongthuongpham_18
+  - first:
+      213: -7542109300665459755
+    second: vongthuongpham_19
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: vongthuongpham_0
+      rect:
+        serializedVersion: 2
+        x: 112
+        y: 715
+        width: 148
+        height: 151
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: efcce9bfbeb4ea1f0800000000000000
+      internalID: -1031803787710378754
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: vongthuongpham_1
+      rect:
+        serializedVersion: 2
+        x: 361
+        y: 684
+        width: 250
+        height: 227
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ec54b1e8c8f887f0800000000000000
+      internalID: -609964207844860697
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: vongthuongpham_2
+      rect:
+        serializedVersion: 2
+        x: 653
+        y: 648
+        width: 336
+        height: 288
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f237508fe0abcf20800000000000000
+      internalID: 3444023290565702386
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: vongthuongpham_3
+      rect:
+        serializedVersion: 2
+        x: 1000
+        y: 607
+        width: 427
+        height: 367
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ddb66b9313c62e20800000000000000
+      internalID: 3325559863838686681
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: vongthuongpham_4
+      rect:
+        serializedVersion: 2
+        x: 9
+        y: 202
+        width: 306
+        height: 343
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6adfee4575bc436c0800000000000000
+      internalID: -4164480179463324250
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: vongthuongpham_5
+      rect:
+        serializedVersion: 2
+        x: 332
+        y: 179
+        width: 338
+        height: 376
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ef8ccb03ab405dd0800000000000000
+      internalID: -2499414629540917277
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: vongthuongpham_6
+      rect:
+        serializedVersion: 2
+        x: 695
+        y: 186
+        width: 322
+        height: 371
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f4793ac9ad54285f0800000000000000
+      internalID: -755964982211668145
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: vongthuongpham_7
+      rect:
+        serializedVersion: 2
+        x: 1050
+        y: 172
+        width: 356
+        height: 387
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d00b21e71615bdf00800000000000000
+      internalID: 1142596409637384205
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 20dc7c1b42aacc14f9d981f9767325ef
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      vongthuongpham_0: -1031803787710378754
+      vongthuongpham_1: -609964207844860697
+      vongthuongpham_10: -1269824094139333959
+      vongthuongpham_11: 1993445463416610103
+      vongthuongpham_12: 5941148880710296352
+      vongthuongpham_13: 5053028743578206096
+      vongthuongpham_14: -5980251440870574464
+      vongthuongpham_15: -2403313176202343501
+      vongthuongpham_16: -7381656658649849147
+      vongthuongpham_17: -2333034997388251507
+      vongthuongpham_18: 9015463754537681383
+      vongthuongpham_19: -7542109300665459755
+      vongthuongpham_2: 3444023290565702386
+      vongthuongpham_3: 3325559863838686681
+      vongthuongpham_4: -4164480179463324250
+      vongthuongpham_5: -2499414629540917277
+      vongthuongpham_6: -755964982211668145
+      vongthuongpham_7: 1142596409637384205
+      vongthuongpham_8: -7289189488477801446
+      vongthuongpham_9: 6167471699072233568
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

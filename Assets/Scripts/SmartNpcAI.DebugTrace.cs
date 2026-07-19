@@ -3,6 +3,8 @@ using UnityEngine;
 // Debug logging and runtime tracing helpers for smart NPC behavior.
 public partial class SmartNpcAI
 {
+    public static bool SuppressRuntimeDebugOutput;
+
     void DebugFlow(string stage, string detail)
     {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -54,6 +56,11 @@ public partial class SmartNpcAI
     bool ShouldLogDebugFlow()
     {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (SuppressRuntimeDebugOutput)
+        {
+            return false;
+        }
+
         return debugFlowLogs ||
             IsTrackedDebugNpc();
 #else
@@ -64,6 +71,11 @@ public partial class SmartNpcAI
     bool ShouldTraceRuntime()
     {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (SuppressRuntimeDebugOutput)
+        {
+            return false;
+        }
+
         if (!runtimeTraceEnabled &&
             !debugFlowLogs)
         {

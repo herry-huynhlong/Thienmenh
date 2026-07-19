@@ -30,6 +30,7 @@ public class NpcTeleportGate : MonoBehaviour
     public bool preferOwnTransformWhenEntryIsParent = true;
     public bool useEntryPointForNpcRoute;
     public bool bidirectional = true;
+    public bool debugNpcGateLogs;
 
     public static IReadOnlyList<NpcTeleportGate> Gates => gates;
 
@@ -148,6 +149,12 @@ public class NpcTeleportGate : MonoBehaviour
     {
         if (actor == null)
         {
+            return false;
+        }
+
+        if (!NpcGateTravelPolicy.AllowsAutomaticGateTravel(actor))
+        {
+            LogGateDebug(actor, "ForceTeleport", "gateTravelDisabled");
             return false;
         }
 
@@ -388,6 +395,12 @@ public class NpcTeleportGate : MonoBehaviour
             return;
         }
 
+        if (!NpcGateTravelPolicy.AllowsAutomaticGateTravel(actor))
+        {
+            LogGateDebug(actor, "GateCheck", "gateTravelDisabled");
+            return;
+        }
+
         NpcMapZone? actorZone = NpcMapNavigator.ResolveActorZone(actor);
         if (!actorZone.HasValue)
         {
@@ -418,6 +431,24 @@ public class NpcTeleportGate : MonoBehaviour
                 entryPosition +
                 " exit=" +
                 exitPosition);
+            return;
+        }
+
+        if (!IsActorNearRouteEntry(
+                actor,
+                entryPosition))
+        {
+            LogGateDebug(
+                actor,
+                "GateCheck",
+                "outsideEntry actorZone=" +
+                actorZone.Value +
+                " routeTo=" +
+                destinationZone +
+                " actorPos=" +
+                actor.transform.position +
+                " entry=" +
+                entryPosition);
             return;
         }
 
@@ -525,6 +556,11 @@ public class NpcTeleportGate : MonoBehaviour
             return false;
         }
 
+        if (!NpcGateTravelPolicy.AllowsAutomaticGateTravel(actor))
+        {
+            return false;
+        }
+
         NpcMapZone? actorZone = NpcMapNavigator.ResolveActorZone(actor);
         if (!actorZone.HasValue)
         {
@@ -545,8 +581,8 @@ public class NpcTeleportGate : MonoBehaviour
             return 0L;
         }
 
-        return ((long)(uint)actor.GetInstanceID() << 32) |
-            (uint)GetInstanceID();
+        return ((long)(uint)UnityObjectIdUtility.GetRuntimeId(actor) << 32) |
+            (uint)UnityObjectIdUtility.GetRuntimeId(this);
     }
 
     bool IsNpcReentryLocked(long cooldownKey, GameObject actor)
@@ -565,6 +601,49 @@ public class NpcTeleportGate : MonoBehaviour
             }
 
             npcTeleportReentryLocks.Remove(cooldownKey);
+        }
+
+        return false;
+    }
+
+    bool IsActorNearRouteEntry(
+        GameObject actor,
+        Vector3 entryPosition)
+    {
+        if (actor == null)
+        {
+            return false;
+        }
+
+        float allowedDistance =
+            Mathf.Max(0.18f, npcAutoUseRadius);
+
+        if (Vector2.Distance(
+                actor.transform.position,
+                entryPosition) <= allowedDistance)
+        {
+            return true;
+        }
+
+        Collider2D[] actorColliders =
+            actor.GetComponentsInChildren<Collider2D>();
+        for (int i = 0; i < actorColliders.Length; i++)
+        {
+            Collider2D actorCollider = actorColliders[i];
+            if (actorCollider == null ||
+                !actorCollider.enabled)
+            {
+                continue;
+            }
+
+            Vector2 closestPoint =
+                actorCollider.ClosestPoint(entryPosition);
+            if (Vector2.Distance(
+                    closestPoint,
+                    entryPosition) <= allowedDistance)
+            {
+                return true;
+            }
         }
 
         return false;
@@ -727,12 +806,18 @@ public class NpcTeleportGate : MonoBehaviour
     void LogGateDebug(GameObject actor, string stage, string detail)
     {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (!debugNpcGateLogs)
+        {
+            return;
+        }
+
         if (actor == null)
         {
             return;
         }
 
-        int actorKey = actor.GetInstanceID();
+        int actorKey =
+            UnityObjectIdUtility.GetRuntimeId(actor);
         string signature = stage + "|" + detail;
         if (npcGateDebugSignatures.TryGetValue(actorKey, out string lastSignature) &&
             string.Equals(lastSignature, signature, System.StringComparison.Ordinal) &&
@@ -745,7 +830,7 @@ public class NpcTeleportGate : MonoBehaviour
         npcGateDebugSignatures[actorKey] = signature;
         npcGateDebugTimes[actorKey] = Time.time;
 
-        Debug.LogWarning(
+        Debug.Log(
             "[NpcTeleportGate] gate=" + name +
             " stage=" + stage +
             " actor=" + actor.name +
@@ -775,7 +860,8 @@ public class NpcTeleportGate : MonoBehaviour
     void OnDisable()
     {
         gates.Remove(this);
-        RemoveRuntimeStateForGate(GetInstanceID());
+        RemoveRuntimeStateForGate(
+            UnityObjectIdUtility.GetRuntimeId(this));
     }
 
     static void RemoveRuntimeStateForGate(int gateInstanceId)

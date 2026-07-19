@@ -140,7 +140,7 @@ public class NpcTradeAgent : MonoBehaviour
         }
 
         if (!isMarketTrader &&
-            NpcCounterBroker.TryTradeWithActiveBroker(this))
+            NpcCounterBroker.TryTradeWithBestBroker(this))
         {
             return;
         }
@@ -340,6 +340,130 @@ public class NpcTradeAgent : MonoBehaviour
         return boughtUnits > 0;
     }
 
+    public bool CanSellUsefulItemTo(VillagerAI buyer)
+    {
+        EnsureInventory();
+
+        if (!isMarketTrader ||
+            buyer == null ||
+            buyer.IsDead ||
+            buyer.inventory == null ||
+            inventory == null ||
+            NpcRoleUtility.IsInCombat(gameObject) ||
+            NpcRoleUtility.IsInCombat(buyer.gameObject))
+        {
+            return false;
+        }
+
+        foreach (ItemStack stack in inventory.items)
+        {
+            if (stack == null ||
+                stack.item == null ||
+                stack.amount <= 0 ||
+                !NpcEconomy.CanTradeNormally(stack.item) ||
+                !stack.item.CanUseOn(buyer.gameObject))
+            {
+                continue;
+            }
+
+            int price =
+                NpcEconomy.GetNpcBuyPrice(
+                    stack.item,
+                    buyer.gameObject,
+                    NpcTradeContext.NpcToNpc);
+
+            if (GetBuyScoreForVillager(
+                    stack.item,
+                    buyer,
+                    price) > 0f)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public bool TrySellUsefulItemTo(VillagerAI buyer)
+    {
+        EnsureInventory();
+
+        if (!isMarketTrader ||
+            buyer == null ||
+            buyer.IsDead ||
+            buyer.inventory == null ||
+            inventory == null ||
+            NpcRoleUtility.IsInCombat(gameObject) ||
+            NpcRoleUtility.IsInCombat(buyer.gameObject))
+        {
+            return false;
+        }
+
+        ItemStack bestStack = null;
+        int bestPrice = 0;
+        float bestScore = 0f;
+
+        foreach (ItemStack stack in inventory.items)
+        {
+            if (stack == null ||
+                stack.item == null ||
+                stack.amount <= 0 ||
+                !NpcEconomy.CanTradeNormally(stack.item) ||
+                !stack.item.CanUseOn(buyer.gameObject))
+            {
+                continue;
+            }
+
+            int price =
+                NpcEconomy.GetNpcBuyPrice(
+                    stack.item,
+                    buyer.gameObject,
+                    NpcTradeContext.NpcToNpc);
+
+            float score =
+                GetBuyScoreForVillager(
+                    stack.item,
+                    buyer,
+                    price);
+
+            if (score <= bestScore)
+            {
+                continue;
+            }
+
+            bestStack = stack;
+            bestPrice = price;
+            bestScore = score;
+        }
+
+        if (bestStack == null ||
+            buyer.spiritStone < bestPrice ||
+            !RemoveOwnedItem(
+                bestStack.item,
+                1,
+                ItemLifecycleEventType.Sold))
+        {
+            return false;
+        }
+
+        buyer.AddMoney(-bestPrice);
+        AddMoney(bestPrice);
+        buyer.inventory.AddItem(bestStack.item, 1);
+        NpcSocialEventBus.PublishTradeCompleted(
+            buyer.gameObject,
+            gameObject,
+            bestStack.item,
+            bestPrice);
+
+        ItemLifecycleSystem.Notify(
+            ItemLifecycleEventType.Sold,
+            bestStack.item,
+            gameObject,
+            buyer.gameObject);
+
+        return true;
+    }
+
     bool AcceptsProduce(StatItemData item)
     {
         if (item == null)
@@ -528,6 +652,72 @@ public class NpcTradeAgent : MonoBehaviour
 
         float wealthRatio = money / Mathf.Max(1f, price);
         return score * Mathf.Clamp(wealthRatio, 0.25f, 4f);
+    }
+
+    float GetBuyScoreForVillager(
+        StatItemData item,
+        VillagerAI buyer,
+        int price)
+    {
+        if (item == null ||
+            buyer == null ||
+            price <= 0)
+        {
+            return 0f;
+        }
+
+        int money = Mathf.Max(0, buyer.spiritStone);
+        if (money < price)
+        {
+            return 0f;
+        }
+
+        float score = 1f;
+
+        if (item.itemType == ItemType.DanDuoc)
+        {
+            score += NpcEconomy.IsNearBreakthrough(
+                buyer.gameObject)
+                ? 8f
+                : 2f;
+
+            if (buyer.inventory != null &&
+                buyer.inventory.GetAmount(item) >=
+                maxOwnedConsumableBeforeBuying)
+            {
+                score *= 0.2f;
+            }
+        }
+        else if (item.itemType == ItemType.PhapBao)
+        {
+            score += buyer.job == VillagerJob.Hunter
+                ? 4f
+                : 2.2f;
+        }
+        else if (item.itemType == ItemType.CongPhap)
+        {
+            score += 2f;
+        }
+        else if (item.itemType == ItemType.ThucPham)
+        {
+            score += buyer.hunger >= 55f
+                ? 10f
+                : 2f;
+        }
+
+        score += Mathf.Max(
+            item.GetNpcUseScore(),
+            item.GetNpcConversionScore() * 0.2f);
+
+        if (item.ShouldNpcPreferSell())
+        {
+            score *= 0.5f;
+        }
+
+        float wealthRatio =
+            money / Mathf.Max(1f, price);
+
+        return score * Mathf.Clamp(wealthRatio, 0.1f, 5f);
     }
 
     public bool CanUseCounterTrade()

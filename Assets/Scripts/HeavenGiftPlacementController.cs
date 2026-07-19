@@ -175,6 +175,11 @@ public class HeavenGiftPlacementController : MonoBehaviour
     {
         Vector3 spawnPosition =
             targetPosition + Vector3.up * skyDropHeight;
+        GameObject sourceActor =
+            ResolveLightningSourceActor(
+                sourceInventory != null
+                    ? sourceInventory.gameObject
+                    : null);
 
         HeavenSystem heavenSystem =
             HeavenSystem.Instance;
@@ -193,6 +198,7 @@ public class HeavenGiftPlacementController : MonoBehaviour
 
         HeavenGiftEffectSession session =
             new HeavenGiftEffectSession();
+        session.sourceActor = sourceActor;
 
         pickup.OnDepleted += session.Cancel;
 
@@ -694,7 +700,8 @@ public class HeavenGiftPlacementController : MonoBehaviour
             StrikeLightningDamage(
                 strikePosition,
                 Mathf.Max(0.5f, strikeRadius),
-                strikeDamage);
+                strikeDamage,
+                session.sourceActor);
 
             yield return new WaitForSeconds(interval);
         }
@@ -855,7 +862,8 @@ public class HeavenGiftPlacementController : MonoBehaviour
     void StrikeLightningDamage(
         Vector3 position,
         float radius,
-        int damage)
+        int damage,
+        GameObject attacker)
     {
         if (damage <= 0 ||
             radius <= 0f)
@@ -889,6 +897,7 @@ public class HeavenGiftPlacementController : MonoBehaviour
             int hpBefore = ReadCurrentHp(targetRoot);
             DamageContext context = DamageContext.Environment(
                 damage,
+                attacker,
                 this,
                 DamageType.HeavenlyTribulation,
                 "heaven_gift_lightning",
@@ -926,6 +935,25 @@ public class HeavenGiftPlacementController : MonoBehaviour
             hit.GetComponentInParent<CharacterStats>()?.transform;
 
         return root != null ? root.gameObject : null;
+    }
+
+    GameObject ResolveLightningSourceActor(GameObject candidate)
+    {
+        if (candidate == null)
+        {
+            return null;
+        }
+
+        Transform root =
+            candidate.GetComponentInParent<SmartNpcAI>()?.transform ??
+            candidate.GetComponentInParent<VillagerAI>()?.transform ??
+            candidate.GetComponentInParent<MonsterAI>()?.transform ??
+            candidate.GetComponentInParent<PlayerHealth>()?.transform ??
+            candidate.GetComponentInParent<CharacterStats>()?.transform;
+
+        return root != null
+            ? root.gameObject
+            : candidate;
     }
 
     int ReadCurrentHp(GameObject target)
@@ -1246,6 +1274,7 @@ public class HeavenGiftPlacementController : MonoBehaviour
         readonly System.Collections.Generic.List<GameObject> effects =
             new System.Collections.Generic.List<GameObject>();
 
+        public GameObject sourceActor;
         public bool IsActive { get; private set; } = true;
 
         public void Register(GameObject effect)

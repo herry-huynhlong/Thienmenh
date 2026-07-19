@@ -5,6 +5,16 @@ public partial class SmartNpcAI
 {
     string ResolvePostTeleportTravelAction()
     {
+        if (IsLowHpRecoveryTaskActive())
+        {
+            return NpcText.Action("rest");
+        }
+
+        if (HasPendingFrontierDefenseTravel())
+        {
+            return NpcText.Action("goHunt");
+        }
+
         if (currentMonsterTarget != null)
         {
             return NpcText.Action("goHunt");
@@ -68,6 +78,18 @@ public partial class SmartNpcAI
         if (string.IsNullOrEmpty(restoredAction))
         {
             return false;
+        }
+
+        if (restoredAction == NpcText.Action("goHunt") &&
+            HasPendingFrontierDefenseTravel())
+        {
+            if (TryContinueFrontierDefenseTravel())
+            {
+                DebugFlow(
+                    "MoveRoute",
+                    "Rebuilt frontier-defense travel after teleport restore");
+                return true;
+            }
         }
 
         if (restoredAction == NpcText.Action("goCultivatePoint"))
@@ -190,7 +212,8 @@ public partial class SmartNpcAI
 
         if (task.goal == SmartAITaskGoal.NeedPotion)
         {
-            NpcCounterBroker broker = NpcCounterBroker.Active;
+            NpcCounterBroker broker =
+                NpcCounterBroker.FindBestBrokerForNpc(gameObject);
             return broker != null &&
                 broker.receiveAllNpcRequests
                 ? NpcText.Action("goVanBaoLauBroker")

@@ -41,6 +41,14 @@ public class NpcMerchantRole : MonoBehaviour
 
     void QueueEnsureMerchantSetup()
     {
+        if (!Application.isPlaying ||
+            !isActiveAndEnabled ||
+            !gameObject.activeInHierarchy)
+        {
+            setupQueued = false;
+            return;
+        }
+
         if (setupQueued)
         {
             return;

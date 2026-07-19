@@ -105,8 +105,7 @@ public class PopulationWidgetUI : MonoBehaviour
     {
         VillagerAI[] villagers =
             FindObjectsByType<VillagerAI>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
 
         int count = 0;
 
@@ -130,8 +129,7 @@ public class PopulationWidgetUI : MonoBehaviour
     {
         SmartNpcAI[] smartNpcs =
             FindObjectsByType<SmartNpcAI>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
 
         int count = 0;
 
@@ -154,8 +152,7 @@ public class PopulationWidgetUI : MonoBehaviour
     {
         MonsterAI[] monsters =
             FindObjectsByType<MonsterAI>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
 
         int count = 0;
 

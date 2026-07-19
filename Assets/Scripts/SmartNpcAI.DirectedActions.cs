@@ -99,7 +99,8 @@ public partial class SmartNpcAI
         if (other.GetComponentInParent<VillagerAI>() == null &&
             other.GetComponentInParent<SmartNpcAI>() == null &&
             other.GetComponentInParent<NpcMapMover2D>() == null &&
-            other.GetComponentInParent<MonsterAI>() == null)
+            other.GetComponentInParent<MonsterAI>() == null &&
+            !IsSoftNpcTrafficCollider(other))
         {
             return;
         }
@@ -215,7 +216,8 @@ public partial class SmartNpcAI
         }
 
         if (IsCurrentTargetCollider(collision.collider) ||
-            IsCurrentMonsterCollider(collision.collider))
+            IsCurrentMonsterCollider(collision.collider) ||
+            IsSoftNpcTrafficCollider(collision.collider))
         {
             return;
         }

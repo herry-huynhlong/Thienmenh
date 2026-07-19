@@ -125,6 +125,12 @@ public partial class NpcTaskProvider
         }
 
         StatItemData item = task.targetLootPickup.item;
+        if (!task.targetLootPickup.CanNpcActorCollect(task.npc))
+        {
+            task.targetLootPickup = null;
+            return false;
+        }
+
         if (!task.targetLootPickup.TryTake(1))
         {
             task.targetLootPickup = null;

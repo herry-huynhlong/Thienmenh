@@ -79,6 +79,12 @@ public class SavedNpcStateData
     public string fatherId;
     public string motherId;
     public string spouseId;
+    public bool useRapidRuntimeGrowth;
+    public int rapidGrowthStartAbsoluteDay;
+    public int rapidGrowthDurationDays;
+    public float rapidGrowthBabyScale;
+    public float rapidGrowthChildScale;
+    public Vector3 rapidGrowthAdultScale;
 
     public bool hasSchedule;
     public int lifePath;
@@ -124,6 +130,11 @@ public class SavedNpcStateData
     public int childrenBornWithCurrentPartner;
     public int totalChildrenBorn;
     public int maxChildrenWithCurrentPartner;
+    public int marriageHomeProjectState;
+    public string marriageHomeSiteId;
+    public int marriageHomeCostSpiritStone;
+    public int marriageHomeBuildStartAbsoluteDay;
+    public float marriageHomeBuildStartHour;
 
     public List<NpcSocialRelationship> socialRelationships =
         new List<NpcSocialRelationship>();
@@ -756,6 +767,24 @@ public class FullGameSaveController : MonoBehaviour
         saved.fatherId = identity.fatherId;
         saved.motherId = identity.motherId;
         saved.spouseId = identity.spouseId;
+
+        NPCLifecycle lifecycle =
+            ResolveComponent<NPCLifecycle>(identity.gameObject);
+        if (lifecycle != null)
+        {
+            saved.useRapidRuntimeGrowth =
+                lifecycle.useRapidRuntimeGrowth;
+            saved.rapidGrowthStartAbsoluteDay =
+                lifecycle.rapidGrowthStartAbsoluteDay;
+            saved.rapidGrowthDurationDays =
+                lifecycle.rapidGrowthDurationDays;
+            saved.rapidGrowthBabyScale =
+                lifecycle.rapidGrowthBabyScale;
+            saved.rapidGrowthChildScale =
+                lifecycle.rapidGrowthChildScale;
+            saved.rapidGrowthAdultScale =
+                lifecycle.rapidGrowthAdultScale;
+        }
     }
 
     void SaveScheduleState(
@@ -849,6 +878,15 @@ public class FullGameSaveController : MonoBehaviour
         saved.totalChildrenBorn = relationship.totalChildrenBorn;
         saved.maxChildrenWithCurrentPartner =
             relationship.maxChildrenWithCurrentPartner;
+        saved.marriageHomeProjectState =
+            (int)relationship.marriageHomeProjectState;
+        saved.marriageHomeSiteId = relationship.marriageHomeSiteId;
+        saved.marriageHomeCostSpiritStone =
+            relationship.marriageHomeCostSpiritStone;
+        saved.marriageHomeBuildStartAbsoluteDay =
+            relationship.marriageHomeBuildStartAbsoluteDay;
+        saved.marriageHomeBuildStartHour =
+            relationship.marriageHomeBuildStartHour;
     }
 
     void SaveSocialState(
@@ -1140,11 +1178,33 @@ public class FullGameSaveController : MonoBehaviour
         identity.motherId = saved.motherId;
         identity.spouseId = saved.spouseId;
 
+        NPCLifecycle lifecycle =
+            ResolveComponent<NPCLifecycle>(identity.gameObject);
+        if (lifecycle != null)
+        {
+            lifecycle.useRapidRuntimeGrowth =
+                saved.useRapidRuntimeGrowth;
+            lifecycle.rapidGrowthStartAbsoluteDay =
+                saved.rapidGrowthStartAbsoluteDay;
+            lifecycle.rapidGrowthDurationDays =
+                Mathf.Max(1, saved.rapidGrowthDurationDays);
+            lifecycle.rapidGrowthBabyScale =
+                saved.rapidGrowthBabyScale > 0f
+                    ? saved.rapidGrowthBabyScale
+                    : lifecycle.rapidGrowthBabyScale;
+            lifecycle.rapidGrowthChildScale =
+                saved.rapidGrowthChildScale > 0f
+                    ? saved.rapidGrowthChildScale
+                    : lifecycle.rapidGrowthChildScale;
+            lifecycle.rapidGrowthAdultScale =
+                saved.rapidGrowthAdultScale != Vector3.zero
+                    ? saved.rapidGrowthAdultScale
+                    : lifecycle.rapidGrowthAdultScale;
+        }
+
         identity.EnsureBirthAbsoluteDay();
         identity.age = identity.GetCurrentAge();
 
-        NPCLifecycle lifecycle =
-            ResolveComponent<NPCLifecycle>(identity.gameObject);
         if (lifecycle != null)
         {
             lifecycle.RefreshAgeNow(true);
@@ -1360,6 +1420,19 @@ public class FullGameSaveController : MonoBehaviour
             Mathf.Max(0, saved.totalChildrenBorn);
         relationship.maxChildrenWithCurrentPartner =
             Mathf.Max(1, saved.maxChildrenWithCurrentPartner);
+        relationship.marriageHomeProjectState =
+            (MarriageHomeProjectState)Mathf.Clamp(
+                saved.marriageHomeProjectState,
+                0,
+                Enum.GetValues(typeof(MarriageHomeProjectState)).Length - 1);
+        relationship.marriageHomeSiteId =
+            saved.marriageHomeSiteId ?? string.Empty;
+        relationship.marriageHomeCostSpiritStone =
+            Mathf.Max(0, saved.marriageHomeCostSpiritStone);
+        relationship.marriageHomeBuildStartAbsoluteDay =
+            saved.marriageHomeBuildStartAbsoluteDay;
+        relationship.marriageHomeBuildStartHour =
+            Mathf.Repeat(saved.marriageHomeBuildStartHour, 24f);
         relationship.SyncIdentityState();
     }
 

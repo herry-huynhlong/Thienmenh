@@ -11,9 +11,7 @@ public partial class NpcTaskProvider
     {
         RefreshExpandedCatalogWhenIdle();
 
-        if (npc == null ||
-            offers == null ||
-            offers.Length == 0)
+        if (npc == null)
         {
             return null;
         }
@@ -26,7 +24,7 @@ public partial class NpcTaskProvider
         float bestScore = minScore - 0.01f;
         float bestNonRepeatedScore = minScore - 0.01f;
 
-        foreach (NpcTaskOffer offer in offers)
+        foreach (NpcTaskOffer offer in GetVisibleOffers())
         {
             if (!IsOfferWorldAvailable(offer))
             {
@@ -130,8 +128,7 @@ public partial class NpcTaskProvider
 
     static bool ShouldBypassAutoAssignTaskIntent(NpcTaskOffer offer)
     {
-        return offer != null &&
-            offer.taskType == NpcTaskType.FrontierWatch;
+        return false;
     }
 
     float GetMinAcceptanceScore(bool autoAssigned)
@@ -183,7 +180,9 @@ public partial class NpcTaskProvider
                 return true;
             }
 
-            if (offer.taskType == NpcTaskType.FrontierWatch)
+            if (offer.taskType == NpcTaskType.FrontierWatch &&
+                villager.bravery <
+                    FrontierDefenseCoordinator.GetMinimumFrontierWatchBravery())
             {
                 return true;
             }
@@ -218,7 +217,9 @@ public partial class NpcTaskProvider
             }
 
             if (offer.taskType == NpcTaskType.FrontierWatch &&
-                (!smartNpc.canFight || smartNpc.bravery < minHuntTaskBravery))
+                (!smartNpc.canFight ||
+                smartNpc.bravery <
+                    FrontierDefenseCoordinator.GetMinimumFrontierWatchBravery()))
             {
                 return true;
             }
@@ -255,6 +256,11 @@ public partial class NpcTaskProvider
             {
                 bonus += (villager.bravery - 50) * 0.25f;
             }
+
+            if (offer.taskType == NpcTaskType.FrontierWatch)
+            {
+                bonus += (villager.bravery - 35) * 0.2f;
+            }
         }
 
         SmartNpcAI smartNpc = npc.GetComponent<SmartNpcAI>();
@@ -284,6 +290,11 @@ public partial class NpcTaskProvider
                 offer.taskType == NpcTaskType.Escort)
             {
                 bonus += (smartNpc.bravery - 50) * 0.25f;
+            }
+
+            if (offer.taskType == NpcTaskType.FrontierWatch)
+            {
+                bonus += (smartNpc.bravery - 35) * 0.2f;
             }
         }
 
@@ -417,7 +428,7 @@ public partial class NpcTaskProvider
             return 0f;
         }
 
-        if (!IsOfferWorldAvailable(offer))
+        if (!IsOfferWorldAvailable(offer, npc))
         {
             return 0f;
         }
@@ -511,6 +522,13 @@ public partial class NpcTaskProvider
 
     bool IsOfferWorldAvailable(NpcTaskOffer offer)
     {
+        return IsOfferWorldAvailable(offer, null);
+    }
+
+    bool IsOfferWorldAvailable(
+        NpcTaskOffer offer,
+        GameObject npc)
+    {
         if (offer == null)
         {
             return false;
@@ -551,8 +569,9 @@ public partial class NpcTaskProvider
                     HasEscortParticipantsAvailable(offer);
 
             case NpcTaskType.FrontierWatch:
-                return FrontierDefenseCoordinator.IsOfferAvailable(
-                    offer.customTargetId);
+                return FrontierDefenseCoordinator.IsOfferStartAvailable(
+                    offer.customTargetId,
+                    npc);
 
             case NpcTaskType.Cultivate:
                 return false;

@@ -136,8 +136,7 @@ public partial class NpcTaskProvider
 
         if (provideTasks &&
             NpcScheduleController.AllowsTask(npc) &&
-            offers != null &&
-            offers.Length > 0)
+            HasVisibleTaskOffers())
         {
             NpcTaskOffer offer = PickOfferFor(npc, autoAssigned);
             if (offer != null &&
@@ -176,8 +175,7 @@ public partial class NpcTaskProvider
             new List<NpcTaskOffer>();
 
         if (npc == null ||
-            offers == null ||
-            offers.Length == 0)
+            !HasVisibleTaskOffers())
         {
             return result;
         }
@@ -187,8 +185,8 @@ public partial class NpcTaskProvider
                 Mathf.Max(1, minCount),
                 Mathf.Max(minCount, maxCount) + 1);
 
-        NpcTaskOffer[] shuffled =
-            ShuffleOffers();
+        List<NpcTaskOffer> shuffled =
+            GetShuffledVisibleOffers();
 
         foreach (NpcTaskOffer offer in shuffled)
         {
@@ -214,7 +212,7 @@ public partial class NpcTaskProvider
         {
             guard++;
             NpcTaskOffer offer =
-                shuffled[Random.Range(0, shuffled.Length)];
+                shuffled[Random.Range(0, shuffled.Count)];
 
             if (offer == null ||
                 !IsOfferWorldAvailable(offer) ||
@@ -255,6 +253,27 @@ public partial class NpcTaskProvider
 
         SortOffersByDisplayOrder(result);
         return result;
+    }
+
+    bool HasVisibleTaskOffers()
+    {
+        return GetVisibleOffers().Count > 0;
+    }
+
+    List<NpcTaskOffer> GetShuffledVisibleOffers()
+    {
+        List<NpcTaskOffer> shuffled =
+            GetVisibleOffers();
+
+        for (int i = 0; i < shuffled.Count; i++)
+        {
+            int swapIndex = Random.Range(i, shuffled.Count);
+            NpcTaskOffer temp = shuffled[i];
+            shuffled[i] = shuffled[swapIndex];
+            shuffled[swapIndex] = temp;
+        }
+
+        return shuffled;
     }
 
     public StatItemData GetPlannedRequiredItem(NpcTaskOffer offer)
@@ -361,6 +380,13 @@ public partial class NpcTaskProvider
 
             NpcTaskOffer offer = PickOfferFor(npc, true);
             if (offer == null)
+            {
+                continue;
+            }
+
+            // Frontier watch should be taken by an NPC that actually reaches
+            // the provider, not by the provider broadcasting it in radius.
+            if (offer.taskType == NpcTaskType.FrontierWatch)
             {
                 continue;
             }
@@ -621,7 +647,7 @@ public partial class NpcTaskProvider
             ? TaskActionFormat("receiveTask", GetTaskDisplayText(task))
             : formalFlow
             ? TaskAction("askProviderFindTask")
-            : TaskAction("assignedTask"));
+            : TaskActionFormat("receiveTask", GetTaskDisplayText(task)));
 
         NpcRoleUtility.SetAction(
             gameObject,
@@ -732,7 +758,7 @@ public partial class NpcTaskProvider
                     NpcRoleUtility.StopForConversation(task.npc, 0.35f);
                     NpcRoleUtility.SetAction(
                         task.npc,
-                        TaskAction("showTaskBoard"));
+                        TaskChoiceAction(task.npc, task));
                     task.remainingTime -= Time.deltaTime;
                     if (task.remainingTime <= 0f)
                     {

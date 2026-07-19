@@ -1,102 +1,62 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class ThienKiepStrikePrefab : MonoBehaviour
 {
-    [Header("Mây đen")]
-    public GameObject darkCloudRoot;
-    public Transform cloudStrikeOrigin;
-    public LineRenderer cloudFlashLine;
+    [Serializable]
+    public struct FrameRef
+    {
+        public Sprite sprite;
+    }
+
+    [Header("Audio")]
     public AudioSource cloudRumbleAudio;
-
-    [Header("Hiệu ứng mây hiện dần")]
-    [FormerlySerializedAs("cloudFadeInTime")]
-    public float cloudFadeInDurationScaledSeconds = 0.8f;
-    public float cloudStartScale = 0.65f;
-    public float cloudEndScale = 1f;
-
-    [Header("Sấm chớp trong mây")]
-    public int cloudFlashSegmentCount = 7;
-    public float cloudFlashWidth = 3.8f;
-    public float cloudFlashHeight = 0.35f;
-    public float cloudFlashJagged = 0.28f;
-    public float cloudFlashStartWidth = 0.06f;
-    public float cloudFlashEndWidth = 0.025f;
-
-    [Header("Object con")]
-    public GameObject warningCircle;
-    public LineRenderer lightningLine;
-    public ParticleSystem hitEffect;
     public AudioSource thunderAudio;
 
-    [Header("Nổ tia sét khi chạm đất")]
-    public bool useHitLightningBurst = true;
-    public LineRenderer hitBurstLineTemplate;
-    public int hitBurstRayCount = 18;
-    public float hitBurstMinLength = 0.35f;
-    public float hitBurstMaxLength = 2f;
-    [FormerlySerializedAs("hitBurstLifeTime")]
-    public float hitBurstLifetimeScaledSeconds = 0.18f;
-    public float hitBurstStartWidth = 0.08f;
-    public float hitBurstEndWidth = 0.008f;
-    public float hitBurstJaggedOffset = 0.15f;
+    [Header("Loi Kiep Visual")]
+    public SpriteRenderer loiKiepRenderer;
+    public SpriteRenderer loiKiepBlendRenderer;
+    public FrameRef[] loiKiepFrames = new FrameRef[10];
+    public Vector3 loiKiepLocalOffset;
+    public bool centerFramesHorizontally = true;
+    public bool forceSpriteUnlitMaterial = true;
+    public string sortingLayerName = "Effects";
+    public int sortingOrder = 500;
+    [Min(0.5f)] public float gatherMinDurationScaledSeconds = 3f;
+    [Min(0.5f)] public float gatherMaxDurationScaledSeconds = 5f;
+    [Min(0.01f)] public float gatherFrameDurationScaledSeconds = 0.08f;
+    [Min(0.01f)] public float frameCrossfadeScaledSeconds = 0.16f;
+    [Min(0.01f)] public float strikeFrameDurationScaledSeconds = 0.06f;
+    [Min(0.01f)] public float dissipateFrameDurationScaledSeconds = 0.08f;
+    [Min(1)] public int strikeLoopCount = 2;
+    public bool destroyAfterSequence = true;
+    public bool autoAlignStrikeFramesToSpriteBottom = true;
+    [Min(0f)] public float strikeImpactBottomPaddingWorld = 0f;
+    [Min(0f)] public float strikeImpactToCenterWorld = 1.64f;
 
-    [Header("Thời gian")]
-    [FormerlySerializedAs("cloudGatherTime")]
-    public float cloudGatherDurationScaledSeconds = 0.4f;
-    [FormerlySerializedAs("cloudFlashInterval")]
-    public float cloudFlashIntervalScaledSeconds = 0.18f;
-    public int cloudFlashCount = 5;
-    [FormerlySerializedAs("warningTime")]
-    public float warningDurationScaledSeconds = 0.45f;
-    [FormerlySerializedAs("lightningLifeTime")]
-    public float lightningLifetimeScaledSeconds = 0.16f;
-    [FormerlySerializedAs("destroyDelay")]
-    public float destroyDelayScaledSeconds = 1f;
-
-    [Header("Sét chính")]
-    public float skyHeight = 7f;
-    public float randomX = 1.5f;
-    public int segmentCount = 8;
-    public float segmentOffset = 0.45f;
-
-    [Header("Damage")]
+    [Header("Standalone Damage")]
     public int damage = 80;
     public float damageRadius = 0.9f;
     public LayerMask damageLayers;
 
-    private bool started;
-    private Vector3 originalCloudScale = Vector3.one;
-    private Vector3 impactPosition;
-    private bool hasImpactPosition;
+    bool gatheringComplete;
+    bool dissipating;
+    bool standaloneStarted;
+    Vector3 impactPosition;
+    bool hasImpactPosition;
+    Vector3 gatherPosition;
+    Vector3 strikePosition;
+    bool hasGatherPosition;
+    bool hasStrikePosition;
 
-    private void Awake()
+    static Material cachedSpriteUnlitMaterial;
+
+    void Awake()
     {
-        HideAllVisualsAtStart();
-    }
-
-    private void HideAllVisualsAtStart()
-    {
-        SetObjectActive(warningCircle, false);
-
-        SetLineActive(cloudFlashLine, false);
-        SetLineActive(lightningLine, false);
-        SetLineActive(hitBurstLineTemplate, false);
-
-        if (hitEffect != null)
-        {
-            hitEffect.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-            hitEffect.gameObject.SetActive(false);
-        }
-
-        if (darkCloudRoot != null)
-        {
-            originalCloudScale = darkCloudRoot.transform.localScale;
-            SetCloudAlpha(0f);
-            darkCloudRoot.SetActive(false);
-        }
+        EnsureRenderer();
+        SetRendererVisible(false);
     }
 
     public void Play(int newDamage, LayerMask newDamageLayers)
@@ -114,267 +74,152 @@ public class ThienKiepStrikePrefab : MonoBehaviour
         impactPosition = newImpactPosition;
         hasImpactPosition = true;
 
-        if (started)
+        if (standaloneStarted)
+        {
             return;
+        }
 
-        started = true;
-        StartCoroutine(PlayRoutine());
+        standaloneStarted = true;
+        StartCoroutine(PlayStandaloneRoutine());
     }
 
-    private IEnumerator PlayRoutine()
+    public void PrepareAt(Vector3 newImpactPosition)
     {
-        SetObjectActive(darkCloudRoot, true);
-        SetObjectActive(warningCircle, false);
+        PrepareAt(newImpactPosition, newImpactPosition);
+    }
 
-        SetLineActive(cloudFlashLine, false);
-        SetLineActive(lightningLine, false);
-        SetLineActive(hitBurstLineTemplate, false);
+    public void PrepareAt(
+        Vector3 newGatherPosition,
+        Vector3 newStrikePosition)
+    {
+        impactPosition = newStrikePosition;
+        hasImpactPosition = true;
+        gatherPosition = newGatherPosition;
+        strikePosition = newStrikePosition;
+        hasGatherPosition = true;
+        hasStrikePosition = true;
+        transform.position = newGatherPosition;
+        EnsureRenderer();
+        SetRendererVisible(false);
+        gatheringComplete = false;
+        dissipating = false;
+    }
 
-        if (hitEffect != null)
-        {
-            hitEffect.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-            hitEffect.gameObject.SetActive(false);
-        }
+    public IEnumerator BeginLoiKiep(Vector3 newImpactPosition)
+    {
+        yield return BeginLoiKiep(newImpactPosition, newImpactPosition);
+    }
 
-        if (darkCloudRoot != null)
-        {
-            if (originalCloudScale == Vector3.zero)
-            {
-                originalCloudScale = Vector3.one;
-            }
-
-            darkCloudRoot.transform.localScale = originalCloudScale * cloudStartScale;
-            SetCloudAlpha(0f);
-        }
+    public IEnumerator BeginLoiKiep(
+        Vector3 newGatherPosition,
+        Vector3 newStrikePosition)
+    {
+        PrepareAt(newGatherPosition, newStrikePosition);
 
         if (cloudRumbleAudio != null)
         {
+            cloudRumbleAudio.Stop();
             cloudRumbleAudio.Play();
         }
 
-        yield return StartCoroutine(FadeCloudIn());
+        float gatherFrameDuration =
+            ResolveGatherFrameDurationScaledSeconds();
 
-        yield return GameTime.WaitForScaledSeconds(cloudGatherDurationScaledSeconds);
-
-        for (int i = 0; i < cloudFlashCount; i++)
+        for (int i = 0; i <= 7; i++)
         {
-            DrawCloudFlash();
-
-            yield return GameTime.WaitForScaledSeconds(cloudFlashIntervalScaledSeconds);
-
-            SetLineActive(cloudFlashLine, false);
-
-            yield return GameTime.WaitForScaledSeconds(cloudFlashIntervalScaledSeconds);
+            yield return ShowFrameForDuration(
+                i,
+                gatherFrameDuration,
+                smoothTransition: i > 0);
         }
 
-        SetObjectActive(warningCircle, true);
-
-        yield return GameTime.WaitForScaledSeconds(warningDurationScaledSeconds);
-
-        SetObjectActive(warningCircle, false);
-
-        DrawMainLightning();
-
-        DamageAround();
-
-        if (useHitLightningBurst)
-        {
-            PlayHitLightningBurst(GetImpactPosition());
-        }
-
-        if (hitEffect != null)
-        {
-            hitEffect.gameObject.SetActive(true);
-            hitEffect.Play();
-        }
-
-        if (thunderAudio != null)
-        {
-            thunderAudio.Play();
-        }
-
-        yield return GameTime.WaitForScaledSeconds(lightningLifetimeScaledSeconds);
-
-        SetLineActive(lightningLine, false);
-        SetLineActive(cloudFlashLine, false);
-
-        Destroy(gameObject, destroyDelayScaledSeconds);
+        SetFrame(7);
+        gatheringComplete = true;
     }
 
-    private IEnumerator FadeCloudIn()
+    public IEnumerator PlayStrikeFlash(Action onImpact = null)
     {
-        if (darkCloudRoot == null)
+        EnsureRenderer();
+
+        if (!gatheringComplete)
+        {
+            yield return BeginLoiKiep(GetImpactPosition());
+        }
+
+        bool impactTriggered = false;
+        int loops = Mathf.Max(1, strikeLoopCount);
+
+        for (int i = 0; i < loops; i++)
+        {
+            SetFrame(8);
+
+            if (!impactTriggered)
+            {
+                impactTriggered = true;
+                if (thunderAudio != null)
+                {
+                    thunderAudio.Stop();
+                    thunderAudio.Play();
+                }
+
+                onImpact?.Invoke();
+            }
+
+            yield return GameTime.WaitForScaledSeconds(
+                strikeFrameDurationScaledSeconds);
+
+            SetFrame(9);
+            yield return GameTime.WaitForScaledSeconds(
+                strikeFrameDurationScaledSeconds);
+        }
+
+        SetFrame(7);
+    }
+
+    public IEnumerator EndLoiKiep()
+    {
+        if (dissipating)
+        {
             yield break;
-
-        float timer = 0f;
-
-        while (timer < cloudFadeInDurationScaledSeconds)
-        {
-            timer += GameTime.ScaledDeltaSeconds;
-
-            float t = timer / cloudFadeInDurationScaledSeconds;
-            t = Mathf.Clamp01(t);
-
-            SetCloudAlpha(t);
-
-            float scaleValue = Mathf.Lerp(cloudStartScale, cloudEndScale, t);
-            darkCloudRoot.transform.localScale = originalCloudScale * scaleValue;
-
-            yield return null;
         }
 
-        SetCloudAlpha(1f);
-        darkCloudRoot.transform.localScale = originalCloudScale * cloudEndScale;
+        dissipating = true;
+
+        if (cloudRumbleAudio != null)
+        {
+            cloudRumbleAudio.Stop();
+        }
+
+        for (int i = 7; i >= 0; i--)
+        {
+            yield return ShowFrameForDuration(
+                i,
+                dissipateFrameDurationScaledSeconds,
+                smoothTransition: i < 7);
+        }
+
+        SetRendererVisible(false);
+
+        if (destroyAfterSequence)
+        {
+            Destroy(gameObject);
+        }
     }
 
-    private void SetCloudAlpha(float alpha)
+    IEnumerator PlayStandaloneRoutine()
     {
-        if (darkCloudRoot == null)
+        yield return BeginLoiKiep(GetImpactPosition());
+        yield return PlayStrikeFlash(DamageAround);
+        yield return EndLoiKiep();
+    }
+
+    void DamageAround()
+    {
+        if (damage <= 0)
+        {
             return;
-
-        SpriteRenderer[] spriteRenderers = darkCloudRoot.GetComponentsInChildren<SpriteRenderer>(true);
-
-        foreach (SpriteRenderer sr in spriteRenderers)
-        {
-            Color c = sr.color;
-            c.a = alpha;
-            sr.color = c;
-        }
-    }
-
-    private void DrawCloudFlash()
-    {
-        if (cloudFlashLine == null)
-            return;
-
-        SetLineActive(cloudFlashLine, true);
-
-        if (cloudFlashSegmentCount < 3)
-        {
-            cloudFlashSegmentCount = 3;
         }
 
-        cloudFlashLine.positionCount = cloudFlashSegmentCount;
-
-        Vector3 center;
-
-        if (cloudStrikeOrigin != null)
-        {
-            center = cloudStrikeOrigin.position;
-        }
-        else
-        {
-            center = transform.position + new Vector3(0f, 3.5f, 0f);
-        }
-
-        float startX = -cloudFlashWidth * 0.5f;
-        float endX = cloudFlashWidth * 0.5f;
-
-        Vector3 start = center + new Vector3(startX, Random.Range(-cloudFlashHeight, cloudFlashHeight), 0f);
-        Vector3 end = center + new Vector3(endX, Random.Range(-cloudFlashHeight, cloudFlashHeight), 0f);
-
-        for (int i = 0; i < cloudFlashLine.positionCount; i++)
-        {
-            float t = i / (float)(cloudFlashLine.positionCount - 1);
-            Vector3 point = Vector3.Lerp(start, end, t);
-
-            if (i != 0 && i != cloudFlashLine.positionCount - 1)
-            {
-                point.x += Random.Range(-cloudFlashJagged, cloudFlashJagged);
-                point.y += Random.Range(-cloudFlashJagged, cloudFlashJagged);
-            }
-
-            cloudFlashLine.SetPosition(i, point);
-        }
-
-        cloudFlashLine.startWidth = cloudFlashStartWidth;
-        cloudFlashLine.endWidth = cloudFlashEndWidth;
-    }
-
-    private void DrawMainLightning()
-    {
-        if (lightningLine == null)
-            return;
-
-        SetLineActive(lightningLine, true);
-
-        if (segmentCount < 2)
-        {
-            segmentCount = 2;
-        }
-
-        lightningLine.positionCount = segmentCount;
-
-        Vector3 endPosition = GetImpactPosition();
-        Vector3 startPosition;
-
-        if (cloudStrikeOrigin != null)
-        {
-            startPosition = cloudStrikeOrigin.position;
-        }
-        else
-        {
-            startPosition = endPosition + new Vector3(Random.Range(-randomX, randomX), skyHeight, 0f);
-        }
-
-        for (int i = 0; i < segmentCount; i++)
-        {
-            float t = i / (float)(segmentCount - 1);
-            Vector3 point = Vector3.Lerp(startPosition, endPosition, t);
-
-            if (i != 0 && i != segmentCount - 1)
-            {
-                point.x += Random.Range(-segmentOffset, segmentOffset);
-                point.y += Random.Range(-segmentOffset * 0.5f, segmentOffset * 0.5f);
-            }
-
-            lightningLine.SetPosition(i, point);
-        }
-    }
-
-    private void PlayHitLightningBurst(Vector3 center)
-    {
-        if (hitBurstLineTemplate == null)
-            return;
-
-        for (int i = 0; i < hitBurstRayCount; i++)
-        {
-            LineRenderer line = Instantiate(hitBurstLineTemplate, center, Quaternion.identity, transform);
-            line.gameObject.SetActive(true);
-
-            float angle = i * Mathf.PI * 2f / hitBurstRayCount;
-            angle += Random.Range(-0.45f, 0.45f);
-
-            Vector3 dir = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0f);
-            float length = Random.Range(hitBurstMinLength, hitBurstMaxLength);
-
-            Vector3 p0 = center;
-
-            Vector3 p1 = center + dir * length * 0.35f;
-            p1.x += Random.Range(-hitBurstJaggedOffset, hitBurstJaggedOffset);
-            p1.y += Random.Range(-hitBurstJaggedOffset, hitBurstJaggedOffset);
-
-            Vector3 p2 = center + dir * length * 0.7f;
-            p2.x += Random.Range(-hitBurstJaggedOffset, hitBurstJaggedOffset);
-            p2.y += Random.Range(-hitBurstJaggedOffset, hitBurstJaggedOffset);
-
-            Vector3 p3 = center + dir * length;
-
-            line.positionCount = 4;
-            line.SetPosition(0, p0);
-            line.SetPosition(1, p1);
-            line.SetPosition(2, p2);
-            line.SetPosition(3, p3);
-
-            line.startWidth = hitBurstStartWidth;
-            line.endWidth = hitBurstEndWidth;
-
-            Destroy(line.gameObject, hitBurstLifetimeScaledSeconds);
-        }
-    }
-
-    private void DamageAround()
-    {
         Collider2D[] hits =
             Physics2D.OverlapCircleAll(
                 GetImpactPosition(),
@@ -383,8 +228,9 @@ public class ThienKiepStrikePrefab : MonoBehaviour
 
         HashSet<GameObject> damagedObjects = new HashSet<GameObject>();
 
-        foreach (Collider2D hit in hits)
+        for (int i = 0; i < hits.Length; i++)
         {
+            Collider2D hit = hits[i];
             if (hit == null ||
                 !DamageSystem.TryResolveReceiver(
                     hit.gameObject,
@@ -398,24 +244,178 @@ public class ThienKiepStrikePrefab : MonoBehaviour
                 ? damageable.DamageTransform.gameObject
                 : hit.gameObject;
 
-            if (root == null || !damagedObjects.Add(root))
+            if (root == null ||
+                !damagedObjects.Add(root))
+            {
                 continue;
+            }
 
             DamageContext context = DamageContext.Environment(
                 damage,
                 this,
                 DamageType.HeavenlyTribulation,
-                "thien_kiep_strike_prefab",
+                "loi_kiep_strike_prefab",
                 GetImpactPosition());
             DamageSystem.Apply(damageable, context);
         }
     }
 
-    private void SetObjectActive(GameObject obj, bool active)
+    void EnsureRenderer()
     {
-        if (obj != null)
+        if (loiKiepRenderer != null)
         {
-            obj.SetActive(active);
+            ApplyRendererSettings(loiKiepRenderer, 0);
+            EnsureBlendRenderer();
+            return;
+        }
+
+        loiKiepRenderer =
+            GetComponent<SpriteRenderer>();
+        if (loiKiepRenderer == null)
+        {
+            Transform existing =
+                transform.Find("LoiKiepVisual");
+            GameObject rendererObject =
+                existing != null
+                    ? existing.gameObject
+                    : new GameObject("LoiKiepVisual");
+            if (rendererObject.transform.parent != transform)
+            {
+                rendererObject.transform.SetParent(transform, false);
+            }
+
+            loiKiepRenderer =
+                rendererObject.GetComponent<SpriteRenderer>();
+            if (loiKiepRenderer == null)
+            {
+                loiKiepRenderer =
+                    rendererObject.AddComponent<SpriteRenderer>();
+            }
+
+            rendererObject.transform.localScale = Vector3.one;
+        }
+
+        ApplyRendererSettings(loiKiepRenderer, 0);
+        EnsureBlendRenderer();
+    }
+
+    void EnsureBlendRenderer()
+    {
+        if (loiKiepBlendRenderer == null)
+        {
+            Transform existing =
+                transform.Find("LoiKiepBlendVisual");
+            GameObject rendererObject =
+                existing != null
+                    ? existing.gameObject
+                    : new GameObject("LoiKiepBlendVisual");
+            if (rendererObject.transform.parent != transform)
+            {
+                rendererObject.transform.SetParent(transform, false);
+            }
+
+            loiKiepBlendRenderer =
+                rendererObject.GetComponent<SpriteRenderer>();
+            if (loiKiepBlendRenderer == null)
+            {
+                loiKiepBlendRenderer =
+                    rendererObject.AddComponent<SpriteRenderer>();
+            }
+
+            rendererObject.transform.localScale = Vector3.one;
+        }
+
+        ApplyRendererSettings(loiKiepBlendRenderer, -1);
+        loiKiepBlendRenderer.enabled = false;
+    }
+
+    void ApplyRendererSettings(
+        SpriteRenderer renderer,
+        int sortingOrderOffset)
+    {
+        if (renderer == null)
+        {
+            return;
+        }
+
+        if (forceSpriteUnlitMaterial)
+        {
+            Material material = GetSpriteUnlitMaterial();
+            if (material != null &&
+                renderer.sharedMaterial != material)
+            {
+                renderer.sharedMaterial = material;
+            }
+        }
+
+        renderer.sortingOrder = sortingOrder + sortingOrderOffset;
+        if (!string.IsNullOrWhiteSpace(sortingLayerName) &&
+            (SortingLayer.NameToID(sortingLayerName) != 0 ||
+            string.Equals(
+                sortingLayerName,
+                "Default",
+                StringComparison.Ordinal)))
+        {
+            renderer.sortingLayerName = sortingLayerName;
+        }
+    }
+
+    Material GetSpriteUnlitMaterial()
+    {
+        if (cachedSpriteUnlitMaterial != null)
+        {
+            return cachedSpriteUnlitMaterial;
+        }
+
+        Shader shader =
+            Shader.Find("Universal Render Pipeline/2D/Sprite-Unlit-Default");
+        if (shader == null)
+        {
+            shader = Shader.Find("Sprites/Default");
+        }
+
+        if (shader == null)
+        {
+            return null;
+        }
+
+        cachedSpriteUnlitMaterial =
+            new Material(shader)
+            {
+                name = "Runtime_ThienKiep_SpriteUnlit"
+            };
+        return cachedSpriteUnlitMaterial;
+    }
+
+    void SetFrame(int index)
+    {
+        EnsureRenderer();
+
+        if (!TryGetFrameSprite(index, out Sprite sprite))
+        {
+            return;
+        }
+
+        SetRendererFrame(loiKiepRenderer, sprite, index);
+        SetRendererAlpha(loiKiepRenderer, 1f);
+        if (loiKiepBlendRenderer != null)
+        {
+            loiKiepBlendRenderer.enabled = false;
+        }
+        SetRendererVisible(true);
+    }
+
+    void SetRendererVisible(bool visible)
+    {
+        if (loiKiepRenderer != null)
+        {
+            loiKiepRenderer.enabled = visible;
+        }
+
+        if (!visible &&
+            loiKiepBlendRenderer != null)
+        {
+            loiKiepBlendRenderer.enabled = false;
         }
     }
 
@@ -426,24 +426,204 @@ public class ThienKiepStrikePrefab : MonoBehaviour
             : transform.position;
     }
 
-    private void SetLineActive(LineRenderer line, bool active)
+    Vector3 ResolveFrameWorldPosition(int frameIndex)
     {
-        if (line != null)
+        if (frameIndex >= 8 &&
+            hasStrikePosition)
         {
-            line.gameObject.SetActive(active);
+            return strikePosition +
+                Vector3.up * ResolveStrikeFrameCenterOffset(frameIndex);
+        }
+
+        if (hasGatherPosition)
+        {
+            return gatherPosition;
+        }
+
+        if (hasStrikePosition)
+        {
+            return strikePosition;
+        }
+
+        return transform.position;
+    }
+
+    float ResolveStrikeFrameCenterOffset(int frameIndex)
+    {
+        if (!autoAlignStrikeFramesToSpriteBottom ||
+            !TryGetFrameSprite(frameIndex, out Sprite sprite) ||
+            sprite == null)
+        {
+            return strikeImpactToCenterWorld;
+        }
+
+        float centerToBottomWorld =
+            Mathf.Max(0f, -sprite.bounds.min.y);
+        return centerToBottomWorld +
+            Mathf.Max(0f, strikeImpactBottomPaddingWorld);
+    }
+
+    float ResolveGatherFrameDurationScaledSeconds()
+    {
+        const int gatherFrameCount = 8;
+
+        float minDuration =
+            Mathf.Max(0.5f, gatherMinDurationScaledSeconds);
+        float maxDuration =
+            Mathf.Max(minDuration, gatherMaxDurationScaledSeconds);
+
+        if (maxDuration <= minDuration + 0.001f)
+        {
+            return minDuration / gatherFrameCount;
+        }
+
+        float totalDuration =
+            UnityEngine.Random.Range(minDuration, maxDuration);
+        return totalDuration / gatherFrameCount;
+    }
+
+    IEnumerator ShowFrameForDuration(
+        int index,
+        float totalDurationScaledSeconds,
+        bool smoothTransition)
+    {
+        EnsureRenderer();
+
+        if (!TryGetFrameSprite(index, out Sprite nextSprite))
+        {
+            yield return GameTime.WaitForScaledSeconds(
+                totalDurationScaledSeconds);
+            yield break;
+        }
+
+        float totalDuration =
+            Mathf.Max(0f, totalDurationScaledSeconds);
+        bool canBlend =
+            smoothTransition &&
+            loiKiepRenderer != null &&
+            loiKiepBlendRenderer != null &&
+            loiKiepRenderer.enabled &&
+            loiKiepRenderer.sprite != null &&
+            loiKiepRenderer.sprite != nextSprite;
+
+        if (!canBlend)
+        {
+            SetFrame(index);
+            if (totalDuration > 0f)
+            {
+                yield return GameTime.WaitForScaledSeconds(totalDuration);
+            }
+
+            yield break;
+        }
+
+        Sprite previousSprite = loiKiepRenderer.sprite;
+        Color previousColor = loiKiepRenderer.color;
+
+        loiKiepBlendRenderer.sprite = previousSprite;
+        ApplyRendererSettings(loiKiepBlendRenderer, -1);
+        if (loiKiepBlendRenderer.transform != transform)
+        {
+            loiKiepBlendRenderer.transform.localPosition = loiKiepLocalOffset;
+        }
+        SetRendererAlpha(loiKiepBlendRenderer, previousColor.a);
+        loiKiepBlendRenderer.enabled = true;
+
+        SetRendererFrame(loiKiepRenderer, nextSprite, index);
+        SetRendererAlpha(loiKiepRenderer, 0f);
+        SetRendererVisible(true);
+
+        float blendDuration =
+            Mathf.Min(
+                totalDuration,
+                Mathf.Max(0.01f, frameCrossfadeScaledSeconds));
+        float elapsed = 0f;
+
+        while (elapsed < blendDuration)
+        {
+            elapsed += GameTime.ScaledDeltaSeconds;
+            float t = blendDuration <= 0.001f
+                ? 1f
+                : Mathf.Clamp01(elapsed / blendDuration);
+            float eased = Mathf.SmoothStep(0f, 1f, t);
+            SetRendererAlpha(loiKiepRenderer, eased);
+            SetRendererAlpha(loiKiepBlendRenderer, 1f - eased);
+            yield return null;
+        }
+
+        SetRendererAlpha(loiKiepRenderer, 1f);
+        loiKiepBlendRenderer.enabled = false;
+
+        float remainingDuration =
+            totalDuration - blendDuration;
+        if (remainingDuration > 0f)
+        {
+            yield return GameTime.WaitForScaledSeconds(remainingDuration);
         }
     }
 
-    private void OnDrawGizmosSelected()
+    bool TryGetFrameSprite(int index, out Sprite sprite)
+    {
+        sprite = null;
+
+        if (loiKiepFrames == null ||
+            index < 0 ||
+            index >= loiKiepFrames.Length)
+        {
+            return false;
+        }
+
+        sprite = loiKiepFrames[index].sprite;
+        return sprite != null;
+    }
+
+    void SetRendererFrame(
+        SpriteRenderer renderer,
+        Sprite sprite,
+        int frameIndex)
+    {
+        if (renderer == null ||
+            sprite == null)
+        {
+            return;
+        }
+
+        renderer.sprite = sprite;
+        ApplyRendererSettings(
+            renderer,
+            renderer == loiKiepBlendRenderer ? -1 : 0);
+
+        Vector3 localPosition = loiKiepLocalOffset;
+        Vector3 frameWorldPosition =
+            ResolveFrameWorldPosition(frameIndex);
+
+        if (renderer.transform == transform)
+        {
+            transform.position =
+                frameWorldPosition + localPosition;
+        }
+        else
+        {
+            transform.position = frameWorldPosition;
+            renderer.transform.localPosition = localPosition;
+        }
+    }
+
+    void SetRendererAlpha(SpriteRenderer renderer, float alpha)
+    {
+        if (renderer == null)
+        {
+            return;
+        }
+
+        Color color = renderer.color;
+        color.a = Mathf.Clamp01(alpha);
+        renderer.color = color;
+    }
+
+    void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, damageRadius);
-
-        if (cloudStrikeOrigin != null)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(cloudStrikeOrigin.position, transform.position);
-            Gizmos.DrawWireSphere(cloudStrikeOrigin.position, 0.15f);
-        }
+        Gizmos.DrawWireSphere(GetImpactPosition(), damageRadius);
     }
 }

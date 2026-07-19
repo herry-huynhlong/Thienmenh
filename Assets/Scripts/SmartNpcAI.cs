@@ -149,9 +149,11 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
     Vector3 lastUnstuckPosition;
     Vector3 escapeTarget;
     Vector3 obstacleAvoidTarget;
+    Vector3 cultivationTravelProgressPosition;
     float obstacleAvoidUntil;
     float stuckMoveTimer;
     float blockedMoveTimer;
+    float cultivationTravelProgressTime;
     int unstuckRecoveryAttempts;
     bool hasEscapeTarget;
     bool hasObstacleAvoidTarget;
@@ -161,6 +163,9 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
 
     public float attackCooldown = 1f;
 
+    public float unreachableMonsterSeconds = 4f;
+    public float unreachableMonsterMoveEpsilon = 0.08f;
+
     public float deathDestroyDelay = 2f;
 
     private float attackTimer = 0;
@@ -168,6 +173,9 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
     bool isDead;
 
     private MonsterAI currentMonsterTarget;
+    MonsterAI progressMonsterTarget;
+    Vector3 lastMonsterProgressPosition;
+    float monsterProgressTime;
     float movementPausedUntil;
     float crowdYieldUntil;
     float postTeleportRecoveryUntil;
@@ -196,8 +204,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
     public bool dailyTaskVisitEnabled = true;
     [Range(1, 20)] public int dailyTaskMinCount = 5;
     [Range(1, 20)] public int dailyTaskMaxCount = 7;
-    [Range(0f, 24f)] public float taskProviderStartHour = 6f;
-    [Range(0f, 24f)] public float taskProviderEndHour = 17f;
+    [Range(0f, 24f)] public float taskProviderStartHour = 0f;
+    [Range(0f, 24f)] public float taskProviderEndHour = 24f;
     public float cultivationSessionMinGameHours = 1f;
     public float cultivationSessionMaxGameHours = 2f;
     public float tradeSessionMinGameHours = 0.5f;
@@ -292,6 +300,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
 
     void Awake()
     {
+        DisableBatchModeDebugOutput();
         EnforceVillagerPrimaryBrain();
         EnsureCharacterStatsHealthSource();
     }
@@ -373,7 +382,28 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
 
     void OnEnable()
     {
+        DisableBatchModeDebugOutput();
         EnforceVillagerPrimaryBrain();
+    }
+
+    void DisableBatchModeDebugOutput()
+    {
+        if (!Application.isBatchMode)
+        {
+            return;
+        }
+
+        SuppressRuntimeDebugOutput = true;
+        debugFlowLogs = false;
+        runtimeTraceEnabled = false;
+        runtimeTraceEveryUpdate = false;
+        runtimeTraceEveryThink = false;
+        runtimeTraceScheduleChanges = false;
+
+        if (visualAnimation != null)
+        {
+            visualAnimation.debugVisualLogs = false;
+        }
     }
 
     void EnforceVillagerPrimaryBrain()
@@ -545,12 +575,21 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
     {
         if (cultivationEffectPrefab != null)
         {
+            if (!Application.isPlaying)
+            {
+                ApplyRealmPower(false);
+            }
             return;
         }
 
         cultivationEffectPrefab =
             UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
                 "Assets/Effects/CultivationEffect.prefab");
+
+        if (!Application.isPlaying)
+        {
+            ApplyRealmPower(false);
+        }
     }
 #endif
 
@@ -570,6 +609,10 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
         {
             EntityGenerator.FillProfile(entityProfile, EntityKind.Cultivator);
             entityProfile.lockGeneratedValues = true;
+        }
+        else
+        {
+            EntityGenerator.NormalizeCultivatorCombatStats(entityProfile.stats);
         }
 
         npcName = entityProfile.identity.entityName;
@@ -751,6 +794,14 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
         }
 
         RefreshScheduledStateForCurrentFrame();
+
+        if (TryAbortRoutineBlockingFlowForSchedule())
+        {
+            if (runtimeTraceEveryUpdate)
+            {
+                TraceRuntime("Update", "aborted-routine-blocking-flow");
+            }
+        }
 
         if (ShouldEnforceMapBehaviorPolicy())
         {

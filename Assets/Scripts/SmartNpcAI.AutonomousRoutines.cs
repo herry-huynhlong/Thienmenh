@@ -25,7 +25,8 @@ public partial class SmartNpcAI
             false,
             "buy pill");
 
-        NpcCounterBroker broker = NpcCounterBroker.Active;
+        NpcCounterBroker broker =
+            NpcCounterBroker.FindBestBrokerForNpc(gameObject);
         if (broker != null &&
             broker.receiveAllNpcRequests)
         {
@@ -424,7 +425,8 @@ public partial class SmartNpcAI
             return false;
         }
 
-        NpcCounterBroker broker = NpcCounterBroker.Active;
+        NpcCounterBroker broker =
+            NpcCounterBroker.FindBestBrokerForNpc(gameObject);
         if (broker == null)
         {
             if (TryResolveTradeFallbackPosition(

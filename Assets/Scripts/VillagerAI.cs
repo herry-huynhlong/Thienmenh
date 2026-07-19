@@ -4,6 +4,7 @@ using UnityEngine;
 public enum VillagerAgeGroup
 {
     Child,
+    Teen,
     Adult,
     Elder
 }
@@ -127,6 +128,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
     public float unstuckCheckDelay = 1.2f;
     public float unstuckMinMoveDistance = 0.03f;
     public float unstuckOffsetRadius = 0.7f;
+    [Min(1)] public int maxWanderUnstuckRecoveriesBeforeReset = 3;
     public float minWanderTargetDistance = 0.8f;
     public float movementAcceleration = 8f;
     public float movementDeceleration = 12f;
@@ -140,6 +142,10 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
     public float obstacleScanStep = 0.35f;
     public int maxPickTargetAttempts = 16;
     public float blockedTargetRetryDelay = 0.8f;
+
+    [Header("Youth Behavior")]
+    public float childHomeWanderRadius = 1.35f;
+    public float teenVillageWanderRadius = 4.5f;
 
     [Header("Camera Distance Throttle")]
     public bool useCameraDistanceThrottle = true;
@@ -288,6 +294,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
     Vector2 desiredVelocity;
     Vector3 lastUnstuckPosition;
     float stuckMoveTimer;
+    int wanderUnstuckRecoveryAttempts;
     float blockedMoveTimer;
     float crowdBlockedTimer;
     float nextReducedMovementUpdateTime;
@@ -543,6 +550,8 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             ApplyEntityProfile();
         }
 
+        NormalizeVillagerJobSelection();
+
         if (characterStats == null)
         {
             characterStats = gameObject.AddComponent<CharacterStats>();
@@ -723,9 +732,12 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
         {
             job = GetGeneratedJob(entityProfile.personality);
         }
+
+        NormalizeVillagerJobSelection();
         realm = CultivationRealm.Mortal;
         realmStage = 1;
         cultivationExp = 0;
+        EntityGenerator.NormalizeCommonerStats(entityProfile.stats);
         lifespan = 80;
         double realmPower =
             CombatStatCalculator.GetRealmMultiplier(
@@ -765,7 +777,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
                 }
             }
         }
-        ageGroup = GetAgeGroup(GetCurrentVillagerAge());
+        RefreshAgeSensitiveBehaviours();
         attack = entityProfile.stats.attack;
         defense = entityProfile.stats.defense;
         moveSpeed = entityProfile.stats.moveSpeed;
@@ -807,9 +819,14 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
 
     VillagerAgeGroup GetAgeGroup(int age)
     {
-        if (age < 18)
+        if (age < 8)
         {
             return VillagerAgeGroup.Child;
+        }
+
+        if (age < 18)
+        {
+            return VillagerAgeGroup.Teen;
         }
 
         if (age > 60)
@@ -820,6 +837,28 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
         return VillagerAgeGroup.Adult;
     }
 
+    public void RefreshAgeSensitiveBehaviours()
+    {
+        ageGroup = GetAgeGroup(GetCurrentVillagerAge());
+        hideAtHome =
+            ageGroup != VillagerAgeGroup.Child &&
+            ageGroup != VillagerAgeGroup.Teen;
+
+        DailyConversation conversation =
+            GetComponent<DailyConversation>();
+        if (conversation != null)
+        {
+            conversation.enabled = ageGroup != VillagerAgeGroup.Child;
+            if (ageGroup == VillagerAgeGroup.Teen)
+            {
+                conversation.scanInterval =
+                    Mathf.Min(conversation.scanInterval, 2.5f);
+                conversation.conversationCooldown =
+                    Mathf.Min(conversation.conversationCooldown, 15f);
+            }
+        }
+    }
+
     VillagerJob GetGeneratedJob(EntityPersonality source)
     {
         if (source == null)
@@ -827,33 +866,85 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             return VillagerJob.Farmer;
         }
 
-        if (source.bravery > 70)
-        {
-            return VillagerJob.Guard;
-        }
-
         if (source.greed > 70 || source.sociability > 75)
         {
             return VillagerJob.Trader;
         }
 
-        if (source.kindness > 75)
-        {
-            return VillagerJob.Healer;
-        }
-
-        if (source.diligence < 30)
-        {
-            return VillagerJob.None;
-        }
-
         float roll = Random.value;
-        if (roll < 0.34f)
+        if (roll < 0.4f)
         {
             return VillagerJob.Farmer;
         }
 
-        return roll < 0.67f ? VillagerJob.Fisher : VillagerJob.Hunter;
+        return roll < 0.8f ? VillagerJob.Fisher : VillagerJob.Hunter;
+    }
+
+    void NormalizeVillagerJobSelection()
+    {
+        VillagerJob normalized = NormalizeSupportedVillagerJob(job);
+        if (normalized != job)
+        {
+            job = normalized;
+        }
+
+        DisableRemovedVillagerProfessionBehaviours();
+    }
+
+    VillagerJob NormalizeSupportedVillagerJob(VillagerJob sourceJob)
+    {
+        switch (sourceJob)
+        {
+            case VillagerJob.Trader:
+            case VillagerJob.Farmer:
+            case VillagerJob.Fisher:
+            case VillagerJob.Hunter:
+                return sourceJob;
+
+            default:
+                return VillagerJob.Farmer;
+        }
+    }
+
+    void DisableRemovedVillagerProfessionBehaviours()
+    {
+        GuardJob guardJob = GetComponent<GuardJob>();
+        if (guardJob != null)
+        {
+            guardJob.enabled = false;
+        }
+
+        HealerJob healerJob = GetComponent<HealerJob>();
+        if (healerJob != null)
+        {
+            healerJob.enabled = false;
+        }
+
+        NpcAlchemyAgent alchemyAgent = GetComponent<NpcAlchemyAgent>();
+        if (alchemyAgent != null)
+        {
+            alchemyAgent.enabled = false;
+        }
+
+        NpcFixedAlchemistController fixedAlchemist =
+            GetComponent<NpcFixedAlchemistController>();
+        if (fixedAlchemist != null)
+        {
+            fixedAlchemist.enabled = false;
+        }
+
+        NpcForgeAgent forgeAgent = GetComponent<NpcForgeAgent>();
+        if (forgeAgent != null)
+        {
+            forgeAgent.enabled = false;
+        }
+
+        NpcFixedBlacksmithController fixedBlacksmith =
+            GetComponent<NpcFixedBlacksmithController>();
+        if (fixedBlacksmith != null)
+        {
+            fixedBlacksmith.enabled = false;
+        }
     }
 
     int GetSafeSpawnAge(int targetLifespan)
@@ -923,9 +1014,12 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             fixedAlchemist != null &&
             fixedAlchemist.enabled &&
             fixedAlchemist.UseDedicatedRoutine;
+        bool useDedicatedSupplyMerchantRoutine =
+            HasDedicatedSupplyMerchantRoutine();
 
         if (!useDedicatedBlacksmithRoutine &&
-            !useDedicatedAlchemistRoutine)
+            !useDedicatedAlchemistRoutine &&
+            !useDedicatedSupplyMerchantRoutine)
         {
             RefreshScheduledStateForCurrentFrame();
         }
@@ -938,6 +1032,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
 
         if (!useDedicatedBlacksmithRoutine &&
             !useDedicatedAlchemistRoutine &&
+            !useDedicatedSupplyMerchantRoutine &&
             ShouldForceReturnHomeForCurrentSchedule())
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -955,6 +1050,16 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             }
 #endif
             GoHomeToRest();
+            return;
+        }
+
+        if (useDedicatedSupplyMerchantRoutine)
+        {
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+
             return;
         }
 
@@ -1017,6 +1122,16 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             ApplyNpcOverlapSeparation();
             ApplySmoothVelocity();
             UpdateVisualAnimation();
+            return;
+        }
+
+        if (HasDedicatedSupplyMerchantRoutine())
+        {
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+
             return;
         }
 
@@ -1147,6 +1262,10 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             return;
         }
 
+        characterStats.generatedEntityKind = EntityKind.Commoner;
+        characterStats.NormalizeCommonerRuntimeStats();
+        characterStats.RecalculateStats(false);
+
         realm = CultivationRealm.Mortal;
         realmStage = 1;
         cultivationExp = 0;
@@ -1154,9 +1273,19 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             characterStats.waitingForHeavenlyTribulation;
         maxHP = characterStats.finalHP;
         currentHP = characterStats.currentHP;
-        attack = characterStats.attack;
-        defense = characterStats.defense;
+        attack = Mathf.Clamp(characterStats.attack, 1, 12);
+        defense = Mathf.Clamp(characterStats.defense, 0, 6);
         moveSpeed = characterStats.moveSpeed;
+
+        if (entityProfile != null && entityProfile.stats != null)
+        {
+            EntityGenerator.NormalizeCommonerStats(entityProfile.stats);
+            entityProfile.stats.maxHP = maxHP;
+            entityProfile.stats.currentHP = currentHP;
+            entityProfile.stats.attack = attack;
+            entityProfile.stats.defense = defense;
+            entityProfile.stats.moveSpeed = moveSpeed;
+        }
     }
 
     public int AuthoritativeCurrentHP
@@ -1277,7 +1406,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             villagerName = entityProfile.identity.entityName;
         }
 
-        ageGroup = GetAgeGroup(GetCurrentVillagerAge());
+        RefreshAgeSensitiveBehaviours();
     }
 
     void CacheNpcIdentity()
@@ -1653,8 +1782,8 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
 
         int slotCount = 8;
         int slotIndex = Mathf.Abs(
-            gameObject.GetInstanceID() ^
-            target.gameObject.GetInstanceID()) % slotCount;
+            UnityObjectIdUtility.GetRuntimeId(gameObject) ^
+            UnityObjectIdUtility.GetRuntimeId(target.gameObject)) % slotCount;
         float spacingRadius = Mathf.Max(
             arriveDistance * 3f,
             sharedTargetSpacingRadius,
@@ -2100,6 +2229,11 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
         return amount >= requiredAmount;
     }
 
+    public bool HasProducedGoodsForSale()
+    {
+        return HasSellableGoods();
+    }
+
     bool IsSellableStack(ItemStack stack)
     {
         if (stack == null ||
@@ -2189,6 +2323,36 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
 
     bool TryBuyGoodsFromTrader()
     {
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(
+                transform.position,
+                sellGoodsSearchRadius,
+                traderLayers);
+
+        foreach (Collider2D hit in hits)
+        {
+            if (hit == null ||
+                hit.transform == transform ||
+                hit.transform.IsChildOf(transform))
+            {
+                continue;
+            }
+
+            NpcTradeAgent trader =
+                hit.GetComponentInParent<NpcTradeAgent>();
+
+            if (trader == null ||
+                !trader.IsMarketTrader)
+            {
+                continue;
+            }
+
+            if (trader.TrySellUsefulItemTo(this))
+            {
+                return true;
+            }
+        }
+
         NpcCounterBroker broker = NpcCounterBroker.Active;
         if (broker != null &&
             broker.receiveAllNpcRequests &&
@@ -2319,6 +2483,9 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             case VillagerAgeGroup.Child:
                 fallbackAge = 12;
                 break;
+            case VillagerAgeGroup.Teen:
+                fallbackAge = 16;
+                break;
             case VillagerAgeGroup.Elder:
                 fallbackAge = 70;
                 break;
@@ -2428,6 +2595,9 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             Mathf.Max(
                 0,
                 CombatStatCalculator.ClampToInt(scaledDefense));
+
+        attack = Mathf.Clamp(attack, 1, 12);
+        defense = Mathf.Clamp(defense, 0, 6);
 
         if (entityProfile != null)
         {

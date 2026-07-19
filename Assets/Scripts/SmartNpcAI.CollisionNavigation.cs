@@ -12,7 +12,8 @@ public partial class SmartNpcAI
 
         if (IsCurrentTargetCollider(hit) ||
             IsCurrentMonsterCollider(hit) ||
-            IsCounterCustomerZoneCollider(hit))
+            IsCounterCustomerZoneCollider(hit) ||
+            IsSoftNpcTrafficCollider(hit))
         {
             return false;
         }
@@ -21,6 +22,18 @@ public partial class SmartNpcAI
             hit.GetComponentInParent<SmartNpcAI>() == null &&
             hit.GetComponentInParent<NpcMapMover2D>() == null &&
             hit.GetComponentInParent<MonsterAI>() == null;
+    }
+
+    bool IsSoftNpcTrafficCollider(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return false;
+        }
+
+        return hit.GetComponentInParent<NpcVillageSupplyMerchant>() != null ||
+            hit.GetComponentInParent<NpcCounterBroker>() != null ||
+            hit.GetComponentInParent<NpcTradeAgent>() != null;
     }
 
     string DescribeObstacle(Collider2D hit)

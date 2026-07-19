@@ -116,7 +116,8 @@ public class NpcCombatHitbox2D : MonoBehaviour
             return;
         }
 
-        if (!hitTargets.Add(targetObject.GetInstanceID()))
+        if (!hitTargets.Add(
+                UnityObjectIdUtility.GetRuntimeId(targetObject)))
         {
             return;
         }

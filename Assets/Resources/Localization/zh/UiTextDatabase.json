@@ -1372,11 +1372,19 @@
       "entries": [
         {
           "key": "vanbaolau",
-          "value": "Wan Bao Lou"
+          "value": "万宝楼"
+        },
+        {
+          "key": "mathusonmach",
+          "value": "魔兽山脉"
+        },
+        {
+          "key": "lang",
+          "value": "村庄"
         },
         {
           "key": "nhiemvubang",
-          "value": "Ren Wu Bang"
+          "value": "任务榜"
         }
       ],
       "lists": []

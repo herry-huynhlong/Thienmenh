@@ -119,6 +119,8 @@ public class NPCIdentity : MonoBehaviour
     public LifeStage lifeStage = LifeStage.Youth;
     public NPCVisualProfile visualProfile;
     public string homeId;
+    [Header("Travel")]
+    public bool allowAutomaticGateTravel = true;
 
     [Header("Family")]
     public string fatherId;
@@ -212,5 +214,24 @@ public class NPCIdentity : MonoBehaviour
         }
 
         return false;
+    }
+}
+
+public static class NpcGateTravelPolicy
+{
+    public static bool AllowsAutomaticGateTravel(GameObject actor)
+    {
+        if (actor == null)
+        {
+            return true;
+        }
+
+        NPCIdentity identity =
+            actor.GetComponent<NPCIdentity>() ??
+            actor.GetComponentInParent<NPCIdentity>(true) ??
+            actor.GetComponentInChildren<NPCIdentity>(true);
+
+        return identity == null ||
+            identity.allowAutomaticGateTravel;
     }
 }

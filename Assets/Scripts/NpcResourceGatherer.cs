@@ -763,8 +763,7 @@ public class NpcResourceGatherer : MonoBehaviour
         const float minimumPickupSpacing = 1.25f;
         WorldStatItemPickup[] pickups =
             FindObjectsByType<WorldStatItemPickup>(
-                FindObjectsInactive.Exclude,
-                FindObjectsSortMode.None);
+                FindObjectsInactive.Exclude);
 
         for (int i = 0; i < pickups.Length; i++)
         {
@@ -1107,6 +1106,7 @@ public class NpcResourceGatherer : MonoBehaviour
 
         StatItemData item = pickup.item;
         if (item == null ||
+            !pickup.CanNpcActorCollect(gameObject) ||
             !pickup.TryTake(1))
         {
             pickup.ClearReservation(gameObject);
@@ -1251,6 +1251,7 @@ public class NpcResourceGatherer : MonoBehaviour
             pickup.item == null ||
             pickup.amount <= 0 ||
             !pickup.allowNpcPickup ||
+            !pickup.HasValidNpcPickupArea() ||
             pickup.IsReservedByOther(gameObject) ||
             !pickup.gameObject.activeInHierarchy)
         {

@@ -14,6 +14,22 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 {
     public static HeavenlyTribulationSystem Instance { get; private set; }
 
+    enum TribulationWitnessSpeechPhase
+    {
+        CloudGathering,
+        LightningStrike,
+        NearFailure,
+        Success,
+        Failure
+    }
+
+    enum TribulationWitnessRole
+    {
+        None,
+        Commoner,
+        Cultivator
+    }
+
     struct PillProtectionState
     {
         public float expiresAtScaledSeconds;
@@ -29,6 +45,141 @@ public class HeavenlyTribulationSystem : MonoBehaviour
     static readonly Dictionary<int, TribulationTargetLock> activeTargetLocks =
         new Dictionary<int, TribulationTargetLock>();
 
+    static readonly Dictionary<int, float> nextWitnessSpeechTimes =
+        new Dictionary<int, float>();
+
+    static readonly string[] CultivatorCloudGatheringLines =
+    {
+        "Kiếp vân hội tụ... Có người sắp đột phá!",
+        "Thiên địa dị tượng, chẳng lẽ có tiền bối đang độ kiếp?",
+        "Uy áp thật mạnh... tu vi người này tuyệt đối không thấp.",
+        "Mau lui lại! Thiên kiếp không phân biệt người ngoài cuộc.",
+        "Lôi kiếp đã khóa chặt khí tức của hắn.",
+        "Kiếp vân kéo dài trăm dặm... lần đột phá này không đơn giản.",
+        "Thiên đạo đã giáng mắt nhìn xuống nơi này.",
+        "Không biết người độ kiếp là bằng hữu hay kẻ địch.",
+        "Khí tức này... chẳng lẽ sắp bước vào đại cảnh giới?",
+        "Dám dẫn động thiên kiếp tại đây, người này thật quá liều lĩnh."
+    };
+
+    static readonly string[] CultivatorLightningStrikeLines =
+    {
+        "Đạo lôi thứ nhất đã giáng xuống!",
+        "Lôi uy thật đáng sợ, mau vận công hộ thể!",
+        "Hắn lại dùng thân thể chống đỡ thiên lôi?",
+        "Một kích như vậy mà vẫn chưa ngã xuống...",
+        "Thiên kiếp lần này mạnh hơn bình thường rất nhiều.",
+        "Không ổn, kiếp vân vẫn đang tiếp tục tụ lại!",
+        "Đây không phải tam trọng lôi kiếp... số lượng còn nhiều hơn!",
+        "Khí tức của hắn đang suy yếu, e rằng khó vượt qua.",
+        "Không được đến gần, nếu bị thiên kiếp xem là người trợ giúp thì tất cả đều phải chết!",
+        "Lôi đình mang theo thiên uy, pháp bảo bình thường căn bản không chống nổi.",
+        "Hắn đang mượn thiên lôi để luyện thể!",
+        "Kẻ này thật điên cuồng, lại dám hấp thu sức mạnh của lôi kiếp.",
+        "Kiếp lôi càng lúc càng mạnh... thiên đạo muốn diệt hắn sao?",
+        "Còn có tâm ma kiếp! Đây mới là cửa ải nguy hiểm nhất."
+    };
+
+    static readonly string[] CultivatorNearFailureLines =
+    {
+        "Đạo tâm đã loạn, tình thế không ổn.",
+        "Hộ thể linh quang sắp vỡ rồi!",
+        "Pháp bảo của hắn đã bị thiên lôi đánh nát.",
+        "Nếu không còn thủ đoạn cuối cùng, hôm nay e rằng thân tử đạo tiêu.",
+        "Thiên kiếp vô tình, con đường tu hành vốn là nghịch thiên mà đi.",
+        "Khí huyết đã cạn, hắn không chống được thêm bao lâu.",
+        "Đáng tiếc một đời khổ tu, cuối cùng lại dừng bước tại đây.",
+        "Mệnh số chưa đủ, cưỡng ép đột phá chỉ chuốc lấy diệt vong.",
+        "Không ai có thể giúp hắn. Cửa ải này chỉ có thể tự mình vượt qua.",
+        "Nguyên thần đang tan rã... thất bại đã thành định cục."
+    };
+
+    static readonly string[] CultivatorSuccessLines =
+    {
+        "Kiếp vân đã tan! Hắn thành công rồi!",
+        "Thiên địa linh khí đang tụ về phía hắn.",
+        "Sau kiếp nạn chính là tạo hóa.",
+        "Khí tức đã hoàn toàn thay đổi... hắn đã bước vào cảnh giới mới.",
+        "Chúc mừng đạo hữu vượt qua thiên kiếp!",
+        "Từ hôm nay, thế gian lại có thêm một vị cường giả.",
+        "Có thể vượt qua lôi kiếp như vậy, tiền đồ của người này không thể đo lường.",
+        "Thiên lôi luyện thể, đạo vận nhập thân... thật khiến người khác ngưỡng mộ.",
+        "Hắn đã được thiên đạo thừa nhận.",
+        "Một bước vượt kiếp, từ đây tiên phàm cách biệt."
+    };
+
+    static readonly string[] CultivatorFailureLines =
+    {
+        "Kiếp vân đã tan, nhưng khí tức của hắn cũng biến mất rồi.",
+        "Thân tử đạo tiêu... cuối cùng vẫn không thể vượt qua.",
+        "Tu hành nghìn năm, chỉ một lần độ kiếp liền hóa thành tro bụi.",
+        "Thiên đạo vô tình, không phải ai cũng có thể nghịch mệnh thành công.",
+        "Đạo cơ đã hủy, cho dù còn sống cũng khó tiếp tục tu hành.",
+        "Đây chính là cái giá của việc cưỡng ép đột phá.",
+        "Một vị cường giả nữa đã ngã xuống dưới thiên kiếp.",
+        "Con đường trường sinh quả nhiên được xây bằng vô số xương trắng.",
+        "Hồn phi phách tán, ngay cả cơ hội luân hồi cũng không còn.",
+        "Đáng tiếc... chỉ thiếu một bước cuối cùng."
+    };
+
+    static readonly string[] CommonerCloudGatheringLines =
+    {
+        "Trời đang yên lành, sao tự nhiên tối sầm lại vậy?",
+        "Mây đen kia đang xoáy thành một vòng tròn!",
+        "Mau về nhà đi, có khi trời sắp nổi giông lớn!",
+        "Đó có phải thần tiên đang thi triển phép thuật không?",
+        "Chắc chắn có tiên nhân xuất hiện!",
+        "Ông trời nổi giận rồi, mau đóng cửa lại!",
+        "Ta sống từng này tuổi chưa từng thấy cảnh tượng như vậy.",
+        "Mau gọi mọi người tránh xa ngọn núi đó!",
+        "Gia súc đều đang hoảng loạn, chuyện này không bình thường.",
+        "Chẳng lẽ có yêu quái đang làm loạn?"
+    };
+
+    static readonly string[] CommonerLightningStrikeLines =
+    {
+        "Trời ơi! Sét đánh thẳng xuống một chỗ!",
+        "Mau chạy đi, đừng đứng ngoài đường!",
+        "Tiếng sấm lớn quá, nhà cửa cũng đang rung chuyển!",
+        "Có người đứng giữa sấm sét kìa!",
+        "Người đó vẫn còn sống sao?",
+        "Đúng là tiên nhân, người thường sao có thể chịu được sét đánh!",
+        "Mau quỳ xuống, đừng chọc giận ông trời!",
+        "Sét đánh liên tục như vậy, cả ngọn núi sẽ bị phá hủy mất!",
+        "Đừng nhìn nữa, mau đưa trẻ con vào trong nhà!",
+        "Ta còn tưởng tận thế đã đến.",
+        "Ánh sáng chói quá, mắt ta không mở nổi!",
+        "Ngay cả mặt đất cũng đang nứt ra!"
+    };
+
+    static readonly string[] CommonerSuccessLines =
+    {
+        "Mây đen tan rồi! Cuối cùng cũng kết thúc.",
+        "Nhìn kìa, trên trời xuất hiện ánh sáng!",
+        "Vị tiên nhân đó đã chiến thắng thiên lôi!",
+        "Chúng ta vừa tận mắt nhìn thấy thần tiên sao?",
+        "Mau tới bái kiến tiên nhân!",
+        "Có tiên nhân xuất hiện gần làng, đây chắc chắn là điềm lành.",
+        "Sau trận sét, cây cỏ quanh đó đều xanh tốt hơn.",
+        "Từ nay nơi này chắc sẽ trở thành vùng đất linh thiêng.",
+        "May quá, ông trời đã nguôi giận rồi.",
+        "Chuyện hôm nay nhất định phải kể lại cho con cháu."
+    };
+
+    static readonly string[] CommonerFailureLines =
+    {
+        "Người kia... biến mất rồi sao?",
+        "Chỉ còn lại một vùng đất cháy đen.",
+        "Mây đã tan nhưng sao chẳng thấy vị tiên nhân đâu?",
+        "Chẳng lẽ người đó đã bị ông trời trừng phạt?",
+        "Đừng đến gần, nơi đó vẫn còn sét!",
+        "Thật đáng sợ... ngay cả tiên nhân cũng không chống lại được trời.",
+        "Mau lập bàn hương, cầu mong người đã khuất được yên nghỉ.",
+        "Hôm nay chắc chắn là một ngày đại hung.",
+        "Không được nhặt những thứ còn sót lại, kẻo rước họa vào thân.",
+        "Từ nay không ai được tới gần ngọn núi đó nữa."
+    };
+
     readonly List<Action> activeTribulationCancellations =
         new List<Action>();
 
@@ -38,6 +189,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
     public int lightningCountPerMajorRealm = 1;
     [FormerlySerializedAs("lightningInterval")]
     public float lightningIntervalScaledSeconds = 0.45f;
+    [Min(0f)] public float postTribulationRecoveryScaledSeconds = 2f;
     public float strikeRadius = 1.8f;
     public float openAreaSearchRadius = 8f;
     public float openAreaClearRadius = 0.9f;
@@ -52,6 +204,19 @@ public class HeavenlyTribulationSystem : MonoBehaviour
     public bool useStrikePrefab = true;
     public ThienKiepStrikePrefab strikePrefab;
     public bool useFallbackIfNoPrefab = true;
+    public Transform debugTestPoint;
+    public GameObject debugTestTarget;
+    public bool debugUseGameCameraCenterWhenNoPoint = true;
+    public bool debugAttachPreviewToGameCamera = true;
+    [Min(0.05f)] public float debugTestHoldScaledSeconds = 0.9f;
+    public bool debugPlayStrikeOnTest = true;
+
+    [Header("Witness Speech")]
+    [Min(2f)] public float witnessSpeechRadius = 6f;
+    [Min(1)] public int maxWitnessSpeakersPerPhase = 3;
+    [Min(0.25f)] public float witnessSpeechCooldownScaledSeconds = 2.25f;
+    [Min(0.5f)] public float witnessSpeechDurationScaledSeconds = 3.2f;
+    [Range(0.05f, 0.95f)] public float witnessDangerHealthRatio = 0.35f;
 
     [Header("Visual Fallback Cũ")]
     public float cloudHeight = 3.2f;
@@ -70,7 +235,8 @@ public class HeavenlyTribulationSystem : MonoBehaviour
     public static bool IsTargetLocked(GameObject target)
     {
         return target != null &&
-            lockedTribulationTargets.Contains(target.GetInstanceID());
+            lockedTribulationTargets.Contains(
+                UnityObjectIdUtility.GetRuntimeId(target));
     }
 
     void Awake()
@@ -82,6 +248,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         }
 
         Instance = this;
+        EnsureRuntimeReferences();
         DontDestroyOnLoad(gameObject);
     }
 
@@ -121,12 +288,13 @@ public class HeavenlyTribulationSystem : MonoBehaviour
             return;
         }
 
-        HeavenlyTribulationSystem system = Instance;
+        HeavenlyTribulationSystem system = ResolveRuntimeSystem();
 
         if (system == null)
         {
             GameObject systemObject = new GameObject("Heavenly Tribulation System");
             system = systemObject.AddComponent<HeavenlyTribulationSystem>();
+            system.EnsureRuntimeReferences();
         }
 
         Action cancelSession = null;
@@ -159,6 +327,107 @@ public class HeavenlyTribulationSystem : MonoBehaviour
                 guardedCompleted));
     }
 
+    static HeavenlyTribulationSystem ResolveRuntimeSystem()
+    {
+        if (Instance != null)
+        {
+            Instance.EnsureRuntimeReferences();
+            return Instance;
+        }
+
+        HeavenlyTribulationSystem sceneSystem =
+            FindAnyObjectByType<HeavenlyTribulationSystem>(
+                FindObjectsInactive.Include);
+        if (sceneSystem != null)
+        {
+            Instance = sceneSystem;
+            sceneSystem.EnsureRuntimeReferences();
+            return sceneSystem;
+        }
+
+        return null;
+    }
+
+    void EnsureRuntimeReferences()
+    {
+        if (strikePrefab != null)
+        {
+            return;
+        }
+
+        ThienKiepStrikePrefab resolvedPrefab =
+            LoadDefaultStrikePrefab();
+        if (resolvedPrefab == null)
+        {
+            return;
+        }
+
+        strikePrefab = resolvedPrefab;
+    }
+
+    ThienKiepStrikePrefab LoadDefaultStrikePrefab()
+    {
+        const string prefabName = "PF_ThienKiepStrike";
+        const string assetPath = "Assets/Prefabs/PF_ThienKiepStrike.prefab";
+
+        ThienKiepStrikePrefab fromResources =
+            Resources.Load<ThienKiepStrikePrefab>(prefabName);
+        if (fromResources != null)
+        {
+            return fromResources;
+        }
+
+        GameObject resourceObject =
+            Resources.Load<GameObject>(prefabName);
+        if (resourceObject != null)
+        {
+            ThienKiepStrikePrefab resourcePrefab =
+                resourceObject.GetComponent<ThienKiepStrikePrefab>();
+            if (resourcePrefab != null)
+            {
+                return resourcePrefab;
+            }
+        }
+
+#if UNITY_EDITOR
+        GameObject assetObject =
+            UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+        if (assetObject != null)
+        {
+            ThienKiepStrikePrefab assetPrefab =
+                assetObject.GetComponent<ThienKiepStrikePrefab>();
+            if (assetPrefab != null)
+            {
+                return assetPrefab;
+            }
+        }
+
+        ThienKiepStrikePrefab[] loadedPrefabs =
+            Resources.FindObjectsOfTypeAll<ThienKiepStrikePrefab>();
+        for (int i = 0; i < loadedPrefabs.Length; i++)
+        {
+            ThienKiepStrikePrefab candidate = loadedPrefabs[i];
+            if (candidate == null ||
+                !UnityEditor.EditorUtility.IsPersistent(candidate))
+            {
+                continue;
+            }
+
+            string candidatePath =
+                UnityEditor.AssetDatabase.GetAssetPath(candidate);
+            if (string.Equals(
+                    candidatePath,
+                    assetPath,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return candidate;
+            }
+        }
+#endif
+
+        return null;
+    }
+
     public static void MarkPillProtectionIfEligible(
         GameObject target,
         StatItemData item)
@@ -185,7 +454,8 @@ public class HeavenlyTribulationSystem : MonoBehaviour
             ? system.pillProtectionDurationScaledSeconds
             : 30f;
 
-        pillProtectionUntil[target.GetInstanceID()] =
+        pillProtectionUntil[
+            UnityObjectIdUtility.GetRuntimeId(target)] =
             new PillProtectionState
             {
                 expiresAtScaledSeconds =
@@ -253,6 +523,10 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 
         Vector3 strikeCenter = GetTribulationStrikeCenter(target, center);
         Vector3 visualCenter = GetTribulationVisualCenter(target, strikeCenter);
+        ThienKiepStrikePrefab activeStrikeVisual =
+            CreatePersistentStrikeVisual(
+                visualCenter,
+                strikeCenter);
         ShowTribulationSpeech(target);
         ShowNearbyTribulationWitnessSpeech(target);
 
@@ -261,9 +535,17 @@ public class HeavenlyTribulationSystem : MonoBehaviour
             NpcText.Realm(targetRealm) + ".",
             2);
 
-        yield return PlayCloudGathering(center, runtime);
-
-        yield return GameTime.WaitForScaledSeconds(0.35f);
+        if (activeStrikeVisual != null)
+        {
+            yield return activeStrikeVisual.BeginLoiKiep(
+                visualCenter,
+                strikeCenter);
+        }
+        else
+        {
+            yield return PlayCloudGathering(center, runtime);
+            yield return GameTime.WaitForScaledSeconds(0.35f);
+        }
 
         HeavenSystem heaven = HeavenSystem.Instance;
         int count = Mathf.Max(1, runtime.lightningCount);
@@ -272,39 +554,109 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         {
             if (target == null || damageable.IsDead)
             {
+                if (activeStrikeVisual != null)
+                {
+                    yield return activeStrikeVisual.EndLoiKiep();
+                }
+
                 ReleaseTribulationLock(targetLock);
                 CompleteTribulation(onCompleted, false);
                 yield break;
             }
 
-            Strike(
-                heaven,
-                visualCenter,
-                strikeCenter,
-                runtime.damagePerStrike);
+            if (activeStrikeVisual != null)
+            {
+                bool damageApplied = false;
+                yield return activeStrikeVisual.PlayStrikeFlash(
+                    () =>
+                    {
+                        if (damageApplied)
+                        {
+                            return;
+                        }
+
+                        damageApplied = true;
+                        ApplyStrikeDamage(
+                            strikeCenter,
+                            heaven != null ? heaven.punishmentRadius : 1.2f,
+                            heaven != null ? heaven.damageLayers : (LayerMask)~0,
+                            runtime.damagePerStrike);
+                    });
+            }
+            else
+            {
+                Strike(
+                    heaven,
+                    visualCenter,
+                    strikeCenter,
+                    runtime.damagePerStrike);
+            }
 
             yield return GameTime.WaitForScaledSeconds(
                 Mathf.Max(0.05f, lightningIntervalScaledSeconds));
+
         }
 
         if (target == null || damageable.IsDead)
         {
+            if (activeStrikeVisual != null)
+            {
+                yield return activeStrikeVisual.EndLoiKiep();
+            }
+
             ReleaseTribulationLock(targetLock);
             CompleteTribulation(onCompleted, false);
             yield break;
         }
 
-        Strike(
-            heaven,
-            visualCenter,
-            strikeCenter,
-            runtime.finalStrikeDamage);
+        if (activeStrikeVisual != null)
+        {
+            bool finalDamageApplied = false;
+            yield return activeStrikeVisual.PlayStrikeFlash(
+                () =>
+                {
+                    if (finalDamageApplied)
+                    {
+                        return;
+                    }
 
-        yield return GameTime.WaitForScaledSeconds(0.1f);
+                    finalDamageApplied = true;
+                    ApplyStrikeDamage(
+                        strikeCenter,
+                        heaven != null ? heaven.punishmentRadius : 1.2f,
+                        heaven != null ? heaven.damageLayers : (LayerMask)~0,
+                        runtime.finalStrikeDamage);
+                });
+            yield return activeStrikeVisual.EndLoiKiep();
+        }
+        else
+        {
+            Strike(
+                heaven,
+                visualCenter,
+                strikeCenter,
+                runtime.finalStrikeDamage);
+
+            yield return GameTime.WaitForScaledSeconds(0.1f);
+        }
 
         if (target == null || damageable.IsDead)
         {
             AddWorldLog(displayName + " thất bại dưới Thiên Kiếp.", 2);
+            ReleaseTribulationLock(targetLock);
+            CompleteTribulation(onCompleted, false);
+            yield break;
+        }
+
+        if (postTribulationRecoveryScaledSeconds > 0f)
+        {
+            yield return GameTime.WaitForScaledSeconds(
+                postTribulationRecoveryScaledSeconds);
+        }
+
+        if (target == null || damageable.IsDead)
+        {
+            AddWorldLog(displayName + " tháº¥t báº¡i dÆ°á»›i ThiÃªn Kiáº¿p.", 2);
             ReleaseTribulationLock(targetLock);
             CompleteTribulation(onCompleted, false);
             yield break;
@@ -323,6 +675,197 @@ public class HeavenlyTribulationSystem : MonoBehaviour
     void CompleteTribulation(Action<bool> onCompleted, bool passed)
     {
         onCompleted?.Invoke(passed);
+    }
+
+    ThienKiepStrikePrefab CreatePersistentStrikeVisual(
+        Vector3 gatherPosition,
+        Vector3 strikePosition)
+    {
+        if (!useStrikePrefab ||
+            strikePrefab == null)
+        {
+            return null;
+        }
+
+        ThienKiepStrikePrefab strike =
+            Instantiate(
+                strikePrefab,
+                gatherPosition,
+                Quaternion.identity);
+        strike.PrepareAt(
+            gatherPosition,
+            strikePosition);
+        return strike;
+    }
+
+    [ContextMenu("Debug/Test Loi Kiep Visual")]
+    public void DebugPlayLoiKiepVisual()
+    {
+        if (!Application.isPlaying)
+        {
+            Debug.LogWarning(
+                "Chi co the test loi kiep khi game dang Play.",
+                this);
+            return;
+        }
+
+        Vector3 fallbackCenter =
+            debugTestPoint != null
+                ? debugTestPoint.position
+                : debugTestTarget != null
+                    ? debugTestTarget.transform.position
+                    : ResolveDebugFallbackCenter();
+
+        GameObject resolvedTarget = debugTestTarget;
+        if (resolvedTarget == null &&
+            debugTestPoint != null)
+        {
+            resolvedTarget = debugTestPoint.gameObject;
+        }
+
+        Vector3 strikeCenter =
+            GetTribulationStrikeCenter(
+                resolvedTarget,
+                fallbackCenter);
+        Vector3 visualCenter =
+            GetTribulationVisualCenter(
+                resolvedTarget,
+                strikeCenter);
+        Camera debugCamera =
+            resolvedTarget == null &&
+            debugTestPoint == null &&
+            debugUseGameCameraCenterWhenNoPoint
+                ? ResolveDebugCamera()
+                : null;
+
+        StartCoroutine(
+            DebugPlayLoiKiepVisualRoutine(
+                visualCenter,
+                strikeCenter,
+                debugCamera));
+    }
+
+    IEnumerator DebugPlayLoiKiepVisualRoutine(
+        Vector3 visualCenter,
+        Vector3 strikeCenter,
+        Camera debugCamera)
+    {
+        ThienKiepStrikePrefab visual =
+            CreatePersistentStrikeVisual(
+                visualCenter,
+                strikeCenter);
+
+        if (visual == null)
+        {
+            if (useFallbackIfNoPrefab)
+            {
+                yield return PlayFallbackLightning(
+                    visualCenter,
+                    strikeCenter);
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "Khong the test loi kiep vi strikePrefab chua duoc gan.",
+                    this);
+            }
+
+            yield break;
+        }
+
+        if (debugCamera != null &&
+            debugAttachPreviewToGameCamera)
+        {
+            AttachDebugVisualToCamera(
+                visual,
+                debugCamera);
+            visualCenter = visual.transform.position;
+            strikeCenter = visualCenter;
+        }
+
+        yield return visual.BeginLoiKiep(
+            visualCenter,
+            strikeCenter);
+        yield return GameTime.WaitForScaledSeconds(
+            Mathf.Max(0.05f, debugTestHoldScaledSeconds));
+
+        if (debugPlayStrikeOnTest)
+        {
+            yield return visual.PlayStrikeFlash();
+        }
+
+        yield return visual.EndLoiKiep();
+    }
+
+    Vector3 ResolveDebugFallbackCenter()
+    {
+        if (debugUseGameCameraCenterWhenNoPoint)
+        {
+            Camera mainCamera = Camera.main;
+            if (mainCamera != null)
+            {
+                return CameraWorldPlaneUtility.ScreenToWorldOnPlane(
+                    mainCamera,
+                    new Vector2(
+                        mainCamera.pixelWidth * 0.5f,
+                        mainCamera.pixelHeight * 0.5f),
+                    0f);
+            }
+        }
+
+        return transform.position;
+    }
+
+    Camera ResolveDebugCamera()
+    {
+        Camera mainCamera = Camera.main;
+        if (mainCamera != null &&
+            mainCamera.isActiveAndEnabled)
+        {
+            return mainCamera;
+        }
+
+        Camera[] cameras =
+            FindObjectsByType<Camera>(FindObjectsInactive.Exclude);
+        for (int i = 0; i < cameras.Length; i++)
+        {
+            Camera camera = cameras[i];
+            if (camera != null &&
+                camera.isActiveAndEnabled &&
+                camera.targetDisplay == 0)
+            {
+                return camera;
+            }
+        }
+
+        return null;
+    }
+
+    void AttachDebugVisualToCamera(
+        ThienKiepStrikePrefab visual,
+        Camera debugCamera)
+    {
+        if (visual == null ||
+            debugCamera == null)
+        {
+            return;
+        }
+
+        float localZ =
+            Mathf.Abs(
+                0f - debugCamera.transform.position.z);
+        if (localZ < 0.5f)
+        {
+            localZ = 10f;
+        }
+
+        visual.transform.SetParent(
+            debugCamera.transform,
+            false);
+        visual.transform.localPosition =
+            new Vector3(0f, 0f, localZ);
+        visual.transform.localRotation = Quaternion.identity;
+        visual.transform.localScale = Vector3.one;
     }
 
     void CancelActiveTribulations()
@@ -379,7 +922,8 @@ public class HeavenlyTribulationSystem : MonoBehaviour
             return null;
         }
 
-        int targetId = target.GetInstanceID();
+        int targetId =
+            UnityObjectIdUtility.GetRuntimeId(target);
         if (activeTargetLocks.TryGetValue(
                 targetId,
                 out TribulationTargetLock existing))
@@ -408,7 +952,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
 
         lockedTribulationTargets.Add(targetId);
         activeTargetLocks[targetId] = targetLock;
-        NpcRoleUtility.SetAction(target, NpcText.Action("waitTribulation"));
+        ApplyTribulationWaitPose(target);
         target.SendMessage(
             "OnHeavenlyTribulationLockChanged",
             true,
@@ -459,6 +1003,44 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         for (int i = 0; i < locks.Length; i++)
         {
             ReleaseTribulationLock(locks[i]);
+        }
+    }
+
+    void ApplyTribulationWaitPose(GameObject target)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        string waitAction =
+            NpcText.Action("waitTribulation");
+        NpcActionState waitState =
+            NpcActionState.FromKey("waitTribulation");
+
+        NpcRoleUtility.SetAction(target, waitAction);
+
+        SmartNpcAI smartNpc =
+            target.GetComponent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            smartNpc.ForceSetCurrentAction(waitAction, 0.25f);
+            smartNpc.SetCurrentActionState(waitState);
+        }
+
+        VillagerAI villager =
+            target.GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            villager.currentAction = waitAction;
+            villager.SetCurrentActionState(waitState);
+        }
+
+        MonsterAI monster =
+            target.GetComponent<MonsterAI>();
+        if (monster != null)
+        {
+            monster.SetCurrentActionState(waitState);
         }
     }
 
@@ -547,9 +1129,130 @@ public class HeavenlyTribulationSystem : MonoBehaviour
             return fallbackCenter;
         }
 
-        Collider2D[] colliders = target.GetComponentsInChildren<Collider2D>();
-        Bounds? bounds = null;
+        Bounds? bounds =
+            GetTargetVisualBounds(target, true);
+        if (bounds.HasValue)
+        {
+            Bounds value = bounds.Value;
+            float anchorX = GetTribulationAnchorX(target, value.center.x);
+            float groundOffset =
+                Mathf.Clamp(
+                    value.size.y * 0.08f,
+                    0.05f,
+                    0.16f);
+            float strikeY =
+                value.min.y + groundOffset;
+            return new Vector3(
+                anchorX,
+                strikeY,
+                fallbackCenter.z);
+        }
 
+        Rigidbody2D rb = target.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            return new Vector3(
+                rb.position.x,
+                rb.position.y + 0.5f,
+                fallbackCenter.z);
+        }
+
+        Vector3 position = target.transform.position;
+        return new Vector3(
+            position.x,
+            position.y + 0.5f,
+            fallbackCenter.z);
+    }
+
+    Vector3 GetTribulationVisualCenter(
+        GameObject target,
+        Vector3 strikeCenter)
+    {
+        Bounds? bounds =
+            GetTargetVisualBounds(target, true);
+        if (bounds.HasValue)
+        {
+            Bounds value = bounds.Value;
+            float anchorX = GetTribulationAnchorX(target, value.center.x);
+            return new Vector3(
+                anchorX,
+                value.max.y + 1.9f,
+                strikeCenter.z);
+        }
+
+        if (target == null)
+        {
+            return strikeCenter + Vector3.up * 2.6f;
+        }
+
+        Rigidbody2D rb = target.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            return new Vector3(
+                rb.position.x,
+                rb.position.y + 2.6f,
+                strikeCenter.z);
+        }
+
+        Vector3 position = target.transform.position;
+        return new Vector3(
+            position.x,
+            position.y + 2.6f,
+            strikeCenter.z);
+    }
+
+    float GetTribulationAnchorX(
+        GameObject target,
+        float fallbackX)
+    {
+        if (target == null)
+        {
+            return fallbackX;
+        }
+
+        Rigidbody2D rb = target.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            return rb.position.x;
+        }
+
+        return target.transform.position.x;
+    }
+
+    Bounds? GetTargetVisualBounds(
+        GameObject target,
+        bool includeColliders)
+    {
+        if (target == null)
+        {
+            return null;
+        }
+
+        Bounds? bounds = null;
+        SpriteRenderer[] spriteRenderers =
+            target.GetComponentsInChildren<SpriteRenderer>(true);
+
+        for (int i = 0; i < spriteRenderers.Length; i++)
+        {
+            SpriteRenderer renderer = spriteRenderers[i];
+            if (renderer == null ||
+                !renderer.enabled ||
+                renderer.sprite == null)
+            {
+                continue;
+            }
+
+            bounds = bounds.HasValue
+                ? Encapsulate(bounds.Value, renderer.bounds)
+                : renderer.bounds;
+        }
+
+        if (bounds.HasValue || !includeColliders)
+        {
+            return bounds;
+        }
+
+        Collider2D[] colliders = target.GetComponentsInChildren<Collider2D>(true);
         for (int i = 0; i < colliders.Length; i++)
         {
             Collider2D collider = colliders[i];
@@ -563,49 +1266,7 @@ public class HeavenlyTribulationSystem : MonoBehaviour
                 : collider.bounds;
         }
 
-        if (bounds.HasValue)
-        {
-            return bounds.Value.center;
-        }
-
-        Rigidbody2D rb = target.GetComponent<Rigidbody2D>();
-        if (rb != null)
-        {
-            return rb.position;
-        }
-
-        return fallbackCenter;
-    }
-
-    Vector3 GetTribulationVisualCenter(
-        GameObject target,
-        Vector3 strikeCenter)
-    {
-        float headOffset = 1.1f;
-
-        if (target != null)
-        {
-            Collider2D[] colliders = target.GetComponentsInChildren<Collider2D>();
-            float top = float.NegativeInfinity;
-
-            for (int i = 0; i < colliders.Length; i++)
-            {
-                Collider2D collider = colliders[i];
-                if (collider == null || collider.isTrigger)
-                {
-                    continue;
-                }
-
-                top = Mathf.Max(top, collider.bounds.max.y);
-            }
-
-            if (!float.IsNegativeInfinity(top))
-            {
-                headOffset = Mathf.Max(0.8f, top - strikeCenter.y + 0.25f);
-            }
-        }
-
-        return strikeCenter + Vector3.up * headOffset;
+        return bounds;
     }
 
     void ShowTribulationSpeech(GameObject target)
@@ -637,7 +1298,8 @@ public class HeavenlyTribulationSystem : MonoBehaviour
         {
             GameObject npc = ResolveNearbyNpcRoot(hits[i], target);
             if (npc == null ||
-                !shownNpcIds.Add(npc.GetInstanceID()) ||
+                !shownNpcIds.Add(
+                    UnityObjectIdUtility.GetRuntimeId(npc)) ||
                 NpcRoleUtility.IsDead(npc))
             {
                 continue;
@@ -697,7 +1359,8 @@ public class HeavenlyTribulationSystem : MonoBehaviour
             return false;
         }
 
-        int key = target.GetInstanceID();
+        int key =
+            UnityObjectIdUtility.GetRuntimeId(target);
 
         if (!pillProtectionUntil.TryGetValue(
                 key,

@@ -11,4 +11,30 @@ public partial class VillagerAI
 
         TryTradeOrTaskOrIdle();
     }
+
+    public bool TryRunMarketRoleThink()
+    {
+        ThinkTrader();
+        return true;
+    }
+
+    public void RunMarketRoleTrade()
+    {
+        GoTrade();
+    }
+
+    public void RunMarketRoleSellGoods()
+    {
+        GoSellGoods();
+    }
+
+    public void RunMarketRoleBuyGoods()
+    {
+        GoBuyGoods();
+    }
+
+    public void RunMarketRoleTaskProviderVisit()
+    {
+        TryScheduledTaskOrWait();
+    }
 }

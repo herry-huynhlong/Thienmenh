@@ -1463,17 +1463,18 @@ public class NpcMapMover2D : MonoBehaviour, INpcMovementResultProvider
             return false;
         }
 
-        return GetInstanceID() > otherRoot.gameObject.GetInstanceID();
+        return UnityObjectIdUtility.GetRuntimeId(this) >
+            UnityObjectIdUtility.GetRuntimeId(otherRoot.gameObject);
     }
 
     bool ShouldUseRightSide(Collider2D other)
     {
         Transform otherRoot = GetNpcRoot(other);
         int otherId = otherRoot != null
-            ? otherRoot.gameObject.GetInstanceID()
+            ? UnityObjectIdUtility.GetRuntimeId(otherRoot.gameObject)
             : 0;
 
-        return ((GetInstanceID() ^ otherId) & 1) == 0;
+        return ((UnityObjectIdUtility.GetRuntimeId(this) ^ otherId) & 1) == 0;
     }
 
     bool IsNpcCollider(Collider2D hit)
@@ -1572,7 +1573,8 @@ public class NpcMapMover2D : MonoBehaviour, INpcMovementResultProvider
         }
 
         Vector2 side = new Vector2(-forward.y, forward.x);
-        int sideSign = (GetInstanceID() & 1) == 0 ? 1 : -1;
+        int sideSign =
+            (UnityObjectIdUtility.GetRuntimeId(this) & 1) == 0 ? 1 : -1;
 
         Vector2[] directions =
         {

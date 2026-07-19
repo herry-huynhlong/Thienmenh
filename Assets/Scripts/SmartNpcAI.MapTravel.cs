@@ -66,15 +66,84 @@ public partial class SmartNpcAI
 
     Vector3 ResolveBrokerApproachPosition(NpcCounterBroker broker)
     {
+        if (broker == null)
+        {
+            return transform.position;
+        }
+
         if (currentAction == NpcText.Action("goVanBaoLauBroker") &&
-            hasWanderTarget)
+            hasWanderTarget &&
+            IsBrokerApproachPositionUsable(wanderTarget, broker))
         {
             return wanderTarget;
         }
 
-        return broker != null
-            ? broker.GetCustomerPositionFor(gameObject)
-            : transform.position;
+        Vector3 preferred = broker.GetCustomerPositionFor(gameObject);
+        if (TryFindClearBrokerApproachPosition(
+                preferred,
+                broker,
+                out Vector3 clearApproach))
+        {
+            if (currentAction == NpcText.Action("goVanBaoLauBroker"))
+            {
+                wanderTarget = clearApproach;
+                hasWanderTarget = true;
+            }
+
+            return clearApproach;
+        }
+
+        return preferred;
+    }
+
+    bool TryFindClearBrokerApproachPosition(
+        Vector3 preferred,
+        NpcCounterBroker broker,
+        out Vector3 position)
+    {
+        position = preferred;
+        if (IsBrokerApproachPositionUsable(preferred, broker))
+        {
+            return true;
+        }
+
+        if (TryFindClearPointNear(preferred, out Vector3 clearPoint, false) &&
+            IsBrokerApproachPositionUsable(clearPoint, broker))
+        {
+            position = clearPoint;
+            return true;
+        }
+
+        return false;
+    }
+
+    bool IsBrokerApproachPositionUsable(
+        Vector3 position,
+        NpcCounterBroker broker)
+    {
+        if (broker == null)
+        {
+            return false;
+        }
+
+        position.z = transform.position.z;
+        if (!IsMoveTargetFeasible(position))
+        {
+            return false;
+        }
+
+        Vector3 customerPosition = broker.CustomerPosition;
+        customerPosition.z = position.z;
+
+        float allowedDistance =
+            Mathf.Max(
+                broker.CustomerServiceRadius,
+                broker.customerArriveDistance,
+                escapeTargetReachDistance) +
+            Mathf.Max(GetBodyClearRadius(), 0.2f);
+
+        return Vector2.Distance(position, customerPosition) <=
+            allowedDistance;
     }
 
     NpcMapZone? ResolveBrokerTargetZone(NpcCounterBroker broker)
@@ -197,7 +266,8 @@ public partial class SmartNpcAI
         basePosition.z = transform.position.z;
 
         int slotIndex =
-            Mathf.Abs(gameObject.GetInstanceID()) % 8;
+            Mathf.Abs(
+                UnityObjectIdUtility.GetRuntimeId(gameObject)) % 8;
         float angle =
             (slotIndex / 8f) * Mathf.PI * 2f;
         float radius =
@@ -271,7 +341,8 @@ public partial class SmartNpcAI
             return false;
         }
 
-        NpcCounterBroker broker = NpcCounterBroker.Active;
+        NpcCounterBroker broker =
+            NpcCounterBroker.FindBestBrokerForNpc(gameObject);
         if (broker == null ||
             !broker.receiveAllNpcRequests)
         {

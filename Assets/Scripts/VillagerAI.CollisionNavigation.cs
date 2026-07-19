@@ -45,7 +45,8 @@ public partial class VillagerAI
 
         if (other.GetComponentInParent<VillagerAI>() == null &&
             other.GetComponentInParent<SmartNpcAI>() == null &&
-            other.GetComponentInParent<NpcMapMover2D>() == null)
+            other.GetComponentInParent<NpcMapMover2D>() == null &&
+            !IsSoftNpcTrafficCollider(other))
         {
             return;
         }
@@ -77,7 +78,8 @@ public partial class VillagerAI
             collision.collider != null &&
             (collision.collider.GetComponentInParent<VillagerAI>() != null ||
              collision.collider.GetComponentInParent<SmartNpcAI>() != null ||
-             collision.collider.GetComponentInParent<NpcMapMover2D>() != null))
+             collision.collider.GetComponentInParent<NpcMapMover2D>() != null ||
+             IsSoftNpcTrafficCollider(collision.collider)))
         {
             return;
         }
@@ -224,6 +226,11 @@ public partial class VillagerAI
             return false;
         }
 
+        if (IsSoftNpcTrafficCollider(hit))
+        {
+            return false;
+        }
+
         if (IsTaskProviderInteractionCollider(hit))
         {
             return false;
@@ -242,6 +249,18 @@ public partial class VillagerAI
         return hit.GetComponentInParent<VillagerAI>() == null &&
             hit.GetComponentInParent<SmartNpcAI>() == null &&
             hit.GetComponentInParent<NpcMapMover2D>() == null;
+    }
+
+    bool IsSoftNpcTrafficCollider(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return false;
+        }
+
+        return hit.GetComponentInParent<NpcVillageSupplyMerchant>() != null ||
+            hit.GetComponentInParent<NpcCounterBroker>() != null ||
+            hit.GetComponentInParent<NpcTradeAgent>() != null;
     }
 
     string DescribeObstacle(Collider2D hit)

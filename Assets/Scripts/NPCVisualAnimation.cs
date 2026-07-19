@@ -146,6 +146,7 @@ public class NPCVisualAnimation : MonoBehaviour
             return;
         }
 
+        ResetResolvedVisualBindings();
         animator.runtimeAnimatorController = controller;
         TryAssignClipsFromAnimator(this);
 
@@ -185,6 +186,70 @@ public class NPCVisualAnimation : MonoBehaviour
                 " attackSide=" + DescribeClip(attackSideClip) +
                 " dieDown=" + DescribeClip(dieDownClip));
         }
+    }
+
+    void ResetResolvedVisualBindings()
+    {
+        downWalkClip = null;
+        upWalkClip = null;
+        sideWalkClip = null;
+        rightWalkClip = null;
+        leftWalkClip = null;
+
+        downIdleClip = null;
+        upIdleClip = null;
+        sideIdleClip = null;
+        rightIdleClip = null;
+        leftIdleClip = null;
+
+        attackDownClip = null;
+        attackUpClip = null;
+        attackSideClip = null;
+        rightAttackClip = null;
+        leftAttackClip = null;
+
+        cultivateClip = null;
+        cultivateDownClip = null;
+        cultivateUpClip = null;
+        cultivateSideClip = null;
+        rightCultivateClip = null;
+        leftCultivateClip = null;
+
+        dieDownClip = null;
+        dieUpClip = null;
+        dieSideClip = null;
+        rightDieClip = null;
+        leftDieClip = null;
+
+        walkDownState = null;
+        walkUpState = null;
+        walkSideState = null;
+        walkRightState = null;
+        walkLeftState = null;
+        idleDownState = null;
+        idleUpState = null;
+        idleSideState = null;
+        idleRightState = null;
+        idleLeftState = null;
+        attackDownState = null;
+        attackUpState = null;
+        attackSideState = null;
+        attackRightState = null;
+        attackLeftState = null;
+        cultivateStateName = null;
+        cultivateDownState = null;
+        cultivateUpState = null;
+        cultivateSideState = null;
+        cultivateRightState = null;
+        cultivateLeftState = null;
+        dieDownState = null;
+        dieUpState = null;
+        dieSideState = null;
+        dieRightState = null;
+        dieLeftState = null;
+
+        sideSpriteFacesRight = false;
+        invertSideFlip = false;
     }
 
     public void UpdateNPCAnimation(

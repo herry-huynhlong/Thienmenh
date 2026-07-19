@@ -75,6 +75,19 @@ public class CharacterStats : MonoBehaviour, IDamageable
         realm = entityProfile.stats.realm;
         realmStage = entityProfile.stats.realmStage;
         cultivationExp = entityProfile.stats.cultivationExp;
+        if (generatedEntityKind == EntityKind.Commoner ||
+            entityProfile.kind == EntityKind.Commoner)
+        {
+            EntityGenerator.NormalizeCommonerStats(entityProfile.stats);
+            realm = CultivationRealm.Mortal;
+            realmStage = 1;
+            cultivationExp = 0;
+        }
+        else if (generatedEntityKind == EntityKind.Cultivator ||
+                 entityProfile.kind == EntityKind.Cultivator)
+        {
+            EntityGenerator.NormalizeCultivatorCombatStats(entityProfile.stats);
+        }
         double realmMultiplier =
             CombatStatCalculator.GetRealmMultiplier(
                 Mathf.Max(0, (int)realm),
@@ -89,6 +102,10 @@ public class CharacterStats : MonoBehaviour, IDamageable
                 entityProfile.stats.currentHP,
                 0,
                 Mathf.Max(1, entityProfile.stats.maxHP));
+        attack = Mathf.Max(1, entityProfile.stats.attack);
+        defense = Mathf.Max(0, entityProfile.stats.defense);
+        effectResistance = entityProfile.stats.effectResistance;
+        moveSpeed = Mathf.Max(0.1f, entityProfile.stats.moveSpeed);
     }
 
     void Start()
@@ -208,6 +225,11 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
     public void RecalculateStats(bool fillHP)
     {
+        if (generatedEntityKind == EntityKind.Commoner)
+        {
+            NormalizeCommonerRuntimeStats();
+        }
+
         int oldFinalHP =
             Mathf.Max(1, finalHP);
 
@@ -263,6 +285,13 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
         finalHP = Mathf.Max(1, finalHP);
 
+        if (generatedEntityKind == EntityKind.Commoner)
+        {
+            finalHP = Mathf.Clamp(finalHP, 50, 150);
+            attack = Mathf.Clamp(attack, 1, 12);
+            defense = Mathf.Clamp(defense, 0, 6);
+        }
+
         if (fillHP)
         {
             currentHP = finalHP;
@@ -277,6 +306,28 @@ public class CharacterStats : MonoBehaviour, IDamageable
         }
 
         SyncHealthToEntityProfile();
+    }
+
+    public void NormalizeCommonerRuntimeStats()
+    {
+        realm = CultivationRealm.Mortal;
+        realmStage = 1;
+        cultivationExp = 0;
+        waitingForHeavenlyTribulation = false;
+
+        if (entityProfile != null && entityProfile.stats != null)
+        {
+            EntityGenerator.NormalizeCommonerStats(entityProfile.stats);
+        }
+
+        baseMaxHP = Mathf.Clamp(baseMaxHP > 0 ? baseMaxHP : 100, 50, 150);
+        baseAttack = Mathf.Clamp(baseAttack > 0 ? baseAttack : 5, 1, 12);
+        baseDefense = Mathf.Clamp(baseDefense, 0, 6);
+        bonusAttack = Mathf.Clamp(bonusAttack, 0, 6);
+        bonusDefense = Mathf.Clamp(bonusDefense, 0, 3);
+        bonusAttackPercent = 0f;
+        bonusDefensePercent = 0f;
+        bonusEffectResistance = Mathf.Clamp(bonusEffectResistance, 0, 3);
     }
 
     public void RestoreHealthState(
@@ -539,7 +590,9 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
     public string GetRealmText()
     {
-        return NpcText.RealmWithStage(realm, realmStage);
+        return generatedEntityKind == EntityKind.Commoner
+            ? NpcText.Realm(CultivationRealm.Mortal)
+            : NpcText.RealmWithStage(realm, realmStage);
     }
 
 

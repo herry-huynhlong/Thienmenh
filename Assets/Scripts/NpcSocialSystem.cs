@@ -244,7 +244,8 @@ public static class NpcMonsterCombatDialogue
             return;
         }
 
-        int id = monster.GetInstanceID();
+        int id =
+            UnityObjectIdUtility.GetRuntimeId(monster);
         if (!records.TryGetValue(id, out CombatRecord record))
         {
             record = new CombatRecord();
@@ -270,7 +271,8 @@ public static class NpcMonsterCombatDialogue
             return;
         }
 
-        int id = monster.GetInstanceID();
+        int id =
+            UnityObjectIdUtility.GetRuntimeId(monster);
         records.TryGetValue(id, out CombatRecord record);
         records.Remove(id);
 
@@ -469,7 +471,12 @@ public class NpcSocialIdentity : MonoBehaviour
 
         if (string.IsNullOrEmpty(socialId))
         {
-            socialId = gameObject.scene.name + ":" + displayName + ":" + GetInstanceID();
+            socialId =
+                gameObject.scene.name +
+                ":" +
+                displayName +
+                ":" +
+                UnityObjectIdUtility.GetRuntimeId(this);
         }
     }
 }
@@ -2901,7 +2908,8 @@ public class NpcSocialWorldInstaller : MonoBehaviour
             return;
         }
 
-        int instanceId = npc.GetInstanceID();
+        int instanceId =
+            UnityObjectIdUtility.GetRuntimeId(npc);
         if (installedNpcIds.Contains(instanceId))
         {
             return;

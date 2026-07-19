@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 [System.Serializable]
 public class ResourceFieldItemEntry
@@ -74,6 +77,9 @@ public class WorldResourceField : MonoBehaviour, ISerializationCallbackReceiver
 
     [Header("Rare Item Effect")]
     public string rareEffectChildName = "ItemAuraParticle";
+    public Sprite[] haPhamHerbRingFrames = new Sprite[0];
+    public Sprite[] trungPhamHerbRingFrames = new Sprite[0];
+    public Sprite[] thuongPhamHerbRingFrames = new Sprite[0];
 
     [Header("Respawn")]
     public int respawnAmount = 1;
@@ -112,6 +118,7 @@ public class WorldResourceField : MonoBehaviour, ISerializationCallbackReceiver
 
     void Start()
     {
+        TryPopulateDefaultHerbRingFrames();
         RegisterConfiguredItems();
         ConfigureExistingResources();
 
@@ -163,6 +170,8 @@ public class WorldResourceField : MonoBehaviour, ISerializationCallbackReceiver
 
         if (region == null)
             region = GetComponent<SpawnRegion>();
+
+        TryPopulateDefaultHerbRingFrames();
     }
 
     void MigrateTimeDomains()
@@ -365,6 +374,83 @@ public class WorldResourceField : MonoBehaviour, ISerializationCallbackReceiver
     void SetupRareItemEffect(GameObject resourceObject, StatItemData item)
     {
         if (resourceObject == null || item == null)
+        {
+            return;
+        }
+
+        if (IsHerbResource(resourceObject, item))
+        {
+            SetupHerbRingEffect(resourceObject, item);
+            return;
+        }
+
+        SetupLegacyRareItemEffect(resourceObject, item);
+    }
+
+    void SetupHerbRingEffect(GameObject resourceObject, StatItemData item)
+    {
+        TryPopulateDefaultHerbRingFrames();
+        Sprite[] ringFrames = ResolveHerbRingFrames(item.grade);
+        bool shouldShow = HasAnySprite(ringFrames);
+
+        Transform effectRoot =
+            FindChildRecursive(resourceObject.transform, rareEffectChildName);
+
+        if (effectRoot == null)
+        {
+            GameObject effectObject = new GameObject(rareEffectChildName);
+            effectObject.transform.SetParent(resourceObject.transform, false);
+            effectObject.transform.localPosition = Vector3.zero;
+            effectRoot = effectObject.transform;
+        }
+
+        effectRoot.localPosition = Vector3.zero;
+        CleanupLegacyAuraComponents(effectRoot.gameObject);
+
+        WorldHerbGradeRingEffect ringEffect =
+            effectRoot.GetComponent<WorldHerbGradeRingEffect>();
+        if (ringEffect == null)
+        {
+            ringEffect =
+                effectRoot.gameObject.AddComponent<WorldHerbGradeRingEffect>();
+        }
+
+        if (!shouldShow)
+        {
+            effectRoot.gameObject.SetActive(false);
+            return;
+        }
+
+        SpriteRenderer baseRenderer =
+            FindPrimaryResourceRenderer(resourceObject, effectRoot);
+        float herbWorldSize =
+            baseRenderer != null
+                ? Mathf.Max(
+                    visualSize,
+                    Mathf.Max(
+                        baseRenderer.bounds.size.x,
+                        baseRenderer.bounds.size.y))
+                : visualSize;
+        int sortingLayerId =
+            baseRenderer != null
+                ? baseRenderer.sortingLayerID
+                : 0;
+
+        WorldStatItemPickup pickup =
+            resourceObject.GetComponent<WorldStatItemPickup>();
+        ringEffect.Configure(
+            pickup,
+            ringFrames,
+            item.grade,
+            sortingLayerId,
+            sortingOrder + 40,
+            herbWorldSize);
+        effectRoot.gameObject.SetActive(true);
+    }
+
+    void SetupLegacyRareItemEffect(GameObject resourceObject, StatItemData item)
+    {
+        if (resourceObject == null || item == null)
             return;
 
         // TEST: Trung sáng.
@@ -454,6 +540,276 @@ public class WorldResourceField : MonoBehaviour, ISerializationCallbackReceiver
             }
         }
     }
+
+    void CleanupLegacyAuraComponents(GameObject effectObject)
+    {
+        if (effectObject == null)
+        {
+            return;
+        }
+
+        ParticleSystem[] particleSystems =
+            effectObject.GetComponentsInChildren<ParticleSystem>(true);
+        for (int i = 0; i < particleSystems.Length; i++)
+        {
+            ParticleSystem particle = particleSystems[i];
+            if (particle == null)
+            {
+                continue;
+            }
+
+            if (Application.isPlaying)
+            {
+                Destroy(particle);
+            }
+            else
+            {
+                DestroyImmediate(particle);
+            }
+        }
+
+        ParticleSystemRenderer[] particleRenderers =
+            effectObject.GetComponentsInChildren<ParticleSystemRenderer>(true);
+        for (int i = 0; i < particleRenderers.Length; i++)
+        {
+            ParticleSystemRenderer particleRenderer = particleRenderers[i];
+            if (particleRenderer == null)
+            {
+                continue;
+            }
+
+            if (Application.isPlaying)
+            {
+                Destroy(particleRenderer);
+            }
+            else
+            {
+                DestroyImmediate(particleRenderer);
+            }
+        }
+    }
+
+    bool IsHerbResource(GameObject resourceObject, StatItemData item)
+    {
+        if (item == null)
+        {
+            return false;
+        }
+
+        if (item.materialKind == MaterialKind.Herb ||
+            ResourceNode.InferKindFromItem(item) == HarvestResourceKind.ThaoDuoc)
+        {
+            return true;
+        }
+
+        return resourceObject != null &&
+            resourceObject.GetComponent<GrowingHerbNode>() != null;
+    }
+
+    Sprite[] ResolveHerbRingFrames(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.Ha:
+                return haPhamHerbRingFrames;
+
+            case ItemGrade.Trung:
+                return trungPhamHerbRingFrames;
+
+            case ItemGrade.Thuong:
+            case ItemGrade.Tien:
+                return thuongPhamHerbRingFrames;
+
+            default:
+                return thuongPhamHerbRingFrames;
+        }
+    }
+
+    bool HasAnySprite(Sprite[] sprites)
+    {
+        if (sprites == null ||
+            sprites.Length == 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < sprites.Length; i++)
+        {
+            if (sprites[i] != null)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    SpriteRenderer FindPrimaryResourceRenderer(
+        GameObject resourceObject,
+        Transform excludedRoot)
+    {
+        if (resourceObject == null)
+        {
+            return null;
+        }
+
+        SpriteRenderer[] renderers =
+            resourceObject.GetComponentsInChildren<SpriteRenderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            SpriteRenderer renderer = renderers[i];
+            if (renderer == null ||
+                renderer.transform == excludedRoot ||
+                (excludedRoot != null &&
+                renderer.transform.IsChildOf(excludedRoot)))
+            {
+                continue;
+            }
+
+            return renderer;
+        }
+
+        return null;
+    }
+
+#if UNITY_EDITOR
+    void TryPopulateDefaultHerbRingFrames()
+    {
+        bool changed = false;
+        changed |= TryAssignFrameSet(
+            "Assets/UI/fire/vonghapham.png",
+            ref haPhamHerbRingFrames);
+        changed |= TryAssignFrameSet(
+            "Assets/UI/fire/vongtrungpham.png",
+            ref trungPhamHerbRingFrames);
+        changed |= TryAssignFrameSet(
+            "Assets/UI/fire/vongthuongpham.png",
+            ref thuongPhamHerbRingFrames);
+
+        if (changed)
+        {
+            EditorUtility.SetDirty(this);
+        }
+    }
+
+    bool TryAssignFrameSet(string assetPath, ref Sprite[] targetFrames)
+    {
+        Sprite[] loadedFrames = LoadSpritesAtPath(assetPath);
+        if (!HasAnySprite(loadedFrames))
+        {
+            return false;
+        }
+
+        if (AreSpriteArraysEquivalent(targetFrames, loadedFrames))
+        {
+            return false;
+        }
+
+        targetFrames = loadedFrames;
+        return true;
+    }
+
+    Sprite[] LoadSpritesAtPath(string assetPath)
+    {
+        UnityEngine.Object[] assets =
+            AssetDatabase.LoadAllAssetsAtPath(assetPath);
+        List<Sprite> sprites = new List<Sprite>();
+
+        for (int i = 0; i < assets.Length; i++)
+        {
+            Sprite sprite = assets[i] as Sprite;
+            if (sprite == null)
+            {
+                continue;
+            }
+
+            sprites.Add(sprite);
+        }
+
+        sprites.Sort(CompareSpriteNamesByTrailingIndex);
+        return sprites.ToArray();
+    }
+
+    int CompareSpriteNamesByTrailingIndex(Sprite left, Sprite right)
+    {
+        if (left == right)
+        {
+            return 0;
+        }
+
+        int leftIndex =
+            ExtractTrailingNumber(left != null ? left.name : string.Empty);
+        int rightIndex =
+            ExtractTrailingNumber(right != null ? right.name : string.Empty);
+        if (leftIndex != rightIndex)
+        {
+            return leftIndex.CompareTo(rightIndex);
+        }
+
+        string leftName = left != null ? left.name : string.Empty;
+        string rightName = right != null ? right.name : string.Empty;
+        return string.Compare(
+            leftName,
+            rightName,
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    int ExtractTrailingNumber(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return int.MinValue;
+        }
+
+        int end = value.Length - 1;
+        while (end >= 0 && char.IsDigit(value[end]))
+        {
+            end--;
+        }
+
+        if (end >= value.Length - 1)
+        {
+            return int.MinValue;
+        }
+
+        string numericPart = value.Substring(end + 1);
+        int parsed;
+        return int.TryParse(numericPart, out parsed)
+            ? parsed
+            : int.MinValue;
+    }
+
+    bool AreSpriteArraysEquivalent(
+        Sprite[] current,
+        Sprite[] loaded)
+    {
+        if (current == loaded)
+        {
+            return true;
+        }
+
+        if (current == null ||
+            loaded == null ||
+            current.Length != loaded.Length)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < current.Length; i++)
+        {
+            if (current[i] != loaded[i])
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+#else
+    void TryPopulateDefaultHerbRingFrames()
+    {
+    }
+#endif
 
     Transform FindChildRecursive(Transform parent, string childName)
     {

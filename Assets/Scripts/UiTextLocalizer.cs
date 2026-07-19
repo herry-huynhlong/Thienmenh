@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(TMP_Text))]
@@ -27,6 +28,7 @@ public class UiTextLocalizer : MonoBehaviour
     {
         LocalizationSettings.LanguageChanged -= HandleLanguageChanged;
         LocalizationSettings.LanguageChanged += HandleLanguageChanged;
+        WarnIfLikelyWorldLabelIsMisconfigured();
         RefreshText();
     }
 
@@ -64,5 +66,41 @@ public class UiTextLocalizer : MonoBehaviour
     void HandleLanguageChanged()
     {
         RefreshText();
+    }
+
+    void WarnIfLikelyWorldLabelIsMisconfigured()
+    {
+        if (targetText == null)
+        {
+            return;
+        }
+
+        TextMeshProUGUI uiText = targetText as TextMeshProUGUI;
+        if (uiText == null)
+        {
+            return;
+        }
+
+        Canvas canvas = uiText.GetComponentInParent<Canvas>();
+        if (canvas == null ||
+            canvas.renderMode == RenderMode.WorldSpace)
+        {
+            return;
+        }
+
+        Transform canvasParent = canvas.transform.parent;
+        if (canvasParent == null ||
+            canvasParent.GetComponentInParent<Canvas>() != null)
+        {
+            return;
+        }
+
+        Debug.LogWarning(
+            "UiTextLocalizer on '" +
+            gameObject.name +
+            "' is using TextMeshProUGUI under a non-world-space Canvas nested in world objects. " +
+            "This setup often disappears or renders in the wrong place during Play mode. " +
+            "Use TextMeshPro (3D) for world labels, or switch the parent Canvas to World Space.",
+            gameObject);
     }
 }

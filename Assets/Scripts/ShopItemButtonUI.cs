@@ -47,7 +47,8 @@ public class ShopItemButtonUI : MonoBehaviour, IPointerClickHandler, IPointerDow
         itemIndex = newItemIndex;
         currentSlot = slot;
         pulseSeed =
-            Mathf.Abs((GetInstanceID() ^ newItemIndex) * 0.173f);
+            Mathf.Abs(
+                (UnityObjectIdUtility.GetRuntimeId(this) ^ newItemIndex) * 0.173f);
 
         AutoFindReferences();
         EnsureRootClickable();

@@ -20,6 +20,7 @@ public partial class VillagerAI
         if (!hasDirectMoveTarget && currentTarget == null && !hasWanderTarget)
         {
             stuckMoveTimer = 0f;
+            wanderUnstuckRecoveryAttempts = 0;
             lastUnstuckPosition = transform.position;
             return;
         }
@@ -32,6 +33,7 @@ public partial class VillagerAI
         if (escapeDirection.sqrMagnitude <= 0.0001f)
         {
             stuckMoveTimer = 0f;
+            wanderUnstuckRecoveryAttempts = 0;
             lastUnstuckPosition = transform.position;
             return;
         }
@@ -44,11 +46,29 @@ public partial class VillagerAI
         else
         {
             stuckMoveTimer = 0f;
+            wanderUnstuckRecoveryAttempts = 0;
             lastUnstuckPosition = transform.position;
         }
 
         if (stuckMoveTimer < unstuckCheckDelay)
         {
+            return;
+        }
+
+        if (hasWanderTarget &&
+            currentTarget == null &&
+            !hasDirectMoveTarget &&
+            ++wanderUnstuckRecoveryAttempts >=
+                Mathf.Max(1, maxWanderUnstuckRecoveriesBeforeReset))
+        {
+            hasWanderTarget = false;
+            hasObstacleAvoidTarget = false;
+            ClearActivePath();
+            StopMoving();
+            currentAction = NpcText.Action("idle");
+            stuckMoveTimer = 0f;
+            wanderUnstuckRecoveryAttempts = 0;
+            lastUnstuckPosition = transform.position;
             return;
         }
 

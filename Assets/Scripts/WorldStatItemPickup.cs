@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -8,6 +9,7 @@ public class WorldStatItemPickup : MonoBehaviour
     public int amount = 1;
     public bool allowNpcPickup = true;
     public bool allowPlayerPickup = false;
+    public bool allowNpcPassivePickup;
     public bool destroyWhenEmpty = true;
     public bool requireNpcHarvestAction;
     public bool treatAsDroppedWorldItem;
@@ -30,14 +32,85 @@ public class WorldStatItemPickup : MonoBehaviour
             (item != null &&
             (item.materialKind == MaterialKind.Herb ||
             ResourceNode.InferKindFromItem(item) == HarvestResourceKind.ThaoDuoc)) ||
-            GetComponent<WorldResourceNode>() != null ||
-            GetComponent<ResourceNode>() != null;
+            HasHarvestResourceMarker();
     }
 
     public void ConfigureAsDroppedWorldItem()
     {
         treatAsDroppedWorldItem = true;
         requireNpcHarvestAction = false;
+        allowNpcPassivePickup = true;
+    }
+
+    public bool HasValidNpcPickupArea()
+    {
+        IReadOnlyList<NpcMapArea> areas = NpcMapArea.Areas;
+
+        if (areas == null ||
+            areas.Count == 0)
+        {
+            return true;
+        }
+
+        return NpcMapArea.FindArea(transform.position) != null;
+    }
+
+    public bool CanNpcActorCollect(GameObject actor)
+    {
+        if (!HasValidNpcPickupArea())
+        {
+            return false;
+        }
+
+        if (actor == null)
+        {
+            return true;
+        }
+
+        NpcMapArea pickupArea =
+            NpcMapArea.FindArea(transform.position);
+
+        if (pickupArea == null)
+        {
+            return true;
+        }
+
+        NpcMapArea actorArea =
+            NpcMapArea.FindArea(actor.transform.position);
+
+        if (actorArea != null)
+        {
+            return actorArea.zone == pickupArea.zone;
+        }
+
+        NpcMapZone? actorZone =
+            NpcMapNavigator.ResolveActorZone(actor);
+
+        return !actorZone.HasValue ||
+            actorZone.Value == pickupArea.zone;
+    }
+
+    public bool CanNpcPassivelyCollect(GameObject actor)
+    {
+        return allowNpcPassivePickup &&
+            !RequiresNpcHarvestAction() &&
+            CanNpcActorCollect(actor);
+    }
+
+    bool HasHarvestResourceMarker()
+    {
+        return HasComponentInPickupHierarchy<WorldResourceNode>() ||
+            HasComponentInPickupHierarchy<ResourceNode>() ||
+            HasComponentInPickupHierarchy<GrowingHerbNode>() ||
+            GetComponentInParent<WorldResourceField>() != null ||
+            GetComponentInParent<GrowingHerbField>() != null;
+    }
+
+    bool HasComponentInPickupHierarchy<T>() where T : Component
+    {
+        return GetComponent<T>() != null ||
+            GetComponentInParent<T>() != null ||
+            GetComponentInChildren<T>(true) != null;
     }
 
     public bool TryTake(int takeAmount)
@@ -232,7 +305,6 @@ public class WorldStatItemPickup : MonoBehaviour
         }
 
         if (!allowNpcPickup ||
-            RequiresNpcHarvestAction() ||
             item == null ||
             other == null)
         {
@@ -243,6 +315,11 @@ public class WorldStatItemPickup : MonoBehaviour
             GetWorldActorTarget(other);
 
         if (target == null)
+        {
+            return false;
+        }
+
+        if (!CanNpcPassivelyCollect(target.gameObject))
         {
             return false;
         }

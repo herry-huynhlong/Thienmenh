@@ -7,6 +7,14 @@ public enum VillagerRelationshipStatus
     Married
 }
 
+public enum MarriageHomeProjectState
+{
+    None,
+    Saving,
+    Building,
+    WeddingNight
+}
+
 [DisallowMultipleComponent]
 public class VillagerRelationship : MonoBehaviour
 {
@@ -24,6 +32,14 @@ public class VillagerRelationship : MonoBehaviour
     public int childrenBornWithCurrentPartner;
     public int totalChildrenBorn;
     public int maxChildrenWithCurrentPartner = 3;
+
+    [Header("Marriage Home")]
+    public MarriageHomeProjectState marriageHomeProjectState;
+    public string marriageHomeSiteId;
+    public int marriageHomeCostSpiritStone;
+    public int marriageHomeBuildStartAbsoluteDay = int.MinValue;
+    [Range(0f, 23.99f)]
+    public float marriageHomeBuildStartHour;
 
     NPCIdentity identity;
 
@@ -79,7 +95,7 @@ public class VillagerRelationship : MonoBehaviour
     {
         partnerId = otherPartnerId;
         status = VillagerRelationshipStatus.Dating;
-        affection = Mathf.Clamp(Mathf.Max(affection, 18), 0, 100);
+        affection = Mathf.Clamp(Mathf.Max(affection, 24), 0, 100);
         datingDays = 0;
         marriedDays = 0;
         pregnant = false;
@@ -115,6 +131,7 @@ public class VillagerRelationship : MonoBehaviour
         birthCooldownDays = 0;
         childrenBornWithCurrentPartner = 0;
         maxChildrenWithCurrentPartner = 3;
+        ClearMarriageHomeProject();
         SyncIdentityState();
     }
 
@@ -164,6 +181,56 @@ public class VillagerRelationship : MonoBehaviour
         {
             marriedDays++;
         }
+    }
+
+    public bool HasMarriageHomeProject()
+    {
+        return marriageHomeProjectState != MarriageHomeProjectState.None &&
+            !string.IsNullOrWhiteSpace(marriageHomeSiteId);
+    }
+
+    public void BeginMarriageHomeSaving(
+        string siteId,
+        int costSpiritStone)
+    {
+        marriageHomeProjectState = MarriageHomeProjectState.Saving;
+        marriageHomeSiteId = siteId ?? string.Empty;
+        marriageHomeCostSpiritStone = Mathf.Max(0, costSpiritStone);
+        marriageHomeBuildStartAbsoluteDay = int.MinValue;
+        marriageHomeBuildStartHour = 0f;
+    }
+
+    public void BeginMarriageHomeBuilding(
+        string siteId,
+        int costSpiritStone,
+        int startAbsoluteDay,
+        float startHour)
+    {
+        marriageHomeProjectState = MarriageHomeProjectState.Building;
+        marriageHomeSiteId = siteId ?? string.Empty;
+        marriageHomeCostSpiritStone = Mathf.Max(0, costSpiritStone);
+        marriageHomeBuildStartAbsoluteDay = Mathf.Max(1, startAbsoluteDay);
+        marriageHomeBuildStartHour = Mathf.Repeat(startHour, 24f);
+    }
+
+    public void BeginMarriageHomeWeddingNight(
+        string siteId,
+        int startAbsoluteDay,
+        float startHour)
+    {
+        marriageHomeProjectState = MarriageHomeProjectState.WeddingNight;
+        marriageHomeSiteId = siteId ?? string.Empty;
+        marriageHomeBuildStartAbsoluteDay = Mathf.Max(1, startAbsoluteDay);
+        marriageHomeBuildStartHour = Mathf.Repeat(startHour, 24f);
+    }
+
+    public void ClearMarriageHomeProject()
+    {
+        marriageHomeProjectState = MarriageHomeProjectState.None;
+        marriageHomeSiteId = string.Empty;
+        marriageHomeCostSpiritStone = 0;
+        marriageHomeBuildStartAbsoluteDay = int.MinValue;
+        marriageHomeBuildStartHour = 0f;
     }
 
     public void SyncIdentityState()

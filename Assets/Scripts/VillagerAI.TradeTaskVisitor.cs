@@ -2,6 +2,78 @@ using UnityEngine;
 
 public partial class VillagerAI
 {
+    NpcCounterBroker ResolvePreferredCounterBroker(
+        bool requireRequests = true)
+    {
+        return NpcCounterBroker.FindBestBrokerForNpc(
+            gameObject,
+            requireRequests);
+    }
+
+    NpcMapZone? ResolveCurrentTradeZone()
+    {
+        NpcMapZone? zone =
+            NpcMapNavigator.ResolveActorZone(gameObject);
+        if (zone.HasValue)
+        {
+            return zone;
+        }
+
+        NpcMapArea area =
+            NpcMapArea.FindArea(transform.position);
+        if (area == null)
+        {
+            area = NpcMapArea.FindNearestArea(
+                transform.position);
+        }
+
+        return area != null
+            ? area.zone
+            : (NpcMapZone?)null;
+    }
+
+    bool IsPreferredVillagerTradeZone(
+        NpcMapZone? zone)
+    {
+        if (!zone.HasValue)
+        {
+            return true;
+        }
+
+        NpcMapZone? currentZone =
+            ResolveCurrentTradeZone();
+        return !currentZone.HasValue ||
+            currentZone.Value == zone.Value;
+    }
+
+    NpcMapZone? ResolveTradeZoneForTransform(
+        Transform target)
+    {
+        if (target == null)
+        {
+            return null;
+        }
+
+        NpcMapZone? zone =
+            NpcMapNavigator.GetDestinationZone(target);
+        if (zone.HasValue)
+        {
+            return zone;
+        }
+
+        NpcMapArea area =
+            NpcMapArea.FindArea(target.position);
+        if (area == null)
+        {
+            area = NpcMapArea.FindNearestArea(
+                target.position);
+        }
+
+        return area != null
+            ? area.zone
+            : (NpcMapZone?)null;
+    }
+
     void TryScheduledTaskOrWait()
     {
         NpcTaskProvider provider =
@@ -117,7 +189,8 @@ public partial class VillagerAI
         MoveUsingRoad(currentTradeTarget, currentTradeTargetZone);
         currentAction = NpcText.Action("goMarketTrade");
 
-        NpcCounterBroker activeBroker = NpcCounterBroker.Active;
+        NpcCounterBroker activeBroker =
+            ResolvePreferredCounterBroker();
         bool arrivedForTrade = activeBroker != null && activeBroker.receiveAllNpcRequests
             ? IsInsideBrokerServiceArea(activeBroker)
             : IsAtPosition(currentTradeTarget);
@@ -170,7 +243,8 @@ public partial class VillagerAI
         bool canTradeNow = NpcScheduleController.AllowsTrade(gameObject);
         bool canTakeTaskNow = NpcScheduleController.AllowsTask(gameObject);
         bool traded = false;
-        NpcCounterBroker broker = NpcCounterBroker.Active;
+        NpcCounterBroker broker =
+            ResolvePreferredCounterBroker();
 
         if (canTradeNow &&
             broker != null &&
@@ -251,10 +325,13 @@ public partial class VillagerAI
         MoveUsingRoad(currentSellTarget, currentSellTargetZone);
         currentAction = NpcText.Action("bringGoodsToCounter");
 
-        NpcCounterBroker activeBroker = NpcCounterBroker.Active;
-        bool arrivedToSell = activeBroker != null && activeBroker.receiveAllNpcRequests
-            ? IsInsideBrokerServiceArea(activeBroker)
-            : IsAtPosition(currentSellTarget);
+        NpcCounterBroker activeBroker =
+            ResolvePreferredCounterBroker();
+        bool arrivedToSell =
+            IsAtPosition(currentSellTarget) ||
+            (activeBroker != null &&
+            activeBroker.receiveAllNpcRequests &&
+            IsInsideBrokerServiceArea(activeBroker));
 
         if (!arrivedToSell)
         {
@@ -307,10 +384,13 @@ public partial class VillagerAI
         MoveUsingRoad(currentBuyTarget, currentBuyTargetZone);
         currentAction = NpcText.Action("goBuyGoods");
 
-        NpcCounterBroker activeBroker = NpcCounterBroker.Active;
-        bool arrivedToBuy = activeBroker != null && activeBroker.receiveAllNpcRequests
-            ? IsInsideBrokerServiceArea(activeBroker)
-            : IsAtPosition(currentBuyTarget);
+        NpcCounterBroker activeBroker =
+            ResolvePreferredCounterBroker();
+        bool arrivedToBuy =
+            IsAtPosition(currentBuyTarget) ||
+            (activeBroker != null &&
+            activeBroker.receiveAllNpcRequests &&
+            IsInsideBrokerServiceArea(activeBroker));
 
         if (!arrivedToBuy)
         {
@@ -360,15 +440,8 @@ public partial class VillagerAI
             return GetFallbackActivityPosition();
         }
 
-        Transform nearbyMarketTrader = FindNearbyMarketTrader();
-        if (nearbyMarketTrader != null)
-        {
-            resolvedTraderLocationZone =
-                NpcMapNavigator.GetDestinationZone(nearbyMarketTrader);
-            return nearbyMarketTrader.position;
-        }
-
-        NpcCounterBroker broker = NpcCounterBroker.Active;
+        NpcCounterBroker broker =
+            ResolvePreferredCounterBroker();
         if (broker != null && broker.receiveAllNpcRequests && ShouldVisitCounterBroker())
         {
             return broker.GetCustomerPositionFor(gameObject);
@@ -383,7 +456,13 @@ public partial class VillagerAI
                 out Vector3 registryMarket,
                 out resolvedTraderLocationZone))
         {
-            return registryMarket;
+            if (IsPreferredVillagerTradeZone(
+                    resolvedTraderLocationZone))
+            {
+                return registryMarket;
+            }
+
+            resolvedTraderLocationZone = null;
         }
 
         if (marketPoint != null)
@@ -411,18 +490,8 @@ public partial class VillagerAI
             return null;
         }
 
-        Transform nearbyMarketTrader = FindNearbyMarketTrader();
-        if (nearbyMarketTrader != null)
-        {
-            NpcMapZone? traderZone =
-                NpcMapNavigator.GetDestinationZone(nearbyMarketTrader);
-            if (traderZone.HasValue)
-            {
-                return traderZone;
-            }
-        }
-
-        NpcCounterBroker broker = NpcCounterBroker.Active;
+        NpcCounterBroker broker =
+            ResolvePreferredCounterBroker();
         if (broker != null && broker.receiveAllNpcRequests && ShouldVisitCounterBroker())
         {
             NpcMapZone? brokerZone = GetTargetZone(broker.transform);
@@ -446,7 +515,8 @@ public partial class VillagerAI
 
     Vector3 GetSellGoodsTarget()
     {
-        NpcCounterBroker broker = NpcCounterBroker.Active;
+        NpcCounterBroker broker =
+            ResolvePreferredCounterBroker();
         if (broker != null &&
             broker.receiveAllNpcRequests &&
             BrokerCanBuyMyGoods(broker))
@@ -473,7 +543,13 @@ public partial class VillagerAI
                 out Vector3 registrySell,
                 out resolvedSellLocationZone))
         {
-            return registrySell;
+            if (IsPreferredVillagerTradeZone(
+                    resolvedSellLocationZone))
+            {
+                return registrySell;
+            }
+
+            resolvedSellLocationZone = null;
         }
 
         resolvedSellLocationZone = null;
@@ -485,7 +561,18 @@ public partial class VillagerAI
 
     Vector3 GetBuyGoodsTarget()
     {
-        NpcCounterBroker broker = NpcCounterBroker.Active;
+        Transform nearbyMarketTrader =
+            FindNearbyMarketTraderSeller();
+        if (nearbyMarketTrader != null)
+        {
+            resolvedBuyLocationZone =
+                NpcMapNavigator.GetDestinationZone(
+                    nearbyMarketTrader);
+            return nearbyMarketTrader.position;
+        }
+
+        NpcCounterBroker broker =
+            ResolvePreferredCounterBroker();
         if (broker != null &&
             broker.receiveAllNpcRequests &&
             BrokerCanBuyUsefulGoods(broker))
@@ -504,7 +591,13 @@ public partial class VillagerAI
                 out Vector3 registryBuy,
                 out resolvedBuyLocationZone))
         {
-            return registryBuy;
+            if (IsPreferredVillagerTradeZone(
+                    resolvedBuyLocationZone))
+            {
+                return registryBuy;
+            }
+
+            resolvedBuyLocationZone = null;
         }
 
         resolvedBuyLocationZone = null;
@@ -516,7 +609,8 @@ public partial class VillagerAI
 
     NpcMapZone? GetSellGoodsTargetZone()
     {
-        NpcCounterBroker broker = NpcCounterBroker.Active;
+        NpcCounterBroker broker =
+            ResolvePreferredCounterBroker();
         if (broker != null &&
             broker.receiveAllNpcRequests &&
             BrokerCanBuyMyGoods(broker))
@@ -549,7 +643,21 @@ public partial class VillagerAI
 
     NpcMapZone? GetBuyGoodsTargetZone()
     {
-        NpcCounterBroker broker = NpcCounterBroker.Active;
+        Transform nearbyMarketTrader =
+            FindNearbyMarketTraderSeller();
+        if (nearbyMarketTrader != null)
+        {
+            NpcMapZone? traderZone =
+                NpcMapNavigator.GetDestinationZone(
+                    nearbyMarketTrader);
+            if (traderZone.HasValue)
+            {
+                return traderZone;
+            }
+        }
+
+        NpcCounterBroker broker =
+            ResolvePreferredCounterBroker();
         if (broker != null &&
             broker.receiveAllNpcRequests &&
             BrokerCanBuyUsefulGoods(broker))
@@ -589,11 +697,6 @@ public partial class VillagerAI
 
     Transform FindNearbyMarketTrader()
     {
-        if (job != VillagerJob.Trader)
-        {
-            return null;
-        }
-
         Collider2D[] hits =
             Physics2D.OverlapCircleAll(
                 transform.position,
@@ -621,6 +724,67 @@ public partial class VillagerAI
                 continue;
             }
 
+            NpcMapZone? traderZone =
+                ResolveTradeZoneForTransform(
+                    trader.transform);
+            if (!IsPreferredVillagerTradeZone(
+                    traderZone))
+            {
+                continue;
+            }
+
+            float distance = Vector2.Distance(
+                transform.position,
+                trader.transform.position);
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                best = trader.transform;
+            }
+        }
+
+        return best;
+    }
+
+    Transform FindNearbyMarketTraderSeller()
+    {
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(
+                transform.position,
+                sellGoodsSearchRadius,
+                traderLayers);
+
+        Transform best = null;
+        float bestDistance = float.MaxValue;
+
+        foreach (Collider2D hit in hits)
+        {
+            if (hit == null ||
+                hit.transform == transform ||
+                hit.transform.IsChildOf(transform))
+            {
+                continue;
+            }
+
+            NpcTradeAgent trader =
+                hit.GetComponentInParent<NpcTradeAgent>();
+
+            if (trader == null ||
+                !trader.IsMarketTrader ||
+                !trader.CanSellUsefulItemTo(this))
+            {
+                continue;
+            }
+
+            NpcMapZone? traderZone =
+                ResolveTradeZoneForTransform(
+                    trader.transform);
+            if (!IsPreferredVillagerTradeZone(
+                    traderZone))
+            {
+                continue;
+            }
+
             float distance = Vector2.Distance(
                 transform.position,
                 trader.transform.position);
@@ -641,7 +805,8 @@ public partial class VillagerAI
             return false;
         }
 
-        NpcCounterBroker broker = NpcCounterBroker.Active;
+        NpcCounterBroker broker =
+            ResolvePreferredCounterBroker();
         if (broker == null || !broker.receiveAllNpcRequests)
         {
             return false;
@@ -710,7 +875,8 @@ public partial class VillagerAI
             return false;
         }
 
-        NpcCounterBroker broker = NpcCounterBroker.Active;
+        NpcCounterBroker broker =
+            ResolvePreferredCounterBroker();
         if (broker == null || !broker.receiveAllNpcRequests)
         {
             return false;

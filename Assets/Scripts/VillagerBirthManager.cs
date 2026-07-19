@@ -7,9 +7,15 @@ public class VillagerBirthManager : MonoBehaviour
 {
     public static VillagerBirthManager Instance;
 
+    const float MinimumDailyConceptionChance = 0.25f;
+    const int MaximumPregnancyDurationDays = 2;
+    const int MaximumBirthCooldownDays = 30;
+    const int MaximumMarriageDaysBeforeConception = 2;
+
     [Header("Birth")]
     public GameObject childPrefab;
     public string childPrefabKey = "villager-child:default";
+    public NPCVisualProfile defaultVillagerVisualProfile;
     public float dailyConceptionChance = 0.08f;
     public int pregnancyDurationDays = 3;
     public int birthCooldownDays = 90;
@@ -19,6 +25,11 @@ public class VillagerBirthManager : MonoBehaviour
     public int maxFatherAge = 60;
     public int maxPopulation = 0;
     public float spawnOffsetRadius = 0.6f;
+
+    [Header("Rapid Child Growth")]
+    [Min(1)] public int rapidChildGrowthDurationDays = 3;
+    [Min(0.05f)] public float babySpawnScale = 0.7f;
+    [Min(0.05f)] public float childGrowthScale = 0.5f;
 
     readonly List<VillagerAI> villagersBuffer = new List<VillagerAI>();
 
@@ -51,7 +62,9 @@ public class VillagerBirthManager : MonoBehaviour
 
     void Awake()
     {
+        ResolveDefaultVillagerVisualProfile();
         RegisterChildPrefab();
+        ApplyBaselinePacing();
 
         if (Instance != null && Instance != this)
         {
@@ -65,7 +78,9 @@ public class VillagerBirthManager : MonoBehaviour
 
     void OnValidate()
     {
+        ResolveDefaultVillagerVisualProfile();
         RegisterChildPrefab();
+        ApplyBaselinePacing();
     }
 
     void OnDestroy()
@@ -194,6 +209,79 @@ public class VillagerBirthManager : MonoBehaviour
         }
     }
 
+    public bool TryForceBirthForPair(
+        VillagerAI first,
+        VillagerAI second)
+    {
+        if (first == null ||
+            second == null ||
+            first.IsDead ||
+            second.IsDead)
+        {
+            return false;
+        }
+
+        VillagerAI mother = null;
+        VillagerAI father = null;
+
+        NPCIdentity firstIdentity = GetIdentity(first);
+        NPCIdentity secondIdentity = GetIdentity(second);
+        if (firstIdentity != null &&
+            firstIdentity.gender == Gender.Female)
+        {
+            mother = first;
+            father = second;
+        }
+        else if (secondIdentity != null &&
+            secondIdentity.gender == Gender.Female)
+        {
+            mother = second;
+            father = first;
+        }
+
+        if (mother == null ||
+            father == null)
+        {
+            return false;
+        }
+
+        VillagerRelationship motherRelationship =
+            GetOrAddRelationship(mother);
+        if (motherRelationship == null ||
+            !motherRelationship.IsMarried() ||
+            !motherRelationship.CanHaveMoreChildren())
+        {
+            return false;
+        }
+
+        villagersBuffer.Clear();
+        VillagerAI[] villagers =
+            Object.FindObjectsByType<VillagerAI>(FindObjectsInactive.Include);
+        for (int i = 0; i < villagers.Length; i++)
+        {
+            VillagerAI villager = villagers[i];
+            if (villager != null && !villager.IsDead)
+            {
+                villagersBuffer.Add(villager);
+            }
+        }
+
+        if (maxPopulation > 0 &&
+            villagersBuffer.Count >= maxPopulation)
+        {
+            return false;
+        }
+
+        Dictionary<string, VillagerAI> lookup =
+            BuildLookup(villagersBuffer);
+        SpawnChild(
+            mother,
+            father,
+            motherRelationship,
+            lookup);
+        return true;
+    }
+
     void SpawnChild(
         VillagerAI mother,
         VillagerAI father,
@@ -219,6 +307,11 @@ public class VillagerBirthManager : MonoBehaviour
         if (spawned == null)
         {
             return;
+        }
+
+        if (!spawned.activeSelf)
+        {
+            spawned.SetActive(true);
         }
 
         spawned.name =
@@ -268,6 +361,7 @@ public class VillagerBirthManager : MonoBehaviour
 
         childIdentity.gender =
             Random.value < 0.5f ? Gender.Male : Gender.Female;
+        childIdentity.npcName = string.Empty;
         childIdentity.SetCurrentAge(0);
         childIdentity.lifeStage = LifeStage.Baby;
         childIdentity.fatherId =
@@ -285,18 +379,16 @@ public class VillagerBirthManager : MonoBehaviour
         if (childProfile.identity != null)
         {
             NpcAgeUtility.SetCurrentAge(childProfile.identity, 0);
+            childProfile.identity.gender =
+                childIdentity.gender == Gender.Female
+                    ? EntityGender.Female
+                    : EntityGender.Male;
         }
 
-        if (motherIdentity != null &&
-            motherIdentity.visualProfile != null)
-        {
-            childIdentity.visualProfile = motherIdentity.visualProfile;
-        }
-        else if (fatherIdentity != null &&
-            fatherIdentity.visualProfile != null)
-        {
-            childIdentity.visualProfile = fatherIdentity.visualProfile;
-        }
+        childIdentity.visualProfile =
+            ResolveChildVisualProfile(
+                motherIdentity,
+                fatherIdentity);
 
         childVillager.entityProfile = childProfile;
         CharacterStats childStats = spawned.GetComponent<CharacterStats>();
@@ -314,9 +406,19 @@ public class VillagerBirthManager : MonoBehaviour
         childRelationship.maxChildrenWithCurrentPartner = 0;
 
         lifecycle.SetAge(0);
+        lifecycle.ConfigureRapidRuntimeGrowth(
+            NpcAgeUtility.CurrentAbsoluteDay,
+            rapidChildGrowthDurationDays,
+            babySpawnScale,
+            childGrowthScale);
 
         childVillager.generateFromEntityProfile = true;
         childVillager.SyncNpcIdentityData();
+        childVillager.homePoint =
+            mother.homePoint != null
+                ? mother.homePoint
+                : father.homePoint;
+        ConfigureSpawnedChildBehaviours(spawned, childVillager);
 
         if (childStats != null)
         {
@@ -327,6 +429,8 @@ public class VillagerBirthManager : MonoBehaviour
         {
             visualResolver.RefreshVisual();
         }
+
+        RevealSpawnedChild(spawned, childVillager);
 
         motherRelationship.RegisterChildBirth(birthCooldownDays);
 
@@ -369,6 +473,114 @@ public class VillagerBirthManager : MonoBehaviour
             " vừa có thêm một đứa trẻ.");
     }
 
+    void RevealSpawnedChild(
+        GameObject spawned,
+        VillagerAI childVillager)
+    {
+        if (spawned == null)
+        {
+            return;
+        }
+
+        if (!spawned.activeSelf)
+        {
+            spawned.SetActive(true);
+        }
+
+        if (childVillager != null)
+        {
+            childVillager.enabled = true;
+            childVillager.ForceHiddenAtHome(false);
+            childVillager.StopMoving();
+        }
+
+        Renderer[] renderers =
+            spawned.GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            if (renderers[i] != null)
+            {
+                renderers[i].enabled = true;
+            }
+        }
+
+        Collider2D[] colliders =
+            spawned.GetComponentsInChildren<Collider2D>(true);
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            if (colliders[i] != null)
+            {
+                colliders[i].enabled = true;
+            }
+        }
+    }
+
+    void ConfigureSpawnedChildBehaviours(
+        GameObject spawned,
+        VillagerAI childVillager)
+    {
+        if (spawned == null)
+        {
+            return;
+        }
+
+        RemoveAdultRoleComponent<NpcMerchantRole>(spawned);
+        RemoveAdultRoleComponent<NpcAlchemyRole>(spawned);
+        RemoveAdultRoleComponent<NpcForgeRole>(spawned);
+        RemoveAdultRoleComponent<NpcVillageSupplyMerchant>(spawned);
+        RemoveAdultRoleComponent<VillagerMarketRole>(spawned);
+        RemoveAdultRoleComponent<VillagerDailyTradePlan>(spawned);
+        RemoveAdultRoleComponent<VillagerProduceSeller>(spawned);
+        RemoveAdultRoleComponent<NpcFixedBlacksmithController>(spawned);
+        RemoveAdultRoleComponent<NpcFixedAlchemistController>(spawned);
+        RemoveAdultRoleComponent<NpcCounterBroker>(spawned);
+        RemoveAdultRoleComponent<NpcForgeAgent>(spawned);
+        RemoveAdultRoleComponent<NpcAlchemyAgent>(spawned);
+        RemoveAdultRoleComponent<NpcTradeAgent>(spawned);
+        RemoveAdultRoleComponent<NpcSpecialProfession>(spawned);
+        RemoveAdultRoleComponent<HarvestJob>(spawned);
+        RemoveAdultRoleComponent<VillagerFarmJob>(spawned);
+        RemoveAdultRoleComponent<VillagerFishingJob>(spawned);
+        RemoveAdultRoleComponent<HunterJob>(spawned);
+        RemoveAdultRoleComponent<NpcResourceGatherer>(spawned);
+        RemoveAdultRoleComponent<NpcItemCollector>(spawned);
+
+        DailyConversation conversation =
+            spawned.GetComponent<DailyConversation>();
+        if (conversation == null)
+        {
+            conversation = spawned.AddComponent<DailyConversation>();
+        }
+
+        conversation.talkRadius = 1.15f;
+        conversation.scanInterval = 2.5f;
+        conversation.conversationCooldown = 15f;
+
+        if (childVillager != null)
+        {
+            childVillager.hideAtHome = false;
+            childVillager.RefreshAgeSensitiveBehaviours();
+        }
+    }
+
+    void RemoveAdultRoleComponent<T>(GameObject target)
+        where T : Behaviour
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        T component = target.GetComponent<T>();
+        if (component == null)
+        {
+            return;
+        }
+
+        component.enabled = false;
+        Destroy(component);
+    }
+
     void RegisterChildPrefab()
     {
         if (childPrefab == null)
@@ -388,6 +600,47 @@ public class VillagerBirthManager : MonoBehaviour
             : SpawnedWorldActor.BuildDefaultPrefabKey(
                 "villager-child",
                 childPrefab);
+    }
+
+    void ResolveDefaultVillagerVisualProfile()
+    {
+        if (defaultVillagerVisualProfile != null)
+        {
+            return;
+        }
+
+        NPCIdentity[] identities =
+            Object.FindObjectsByType<NPCIdentity>(FindObjectsInactive.Include);
+        for (int i = 0; i < identities.Length; i++)
+        {
+            NPCIdentity identity = identities[i];
+            if (identity != null &&
+                identity.visualProfile != null)
+            {
+                defaultVillagerVisualProfile = identity.visualProfile;
+                return;
+            }
+        }
+    }
+
+    NPCVisualProfile ResolveChildVisualProfile(
+        NPCIdentity motherIdentity,
+        NPCIdentity fatherIdentity)
+    {
+        if (motherIdentity != null &&
+            motherIdentity.visualProfile != null)
+        {
+            return motherIdentity.visualProfile;
+        }
+
+        if (fatherIdentity != null &&
+            fatherIdentity.visualProfile != null)
+        {
+            return fatherIdentity.visualProfile;
+        }
+
+        ResolveDefaultVillagerVisualProfile();
+        return defaultVillagerVisualProfile;
     }
 
     VillagerRelationship GetOrAddRelationship(VillagerAI villager)
@@ -491,5 +744,34 @@ public class VillagerBirthManager : MonoBehaviour
         }
 
         Debug.Log("[VillagerBirth] " + message);
+    }
+
+    void ApplyBaselinePacing()
+    {
+        dailyConceptionChance =
+            Mathf.Clamp(
+                Mathf.Max(
+                    dailyConceptionChance,
+                    MinimumDailyConceptionChance),
+                0f,
+                1f);
+        pregnancyDurationDays =
+            Mathf.Max(
+                1,
+                Mathf.Min(
+                    pregnancyDurationDays,
+                    MaximumPregnancyDurationDays));
+        birthCooldownDays =
+            Mathf.Max(
+                0,
+                Mathf.Min(
+                    birthCooldownDays,
+                    MaximumBirthCooldownDays));
+        minMarriageDaysBeforeConception =
+            Mathf.Max(
+                0,
+                Mathf.Min(
+                    minMarriageDaysBeforeConception,
+                    MaximumMarriageDaysBeforeConception));
     }
 }

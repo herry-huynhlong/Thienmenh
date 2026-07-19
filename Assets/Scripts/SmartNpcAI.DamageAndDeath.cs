@@ -36,6 +36,15 @@ public partial class SmartNpcAI
             if (result.wasApplied && !characterStats.IsDead)
             {
                 InterruptGatheringForCombat();
+                if (currentHP <= Mathf.Max(1, maxHP / 3))
+                {
+                    RequestEmergencyTask(
+                        SmartAITaskGoal.LowHpRecovery,
+                        SmartAITaskPriority.Emergency,
+                        true,
+                        "low hp");
+                }
+
                 if (!ShouldSuspendAutonomousDamageResponse())
                 {
                     if (!enabled)
@@ -274,6 +283,13 @@ public partial class SmartNpcAI
             return false;
         }
 
+        if (!NpcMapBehaviorPolicy.IsActorInsideAllowedCombatZone(
+                gameObject,
+                allowedCombatZone))
+        {
+            return false;
+        }
+
         NpcMapZone? monsterZone =
             NpcMapNavigator.ResolveActorZone(monster.gameObject);
         return monsterZone.HasValue &&
@@ -389,9 +405,14 @@ public partial class SmartNpcAI
 
     MonsterAI FindSharedCombatMapTarget(NpcMapZone allowedCombatZone)
     {
+        float awarenessRadius =
+            GetMonsterAwarenessRadius(true);
         MonsterAI policyTarget =
             NpcMapBehaviorPolicy.GetSharedCombatTarget(allowedCombatZone);
         if (policyTarget != null &&
+            Vector2.Distance(
+                transform.position,
+                policyTarget.transform.position) <= awarenessRadius &&
             NpcMapBehaviorPolicy.CanUseMonsterTarget(
                 gameObject,
                 policyTarget))
@@ -421,7 +442,8 @@ public partial class SmartNpcAI
                 Vector2.Distance(
                     transform.position,
                     ally.currentMonsterTarget.transform.position);
-            if (distance < bestExistingDistance)
+            if (distance <= awarenessRadius &&
+                distance < bestExistingDistance)
             {
                 bestExistingDistance = distance;
                 bestExistingTarget = ally.currentMonsterTarget;
@@ -457,7 +479,8 @@ public partial class SmartNpcAI
 
             float distance =
                 Vector2.Distance(transform.position, monster.transform.position);
-            if (distance < bestDistance)
+            if (distance <= awarenessRadius &&
+                distance < bestDistance)
             {
                 bestDistance = distance;
                 bestTarget = monster;
@@ -472,6 +495,21 @@ public partial class SmartNpcAI
         }
 
         return bestTarget;
+    }
+
+    float GetMonsterAwarenessRadius(bool restrictToCombatZone)
+    {
+        float radius =
+            Mathf.Max(
+                attackRange + 3f,
+                targetClearRadius * 6f,
+                8f);
+        if (restrictToCombatZone)
+        {
+            radius = Mathf.Max(radius, 10f);
+        }
+
+        return radius;
     }
 
     string GetRealmName()

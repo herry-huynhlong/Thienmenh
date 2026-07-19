@@ -61,8 +61,8 @@ public partial class SmartNpcAI
 
         int slotCount = 8;
         int slotIndex = Mathf.Abs(
-            gameObject.GetInstanceID() ^
-            target.gameObject.GetInstanceID()) % slotCount;
+            UnityObjectIdUtility.GetRuntimeId(gameObject) ^
+            UnityObjectIdUtility.GetRuntimeId(target.gameObject)) % slotCount;
         float spacingRadius = Mathf.Max(
             targetClearRadius * 3f,
             sharedTargetSpacingRadius,

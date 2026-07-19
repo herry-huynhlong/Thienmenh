@@ -66,7 +66,8 @@ public class DailyConversation : MonoBehaviour
                 continue;
             }
 
-            if (GetInstanceID() > other.GetInstanceID())
+            if (UnityObjectIdUtility.GetRuntimeId(this) >
+                UnityObjectIdUtility.GetRuntimeId(other))
             {
                 continue;
             }
@@ -139,6 +140,23 @@ public class DailyConversation : MonoBehaviour
 
     bool AllowsLegacySocial(GameObject npc)
     {
+        if (npc != null)
+        {
+            VillagerAI villager = npc.GetComponent<VillagerAI>();
+            if (villager != null)
+            {
+                if (villager.ageGroup == VillagerAgeGroup.Child)
+                {
+                    return false;
+                }
+
+                if (villager.ageGroup == VillagerAgeGroup.Teen)
+                {
+                    return true;
+                }
+            }
+        }
+
         return NpcScheduleController.AllowsSocial(
             npc,
             NpcSocialChannel.LegacyDailyConversation);
