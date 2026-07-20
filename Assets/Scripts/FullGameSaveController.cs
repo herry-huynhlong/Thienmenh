@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
@@ -99,6 +100,8 @@ public class SavedNpcStateData
     public int villagerMaxHP;
     public int villagerMoney;
     public int villagerSpiritStone;
+    public int villagerProfessionLevel;
+    public int villagerProfessionExp;
     public int villagerCurrentActionId;
     public string villagerCurrentActionKey;
     public string villagerCurrentAction;
@@ -147,6 +150,9 @@ public class FullGameSaveController : MonoBehaviour
     const int CurrentSaveVersion = 4;
     const string FullSaveKey = "ThienMenh.Save.FullGame";
     const string FullSaveBackupKey = "ThienMenh.Save.FullGame.Backup";
+    const string FullSaveFileName = "save_v5_fullgame.json";
+    const string FullSaveBackupFileName = "save_v5_fullgame.bak";
+    const string FullSaveTempFileName = "save_v5_fullgame.tmp";
     static FullGameSaveController instance;
 
     [Header("Auto Save")]
@@ -285,21 +291,14 @@ public class FullGameSaveController : MonoBehaviour
         SaveWorldSimulation(data);
         SaveWallets();
 
-        string existingPrimary = PlayerPrefs.GetString(FullSaveKey, "");
         string serialized = JsonUtility.ToJson(data);
-
-        if (!string.IsNullOrEmpty(existingPrimary))
+        if (!TryWriteSaveFiles(serialized))
         {
-            PlayerPrefs.SetString(FullSaveBackupKey, existingPrimary);
-        }
-        else
-        {
-            PlayerPrefs.SetString(FullSaveBackupKey, serialized);
+            Debug.LogError(
+                "FullGameSaveController failed to persist full save file. Save aborted.");
+            return;
         }
 
-        PlayerPrefs.SetString(FullSaveKey, serialized);
-        GameSaveSystem.RegisterDynamicSaveKey(FullSaveKey);
-        GameSaveSystem.RegisterDynamicSaveKey(FullSaveBackupKey);
         GameSaveSystem.MarkSaveExists();
         GameSaveSystem.SaveCurrentScene(sceneName);
         GameSaveSystem.QueuePendingCommit();
@@ -324,8 +323,7 @@ public class FullGameSaveController : MonoBehaviour
     IEnumerator ApplyFullSaveAfterSceneLoad()
     {
         if (applyingLoad ||
-            (!PlayerPrefs.HasKey(FullSaveKey) &&
-             !PlayerPrefs.HasKey(FullSaveBackupKey)))
+            !HasAnyPersistedFullSave())
         {
             yield break;
         }
@@ -820,6 +818,8 @@ public class FullGameSaveController : MonoBehaviour
         saved.villagerMaxHP = villager.AuthoritativeMaxHP;
         saved.villagerMoney = villager.money;
         saved.villagerSpiritStone = villager.spiritStone;
+        saved.villagerProfessionLevel = villager.professionLevel;
+        saved.villagerProfessionExp = villager.professionExp;
         NpcActionState villagerActionState =
             villager.CurrentActionState;
         saved.villagerCurrentActionId = (int)villagerActionState.id;
@@ -971,6 +971,36 @@ public class FullGameSaveController : MonoBehaviour
                 break;
             }
         }
+
+        List<string> unresolvedRuntimeNpcSummaries = null;
+        for (int i = 0; i < savedStates.Count; i++)
+        {
+            SavedNpcStateData saved = savedStates[i];
+            if (saved == null ||
+                !saved.isRuntimeSpawn ||
+                !saved.respawnFromFullSave ||
+                FindNpcByStateData(saved) != null)
+            {
+                continue;
+            }
+
+            if (unresolvedRuntimeNpcSummaries == null)
+            {
+                unresolvedRuntimeNpcSummaries = new List<string>();
+            }
+
+            unresolvedRuntimeNpcSummaries.Add(DescribeMissingRuntimeNpc(saved));
+        }
+
+        if (unresolvedRuntimeNpcSummaries != null &&
+            unresolvedRuntimeNpcSummaries.Count > 0)
+        {
+            Debug.LogError(
+                "FullGameSaveController could not restore " +
+                unresolvedRuntimeNpcSummaries.Count +
+                " runtime NPC(s) from save. Missing entries: " +
+                string.Join(" | ", unresolvedRuntimeNpcSummaries));
+        }
     }
 
     GameObject CreateMissingRuntimeNpc(SavedNpcStateData saved)
@@ -980,24 +1010,15 @@ public class FullGameSaveController : MonoBehaviour
             return null;
         }
 
-        GameObject source =
-            SpawnedWorldActor.ResolveRespawnPrefab(saved.prefabKey);
-        if (source == null &&
-            !string.IsNullOrWhiteSpace(saved.respawnTemplateNpcId))
-        {
-            source = FindNpcById(saved.respawnTemplateNpcId);
-            source = ResolveNpcRoot(source);
-        }
+        GameObject source = ResolveRuntimeNpcRespawnSource(saved);
 
         if (source == null)
         {
-            if (debugLog)
-            {
-                Debug.LogWarning(
-                    "FullGameSaveController could not respawn runtime NPC '" +
-                    saved.displayName +
-                    "': prefab key and template NPC were unavailable.");
-            }
+            Debug.LogWarning(
+                "FullGameSaveController could not respawn runtime NPC '" +
+                GetSavedNpcDebugName(saved) +
+                "': no respawn source was available. " +
+                DescribeMissingRuntimeNpc(saved));
 
             return null;
         }
@@ -1018,6 +1039,132 @@ public class FullGameSaveController : MonoBehaviour
 
         PrepareRespawnedNpc(saved, restored);
         return restored;
+    }
+
+    GameObject ResolveRuntimeNpcRespawnSource(SavedNpcStateData saved)
+    {
+        if (saved == null)
+        {
+            return null;
+        }
+
+        GameObject source =
+            SpawnedWorldActor.ResolveRespawnPrefab(saved.prefabKey);
+        if (source != null)
+        {
+            return source;
+        }
+
+        if (!string.IsNullOrWhiteSpace(saved.respawnTemplateNpcId))
+        {
+            source = ResolveNpcRoot(FindNpcById(saved.respawnTemplateNpcId));
+            if (source != null)
+            {
+                return source;
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(saved.displayName))
+        {
+            source = FindRespawnSourceByDisplayName(saved.displayName);
+            if (source != null)
+            {
+                return source;
+            }
+        }
+
+        return null;
+    }
+
+    GameObject FindRespawnSourceByDisplayName(string displayName)
+    {
+        if (string.IsNullOrWhiteSpace(displayName))
+        {
+            return null;
+        }
+
+        GameObject uniqueCandidate = null;
+        foreach (NPCIdentity identity in FindObjectsByType<NPCIdentity>(FindObjectsInactive.Include))
+        {
+            GameObject candidate =
+                identity != null ? ResolveNpcRoot(identity.gameObject) : null;
+            if (candidate == null ||
+                candidate.CompareTag("Player"))
+            {
+                continue;
+            }
+
+            string candidateName =
+                NpcRoleUtility.GetDisplayName(candidate);
+            if (!string.Equals(
+                    candidateName,
+                    displayName,
+                    StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            SpawnedWorldActor actor = ResolveComponent<SpawnedWorldActor>(candidate);
+            if (actor != null && actor.spawnedAtRuntime)
+            {
+                continue;
+            }
+
+            if (uniqueCandidate != null &&
+                uniqueCandidate != candidate)
+            {
+                return null;
+            }
+
+            uniqueCandidate = candidate;
+        }
+
+        return uniqueCandidate;
+    }
+
+    string GetSavedNpcDebugName(SavedNpcStateData saved)
+    {
+        if (saved == null)
+        {
+            return "(null)";
+        }
+
+        if (!string.IsNullOrWhiteSpace(saved.displayName))
+        {
+            return saved.displayName;
+        }
+
+        if (!string.IsNullOrWhiteSpace(saved.npcName))
+        {
+            return saved.npcName;
+        }
+
+        if (!string.IsNullOrWhiteSpace(saved.savedObjectName))
+        {
+            return saved.savedObjectName;
+        }
+
+        if (!string.IsNullOrWhiteSpace(saved.npcId))
+        {
+            return saved.npcId;
+        }
+
+        return "(unnamed runtime npc)";
+    }
+
+    string DescribeMissingRuntimeNpc(SavedNpcStateData saved)
+    {
+        if (saved == null)
+        {
+            return "name=(null)";
+        }
+
+        return
+            "name=" + GetSavedNpcDebugName(saved) +
+            ", npcId=" + (saved.npcId ?? "") +
+            ", prefabKey=" + (saved.prefabKey ?? "") +
+            ", templateNpcId=" + (saved.respawnTemplateNpcId ?? "") +
+            ", stateKey=" + (saved.stateKey ?? "");
     }
 
     void PrepareRespawnedNpc(
@@ -1169,10 +1316,6 @@ public class FullGameSaveController : MonoBehaviour
         identity.age = Mathf.Max(0, saved.age);
         identity.birthAbsoluteDay = saved.birthAbsoluteDay;
         identity.hasBirthAbsoluteDay = saved.hasBirthAbsoluteDay;
-        identity.lifeStage = (LifeStage)Mathf.Clamp(
-            saved.lifeStage,
-            0,
-            Enum.GetValues(typeof(LifeStage)).Length - 1);
         identity.homeId = saved.homeId;
         identity.fatherId = saved.fatherId;
         identity.motherId = saved.motherId;
@@ -1202,8 +1345,57 @@ public class FullGameSaveController : MonoBehaviour
                     : lifecycle.rapidGrowthAdultScale;
         }
 
-        identity.EnsureBirthAbsoluteDay();
-        identity.age = identity.GetCurrentAge();
+        int savedAge = Mathf.Max(0, saved.age);
+        bool shouldRebuildBirthDayFromSavedAge =
+            !saved.hasBirthAbsoluteDay;
+
+        if (!shouldRebuildBirthDayFromSavedAge)
+        {
+            int recalculatedAge =
+                NpcAgeUtility.CalculateAge(saved.birthAbsoluteDay);
+            shouldRebuildBirthDayFromSavedAge =
+                Mathf.Abs(recalculatedAge - savedAge) > 1;
+        }
+
+        if (shouldRebuildBirthDayFromSavedAge)
+        {
+            identity.SetCurrentAge(savedAge);
+        }
+        else
+        {
+            identity.EnsureBirthAbsoluteDay();
+            identity.age = identity.GetCurrentAge();
+        }
+
+        NPCLifecycle stageResolver = lifecycle;
+        if (stageResolver != null)
+        {
+            identity.lifeStage =
+                stageResolver.ResolveLifeStage(identity.age);
+        }
+        else
+        {
+            if (identity.age <= NpcLifeStageDefaults.BabyMaxAge)
+            {
+                identity.lifeStage = LifeStage.Baby;
+            }
+            else if (identity.age <= NpcLifeStageDefaults.ChildMaxAge)
+            {
+                identity.lifeStage = LifeStage.Child;
+            }
+            else if (identity.age <= NpcLifeStageDefaults.YouthMaxAge)
+            {
+                identity.lifeStage = LifeStage.Youth;
+            }
+            else if (identity.age <= NpcLifeStageDefaults.MiddleMaxAge)
+            {
+                identity.lifeStage = LifeStage.Middle;
+            }
+            else
+            {
+                identity.lifeStage = LifeStage.Old;
+            }
+        }
 
         if (lifecycle != null)
         {
@@ -1297,6 +1489,9 @@ public class FullGameSaveController : MonoBehaviour
             saved.villagerCurrentHP);
         villager.money = Mathf.Max(0, saved.villagerMoney);
         villager.spiritStone = Mathf.Max(0, saved.villagerSpiritStone);
+        villager.RestoreProfessionProgress(
+            Mathf.Max(1, saved.villagerProfessionLevel),
+            Mathf.Max(0, saved.villagerProfessionExp));
         villager.SetCurrentActionState(
             ResolveSavedActionState(
                 saved.villagerCurrentActionKey,
@@ -2117,8 +2312,31 @@ public class FullGameSaveController : MonoBehaviour
         }
     }
 
+    public static void DeletePersistedSaveFiles()
+    {
+        DeleteFileIfExists(GetFullSaveFilePath());
+        DeleteFileIfExists(GetFullSaveBackupFilePath());
+        DeleteFileIfExists(GetFullSaveTempFilePath());
+    }
+
     bool TryReadSaveData(out FullGameSaveData data)
     {
+        if (TryReadSaveDataFromFile(GetFullSaveFilePath(), out data))
+        {
+            return true;
+        }
+
+        if (TryReadSaveDataFromFile(GetFullSaveBackupFilePath(), out data))
+        {
+            if (debugLog)
+            {
+                Debug.LogWarning(
+                    "FullGameSaveController restored from backup save file.");
+            }
+
+            return true;
+        }
+
         if (TryReadSaveDataFromKey(FullSaveKey, out data))
         {
             return true;
@@ -2129,7 +2347,7 @@ public class FullGameSaveController : MonoBehaviour
             if (debugLog)
             {
                 Debug.LogWarning(
-                    "FullGameSaveController restored from backup save data.");
+                    "FullGameSaveController restored from legacy backup PlayerPrefs save data.");
             }
 
             return true;
@@ -2137,6 +2355,142 @@ public class FullGameSaveController : MonoBehaviour
 
         data = null;
         return false;
+    }
+
+    static bool HasAnyPersistedFullSave()
+    {
+        return File.Exists(GetFullSaveFilePath()) ||
+            File.Exists(GetFullSaveBackupFilePath()) ||
+            PlayerPrefs.HasKey(FullSaveKey) ||
+            PlayerPrefs.HasKey(FullSaveBackupKey);
+    }
+
+    static string GetFullSaveDirectoryPath()
+    {
+        return Application.persistentDataPath;
+    }
+
+    static string GetFullSaveFilePath()
+    {
+        return Path.Combine(GetFullSaveDirectoryPath(), FullSaveFileName);
+    }
+
+    static string GetFullSaveBackupFilePath()
+    {
+        return Path.Combine(GetFullSaveDirectoryPath(), FullSaveBackupFileName);
+    }
+
+    static string GetFullSaveTempFilePath()
+    {
+        return Path.Combine(GetFullSaveDirectoryPath(), FullSaveTempFileName);
+    }
+
+    static void DeleteFileIfExists(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path) ||
+            !File.Exists(path))
+        {
+            return;
+        }
+
+        try
+        {
+            File.Delete(path);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogWarning(
+                "FullGameSaveController failed to delete save file '" +
+                path +
+                "': " +
+                exception.Message);
+        }
+    }
+
+    bool TryWriteSaveFiles(string serialized)
+    {
+        if (string.IsNullOrWhiteSpace(serialized))
+        {
+            return false;
+        }
+
+        string directoryPath = GetFullSaveDirectoryPath();
+        string primaryPath = GetFullSaveFilePath();
+        string backupPath = GetFullSaveBackupFilePath();
+        string tempPath = GetFullSaveTempFilePath();
+
+        try
+        {
+            Directory.CreateDirectory(directoryPath);
+            File.WriteAllText(tempPath, serialized);
+
+            if (File.Exists(primaryPath))
+            {
+                File.Replace(tempPath, primaryPath, backupPath, true);
+            }
+            else
+            {
+                if (File.Exists(backupPath))
+                {
+                    File.Delete(backupPath);
+                }
+
+                File.Move(tempPath, primaryPath);
+                File.Copy(primaryPath, backupPath, true);
+            }
+
+            return true;
+        }
+        catch (Exception exception)
+        {
+            Debug.LogWarning(
+                "FullGameSaveController failed to write full save file: " +
+                exception.Message);
+
+            try
+            {
+                if (File.Exists(tempPath))
+                {
+                    File.Delete(tempPath);
+                }
+            }
+            catch
+            {
+                // Best-effort cleanup only.
+            }
+
+            return false;
+        }
+    }
+
+    bool TryReadSaveDataFromFile(
+        string path,
+        out FullGameSaveData data)
+    {
+        data = null;
+
+        if (string.IsNullOrWhiteSpace(path) ||
+            !File.Exists(path))
+        {
+            return false;
+        }
+
+        string serialized;
+        try
+        {
+            serialized = File.ReadAllText(path);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogWarning(
+                "FullGameSaveController failed to read save file '" +
+                path +
+                "': " +
+                exception.Message);
+            return false;
+        }
+
+        return TryDeserializeSaveData(serialized, path, out data);
     }
 
     bool TryReadSaveDataFromKey(
@@ -2156,6 +2510,16 @@ public class FullGameSaveController : MonoBehaviour
             return false;
         }
 
+        return TryDeserializeSaveData(serialized, key, out data);
+    }
+
+    bool TryDeserializeSaveData(
+        string serialized,
+        string sourceLabel,
+        out FullGameSaveData data)
+    {
+        data = null;
+
         try
         {
             data = JsonUtility.FromJson<FullGameSaveData>(serialized);
@@ -2163,9 +2527,9 @@ public class FullGameSaveController : MonoBehaviour
         catch (Exception exception)
         {
             Debug.LogWarning(
-                "FullGameSaveController failed to parse save key " +
-                key +
-                ": " +
+                "FullGameSaveController failed to parse save source '" +
+                sourceLabel +
+                "': " +
                 exception.Message);
             return false;
         }

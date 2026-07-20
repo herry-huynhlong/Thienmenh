@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -31,13 +32,13 @@ public class WorldMarriageHome : MonoBehaviour
     void Awake()
     {
         EnsureRenderer();
-        EnsureRuntimeFrames();
+        EnsureConfiguredFrames();
     }
 
     void OnEnable()
     {
         EnsureRenderer();
-        EnsureRuntimeFrames();
+        EnsureConfiguredFrames();
 
         if (startBuilt)
         {
@@ -53,7 +54,7 @@ public class WorldMarriageHome : MonoBehaviour
     void Update()
     {
         EnsureRenderer();
-        EnsureRuntimeFrames();
+        EnsureConfiguredFrames();
 
         if (constructionComplete ||
             targetRenderer == null ||
@@ -156,49 +157,16 @@ public class WorldMarriageHome : MonoBehaviour
         }
     }
 
-    void EnsureRuntimeFrames()
+    void EnsureConfiguredFrames()
     {
         if (HasUsableFrames())
         {
             return;
         }
 
-        if (sourceTexture == null ||
-            runtimeSlices == null ||
-            runtimeSlices.Length == 0)
-        {
-            return;
-        }
-
-        CleanupGeneratedSprites();
-
-        frames = new Sprite[runtimeSlices.Length];
-        for (int i = 0; i < runtimeSlices.Length; i++)
-        {
-            RuntimeFrameSlice slice = runtimeSlices[i];
-            if (slice.rect.width <= 0f ||
-                slice.rect.height <= 0f)
-            {
-                continue;
-            }
-
-            float pixelsPerUnit =
-                slice.pixelsPerUnit > 0f
-                    ? slice.pixelsPerUnit
-                    : 100f;
-            Sprite created =
-                Sprite.Create(
-                    sourceTexture,
-                    slice.rect,
-                    slice.pivot,
-                    pixelsPerUnit);
-            created.name =
-                !string.IsNullOrWhiteSpace(slice.name)
-                    ? slice.name
-                    : "marriage_home_frame_" + i;
-            generatedSprites.Add(created);
-            frames[i] = created;
-        }
+        throw new InvalidOperationException(
+            "WorldMarriageHome requires configured sprite frames. " +
+            "Runtime frame generation from sourceTexture/runtimeSlices is disabled.");
     }
 
     bool HasUsableFrames()

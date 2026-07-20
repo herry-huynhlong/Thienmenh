@@ -1447,31 +1447,9 @@ public partial class TouchSelectTarget : MonoBehaviour
 
     string GetTargetName(Transform target)
     {
-        VillagerAI villager =
-            GetTargetComponent<VillagerAI>(target);
-
-        if (villager != null)
-        {
-            return villager.villagerName;
-        }
-
-        SmartNpcAI smartNpc =
-            GetTargetComponent<SmartNpcAI>(target);
-
-        if (smartNpc != null)
-        {
-            return smartNpc.npcName;
-        }
-
-        MonsterAI monster =
-            GetTargetComponent<MonsterAI>(target);
-
-        if (monster != null)
-        {
-            return monster.monsterName;
-        }
-
-        return target.name;
+        return target != null
+            ? NpcRoleUtility.GetDisplayName(target.gameObject)
+            : string.Empty;
     }
 
     string GetTargetRealm(Transform target)
@@ -2671,6 +2649,27 @@ public partial class TouchSelectTarget : MonoBehaviour
 
     string GetTargetJob(Transform target)
     {
+        VillagerAI villager =
+            GetTargetComponent<VillagerAI>(target);
+
+        if (villager != null)
+        {
+            NpcSpecialProfession villagerProfession =
+                villager.GetComponent<NpcSpecialProfession>();
+
+            if (villagerProfession != null &&
+                !string.IsNullOrEmpty(villagerProfession.professionName))
+            {
+                return FormatProfessionWithLevel(
+                    villagerProfession.professionName,
+                    villagerProfession.jobLevel);
+            }
+
+            return FormatProfessionWithLevel(
+                GetVillagerJobText(villager.job),
+                villager.professionLevel);
+        }
+
         MonsterAI monster =
             GetTargetComponent<MonsterAI>(target);
 
@@ -2685,15 +2684,24 @@ public partial class TouchSelectTarget : MonoBehaviour
         if (profession != null &&
             !string.IsNullOrEmpty(profession.professionName))
         {
-            return profession.professionName;
+            return FormatProfessionWithLevel(
+                profession.professionName,
+                profession.jobLevel);
         }
 
-        VillagerAI villager =
-            GetTargetComponent<VillagerAI>(target);
+        return UiText.Get("touchSelect", "placeholder");
+    }
 
-        return villager != null
-            ? GetVillagerJobText(villager.job)
-            : UiText.Get("touchSelect", "placeholder");
+    string FormatProfessionWithLevel(
+        string professionName,
+        int level)
+    {
+        if (string.IsNullOrWhiteSpace(professionName))
+        {
+            return UiText.Get("touchSelect", "placeholder");
+        }
+
+        return professionName.Trim() + " - Lv " + Mathf.Max(1, level);
     }
 
     string GetVillagerJobText(VillagerJob job)

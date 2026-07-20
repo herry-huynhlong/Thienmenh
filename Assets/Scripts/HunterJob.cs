@@ -767,11 +767,45 @@ public class HunterJob : MonoBehaviour
         }
 
         StatItemData item = currentLootTarget.item;
-        if (item != null && currentLootTarget.TryTake(1))
+        int amountToCollect =
+            villager != null
+                ? villager.GetProfessionOutputAmountForJob(
+                    VillagerJob.Hunter)
+                : Mathf.Max(1, guaranteedMeatAmount);
+        amountToCollect =
+            Mathf.Clamp(
+                amountToCollect,
+                1,
+                Mathf.Max(1, currentLootTarget.amount));
+
+        if (item != null &&
+            currentLootTarget.TryTake(amountToCollect))
         {
             collector.ReceiveItemWithoutUse(
                 item,
                 ItemLifecycleEventType.Picked);
+
+            ItemInventory inventory =
+                GetComponent<ItemInventory>();
+
+            if (inventory == null)
+            {
+                inventory = gameObject.AddComponent<ItemInventory>();
+                inventory.shareRuntimeItems = false;
+            }
+
+            if (amountToCollect > 1)
+            {
+                inventory.AddItem(
+                    item,
+                    amountToCollect - 1);
+            }
+
+            if (villager != null)
+            {
+                villager.GainProfessionExpForJob(
+                    VillagerJob.Hunter);
+            }
         }
 
         currentLootTarget = null;
@@ -1029,7 +1063,12 @@ public class HunterJob : MonoBehaviour
 
         WorldStatItemPickup pickup = lootObject.AddComponent<WorldStatItemPickup>();
         pickup.item = item;
-        pickup.amount = Mathf.Max(1, guaranteedMeatAmount);
+        int amount =
+            villager != null
+                ? villager.GetProfessionOutputAmountForJob(
+                    VillagerJob.Hunter)
+                : Mathf.Max(1, guaranteedMeatAmount);
+        pickup.amount = Mathf.Max(1, amount);
         pickup.allowNpcPickup = true;
         pickup.allowPlayerPickup = false;
         pickup.requireNpcHarvestAction = true;

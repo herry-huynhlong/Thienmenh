@@ -14,8 +14,8 @@ public class VillagerRelationshipManager : MonoBehaviour
 
     [Header("Matching")]
     [Range(0f, 1f)] public float dailyMatchChance = 0.02f;
-    public int minAdultAge = 18;
-    public int maxMarriageAge = 60;
+    public int minAdultAge = NpcLifeStageDefaults.AdultMinAge;
+    public int maxMarriageAge = NpcLifeStageDefaults.MiddleMaxAge;
     public int maxAgeGapForMarriage = 5;
     public int minDatingDaysToMarry = 7;
     [Range(0, 100)] public int minAffectionToMarry = 60;
@@ -750,6 +750,11 @@ public class VillagerRelationshipManager : MonoBehaviour
 
     void ApplyBaselinePacing()
     {
+        minAdultAge = NpcLifeStageDefaults.AdultMinAge;
+        maxMarriageAge =
+            Mathf.Max(
+                minAdultAge,
+                NpcLifeStageDefaults.MiddleMaxAge);
         dailyMatchChance =
             Mathf.Clamp(
                 Mathf.Max(dailyMatchChance, MinimumDailyMatchChance),

@@ -31,6 +31,8 @@ public partial class SmartNpcAI
             return;
         }
 
+        TryReactToNearbyAttackingMonster();
+
         if (IsLockedRoutineAction(currentAction))
         {
             TraceBranch("ThinkBrainCore", "LockedRoutineAction", true);

@@ -1,0 +1,60 @@
+{
+  "lists": [
+    {
+      "key": "villagerSurnames",
+      "values": ["Lam", "Tran", "Duong", "Tan", "Tieu", "Han", "Moc", "Lieu", "Bach", "Lac", "Giang", "So", "Ve", "Ninh", "To", "Ky", "Pho", "La", "Co", "Luc", "Hua", "Ta"]
+    },
+    {
+      "key": "villagerMaleMiddles",
+      "values": ["Thanh", "Minh", "Van", "Quang", "Duc", "Truong", "Ngoc", "Tuan", "Anh", "Bao", "Huu", "Dinh"]
+    },
+    {
+      "key": "villagerFemaleMiddles",
+      "values": ["Thanh", "Ngoc", "Thu", "Bao", "Nhu", "Tuyet", "Van", "Minh", "Bich", "Hong", "Tieu", "An"]
+    },
+    {
+      "key": "villagerMaleTeenGivens",
+      "values": ["Phong", "Hao", "Vu", "Minh", "Dat", "An", "Kiet", "Nhan", "Khang", "Phuc", "Thien", "Huy", "Loc", "Triet", "Son"]
+    },
+    {
+      "key": "villagerMaleAdultGivens",
+      "values": ["Vien", "Hai", "Son", "Phong", "Kiet", "Luu", "Quan", "Binh", "Chau", "Lam", "Giang", "Nghia", "Hanh", "Tham", "Phat"]
+    },
+    {
+      "key": "villagerMaleElderGivens",
+      "values": ["Tho", "Son", "Duc", "An", "Nien", "Vi", "Bach", "Thuan", "Loc", "Nhan", "Tam", "Phuc"]
+    },
+    {
+      "key": "villagerFemaleTeenGivens",
+      "values": ["Nhi", "Nguyet", "Linh", "Lan", "Ca", "Dao", "Thu", "Ly", "Suong", "Vu", "Dao", "Tam", "Yen", "Nhu", "Mong"]
+    },
+    {
+      "key": "villagerFemaleAdultGivens",
+      "values": ["Ha", "Uyen", "Lien", "Thu", "Cam", "Yen", "Tam", "Nga", "Huong", "Lan", "Tinh", "Nghi", "Chau", "Dao", "Dung"]
+    },
+    {
+      "key": "villagerFemaleElderGivens",
+      "values": ["Dung", "Van", "Lien", "Tam", "Hoa", "An", "Lan", "Nga", "Nhan", "Thu", "Phuc", "Tinh"]
+    },
+    {
+      "key": "smartSurnames",
+      "values": ["Co", "Luc", "Ta", "Chung Ly", "Khuong", "Doan", "Bui", "Tong", "Nguy", "Te", "Au Duong", "Tu Khong", "Tu Ma", "Doc Co", "Mo Dung", "Van", "Phong", "Bach"]
+    },
+    {
+      "key": "smartMaleMiddles",
+      "values": ["Truong", "Thanh", "Van", "Tu", "Thien", "Huyen", "Vo", "Bat", "Quang", "Lang"]
+    },
+    {
+      "key": "smartFemaleMiddles",
+      "values": ["Thanh", "Tu", "Linh", "Ngoc", "Van", "Bich", "Nhu", "Tuyet", "Dieu", "Hong"]
+    },
+    {
+      "key": "smartMaleGivens",
+      "values": ["Khanh", "Huyen", "Tieu", "Son", "Mac", "An", "Lam", "Tieu", "Vu", "Dat", "Nhai", "Ca"]
+    },
+    {
+      "key": "smartFemaleGivens",
+      "values": ["Lung", "Dao", "Hoan", "Ca", "Tuyet", "Ha", "Co", "Lien", "Tam", "Truc", "Chau", "Dao"]
+    }
+  ]
+}

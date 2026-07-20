@@ -92,7 +92,9 @@ public class NpcTavernEntrance : MonoBehaviour
         PauseBaseAi(visit);
         visitors.Add(visit);
 
-        NpcRoleUtility.SetAction(npc, "Di den cua tuu quan: " + reason);
+        NpcRoleUtility.SetAction(
+            npc,
+            NpcText.Action("goTavern"));
     }
 
     void UpdateVisitors()
@@ -113,7 +115,7 @@ public class NpcTavernEntrance : MonoBehaviour
 
             NpcRoleUtility.SetAction(
                 visit.npc,
-                "Đang vào tửu quán: " + visit.reason);
+                visit.reason);
 
             if (Vector2.Distance(visit.npc.transform.position, visit.doorPosition) <= arriveDistance)
             {
@@ -157,7 +159,9 @@ public class NpcTavernEntrance : MonoBehaviour
                 visit.npc.transform.position = insideReleasePoint.position;
             }
 
-            NpcRoleUtility.SetAction(visit.npc, "Đã vào tửu quán");
+            NpcRoleUtility.SetAction(
+                visit.npc,
+                NpcText.Action("goTavern"));
 
             ResolveTavernProvider();
             if (tavernProvider != null)
@@ -173,13 +177,13 @@ public class NpcTavernEntrance : MonoBehaviour
 
         if (attractHungryNpc && NeedsMeal(npc))
         {
-            reason = "ăn uống";
+            reason = NpcText.Action("eatAtShop");
             return true;
         }
 
         if (attractTaskSeekers && HasAvailableTaskFor(npc))
         {
-            reason = "tìm nhiệm vụ";
+            reason = NpcText.Action("goTaskProviderDaily");
             return true;
         }
 
@@ -322,5 +326,3 @@ class NpcTavernVisit
     public Behaviour pausedBaseAi;
     public bool pausedBaseAiWasEnabled;
 }
-
-

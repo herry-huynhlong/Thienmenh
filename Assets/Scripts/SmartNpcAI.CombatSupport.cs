@@ -2,8 +2,6 @@ using UnityEngine;
 
 public partial class SmartNpcAI
 {
-    SmartNpcHelpRequestSystem.HelpRequest currentHelpRequest;
-    float nextHelpRequestAllowedTime;
     bool isRetreatingFromMonster;
     bool isCounterAttackingMonster;
     float retreatUntilTime;
@@ -60,49 +58,6 @@ public partial class SmartNpcAI
             return true;
         }
 
-        if (currentHelpRequest != null)
-        {
-            if (!IsValidHelpRequest(currentHelpRequest))
-            {
-                ClearHelpRequestState();
-            }
-            else
-            {
-                MonsterAI monster =
-                    currentHelpRequest.monster != null
-                    ? currentHelpRequest.monster.GetComponent<MonsterAI>()
-                    : null;
-
-                if (monster == null ||
-                    monster.IsDead ||
-                    !NpcMapBehaviorPolicy.CanUseMonsterTarget(
-                        gameObject,
-                        monster))
-                {
-                    ClearHelpRequestState();
-                    return false;
-                }
-
-                currentMonsterTarget = monster;
-                currentTarget = monster.transform;
-                hasWanderTarget = false;
-                RequestEmergencyTask(
-                    SmartAITaskGoal.SupportAlly,
-                    SmartAITaskPriority.Emergency,
-                    false,
-                    "combat support");
-                currentAction = NpcText.ActionFormat(
-                    "huntMonsterNamed",
-                    monster.monsterName);
-                return true;
-            }
-        }
-
-        if (TryAdoptHelpRequest())
-        {
-            return true;
-        }
-
         return false;
     }
 
@@ -127,87 +82,8 @@ public partial class SmartNpcAI
         }
     }
 
-    bool TryAdoptHelpRequest()
-    {
-        if (Time.time < nextHelpRequestAllowedTime ||
-            IsDead ||
-            IsLockedRoutineAction(currentAction))
-        {
-            return false;
-        }
-
-        SmartNpcHelpRequestSystem helpSystem =
-            SmartNpcHelpRequestSystem.Instance;
-        if (helpSystem == null)
-        {
-            return false;
-        }
-
-        SmartNpcHelpRequestSystem.HelpRequest request =
-            helpSystem.GetBestRequestNear(
-                gameObject,
-                helpSystem.nearbyRequestRadius);
-        if (request == null ||
-            !helpSystem.TryAcceptHelp(gameObject, request))
-        {
-            nextHelpRequestAllowedTime = Time.time + 2f;
-            return false;
-        }
-
-        currentHelpRequest = request;
-        MonsterAI monster =
-            request.monster != null
-            ? request.monster.GetComponent<MonsterAI>()
-            : null;
-
-        if (monster == null ||
-            monster.IsDead ||
-            !NpcMapBehaviorPolicy.CanUseMonsterTarget(
-                gameObject,
-                monster))
-        {
-            ClearHelpRequestState();
-            return false;
-        }
-
-        currentMonsterTarget = monster;
-        currentTarget = monster.transform;
-        hasWanderTarget = false;
-        RequestEmergencyTask(
-            SmartAITaskGoal.SupportAlly,
-            SmartAITaskPriority.Emergency,
-            false,
-            "adopt help request");
-        currentAction = NpcText.ActionFormat(
-            "huntMonsterNamed",
-            monster.monsterName);
-        return true;
-    }
-
     void RequestHelpForMonster(MonsterAI monster)
     {
-        if (monster == null ||
-            Time.time < nextHelpRequestAllowedTime)
-        {
-            return;
-        }
-
-        SmartNpcHelpRequestSystem helpSystem =
-            SmartNpcHelpRequestSystem.Instance;
-        if (helpSystem == null)
-        {
-            return;
-        }
-
-        helpSystem.RequestHelp(
-            gameObject,
-            monster.gameObject,
-            CombatPowerUtility.GetThreatRatio(
-                gameObject,
-                monster.gameObject));
-
-        nextHelpRequestAllowedTime =
-            Time.time + Random.Range(10f, 20f);
     }
 
     bool TryBeginMonsterRetreat(MonsterAI monster)
@@ -564,38 +440,8 @@ public partial class SmartNpcAI
         return bestGate;
     }
 
-    bool IsValidHelpRequest(SmartNpcHelpRequestSystem.HelpRequest request)
-    {
-        if (request == null ||
-            request.requester == null ||
-            request.monster == null ||
-            request.IsExpired)
-        {
-            return false;
-        }
-
-        if (NpcMapBehaviorPolicy.IsRestrictedSessionParticipant(gameObject))
-        {
-            return NpcMapBehaviorPolicy.CanUseHelpRequest(
-                    gameObject,
-                    request.requester,
-                    request.monster) &&
-                request.requester.activeInHierarchy &&
-                request.monster.activeInHierarchy &&
-                NpcAreaUtility.IsSameArea(gameObject, request.requester) &&
-                NpcAreaUtility.IsSameArea(gameObject, request.monster);
-        }
-
-        return request.requester.activeInHierarchy &&
-            request.monster.activeInHierarchy &&
-            NpcAreaUtility.IsSameArea(gameObject, request.requester) &&
-            NpcAreaUtility.IsSameArea(gameObject, request.monster);
-    }
-
     void ClearHelpRequestState()
     {
-        currentHelpRequest = null;
-        ClearEmergencyTaskIfMatches(SmartAITaskGoal.SupportAlly);
     }
 
     void ClearMonsterCombatState()
@@ -669,7 +515,6 @@ public partial class SmartNpcAI
     bool HasCombatSupportIntent()
     {
         return isRetreatingFromMonster ||
-            currentHelpRequest != null ||
             isCounterAttackingMonster;
     }
 }

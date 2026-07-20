@@ -273,6 +273,11 @@ public class NpcResourceGatherer : MonoBehaviour
             return;
         }
 
+        if (!CanAutoStartUnassignedGathering())
+        {
+            return;
+        }
+
         FindTarget(null, false);
     }
 
@@ -480,6 +485,13 @@ public class NpcResourceGatherer : MonoBehaviour
             return false;
         }
 
+        if (!allowScheduledWorkHarvest &&
+            scheduledRequiredItem == null &&
+            !CanAutoStartUnassignedGathering())
+        {
+            return false;
+        }
+
         RefreshScheduleSession();
 
         if (ShouldPauseForSmartNpcDamageRecovery())
@@ -531,6 +543,64 @@ public class NpcResourceGatherer : MonoBehaviour
         nextGatherAllowedTime =
             Time.time + Mathf.Max(0f, harvestCooldownWhenNoTarget);
         return false;
+    }
+
+    bool CanAutoStartUnassignedGathering()
+    {
+        if (villager != null)
+        {
+            if (villager.job != VillagerJob.Farmer &&
+                villager.job != VillagerJob.Fisher &&
+                villager.job != VillagerJob.Hunter)
+            {
+                return false;
+            }
+
+            NpcScheduleController villagerSchedule =
+                NpcScheduleController.GetSchedule(gameObject);
+            if (villagerSchedule != null &&
+                villagerSchedule.enforceSchedule)
+            {
+                if (villagerSchedule.CurrentActivity == NpcScheduleActivity.Gather ||
+                    villagerSchedule.CurrentActivity == NpcScheduleActivity.Hunt ||
+                    villagerSchedule.CurrentActivity == NpcScheduleActivity.Work)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            return IsScheduledWorkAction(villager.currentAction) ||
+                villager.currentAction == NpcText.Action("farmerWaitHarvest") ||
+                villager.currentAction == NpcText.Action("farmerHarvestedToday");
+        }
+
+        if (smartNpc == null ||
+            !smartNpc.enabled)
+        {
+            return false;
+        }
+
+        SmartAITask task = smartNpc.CurrentSmartTask;
+        if (task != null &&
+            task.IsValid &&
+            task.goal == SmartAITaskGoal.FreeHuntAndGather)
+        {
+            return true;
+        }
+
+        NpcScheduleController schedule =
+            NpcScheduleController.GetSchedule(gameObject);
+        if (schedule == null ||
+            !schedule.enforceSchedule)
+        {
+            return false;
+        }
+
+        return schedule.CurrentActivity == NpcScheduleActivity.Gather ||
+            schedule.CurrentActivity == NpcScheduleActivity.Hunt ||
+            schedule.CurrentActivity == NpcScheduleActivity.FreeHuntAndGather;
     }
 
     bool FindTarget(
@@ -1127,6 +1197,40 @@ public class NpcResourceGatherer : MonoBehaviour
         collector.ReceiveItemWithoutUse(
             item,
             ItemLifecycleEventType.Picked);
+
+        if (villager != null)
+        {
+            int bonusAmount = 0;
+
+            switch (villager.job)
+            {
+                case VillagerJob.Farmer:
+                case VillagerJob.Fisher:
+                    bonusAmount =
+                        villager.GetProfessionBonusOutputForJob(
+                            villager.job);
+                    villager.GainProfessionExpForJob(
+                        villager.job);
+                    break;
+            }
+
+            if (bonusAmount > 0)
+            {
+                ItemInventory inventory =
+                    GetComponent<ItemInventory>();
+
+                if (inventory == null)
+                {
+                    inventory = gameObject.AddComponent<ItemInventory>();
+                    inventory.shareRuntimeItems = false;
+                }
+
+                inventory.AddItem(
+                    item,
+                    bonusAmount);
+            }
+        }
+
         if (Time.time - lastCompleteHarvestLogTime >= 0.25f)
         {
             LogScheduledGatherDebug(
@@ -1445,8 +1549,7 @@ public class NpcResourceGatherer : MonoBehaviour
         if (task != null &&
             task.IsValid &&
             (task.goal == SmartAITaskGoal.Combat ||
-            task.goal == SmartAITaskGoal.Pursued ||
-            task.goal == SmartAITaskGoal.SupportAlly))
+            task.goal == SmartAITaskGoal.Pursued))
         {
             return true;
         }

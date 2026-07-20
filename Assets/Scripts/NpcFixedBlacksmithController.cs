@@ -39,6 +39,10 @@ public partial class NpcFixedBlacksmithController : MonoBehaviour
     public NpcMapZone preferredTradeZone = NpcMapZone.VanBaoLau;
     public List<FixedBlacksmithMaterialRequirement> materialRequirements =
         new List<FixedBlacksmithMaterialRequirement>();
+    public bool autoPlanLowGradeBatches = true;
+    [Min(2)] public int randomMaterialKindsMin = 2;
+    [Min(2)] public int randomMaterialKindsMax = 3;
+    [Min(0)] public int craftingLaborFee = 500;
 
     [Header("Production")]
     [Min(1)] public int craftDays = 3;
@@ -71,6 +75,8 @@ public partial class NpcFixedBlacksmithController : MonoBehaviour
     public float stateStartedAtRealtime = -1f;
     public int lastPurchaseDay = -1;
     public int lastSaleDay = -1;
+    public int lastBatchMaterialBudget;
+    public int lastBatchMinimumSaleValue;
     public bool debugLogs;
 
     VillagerAI villager;

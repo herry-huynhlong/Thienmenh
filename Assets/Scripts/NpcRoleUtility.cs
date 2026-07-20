@@ -97,21 +97,24 @@ public static class NpcRoleUtility
             profile.identity != null &&
             !string.IsNullOrEmpty(profile.identity.entityName))
         {
-            return profile.identity.entityName;
+            return NpcGeneratedIdentityProfiles.ToDisplayName(
+                profile.identity.entityName);
         }
 
         VillagerAI villager = GetActiveVillagerAI(npc) ??
             GetVillagerAI(npc);
         if (villager != null)
         {
-            return villager.villagerName;
+            return NpcGeneratedIdentityProfiles.ToDisplayName(
+                villager.villagerName);
         }
 
         SmartNpcAI smartNpc = GetActiveSmartNpcAI(npc) ??
             GetSmartNpcAI(npc);
         if (smartNpc != null)
         {
-            return smartNpc.npcName;
+            return NpcGeneratedIdentityProfiles.ToDisplayName(
+                smartNpc.npcName);
         }
 
         string petName = NpcPetCompanion.GetDisplayName(npc);

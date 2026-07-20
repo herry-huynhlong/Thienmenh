@@ -17,7 +17,7 @@ public enum LifeStage
 
 public static class NpcAgeUtility
 {
-    public const int DaysPerYear = 30 * 12;
+    public const int DaysPerYear = 1;
 
     public static int CurrentAbsoluteDay
     {
@@ -67,7 +67,7 @@ public static class NpcAgeUtility
         if (!identity.hasBirthAbsoluteDay)
         {
             identity.birthAbsoluteDay =
-                DeriveBirthAbsoluteDayFromWorldStartAge(identity.age);
+                DeriveBirthAbsoluteDayFromCurrentAge(identity.age);
             identity.hasBirthAbsoluteDay = true;
         }
 
@@ -154,14 +154,8 @@ public class NPCIdentity : MonoBehaviour
             return;
         }
 
-        bool looksLikeRuntimeChild =
-            age <= 18 &&
-            (!string.IsNullOrWhiteSpace(fatherId) ||
-             !string.IsNullOrWhiteSpace(motherId));
-
-        birthAbsoluteDay = looksLikeRuntimeChild
-            ? NpcAgeUtility.DeriveBirthAbsoluteDayFromCurrentAge(age)
-            : NpcAgeUtility.DeriveBirthAbsoluteDayFromWorldStartAge(age);
+        birthAbsoluteDay =
+            NpcAgeUtility.DeriveBirthAbsoluteDayFromCurrentAge(age);
         hasBirthAbsoluteDay = true;
     }
 

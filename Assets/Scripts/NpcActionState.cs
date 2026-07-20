@@ -134,7 +134,7 @@ public static class NpcActionStateCatalog
         Register(NpcActionId.WalkingRoad, "walkingRoad");
         Register(NpcActionId.Rest, "rest", "restNearHome", "restVillageNoon", "stayNearHome", "goHomeRest");
         Register(NpcActionId.Eating, "eating", "eatAtShop");
-        Register(NpcActionId.Work, "goWork", "goFarmWork", "working", "fishing", "goFish", "alchemy", "goAlchemy", "forging", "goForge", "goPatrol", "patrolling", "goHeal", "healing");
+        Register(NpcActionId.Work, "goWork", "goFarmWork", "working", "fishing", "goFish", "alchemy", "goAlchemy", "forging", "goForge", "goPatrol", "patrolling", "goHeal", "healing", "fixedAlchemistRefining", "fixedBlacksmithForging", "fixedBlacksmithForgingProgress");
         Register(NpcActionId.GatherResource, "gatherResource", "gatherVillageResource", "harvestResource", "pickItem", "pickHuntEvidence");
         Register(NpcActionId.Trade, "goMarketTrade", "tradeSeek", "trading", "goTavern", "buyPill", "goVanBaoLauBroker", "goVanBaoLauTask", "checkedVanBaoLau", "goBuyGoods", "goSellGoods", "sellGoods", "boughtGoods", "soldGoods", "waitTraderBuyGoods", "bringGoodsToCounter");
         Register(NpcActionId.Cultivate, "cultivate", "cultivateAbsorbQi", "goCultivatePoint", "goHomeCultivate");

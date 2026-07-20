@@ -44,6 +44,10 @@ public class NpcFixedAlchemistController : MonoBehaviour
     public System.Collections.Generic.List<FixedAlchemistMaterialRequirement>
         materialRequirements =
             new System.Collections.Generic.List<FixedAlchemistMaterialRequirement>();
+    public bool autoPlanLowGradeBatches = true;
+    [Min(2)] public int randomMaterialKindsMin = 2;
+    [Min(2)] public int randomMaterialKindsMax = 3;
+    [Min(0)] public int refiningLaborFee = 300;
 
     [Header("Production")]
     [Min(0.25f)] public float buyDurationSeconds = 5f;
@@ -71,6 +75,8 @@ public class NpcFixedAlchemistController : MonoBehaviour
     public float stateStartedAtRealtime = -1f;
     public int lastPurchaseDay = -1;
     public int lastSaleDay = -1;
+    public int lastBatchMaterialBudget;
+    public int lastBatchMinimumSaleValue;
     public bool debugLogs;
 
     VillagerAI villager;
@@ -266,9 +272,20 @@ public class NpcFixedAlchemistController : MonoBehaviour
             return false;
         }
 
+        EnsureDynamicAlchemyBatchPlan();
+
         if (HasProductsReadyToSell())
         {
             state = AlchemyCycleState.ReadyToSell;
+            return true;
+        }
+
+        if (autoPlanLowGradeBatches &&
+            !HasConfiguredMaterialRequirements())
+        {
+            villager.SetActionImmediate(
+                NpcText.Action("fixedAlchemistCouldNotBuyMaterials"),
+                2f);
             return true;
         }
 
@@ -346,6 +363,12 @@ public class NpcFixedAlchemistController : MonoBehaviour
             return true;
         }
 
+        if (autoPlanLowGradeBatches)
+        {
+            villager.SetActionImmediate(WaitAction, villager.thinkInterval);
+            return true;
+        }
+
         if (alchemyAgent.TryStartAnyAlchemy())
         {
             state = AlchemyCycleState.Refining;
@@ -396,8 +419,16 @@ public class NpcFixedAlchemistController : MonoBehaviour
             return true;
         }
 
+        bool boughtAllMaterials = false;
         bool traded = false;
-        if (tradeAgent != null)
+
+        if (HasConfiguredMaterialRequirements())
+        {
+            boughtAllMaterials =
+                TryPurchaseConfiguredMaterials(out _);
+            traded = boughtAllMaterials;
+        }
+        else if (tradeAgent != null)
         {
             if (buyBroker != null &&
                 buyBroker.receiveAllNpcRequests)
@@ -793,8 +824,152 @@ public class NpcFixedAlchemistController : MonoBehaviour
             refinedItem != null;
     }
 
+    void EnsureDynamicAlchemyBatchPlan()
+    {
+        if (!autoPlanLowGradeBatches)
+        {
+            return;
+        }
+
+        if (HasConfiguredMaterialRequirements() &&
+            GetExpectedAlchemySaleValue(refinedItem) >=
+            GetEstimatedMaterialBudget() + Mathf.Max(0, refiningLaborFee))
+        {
+            return;
+        }
+
+        TryGenerateDynamicAlchemyBatchPlan();
+    }
+
+    bool TryGenerateDynamicAlchemyBatchPlan()
+    {
+        SimpleItemShop shop;
+        if (!TryFindPreferredTradeShop(out shop) ||
+            shop == null ||
+            shop.items == null ||
+            shop.items.Count == 0 ||
+            alchemyAgent == null ||
+            alchemyAgent.alchemyCatalogItems == null ||
+            alchemyAgent.alchemyCatalogItems.Count == 0)
+        {
+            return false;
+        }
+
+        System.Collections.Generic.List<StatItemData> materialPool =
+            new System.Collections.Generic.List<StatItemData>();
+
+        for (int i = 0; i < shop.items.Count; i++)
+        {
+            ShopItemSlot slot = shop.items[i];
+            if (slot == null ||
+                slot.item == null ||
+                slot.amount <= 0 ||
+                !IsValidLowGradeAlchemyMaterial(slot.item))
+            {
+                continue;
+            }
+
+            if (!materialPool.Contains(slot.item))
+            {
+                materialPool.Add(slot.item);
+            }
+        }
+
+        if (materialPool.Count < Mathf.Max(1, randomMaterialKindsMin))
+        {
+            return false;
+        }
+
+        ShuffleItemList(materialPool);
+
+        int plannedKinds =
+            Mathf.Clamp(
+                Random.Range(
+                    Mathf.Max(1, randomMaterialKindsMin),
+                    Mathf.Max(randomMaterialKindsMin, randomMaterialKindsMax) + 1),
+                1,
+                materialPool.Count);
+
+        System.Collections.Generic.List<FixedAlchemistMaterialRequirement>
+            plannedRequirements =
+                new System.Collections.Generic.List<FixedAlchemistMaterialRequirement>();
+        int totalCost = 0;
+
+        for (int i = 0; i < plannedKinds; i++)
+        {
+            StatItemData item = materialPool[i];
+            int unitPrice = shop.GetNpcBuyPrice(item, gameObject);
+            if (unitPrice <= 0)
+            {
+                continue;
+            }
+
+            plannedRequirements.Add(
+                new FixedAlchemistMaterialRequirement
+                {
+                    item = item,
+                    amount = 1
+                });
+            totalCost += unitPrice;
+        }
+
+        if (plannedRequirements.Count < Mathf.Max(1, randomMaterialKindsMin))
+        {
+            return false;
+        }
+
+        int minimumSaleValue =
+            totalCost + Mathf.Max(0, refiningLaborFee);
+        System.Collections.Generic.List<StatItemData> resultCandidates =
+            new System.Collections.Generic.List<StatItemData>();
+
+        for (int i = 0; i < alchemyAgent.alchemyCatalogItems.Count; i++)
+        {
+            StatItemData candidate =
+                alchemyAgent.alchemyCatalogItems[i];
+            if (candidate == null ||
+                candidate.itemType != ItemType.DanDuoc ||
+                candidate.grade != ItemGrade.Ha ||
+                !candidate.canBeSold)
+            {
+                continue;
+            }
+
+            if (GetExpectedAlchemySaleValue(candidate) < minimumSaleValue)
+            {
+                continue;
+            }
+
+            resultCandidates.Add(candidate);
+        }
+
+        if (resultCandidates.Count == 0)
+        {
+            return false;
+        }
+
+        refinedItem =
+            resultCandidates[
+                Random.Range(0, resultCandidates.Count)];
+        refinedItemAmount = 1;
+        materialRequirements = plannedRequirements;
+        materialCost = totalCost;
+        salePrice = Mathf.Max(
+            minimumSaleValue,
+            GetExpectedAlchemySaleValue(refinedItem));
+        lastBatchMaterialBudget = totalCost;
+        lastBatchMinimumSaleValue = minimumSaleValue;
+        return true;
+    }
+
     bool NeedsMaterialsForNextBatch()
     {
+        if (autoPlanLowGradeBatches)
+        {
+            return !HasConfiguredMaterialRequirements() ||
+                !HasAllRequiredMaterials();
+        }
+
         if (HasConfiguredMaterialRequirements())
         {
             return !HasAllRequiredMaterials();
@@ -849,6 +1024,142 @@ public class NpcFixedAlchemistController : MonoBehaviour
         return true;
     }
 
+    int GetEstimatedMaterialBudget()
+    {
+        if (!HasConfiguredMaterialRequirements())
+        {
+            return materialCost;
+        }
+
+        SimpleItemShop shop;
+        if (!TryFindPreferredTradeShop(out shop) ||
+            shop == null)
+        {
+            return materialCost;
+        }
+
+        int total = 0;
+        for (int i = 0; i < materialRequirements.Count; i++)
+        {
+            FixedAlchemistMaterialRequirement requirement =
+                materialRequirements[i];
+            if (requirement == null ||
+                requirement.item == null ||
+                requirement.amount <= 0)
+            {
+                continue;
+            }
+
+            int missing = GetMissingMaterialAmount(requirement);
+            if (missing <= 0)
+            {
+                continue;
+            }
+
+            total +=
+                Mathf.Max(
+                    1,
+                    shop.GetNpcBuyPrice(
+                        requirement.item,
+                        gameObject)) * missing;
+        }
+
+        return Mathf.Max(0, total);
+    }
+
+    int GetMissingMaterialAmount(
+        FixedAlchemistMaterialRequirement requirement)
+    {
+        if (requirement == null ||
+            requirement.item == null ||
+            requirement.amount <= 0 ||
+            inventory == null)
+        {
+            return 0;
+        }
+
+        return Mathf.Max(
+            0,
+            requirement.amount - inventory.GetAmount(requirement.item));
+    }
+
+    bool TryPurchaseConfiguredMaterials(out string detail)
+    {
+        detail = "noRequirements";
+
+        if (!HasConfiguredMaterialRequirements())
+        {
+            return true;
+        }
+
+        if (inventory == null)
+        {
+            detail = "missingInventory";
+            return false;
+        }
+
+        SimpleItemShop shop;
+        if (!TryFindPreferredTradeShop(out shop) ||
+            shop == null)
+        {
+            detail = "missingShop";
+            return false;
+        }
+
+        System.Collections.Generic.List<string> purchases =
+            new System.Collections.Generic.List<string>();
+
+        for (int i = 0; i < materialRequirements.Count; i++)
+        {
+            FixedAlchemistMaterialRequirement requirement =
+                materialRequirements[i];
+            if (requirement == null ||
+                requirement.item == null ||
+                requirement.amount <= 0)
+            {
+                continue;
+            }
+
+            int missing = GetMissingMaterialAmount(requirement);
+            if (missing <= 0)
+            {
+                continue;
+            }
+
+            int itemIndex = shop.FindItemIndex(requirement.item);
+            if (itemIndex < 0)
+            {
+                detail = "missingStock=" + requirement.item.itemName;
+                return false;
+            }
+
+            int boughtAmount;
+            int totalPrice;
+            if (!shop.BuyNpcItemToInventory(
+                    itemIndex,
+                    gameObject,
+                    inventory,
+                    missing,
+                    out boughtAmount,
+                    out totalPrice))
+            {
+                detail = "buyFailed=" + requirement.item.itemName;
+                return false;
+            }
+
+            purchases.Add(
+                requirement.item.itemName +
+                "x" + boughtAmount +
+                " price=" + totalPrice);
+        }
+
+        detail =
+            purchases.Count > 0
+                ? string.Join("; ", purchases)
+                : "alreadyReady";
+        return HasAllRequiredMaterials();
+    }
+
     bool ConsumeConfiguredMaterials()
     {
         if (!HasAllRequiredMaterials())
@@ -876,6 +1187,110 @@ public class NpcFixedAlchemistController : MonoBehaviour
         }
 
         return true;
+    }
+
+    bool TryFindPreferredTradeShop(out SimpleItemShop shop)
+    {
+        shop = null;
+        lastTradeShopName = "none";
+
+        Transform marketPoint = GetMarketPoint();
+        if (marketPoint != null)
+        {
+            shop = marketPoint.GetComponent<SimpleItemShop>();
+            if (shop == null)
+            {
+                shop = marketPoint.GetComponentInParent<SimpleItemShop>();
+            }
+
+            if (shop != null)
+            {
+                lastTradeShopName = shop.name;
+                return true;
+            }
+        }
+
+        SimpleItemShop[] shops =
+            FindObjectsByType<SimpleItemShop>(
+                FindObjectsInactive.Exclude,
+                FindObjectsSortMode.None);
+        float bestDistance = float.MaxValue;
+
+        for (int i = 0; i < shops.Length; i++)
+        {
+            SimpleItemShop candidate = shops[i];
+            if (candidate == null)
+            {
+                continue;
+            }
+
+            NpcMapZone? candidateZone =
+                ResolveZoneForTransform(candidate.transform);
+            if (candidateZone.HasValue &&
+                candidateZone.Value != preferredTradeZone)
+            {
+                continue;
+            }
+
+            float distance =
+                Vector2.Distance(
+                    transform.position,
+                    candidate.transform.position);
+            if (distance >= bestDistance)
+            {
+                continue;
+            }
+
+            bestDistance = distance;
+            shop = candidate;
+        }
+
+        if (shop != null)
+        {
+            lastTradeShopName = shop.name;
+            return true;
+        }
+
+        return false;
+    }
+
+    bool IsValidLowGradeAlchemyMaterial(StatItemData item)
+    {
+        return item != null &&
+            item.grade == ItemGrade.Ha &&
+            item.canBeRefinedIntoPill &&
+            item.canBeSold &&
+            item.itemType == ItemType.VatLieu;
+    }
+
+    int GetExpectedAlchemySaleValue(StatItemData item)
+    {
+        if (item == null)
+        {
+            return 0;
+        }
+
+        return Mathf.Max(
+            1,
+            NpcEconomy.GetTradePrice(
+                item,
+                NpcTradeContext.MarketSell));
+    }
+
+    static void ShuffleItemList<T>(System.Collections.Generic.List<T> items)
+    {
+        if (items == null)
+        {
+            return;
+        }
+
+        for (int i = items.Count - 1; i > 0; i--)
+        {
+            int swapIndex = Random.Range(0, i + 1);
+            T temp = items[i];
+            items[i] = items[swapIndex];
+            items[swapIndex] = temp;
+        }
     }
 
     void EnsureStartingMoney()

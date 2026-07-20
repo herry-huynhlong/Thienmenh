@@ -13,7 +13,16 @@ public enum FarmPlotReservationKind
 {
     None,
     Plant,
-    Harvest
+    Harvest,
+    Support
+}
+
+public enum FarmPlotSupportAction
+{
+    None,
+    Care,
+    Water,
+    PestControl
 }
 
 [System.Serializable]
@@ -23,6 +32,9 @@ public class FarmPlotPersistentState
     public int state;
     public float plantedWorldHour = -1f;
     public int nextPlantAllowedDay = 1;
+    public float lastCareWorldHour = -9999f;
+    public float lastWaterWorldHour = -9999f;
+    public float lastPestControlWorldHour = -9999f;
 }
 
 public class FarmPlot : MonoBehaviour
@@ -51,6 +63,9 @@ public class FarmPlot : MonoBehaviour
     [Range(0f, 1f)] public float smallStageThreshold = 0.3f;
     [Range(0f, 1f)] public float growingStageThreshold = 0.65f;
     [Min(1)] public int daysBeforeReplant = 1;
+    [Min(0.1f)] public float supportActionDurationGameHours = 1f;
+    [Min(0.1f)] public float supportCooldownGameHours = 12f;
+    [Range(0f, 1f)] public float supportGrowthReductionFraction = 0.1f;
 
     [Header("Harvest Reward")]
     public StatItemData harvestItem;
@@ -65,6 +80,9 @@ public class FarmPlot : MonoBehaviour
     public FarmPlotState state = FarmPlotState.Empty;
     public float plantedWorldHour = -1f;
     public int nextPlantAllowedDay = 1;
+    public float lastCareWorldHour = -9999f;
+    public float lastWaterWorldHour = -9999f;
+    public float lastPestControlWorldHour = -9999f;
 
     [Header("Debug")]
     public bool debugLogs;
@@ -87,6 +105,9 @@ public class FarmPlot : MonoBehaviour
     public bool CanHarvestNow =>
         state == FarmPlotState.Mature;
 
+    public bool CanSupportNow =>
+        state == FarmPlotState.Growing;
+
     public FarmPlotPersistentState CapturePersistentState()
     {
         UpdateStateFromWorldTime();
@@ -96,7 +117,10 @@ public class FarmPlot : MonoBehaviour
             persistentKey = GetPersistentSaveKey(),
             state = (int)state,
             plantedWorldHour = plantedWorldHour,
-            nextPlantAllowedDay = nextPlantAllowedDay
+            nextPlantAllowedDay = nextPlantAllowedDay,
+            lastCareWorldHour = lastCareWorldHour,
+            lastWaterWorldHour = lastWaterWorldHour,
+            lastPestControlWorldHour = lastPestControlWorldHour
         };
     }
 
@@ -113,6 +137,9 @@ public class FarmPlot : MonoBehaviour
             (int)FarmPlotState.Cooldown);
         plantedWorldHour = saved.plantedWorldHour;
         nextPlantAllowedDay = Mathf.Max(1, saved.nextPlantAllowedDay);
+        lastCareWorldHour = saved.lastCareWorldHour;
+        lastWaterWorldHour = saved.lastWaterWorldHour;
+        lastPestControlWorldHour = saved.lastPestControlWorldHour;
 
         ReleaseReservation(null);
         UpdateStateFromWorldTime();
@@ -173,6 +200,12 @@ public class FarmPlot : MonoBehaviour
     {
         growDurationGameHours = Mathf.Max(0.5f, growDurationGameHours);
         daysBeforeReplant = Mathf.Max(1, daysBeforeReplant);
+        supportActionDurationGameHours =
+            Mathf.Max(0.1f, supportActionDurationGameHours);
+        supportCooldownGameHours =
+            Mathf.Max(0.1f, supportCooldownGameHours);
+        supportGrowthReductionFraction =
+            Mathf.Clamp01(supportGrowthReductionFraction);
         minHarvestYield = Mathf.Max(1, minHarvestYield);
         maxHarvestYield = Mathf.Max(minHarvestYield, maxHarvestYield);
         growingStageThreshold =
@@ -251,6 +284,23 @@ public class FarmPlot : MonoBehaviour
             FarmPlotReservationKind.Harvest);
     }
 
+    public bool TryReserveForSupport(
+        GameObject requester,
+        float durationSeconds,
+        FarmPlotSupportAction action)
+    {
+        if (!CanPerformSupportAction(action) ||
+            IsReservedByOther(requester))
+        {
+            return false;
+        }
+
+        return SetReservation(
+            requester,
+            durationSeconds,
+            FarmPlotReservationKind.Support);
+    }
+
     public bool IsReservedByOther(GameObject requester)
     {
         ReleaseExpiredReservation();
@@ -315,6 +365,7 @@ public class FarmPlot : MonoBehaviour
         }
 
         plantedWorldHour = GetCurrentWorldHour();
+        ResetSupportActions();
         state = FarmPlotState.Growing;
         reservationKind = FarmPlotReservationKind.None;
         reservedBy = null;
@@ -339,6 +390,7 @@ public class FarmPlot : MonoBehaviour
         int currentDay = GetCurrentAbsoluteDay();
         plantedWorldHour = -1f;
         nextPlantAllowedDay = currentDay + Mathf.Max(1, daysBeforeReplant);
+        ResetSupportActions();
         state = FarmPlotState.Cooldown;
         reservationKind = FarmPlotReservationKind.None;
         reservedBy = null;
@@ -408,8 +460,64 @@ public class FarmPlot : MonoBehaviour
         plantedWorldHour = -1f;
         state = FarmPlotState.Empty;
         nextPlantAllowedDay = Mathf.Max(1, GetCurrentAbsoluteDay());
+        ResetSupportActions();
         ReleaseReservation(null);
         RefreshVisual();
+    }
+
+    public bool CanPerformSupportAction(FarmPlotSupportAction action)
+    {
+        if (!CanSupportNow ||
+            action == FarmPlotSupportAction.None)
+        {
+            return false;
+        }
+
+        float currentWorldHour = GetCurrentWorldHour();
+        return currentWorldHour - GetLastSupportWorldHour(action) >=
+            Mathf.Max(0.1f, supportCooldownGameHours);
+    }
+
+    public float GetSupportActionDurationGameHours()
+    {
+        return Mathf.Max(0.1f, supportActionDurationGameHours);
+    }
+
+    public bool ApplySupportAction(
+        FarmPlotSupportAction action,
+        GameObject requester,
+        out float reducedGrowthHours)
+    {
+        reducedGrowthHours = 0f;
+
+        if (!CanPerformSupportAction(action) ||
+            IsReservedByOther(requester))
+        {
+            return false;
+        }
+
+        float reductionHours =
+            Mathf.Max(
+                0f,
+                growDurationGameHours *
+                Mathf.Clamp01(supportGrowthReductionFraction));
+        if (reductionHours <= 0f)
+        {
+            return false;
+        }
+
+        plantedWorldHour -= reductionHours;
+        SetLastSupportWorldHour(action, GetCurrentWorldHour());
+        reservationKind = FarmPlotReservationKind.None;
+        reservedBy = null;
+        reservationExpiresAt = 0f;
+        reducedGrowthHours = reductionHours;
+        UpdateStateFromWorldTime();
+        RefreshVisual();
+        LogDebug(
+            "Support " + action +
+            " reduced=" + reductionHours.ToString("0.00"));
+        return true;
     }
 
     [ContextMenu("Farm/Test Begin Planting")]
@@ -515,6 +623,46 @@ public class FarmPlot : MonoBehaviour
         }
 
         return Mathf.Clamp01(elapsed / growDurationGameHours);
+    }
+
+    float GetLastSupportWorldHour(FarmPlotSupportAction action)
+    {
+        switch (action)
+        {
+            case FarmPlotSupportAction.Care:
+                return lastCareWorldHour;
+            case FarmPlotSupportAction.Water:
+                return lastWaterWorldHour;
+            case FarmPlotSupportAction.PestControl:
+                return lastPestControlWorldHour;
+            default:
+                return -9999f;
+        }
+    }
+
+    void SetLastSupportWorldHour(
+        FarmPlotSupportAction action,
+        float worldHour)
+    {
+        switch (action)
+        {
+            case FarmPlotSupportAction.Care:
+                lastCareWorldHour = worldHour;
+                break;
+            case FarmPlotSupportAction.Water:
+                lastWaterWorldHour = worldHour;
+                break;
+            case FarmPlotSupportAction.PestControl:
+                lastPestControlWorldHour = worldHour;
+                break;
+        }
+    }
+
+    void ResetSupportActions()
+    {
+        lastCareWorldHour = -9999f;
+        lastWaterWorldHour = -9999f;
+        lastPestControlWorldHour = -9999f;
     }
 
     void UpdateStateFromWorldTime()

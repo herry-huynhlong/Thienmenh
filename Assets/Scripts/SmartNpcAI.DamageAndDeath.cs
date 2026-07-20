@@ -157,7 +157,30 @@ public partial class SmartNpcAI
         ClearTravelTargets();
         StopNpcMovement();
         actionTimer = 0f;
-        currentAction = NpcText.Action("injured");
+
+        if (IsLowHpRecoveryTaskActive())
+        {
+            currentAction = NpcText.Action("injured");
+            return;
+        }
+
+        if (currentMonsterTarget != null &&
+            currentMonsterTarget.currentHP > 0)
+        {
+            string targetName =
+                string.IsNullOrWhiteSpace(currentMonsterTarget.monsterName)
+                    ? string.Empty
+                    : currentMonsterTarget.monsterName;
+            currentAction =
+                string.IsNullOrWhiteSpace(targetName)
+                    ? NpcText.Action("attackMonsterNamed")
+                    : NpcText.ActionFormat(
+                        "attackMonsterNamed",
+                        targetName);
+            return;
+        }
+
+        currentAction = NpcText.Action("idle");
     }
 
     void TryReactToNearbyAttackingMonster()

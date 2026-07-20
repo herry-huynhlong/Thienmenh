@@ -413,8 +413,7 @@ public partial class SmartNpcAI
             task != null &&
             task.IsValid &&
             (task.goal == SmartAITaskGoal.Combat ||
-            task.goal == SmartAITaskGoal.Pursued ||
-            task.goal == SmartAITaskGoal.SupportAlly);
+            task.goal == SmartAITaskGoal.Pursued);
         bool hasCombatIntent =
             currentMonsterTarget != null ||
             HasCombatSupportIntent() ||
@@ -689,7 +688,7 @@ public partial class SmartNpcAI
             IsMonsterCombatAnimationAction(action) ||
             ContainsIgnoreCase(action, "waitSchedule") ||
             action == NpcText.Action("breakthrough") ||
-            action == NpcText.Action("injured") ||
+            IsBlockingInjuredAction(action) ||
             action == NpcText.Action("dead") ||
             action == NpcText.Action("oldAgeDeath") ||
             action == NpcText.Action("outerSkirmishNamed") ||
@@ -697,6 +696,13 @@ public partial class SmartNpcAI
             action == NpcText.Action("checkedVanBaoLau") ||
             action == NpcText.Action("buyPill") ||
             action == NpcText.Action("waitLightningNamed");
+    }
+
+    bool IsBlockingInjuredAction(string action)
+    {
+        return action == NpcText.Action("injured") &&
+            (IsRecoveringFromDamage ||
+             IsLowHpRecoveryTaskActive());
     }
 
     static bool ContainsIgnoreCase(string source, string value)

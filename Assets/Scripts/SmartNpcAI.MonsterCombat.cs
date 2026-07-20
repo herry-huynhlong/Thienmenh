@@ -142,7 +142,6 @@ public partial class SmartNpcAI
 
             bool preserveCombatTarget =
                 isCounterAttackingMonster ||
-                currentHelpRequest != null ||
                 MatchesSmartAction("attackMonsterNamed", true) ||
                 MatchesSmartAction("attackMonster", true);
 
@@ -195,7 +194,6 @@ public partial class SmartNpcAI
                 !TargetReservationSystem.Instance.IsReservedByOwner(
                     currentMonsterTarget.gameObject,
                     gameObject) &&
-                currentHelpRequest == null &&
                 !isCounterAttackingMonster)
             {
                 ReleaseMonsterReservation(currentMonsterTarget);
@@ -549,7 +547,6 @@ void TryAttackMonster()
         !TargetReservationSystem.Instance.IsReservedByOwner(
             currentMonsterTarget.gameObject,
             gameObject) &&
-        currentHelpRequest == null &&
         !isCounterAttackingMonster)
     {
         ReleaseMonsterReservation(currentMonsterTarget);

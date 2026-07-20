@@ -1,0 +1,60 @@
+{
+  "lists": [
+    {
+      "key": "villagerSurnames",
+      "values": ["Lâm", "Trần", "Dương", "Tần", "Tiêu", "Hàn", "Mộc", "Liễu", "Bạch", "Lạc", "Giang", "Sở", "Vệ", "Ninh", "Tô", "Kỷ", "Phó", "La", "Cố", "Lục", "Hứa", "Tạ"]
+    },
+    {
+      "key": "villagerMaleMiddles",
+      "values": ["Thanh", "Minh", "Văn", "Quang", "Đức", "Trường", "Ngọc", "Tuấn", "Anh", "Bảo", "Hữu", "Đình"]
+    },
+    {
+      "key": "villagerFemaleMiddles",
+      "values": ["Thanh", "Ngọc", "Thu", "Bảo", "Nhược", "Tuyết", "Vân", "Minh", "Bích", "Hồng", "Tiểu", "An"]
+    },
+    {
+      "key": "villagerMaleTeenGivens",
+      "values": ["Phong", "Hạo", "Vũ", "Minh", "Đạt", "An", "Kiệt", "Nhân", "Khang", "Phúc", "Thiên", "Huy", "Lộc", "Triết", "Sơn"]
+    },
+    {
+      "key": "villagerMaleAdultGivens",
+      "values": ["Viễn", "Hải", "Sơn", "Phong", "Kiệt", "Lưu", "Quân", "Bình", "Châu", "Lâm", "Giang", "Nghĩa", "Hành", "Thâm", "Phát"]
+    },
+    {
+      "key": "villagerMaleElderGivens",
+      "values": ["Thọ", "Sơn", "Đức", "An", "Niên", "Vi", "Bách", "Thuận", "Lộc", "Nhân", "Tâm", "Phúc"]
+    },
+    {
+      "key": "villagerFemaleTeenGivens",
+      "values": ["Nhi", "Nguyệt", "Linh", "Lan", "Ca", "Dao", "Thu", "Ly", "Sương", "Vũ", "Đào", "Tâm", "Yên", "Nhu", "Mộng"]
+    },
+    {
+      "key": "villagerFemaleAdultGivens",
+      "values": ["Hà", "Uyển", "Liên", "Thư", "Cầm", "Yên", "Tâm", "Nga", "Hương", "Lan", "Tình", "Nghi", "Châu", "Dao", "Dung"]
+    },
+    {
+      "key": "villagerFemaleElderGivens",
+      "values": ["Dung", "Vân", "Liên", "Tâm", "Hoa", "An", "Lan", "Nga", "Nhàn", "Thu", "Phúc", "Tịnh"]
+    },
+    {
+      "key": "smartSurnames",
+      "values": ["Cố", "Lục", "Tạ", "Chung Ly", "Khương", "Đoàn", "Bùi", "Tống", "Ngụy", "Tề", "Âu Dương", "Tư Không", "Tư Mã", "Độc Cô", "Mộ Dung", "Vân", "Phong", "Bạch"]
+    },
+    {
+      "key": "smartMaleMiddles",
+      "values": ["Trường", "Thanh", "Vân", "Tử", "Thiên", "Huyền", "Vô", "Bất", "Quang", "Lăng"]
+    },
+    {
+      "key": "smartFemaleMiddles",
+      "values": ["Thanh", "Tử", "Linh", "Ngọc", "Vân", "Bích", "Như", "Tuyết", "Diệu", "Hồng"]
+    },
+    {
+      "key": "smartMaleGivens",
+      "values": ["Khanh", "Huyền", "Tiêu", "Sơn", "Mặc", "An", "Lâm", "Tiêu", "Vũ", "Dật", "Nhai", "Ca"]
+    },
+    {
+      "key": "smartFemaleGivens",
+      "values": ["Lung", "Dao", "Hoan", "Ca", "Tuyết", "Hà", "Cơ", "Liên", "Tâm", "Trúc", "Châu", "Đào"]
+    }
+  ]
+}

@@ -14,7 +14,6 @@ public enum SmartAITaskGoal
     Treasure = 40,
     NeedPotion = 50,
     Pursued = 60,
-    SupportAlly = 70,
     CriticalBreakthrough = 80
 }
 

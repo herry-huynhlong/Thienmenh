@@ -1,10 +1,8 @@
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Serialization;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 public class WeatherVisualSystem : MonoBehaviour
 {
@@ -194,8 +192,12 @@ public class WeatherVisualSystem : MonoBehaviour
 
     void BuildVisuals()
     {
-        rainSprites = LoadSprites(rainResourcePath, rainEditorAssetPath);
-        snowSprites = LoadSprites(snowResourcePath, snowEditorAssetPath);
+        rainSprites = LoadRequiredSprites(
+            rainResourcePath,
+            "WeatherVisualSystem rain");
+        snowSprites = LoadRequiredSprites(
+            snowResourcePath,
+            "WeatherVisualSystem snow");
         rainParticles = CreateRainParticles();
         snowParticles = CreateSnowParticles();
         qiParticles = CreateQiParticles();
@@ -231,17 +233,7 @@ public class WeatherVisualSystem : MonoBehaviour
         ParticleSystemRenderer renderer = particles.GetComponent<ParticleSystemRenderer>();
         renderer.sortingOrder = sortingOrder;
 
-        if (rainSprites != null && rainSprites.Length > 0)
-        {
-            ConfigureRainSpriteParticles(particles, renderer, rainSprites);
-        }
-        else
-        {
-            renderer.renderMode = ParticleSystemRenderMode.Stretch;
-            renderer.lengthScale = 2.2f;
-            renderer.velocityScale = 0.18f;
-            AssignMaterial(renderer, rainColor, CreateRainTexture());
-        }
+        ConfigureRainSpriteParticles(particles, renderer, rainSprites);
 
         return particles;
     }
@@ -280,15 +272,7 @@ public class WeatherVisualSystem : MonoBehaviour
         ParticleSystemRenderer renderer = particles.GetComponent<ParticleSystemRenderer>();
         renderer.sortingOrder = sortingOrder;
 
-        if (snowSprites != null && snowSprites.Length > 0)
-        {
-            ConfigureSnowSpriteParticles(particles, renderer, snowSprites);
-        }
-        else
-        {
-            renderer.renderMode = ParticleSystemRenderMode.Billboard;
-            AssignMaterial(renderer, snowColor, CreateSoftCircleTexture(24));
-        }
+        ConfigureSnowSpriteParticles(particles, renderer, snowSprites);
 
         return particles;
     }
@@ -431,12 +415,12 @@ public class WeatherVisualSystem : MonoBehaviour
             thunderTimerUnscaledSeconds -= GameTime.UnscaledDeltaSeconds;
             if (thunderTimerUnscaledSeconds <= 0f)
             {
-                thunderTimerUnscaledSeconds = Random.Range(
+                thunderTimerUnscaledSeconds = UnityEngine.Random.Range(
                     Mathf.Max(0.5f, thunderFlashMinDelayUnscaledSeconds),
                     Mathf.Max(
                         thunderFlashMinDelayUnscaledSeconds + 0.5f,
                         thunderFlashMaxDelayUnscaledSeconds));
-                thunderFlashAlpha = Random.Range(0.28f, 0.46f);
+                thunderFlashAlpha = UnityEngine.Random.Range(0.28f, 0.46f);
             }
         }
 
@@ -540,57 +524,45 @@ public class WeatherVisualSystem : MonoBehaviour
         }
     }
 
-    Sprite[] LoadSprites(string resourcePath, string editorAssetPath)
+    public static void ValidateRequiredSpriteResource(
+        string resourcePath,
+        string systemLabel)
     {
-        Sprite[] resourceSprites = Resources.LoadAll<Sprite>(resourcePath);
-        if (resourceSprites != null && resourceSprites.Length > 0)
+        Sprite[] sprites =
+            Resources.LoadAll<Sprite>(resourcePath);
+        if (sprites == null || sprites.Length == 0)
         {
-            return resourceSprites;
+            throw new InvalidOperationException(
+                systemLabel +
+                " requires sprite assets at Resources/" +
+                resourcePath +
+                " but none were loaded.");
         }
 
-#if UNITY_EDITOR
-        Object[] subAssets = AssetDatabase.LoadAllAssetRepresentationsAtPath(
-            editorAssetPath);
-        List<Sprite> sprites = new List<Sprite>();
-
-        for (int i = 0; i < subAssets.Length; i++)
+        bool hasUsableSprite = false;
+        for (int i = 0; i < sprites.Length; i++)
         {
-            if (subAssets[i] is Sprite sprite)
+            if (sprites[i] != null)
             {
-                sprites.Add(sprite);
+                hasUsableSprite = true;
+                break;
             }
         }
 
-        if (sprites.Count > 0)
+        if (!hasUsableSprite)
         {
-            return sprites.ToArray();
+            throw new InvalidOperationException(
+                systemLabel +
+                " requires usable sprites at Resources/" +
+                resourcePath +
+                " but all loaded entries were null.");
         }
-#endif
-
-        Debug.LogWarning(
-            "WeatherVisualSystem could not load sprites at Resources/" +
-            resourcePath +
-            ". Build will fall back to generated weather visuals.");
-
-        return null;
     }
 
-    Texture2D CreateRainTexture()
+    Sprite[] LoadRequiredSprites(string resourcePath, string systemLabel)
     {
-        Texture2D texture = new Texture2D(2, 16, TextureFormat.RGBA32, false);
-        texture.wrapMode = TextureWrapMode.Clamp;
-        texture.filterMode = FilterMode.Bilinear;
-
-        for (int y = 0; y < texture.height; y++)
-        {
-            float alpha = Mathf.Sin((y + 0.5f) / texture.height * Mathf.PI);
-            Color color = new Color(1f, 1f, 1f, alpha);
-            texture.SetPixel(0, y, color);
-            texture.SetPixel(1, y, color);
-        }
-
-        texture.Apply();
-        return texture;
+        ValidateRequiredSpriteResource(resourcePath, systemLabel);
+        return Resources.LoadAll<Sprite>(resourcePath);
     }
 
     Texture2D CreateSoftCircleTexture(int size)

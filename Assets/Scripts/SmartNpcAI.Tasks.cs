@@ -322,7 +322,7 @@ public partial class SmartNpcAI
             MatchesSmartAction("huntMonsterNamed", true) ||
             MatchesSmartAction("attackMonsterNamed", true))
         {
-            currentAction = NpcText.Action("injured");
+            currentAction = NpcText.Action("idle");
         }
     }
 
@@ -641,7 +641,6 @@ public partial class SmartNpcAI
                 return true;
 
             case SmartAITaskGoal.Combat:
-            case SmartAITaskGoal.SupportAlly:
             case SmartAITaskGoal.Pursued:
                 if (TryContinueFrontierDefenseTravel())
                 {
@@ -846,6 +845,11 @@ public partial class SmartNpcAI
             return waitScheduleAction;
         }
 
+        if (IsStaleRecoveryAction(action))
+        {
+            return "";
+        }
+
         if (!NpcMapBehaviorPolicy.AllowsNormalWorldTravel(gameObject) &&
             IsNormalWorldTravelAction(action))
         {
@@ -1015,7 +1019,6 @@ public partial class SmartNpcAI
                 return NpcText.Action("cultivate");
 
             case SmartAITaskGoal.DoMission:
-            case SmartAITaskGoal.SupportAlly:
                 return NpcText.Action("goTaskProviderDaily");
 
             case SmartAITaskGoal.FreeHuntAndGather:

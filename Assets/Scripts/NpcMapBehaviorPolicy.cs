@@ -173,7 +173,6 @@ public static class NpcMapBehaviorPolicy
     public static bool IsAllowedCombatTask(SmartAITaskGoal goal)
     {
         return goal == SmartAITaskGoal.Combat ||
-            goal == SmartAITaskGoal.SupportAlly ||
             goal == SmartAITaskGoal.Pursued ||
             goal == SmartAITaskGoal.LowHpRecovery;
     }

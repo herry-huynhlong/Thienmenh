@@ -6,6 +6,17 @@ public partial class NpcFixedBlacksmithController
     bool HandleNeedMaterials()
     {
         lastProgressWorldHour = GetCurrentWorldHour();
+        EnsureDynamicForgeBatchPlan();
+
+        if (autoPlanLowGradeBatches &&
+            (!HasConfiguredMaterialRequirements() ||
+            forgedItem == null))
+        {
+            villager.SetActionImmediate(
+                NpcText.Action("fixedBlacksmithNeedMoneyToBuy"),
+                2f);
+            return true;
+        }
 
         if (HasConfiguredMaterialRequirements() &&
             HasAllRequiredMaterials())
@@ -270,7 +281,20 @@ public partial class NpcFixedBlacksmithController
         if (inventory != null &&
             forgedItem != null)
         {
-            inventory.AddItem(forgedItem, 1);
+            int amount =
+                villager != null
+                    ? villager.GetProfessionOutputAmountForJob(
+                        VillagerJob.Blacksmith)
+                    : 1;
+            inventory.AddItem(
+                forgedItem,
+                Mathf.Max(1, amount));
+        }
+
+        if (villager != null)
+        {
+            villager.GainProfessionExpForJob(
+                VillagerJob.Blacksmith);
         }
 
         state = ForgeCycleState.ReadyToSell;
@@ -390,6 +414,13 @@ public partial class NpcFixedBlacksmithController
         {
             NpcEconomy.AddNpcMoney(gameObject, earnedMoney);
         }
+
+        if (villager != null)
+        {
+            villager.GainProfessionExpForJob(
+                VillagerJob.Blacksmith);
+        }
+
         completedCycles++;
         state = ForgeCycleState.NeedMaterials;
         forgedWorkHours = 0f;
@@ -597,11 +628,215 @@ public partial class NpcFixedBlacksmithController
             materialRequirements.Count > 0;
     }
 
+    void EnsureDynamicForgeBatchPlan()
+    {
+        if (!autoPlanLowGradeBatches)
+        {
+            return;
+        }
+
+        if (HasConfiguredMaterialRequirements() &&
+            forgedItem != null &&
+            GetExpectedForgeSaleValue(forgedItem) >=
+            GetEstimatedMaterialBudget() + Mathf.Max(0, craftingLaborFee))
+        {
+            return;
+        }
+
+        TryGenerateDynamicForgeBatchPlan();
+    }
+
+    bool TryGenerateDynamicForgeBatchPlan()
+    {
+        SimpleItemShop shop;
+        if (!TryFindPreferredTradeShop(out shop) ||
+            shop == null ||
+            shop.items == null ||
+            shop.items.Count == 0)
+        {
+            return false;
+        }
+
+        NpcForgeAgent forgeAgent = GetComponent<NpcForgeAgent>();
+        if (forgeAgent == null ||
+            forgeAgent.forgeCatalogItems == null ||
+            forgeAgent.forgeCatalogItems.Count == 0)
+        {
+            return false;
+        }
+
+        List<StatItemData> materialPool = new List<StatItemData>();
+        for (int i = 0; i < shop.items.Count; i++)
+        {
+            ShopItemSlot slot = shop.items[i];
+            if (slot == null ||
+                slot.item == null ||
+                slot.amount <= 0 ||
+                !IsValidLowGradeForgeMaterial(slot.item))
+            {
+                continue;
+            }
+
+            if (!materialPool.Contains(slot.item))
+            {
+                materialPool.Add(slot.item);
+            }
+        }
+
+        if (materialPool.Count < Mathf.Max(1, randomMaterialKindsMin))
+        {
+            return false;
+        }
+
+        ShuffleItems(materialPool);
+
+        int plannedKinds =
+            Mathf.Clamp(
+                Random.Range(
+                    Mathf.Max(1, randomMaterialKindsMin),
+                    Mathf.Max(randomMaterialKindsMin, randomMaterialKindsMax) + 1),
+                1,
+                materialPool.Count);
+
+        List<FixedBlacksmithMaterialRequirement> plannedRequirements =
+            new List<FixedBlacksmithMaterialRequirement>();
+        int totalCost = 0;
+
+        for (int i = 0; i < plannedKinds; i++)
+        {
+            StatItemData item = materialPool[i];
+            int unitPrice = shop.GetNpcBuyPrice(item, gameObject);
+            if (unitPrice <= 0)
+            {
+                continue;
+            }
+
+            plannedRequirements.Add(
+                new FixedBlacksmithMaterialRequirement
+                {
+                    item = item,
+                    amount = 1
+                });
+            totalCost += unitPrice;
+        }
+
+        if (plannedRequirements.Count < Mathf.Max(1, randomMaterialKindsMin))
+        {
+            return false;
+        }
+
+        int minimumSaleValue =
+            totalCost + Mathf.Max(0, craftingLaborFee);
+        List<StatItemData> resultCandidates =
+            new List<StatItemData>();
+
+        for (int i = 0; i < forgeAgent.forgeCatalogItems.Count; i++)
+        {
+            StatItemData candidate =
+                forgeAgent.forgeCatalogItems[i];
+            if (candidate == null ||
+                candidate.itemType != ItemType.PhapBao ||
+                candidate.grade != ItemGrade.Ha ||
+                !candidate.canBeSold)
+            {
+                continue;
+            }
+
+            if (GetExpectedForgeSaleValue(candidate) < minimumSaleValue)
+            {
+                continue;
+            }
+
+            resultCandidates.Add(candidate);
+        }
+
+        if (resultCandidates.Count == 0)
+        {
+            return false;
+        }
+
+        forgedItem =
+            resultCandidates[
+                Random.Range(0, resultCandidates.Count)];
+        materialRequirements = plannedRequirements;
+        materialCost = totalCost;
+        salePrice = Mathf.Max(
+            minimumSaleValue,
+            GetExpectedForgeSaleValue(forgedItem));
+        lastBatchMaterialBudget = totalCost;
+        lastBatchMinimumSaleValue = minimumSaleValue;
+        return true;
+    }
+
+    bool IsValidLowGradeForgeMaterial(StatItemData item)
+    {
+        if (item == null ||
+            item.itemType != ItemType.VatLieu ||
+            item.grade != ItemGrade.Ha ||
+            !item.canBeSold)
+        {
+            return false;
+        }
+
+        switch (item.materialKind)
+        {
+            case MaterialKind.Ore:
+            case MaterialKind.SpiritStone:
+            case MaterialKind.CraftingPart:
+            case MaterialKind.BeastPart:
+            case MaterialKind.BeastCore:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    int GetExpectedForgeSaleValue(StatItemData item)
+    {
+        if (item == null)
+        {
+            return 0;
+        }
+
+        SimpleItemShop shop;
+        if (TryFindPreferredTradeShop(out shop) &&
+            shop != null)
+        {
+            return Mathf.Max(
+                1,
+                shop.GetSellPrice(item));
+        }
+
+        return Mathf.Max(
+            1,
+            NpcEconomy.GetTradePrice(
+                item,
+                NpcTradeContext.MarketSell));
+    }
+
+    static void ShuffleItems<T>(List<T> items)
+    {
+        if (items == null)
+        {
+            return;
+        }
+
+        for (int i = items.Count - 1; i > 0; i--)
+        {
+            int swapIndex = Random.Range(0, i + 1);
+            T temp = items[i];
+            items[i] = items[swapIndex];
+            items[swapIndex] = temp;
+        }
+    }
+
     int GetEstimatedMaterialBudget()
     {
         if (!HasConfiguredMaterialRequirements())
         {
-            return materialCost;
+            return autoPlanLowGradeBatches
+                ? 0
+                : materialCost;
         }
 
         SimpleItemShop shop;

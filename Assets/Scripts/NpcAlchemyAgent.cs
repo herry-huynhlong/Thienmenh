@@ -438,7 +438,23 @@ public class NpcAlchemyAgent : MonoBehaviour
 
         if (inventory != null && pendingResult != null)
         {
-            inventory.AddItem(pendingResult, pendingResultAmount);
+            int resultAmount =
+                pendingResultAmount;
+            VillagerAI villager =
+                GetComponent<VillagerAI>();
+
+            if (villager != null)
+            {
+                resultAmount =
+                    Mathf.Max(
+                        resultAmount,
+                        villager.GetProfessionOutputAmountForJob(
+                            VillagerJob.Alchemist));
+                villager.GainProfessionExpForJob(
+                    VillagerJob.Alchemist);
+            }
+
+            inventory.AddItem(pendingResult, resultAmount);
             ItemLifecycleSystem.Notify(
                 ItemLifecycleEventType.Refined,
                 pendingResult,
@@ -549,6 +565,7 @@ public class NpcAlchemyAgent : MonoBehaviour
             bool traded = broker.TryTradeWithNpc(tradeAgent);
             if (traded)
             {
+                GainAlchemyProfessionExp();
                 SetIdleAction();
                 UpdateVisualAnimation();
             }
@@ -586,6 +603,7 @@ public class NpcAlchemyAgent : MonoBehaviour
             movingToBroker = false;
             if (broker.TryTradeWithNpc(tradeAgent))
             {
+                GainAlchemyProfessionExp();
                 SetIdleAction();
             }
 
@@ -645,7 +663,21 @@ public class NpcAlchemyAgent : MonoBehaviour
             item,
             price);
 
+        GainAlchemyProfessionExp();
+
         return true;
+    }
+
+    void GainAlchemyProfessionExp()
+    {
+        VillagerAI villager =
+            GetComponent<VillagerAI>();
+
+        if (villager != null)
+        {
+            villager.GainProfessionExpForJob(
+                VillagerJob.Alchemist);
+        }
     }
 
     bool CanSellFinishedItem(ItemStack stack)
@@ -1353,7 +1385,7 @@ public class NpcAlchemyAgent : MonoBehaviour
     void SetRefiningAction()
     {
         movingToBroker = false;
-        currentAction = NpcText.Action("attack");
+        currentAction = NpcText.Action("fixedAlchemistRefining");
         NpcRoleUtility.SetAction(
             gameObject,
             currentAction);

@@ -610,6 +610,12 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             EntityGenerator.FillProfile(entityProfile, EntityKind.Cultivator);
             entityProfile.lockGeneratedValues = true;
         }
+        else if (NpcGeneratedIdentityProfiles.NeedsMigration(
+            entityProfile))
+        {
+            NpcGeneratedIdentityProfiles.MigrateExistingSmartIdentity(
+                entityProfile);
+        }
         else
         {
             EntityGenerator.NormalizeCultivatorCombatStats(entityProfile.stats);
@@ -832,6 +838,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
 
         thinkTimer += Time.deltaTime;
         actionTimer -= Time.deltaTime;
+        ClearStaleRecoveryAction();
 
         attackTimer += Time.deltaTime;
 
@@ -1403,10 +1410,14 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             return true;
         }
 
-        if (action == NpcText.Action("injured") &&
-            IsRecoveringFromDamage)
+        if (IsBlockingInjuredAction(action))
         {
             return true;
+        }
+
+        if (IsStaleRecoveryAction(action))
+        {
+            return false;
         }
 
         if (actionTimer <= 0f)
@@ -1421,11 +1432,46 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             action == NpcText.Action("createSect") ||
             action == NpcText.Action("rest") ||
             action == NpcText.Action("eating") ||
-            action == NpcText.Action("injured") ||
             action == NpcText.Action("waitTribulation") ||
             action == NpcText.Action("breakthrough") ||
             action == NpcText.Action("cultivate") ||
             action == NpcText.Action("cultivateAbsorbQi");
+    }
+
+    void ClearStaleRecoveryAction()
+    {
+        if (!IsStaleRecoveryAction(currentAction))
+        {
+            return;
+        }
+
+        if (currentActionKey == "injured")
+        {
+            currentActionKey = string.Empty;
+        }
+
+        if (currentActionId == NpcActionId.Injured)
+        {
+            currentActionId = NpcActionId.Unknown;
+        }
+
+        currentAction = string.Empty;
+        actionTimer = 0f;
+    }
+
+    bool IsStaleRecoveryAction(string action)
+    {
+        if (action != NpcText.Action("injured"))
+        {
+            return false;
+        }
+
+        if (IsRecoveringFromDamage)
+        {
+            return false;
+        }
+
+        return !IsLowHpRecoveryTaskActive();
     }
 
     bool IsPreservedTravelAction(string action)

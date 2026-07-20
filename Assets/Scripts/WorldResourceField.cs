@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 [System.Serializable]
 public class ResourceFieldItemEntry
@@ -118,7 +115,6 @@ public class WorldResourceField : MonoBehaviour, ISerializationCallbackReceiver
 
     void Start()
     {
-        TryPopulateDefaultHerbRingFrames();
         RegisterConfiguredItems();
         ConfigureExistingResources();
 
@@ -170,8 +166,6 @@ public class WorldResourceField : MonoBehaviour, ISerializationCallbackReceiver
 
         if (region == null)
             region = GetComponent<SpawnRegion>();
-
-        TryPopulateDefaultHerbRingFrames();
     }
 
     void MigrateTimeDomains()
@@ -316,6 +310,7 @@ public class WorldResourceField : MonoBehaviour, ISerializationCallbackReceiver
         pickup.amount = Mathf.Max(1, entry.amount);
         pickup.allowNpcPickup = allowNpcPickup;
         pickup.allowPlayerPickup = allowPlayerPickup;
+        pickup.allowNpcPassivePickup = false;
         pickup.requireNpcHarvestAction = requireNpcHarvestAction;
         pickup.treatAsDroppedWorldItem = false;
         pickup.harvestDurationScaledSeconds =
@@ -389,7 +384,6 @@ public class WorldResourceField : MonoBehaviour, ISerializationCallbackReceiver
 
     void SetupHerbRingEffect(GameObject resourceObject, StatItemData item)
     {
-        TryPopulateDefaultHerbRingFrames();
         Sprite[] ringFrames = ResolveHerbRingFrames(item.grade);
         bool shouldShow = HasAnySprite(ringFrames);
 
@@ -671,145 +665,6 @@ public class WorldResourceField : MonoBehaviour, ISerializationCallbackReceiver
 
         return null;
     }
-
-#if UNITY_EDITOR
-    void TryPopulateDefaultHerbRingFrames()
-    {
-        bool changed = false;
-        changed |= TryAssignFrameSet(
-            "Assets/UI/fire/vonghapham.png",
-            ref haPhamHerbRingFrames);
-        changed |= TryAssignFrameSet(
-            "Assets/UI/fire/vongtrungpham.png",
-            ref trungPhamHerbRingFrames);
-        changed |= TryAssignFrameSet(
-            "Assets/UI/fire/vongthuongpham.png",
-            ref thuongPhamHerbRingFrames);
-
-        if (changed)
-        {
-            EditorUtility.SetDirty(this);
-        }
-    }
-
-    bool TryAssignFrameSet(string assetPath, ref Sprite[] targetFrames)
-    {
-        Sprite[] loadedFrames = LoadSpritesAtPath(assetPath);
-        if (!HasAnySprite(loadedFrames))
-        {
-            return false;
-        }
-
-        if (AreSpriteArraysEquivalent(targetFrames, loadedFrames))
-        {
-            return false;
-        }
-
-        targetFrames = loadedFrames;
-        return true;
-    }
-
-    Sprite[] LoadSpritesAtPath(string assetPath)
-    {
-        UnityEngine.Object[] assets =
-            AssetDatabase.LoadAllAssetsAtPath(assetPath);
-        List<Sprite> sprites = new List<Sprite>();
-
-        for (int i = 0; i < assets.Length; i++)
-        {
-            Sprite sprite = assets[i] as Sprite;
-            if (sprite == null)
-            {
-                continue;
-            }
-
-            sprites.Add(sprite);
-        }
-
-        sprites.Sort(CompareSpriteNamesByTrailingIndex);
-        return sprites.ToArray();
-    }
-
-    int CompareSpriteNamesByTrailingIndex(Sprite left, Sprite right)
-    {
-        if (left == right)
-        {
-            return 0;
-        }
-
-        int leftIndex =
-            ExtractTrailingNumber(left != null ? left.name : string.Empty);
-        int rightIndex =
-            ExtractTrailingNumber(right != null ? right.name : string.Empty);
-        if (leftIndex != rightIndex)
-        {
-            return leftIndex.CompareTo(rightIndex);
-        }
-
-        string leftName = left != null ? left.name : string.Empty;
-        string rightName = right != null ? right.name : string.Empty;
-        return string.Compare(
-            leftName,
-            rightName,
-            StringComparison.OrdinalIgnoreCase);
-    }
-
-    int ExtractTrailingNumber(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return int.MinValue;
-        }
-
-        int end = value.Length - 1;
-        while (end >= 0 && char.IsDigit(value[end]))
-        {
-            end--;
-        }
-
-        if (end >= value.Length - 1)
-        {
-            return int.MinValue;
-        }
-
-        string numericPart = value.Substring(end + 1);
-        int parsed;
-        return int.TryParse(numericPart, out parsed)
-            ? parsed
-            : int.MinValue;
-    }
-
-    bool AreSpriteArraysEquivalent(
-        Sprite[] current,
-        Sprite[] loaded)
-    {
-        if (current == loaded)
-        {
-            return true;
-        }
-
-        if (current == null ||
-            loaded == null ||
-            current.Length != loaded.Length)
-        {
-            return false;
-        }
-
-        for (int i = 0; i < current.Length; i++)
-        {
-            if (current[i] != loaded[i])
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-#else
-    void TryPopulateDefaultHerbRingFrames()
-    {
-    }
-#endif
 
     Transform FindChildRecursive(Transform parent, string childName)
     {

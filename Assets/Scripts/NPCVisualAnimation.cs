@@ -450,6 +450,9 @@ public class NPCVisualAnimation : MonoBehaviour
         if (MatchesAction(currentAction, "attackMonsterNamed", true) ||
             MatchesAction(currentAction, "attackMonster", true) ||
             MatchesAction(currentAction, "attack", true) ||
+            MatchesAction(currentAction, "forging") ||
+            MatchesAction(currentAction, "fixedAlchemistRefining") ||
+            MatchesAction(currentAction, "fixedBlacksmithForging") ||
             MatchesAction(currentAction, "fightBlockingMonster") ||
             MatchesAction(currentAction, "guardSpiritHerbMonster") ||
             MatchesAction(currentAction, "clearHarvestMonster") ||

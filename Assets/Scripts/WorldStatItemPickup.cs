@@ -39,7 +39,7 @@ public class WorldStatItemPickup : MonoBehaviour
     {
         treatAsDroppedWorldItem = true;
         requireNpcHarvestAction = false;
-        allowNpcPassivePickup = true;
+        allowNpcPassivePickup = false;
     }
 
     public bool HasValidNpcPickupArea()
@@ -92,9 +92,46 @@ public class WorldStatItemPickup : MonoBehaviour
 
     public bool CanNpcPassivelyCollect(GameObject actor)
     {
-        return allowNpcPassivePickup &&
-            !RequiresNpcHarvestAction() &&
-            CanNpcActorCollect(actor);
+        if (!allowNpcPickup ||
+            item == null ||
+            actor == null)
+        {
+            return false;
+        }
+
+        if (!CanNpcActorCollect(actor))
+        {
+            return false;
+        }
+
+        if (ShouldBlockNpcPassivePickup())
+        {
+            return false;
+        }
+
+        if (allowNpcPassivePickup)
+        {
+            return true;
+        }
+
+        return trackReceiverInHeavenNurture &&
+            treatAsDroppedWorldItem;
+    }
+
+    bool ShouldBlockNpcPassivePickup()
+    {
+        if (HasHarvestResourceMarker())
+        {
+            return true;
+        }
+
+        if (item == null)
+        {
+            return false;
+        }
+
+        return item.materialKind == MaterialKind.Herb ||
+            ResourceNode.InferKindFromItem(item) == HarvestResourceKind.ThaoDuoc;
     }
 
     bool HasHarvestResourceMarker()
@@ -329,6 +366,15 @@ public class WorldStatItemPickup : MonoBehaviour
             return false;
         }
 
+        NpcItemCollector collector =
+            target.GetComponent<NpcItemCollector>();
+
+        if (collector == null ||
+            !collector.canPickupItems)
+        {
+            return false;
+        }
+
         StatItemData pickedItem = item;
 
         if (!TryTake(1))
@@ -336,38 +382,10 @@ public class WorldStatItemPickup : MonoBehaviour
             return false;
         }
 
-        NpcItemCollector collector =
-            target.GetComponent<NpcItemCollector>();
-
-        if (collector != null)
-        {
-            collector.ReceiveItem(
-                pickedItem,
-                ItemLifecycleEventType.Picked,
-                false);
-            TrackReceiver(target.gameObject);
-            ClearReservation(target.gameObject);
-            return true;
-        }
-
-        ItemInventory inventory =
-            target.GetComponent<ItemInventory>();
-
-        if (inventory == null)
-        {
-            inventory =
-                target.gameObject.AddComponent<ItemInventory>();
-
-            inventory.shareRuntimeItems = false;
-        }
-
-        ItemEffectSpawner.PlayPickupEffect(pickedItem, target);
-        inventory.AddItem(pickedItem, 1);
-        ItemLifecycleSystem.Notify(
-            ItemLifecycleEventType.Picked,
+        collector.ReceiveItem(
             pickedItem,
-            target.gameObject);
-        TreasureHeatSystem.NotifyNpcReceivedItem(target.gameObject, pickedItem);
+            ItemLifecycleEventType.Picked,
+            false);
         TrackReceiver(target.gameObject);
         ClearReservation(target.gameObject);
         return true;

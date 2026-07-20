@@ -174,6 +174,7 @@ public class EntityRelationship
 
 public class EntityProfile : MonoBehaviour
 {
+    public int generatedIdentityVersion;
     public bool generateOnAwake = true;
     public bool lockGeneratedValues;
     public EntityKind kind = EntityKind.Commoner;
@@ -297,6 +298,8 @@ public static class EntityGenerator
         FillPersonality(profile.personality, kind);
         FillEmotion(profile.emotion);
         FillNeeds(profile.needs, profile.personality, kind);
+        profile.generatedIdentityVersion =
+            NpcGeneratedIdentityProfiles.CurrentGeneratedIdentityVersion;
         if (kind == EntityKind.Beast)
         {
             profile.currentGoal = EntityGoal.Hunt;
@@ -317,6 +320,13 @@ public static class EntityGenerator
         identity.gender = kind == EntityKind.Beast
             ? EntityGender.Unknown
             : WeightedGender();
+
+        if (kind == EntityKind.Commoner)
+        {
+            NpcGeneratedIdentityProfiles.ApplyCommonerIdentity(identity);
+            return;
+        }
+
         identity.age = kind == EntityKind.Beast
             ? UnityEngine.Random.Range(1, 80)
             : UnityEngine.Random.Range(14, 80);
@@ -328,8 +338,13 @@ public static class EntityGenerator
             return;
         }
 
-        string[] names = identity.gender == EntityGender.Female ? femaleNames : maleNames;
-        identity.entityName = names[UnityEngine.Random.Range(0, names.Length)];
+        identity.entityName =
+            kind == EntityKind.Cultivator
+                ? NpcGeneratedIdentityProfiles.PickSmartName(
+                    identity.gender)
+                : (identity.gender == EntityGender.Female
+                    ? femaleNames[UnityEngine.Random.Range(0, femaleNames.Length)]
+                    : maleNames[UnityEngine.Random.Range(0, maleNames.Length)]);
     }
 
     static EntityGender WeightedGender()

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -102,9 +103,9 @@ public class WorldCampfire : MonoBehaviour
     {
         EnsureRenderer();
         EnsureBlendRenderer();
-        EnsureRuntimeFrames();
+        EnsureConfiguredFrames();
         CaptureRendererBaseTransform();
-        flickerSeed = Random.Range(-1000f, 1000f);
+        flickerSeed = UnityEngine.Random.Range(-1000f, 1000f);
     }
 
     void OnEnable()
@@ -112,7 +113,7 @@ public class WorldCampfire : MonoBehaviour
         activeCampfires.Add(this);
         EnsureRenderer();
         EnsureBlendRenderer();
-        EnsureRuntimeFrames();
+        EnsureConfiguredFrames();
         CaptureRendererBaseTransform();
         EnsureWeatherSubscription();
 
@@ -132,7 +133,7 @@ public class WorldCampfire : MonoBehaviour
     {
         EnsureRenderer();
         EnsureBlendRenderer();
-        EnsureRuntimeFrames();
+        EnsureConfiguredFrames();
         EnsureWeatherSubscription();
         BeginNowIfNeeded();
 
@@ -470,7 +471,7 @@ public class WorldCampfire : MonoBehaviour
             blendRenderer.color.a > 0.001f;
     }
 
-    void EnsureRuntimeFrames()
+    void EnsureConfiguredFrames()
     {
         if (HasUsableFrames())
         {
@@ -478,51 +479,9 @@ public class WorldCampfire : MonoBehaviour
             return;
         }
 
-        if (sourceTexture == null ||
-            runtimeSlices == null ||
-            runtimeSlices.Length == 0)
-        {
-            return;
-        }
-
-        CleanupGeneratedSprites();
-
-        frames = new Sprite[runtimeSlices.Length];
-        for (int i = 0; i < runtimeSlices.Length; i++)
-        {
-            RuntimeFrameSlice slice = runtimeSlices[i];
-            if (slice.rect.width <= 0f ||
-                slice.rect.height <= 0f)
-            {
-                continue;
-            }
-
-            Sprite created = Sprite.Create(
-                sourceTexture,
-                slice.rect,
-                new Vector2(
-                    slice.pivot == Vector2.zero
-                        ? 0.5f
-                        : slice.pivot.x,
-                    Mathf.Clamp01(generatedFramePivotY)),
-                slice.pixelsPerUnit > 0f
-                    ? slice.pixelsPerUnit
-                    : 100f,
-                0,
-                SpriteMeshType.FullRect);
-            if (created == null)
-            {
-                continue;
-            }
-
-            created.name = string.IsNullOrWhiteSpace(slice.name)
-                ? "campfire_frame_" + i
-                : slice.name;
-            generatedSprites.Add(created);
-            frames[i] = created;
-        }
-
-        RefreshFrameLookup();
+        throw new InvalidOperationException(
+            "WorldCampfire requires configured sprite frames. " +
+            "Runtime frame generation from sourceTexture/runtimeSlices is disabled.");
     }
 
     bool HasUsableFrames()

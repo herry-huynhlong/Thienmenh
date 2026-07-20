@@ -422,7 +422,23 @@ public class NpcForgeAgent : MonoBehaviour
 
         if (inventory != null && pendingResult != null)
         {
-            inventory.AddItem(pendingResult, pendingResultAmount);
+            int resultAmount =
+                pendingResultAmount;
+            VillagerAI villager =
+                GetComponent<VillagerAI>();
+
+            if (villager != null)
+            {
+                resultAmount =
+                    Mathf.Max(
+                        resultAmount,
+                        villager.GetProfessionOutputAmountForJob(
+                            VillagerJob.Blacksmith));
+                villager.GainProfessionExpForJob(
+                    VillagerJob.Blacksmith);
+            }
+
+            inventory.AddItem(pendingResult, resultAmount);
             ItemLifecycleSystem.Notify(
                 ItemLifecycleEventType.Forged,
                 pendingResult,
@@ -1464,6 +1480,7 @@ public class NpcForgeAgent : MonoBehaviour
             bool traded = broker.TryTradeWithNpc(tradeAgent);
             if (traded)
             {
+                GainBlacksmithProfessionExp();
                 SetIdleAction();
                 UpdateVisualAnimation();
             }
@@ -1522,7 +1539,21 @@ public class NpcForgeAgent : MonoBehaviour
             item,
             price);
 
+        GainBlacksmithProfessionExp();
+
         return true;
+    }
+
+    void GainBlacksmithProfessionExp()
+    {
+        VillagerAI villager =
+            GetComponent<VillagerAI>();
+
+        if (villager != null)
+        {
+            villager.GainProfessionExpForJob(
+                VillagerJob.Blacksmith);
+        }
     }
 
     bool CanSellFinishedItem(ItemStack stack)

@@ -2115,7 +2115,8 @@ public class InventoryPanelUI : MonoBehaviour
 
         if (villager != null)
         {
-            return villager.villagerName;
+            return NpcGeneratedIdentityProfiles.ToDisplayName(
+                villager.villagerName);
         }
 
         SmartNpcAI smartNpc =
@@ -2123,7 +2124,8 @@ public class InventoryPanelUI : MonoBehaviour
 
         if (smartNpc != null)
         {
-            return smartNpc.npcName;
+            return NpcGeneratedIdentityProfiles.ToDisplayName(
+                smartNpc.npcName);
         }
 
         NpcData npcData =
@@ -2131,7 +2133,8 @@ public class InventoryPanelUI : MonoBehaviour
 
         if (npcData != null)
         {
-            return npcData.npcName;
+            return NpcGeneratedIdentityProfiles.ToDisplayName(
+                npcData.npcName);
         }
 
         return owner.name;

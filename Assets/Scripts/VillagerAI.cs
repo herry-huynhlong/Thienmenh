@@ -215,13 +215,23 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
     public int professionExpGrowthPerLevel = 5;
     public int maxProfessionLevel = 20;
     public int professionExpPerWork = 1;
-    public int productBonusEveryProfessionLevels = 3;
+    public int productBonusEveryProfessionLevels = 2;
 
     public float ProfessionProgress01
     {
         get
         {
-            return 0f;
+            int requiredExp =
+                GetProfessionExpToNextLevel();
+
+            if (requiredExp <= 0)
+            {
+                return 1f;
+            }
+
+            return Mathf.Clamp01(
+                professionExp /
+                (float)requiredExp);
         }
     }
 
@@ -722,6 +732,12 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             EntityGenerator.FillProfile(entityProfile, EntityKind.Commoner);
             entityProfile.lockGeneratedValues = true;
         }
+        else if (NpcGeneratedIdentityProfiles.NeedsMigration(
+            entityProfile))
+        {
+            NpcGeneratedIdentityProfiles.MigrateExistingCommonerIdentity(
+                entityProfile);
+        }
 
         CacheNpcIdentity();
         bool preferNpcIdentityData = ShouldPreferNpcIdentityData();
@@ -819,17 +835,17 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
 
     VillagerAgeGroup GetAgeGroup(int age)
     {
-        if (age < 8)
+        if (age <= NpcLifeStageDefaults.ChildMaxAge)
         {
             return VillagerAgeGroup.Child;
         }
 
-        if (age < 18)
+        if (age <= NpcLifeStageDefaults.YouthMaxAge)
         {
             return VillagerAgeGroup.Teen;
         }
 
-        if (age > 60)
+        if (age >= NpcLifeStageDefaults.ElderMinAge)
         {
             return VillagerAgeGroup.Elder;
         }
@@ -1435,7 +1451,6 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
         return !string.IsNullOrWhiteSpace(npcIdentity.npcName) ||
             npcIdentity.age > 0 ||
             npcIdentity.hasBirthAbsoluteDay ||
-            npcIdentity.lifeStage != LifeStage.Youth ||
             !string.IsNullOrWhiteSpace(npcIdentity.homeId) ||
             !string.IsNullOrWhiteSpace(npcIdentity.fatherId) ||
             !string.IsNullOrWhiteSpace(npcIdentity.motherId) ||
@@ -2156,6 +2171,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
         {
             money += GetWorkIncome();
             currentAction = GetWorkingAction();
+            GainProfessionExpForJob(job);
             return true;
         }
 
@@ -2166,6 +2182,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             GetProfessionProductBonus();
 
         inventory.AddItem(product, amount);
+        GainProfessionExpForJob(job);
         currentAction = NpcText.ActionFormat("harvestItemAmount", product.itemName, amount);
         return true;
     }
@@ -2187,20 +2204,174 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
 
     int GetProfessionProductBonus()
     {
-        int levelsPerBonus =
-            Mathf.Max(1, productBonusEveryProfessionLevels);
-
-        return Mathf.Max(0, professionLevel - 1) / levelsPerBonus;
+        return Mathf.Max(
+            0,
+            GetProfessionOutputAmountForJob(job) - 1);
     }
 
     void AddProfessionExp(int amount)
     {
-        return;
+        if (!UsesProfessionProgression(job) ||
+            amount <= 0)
+        {
+            return;
+        }
+
+        professionLevel = Mathf.Max(1, professionLevel);
+        professionExp =
+            Mathf.Max(0, professionExp) + amount;
+
+        int maxLevel =
+            Mathf.Max(1, maxProfessionLevel);
+
+        while (professionLevel < maxLevel)
+        {
+            int requiredExp =
+                GetProfessionExpToNextLevel();
+
+            if (requiredExp <= 0 ||
+                professionExp < requiredExp)
+            {
+                break;
+            }
+
+            professionExp -= requiredExp;
+            professionLevel++;
+        }
+
+        if (professionLevel >= maxLevel)
+        {
+            professionLevel = maxLevel;
+            professionExp = 0;
+        }
+
+        SyncDisplayedProfessionLevel();
     }
 
     int GetProfessionExpToNextLevel()
     {
-        return 0;
+        professionLevel = Mathf.Max(1, professionLevel);
+
+        if (!UsesProfessionProgression(job) ||
+            professionLevel >= Mathf.Max(1, maxProfessionLevel))
+        {
+            return 0;
+        }
+
+        return Mathf.Max(
+            1,
+            baseProfessionExpToNextLevel +
+            Mathf.Max(0, professionLevel - 1) *
+            Mathf.Max(1, professionExpGrowthPerLevel));
+    }
+
+    bool UsesProfessionProgression(VillagerJob sourceJob)
+    {
+        switch (sourceJob)
+        {
+            case VillagerJob.Farmer:
+            case VillagerJob.Fisher:
+            case VillagerJob.Hunter:
+            case VillagerJob.Trader:
+            case VillagerJob.Alchemist:
+            case VillagerJob.Blacksmith:
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    public void GainProfessionExpForJob(
+        VillagerJob sourceJob,
+        int amount = -1)
+    {
+        if (job != sourceJob ||
+            !UsesProfessionProgression(sourceJob))
+        {
+            return;
+        }
+
+        AddProfessionExp(
+            amount > 0
+                ? amount
+                : Mathf.Max(1, professionExpPerWork));
+    }
+
+    public int GetProfessionOutputAmountForJob(
+        VillagerJob sourceJob)
+    {
+        if (job != sourceJob)
+        {
+            return 1;
+        }
+
+        if (!UsesProfessionProgression(sourceJob))
+        {
+            return 1;
+        }
+
+        int levelsPerBonus =
+            Mathf.Max(1, productBonusEveryProfessionLevels);
+
+        return Mathf.Clamp(
+            1 + Mathf.Max(0, professionLevel - 1) / levelsPerBonus,
+            1,
+            10);
+    }
+
+    public int GetProfessionBonusOutputForJob(
+        VillagerJob sourceJob,
+        int baseAmount = 1)
+    {
+        int scaledAmount =
+            GetProfessionOutputAmountForJob(sourceJob);
+
+        return Mathf.Max(
+            0,
+            scaledAmount - Mathf.Max(1, baseAmount));
+    }
+
+    public void RestoreProfessionProgress(
+        int level,
+        int exp)
+    {
+        professionLevel =
+            Mathf.Clamp(
+                Mathf.Max(1, level),
+                1,
+                Mathf.Max(1, maxProfessionLevel));
+        professionExp = Mathf.Max(0, exp);
+
+        int requiredExp =
+            GetProfessionExpToNextLevel();
+        if (requiredExp > 0)
+        {
+            professionExp =
+                Mathf.Min(
+                    professionExp,
+                    Mathf.Max(0, requiredExp - 1));
+        }
+        else
+        {
+            professionExp = 0;
+        }
+
+        SyncDisplayedProfessionLevel();
+    }
+
+    void SyncDisplayedProfessionLevel()
+    {
+        NpcSpecialProfession specialProfession =
+            GetComponent<NpcSpecialProfession>();
+
+        if (specialProfession == null)
+        {
+            return;
+        }
+
+        specialProfession.jobLevel =
+            Mathf.Max(1, professionLevel);
     }
 
     bool HasSellableGoods()
@@ -2271,6 +2442,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
 
         if (TrySellGoodsToNearbyMarketTrader())
         {
+            GainProfessionExpForJob(VillagerJob.Trader);
             return true;
         }
 
@@ -2279,6 +2451,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             NpcCounterBroker.Active.CanBuyProduceFrom(this, inventory) &&
             NpcCounterBroker.Active.TryBuyProduceFrom(this, inventory))
         {
+            GainProfessionExpForJob(VillagerJob.Trader);
             return true;
         }
 
@@ -2401,6 +2574,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             {
                 entityProfile.stats.spiritStone = spiritStone;
             }
+            GainProfessionExpForJob(VillagerJob.Trader);
             return true;
         }
 

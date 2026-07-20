@@ -110,6 +110,7 @@ public static class GameSaveSystem
         PlayerWallet.ClearSave();
         PlayerWallet.ResetRuntime();
         HeavenDaoSystem.ClearSavedState();
+        FullGameSaveController.DeletePersistedSaveFiles();
 
         List<string> keysToDelete =
             new List<string>();

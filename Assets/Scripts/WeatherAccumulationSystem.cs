@@ -1,9 +1,7 @@
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 using UnityEngine.Serialization;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 [System.Serializable]
 public class WeatherAccumulationPersistentState
@@ -146,8 +144,12 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
 
         DontDestroyOnLoad(gameObject);
         EnsureDefaultSnowAnchorLayers();
-        puddleSprites = LoadSprites(puddleResourcePath, puddleEditorAssetPath);
-        snowSprites = LoadSprites(snowResourcePath, snowEditorAssetPath);
+        puddleSprites = LoadRequiredSprites(
+            puddleResourcePath,
+            "WeatherAccumulationSystem puddles");
+        snowSprites = LoadRequiredSprites(
+            snowResourcePath,
+            "WeatherAccumulationSystem snow caps");
         ResetWorldHourCursor();
     }
 
@@ -451,10 +453,10 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
         for (int attempt = 0; attempt < 8; attempt++)
         {
             Vector3 position = new Vector3(
-                Random.Range(
+                UnityEngine.Random.Range(
                     cameraBounds.min.x + puddleSpawnPadding,
                     cameraBounds.max.x - puddleSpawnPadding),
-                Random.Range(
+                UnityEngine.Random.Range(
                     cameraBounds.min.y + puddleSpawnPadding,
                     cameraBounds.max.y - puddleSpawnPadding),
                 worldZ);
@@ -464,7 +466,7 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
                 continue;
             }
 
-            Sprite sprite = puddleSprites[Random.Range(0, puddleSprites.Length)];
+            Sprite sprite = puddleSprites[UnityEngine.Random.Range(0, puddleSprites.Length)];
             if (sprite == null)
             {
                 continue;
@@ -475,7 +477,7 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
             puddleObject.layer = Mathf.Clamp(puddleObjectLayer, 0, 31);
             puddleObject.transform.position = position;
 
-            float randomScale = Random.Range(
+            float randomScale = UnityEngine.Random.Range(
                 Mathf.Min(puddleMinScale, puddleMaxScale),
                 Mathf.Max(puddleMinScale, puddleMaxScale));
             puddleObject.transform.localScale = new Vector3(
@@ -746,38 +748,45 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
             new Vector3(width, height, 100f));
     }
 
-    Sprite[] LoadSprites(string resourcePath, string editorAssetPath)
+    public static void ValidateRequiredSpriteResource(
+        string resourcePath,
+        string systemLabel)
     {
-        Sprite[] resourceSprites = Resources.LoadAll<Sprite>(resourcePath);
-        if (resourceSprites != null && resourceSprites.Length > 0)
+        Sprite[] sprites =
+            Resources.LoadAll<Sprite>(resourcePath);
+        if (sprites == null || sprites.Length == 0)
         {
-            return resourceSprites;
+            throw new InvalidOperationException(
+                systemLabel +
+                " requires sprite assets at Resources/" +
+                resourcePath +
+                " but none were loaded.");
         }
 
-#if UNITY_EDITOR
-        Object[] subAssets =
-            AssetDatabase.LoadAllAssetRepresentationsAtPath(editorAssetPath);
-        List<Sprite> sprites = new List<Sprite>();
-        for (int i = 0; i < subAssets.Length; i++)
+        bool hasUsableSprite = false;
+        for (int i = 0; i < sprites.Length; i++)
         {
-            if (subAssets[i] is Sprite sprite)
+            if (sprites[i] != null)
             {
-                sprites.Add(sprite);
+                hasUsableSprite = true;
+                break;
             }
         }
 
-        if (sprites.Count > 0)
+        if (!hasUsableSprite)
         {
-            return sprites.ToArray();
+            throw new InvalidOperationException(
+                systemLabel +
+                " requires usable sprites at Resources/" +
+                resourcePath +
+                " but all loaded entries were null.");
         }
-#endif
+    }
 
-        Debug.LogWarning(
-            "WeatherAccumulationSystem could not load sprites at Resources/" +
-            resourcePath +
-            ". Build will fall back to missing puddle/snow visuals.");
-
-        return null;
+    Sprite[] LoadRequiredSprites(string resourcePath, string systemLabel)
+    {
+        ValidateRequiredSpriteResource(resourcePath, systemLabel);
+        return Resources.LoadAll<Sprite>(resourcePath);
     }
 
     void EnsureDefaultSnowAnchorLayers()

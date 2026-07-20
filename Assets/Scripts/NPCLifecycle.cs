@@ -1,17 +1,27 @@
 using UnityEngine;
 
+public static class NpcLifeStageDefaults
+{
+    public const int BabyMaxAge = 3;
+    public const int ChildMaxAge = 8;
+    public const int YouthMaxAge = 18;
+    public const int MiddleMaxAge = 45;
+    public const int AdultMinAge = YouthMaxAge + 1;
+    public const int ElderMinAge = MiddleMaxAge + 1;
+}
+
 [DisallowMultipleComponent]
 [DefaultExecutionOrder(-90)]
 public class NPCLifecycle : MonoBehaviour
 {
     [Header("Age Thresholds")]
-    public int babyMaxAge = 3;
-    public int childMaxAge = 8;
-    public int youthMaxAge = 18;
-    public int middleMaxAge = 45;
+    public int babyMaxAge = NpcLifeStageDefaults.BabyMaxAge;
+    public int childMaxAge = NpcLifeStageDefaults.ChildMaxAge;
+    public int youthMaxAge = NpcLifeStageDefaults.YouthMaxAge;
+    public int middleMaxAge = NpcLifeStageDefaults.MiddleMaxAge;
 
     [Header("Rapid Runtime Child Growth")]
-    public bool autoEnableRapidGrowthForRuntimeFamilyChildren = true;
+    public bool autoEnableRapidGrowthForRuntimeFamilyChildren = false;
     public bool useRapidRuntimeGrowth;
     public int rapidGrowthStartAbsoluteDay = int.MinValue;
     [Min(1)] public int rapidGrowthDurationDays = 3;
@@ -333,7 +343,6 @@ public class NPCLifecycle : MonoBehaviour
         return identity != null &&
             (identity.hasBirthAbsoluteDay ||
              identity.age > 0 ||
-             identity.lifeStage != LifeStage.Youth ||
              !string.IsNullOrWhiteSpace(identity.npcName) ||
              !string.IsNullOrWhiteSpace(identity.fatherId) ||
              !string.IsNullOrWhiteSpace(identity.motherId));

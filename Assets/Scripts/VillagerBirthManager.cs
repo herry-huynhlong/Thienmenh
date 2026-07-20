@@ -9,7 +9,8 @@ public class VillagerBirthManager : MonoBehaviour
 
     const float MinimumDailyConceptionChance = 0.25f;
     const int MaximumPregnancyDurationDays = 2;
-    const int MaximumBirthCooldownDays = 30;
+    const int MaximumBirthCooldownDays = 5;
+    const int MaximumParentAge = 40;
     const int MaximumMarriageDaysBeforeConception = 2;
 
     [Header("Birth")]
@@ -20,9 +21,9 @@ public class VillagerBirthManager : MonoBehaviour
     public int pregnancyDurationDays = 3;
     public int birthCooldownDays = 90;
     public int minMarriageDaysBeforeConception = 7;
-    public int minMotherAge = 18;
-    public int maxMotherAge = 60;
-    public int maxFatherAge = 60;
+    public int minMotherAge = NpcLifeStageDefaults.AdultMinAge;
+    public int maxMotherAge = MaximumParentAge;
+    public int maxFatherAge = MaximumParentAge;
     public int maxPopulation = 0;
     public float spawnOffsetRadius = 0.6f;
 
@@ -383,7 +384,17 @@ public class VillagerBirthManager : MonoBehaviour
                 childIdentity.gender == Gender.Female
                     ? EntityGender.Female
                     : EntityGender.Male;
+            childProfile.identity.entityName =
+                NpcGeneratedIdentityProfiles.GenerateChildName(
+                    childProfile.identity.gender,
+                    fatherIdentity,
+                    motherIdentity);
         }
+
+        childIdentity.npcName =
+            childProfile.identity != null
+                ? childProfile.identity.entityName
+                : childIdentity.npcName;
 
         childIdentity.visualProfile =
             ResolveChildVisualProfile(
@@ -406,11 +417,8 @@ public class VillagerBirthManager : MonoBehaviour
         childRelationship.maxChildrenWithCurrentPartner = 0;
 
         lifecycle.SetAge(0);
-        lifecycle.ConfigureRapidRuntimeGrowth(
-            NpcAgeUtility.CurrentAbsoluteDay,
-            rapidChildGrowthDurationDays,
-            babySpawnScale,
-            childGrowthScale);
+        lifecycle.useRapidRuntimeGrowth = false;
+        lifecycle.rapidGrowthStartAbsoluteDay = int.MinValue;
 
         childVillager.generateFromEntityProfile = true;
         childVillager.SyncNpcIdentityData();
@@ -748,6 +756,15 @@ public class VillagerBirthManager : MonoBehaviour
 
     void ApplyBaselinePacing()
     {
+        minMotherAge = NpcLifeStageDefaults.AdultMinAge;
+        maxMotherAge =
+            Mathf.Max(
+                minMotherAge,
+                MaximumParentAge);
+        maxFatherAge =
+            Mathf.Max(
+                minMotherAge,
+                MaximumParentAge);
         dailyConceptionChance =
             Mathf.Clamp(
                 Mathf.Max(
