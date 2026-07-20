@@ -618,6 +618,8 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
     void EnsureLifecycle()
     {
         CacheNpcIdentity();
+        EnsureNpcVisualProfile();
+        NPCVisualResolver visualResolver = EnsureNpcVisualResolver();
         NPCLifecycle lifecycle =
             GetComponent<NPCLifecycle>() ??
             GetComponentInParent<NPCLifecycle>(true) ??
@@ -629,7 +631,9 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
 
         lifecycle.identity = npcIdentity;
         lifecycle.entityProfile = entityProfile;
+        lifecycle.visualResolver = visualResolver;
         lifecycle.RefreshAgeNow(true);
+        RefreshNpcVisual();
     }
 
     void OnEnable()
@@ -1422,7 +1426,9 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             villagerName = entityProfile.identity.entityName;
         }
 
+        EnsureNpcVisualProfile();
         RefreshAgeSensitiveBehaviours();
+        RefreshNpcVisual();
     }
 
     void CacheNpcIdentity()
@@ -1439,6 +1445,65 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
                 npcIdentity = gameObject.AddComponent<NPCIdentity>();
             }
         }
+    }
+
+    void EnsureNpcVisualProfile()
+    {
+        if (npcIdentity == null ||
+            npcIdentity.visualProfile != null)
+        {
+            return;
+        }
+
+        NPCIdentity[] identities =
+            FindObjectsByType<NPCIdentity>(FindObjectsInactive.Include);
+
+        for (int i = 0; i < identities.Length; i++)
+        {
+            NPCIdentity identity = identities[i];
+            if (identity == null ||
+                identity == npcIdentity ||
+                identity.visualProfile == null)
+            {
+                continue;
+            }
+
+            npcIdentity.visualProfile = identity.visualProfile;
+            return;
+        }
+    }
+
+    void RefreshNpcVisual()
+    {
+        if (npcIdentity == null)
+        {
+            return;
+        }
+
+        NPCVisualResolver visualResolver = EnsureNpcVisualResolver();
+
+        if (visualResolver != null)
+        {
+            visualResolver.RefreshVisual();
+        }
+    }
+
+    NPCVisualResolver EnsureNpcVisualResolver()
+    {
+        if (npcIdentity == null)
+        {
+            return null;
+        }
+
+        NPCVisualResolver visualResolver =
+            NPCVisualResolver.EnsureOn(gameObject);
+
+        if (visualResolver != null)
+        {
+            visualResolver.identity = npcIdentity;
+        }
+
+        return visualResolver;
     }
 
     bool HasMeaningfulNpcIdentityData()

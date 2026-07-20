@@ -537,6 +537,15 @@ public class NpcInventoryPanelUI : MonoBehaviour
                 NpcEconomy.GetNpcLinhThach(currentNpc.gameObject));
 
         npcLinhThachText.gameObject.SetActive(true);
+
+        if (itemGridPanel != null &&
+            itemGridPanel.footerLinhThachText != null)
+        {
+            itemGridPanel.footerLinhThachText.text =
+                NpcEconomy.FormatCompactAmount(
+                    NpcEconomy.GetNpcLinhThach(
+                        currentNpc.gameObject));
+        }
     }
 
     void EnsureInfoText()

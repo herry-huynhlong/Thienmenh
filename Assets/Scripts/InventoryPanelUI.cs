@@ -391,6 +391,13 @@ public class InventoryPanelUI : MonoBehaviour
             return;
         }
 
+        if (TryGetInventoryOwnerCurrencyAmount(out int ownerAmount))
+        {
+            footerLinhThachText.text =
+                FormatFooterCurrencyAmount(ownerAmount);
+            return;
+        }
+
         if (playerWallet == null)
         {
             playerWallet =
@@ -405,8 +412,7 @@ public class InventoryPanelUI : MonoBehaviour
         }
 
         footerLinhThachText.text =
-            "Linh Th\u1EA1ch : " +
-            NpcEconomy.FormatCompactAmount(
+            FormatFooterCurrencyAmount(
                 playerWallet.LinhThach);
     }
 
@@ -1850,22 +1856,86 @@ public class InventoryPanelUI : MonoBehaviour
         Transform footer =
             FindChildByName(searchRoot, "Footer");
 
-        if (footer == null)
-        {
-            return;
-        }
-
-        if (footerUsedSlotText == null)
+        if (footerUsedSlotText == null &&
+            footer != null)
         {
             footerUsedSlotText =
                 FindTextByName(footer, "SlotCount");
         }
 
-        if (footerLinhThachText == null)
+        if (footerLinhThachText == null &&
+            footer != null)
         {
             footerLinhThachText =
                 FindTextByName(footer, "LinhThach");
         }
+
+        if (footerLinhThachText == null)
+        {
+            Transform linhThachBar =
+                FindChildByName(searchRoot, "LinhThachBar") ??
+                FindChildByName(searchRoot, "LinhThachBar (1)") ??
+                FindChildByName(searchRoot, "LinhThach");
+
+            if (linhThachBar != null)
+            {
+                footerLinhThachText =
+                    FindTextByName(linhThachBar, "ValueText") ??
+                    FindTextByName(linhThachBar, "NpcLinhThachText") ??
+                    FindFirstText(linhThachBar);
+            }
+        }
+    }
+
+    bool TryGetInventoryOwnerCurrencyAmount(out int amount)
+    {
+        amount = 0;
+
+        ItemInventory ownerInventory =
+            inventory != null
+                ? inventory
+                : currentNpcInventory;
+
+        GameObject owner =
+            ownerInventory != null
+                ? ownerInventory.gameObject
+                : null;
+
+        if (owner == null)
+        {
+            return false;
+        }
+
+        if (owner.GetComponent<VillagerAI>() != null ||
+            owner.GetComponent<SmartNpcAI>() != null)
+        {
+            amount =
+                Mathf.Max(
+                    0,
+                    NpcEconomy.GetNpcLinhThach(owner));
+            return true;
+        }
+
+        return false;
+    }
+
+    string FormatFooterCurrencyAmount(int amount)
+    {
+        string compactAmount =
+            NpcEconomy.FormatCompactAmount(
+                Mathf.Max(0, amount));
+        string nameKey =
+            footerLinhThachText != null
+                ? footerLinhThachText.name
+                : string.Empty;
+
+        if (nameKey.Contains("ValueText") ||
+            nameKey.Contains("NpcLinhThachText"))
+        {
+            return compactAmount;
+        }
+
+        return "Linh Th\u1EA1ch : " + compactAmount;
     }
 
     void BindCategoryTabButtons()
@@ -2054,6 +2124,13 @@ public class InventoryPanelUI : MonoBehaviour
         }
 
         return child.GetComponent<TMP_Text>();
+    }
+
+    TMP_Text FindFirstText(Transform parent)
+    {
+        return parent != null
+            ? parent.GetComponentInChildren<TMP_Text>(true)
+            : null;
     }
 
     void SetText(TMP_Text text, string value)

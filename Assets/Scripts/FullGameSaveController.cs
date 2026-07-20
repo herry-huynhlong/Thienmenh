@@ -61,6 +61,8 @@ public class SavedNpcStateData
     public string socialId;
     public string displayName;
     public Vector3 position;
+    public bool hasLocalScale;
+    public Vector3 localScale;
     public bool activeSelf;
 
     public bool isRuntimeSpawn;
@@ -714,6 +716,8 @@ public class FullGameSaveController : MonoBehaviour
                 socialId = socialIdentity != null ? socialIdentity.socialId : "",
                 displayName = NpcRoleUtility.GetDisplayName(npcObject),
                 position = npcObject.transform.position,
+                hasLocalScale = true,
+                localScale = npcObject.transform.localScale,
                 activeSelf = npcObject.activeSelf,
                 isRuntimeSpawn = isRuntimeSpawn,
                 respawnFromFullSave = respawnFromFullSave,
@@ -770,18 +774,12 @@ public class FullGameSaveController : MonoBehaviour
             ResolveComponent<NPCLifecycle>(identity.gameObject);
         if (lifecycle != null)
         {
-            saved.useRapidRuntimeGrowth =
-                lifecycle.useRapidRuntimeGrowth;
-            saved.rapidGrowthStartAbsoluteDay =
-                lifecycle.rapidGrowthStartAbsoluteDay;
-            saved.rapidGrowthDurationDays =
-                lifecycle.rapidGrowthDurationDays;
-            saved.rapidGrowthBabyScale =
-                lifecycle.rapidGrowthBabyScale;
-            saved.rapidGrowthChildScale =
-                lifecycle.rapidGrowthChildScale;
-            saved.rapidGrowthAdultScale =
-                lifecycle.rapidGrowthAdultScale;
+            saved.useRapidRuntimeGrowth = false;
+            saved.rapidGrowthStartAbsoluteDay = int.MinValue;
+            saved.rapidGrowthDurationDays = 0;
+            saved.rapidGrowthBabyScale = 0f;
+            saved.rapidGrowthChildScale = 0f;
+            saved.rapidGrowthAdultScale = Vector3.zero;
         }
     }
 
@@ -1048,16 +1046,10 @@ public class FullGameSaveController : MonoBehaviour
             return null;
         }
 
-        GameObject source =
-            SpawnedWorldActor.ResolveRespawnPrefab(saved.prefabKey);
-        if (source != null)
-        {
-            return source;
-        }
-
         if (!string.IsNullOrWhiteSpace(saved.respawnTemplateNpcId))
         {
-            source = ResolveNpcRoot(FindNpcById(saved.respawnTemplateNpcId));
+            GameObject source =
+                ResolveNpcRoot(FindNpcById(saved.respawnTemplateNpcId));
             if (source != null)
             {
                 return source;
@@ -1066,11 +1058,19 @@ public class FullGameSaveController : MonoBehaviour
 
         if (!string.IsNullOrWhiteSpace(saved.displayName))
         {
-            source = FindRespawnSourceByDisplayName(saved.displayName);
+            GameObject source =
+                FindRespawnSourceByDisplayName(saved.displayName);
             if (source != null)
             {
                 return source;
             }
+        }
+
+        GameObject prefabSource =
+            SpawnedWorldActor.ResolveRespawnPrefab(saved.prefabKey);
+        if (prefabSource != null)
+        {
+            return prefabSource;
         }
 
         return null;
@@ -1237,6 +1237,10 @@ public class FullGameSaveController : MonoBehaviour
         }
 
         npcObject.transform.position = saved.position;
+        if (saved.hasLocalScale)
+        {
+            npcObject.transform.localScale = saved.localScale;
+        }
         npcObject.SetActive(saved.activeSelf);
 
         ApplyPersistentIds(saved, npcObject);
@@ -1290,6 +1294,21 @@ public class FullGameSaveController : MonoBehaviour
         ApplyScheduleState(saved, schedule);
         ApplyRelationshipState(saved, npcObject);
         ApplySocialState(saved, npcObject);
+
+        if (villager != null)
+        {
+            villager.SyncNpcIdentityData();
+        }
+        else if (identity != null)
+        {
+            NPCVisualResolver visualResolver =
+                NPCVisualResolver.EnsureOn(npcObject);
+            if (visualResolver != null)
+            {
+                visualResolver.identity = identity;
+                visualResolver.RefreshVisual();
+            }
+        }
     }
 
     void ApplyIdentityState(
@@ -1320,29 +1339,19 @@ public class FullGameSaveController : MonoBehaviour
         identity.fatherId = saved.fatherId;
         identity.motherId = saved.motherId;
         identity.spouseId = saved.spouseId;
+        identity.lifeStage = (LifeStage)Mathf.Clamp(
+            saved.lifeStage,
+            0,
+            Enum.GetValues(typeof(LifeStage)).Length - 1);
 
         NPCLifecycle lifecycle =
             ResolveComponent<NPCLifecycle>(identity.gameObject);
         if (lifecycle != null)
         {
-            lifecycle.useRapidRuntimeGrowth =
-                saved.useRapidRuntimeGrowth;
-            lifecycle.rapidGrowthStartAbsoluteDay =
-                saved.rapidGrowthStartAbsoluteDay;
-            lifecycle.rapidGrowthDurationDays =
-                Mathf.Max(1, saved.rapidGrowthDurationDays);
-            lifecycle.rapidGrowthBabyScale =
-                saved.rapidGrowthBabyScale > 0f
-                    ? saved.rapidGrowthBabyScale
-                    : lifecycle.rapidGrowthBabyScale;
-            lifecycle.rapidGrowthChildScale =
-                saved.rapidGrowthChildScale > 0f
-                    ? saved.rapidGrowthChildScale
-                    : lifecycle.rapidGrowthChildScale;
+            lifecycle.useRapidRuntimeGrowth = false;
+            lifecycle.rapidGrowthStartAbsoluteDay = int.MinValue;
             lifecycle.rapidGrowthAdultScale =
-                saved.rapidGrowthAdultScale != Vector3.zero
-                    ? saved.rapidGrowthAdultScale
-                    : lifecycle.rapidGrowthAdultScale;
+                identity.transform.localScale;
         }
 
         int savedAge = Mathf.Max(0, saved.age);
@@ -1365,36 +1374,6 @@ public class FullGameSaveController : MonoBehaviour
         {
             identity.EnsureBirthAbsoluteDay();
             identity.age = identity.GetCurrentAge();
-        }
-
-        NPCLifecycle stageResolver = lifecycle;
-        if (stageResolver != null)
-        {
-            identity.lifeStage =
-                stageResolver.ResolveLifeStage(identity.age);
-        }
-        else
-        {
-            if (identity.age <= NpcLifeStageDefaults.BabyMaxAge)
-            {
-                identity.lifeStage = LifeStage.Baby;
-            }
-            else if (identity.age <= NpcLifeStageDefaults.ChildMaxAge)
-            {
-                identity.lifeStage = LifeStage.Child;
-            }
-            else if (identity.age <= NpcLifeStageDefaults.YouthMaxAge)
-            {
-                identity.lifeStage = LifeStage.Youth;
-            }
-            else if (identity.age <= NpcLifeStageDefaults.MiddleMaxAge)
-            {
-                identity.lifeStage = LifeStage.Middle;
-            }
-            else
-            {
-                identity.lifeStage = LifeStage.Old;
-            }
         }
 
         if (lifecycle != null)

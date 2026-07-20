@@ -171,13 +171,9 @@ public class NPCLifecycle : MonoBehaviour
             entityProfile.identity.hasBirthAbsoluteDay = true;
         }
 
-        LifeStage newStage = ResolveLifeStage(currentAge);
-        bool changed = identity.lifeStage != newStage;
-        identity.lifeStage = newStage;
-        ApplyRapidGrowthScale(newStage);
+        ApplyRapidGrowthScale(identity.lifeStage);
 
-        if ((changed || forceRefresh) &&
-            visualResolver != null &&
+        if (visualResolver != null &&
             Application.isPlaying)
         {
             visualResolver.RefreshVisual();
@@ -227,7 +223,6 @@ public class NPCLifecycle : MonoBehaviour
             }
 
             useRapidRuntimeGrowth = false;
-            ApplyRapidGrowthScale(LifeStage.Youth);
             return;
         }
 
@@ -265,34 +260,10 @@ public class NPCLifecycle : MonoBehaviour
     {
         EnsureRapidGrowthAdultScale();
 
-        if (!useRapidRuntimeGrowth &&
-            stage != LifeStage.Baby &&
-            stage != LifeStage.Child)
+        if (rapidGrowthAdultScale != Vector3.zero)
         {
-            if (rapidGrowthAdultScale != Vector3.zero)
-            {
-                transform.localScale = rapidGrowthAdultScale;
-            }
-
-            return;
+            transform.localScale = rapidGrowthAdultScale;
         }
-
-        float scale =
-            stage == LifeStage.Baby
-                ? rapidGrowthBabyScale
-                : stage == LifeStage.Child ||
-                    stage == LifeStage.Youth
-                    ? rapidGrowthChildScale
-                    : 0f;
-        if (scale <= 0f)
-        {
-            return;
-        }
-
-        transform.localScale =
-            new Vector3(scale, scale, rapidGrowthAdultScale.z != 0f
-                ? rapidGrowthAdultScale.z
-                : scale);
     }
 
     void EnsureRapidGrowthAdultScale()
