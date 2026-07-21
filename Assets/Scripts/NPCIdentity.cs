@@ -130,10 +130,20 @@ public class NPCIdentity : MonoBehaviour
     void Awake()
     {
         EnsureNpcId();
+        SyncDerivedFieldsFromAge();
     }
 
     public int GetCurrentAge()
     {
+        NPCManualAgeVisualLock ageVisualLock =
+            NPCManualAgeVisualLock.FindOn(gameObject);
+        if (ageVisualLock != null &&
+            ageVisualLock.lockAge)
+        {
+            ageVisualLock.ApplyLockedIdentity(this);
+            return age;
+        }
+
         EnsureBirthAbsoluteDay();
         age = NpcAgeUtility.CalculateAge(birthAbsoluteDay);
         return age;
@@ -141,6 +151,15 @@ public class NPCIdentity : MonoBehaviour
 
     public void SetCurrentAge(int currentAge)
     {
+        NPCManualAgeVisualLock ageVisualLock =
+            NPCManualAgeVisualLock.FindOn(gameObject);
+        if (ageVisualLock != null &&
+            ageVisualLock.lockAge)
+        {
+            ageVisualLock.ApplyLockedIdentity(this);
+            return;
+        }
+
         age = Mathf.Max(0, currentAge);
         birthAbsoluteDay =
             NpcAgeUtility.DeriveBirthAbsoluteDayFromCurrentAge(age);
@@ -149,6 +168,15 @@ public class NPCIdentity : MonoBehaviour
 
     public void EnsureBirthAbsoluteDay()
     {
+        NPCManualAgeVisualLock ageVisualLock =
+            NPCManualAgeVisualLock.FindOn(gameObject);
+        if (ageVisualLock != null &&
+            ageVisualLock.lockAge)
+        {
+            ageVisualLock.ApplyLockedIdentity(this);
+            return;
+        }
+
         if (hasBirthAbsoluteDay)
         {
             return;
@@ -167,6 +195,41 @@ public class NPCIdentity : MonoBehaviour
         }
 
         EnsureNpcId();
+        SyncDerivedFieldsFromAge();
+    }
+
+    void SyncDerivedFieldsFromAge()
+    {
+        age = Mathf.Max(0, age);
+        birthAbsoluteDay =
+            NpcAgeUtility.DeriveBirthAbsoluteDayFromCurrentAge(age);
+        hasBirthAbsoluteDay = true;
+        lifeStage = ResolveLifeStage(age);
+    }
+
+    static LifeStage ResolveLifeStage(int currentAge)
+    {
+        if (currentAge <= NpcLifeStageDefaults.BabyMaxAge)
+        {
+            return LifeStage.Baby;
+        }
+
+        if (currentAge <= NpcLifeStageDefaults.ChildMaxAge)
+        {
+            return LifeStage.Child;
+        }
+
+        if (currentAge <= NpcLifeStageDefaults.YouthMaxAge)
+        {
+            return LifeStage.Youth;
+        }
+
+        if (currentAge <= NpcLifeStageDefaults.MiddleMaxAge)
+        {
+            return LifeStage.Middle;
+        }
+
+        return LifeStage.Old;
     }
 
     void EnsureNpcId()

@@ -158,6 +158,28 @@ public class NPCLifecycle : MonoBehaviour
             return;
         }
 
+        NPCManualAgeVisualLock ageVisualLock =
+            NPCManualAgeVisualLock.FindOn(gameObject);
+        if (ageVisualLock != null &&
+            ageVisualLock.lockAge)
+        {
+            ageVisualLock.ApplyLockedIdentity(identity);
+
+            if (entityProfile != null)
+            {
+                ageVisualLock.ApplyLockedEntityProfile(entityProfile);
+            }
+
+            if (visualResolver != null &&
+                Application.isPlaying &&
+                ageVisualLock.lockVisualController)
+            {
+                ageVisualLock.ApplyLocks();
+            }
+
+            return;
+        }
+
         TryAutoEnableRapidGrowthForRuntimeChild();
         ApplyRapidRuntimeGrowth();
 

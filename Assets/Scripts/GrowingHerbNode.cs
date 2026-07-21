@@ -17,6 +17,13 @@ public class GrowingHerbNodeState
     public float visualRandomScale;
 }
 
+public enum GrowingHerbVisualStage
+{
+    Small = 0,
+    Mid = 1,
+    Mature = 2
+}
+
 public class GrowingHerbNode : MonoBehaviour, IWorldResourcePersistentState
 {
     const string VisualChildName = "HerbVisual";
@@ -55,6 +62,7 @@ public class GrowingHerbNode : MonoBehaviour, IWorldResourcePersistentState
     public float MatureAfterGameHours => Mathf.Max(0.5f, matureAfterGameHours);
     public float AccumulatedGrowthHours => Mathf.Clamp(accumulatedGrowthHours, 0f, MatureAfterGameHours);
     public bool IsHarvestAvailable => GetGrowthProgress01() >= 1f;
+    public GrowingHerbVisualStage CurrentVisualStage => ResolveVisualStage();
 
     void Awake()
     {
@@ -290,12 +298,14 @@ public class GrowingHerbNode : MonoBehaviour, IWorldResourcePersistentState
 
     Sprite ResolveStageSprite()
     {
-        if (IsHarvestAvailable && largeSprite != null)
+        GrowingHerbVisualStage visualStage = ResolveVisualStage();
+
+        if (visualStage == GrowingHerbVisualStage.Mature && largeSprite != null)
         {
             return largeSprite;
         }
 
-        if (GetGrowthProgress01() >= midStageThreshold && midSprite != null)
+        if (visualStage == GrowingHerbVisualStage.Mid && midSprite != null)
         {
             return midSprite;
         }
@@ -306,6 +316,21 @@ public class GrowingHerbNode : MonoBehaviour, IWorldResourcePersistentState
         }
 
         return midSprite != null ? midSprite : largeSprite;
+    }
+
+    GrowingHerbVisualStage ResolveVisualStage()
+    {
+        if (IsHarvestAvailable)
+        {
+            return GrowingHerbVisualStage.Mature;
+        }
+
+        if (GetGrowthProgress01() >= midStageThreshold)
+        {
+            return GrowingHerbVisualStage.Mid;
+        }
+
+        return GrowingHerbVisualStage.Small;
     }
 
     void ApplyRendererScale()

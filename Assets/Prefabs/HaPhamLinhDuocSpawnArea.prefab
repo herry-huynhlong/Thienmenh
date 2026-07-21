@@ -75,7 +75,7 @@ MonoBehaviour:
   skipSpawnWhenResourcesExist: 1
   resourcePrefab: {fileID: 0}
   allowNpcPickup: 1
-  allowPlayerPickup: 1
+  allowPlayerPickup: 0
   colliderRadius: 0.25
   sortingOrder: 20
   visualSize: 0.45

@@ -4,6 +4,16 @@ using UnityEngine;
 public class WorldHerbGradeRingEffect : MonoBehaviour
 {
     const string RingChildPrefix = "Ring_";
+    static readonly Color[] ThuongSpectrumColors =
+    {
+        new Color(1f, 0.28f, 0.28f, 1f),
+        new Color(1f, 0.58f, 0.18f, 1f),
+        new Color(1f, 0.9f, 0.25f, 1f),
+        new Color(0.35f, 1f, 0.42f, 1f),
+        new Color(0.28f, 0.76f, 1f, 1f),
+        new Color(0.42f, 0.45f, 1f, 1f),
+        new Color(0.86f, 0.34f, 1f, 1f)
+    };
 
     struct RingState
     {
@@ -15,7 +25,9 @@ public class WorldHerbGradeRingEffect : MonoBehaviour
 
     [Header("Runtime")]
     [SerializeField] WorldStatItemPickup pickup;
+    [SerializeField] GrowingHerbNode herbNode;
     [SerializeField] Sprite[] frames = new Sprite[0];
+    [SerializeField] ItemGrade grade;
     [SerializeField] int sortingLayerId;
     [SerializeField] int sortingOrder = 60;
 
@@ -35,6 +47,11 @@ public class WorldHerbGradeRingEffect : MonoBehaviour
     RingState[] ringStates = new RingState[0];
     float startedScaledTime;
     bool configured;
+    float herbWorldSize = 0.45f;
+    GrowingHerbVisualStage lastAppliedStage = (GrowingHerbVisualStage)(-1);
+    ItemGrade lastAppliedGrade = (ItemGrade)(-1);
+    bool useSpectrumTint;
+    float spectrumShiftSpeed = 0.18f;
 
     void Awake()
     {
@@ -75,24 +92,29 @@ public class WorldHerbGradeRingEffect : MonoBehaviour
             return;
         }
 
+        ApplyDynamicProfile();
         EnsureRingPool();
         RefreshRenderers();
     }
 
     public void Configure(
         WorldStatItemPickup configuredPickup,
+        GrowingHerbNode configuredHerbNode,
         Sprite[] configuredFrames,
-        ItemGrade grade,
+        ItemGrade configuredGrade,
         int configuredSortingLayerId,
         int configuredSortingOrder,
-        float herbWorldSize)
+        float configuredHerbWorldSize)
     {
         pickup = configuredPickup;
+        herbNode = configuredHerbNode;
         frames = FilterFrames(configuredFrames);
+        grade = configuredGrade;
         sortingLayerId = configuredSortingLayerId;
         sortingOrder = configuredSortingOrder;
+        herbWorldSize = Mathf.Max(0.05f, configuredHerbWorldSize);
 
-        ApplyGradeProfile(grade, herbWorldSize);
+        ApplyDynamicProfile(forceRefresh: true);
 
         startedScaledTime = Time.time;
         configured = frames != null && frames.Length > 0;
@@ -100,25 +122,48 @@ public class WorldHerbGradeRingEffect : MonoBehaviour
         RefreshRenderers();
     }
 
-    void ApplyGradeProfile(ItemGrade grade, float herbWorldSize)
+    void ApplyDynamicProfile(bool forceRefresh = false)
     {
+        GrowingHerbVisualStage stage =
+            herbNode != null
+                ? herbNode.CurrentVisualStage
+                : GrowingHerbVisualStage.Mature;
+
+        if (!forceRefresh &&
+            stage == lastAppliedStage &&
+            grade == lastAppliedGrade)
+        {
+            return;
+        }
+
         float sizeFactor =
             Mathf.Max(
                 1.1f,
                 herbWorldSize / 0.34f);
 
-        switch (grade)
+        ApplyGradeProfile(grade, sizeFactor);
+        ApplyStageProfile(stage);
+
+        verticalOffset = Mathf.Max(0.02f, herbWorldSize * 0.08f);
+        lastAppliedStage = stage;
+        lastAppliedGrade = grade;
+    }
+
+    void ApplyGradeProfile(ItemGrade currentGrade, float sizeFactor)
+    {
+        switch (currentGrade)
         {
             case ItemGrade.Ha:
                 ringCount = 3;
                 ringLifetimeSeconds = 1.25f;
                 startWorldSize = 0.42f * sizeFactor;
                 endWorldSize = 1.28f * sizeFactor;
-                rotationSpeed = 44f;
+                rotationSpeed = 34f;
                 peakAlpha = 0.56f;
                 frameStartNormalized = 0.18f;
                 frameEndNormalized = 1f;
                 tint = new Color(0.92f, 0.92f, 0.92f, 1f);
+                useSpectrumTint = false;
                 break;
 
             case ItemGrade.Trung:
@@ -126,28 +171,62 @@ public class WorldHerbGradeRingEffect : MonoBehaviour
                 ringLifetimeSeconds = 1.55f;
                 startWorldSize = 0.5f * sizeFactor;
                 endWorldSize = 1.55f * sizeFactor;
-                rotationSpeed = 58f;
+                rotationSpeed = 44f;
                 peakAlpha = 0.82f;
                 frameStartNormalized = 0.12f;
                 frameEndNormalized = 1f;
                 tint = new Color(0.98f, 0.99f, 1f, 1f);
+                useSpectrumTint = false;
                 break;
 
             case ItemGrade.Thuong:
             case ItemGrade.Tien:
-                ringCount = 4;
+                ringCount = 5;
                 ringLifetimeSeconds = 1.7f;
                 startWorldSize = 0.58f * sizeFactor;
                 endWorldSize = 1.82f * sizeFactor;
-                rotationSpeed = 72f;
+                rotationSpeed = 48f;
                 peakAlpha = 0.92f;
                 frameStartNormalized = 0.08f;
                 frameEndNormalized = 1f;
                 tint = Color.white;
+                useSpectrumTint = true;
                 break;
         }
+    }
 
-        verticalOffset = Mathf.Max(0.02f, herbWorldSize * 0.08f);
+    void ApplyStageProfile(GrowingHerbVisualStage stage)
+    {
+        switch (stage)
+        {
+            case GrowingHerbVisualStage.Small:
+                ringCount = Mathf.Max(1, ringCount - 1);
+                ringLifetimeSeconds *= 1.08f;
+                startWorldSize *= 0.55f;
+                endWorldSize *= 0.72f;
+                rotationSpeed *= 0.78f;
+                peakAlpha *= 0.3f;
+                frameStartNormalized =
+                    Mathf.Lerp(frameStartNormalized, frameEndNormalized, 0.45f);
+                frameEndNormalized =
+                    Mathf.Lerp(frameStartNormalized, frameEndNormalized, 0.82f);
+                tint = Color.Lerp(tint, Color.white, 0.35f);
+                break;
+
+            case GrowingHerbVisualStage.Mid:
+                ringCount = Mathf.Max(2, ringCount);
+                ringLifetimeSeconds *= 1.02f;
+                startWorldSize *= 0.82f;
+                endWorldSize *= 0.92f;
+                rotationSpeed *= 0.92f;
+                peakAlpha *= 0.62f;
+                frameStartNormalized =
+                    Mathf.Lerp(frameStartNormalized, frameEndNormalized, 0.2f);
+                break;
+
+            case GrowingHerbVisualStage.Mature:
+                break;
+        }
     }
 
     void EnsureRingPool()
@@ -299,12 +378,7 @@ public class WorldHerbGradeRingEffect : MonoBehaviour
             renderer.sortingLayerID = sortingLayerId;
             renderer.sortingOrder = sortingOrder + i;
             renderer.sprite = frame;
-            renderer.color =
-                new Color(
-                    tint.r,
-                    tint.g,
-                    tint.b,
-                    alpha);
+            renderer.color = ResolveRingColor(i, normalizedTime, alpha);
 
             Transform ringTransform = renderer.transform;
             ringTransform.localPosition = Vector3.up * verticalOffset;
@@ -400,5 +474,32 @@ public class WorldHerbGradeRingEffect : MonoBehaviour
 
             ringRenderers[i].enabled = visible;
         }
+    }
+
+    Color ResolveRingColor(int ringIndex, float normalizedTime, float alpha)
+    {
+        Color baseColor = tint;
+        if (useSpectrumTint && ThuongSpectrumColors.Length > 0)
+        {
+            float palettePosition =
+                Mathf.Repeat(
+                    ringIndex / Mathf.Max(1f, ringRenderers.Length) +
+                    normalizedTime * spectrumShiftSpeed,
+                    1f) * ThuongSpectrumColors.Length;
+            int fromIndex =
+                Mathf.Clamp(
+                    Mathf.FloorToInt(palettePosition),
+                    0,
+                    ThuongSpectrumColors.Length - 1);
+            int toIndex = (fromIndex + 1) % ThuongSpectrumColors.Length;
+            float blend = palettePosition - fromIndex;
+            baseColor =
+                Color.Lerp(
+                    ThuongSpectrumColors[fromIndex],
+                    ThuongSpectrumColors[toIndex],
+                    blend);
+        }
+
+        return new Color(baseColor.r, baseColor.g, baseColor.b, alpha);
     }
 }

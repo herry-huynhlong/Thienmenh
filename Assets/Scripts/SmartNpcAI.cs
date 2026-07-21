@@ -268,6 +268,10 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
     public string runtimeTraceTarget = "";
     [Tooltip("Trace every Update call for the matched NPC.")]
     public bool runtimeTraceEveryUpdate;
+    [Tooltip("Log specific reasons when this NPC reaches the forest/hunt flow and stops moving.")]
+    public bool debugHuntStallLogs;
+    [Min(0.25f)]
+    public float huntStallLogIntervalSeconds = 2f;
     [Tooltip("Trace every ThinkBrainCore call for the matched NPC.")]
     public bool runtimeTraceEveryThink = true;
     [Tooltip("Trace schedule slot switches and schedule overrides.")]
@@ -287,6 +291,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
     float lastRouteDebugTime;
     string lastMoveHoldDebugSignature;
     float lastMoveHoldDebugTime;
+    string lastHuntStallSignature;
+    float lastHuntStallLogTime;
 
     public bool IsDead =>
         isDead ||
@@ -833,6 +839,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
                 TraceRuntime("Update", "busy-by-provider");
             }
 
+            LogHuntStall("busy-by-provider");
+
             return;
         }
 
@@ -910,6 +918,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
                 TraceRuntime("Update", "cooldown actionTimer=" + actionTimer.ToString("0.00"));
             }
 
+            LogHuntStall("action-timer-cooldown");
+
             if (canLive)
             {
                 UpdateNeeds();
@@ -979,6 +989,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             {
                 TraceRuntime("Update", "locked-directed-target");
             }
+
+            LogHuntStall("locked-directed-target");
 
             if (canLive)
             {

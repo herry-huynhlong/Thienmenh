@@ -288,6 +288,14 @@ public partial class MonsterAI
             return;
         }
 
+        GameSaveSystem.RegisterItem(loot);
+
+        int dropAmount = Mathf.Max(1, lootAmount);
+        if (TryGiveDeathLootToNpcInventory(loot, dropAmount))
+        {
+            return;
+        }
+
         Vector2 offset =
             Random.insideUnitCircle * Mathf.Max(0f, lootDropOffsetRadius);
         Vector3 dropPosition = transform.position + (Vector3)offset;
@@ -297,7 +305,7 @@ public partial class MonsterAI
         WorldStatItemPickup pickup =
             lootObject.AddComponent<WorldStatItemPickup>();
         pickup.item = loot;
-        pickup.amount = Mathf.Max(1, lootAmount);
+        pickup.amount = dropAmount;
         pickup.allowPlayerPickup = allowPlayerLootPickup;
         pickup.allowNpcPickup = allowNpcLootPickup;
         pickup.destroyWhenEmpty = true;
@@ -308,8 +316,97 @@ public partial class MonsterAI
         collider.radius = 0.25f;
 
         PickupVisualUtility.ApplySprite(lootObject, loot.icon, 20);
+    }
 
-        GameSaveSystem.RegisterItem(loot);
+    bool TryGiveDeathLootToNpcInventory(
+        StatItemData loot,
+        int dropAmount)
+    {
+        if (loot == null ||
+            dropAmount <= 0)
+        {
+            return false;
+        }
+
+        GameObject recipient = ResolveNpcLootRecipient();
+        if (recipient == null)
+        {
+            return false;
+        }
+
+        ItemInventory inventory =
+            recipient.GetComponent<ItemInventory>();
+        if (inventory == null)
+        {
+            inventory =
+                recipient.AddComponent<ItemInventory>();
+        }
+
+        NpcItemCollector collector =
+            recipient.GetComponent<NpcItemCollector>();
+
+        if (collector != null)
+        {
+            for (int i = 0; i < dropAmount; i++)
+            {
+                collector.ReceiveItemWithoutUse(
+                    loot,
+                    ItemLifecycleEventType.Picked);
+            }
+        }
+        else
+        {
+            ItemEffectSpawner.PlayPickupEffect(
+                loot,
+                recipient.transform);
+            inventory.AddItem(loot, dropAmount);
+            for (int i = 0; i < dropAmount; i++)
+            {
+                ItemLifecycleSystem.Notify(
+                    ItemLifecycleEventType.Picked,
+                    loot,
+                    recipient);
+            }
+
+            TreasureHeatSystem.NotifyNpcReceivedItem(
+                recipient,
+                loot);
+        }
+
+        currentAction =
+            "Thu duoc " +
+            ItemText.Name(loot) +
+            " vao tui NPC";
+        return true;
+    }
+
+    GameObject ResolveNpcLootRecipient()
+    {
+        if (lastSmartNpcAttacker != null)
+        {
+            return lastSmartNpcAttacker.gameObject;
+        }
+
+        if (lastDamageSource == null)
+        {
+            return null;
+        }
+
+        SmartNpcAI smartNpc =
+            lastDamageSource.GetComponentInParent<SmartNpcAI>();
+        if (smartNpc != null)
+        {
+            return smartNpc.gameObject;
+        }
+
+        VillagerAI villager =
+            lastDamageSource.GetComponentInParent<VillagerAI>();
+        if (villager != null)
+        {
+            return villager.gameObject;
+        }
+
+        return null;
     }
 
     public StatItemData GetDeathLoot()

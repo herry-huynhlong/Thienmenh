@@ -95,6 +95,102 @@ public partial class SmartNpcAI
 #endif
     }
 
+    bool ShouldLogHuntStall()
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (SuppressRuntimeDebugOutput)
+        {
+            return false;
+        }
+
+        return debugHuntStallLogs ||
+            runtimeTraceEnabled ||
+            debugFlowLogs;
+#else
+        return false;
+#endif
+    }
+
+    bool IsHuntDebugActionActive()
+    {
+        return currentAction == NpcText.Action("goHunt") ||
+            MatchesSmartAction("huntMonsterNamed", true) ||
+            MatchesSmartAction("attackMonsterNamed", true) ||
+            MatchesSmartAction("attackMonster", true) ||
+            currentMonsterTarget != null;
+    }
+
+    void LogHuntStall(string reason)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (!ShouldLogHuntStall() ||
+            !IsHuntDebugActionActive())
+        {
+            return;
+        }
+
+        Vector3 huntAnchor =
+            forestPoint != null
+                ? forestPoint.position
+                : spawnPosition;
+        float distanceToHuntAnchor =
+            Vector2.Distance(
+                transform.position,
+                huntAnchor);
+        float wanderDistance =
+            hasWanderTarget
+                ? Vector2.Distance(transform.position, wanderTarget)
+                : -1f;
+        string signature =
+            reason + "|" +
+            currentAction + "|" +
+            (currentMonsterTarget != null
+                ? currentMonsterTarget.name
+                : "null") + "|" +
+            (currentTarget != null
+                ? currentTarget.name
+                : "null") + "|" +
+            hasWanderTarget + "|" +
+            QuantizeDebugVector(transform.position);
+
+        if (signature == lastHuntStallSignature &&
+            Time.time - lastHuntStallLogTime <
+            Mathf.Max(0.25f, huntStallLogIntervalSeconds))
+        {
+            return;
+        }
+
+        lastHuntStallSignature = signature;
+        lastHuntStallLogTime = Time.time;
+
+        Debug.LogWarning(
+            "[SmartNpcHuntStall] " + gameObject.name +
+            " reason=" + reason +
+            " action=" + currentAction +
+            " monster=" +
+            (currentMonsterTarget != null
+                ? currentMonsterTarget.monsterName
+                : "null") +
+            " currentTarget=" +
+            (currentTarget != null
+                ? currentTarget.name
+                : "null") +
+            " wander=" + hasWanderTarget +
+            " wanderDist=" +
+            (wanderDistance >= 0f
+                ? wanderDistance.ToString("0.00")
+                : "none") +
+            " escape=" + hasEscapeTarget +
+            " obstacleAvoid=" + hasObstacleAvoidTarget +
+            " providerBusy=" +
+            NpcTaskProvider.IsNpcBusyWithAnyProvider(gameObject) +
+            " actionTimer=" + actionTimer.ToString("0.00") +
+            " thinkTimer=" + thinkTimer.ToString("0.00") +
+            " pos=" + transform.position +
+            " forestDist=" + distanceToHuntAnchor.ToString("0.00"));
+#endif
+    }
+
     bool ShouldLogStateTransition(
         ref string lastSignature,
         ref float lastLoggedTime,

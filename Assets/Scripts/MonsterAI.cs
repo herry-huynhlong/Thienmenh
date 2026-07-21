@@ -452,6 +452,11 @@ public partial class MonsterAI : MonoBehaviour, IDamageable, INpcActionStateOwne
             return;
         }
 
+        if (HandleFrontierBeastWaveUpdate())
+        {
+            return;
+        }
+
         if (HasValidTarget())
         {
             float distanceToTarget = Vector2.Distance(transform.position, currentTarget.position);
@@ -544,6 +549,7 @@ public partial class MonsterAI : MonoBehaviour, IDamageable, INpcActionStateOwne
 
         if (!hasTarget &&
             !HasValidTarget() &&
+            !IsInFrontierBeastWave &&
             NpcActionState.FromDisplayText(currentAction).id ==
                 NpcActionId.Combat)
         {
@@ -556,6 +562,7 @@ public partial class MonsterAI : MonoBehaviour, IDamageable, INpcActionStateOwne
 
         if (!hasTarget &&
             !HasValidTarget() &&
+            !IsInFrontierBeastWave &&
             currentAction == NpcText.Action("patrolTerritory"))
         {
             // Keep the public action consistent with the actual movement

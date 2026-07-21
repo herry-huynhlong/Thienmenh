@@ -63,7 +63,7 @@ public class BlockingTilemap2D : MonoBehaviour
             }
 
             composite.isTrigger = isTrigger;
-            composite.geometryType = CompositeCollider2D.GeometryType.Outlines;
+            composite.geometryType = CompositeCollider2D.GeometryType.Polygons;
             tilemapCollider.compositeOperation =
                 Collider2D.CompositeOperation.Merge;
         }

@@ -432,8 +432,11 @@ public class WorldResourceField : MonoBehaviour, ISerializationCallbackReceiver
 
         WorldStatItemPickup pickup =
             resourceObject.GetComponent<WorldStatItemPickup>();
+        GrowingHerbNode herbNode =
+            resourceObject.GetComponent<GrowingHerbNode>();
         ringEffect.Configure(
             pickup,
+            herbNode,
             ringFrames,
             item.grade,
             sortingLayerId,

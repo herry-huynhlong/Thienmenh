@@ -422,6 +422,7 @@ public partial class SmartNpcAI
         else
         {
             DebugFlow("Hunt", "No valid monster");
+            LogHuntStall("no-valid-monster");
         }
     }
 

@@ -40,6 +40,7 @@ public class WorldStatItemPickup : MonoBehaviour
         treatAsDroppedWorldItem = true;
         requireNpcHarvestAction = false;
         allowNpcPassivePickup = false;
+        allowPlayerPickup = true;
     }
 
     public bool HasValidNpcPickupArea()

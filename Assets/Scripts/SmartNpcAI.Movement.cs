@@ -106,6 +106,8 @@ public partial class SmartNpcAI
                     "Hold without target action=" + currentAction);
             }
 
+            LogHuntStall("hold-without-target");
+
             bool suppressStationarySeparation =
                 currentAction == NpcText.Action("buyPill") ||
                 currentAction == NpcText.Action("checkedVanBaoLau");
@@ -237,6 +239,8 @@ public partial class SmartNpcAI
                 !hasEscapeTarget &&
                 !hasObstacleAvoidTarget)
             {
+                LogHuntStall("goHunt-without-target-or-wander");
+
                 if (TryContinueFrontierDefenseTravel())
                 {
                     return;

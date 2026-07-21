@@ -486,6 +486,11 @@ public partial class MonsterAI
 
     void UpdateMovementRecovery()
     {
+        if (HandleFrontierBeastWaveMovementRecovery())
+        {
+            return;
+        }
+
         if (desiredVelocity.sqrMagnitude <= 0.0001f)
         {
             stuckMoveTimer = 0f;
@@ -553,6 +558,23 @@ public partial class MonsterAI
 
     void ResetPatrolToAnchor()
     {
+        if (IsInFrontierBeastWave)
+        {
+            desiredVelocity = Vector2.zero;
+            currentAction = frontierBeastWaveCombatActive
+                ? "Tan cong thu trieu"
+                : "Tap ket thu trieu";
+            patrolRecoveryAttempts = 0;
+            stuckMoveTimer = 0f;
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+
+            SetMovingAnimation(false);
+            return;
+        }
+
         Vector2 anchorPosition = startPosition;
         hasTarget = false;
         waitTimer = Mathf.Max(0.35f, waitTime * 0.5f);

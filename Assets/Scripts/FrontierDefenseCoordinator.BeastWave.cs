@@ -64,6 +64,7 @@ public partial class FrontierDefenseCoordinator
         }
 
         activeBeastWave = wave;
+        CommandWaveMonstersToStaging(wave);
         TriggerWaveWarningSignals(wave);
         float preparationHours =
             Random.Range(
@@ -220,6 +221,7 @@ public partial class FrontierDefenseCoordinator
         }
 
         ReleaseWaveDefenders(activeBeastWave);
+        ReleaseWaveMonsters(activeBeastWave);
         activeBeastWave = null;
     }
 
@@ -456,13 +458,6 @@ public partial class FrontierDefenseCoordinator
         monster.attackSmartNpcs = false;
         monster.attackOtherMonsters = false;
         monster.huntTargetType = HuntTargetType.Any;
-        if (line != null &&
-            line.HasStagingArea)
-        {
-            monster.transform.position =
-                line.GetStagingPoint(
-                    index);
-        }
 
         NpcMapNavigator.ReportNpcZone(
             monster.gameObject,
@@ -485,21 +480,17 @@ public partial class FrontierDefenseCoordinator
         if (line != null &&
             line.HasBattleArea)
         {
-            monster.transform.position =
-                line.GetDistributedBattlePoint(index);
+            monster.BeginFrontierBeastWaveCombat(
+                line.GetDistributedBattlePoint(index),
+                line.monstersAttackPlayer,
+                line.monsterAggressionBonus);
+            return;
         }
 
-        monster.guardTerritory = false;
-        monster.roamRadius = Mathf.Max(monster.roamRadius, 8f);
-        monster.territoryRadius = Mathf.Max(monster.territoryRadius, 8f);
-        monster.returnHomeDistance = Mathf.Max(monster.returnHomeDistance, 16f);
-        monster.attackPlayer = line != null && line.monstersAttackPlayer;
-        monster.attackVillagers = true;
-        monster.attackSmartNpcs = true;
-        monster.attackOtherMonsters = false;
-        monster.ApplyTemperamentSurge(
-            line != null ? line.monsterAggressionBonus : 35f,
-            line != null ? line.monsterAggressionBonus * 0.5f : 15f);
+        monster.BeginFrontierBeastWaveCombat(
+            monster.transform.position,
+            false,
+            35f);
     }
 
     int CountAliveMonsters(List<MonsterAI> monsters)
@@ -549,6 +540,50 @@ public partial class FrontierDefenseCoordinator
             {
                 defender.ExitFrontierDefenseMode();
             }
+        }
+    }
+
+    void CommandWaveMonstersToStaging(ActiveBeastWave wave)
+    {
+        if (wave == null ||
+            wave.line == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < wave.monsters.Count; i++)
+        {
+            MonsterAI monster = wave.monsters[i];
+            if (monster == null ||
+                monster.IsDead)
+            {
+                continue;
+            }
+
+            Vector3 stagingPoint =
+                wave.line.HasStagingArea
+                    ? wave.line.GetStagingPoint(i)
+                    : wave.line.GetBattleCenter();
+            monster.EnterFrontierBeastWaveStaging(stagingPoint);
+        }
+    }
+
+    void ReleaseWaveMonsters(ActiveBeastWave wave)
+    {
+        if (wave == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < wave.monsters.Count; i++)
+        {
+            MonsterAI monster = wave.monsters[i];
+            if (monster == null)
+            {
+                continue;
+            }
+
+            monster.ExitFrontierBeastWave();
         }
     }
 }

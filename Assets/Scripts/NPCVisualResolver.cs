@@ -65,6 +65,15 @@ public class NPCVisualResolver : MonoBehaviour
         RuntimeAnimatorController sceneController =
             animator != null ? animator.runtimeAnimatorController : null;
 
+        NPCManualAgeVisualLock ageVisualLock =
+            NPCManualAgeVisualLock.FindOn(gameObject);
+        if (ageVisualLock != null &&
+            ageVisualLock.lockVisualController)
+        {
+            ageVisualLock.ApplyLocks();
+            return;
+        }
+
         RuntimeAnimatorController controller =
             identity.visualProfile != null
                 ? identity.visualProfile.GetController(
