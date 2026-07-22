@@ -46,6 +46,9 @@ public partial class NpcFixedBlacksmithController : MonoBehaviour
 
     [Header("Production")]
     [Min(1)] public int craftDays = 3;
+    [Min(1)] public int haCraftDays = 1;
+    [Min(1)] public int trungCraftDays = 3;
+    [Min(1)] public int thuongCraftDays = 5;
     [Range(1f, 24f)] public float workHoursPerDay = 8f;
     [Min(0.25f)] public float buyDurationSeconds = 5f;
     [Min(0.25f)] public float sellDurationSeconds = 10f;
@@ -78,6 +81,7 @@ public partial class NpcFixedBlacksmithController : MonoBehaviour
     public int lastBatchMaterialBudget;
     public int lastBatchMinimumSaleValue;
     public bool debugLogs;
+    float nextRoutineRefreshRealtime = -1f;
 
     VillagerAI villager;
     ItemInventory inventory;
@@ -214,7 +218,27 @@ public partial class NpcFixedBlacksmithController : MonoBehaviour
         return TryRunWorkCycle();
     }
 
+    int GetCraftDaysForCurrentItem()
+    {
+        if (forgedItem == null)
+        {
+            return Mathf.Max(1, craftDays);
+        }
+
+        switch (forgedItem.grade)
+        {
+            case ItemGrade.Ha:
+                return Mathf.Max(1, haCraftDays);
+            case ItemGrade.Trung:
+                return Mathf.Max(1, trungCraftDays);
+            case ItemGrade.Thuong:
+                return Mathf.Max(1, thuongCraftDays);
+            default:
+                return Mathf.Max(1, craftDays);
+        }
+    }
+
     float RequiredWorkHours =>
-        Mathf.Max(1, craftDays) * Mathf.Max(1f, workHoursPerDay);
+        GetCraftDaysForCurrentItem() * Mathf.Max(1f, workHoursPerDay);
 
 }

@@ -390,6 +390,11 @@ public partial class NpcTaskProvider
             return null;
         }
 
+        if (IsLinhRiceVillageTask(offer))
+        {
+            return NpcMapZone.Lang;
+        }
+
         if (offer.taskType != NpcTaskType.GatherResource)
         {
             return null;
@@ -463,6 +468,12 @@ public partial class NpcTaskProvider
 
     string GetTaskRequiredItemName(RunningNpcTask task)
     {
+        if (task != null &&
+            IsLinhRiceVillageTask(task))
+        {
+            return GetLinhRiceVillageObjectiveLabel(task.offer);
+        }
+
         StatItemData item = GetTaskRequiredItem(task);
         if (item != null)
         {
@@ -646,6 +657,11 @@ public partial class NpcTaskProvider
 
     string GetRequiredItemName(NpcTaskOffer offer)
     {
+        if (IsLinhRiceVillageTask(offer))
+        {
+            return GetLinhRiceVillageObjectiveLabel(offer);
+        }
+
         StatItemData requiredItem = GetPlannedRequiredItem(offer);
 
         if (requiredItem != null)

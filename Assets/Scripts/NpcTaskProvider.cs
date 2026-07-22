@@ -180,6 +180,7 @@ class RunningNpcTask
     public int huntRespawnRetryCount;
     public float huntMissionDeadlineWorldHour = float.PositiveInfinity;
     public float huntMissionDeadlineFallbackTime = float.PositiveInfinity;
+    public FarmPlot farmPlot;
 }
 
 class RunningTavernMeal
@@ -902,9 +903,12 @@ public partial class NpcTaskProvider : MonoBehaviour
     public bool includeLinhRiceHarvestTask = true;
     public StatItemData linhRiceItem;
     public Transform linhRiceFieldPoint;
-    [Min(1)] public int linhRiceAmountMin = 5;
-    [Min(1)] public int linhRiceAmountMax = 9;
-    public int linhRiceRewardSpiritStone = 900;
+    [Min(1)] public int linhRiceVillageTaskAmount = 10;
+    public int linhRicePlantRewardSpiritStone = 600;
+    public int linhRiceCareRewardSpiritStone = 700;
+    public int linhRiceHarvestRewardSpiritStone = 900;
+    public float linhRicePlantDuration = 5f;
+    public float linhRiceCareDuration = 5f;
     public float linhRiceHarvestDuration = 8f;
 
     [Header("Task Acceptance")]

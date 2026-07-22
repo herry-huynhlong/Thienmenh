@@ -26,6 +26,12 @@ public partial class NpcTaskProvider
                 0,
                 GetRequiredAmount(task));
 
+            if (IsLinhRiceVillageTask(task))
+            {
+                TryAssignFarmPlotForTask(task);
+                return;
+            }
+
             task.targetPickup = FindGatherPickup(task);
             if (task.targetPickup != null)
             {

@@ -801,8 +801,11 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
         attack = entityProfile.stats.attack;
         defense = entityProfile.stats.defense;
         moveSpeed = entityProfile.stats.moveSpeed;
-        money = entityProfile.stats.money;
-        spiritStone = entityProfile.stats.spiritStone;
+        if (!HasDedicatedProfessionWalletOverride())
+        {
+            money = entityProfile.stats.money;
+            spiritStone = entityProfile.stats.spiritStone;
+        }
         sociability = entityProfile.personality.sociability;
         greed = entityProfile.personality.greed;
         diligence = entityProfile.personality.diligence;
@@ -810,6 +813,24 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
         hunger = entityProfile.needs.hunger;
         fatigue = entityProfile.needs.fatigue;
         fun = Mathf.Clamp(100f - entityProfile.needs.socialNeed, 0f, 100f);
+    }
+
+    bool HasDedicatedProfessionWalletOverride()
+    {
+        NpcFixedBlacksmithController fixedBlacksmith =
+            GetComponent<NpcFixedBlacksmithController>();
+        if (fixedBlacksmith != null &&
+            fixedBlacksmith.enabled &&
+            fixedBlacksmith.UseDedicatedRoutine)
+        {
+            return true;
+        }
+
+        NpcFixedAlchemistController fixedAlchemist =
+            GetComponent<NpcFixedAlchemistController>();
+        return fixedAlchemist != null &&
+            fixedAlchemist.enabled &&
+            fixedAlchemist.UseDedicatedRoutine;
     }
 
     [ContextMenu("Reload Villager Identity")]

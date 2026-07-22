@@ -77,6 +77,11 @@ public partial class NpcTaskProvider
                         GetDepthMaxForRank(offer.rank, huntDepthMax));
 
                 case NpcTaskType.GatherResource:
+                    if (IsLinhRiceVillageTask(offer))
+                    {
+                        return GetLinhRiceVillageWorkPosition();
+                    }
+
                     if (IsLinhRiceItem(offer.requiredItem) &&
                         linhRiceFieldPoint != null)
                     {

@@ -627,6 +627,10 @@ public partial class VillagerAI
             action == NpcText.Action("goHunt") ||
             action == NpcText.Action("goMarketTrade") ||
             action == NpcText.Action("bringGoodsToCounter") ||
+            action == NpcText.Action("fixedAlchemistBuyMaterials") ||
+            action == NpcText.Action("fixedAlchemistSellGoods") ||
+            action == NpcText.Action("fixedBlacksmithBuyMaterials") ||
+            action == NpcText.Action("fixedBlacksmithSellGoods") ||
             action == NpcText.Action("goHomeRest") ||
             action == NpcText.Action("eatAtShop") ||
             action == NpcText.Action("goPlay") ||

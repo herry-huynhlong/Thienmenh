@@ -318,11 +318,9 @@ public class NpcTradeAgent : MonoBehaviour
             }
 
             AddMoney(-totalPrice);
-            seller.spiritStone += totalPrice;
-            if (seller.entityProfile != null)
-            {
-                seller.entityProfile.stats.spiritStone = seller.spiritStone;
-            }
+            NpcEconomy.AddNpcMoney(
+                seller.gameObject,
+                totalPrice);
             inventory.AddItem(stack.item, amount);
             NpcSocialEventBus.PublishTradeCompleted(
                 gameObject,
@@ -437,7 +435,7 @@ public class NpcTradeAgent : MonoBehaviour
         }
 
         if (bestStack == null ||
-            buyer.spiritStone < bestPrice ||
+            NpcEconomy.GetNpcMoney(buyer.gameObject) < bestPrice ||
             !RemoveOwnedItem(
                 bestStack.item,
                 1,
@@ -666,7 +664,11 @@ public class NpcTradeAgent : MonoBehaviour
             return 0f;
         }
 
-        int money = Mathf.Max(0, buyer.spiritStone);
+        int money =
+            Mathf.Max(
+                0,
+                NpcEconomy.GetNpcMoney(
+                    buyer.gameObject));
         if (money < price)
         {
             return 0f;
@@ -884,6 +886,11 @@ public class NpcTradeAgent : MonoBehaviour
     }
     public int GetMoney()
     {
+        if (UsesDedicatedProfessionWallet())
+        {
+            return NpcEconomy.GetNpcMoney(gameObject);
+        }
+
         return useSpiritStoneCurrency
             ? Mathf.Max(0, spiritStone)
             : NpcEconomy.GetNpcMoney(gameObject);
@@ -891,13 +898,65 @@ public class NpcTradeAgent : MonoBehaviour
 
     public void AddMoney(int amount)
     {
+        if (UsesDedicatedProfessionWallet())
+        {
+            NpcEconomy.AddNpcMoney(gameObject, amount);
+            spiritStone =
+                Mathf.Max(
+                    0,
+                    NpcEconomy.GetNpcMoney(gameObject));
+            SyncSpiritStoneProfile();
+            return;
+        }
+
         if (useSpiritStoneCurrency)
         {
             spiritStone = Mathf.Max(0, spiritStone + amount);
+            SyncSpiritStoneProfile();
             return;
         }
 
         NpcEconomy.AddNpcMoney(gameObject, amount);
+    }
+
+    void SyncSpiritStoneProfile()
+    {
+        VillagerAI villager =
+            GetComponent<VillagerAI>();
+        if (villager != null &&
+            villager.entityProfile != null)
+        {
+            villager.entityProfile.stats.spiritStone =
+                spiritStone;
+            return;
+        }
+
+        SmartNpcAI smartNpc =
+            GetComponent<SmartNpcAI>();
+        if (smartNpc != null &&
+            smartNpc.entityProfile != null)
+        {
+            smartNpc.entityProfile.stats.spiritStone =
+                spiritStone;
+        }
+    }
+
+    bool UsesDedicatedProfessionWallet()
+    {
+        NpcFixedBlacksmithController fixedBlacksmith =
+            GetComponent<NpcFixedBlacksmithController>();
+        if (fixedBlacksmith != null &&
+            fixedBlacksmith.enabled &&
+            fixedBlacksmith.UseDedicatedRoutine)
+        {
+            return true;
+        }
+
+        NpcFixedAlchemistController fixedAlchemist =
+            GetComponent<NpcFixedAlchemistController>();
+        return fixedAlchemist != null &&
+            fixedAlchemist.enabled &&
+            fixedAlchemist.UseDedicatedRoutine;
     }
 
     void OnDrawGizmosSelected()

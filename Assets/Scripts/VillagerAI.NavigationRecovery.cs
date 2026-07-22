@@ -5,21 +5,12 @@ public partial class VillagerAI
 {
     void ApplySmoothVelocity()
     {
-        if (rb == null)
-        {
-            return;
-        }
-
-        float rate =
-            desiredVelocity.sqrMagnitude > rb.linearVelocity.sqrMagnitude
-            ? movementAcceleration
-            : movementDeceleration;
-
-        rb.linearVelocity =
-            Vector2.MoveTowards(
-                rb.linearVelocity,
-                desiredVelocity,
-                rate * Time.fixedDeltaTime);
+        NpcVisualMotionResolver.ApplySmoothVelocity(
+            rb,
+            desiredVelocity,
+            movementAcceleration,
+            movementDeceleration,
+            Time.fixedDeltaTime);
     }
 
     void UpdateVisualAnimation()
@@ -29,19 +20,17 @@ public partial class VillagerAI
             return;
         }
 
+        NpcVisualMotionState motionState =
+            NpcVisualMotionResolver.Resolve(
+                rb != null ? rb.linearVelocity : desiredVelocity,
+                desiredVelocity,
+                animationIdleSpeed,
+                allowDesiredVelocityFallback: false);
         Vector2 animationVelocity =
-            rb != null
-            ? rb.linearVelocity
-            : desiredVelocity;
-
-        bool isIdle =
-            animationVelocity.sqrMagnitude <=
-            animationIdleSpeed * animationIdleSpeed;
-
+            motionState.AnimationVelocity;
+        bool isIdle = motionState.IsIdle;
         Vector2 direction =
-            isIdle
-            ? Vector2.zero
-            : animationVelocity.normalized;
+            motionState.LocomotionDirection;
 
         if (visualAnimation.debugVisualLogs)
         {
@@ -52,6 +41,7 @@ public partial class VillagerAI
                 " speed=" + animationVelocity.magnitude.ToString("F3") +
                 " idleThreshold=" + animationIdleSpeed.ToString("F3") +
                 " isIdle=" + isIdle +
+                " fallback=" + motionState.UsedDesiredVelocityFallback +
                 " desiredVelocity=" + desiredVelocity +
                 " action=" + currentAction);
         }

@@ -37,10 +37,20 @@ public partial class NpcFixedBlacksmithController
         if (minimumBudget > 0 &&
             NpcEconomy.GetNpcMoney(gameObject) < minimumBudget)
         {
-            villager.SetActionImmediate(
-                NpcText.Action("fixedBlacksmithNeedMoneyToBuy"),
-                2f);
-            return true;
+            LogDebug(
+                "NeedMaterials",
+                "budgetShortfall money=" +
+                NpcEconomy.GetNpcMoney(gameObject) +
+                " required=" +
+                minimumBudget);
+
+            if (!HasConfiguredMaterialRequirements())
+            {
+                villager.SetActionImmediate(
+                    NpcText.Action("fixedBlacksmithNeedMoneyToBuy"),
+                    2f);
+                return true;
+            }
         }
 
         if (!TryGetBuyDestination(

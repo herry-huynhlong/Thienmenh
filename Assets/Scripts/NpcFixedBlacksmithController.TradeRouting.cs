@@ -666,6 +666,11 @@ public partial class NpcFixedBlacksmithController
             return false;
         }
 
+        if (!IsTradeApproachPointCompatible(point, fallbackZone))
+        {
+            return false;
+        }
+
         approachPosition = point.position;
         approachZone =
             ResolveZoneForTransform(point) ??
@@ -689,6 +694,75 @@ public partial class NpcFixedBlacksmithController
             default:
                 return null;
         }
+    }
+
+    Transform GetActiveTradePointOverride()
+    {
+        switch (state)
+        {
+            case ForgeCycleState.NeedMaterials:
+            case ForgeCycleState.BuyingMaterials:
+                return buyPointOverride;
+
+            case ForgeCycleState.ReadyToSell:
+            case ForgeCycleState.Selling:
+                return sellPointOverride;
+
+            default:
+                return null;
+        }
+    }
+
+    bool IsTradeApproachPointCompatible(
+        Transform approachPoint,
+        NpcMapZone? fallbackZone)
+    {
+        if (approachPoint == null)
+        {
+            return false;
+        }
+
+        Transform targetPoint = GetActiveTradePointOverride();
+        if (targetPoint == null)
+        {
+            return true;
+        }
+
+        if (approachPoint == targetPoint ||
+            approachPoint.IsChildOf(targetPoint) ||
+            targetPoint.IsChildOf(approachPoint) ||
+            approachPoint.parent == targetPoint.parent)
+        {
+            return true;
+        }
+
+        NpcCounterBroker approachBroker =
+            approachPoint.GetComponentInParent<NpcCounterBroker>();
+        NpcCounterBroker targetBroker =
+            targetPoint.GetComponentInParent<NpcCounterBroker>();
+        if (approachBroker != null &&
+            approachBroker == targetBroker)
+        {
+            return true;
+        }
+
+        NpcMapZone? approachZone =
+            ResolveZoneForTransform(approachPoint) ??
+            fallbackZone;
+        NpcMapZone? targetZone =
+            ResolveZoneForTransform(targetPoint) ??
+            fallbackZone;
+        if (approachZone.HasValue &&
+            targetZone.HasValue &&
+            approachZone.Value == targetZone.Value &&
+            Vector2.Distance(
+                approachPoint.position,
+                targetPoint.position) <= 6f)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     void ForceVillagerRoadPreference(Vector3 targetPosition)

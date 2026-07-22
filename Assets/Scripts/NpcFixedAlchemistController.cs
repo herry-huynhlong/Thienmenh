@@ -78,6 +78,7 @@ public class NpcFixedAlchemistController : MonoBehaviour
     public int lastBatchMaterialBudget;
     public int lastBatchMinimumSaleValue;
     public bool debugLogs;
+    float nextRoutineRefreshRealtime = -1f;
 
     VillagerAI villager;
     ItemInventory inventory;
@@ -141,10 +142,50 @@ public class NpcFixedAlchemistController : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        TickDedicatedRoutineDriver();
+    }
+
     System.Collections.IEnumerator ApplyRecommendedSetupNextFrame()
     {
         yield return null;
         ApplyRecommendedSetup();
+    }
+
+    void TickDedicatedRoutineDriver()
+    {
+        if (!Application.isPlaying ||
+            !useDedicatedRoutine ||
+            Time.time < nextRoutineRefreshRealtime)
+        {
+            return;
+        }
+
+        CacheReferences();
+        nextRoutineRefreshRealtime =
+            Time.time +
+            Mathf.Max(
+                0.1f,
+                villager != null
+                    ? villager.thinkInterval * 0.5f
+                    : 0.2f);
+
+        if (villager == null ||
+            !enabled ||
+            !isActiveAndEnabled ||
+            NpcRoleUtility.IsDead(gameObject) ||
+            NpcRoleUtility.IsInCombat(gameObject))
+        {
+            return;
+        }
+
+        if (grantStartingMoneyOnStart)
+        {
+            EnsureStartingMoney();
+        }
+
+        TryRunDedicatedRoutine();
     }
 
     public bool ShouldKeepTradeRouteActive()
@@ -291,7 +332,7 @@ public class NpcFixedAlchemistController : MonoBehaviour
 
         if (NeedsMaterialsForNextBatch())
         {
-            if (!NpcScheduleController.AllowsTrade(gameObject))
+            if (!CanLeaveForProductionTrade())
             {
                 villager.SetActionImmediate(WaitAction, villager.thinkInterval);
                 return true;
@@ -326,7 +367,7 @@ public class NpcFixedAlchemistController : MonoBehaviour
             return true;
         }
 
-        if (!NpcScheduleController.AllowsAlchemy(gameObject))
+        if (!CanPerformAlchemyWorkNow())
         {
             villager.SetActionImmediate(WaitAction, villager.thinkInterval);
             return true;
@@ -486,7 +527,7 @@ public class NpcFixedAlchemistController : MonoBehaviour
             return true;
         }
 
-        if (!NpcScheduleController.AllowsTrade(gameObject))
+        if (!CanLeaveForProductionTrade())
         {
             villager.SetActionImmediate(WaitAction, villager.thinkInterval);
             return true;
@@ -658,34 +699,59 @@ public class NpcFixedAlchemistController : MonoBehaviour
             return true;
         }
 
+        if (TryGetPreferredTradeDestination(
+                out targetPosition,
+                out targetZone,
+                out isBrokerTarget,
+                out broker))
+        {
+            return true;
+        }
+
+        Transform marketPoint = GetMarketPoint();
+        NpcMapZone? marketZone =
+            ResolveZoneForTransform(marketPoint);
+
+        if (marketPointOverride != null &&
+            marketPoint != null &&
+            marketZone.HasValue)
+        {
+            targetPosition = marketPoint.position;
+            targetZone = marketZone;
+            isBrokerTarget = false;
+            broker = null;
+            lastTradeDestinationSource = "marketPointOverride";
+            return true;
+        }
+
         if (allowBroker)
         {
-            broker = NpcCounterBroker.Active;
-            if (broker != null &&
-                broker.receiveAllNpcRequests)
+            if (TryGetBrokerDestination(
+                    out targetPosition,
+                    out targetZone,
+                    out isBrokerTarget,
+                    out broker))
             {
-                targetPosition = broker.GetCustomerPositionFor(gameObject);
-                targetZone = ResolveBrokerZone(broker);
-                isBrokerTarget = true;
-                lastTradeDestinationSource = "activeBroker";
-                lastTradeShopName = broker.name;
                 return true;
             }
         }
 
-        Transform marketPoint = GetMarketPoint();
         if (marketPoint != null)
         {
             targetPosition = marketPoint.position;
-            targetZone = ResolveZoneForTransform(marketPoint);
-            lastTradeDestinationSource = marketPointOverride != null
-                ? "marketPointOverride"
-                : "marketPoint";
+            targetZone = allowBroker && marketZone.HasValue
+                ? preferredTradeZone
+                : marketZone;
+            lastTradeDestinationSource = "marketPoint";
             return true;
         }
 
-        lastTradeDestinationSource = "missingTradePoint";
-        return false;
+        return TryGetZoneFallbackDestination(
+            preferredTradeZone,
+            out targetPosition,
+            out targetZone,
+            out isBrokerTarget,
+            out broker);
     }
 
     bool HasArrivedAtTradeDestination(
@@ -748,6 +814,11 @@ public class NpcFixedAlchemistController : MonoBehaviour
             return false;
         }
 
+        if (!IsTradeApproachPointCompatible(point, fallbackZone))
+        {
+            return false;
+        }
+
         approachPosition = point.position;
         approachZone = ResolveZoneForTransform(point) ?? fallbackZone;
         return !IsNear(approachPosition);
@@ -766,6 +837,73 @@ public class NpcFixedAlchemistController : MonoBehaviour
             default:
                 return null;
         }
+    }
+
+    Transform GetActiveTradePointOverride()
+    {
+        switch (state)
+        {
+            case AlchemyCycleState.NeedMaterials:
+            case AlchemyCycleState.BuyingMaterials:
+                return buyPointOverride;
+            case AlchemyCycleState.ReadyToSell:
+            case AlchemyCycleState.Selling:
+                return sellPointOverride;
+            default:
+                return null;
+        }
+    }
+
+    bool IsTradeApproachPointCompatible(
+        Transform approachPoint,
+        NpcMapZone? fallbackZone)
+    {
+        if (approachPoint == null)
+        {
+            return false;
+        }
+
+        Transform targetPoint = GetActiveTradePointOverride();
+        if (targetPoint == null)
+        {
+            return true;
+        }
+
+        if (approachPoint == targetPoint ||
+            approachPoint.IsChildOf(targetPoint) ||
+            targetPoint.IsChildOf(approachPoint) ||
+            approachPoint.parent == targetPoint.parent)
+        {
+            return true;
+        }
+
+        NpcCounterBroker approachBroker =
+            approachPoint.GetComponentInParent<NpcCounterBroker>();
+        NpcCounterBroker targetBroker =
+            targetPoint.GetComponentInParent<NpcCounterBroker>();
+        if (approachBroker != null &&
+            approachBroker == targetBroker)
+        {
+            return true;
+        }
+
+        NpcMapZone? approachZone =
+            ResolveZoneForTransform(approachPoint) ??
+            fallbackZone;
+        NpcMapZone? targetZone =
+            ResolveZoneForTransform(targetPoint) ??
+            fallbackZone;
+        if (approachZone.HasValue &&
+            targetZone.HasValue &&
+            approachZone.Value == targetZone.Value &&
+            Vector2.Distance(
+                approachPoint.position,
+                targetPoint.position) <= 6f)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     Transform GetAlchemyPoint()
@@ -1210,22 +1348,32 @@ public class NpcFixedAlchemistController : MonoBehaviour
             }
         }
 
+        if (TryFindPreferredBrokerBackedShop(out shop))
+        {
+            lastTradeShopName = shop.name;
+            return true;
+        }
+
         SimpleItemShop[] shops =
             FindObjectsByType<SimpleItemShop>(
-                FindObjectsInactive.Exclude,
-                FindObjectsSortMode.None);
-        float bestDistance = float.MaxValue;
+                FindObjectsInactive.Exclude);
+        float bestDistance = float.PositiveInfinity;
+        Vector3 searchOrigin =
+            marketPoint != null
+                ? marketPoint.position
+                : transform.position;
 
         for (int i = 0; i < shops.Length; i++)
         {
             SimpleItemShop candidate = shops[i];
-            if (candidate == null)
+            if (candidate == null ||
+                !candidate.isActiveAndEnabled)
             {
                 continue;
             }
 
             NpcMapZone? candidateZone =
-                ResolveZoneForTransform(candidate.transform);
+                ResolveShopZone(candidate);
             if (candidateZone.HasValue &&
                 candidateZone.Value != preferredTradeZone)
             {
@@ -1234,7 +1382,7 @@ public class NpcFixedAlchemistController : MonoBehaviour
 
             float distance =
                 Vector2.Distance(
-                    transform.position,
+                    searchOrigin,
                     candidate.transform.position);
             if (distance >= bestDistance)
             {
@@ -1252,6 +1400,191 @@ public class NpcFixedAlchemistController : MonoBehaviour
         }
 
         return false;
+    }
+
+    bool TryFindPreferredBrokerBackedShop(out SimpleItemShop shop)
+    {
+        shop = null;
+
+        SimpleItemShop[] shops =
+            FindObjectsByType<SimpleItemShop>(
+                FindObjectsInactive.Exclude);
+
+        float bestDistance = float.PositiveInfinity;
+        for (int i = 0; i < shops.Length; i++)
+        {
+            SimpleItemShop candidate = shops[i];
+            if (candidate == null ||
+                !candidate.isActiveAndEnabled)
+            {
+                continue;
+            }
+
+            NpcCounterBroker candidateBroker =
+                candidate.GetComponent<NpcCounterBroker>();
+            if (candidateBroker == null ||
+                !candidateBroker.isActiveAndEnabled ||
+                !candidateBroker.receiveAllNpcRequests)
+            {
+                continue;
+            }
+
+            Vector3 targetPosition =
+                candidateBroker.customerPoint != null
+                    ? candidateBroker.customerPoint.position
+                    : candidateBroker.CustomerPosition;
+            float distance =
+                Vector2.Distance(
+                    transform.position,
+                    targetPosition);
+
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                shop = candidate;
+            }
+        }
+
+        return shop != null;
+    }
+
+    NpcMapZone? ResolveShopZone(SimpleItemShop shop)
+    {
+        if (shop == null)
+        {
+            return null;
+        }
+
+        NpcCounterBroker broker =
+            shop.GetComponent<NpcCounterBroker>();
+        if (broker != null)
+        {
+            NpcMapZone? brokerZone =
+                ResolveBrokerZone(broker);
+            if (brokerZone.HasValue)
+            {
+                return brokerZone;
+            }
+        }
+
+        if (shop.sellerObject != null)
+        {
+            NpcMapZone? sellerZone =
+                ResolveZoneForTransform(
+                    shop.sellerObject.transform);
+            if (sellerZone.HasValue)
+            {
+                return sellerZone;
+            }
+        }
+
+        if (shop.sellerInventory != null)
+        {
+            NpcMapZone? inventoryZone =
+                ResolveZoneForTransform(
+                    shop.sellerInventory.transform);
+            if (inventoryZone.HasValue)
+            {
+                return inventoryZone;
+            }
+        }
+
+        return ResolveZoneForTransform(shop.transform);
+    }
+
+    bool TryGetPreferredTradeDestination(
+        out Vector3 targetPosition,
+        out NpcMapZone? targetZone,
+        out bool isBrokerTarget,
+        out NpcCounterBroker broker)
+    {
+        targetPosition = Vector3.zero;
+        targetZone = null;
+        isBrokerTarget = false;
+        broker = null;
+
+        SimpleItemShop shop;
+        if (!TryFindPreferredTradeShop(out shop) ||
+            shop == null)
+        {
+            lastTradeDestinationSource = "missingPreferredShop";
+            return false;
+        }
+
+        broker = shop.GetComponent<NpcCounterBroker>();
+        if (broker != null &&
+            broker.customerPoint != null)
+        {
+            targetPosition =
+                broker.GetCustomerPositionFor(gameObject);
+            targetZone = ResolveBrokerZone(broker);
+            isBrokerTarget = broker.receiveAllNpcRequests;
+            lastTradeDestinationSource = "preferredShopBroker";
+            return true;
+        }
+
+        targetPosition = shop.transform.position;
+        targetZone = ResolveShopZone(shop);
+        isBrokerTarget = false;
+        broker = null;
+        lastTradeDestinationSource = "preferredShopRoot";
+        return true;
+    }
+
+    bool TryGetZoneFallbackDestination(
+        NpcMapZone zone,
+        out Vector3 targetPosition,
+        out NpcMapZone? targetZone,
+        out bool isBrokerTarget,
+        out NpcCounterBroker broker)
+    {
+        broker = null;
+        isBrokerTarget = false;
+
+        NpcMapArea area =
+            NpcMapArea.FindNearestAreaInZone(
+                zone,
+                transform.position);
+        if (area != null &&
+            area.areaBounds != null)
+        {
+            targetPosition = area.areaBounds.bounds.center;
+            targetZone = zone;
+            lastTradeDestinationSource =
+                "zoneFallback:" + zone;
+            return true;
+        }
+
+        targetPosition = Vector3.zero;
+        targetZone = null;
+        lastTradeDestinationSource =
+            "missingZoneFallback:" + zone;
+        return false;
+    }
+
+    bool TryGetBrokerDestination(
+        out Vector3 targetPosition,
+        out NpcMapZone? targetZone,
+        out bool isBrokerTarget,
+        out NpcCounterBroker broker)
+    {
+        targetPosition = Vector3.zero;
+        targetZone = null;
+        isBrokerTarget = false;
+        broker = NpcCounterBroker.Active;
+
+        if (broker == null ||
+            !broker.receiveAllNpcRequests)
+        {
+            return false;
+        }
+
+        targetPosition = broker.GetCustomerPositionFor(gameObject);
+        targetZone = ResolveBrokerZone(broker);
+        isBrokerTarget = true;
+        lastTradeDestinationSource = "activeBroker";
+        lastTradeShopName = broker.name;
+        return true;
     }
 
     bool IsValidLowGradeAlchemyMaterial(StatItemData item)
@@ -1291,19 +1624,6 @@ public class NpcFixedAlchemistController : MonoBehaviour
             items[i] = items[swapIndex];
             items[swapIndex] = temp;
         }
-    }
-
-    void EnsureStartingMoney()
-    {
-        if (startingMoney <= 0 ||
-            NpcEconomy.GetNpcMoney(gameObject) >= startingMoney)
-        {
-            return;
-        }
-
-        NpcEconomy.AddNpcMoney(
-            gameObject,
-            startingMoney - NpcEconomy.GetNpcMoney(gameObject));
     }
 
     void ApplyRecommendedSetup()
@@ -1375,6 +1695,38 @@ public class NpcFixedAlchemistController : MonoBehaviour
             specialProfession.lockVillagerJob = true;
             specialProfession.villagerJob = VillagerJob.Alchemist;
         }
+    }
+
+    void EnsureStartingMoney()
+    {
+        if (startingMoney <= 0)
+        {
+            return;
+        }
+
+        int currentMoney = NpcEconomy.GetNpcMoney(gameObject);
+        if (currentMoney >= startingMoney)
+        {
+            return;
+        }
+
+        NpcEconomy.AddNpcMoney(gameObject, startingMoney - currentMoney);
+        SyncProfileWallet(startingMoney);
+    }
+
+    void SyncProfileWallet(int walletAmount)
+    {
+        if (villager == null ||
+            villager.entityProfile == null ||
+            villager.entityProfile.stats == null)
+        {
+            return;
+        }
+
+        villager.entityProfile.stats.money =
+            Mathf.Max(villager.entityProfile.stats.money, walletAmount);
+        villager.entityProfile.stats.spiritStone =
+            Mathf.Max(villager.entityProfile.stats.spiritStone, walletAmount);
     }
 
     void EnsureRecommendedScheduleConfigured()
@@ -1474,6 +1826,32 @@ public class NpcFixedAlchemistController : MonoBehaviour
             hour < endHour;
     }
 
+    bool CanLeaveForProductionTrade()
+    {
+        return !IsDedicatedRestWindow(GetCurrentClockHour());
+    }
+
+    bool CanPerformAlchemyWorkNow()
+    {
+        if (IsDedicatedRestWindow(GetCurrentClockHour()))
+        {
+            return false;
+        }
+
+        if (NpcScheduleController.AllowsAlchemy(gameObject))
+        {
+            return true;
+        }
+
+        NpcScheduleController activeSchedule =
+            schedule != null
+                ? schedule
+                : NpcScheduleController.GetSchedule(gameObject);
+        return activeSchedule == null ||
+            !activeSchedule.enforceSchedule ||
+            activeSchedule.CurrentActivity == NpcScheduleActivity.Work;
+    }
+
     float GetCurrentClockHour()
     {
         return WorldTimeSystem.Instance != null
@@ -1490,9 +1868,28 @@ public class NpcFixedAlchemistController : MonoBehaviour
 
     NpcMapZone? ResolveZoneForTransform(Transform target)
     {
-        return target != null
-            ? NpcMapNavigator.GetDestinationZone(target)
-            : null;
+        if (target == null)
+        {
+            return null;
+        }
+
+        NpcMapZone? destinationZone =
+            NpcMapNavigator.GetDestinationZone(target);
+        if (destinationZone.HasValue)
+        {
+            return destinationZone;
+        }
+
+        NpcMapArea area = NpcMapArea.FindArea(target.position);
+        if (area != null)
+        {
+            return area.zone;
+        }
+
+        area = NpcMapArea.FindNearestArea(target.position);
+        return area != null
+            ? area.zone
+            : (NpcMapZone?)null;
     }
 
     NpcMapZone? ResolveBrokerZone(NpcCounterBroker broker)

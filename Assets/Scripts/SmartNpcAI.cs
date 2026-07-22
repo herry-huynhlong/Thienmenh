@@ -1042,7 +1042,8 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
 
         bool holdStationaryAction =
             actionTimer > 0f &&
-            (IsStationaryAction(currentAction) ||
+            ((IsStationaryAction(currentAction) &&
+            !IsMonsterCombatApproachActive()) ||
             ShouldHoldCombatPosition()) &&
             !HasLockedDirectedTarget() &&
             !hasEscapeTarget &&
@@ -1093,23 +1094,29 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
 
         SyncVisualAnimationDebugFlags();
 
+        NpcVisualMotionState motionState =
+            NpcVisualMotionResolver.Resolve(
+                rb != null ? rb.linearVelocity : desiredVelocity,
+                desiredVelocity,
+                animationIdleSpeed,
+                allowDesiredVelocityFallback: false);
         Vector2 animationVelocity =
-            rb != null
-            ? rb.linearVelocity
-            : desiredVelocity;
-
-        bool isIdle =
-            animationVelocity.sqrMagnitude <=
-            animationIdleSpeed * animationIdleSpeed;
+            motionState.AnimationVelocity;
+        bool isIdle = motionState.IsIdle;
+        bool hasDesiredMotion =
+            motionState.HasDesiredMotion;
         Vector2 velocityDirection =
-            isIdle ? Vector2.zero : animationVelocity.normalized;
+            motionState.LocomotionDirection;
         Vector2 direction = velocityDirection;
         string visualDirectionSource =
-            isIdle
+            motionState.UsedDesiredVelocityFallback
+                ? "desired-velocity"
+                : isIdle
                 ? "idle"
                 : "velocity";
 
         if (isIdle &&
+            !hasDesiredMotion &&
             IsStationaryAction(currentAction) &&
             direction.sqrMagnitude <= 0.0001f)
         {

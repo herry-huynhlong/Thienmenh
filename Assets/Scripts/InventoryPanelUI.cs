@@ -30,6 +30,7 @@ public class InventoryPanelUI : MonoBehaviour
     public StatItemData selectedItem;
 
     public ItemInventory currentNpcInventory;
+    public GameObject currencyOwnerOverride;
 
     public ItemInventory playerInventory;
     public PlayerWallet playerWallet;
@@ -1891,6 +1892,13 @@ public class InventoryPanelUI : MonoBehaviour
     {
         amount = 0;
 
+        if (TryGetCurrencyAmountForOwner(
+                currencyOwnerOverride,
+                out amount))
+        {
+            return true;
+        }
+
         ItemInventory ownerInventory =
             inventory != null
                 ? inventory
@@ -1900,6 +1908,20 @@ public class InventoryPanelUI : MonoBehaviour
             ownerInventory != null
                 ? ownerInventory.gameObject
                 : null;
+
+        if (owner == null)
+        {
+            return false;
+        }
+
+        return TryGetCurrencyAmountForOwner(owner, out amount);
+    }
+
+    bool TryGetCurrencyAmountForOwner(
+        GameObject owner,
+        out int amount)
+    {
+        amount = 0;
 
         if (owner == null)
         {

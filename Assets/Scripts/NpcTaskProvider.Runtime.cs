@@ -285,6 +285,19 @@ public partial class NpcTaskProvider
 
         ResolveOfferItemReferences(offer);
 
+        if (IsLinhRicePlantTask(offer) ||
+            IsLinhRiceCareTask(offer))
+        {
+            return null;
+        }
+
+        if (IsLinhRiceHarvestTask(offer))
+        {
+            return offer.requiredItem != null
+                ? offer.requiredItem
+                : ResolveLinhRiceItem();
+        }
+
         if (offer.requiredItem != null)
         {
             return offer.requiredItem;
@@ -297,10 +310,18 @@ public partial class NpcTaskProvider
 
     public int GetPlannedRequiredAmount(NpcTaskOffer offer)
     {
-        StatItemData plannedItem = GetPlannedRequiredItem(offer);
+        if (offer == null)
+        {
+            return 0;
+        }
 
-        if (offer == null ||
-            plannedItem == null)
+        if (IsLinhRiceVillageTask(offer))
+        {
+            return GetRequiredAmount(offer);
+        }
+
+        StatItemData plannedItem = GetPlannedRequiredItem(offer);
+        if (plannedItem == null)
         {
             return 0;
         }
@@ -815,6 +836,10 @@ public partial class NpcTaskProvider
                     {
                         UpdateEscortTravel(task);
                     }
+                    else if (IsLinhRiceVillageTask(task))
+                    {
+                        UpdateLinhRiceVillageTravel(task);
+                    }
                     else if (IsGatherTask(task))
                     {
                         UpdateGatherTravel(task);
@@ -869,6 +894,10 @@ public partial class NpcTaskProvider
                         {
                             UpdateEscortMeeting(task);
                         }
+                    }
+                    else if (IsLinhRiceVillageTask(task))
+                    {
+                        UpdateLinhRiceVillageWork(task);
                     }
                     else if (IsGatherTask(task))
                     {
@@ -992,6 +1021,19 @@ public partial class NpcTaskProvider
 
         ResolveOfferItemReferences(offer);
 
+        if (IsLinhRicePlantTask(offer) ||
+            IsLinhRiceCareTask(offer))
+        {
+            return null;
+        }
+
+        if (IsLinhRiceHarvestTask(offer))
+        {
+            return offer.requiredItem != null
+                ? offer.requiredItem
+                : ResolveLinhRiceItem();
+        }
+
         if (offer.requiredItem != null)
         {
             return offer.requiredItem;
@@ -1023,7 +1065,8 @@ public partial class NpcTaskProvider
     bool RequiresExplicitRequiredItem(NpcTaskOffer offer)
     {
         return offer != null &&
-            offer.taskType == NpcTaskType.HarvestAndDeliver;
+            (offer.taskType == NpcTaskType.HarvestAndDeliver ||
+            IsLinhRiceHarvestTask(offer));
     }
 
     StatItemData ResolveLinhRiceItem()

@@ -37,9 +37,20 @@ public partial class VillagerAI
         NpcFixedAlchemistController fixedAlchemist =
             GetComponent<NpcFixedAlchemistController>();
         if (fixedAlchemist != null &&
-            fixedAlchemist.enabled &&
-            fixedAlchemist.TryRunWorkCycle())
+            fixedAlchemist.enabled)
         {
+            if (fixedAlchemist.UseDedicatedRoutine)
+            {
+                fixedAlchemist.TryRunDedicatedRoutine();
+                return;
+            }
+
+            if (fixedAlchemist.TryRunWorkCycle())
+            {
+                return;
+            }
+
+            GoToAlchemyWorkPointOrWait();
             return;
         }
 
@@ -101,9 +112,20 @@ public partial class VillagerAI
         NpcFixedBlacksmithController fixedBlacksmith =
             GetComponent<NpcFixedBlacksmithController>();
         if (fixedBlacksmith != null &&
-            fixedBlacksmith.enabled &&
-            fixedBlacksmith.TryRunWorkCycle())
+            fixedBlacksmith.enabled)
         {
+            if (fixedBlacksmith.UseDedicatedRoutine)
+            {
+                fixedBlacksmith.TryRunDedicatedRoutine();
+                return;
+            }
+
+            if (fixedBlacksmith.TryRunWorkCycle())
+            {
+                return;
+            }
+
+            GoWork();
             return;
         }
 

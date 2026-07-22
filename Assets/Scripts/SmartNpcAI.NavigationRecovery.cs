@@ -21,21 +21,12 @@ public partial class SmartNpcAI
 
     void ApplySmoothVelocity()
     {
-        if (rb == null)
-        {
-            return;
-        }
-
-        float rate =
-            desiredVelocity.sqrMagnitude > rb.linearVelocity.sqrMagnitude
-                ? movementAcceleration
-                : movementDeceleration;
-
-        rb.linearVelocity =
-            Vector2.MoveTowards(
-                rb.linearVelocity,
-                desiredVelocity,
-                rate * Time.fixedDeltaTime);
+        NpcVisualMotionResolver.ApplySmoothVelocity(
+            rb,
+            desiredVelocity,
+            movementAcceleration,
+            movementDeceleration,
+            Time.fixedDeltaTime);
     }
 
     public void StopForConversation()

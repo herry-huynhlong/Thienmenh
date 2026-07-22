@@ -49,6 +49,7 @@ public partial class NpcFixedBlacksmithController
     void Update()
     {
         SyncSleepVisibility();
+        TickDedicatedRoutineDriver();
     }
 
     [ContextMenu("Blacksmith/Debug Current Trade Route")]
@@ -284,6 +285,9 @@ public partial class NpcFixedBlacksmithController
     void ClampConfig()
     {
         craftDays = Mathf.Max(1, craftDays);
+        haCraftDays = Mathf.Max(1, haCraftDays);
+        trungCraftDays = Mathf.Max(1, trungCraftDays);
+        thuongCraftDays = Mathf.Max(1, thuongCraftDays);
         workHoursPerDay = Mathf.Clamp(workHoursPerDay, 1f, 24f);
         buyDurationSeconds = Mathf.Max(0.25f, buyDurationSeconds);
         sellDurationSeconds = Mathf.Max(0.25f, sellDurationSeconds);
@@ -390,8 +394,48 @@ public partial class NpcFixedBlacksmithController
         }
     }
 
+    void TickDedicatedRoutineDriver()
+    {
+        if (!Application.isPlaying ||
+            !useDedicatedRoutine ||
+            Time.time < nextRoutineRefreshRealtime)
+        {
+            return;
+        }
+
+        CacheReferences();
+        nextRoutineRefreshRealtime =
+            Time.time +
+            Mathf.Max(
+                0.1f,
+                villager != null
+                    ? villager.thinkInterval * 0.5f
+                    : 0.2f);
+
+        if (villager == null ||
+            !enabled ||
+            !isActiveAndEnabled ||
+            NpcRoleUtility.IsDead(gameObject) ||
+            NpcRoleUtility.IsInCombat(gameObject))
+        {
+            return;
+        }
+
+        if (grantStartingMoneyOnStart)
+        {
+            EnsureStartingMoney();
+        }
+
+        TryRunDedicatedRoutine();
+    }
+
     void EnsureStartingMoney()
     {
+        if (startingMoney <= 0)
+        {
+            return;
+        }
+
         int currentMoney = NpcEconomy.GetNpcMoney(gameObject);
         if (currentMoney >= startingMoney)
         {
@@ -399,7 +443,23 @@ public partial class NpcFixedBlacksmithController
         }
 
         NpcEconomy.AddNpcMoney(gameObject, startingMoney - currentMoney);
+        SyncProfileWallet(startingMoney);
         LogDebug("SeedMoney", "money=" + NpcEconomy.GetNpcMoney(gameObject));
+    }
+
+    void SyncProfileWallet(int walletAmount)
+    {
+        if (villager == null ||
+            villager.entityProfile == null ||
+            villager.entityProfile.stats == null)
+        {
+            return;
+        }
+
+        villager.entityProfile.stats.money =
+            Mathf.Max(villager.entityProfile.stats.money, walletAmount);
+        villager.entityProfile.stats.spiritStone =
+            Mathf.Max(villager.entityProfile.stats.spiritStone, walletAmount);
     }
 
 }

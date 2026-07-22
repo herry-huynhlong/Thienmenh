@@ -289,6 +289,11 @@ public partial class NpcTaskProvider
             return TaskName("gatherResource");
         }
 
+        if (IsLinhRiceVillageTask(offer))
+        {
+            return GetLinhRiceVillageTaskName(offer);
+        }
+
         switch (offer.taskType)
         {
             case NpcTaskType.Patrol:
@@ -327,14 +332,7 @@ public partial class NpcTaskProvider
         {
         };
 
-        if (includeLinhRiceHarvestTask)
-        {
-            NpcTaskOffer linhRiceOffer = CreateLinhRiceHarvestOffer();
-            if (linhRiceOffer != null)
-            {
-                defaultOffers.Add(linhRiceOffer);
-            }
-        }
+        AppendLinhRiceVillageOffers(defaultOffers);
 
         AppendMapDrivenGatherOffers(defaultOffers);
         AppendMapDrivenHuntOffers(defaultOffers);
@@ -395,6 +393,14 @@ public partial class NpcTaskProvider
             return rankCompare;
         }
 
+        int specialOrderCompare =
+            GetOfferSpecialDisplayOrder(left).CompareTo(
+                GetOfferSpecialDisplayOrder(right));
+        if (specialOrderCompare != 0)
+        {
+            return specialOrderCompare;
+        }
+
         int typeCompare =
             left.taskType.CompareTo(right.taskType);
         if (typeCompare != 0)
@@ -423,7 +429,99 @@ public partial class NpcTaskProvider
         }
     }
 
-    NpcTaskOffer CreateLinhRiceHarvestOffer()
+    int GetOfferSpecialDisplayOrder(NpcTaskOffer offer)
+    {
+        if (offer == null)
+        {
+            return int.MaxValue;
+        }
+
+        if (IsLinhRicePlantTask(offer))
+        {
+            return 0;
+        }
+
+        if (IsLinhRiceCareTask(offer))
+        {
+            return 1;
+        }
+
+        if (IsLinhRiceHarvestTask(offer))
+        {
+            return 2;
+        }
+
+        return 100;
+    }
+
+    void AppendLinhRiceVillageOffers(List<NpcTaskOffer> targetOffers)
+    {
+        if (targetOffers == null ||
+            !includeLinhRiceHarvestTask)
+        {
+            return;
+        }
+
+        NpcTaskOffer plantOffer = CreateLinhRicePlantOffer();
+        if (plantOffer != null)
+        {
+            targetOffers.Add(plantOffer);
+        }
+
+        NpcTaskOffer careOffer = CreateLinhRiceCareOffer();
+        if (careOffer != null)
+        {
+            targetOffers.Add(careOffer);
+        }
+
+        NpcTaskOffer harvestOffer = CreateLinhRiceVillageHarvestOffer();
+        if (harvestOffer != null)
+        {
+            targetOffers.Add(harvestOffer);
+        }
+    }
+
+    NpcTaskOffer CreateLinhRicePlantOffer()
+    {
+        NpcTaskOffer offer = CreateSimpleOffer(
+            "Trồng Linh Mễ",
+            NpcTaskType.GatherResource,
+            NpcTaskRank.Ha,
+            CultivationRealm.Mortal,
+            1,
+            linhRicePlantRewardSpiritStone,
+            0,
+            linhRicePlantDuration);
+
+        offer.customTaskId = LinhRicePlantTaskId;
+        offer.requiredAmount = Mathf.Max(1, linhRiceVillageTaskAmount);
+        offer.randomizeRequiredItemAmount = false;
+        offer.autoPriceRequiredItemReward = false;
+        offer.consumeRequiredItemsOnTurnIn = false;
+        return offer;
+    }
+
+    NpcTaskOffer CreateLinhRiceCareOffer()
+    {
+        NpcTaskOffer offer = CreateSimpleOffer(
+            "Chăm sóc Linh Mễ",
+            NpcTaskType.GatherResource,
+            NpcTaskRank.Ha,
+            CultivationRealm.Mortal,
+            1,
+            linhRiceCareRewardSpiritStone,
+            0,
+            linhRiceCareDuration);
+
+        offer.customTaskId = LinhRiceCareTaskId;
+        offer.requiredAmount = Mathf.Max(1, linhRiceVillageTaskAmount);
+        offer.randomizeRequiredItemAmount = false;
+        offer.autoPriceRequiredItemReward = false;
+        offer.consumeRequiredItemsOnTurnIn = false;
+        return offer;
+    }
+
+    NpcTaskOffer CreateLinhRiceVillageHarvestOffer()
     {
         StatItemData item = ResolveLinhRiceItem();
         if (item == null)
@@ -432,21 +530,22 @@ public partial class NpcTaskProvider
         }
 
         NpcTaskOffer offer = CreateSimpleOffer(
-            BuildHarvestTaskName(item),
-            NpcTaskType.HarvestAndDeliver,
+            "Thu hoạch Linh Mễ",
+            NpcTaskType.GatherResource,
             NpcTaskRank.Ha,
             CultivationRealm.Mortal,
             1,
-            linhRiceRewardSpiritStone,
+            linhRiceHarvestRewardSpiritStone,
             0,
             linhRiceHarvestDuration);
 
+        offer.customTaskId = LinhRiceHarvestTaskId;
         offer.requiredItem = item;
-        offer.requiredAmount = Mathf.Max(1, linhRiceAmountMin);
-        offer.randomizeRequiredItemAmount = true;
-        offer.requiredItemAmountMin = Mathf.Max(1, linhRiceAmountMin);
-        offer.requiredItemAmountMax = Mathf.Max(offer.requiredItemAmountMin, linhRiceAmountMax);
+        offer.requiredAmount = Mathf.Max(1, linhRiceVillageTaskAmount);
+        offer.randomizeRequiredItemAmount = false;
         offer.autoPriceRequiredItemReward = true;
+        offer.consumeRequiredItemsOnTurnIn = true;
+        offer.useRankRewardMultiplier = false;
         ConfigureOfferRewardMarkup(offer, NpcTaskRank.Ha);
         offer.rewardSpiritStone = EstimateOfferRewardSpiritStone(offer, item);
         return offer;

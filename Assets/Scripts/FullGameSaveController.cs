@@ -1466,8 +1466,11 @@ public class FullGameSaveController : MonoBehaviour
         villager.RestoreHealthState(
             Mathf.Max(1, saved.villagerMaxHP),
             saved.villagerCurrentHP);
-        villager.money = Mathf.Max(0, saved.villagerMoney);
-        villager.spiritStone = Mathf.Max(0, saved.villagerSpiritStone);
+        if (!UsesDedicatedProfessionWallet(villager.gameObject))
+        {
+            villager.money = Mathf.Max(0, saved.villagerMoney);
+            villager.spiritStone = Mathf.Max(0, saved.villagerSpiritStone);
+        }
         villager.RestoreProfessionProgress(
             Mathf.Max(1, saved.villagerProfessionLevel),
             Mathf.Max(0, saved.villagerProfessionExp));
@@ -1476,6 +1479,29 @@ public class FullGameSaveController : MonoBehaviour
                 saved.villagerCurrentActionKey,
                 saved.villagerCurrentActionId,
                 saved.villagerCurrentAction));
+    }
+
+    static bool UsesDedicatedProfessionWallet(GameObject npc)
+    {
+        if (npc == null)
+        {
+            return false;
+        }
+
+        NpcFixedBlacksmithController fixedBlacksmith =
+            npc.GetComponent<NpcFixedBlacksmithController>();
+        if (fixedBlacksmith != null &&
+            fixedBlacksmith.enabled &&
+            fixedBlacksmith.UseDedicatedRoutine)
+        {
+            return true;
+        }
+
+        NpcFixedAlchemistController fixedAlchemist =
+            npc.GetComponent<NpcFixedAlchemistController>();
+        return fixedAlchemist != null &&
+            fixedAlchemist.enabled &&
+            fixedAlchemist.UseDedicatedRoutine;
     }
 
     void ApplySmartNpcState(

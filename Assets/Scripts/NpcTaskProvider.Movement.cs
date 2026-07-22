@@ -239,6 +239,16 @@ public partial class NpcTaskProvider
         switch (offer.taskType)
         {
             case NpcTaskType.GatherResource:
+                if (IsLinhRiceVillageTask(offer))
+                {
+                    return NpcMapZone.Lang;
+                }
+
+                return NpcMapZone.MaThuSonMach;
+
+            case NpcTaskType.HarvestAndDeliver:
+                return NpcMapZone.Lang;
+
             case NpcTaskType.HuntMonster:
             case NpcTaskType.FrontierWatch:
                 return NpcMapZone.MaThuSonMach;

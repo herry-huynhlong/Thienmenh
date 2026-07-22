@@ -56,15 +56,15 @@ public partial class VillagerAI
             return;
         }
 
-        if (useDedicatedBlacksmithRoutine &&
-            fixedBlacksmith.TryRunDedicatedRoutine())
+        if (useDedicatedBlacksmithRoutine)
         {
+            fixedBlacksmith.TryRunDedicatedRoutine();
             return;
         }
 
-        if (useDedicatedAlchemistRoutine &&
-            fixedAlchemist.TryRunDedicatedRoutine())
+        if (useDedicatedAlchemistRoutine)
         {
+            fixedAlchemist.TryRunDedicatedRoutine();
             return;
         }
 

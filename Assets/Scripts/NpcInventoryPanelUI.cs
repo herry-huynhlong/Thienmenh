@@ -46,8 +46,10 @@ public class NpcInventoryPanelUI : MonoBehaviour
             "emptyText",
             "");
 
+        AutoFindNpcWalletText();
         AutoFindItemGridPanel();
         SanitizeCopiedInventoryGrid();
+        NormalizeNpcWalletText();
         ConfigureRaycasts();
         Hide();
     }
@@ -81,6 +83,8 @@ public class NpcInventoryPanelUI : MonoBehaviour
             gridDirty = true;
             BindItemGrid();
         }
+
+        NormalizeNpcWalletText();
 
         if (panelRoot != null)
         {
@@ -379,6 +383,8 @@ public class NpcInventoryPanelUI : MonoBehaviour
             return;
         }
 
+        NormalizeNpcWalletText();
+
         if (titleText != null)
         {
             titleText.text =
@@ -435,6 +441,11 @@ public class NpcInventoryPanelUI : MonoBehaviour
         Unsubscribe();
         currentNpc = null;
         currentInventory = null;
+
+        if (itemGridPanel != null)
+        {
+            itemGridPanel.currencyOwnerOverride = null;
+        }
 
         if (panelRoot != null)
         {
@@ -532,6 +543,8 @@ public class NpcInventoryPanelUI : MonoBehaviour
             return;
         }
 
+        NormalizeNpcWalletText();
+
         npcLinhThachText.text =
             NpcEconomy.FormatCurrency(
                 NpcEconomy.GetNpcLinhThach(currentNpc.gameObject));
@@ -613,6 +626,17 @@ public class NpcInventoryPanelUI : MonoBehaviour
                 wallet.enabled = false;
             }
         }
+
+        PlayerWalletTextUI[] walletTexts =
+            gridRoot.GetComponentsInChildren<PlayerWalletTextUI>(true);
+
+        foreach (PlayerWalletTextUI walletText in walletTexts)
+        {
+            if (walletText != null)
+            {
+                walletText.enabled = false;
+            }
+        }
     }
 
     void SetCanvasGroupVisible(
@@ -648,6 +672,51 @@ public class NpcInventoryPanelUI : MonoBehaviour
         {
             text.gameObject.SetActive(visible);
         }
+    }
+
+    void NormalizeNpcWalletText()
+    {
+        AutoFindNpcWalletText();
+
+        if (npcLinhThachText == null)
+        {
+            return;
+        }
+
+        PlayerWalletTextUI conflictingWalletText =
+            npcLinhThachText.GetComponent<PlayerWalletTextUI>();
+        if (conflictingWalletText != null &&
+            conflictingWalletText.enabled)
+        {
+            conflictingWalletText.enabled = false;
+        }
+
+        if (itemGridPanel != null &&
+            itemGridPanel.footerLinhThachText != null)
+        {
+            PlayerWalletTextUI footerWalletText =
+                itemGridPanel.footerLinhThachText.GetComponent<PlayerWalletTextUI>();
+            if (footerWalletText != null &&
+                footerWalletText.enabled)
+            {
+                footerWalletText.enabled = false;
+            }
+        }
+    }
+
+    void AutoFindNpcWalletText()
+    {
+        if (npcLinhThachText != null)
+        {
+            return;
+        }
+
+        Transform searchRoot = panelRoot != null
+            ? panelRoot.transform
+            : transform;
+
+        npcLinhThachText =
+            FindTextByName(searchRoot, "NpcLinhThachText");
     }
 
     void AutoFindItemGridPanel()
@@ -810,6 +879,10 @@ public class NpcInventoryPanelUI : MonoBehaviour
             return;
         }
 
+        itemGridPanel.currencyOwnerOverride =
+            currentNpc != null
+                ? currentNpc.gameObject
+                : null;
         itemGridPanel.SetInventory(currentInventory, false);
         itemGridPanel.closeOnStart = false;
         itemGridPanel.readOnly = readOnly;
@@ -820,9 +893,56 @@ public class NpcInventoryPanelUI : MonoBehaviour
         {
             if (!itemGridPanel.panelRoot.activeSelf)
             {
-                itemGridPanel.panelRoot.SetActive(true);
+            itemGridPanel.panelRoot.SetActive(true);
             }
         }
+    }
+
+    Transform FindChildByName(
+        Transform parent,
+        string childName)
+    {
+        if (parent == null)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            Transform child = parent.GetChild(i);
+
+            if (child.name == childName)
+            {
+                return child;
+            }
+
+            Transform nested =
+                FindChildByName(child, childName);
+            if (nested != null)
+            {
+                return nested;
+            }
+        }
+
+        return null;
+    }
+
+    TMP_Text FindTextByName(
+        Transform parent,
+        string childName)
+    {
+        Transform child =
+            FindChildByName(parent, childName);
+        if (child == null)
+        {
+            return null;
+        }
+
+        TMP_Text text =
+            child.GetComponent<TMP_Text>();
+        return text != null
+            ? text
+            : child.GetComponentInChildren<TMP_Text>(true);
     }
 
     void Update()

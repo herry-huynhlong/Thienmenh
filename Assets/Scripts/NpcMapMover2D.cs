@@ -525,16 +525,12 @@ public class NpcMapMover2D : MonoBehaviour, INpcMovementResultProvider
             return;
         }
 
-        float rate =
-            currentVelocity.sqrMagnitude > rb.linearVelocity.sqrMagnitude
-            ? movementAcceleration
-            : movementDeceleration;
-
-        rb.linearVelocity =
-            Vector2.MoveTowards(
-                rb.linearVelocity,
-                currentVelocity,
-                rate * Time.fixedDeltaTime);
+        NpcVisualMotionResolver.ApplySmoothVelocity(
+            rb,
+            currentVelocity,
+            movementAcceleration,
+            movementDeceleration,
+            Time.fixedDeltaTime);
 
         UpdateVisualAnimation();
     }
@@ -1796,13 +1792,15 @@ public class NpcMapMover2D : MonoBehaviour, INpcMovementResultProvider
             return;
         }
 
-        Vector2 animationVelocity =
-            rb != null
-            ? rb.linearVelocity
-            : currentVelocity;
-
-        bool isIdle = animationVelocity.sqrMagnitude <= 0.0001f;
-        Vector2 direction = isIdle ? Vector2.zero : animationVelocity.normalized;
+        NpcVisualMotionState motionState =
+            NpcVisualMotionResolver.Resolve(
+                rb != null ? rb.linearVelocity : currentVelocity,
+                currentVelocity,
+                0.01f,
+                allowDesiredVelocityFallback: false);
+        bool isIdle = motionState.IsIdle;
+        Vector2 direction =
+            motionState.LocomotionDirection;
         visualAnimation.UpdateNPCAnimation(direction, isIdle);
     }
 

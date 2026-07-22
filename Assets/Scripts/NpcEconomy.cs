@@ -145,6 +145,31 @@ public static class NpcEconomy
             return 0;
         }
 
+        if (TryGetDedicatedVillagerWallet(
+                npc,
+                out VillagerAI dedicatedVillager))
+        {
+            return Mathf.Max(0, dedicatedVillager.money);
+        }
+
+        SmartNpcAI smartNpc =
+            npc.GetComponent<SmartNpcAI>();
+        NpcCounterBroker broker =
+            npc.GetComponent<NpcCounterBroker>();
+        if (broker != null &&
+            smartNpc != null)
+        {
+            return broker.CurrentMoney;
+        }
+
+        NpcTradeAgent tradeAgent =
+            npc.GetComponent<NpcTradeAgent>();
+        if (tradeAgent != null &&
+            tradeAgent.useSpiritStoneCurrency)
+        {
+            return Mathf.Max(0, tradeAgent.spiritStone);
+        }
+
         VillagerAI villager =
             npc.GetComponent<VillagerAI>();
 
@@ -152,9 +177,6 @@ public static class NpcEconomy
         {
             return villager.money;
         }
-
-        SmartNpcAI smartNpc =
-            npc.GetComponent<SmartNpcAI>();
 
         return smartNpc != null ? smartNpc.money : 0;
     }
@@ -171,6 +193,51 @@ public static class NpcEconomy
             return;
         }
 
+        if (TryGetDedicatedVillagerWallet(
+                npc,
+                out VillagerAI dedicatedVillager))
+        {
+            dedicatedVillager.money =
+                Mathf.Max(0, dedicatedVillager.money + amount);
+            return;
+        }
+
+        SmartNpcAI smartNpc =
+            npc.GetComponent<SmartNpcAI>();
+        NpcCounterBroker broker =
+            npc.GetComponent<NpcCounterBroker>();
+        if (broker != null &&
+            smartNpc != null)
+        {
+            if (amount >= 0)
+            {
+                broker.AddBrokerRevenue(amount);
+            }
+            else
+            {
+                int spendAmount = -amount;
+                if (!broker.TrySpendBrokerMoney(spendAmount))
+                {
+                    int available = broker.CurrentMoney;
+                    if (available > 0)
+                    {
+                        broker.TrySpendBrokerMoney(available);
+                    }
+                }
+            }
+
+            return;
+        }
+
+        NpcTradeAgent tradeAgent =
+            npc.GetComponent<NpcTradeAgent>();
+        if (tradeAgent != null &&
+            tradeAgent.useSpiritStoneCurrency)
+        {
+            tradeAgent.AddMoney(amount);
+            return;
+        }
+
         VillagerAI villager =
             npc.GetComponent<VillagerAI>();
 
@@ -180,9 +247,6 @@ public static class NpcEconomy
                 Mathf.Max(0, villager.money + amount);
             return;
         }
-
-        SmartNpcAI smartNpc =
-            npc.GetComponent<SmartNpcAI>();
 
         if (smartNpc != null)
         {
@@ -194,6 +258,39 @@ public static class NpcEconomy
     public static void AddNpcLinhThach(GameObject npc, int amount)
     {
         AddNpcMoney(npc, amount);
+    }
+
+    static bool TryGetDedicatedVillagerWallet(
+        GameObject npc,
+        out VillagerAI villager)
+    {
+        villager = null;
+
+        if (npc == null)
+        {
+            return false;
+        }
+
+        villager = npc.GetComponent<VillagerAI>();
+        if (villager == null)
+        {
+            return false;
+        }
+
+        NpcFixedBlacksmithController fixedBlacksmith =
+            npc.GetComponent<NpcFixedBlacksmithController>();
+        if (fixedBlacksmith != null &&
+            fixedBlacksmith.enabled &&
+            fixedBlacksmith.UseDedicatedRoutine)
+        {
+            return true;
+        }
+
+        NpcFixedAlchemistController fixedAlchemist =
+            npc.GetComponent<NpcFixedAlchemistController>();
+        return fixedAlchemist != null &&
+            fixedAlchemist.enabled &&
+            fixedAlchemist.UseDedicatedRoutine;
     }
 
     public static bool IsNearBreakthrough(GameObject npc)

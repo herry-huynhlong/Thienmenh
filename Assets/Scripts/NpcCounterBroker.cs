@@ -845,7 +845,8 @@ public class NpcCounterBroker : MonoBehaviour
                     stack.item,
                     buyer.gameObject,
                     price,
-                    buyer.spiritStone) > 0f)
+                    NpcEconomy.GetNpcMoney(
+                        buyer.gameObject)) > 0f)
             {
                 return true;
             }
@@ -893,7 +894,8 @@ public class NpcCounterBroker : MonoBehaviour
                     stack.item,
                     buyer.gameObject,
                     price,
-                    buyer.spiritStone);
+                    NpcEconomy.GetNpcMoney(
+                        buyer.gameObject));
 
             if (score <= bestScore)
             {
@@ -906,17 +908,15 @@ public class NpcCounterBroker : MonoBehaviour
         }
 
         if (bestStack == null ||
-            buyer.spiritStone < bestPrice ||
+            NpcEconomy.GetNpcMoney(buyer.gameObject) < bestPrice ||
             !RemoveBrokerItem(bestStack.item, 1))
         {
             return false;
         }
 
-        buyer.spiritStone = Mathf.Max(0, buyer.spiritStone - bestPrice);
-        if (buyer.entityProfile != null)
-        {
-            buyer.entityProfile.stats.spiritStone = buyer.spiritStone;
-        }
+        NpcEconomy.AddNpcMoney(
+            buyer.gameObject,
+            -bestPrice);
         AddBrokerMoney(bestPrice);
         buyer.inventory.AddItem(bestStack.item, 1);
         NpcSocialEventBus.PublishTradeCompleted(
@@ -1049,11 +1049,9 @@ public class NpcCounterBroker : MonoBehaviour
             }
 
             AddBrokerMoney(-totalPrice);
-            seller.spiritStone += totalPrice;
-            if (seller.entityProfile != null)
-            {
-                seller.entityProfile.stats.spiritStone = seller.spiritStone;
-            }
+            NpcEconomy.AddNpcMoney(
+                seller.gameObject,
+                totalPrice);
             inventory.AddItem(stack.item, amount);
             NpcSocialEventBus.PublishTradeCompleted(
                 gameObject,

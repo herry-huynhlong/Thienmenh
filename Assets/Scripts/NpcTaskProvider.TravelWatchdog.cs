@@ -341,6 +341,25 @@ public partial class NpcTaskProvider
                     return task.patrolEndPosition;
                 }
 
+                if (IsLinhRiceVillageTask(task))
+                {
+                    if (TryAssignFarmPlotForTask(task) &&
+                        task.farmPlot != null)
+                    {
+                        task.workPosition =
+                            task.farmPlot.transform.position;
+                    }
+                    else
+                    {
+                        task.workPosition =
+                            GetLinhRiceVillageWorkPosition();
+                    }
+
+                    return GetClearTaskPositionNear(
+                        task.workPosition,
+                        task.npc);
+                }
+
                 if (task.targetPickup != null)
                 {
                     task.workPosition = task.targetPickup.transform.position;
@@ -561,6 +580,8 @@ public partial class NpcTaskProvider
         {
             task.targetLootPickup.ClearReservation(task.npc);
         }
+
+        ReleaseFarmPlotReservation(task);
     }
 
     Vector3 GetProviderPosition()

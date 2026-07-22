@@ -543,6 +543,11 @@ public partial class NpcTaskProvider
         {
             case NpcTaskType.GatherResource:
             {
+                if (IsLinhRiceVillageTask(offer))
+                {
+                    return HasAvailableLinhRiceVillageTask(offer, npc);
+                }
+
                 StatItemData requiredItem = ResolveTaskRequiredItem(null, offer);
                 return HasAvailableTaskPickup(offer, requiredItem);
             }
