@@ -1,15 +1,1 @@
-status=Failed
-passed=2
-failed=1
-skipped=0
-inconclusive=0
-durationSeconds=232,22
-
-FAIL: NpcRuntimeAuditTests.ThorenBlacksmithReachesNpcStoreCustomerZoneWhenBuyingMaterials
-  Thoren did not enter CounterCustomerPoint within 45.0s. actorPos=(9.83, 0.59, 0.00) action=Đi mua nguyên liệu rèn cachedApproach=(131.12, 4.26, 0.00) customerZoneCenter=(131.12, 4.26, 0.00) customerZoneMin=(127.83, 3.77, 0.00) customerZoneMax=(134.41, 4.74, 0.00)
-  Expected: True
-  But was:  False
-
-at NpcRuntimeAuditTests+<ThorenBlacksmithReachesNpcStoreCustomerZoneWhenBuyingMaterials>d__59.MoveNext () [0x0037b] in C:\Users\LONG_IT\Documents\GitHub\Thienmenh\Assets\Tests\PlayMode\NpcRuntimeAuditTests.cs:1144
-at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0003a] in .\Library\PackageCache\com.unity.test-framework@76560ee600cb\UnityEngine.TestRunner\NUnitExtensions\Attributes\TestEnumerator.cs:44
-
+RUNNING 2026-07-22T19:01:04.0521947+07:00
