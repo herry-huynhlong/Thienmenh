@@ -1,19 +1,10 @@
 fileFormatVersion: 2
-guid: 3ab808a5ebbadce4a801044e8bc51cd2
+guid: 62ddc92a6304bf046b2e09cd4f284608
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5051932254106260899
-    second: cuongdanquan_0
-  - first:
-      213: 3345911387591185572
-    second: cuongdanquan_1
-  - first:
-      213: -7323710557504446628
-    second: cuongdanquan_2
-  - first:
-      213: 3455661223800184487
-    second: cuongdanquan_3
+      213: 7099374594132312802
+    second: tranyeutram-Photoroom_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -55,12 +46,12 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 200
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -106,19 +97,6 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
-    buildTarget: Android
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
     buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -135,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: cuongdanquan_0
+      name: tranyeutram-Photoroom_0
       rect:
         serializedVersion: 2
-        x: 5
-        y: 26
-        width: 127
-        height: 160
+        x: 0
+        y: 0
+        width: 1448
+        height: 1086
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -150,74 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d5a68a4916ee3e9b0800000000000000
-      internalID: -5051932254106260899
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: cuongdanquan_1
-      rect:
-        serializedVersion: 2
-        x: 11
-        y: 182
-        width: 513
-        height: 282
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 4a49e4bfda01f6e20800000000000000
-      internalID: 3345911387591185572
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: cuongdanquan_2
-      rect:
-        serializedVersion: 2
-        x: 200
-        y: 32
-        width: 147
-        height: 133
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c5f5b26fc04fc5a90800000000000000
-      internalID: -7323710557504446628
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: cuongdanquan_3
-      rect:
-        serializedVersion: 2
-        x: 395
-        y: 16
-        width: 123
-        height: 137
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 7ae93bcf299f4ff20800000000000000
-      internalID: 3455661223800184487
+      spriteID: 2e280ba449b068260800000000000000
+      internalID: 7099374594132312802
       vertices: []
       indices: 
       edges: []
@@ -226,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -236,10 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      cuongdanquan_0: -5051932254106260899
-      cuongdanquan_1: 3345911387591185572
-      cuongdanquan_2: -7323710557504446628
-      cuongdanquan_3: 3455661223800184487
+      tranyeutram-Photoroom_0: 7099374594132312802
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

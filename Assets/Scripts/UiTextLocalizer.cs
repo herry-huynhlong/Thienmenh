@@ -10,6 +10,7 @@ public class UiTextLocalizer : MonoBehaviour
     [SerializeField] string category = "worldSigns";
     [SerializeField] string key;
     [SerializeField] string fallback;
+    [SerializeField] bool verticalText;
 
     void Reset()
     {
@@ -54,13 +55,15 @@ public class UiTextLocalizer : MonoBehaviour
                 ? targetText.text
                 : fallback;
 
-        targetText.text =
+        string localizedText =
             UiText.Get(
                 string.IsNullOrWhiteSpace(category)
                     ? "worldSigns"
                     : category,
                 key,
                 fallbackValue);
+
+        targetText.text = FormatLocalizedText(localizedText);
     }
 
     void HandleLanguageChanged()
@@ -102,5 +105,27 @@ public class UiTextLocalizer : MonoBehaviour
             "This setup often disappears or renders in the wrong place during Play mode. " +
             "Use TextMeshPro (3D) for world labels, or switch the parent Canvas to World Space.",
             gameObject);
+    }
+
+    string FormatLocalizedText(string localizedText)
+    {
+        string result = localizedText ?? string.Empty;
+        result = result.Replace("\\n", "\n");
+
+        if (!verticalText)
+        {
+            return result;
+        }
+
+        if (result.Contains(" "))
+        {
+            return string.Join(
+                "\n",
+                result.Split(
+                    new[] { ' ' },
+                    System.StringSplitOptions.RemoveEmptyEntries));
+        }
+
+        return string.Join("\n", result.ToCharArray());
     }
 }

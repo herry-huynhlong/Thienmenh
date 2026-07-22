@@ -1375,12 +1375,28 @@
           "value": "万宝楼"
         },
         {
+          "key": "cuongdanquan",
+          "value": "狂丹馆"
+        },
+        {
           "key": "mathusonmach",
           "value": "魔兽山脉"
         },
         {
           "key": "lang",
           "value": "村庄"
+        },
+        {
+          "key": "lorenlaohat",
+          "value": "老哈特铁匠铺"
+        },
+        {
+          "key": "thanhvancu",
+          "value": "青云居"
+        },
+        {
+          "key": "tranyeutram",
+          "value": "镇妖站"
         },
         {
           "key": "nhiemvubang",

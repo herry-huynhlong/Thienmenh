@@ -32,7 +32,12 @@ public class NpcInteractionPoint : MonoBehaviour
         Vector3 seed = GetStandSeed(npc, standZone);
         if (TryGetReservedStandSpotFor(npc, out Vector3 reservedPosition))
         {
-            return reservedPosition;
+            if (standZone == null ||
+                !standZone.enabled ||
+                IsInsideBoxInterior(standZone, reservedPosition))
+            {
+                return reservedPosition;
+            }
         }
 
         // A trigger box usually represents the valid service zone. Prefer
@@ -45,6 +50,23 @@ public class NpcInteractionPoint : MonoBehaviour
             out Vector3 boxStandPosition))
         {
             return boxStandPosition;
+        }
+
+        if (standZone != null &&
+            standZone.enabled)
+        {
+            Vector3 clampedSeed =
+                ClampToBoxInterior(standZone, seed);
+            clampedSeed.z = transform.position.z;
+
+            if (!requireClearStandSpot ||
+                !IsBlocked(clampedSeed, npc, standZone))
+            {
+                TryReserveStandSpot(npc, clampedSeed);
+                return clampedSeed;
+            }
+
+            return clampedSeed;
         }
 
         if (spreadNpcAroundPoint &&
@@ -219,6 +241,58 @@ public class NpcInteractionPoint : MonoBehaviour
         }
 
         return false;
+    }
+
+    bool IsInsideBoxInterior(BoxCollider2D box, Vector3 position)
+    {
+        if (box == null || !box.enabled)
+        {
+            return false;
+        }
+
+        Bounds bounds = box.bounds;
+        Vector3 extents = bounds.extents;
+        float margin = Mathf.Max(0.05f, Mathf.Min(extents.x, extents.y) * 0.12f);
+
+        return position.x >= bounds.min.x + margin &&
+            position.x <= bounds.max.x - margin &&
+            position.y >= bounds.min.y + margin &&
+            position.y <= bounds.max.y - margin;
+    }
+
+    Vector3 ClampToBoxInterior(BoxCollider2D box, Vector3 position)
+    {
+        if (box == null || !box.enabled)
+        {
+            return position;
+        }
+
+        Bounds bounds = box.bounds;
+        Vector3 extents = bounds.extents;
+        float margin = Mathf.Max(0.05f, Mathf.Min(extents.x, extents.y) * 0.12f);
+        float minX = bounds.min.x + margin;
+        float maxX = bounds.max.x - margin;
+        float minY = bounds.min.y + margin;
+        float maxY = bounds.max.y - margin;
+
+        if (minX > maxX)
+        {
+            float centerX = bounds.center.x;
+            minX = centerX;
+            maxX = centerX;
+        }
+
+        if (minY > maxY)
+        {
+            float centerY = bounds.center.y;
+            minY = centerY;
+            maxY = centerY;
+        }
+
+        position.x = Mathf.Clamp(position.x, minX, maxX);
+        position.y = Mathf.Clamp(position.y, minY, maxY);
+        position.z = transform.position.z;
+        return position;
     }
 
     BoxCollider2D GetStandZoneCollider()

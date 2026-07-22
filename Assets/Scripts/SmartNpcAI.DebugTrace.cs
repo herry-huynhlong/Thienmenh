@@ -36,6 +36,10 @@ public partial class SmartNpcAI
             WorldTimeSystem.Instance != null
                 ? WorldTimeSystem.Instance.CurrentHour
                 : -1f;
+        Vector2 rbVelocity =
+            rb != null
+                ? rb.linearVelocity
+                : Vector2.zero;
 
         Debug.LogWarning(
             "[SmartNpcAI] " + gameObject.name +
@@ -47,6 +51,11 @@ public partial class SmartNpcAI
             " target=" + (currentTarget != null ? currentTarget.name : "null") +
             " wander=" + hasWanderTarget +
             " homeReturn=" + hasHomeReturnTarget +
+            " pos=" + transform.position +
+            " rbVel=" + rbVelocity +
+            " desiredVel=" + desiredVelocity +
+            " pauseUntil=" + movementPausedUntil.ToString("0.00") +
+            " crowdUntil=" + crowdYieldUntil.ToString("0.00") +
             " timer=" + actionTimer.ToString("0.00") +
             " hp=" + currentHP + "/" + maxHP +
             " hour=" + hour.ToString("0.00"));

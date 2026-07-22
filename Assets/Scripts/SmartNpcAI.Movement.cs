@@ -18,7 +18,7 @@ public partial class SmartNpcAI
 
             if (!TryApplyNpcOverlapSeparation() && rb != null)
             {
-                rb.linearVelocity = Vector2.zero;
+                StopMovingSmooth();
             }
             return;
         }
@@ -43,7 +43,7 @@ public partial class SmartNpcAI
 
             if (rb != null)
             {
-                rb.linearVelocity = Vector2.zero;
+                StopMovingSmooth();
             }
 
             hasEscapeTarget = false;
@@ -120,7 +120,7 @@ public partial class SmartNpcAI
 
             if (rb != null)
             {
-                rb.linearVelocity = Vector2.zero;
+                StopMovingSmooth();
             }
             hasEscapeTarget = false;
             stuckMoveTimer = 0f;
@@ -187,10 +187,7 @@ public partial class SmartNpcAI
                     actionTimer,
                     GameHoursToSeconds(0.2f));
 
-                if (rb != null)
-                {
-                    rb.linearVelocity = Vector2.zero;
-                }
+                StopMovingSmooth(true);
 
                 return;
             }
@@ -227,7 +224,7 @@ public partial class SmartNpcAI
 
                 if (rb != null)
                 {
-                    rb.linearVelocity = Vector2.zero;
+                    StopMovingSmooth();
                 }
 
                 return;
@@ -247,10 +244,7 @@ public partial class SmartNpcAI
                 }
 
                 currentAction = NpcText.Action("idle");
-                if (rb != null)
-                {
-                    rb.linearVelocity = Vector2.zero;
-                }
+                StopMovingSmooth();
 
                 return;
             }
@@ -268,16 +262,13 @@ public partial class SmartNpcAI
 
                 if (rb != null)
                 {
-                    rb.linearVelocity = Vector2.zero;
+                    StopMovingSmooth();
                 }
 
                 return;
             }
 
-            if (rb != null)
-            {
-                rb.linearVelocity = Vector2.zero;
-            }
+            StopMovingSmooth();
 
             hasEscapeTarget = false;
             hasObstacleAvoidTarget = false;
@@ -541,7 +532,7 @@ public partial class SmartNpcAI
 
             if (rb != null)
             {
-                rb.linearVelocity = Vector2.zero;
+                StopMovingSmooth();
             }
 
             hasEscapeTarget = false;
@@ -575,10 +566,7 @@ public partial class SmartNpcAI
             hasEscapeTarget = false;
             hasObstacleAvoidTarget = false;
 
-            if (rb != null)
-            {
-                rb.linearVelocity = Vector2.zero;
-            }
+            StopMovingSmooth(true);
 
             SyncCultivationEffect();
             DebugFlow("Move", "Arrived at cultivate point, start cultivate immediately");
@@ -597,10 +585,7 @@ public partial class SmartNpcAI
             hasEscapeTarget = false;
             hasObstacleAvoidTarget = false;
 
-            if (rb != null)
-            {
-                rb.linearVelocity = Vector2.zero;
-            }
+            StopMovingSmooth(true);
 
             if (currentAction == NpcText.Action("goHunt") &&
                 !IsInFrontierDefenseMode)
@@ -622,7 +607,7 @@ public partial class SmartNpcAI
                 if (ShouldBypassCrowdBlockForTravelAction())
                 {
                     direction = ApplyCrowdAvoidance(direction);
-                    rb.linearVelocity = direction * moveSpeed;
+                    SetDesiredVelocity(direction * moveSpeed);
                     UpdateUnstuck(direction);
                     return;
                 }
@@ -654,7 +639,7 @@ public partial class SmartNpcAI
             }
 
             direction = ApplyCrowdAvoidance(direction);
-            rb.linearVelocity = direction * moveSpeed;
+            SetDesiredVelocity(direction * moveSpeed);
             UpdateUnstuck(direction);
             return;
         }
@@ -684,7 +669,7 @@ public partial class SmartNpcAI
             if (ShouldBypassCrowdBlockForTravelAction())
             {
                 direction = ApplyCrowdAvoidance(direction);
-                rb.linearVelocity = direction * moveSpeed;
+                SetDesiredVelocity(direction * moveSpeed);
                 UpdateUnstuck(direction);
                 return;
             }
@@ -717,8 +702,8 @@ public partial class SmartNpcAI
 
         direction = ApplyCrowdAvoidance(direction);
 
-        rb.linearVelocity =
-            direction * moveSpeed;
+        SetDesiredVelocity(
+            direction * moveSpeed);
 
         UpdateUnstuck(direction);
     }

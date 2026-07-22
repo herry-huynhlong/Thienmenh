@@ -530,7 +530,7 @@ public partial class SmartNpcAI
 
             if (rb != null)
             {
-                rb.linearVelocity = Vector2.zero;
+                StopMovingSmooth(true);
             }
 
             DebugFlow(
@@ -657,7 +657,7 @@ public partial class SmartNpcAI
 
             if (rb != null)
             {
-                rb.linearVelocity = Vector2.zero;
+                StopMovingSmooth(true);
             }
 
             DebugFlow(
@@ -853,7 +853,7 @@ public partial class SmartNpcAI
 
         if (rb != null)
         {
-            rb.linearVelocity = Vector2.zero;
+            StopMovingSmooth(true);
         }
 
         UpdateCultivationEffect(false);

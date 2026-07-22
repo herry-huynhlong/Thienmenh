@@ -264,8 +264,8 @@ public partial class SmartNpcAI
 
         if (rb != null)
         {
-            rb.linearVelocity =
-                normal.normalized * moveSpeed * 0.75f;
+            SetDesiredVelocity(
+                normal.normalized * moveSpeed * 0.75f);
         }
     }
 
@@ -289,7 +289,7 @@ public partial class SmartNpcAI
         if (rb != null)
         {
             rb.position = clearPoint;
-            rb.linearVelocity = Vector2.zero;
+            StopMovingSmooth(true);
         }
 
         Physics2D.SyncTransforms();
@@ -484,7 +484,7 @@ public partial class SmartNpcAI
 
         if (rb != null)
         {
-            rb.linearVelocity = Vector2.zero;
+            StopMovingSmooth();
         }
     }
 
@@ -508,7 +508,7 @@ public partial class SmartNpcAI
 
         if (rb != null)
         {
-            rb.linearVelocity = Vector2.zero;
+            StopMovingSmooth();
         }
 
         currentAction = NpcText.Action("calm");
@@ -561,7 +561,7 @@ public partial class SmartNpcAI
 
         if (rb != null)
         {
-            rb.linearVelocity = Vector2.zero;
+            StopMovingSmooth();
         }
 
         currentTarget = null;

@@ -1375,12 +1375,28 @@
           "value": "Vạn Bảo Lâu"
         },
         {
+          "key": "cuongdanquan",
+          "value": "Cuồng Đan Quán"
+        },
+        {
           "key": "mathusonmach",
           "value": "Ma Thú Sơn Mạch"
         },
         {
           "key": "lang",
           "value": "Làng"
+        },
+        {
+          "key": "lorenlaohat",
+          "value": "Lò Rèn Lão Hạt"
+        },
+        {
+          "key": "thanhvancu",
+          "value": "Thanh Vân Cư"
+        },
+        {
+          "key": "tranyeutram",
+          "value": "Trấn Yêu Trạm"
         },
         {
           "key": "nhiemvubang",

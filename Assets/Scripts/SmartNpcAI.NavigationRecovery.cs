@@ -3,6 +3,41 @@ using UnityEngine;
 // Conversation pauses and target-approach helpers used by movement/combat.
 public partial class SmartNpcAI
 {
+    void SetDesiredVelocity(Vector2 velocity)
+    {
+        desiredVelocity = velocity;
+    }
+
+    void StopMovingSmooth(bool immediate = false)
+    {
+        desiredVelocity = Vector2.zero;
+
+        if (immediate &&
+            rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+    }
+
+    void ApplySmoothVelocity()
+    {
+        if (rb == null)
+        {
+            return;
+        }
+
+        float rate =
+            desiredVelocity.sqrMagnitude > rb.linearVelocity.sqrMagnitude
+                ? movementAcceleration
+                : movementDeceleration;
+
+        rb.linearVelocity =
+            Vector2.MoveTowards(
+                rb.linearVelocity,
+                desiredVelocity,
+                rate * Time.fixedDeltaTime);
+    }
+
     public void StopForConversation()
     {
         StopForConversation(2f);
@@ -13,11 +48,7 @@ public partial class SmartNpcAI
         movementPausedUntil = Mathf.Max(
             movementPausedUntil,
             Time.time + Mathf.Max(0.2f, duration));
-
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector2.zero;
-        }
+        StopMovingSmooth();
     }
 
     Vector3 GetApproachPosition(Transform target)

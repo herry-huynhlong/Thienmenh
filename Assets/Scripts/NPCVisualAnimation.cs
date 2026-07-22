@@ -42,6 +42,7 @@ public class NPCVisualAnimation : MonoBehaviour
     [Header("Vertical Facing")]
     public bool invertVerticalFacing = false;
     public float directionDeadZone = 0.08f;
+    public float diagonalAxisTieThreshold = 0.12f;
 
     [Header("Debug")]
     public bool debugVisualLogs;
@@ -85,6 +86,38 @@ public class NPCVisualAnimation : MonoBehaviour
     bool? lastLoggedIdleState;
     string lastLoggedAction;
     Vector2? lastLoggedInputDirection;
+    readonly string[] movingBoolParameters =
+    {
+        "IsMoving",
+        "isMoving",
+        "moving",
+        "move",
+        "walk"
+    };
+    readonly string[] moveXParameters =
+    {
+        "MoveX",
+        "moveX",
+        "dirX",
+        "horizontal",
+        "inputX"
+    };
+    readonly string[] moveYParameters =
+    {
+        "MoveY",
+        "moveY",
+        "dirY",
+        "vertical",
+        "inputY"
+    };
+    readonly string[] speedParameters =
+    {
+        "Speed",
+        "speed",
+        "moveSpeed",
+        "velocity",
+        "moveMagnitude"
+    };
 
     enum ActionCategory
     {
@@ -268,10 +301,14 @@ public class NPCVisualAnimation : MonoBehaviour
             lastDirection = GetFacingDirection(moveDirection);
         }
 
+        ActionCategory actionCategory = ResolveActionCategory(currentAction);
+        ApplyAnimatorParameters(
+            moveDirection,
+            isIdling,
+            actionCategory);
         LogInputState(moveDirection, isIdling, currentAction);
 
         AnimationClip clipToPlay = null;
-        ActionCategory actionCategory = ResolveActionCategory(currentAction);
 
         if (actionCategory != ActionCategory.None)
         {
@@ -290,6 +327,12 @@ public class NPCVisualAnimation : MonoBehaviour
                     " state=" + stateToPlay +
                     " clip=" + DescribeClip(clipToPlay));
             }
+
+            LogResolvedVisualSelection(
+                "action",
+                moveDirection,
+                stateToPlay,
+                clipToPlay);
 
             if (PlayVisual(stateToPlay, clipToPlay))
             {
@@ -310,12 +353,23 @@ public class NPCVisualAnimation : MonoBehaviour
 
         if (clipToPlay == null)
         {
+            if (UsesDirectionalMovementParameters())
+            {
+                return;
+            }
+
             clipToPlay = isIdling
                 ? GetIdleClip(lastDirection)
                 : GetWalkClip(lastDirection);
             string stateToPlay = isIdling
                 ? GetIdleStateName(lastDirection)
                 : GetWalkStateName(lastDirection);
+
+            LogResolvedVisualSelection(
+                isIdling ? "idle" : "walk",
+                moveDirection,
+                stateToPlay,
+                clipToPlay);
 
             if (PlayVisual(stateToPlay, clipToPlay))
             {
@@ -404,7 +458,23 @@ public class NPCVisualAnimation : MonoBehaviour
             return lastDirection;
         }
 
-        if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y))
+        float absX = Mathf.Abs(direction.x);
+        float absY = Mathf.Abs(direction.y);
+        if (Mathf.Abs(absX - absY) <= diagonalAxisTieThreshold)
+        {
+            if (absX >= absY &&
+                absX > directionDeadZone)
+            {
+                return direction.x < 0f ? Vector2.left : Vector2.right;
+            }
+
+            if (absY > directionDeadZone)
+            {
+                return direction.y < 0f ? Vector2.down : Vector2.up;
+            }
+        }
+
+        if (absX > absY)
         {
             return direction.x < 0 ? Vector2.left : Vector2.right;
         }
@@ -569,20 +639,16 @@ public class NPCVisualAnimation : MonoBehaviour
             return false;
         }
 
-        if (currentStateName == stateName)
-        {
-            return true;
-        }
-
-        int fullPathHash =
-            Animator.StringToHash("Base Layer." + stateName);
-        int shortHash = Animator.StringToHash(stateName);
-
-        bool hasFullPathState = animator.HasState(0, fullPathHash);
-        bool hasShortState = animator.HasState(0, shortHash);
-        if (!hasFullPathState && !hasShortState)
+        int stateHash = GetExistingStateHash(stateName);
+        if (stateHash == 0)
         {
             return false;
+        }
+
+        if (currentStateName == stateName &&
+            IsAnimatorInState(stateHash))
+        {
+            return true;
         }
 
         if (ShouldLogVisualDebug())
@@ -594,14 +660,21 @@ public class NPCVisualAnimation : MonoBehaviour
                 " facing=" + lastDirection);
         }
 
-        animator.Play(
-            hasFullPathState ? fullPathHash : shortHash,
-            0,
-            0f);
+        animator.Play(stateHash, 0, 0f);
         animator.Update(0f);
         currentStateName = stateName;
         currentClip = null;
         return true;
+    }
+
+    bool UsesDirectionalMovementParameters()
+    {
+        return HasAnyParameter(
+                   moveXParameters,
+                   AnimatorControllerParameterType.Float) &&
+            HasAnyParameter(
+                moveYParameters,
+                AnimatorControllerParameterType.Float);
     }
 
     void PlayClip(AnimationClip clipToPlay)
@@ -680,6 +753,237 @@ public class NPCVisualAnimation : MonoBehaviour
         lastLoggedInputDirection = moveDirection;
     }
 
+    void ApplyAnimatorParameters(
+        Vector2 moveDirection,
+        bool isIdling)
+    {
+        ApplyAnimatorParameters(
+            moveDirection,
+            isIdling,
+            ActionCategory.None);
+    }
+
+    void ApplyAnimatorParameters(
+        Vector2 moveDirection,
+        bool isIdling,
+        ActionCategory actionCategory)
+    {
+        if (animator == null)
+        {
+            return;
+        }
+
+        bool suppressDirectionalMovement =
+            actionCategory != ActionCategory.None &&
+            UsesDirectionalMovementParameters();
+        if (suppressDirectionalMovement)
+        {
+            // Parameter-driven controllers such as dao_si use Any State
+            // transitions from Speed/MoveX/MoveY. Keep these neutral while an
+            // explicit action state like Cultivate is active so the controller
+            // does not immediately jump back to idle/walk.
+            SetFirstBoolParameter(movingBoolParameters, false);
+            SetFirstFloatParameter(moveXParameters, 0f);
+            SetFirstFloatParameter(moveYParameters, 0f);
+            SetFirstFloatParameter(speedParameters, 0f);
+            return;
+        }
+
+        Vector2 parameterDirection =
+            moveDirection.sqrMagnitude >
+            directionDeadZone * directionDeadZone
+                ? moveDirection.normalized
+                : lastDirection;
+        float speed = isIdling ? 0f : moveDirection.magnitude;
+
+        SetFirstBoolParameter(movingBoolParameters, !isIdling);
+        SetFirstFloatParameter(moveXParameters, parameterDirection.x);
+        SetFirstFloatParameter(moveYParameters, parameterDirection.y);
+        SetFirstFloatParameter(speedParameters, speed);
+    }
+
+    void LogResolvedVisualSelection(
+        string channel,
+        Vector2 inputDirection,
+        string stateName,
+        AnimationClip clip)
+    {
+        if (!ShouldLogVisualDebug())
+        {
+            return;
+        }
+
+        Debug.LogWarning(
+            "[NPCVisualAnimation] Resolved object=" +
+            gameObject.name +
+            " channel=" + channel +
+            " inputDir=" + inputDirection +
+            " inputMag=" + inputDirection.magnitude.ToString("F3") +
+            " facing=" + lastDirection +
+            " state=" +
+            (string.IsNullOrWhiteSpace(stateName) ? "null" : stateName) +
+            " clip=" + DescribeClip(clip) +
+            " pos=" + transform.position +
+            " flipX=" +
+            (spriteRenderer != null ? spriteRenderer.flipX.ToString() : "no-sprite"));
+    }
+
+    void SetFirstBoolParameter(
+        string[] parameterNames,
+        bool value)
+    {
+        if (parameterNames == null || animator == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < parameterNames.Length; i++)
+        {
+            string parameterName = parameterNames[i];
+            if (!HasParameter(
+                parameterName,
+                AnimatorControllerParameterType.Bool))
+            {
+                continue;
+            }
+
+            animator.SetBool(parameterName, value);
+            return;
+        }
+    }
+
+    void SetFirstFloatParameter(
+        string[] parameterNames,
+        float value)
+    {
+        if (parameterNames == null || animator == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < parameterNames.Length; i++)
+        {
+            string parameterName = parameterNames[i];
+            if (!HasParameter(
+                parameterName,
+                AnimatorControllerParameterType.Float))
+            {
+                continue;
+            }
+
+            animator.SetFloat(parameterName, value);
+            return;
+        }
+    }
+
+    bool HasParameter(
+        string parameterName,
+        AnimatorControllerParameterType parameterType)
+    {
+        if (string.IsNullOrWhiteSpace(parameterName) ||
+            animator == null)
+        {
+            return false;
+        }
+
+        AnimatorControllerParameter[] parameters = animator.parameters;
+        for (int i = 0; i < parameters.Length; i++)
+        {
+            AnimatorControllerParameter parameter = parameters[i];
+            if (parameter.type == parameterType &&
+                parameter.name == parameterName)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool HasAnyParameter(
+        string[] parameterNames,
+        AnimatorControllerParameterType parameterType)
+    {
+        if (parameterNames == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < parameterNames.Length; i++)
+        {
+            if (HasParameter(parameterNames[i], parameterType))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool IsAnimatorInState(int stateHash)
+    {
+        if (animator == null || stateHash == 0)
+        {
+            return false;
+        }
+
+        AnimatorStateInfo currentState =
+            animator.GetCurrentAnimatorStateInfo(0);
+        return currentState.shortNameHash == stateHash ||
+            currentState.fullPathHash == stateHash;
+    }
+
+    int GetExistingStateHash(string stateName)
+    {
+        if (animator == null || string.IsNullOrWhiteSpace(stateName))
+        {
+            return 0;
+        }
+
+        return FindStateHashCandidate(
+            stateName,
+            stateName.Replace("_Idle", "_idle"),
+            stateName.Replace("_idle", "_Idle"),
+            stateName.Replace("_Walk", "_walk"),
+            stateName.Replace("_walk", "_Walk"),
+            stateName.Replace("_Attack", "_attack"),
+            stateName.Replace("_attack", "_Attack"),
+            stateName.Replace("_Dead", "_dead"),
+            stateName.Replace("_dead", "_Dead"));
+    }
+
+    int FindStateHashCandidate(params string[] candidates)
+    {
+        if (animator == null || candidates == null)
+        {
+            return 0;
+        }
+
+        for (int i = 0; i < candidates.Length; i++)
+        {
+            string candidate = candidates[i];
+            if (string.IsNullOrWhiteSpace(candidate))
+            {
+                continue;
+            }
+
+            int shortHash = Animator.StringToHash(candidate);
+            if (animator.HasState(0, shortHash))
+            {
+                return shortHash;
+            }
+
+            int fullPathHash =
+                Animator.StringToHash("Base Layer." + candidate);
+            if (animator.HasState(0, fullPathHash))
+            {
+                return fullPathHash;
+            }
+        }
+
+        return 0;
+    }
+
     AnimationClip GetActionClip(ActionCategory actionCategory, Vector2 direction)
     {
         switch (actionCategory)
@@ -702,6 +1006,7 @@ public class NPCVisualAnimation : MonoBehaviour
             }
 
             case ActionCategory.Cultivate:
+                EnsureCultivateBindings();
                 return GetCultivateClip();
 
             case ActionCategory.Die:
@@ -821,6 +1126,26 @@ public class NPCVisualAnimation : MonoBehaviour
             return leftClip;
         }
 
+        if (direction.x > directionDeadZone && leftClip != null)
+        {
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.flipX = true;
+            }
+
+            return leftClip;
+        }
+
+        if (direction.x < -directionDeadZone && rightClip != null)
+        {
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.flipX = true;
+            }
+
+            return rightClip;
+        }
+
         if (direction == Vector2.up && upClip != null)
         {
             ApplySideFlip(direction);
@@ -880,6 +1205,28 @@ public class NPCVisualAnimation : MonoBehaviour
             }
 
             return leftState;
+        }
+
+        if (direction.x > directionDeadZone &&
+            !string.IsNullOrWhiteSpace(leftState))
+        {
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.flipX = true;
+            }
+
+            return leftState;
+        }
+
+        if (direction.x < -directionDeadZone &&
+            !string.IsNullOrWhiteSpace(rightState))
+        {
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.flipX = true;
+            }
+
+            return rightState;
         }
 
         if (direction == Vector2.up &&
@@ -997,6 +1344,53 @@ public class NPCVisualAnimation : MonoBehaviour
         return true;
     }
 
+    void EnsureCultivateBindings()
+    {
+        if (!string.IsNullOrWhiteSpace(cultivateStateName) &&
+            cultivateClip != null)
+        {
+            return;
+        }
+
+        RuntimeAnimatorController controller =
+            animator != null
+                ? animator.runtimeAnimatorController
+                : null;
+        AnimationClip[] clips =
+            controller != null
+                ? controller.animationClips
+                : null;
+        if (clips == null || clips.Length == 0)
+        {
+            return;
+        }
+
+        TryAssignActionClipsFromAnimator(this, clips);
+
+        cultivateStateName = CoalesceFirstStateName(
+            cultivateStateName,
+            FindBestStateNameFromAnimator(clips, "cultivate"),
+            FindBestStateNameFromAnimator(clips, "meditate"),
+            FindBestStateNameFromAnimator(clips, "sit"));
+        cultivateSideState = CoalesceFirstStateName(
+            cultivateSideState,
+            FindBestStateNameFromAnimator(clips, "cultivate", "side"),
+            cultivateStateName,
+            FindBestStateNameFromAnimator(clips, "meditate"));
+        cultivateRightState = CoalesceFirstStateName(
+            cultivateRightState,
+            FindBestStateNameFromAnimator(clips, "cultivate", "right"));
+        cultivateLeftState = CoalesceFirstStateName(
+            cultivateLeftState,
+            FindBestStateNameFromAnimator(clips, "cultivate", "left"));
+        cultivateUpState = CoalesceFirstStateName(
+            cultivateUpState,
+            FindBestStateNameFromAnimator(clips, "cultivate", "up"));
+        cultivateDownState = CoalesceFirstStateName(
+            cultivateDownState,
+            FindBestStateNameFromAnimator(clips, "cultivate", "down"));
+    }
+
     string GetActionStateName(
         ActionCategory actionCategory,
         Vector2 direction)
@@ -1013,6 +1407,7 @@ public class NPCVisualAnimation : MonoBehaviour
                     direction);
 
             case ActionCategory.Cultivate:
+                EnsureCultivateBindings();
                 if (!string.IsNullOrWhiteSpace(cultivateStateName))
                 {
                     return cultivateStateName;
@@ -1521,6 +1916,87 @@ public class NPCVisualAnimation : MonoBehaviour
         return string.IsNullOrEmpty(value)
             ? string.Empty
             : value.Replace("_", "").Replace(" ", "").ToLowerInvariant();
+    }
+
+    string FindBestStateNameFromAnimator(
+        AnimationClip[] clips,
+        params string[] keywords)
+    {
+        if (animator == null ||
+            clips == null ||
+            keywords == null ||
+            keywords.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        for (int i = 0; i < clips.Length; i++)
+        {
+            AnimationClip clip = clips[i];
+            if (clip == null ||
+                !NameMatchesKeywords(clip.name, keywords))
+            {
+                continue;
+            }
+
+            if (GetExistingStateHash(clip.name) != 0)
+            {
+                return clip.name;
+            }
+        }
+
+        return string.Empty;
+    }
+
+    static bool NameMatchesKeywords(
+        string value,
+        params string[] keywords)
+    {
+        if (string.IsNullOrWhiteSpace(value) ||
+            keywords == null ||
+            keywords.Length == 0)
+        {
+            return false;
+        }
+
+        string normalizedValue = NormalizeClipName(value);
+        for (int i = 0; i < keywords.Length; i++)
+        {
+            string keyword = NormalizeClipName(keywords[i]);
+            if (string.IsNullOrEmpty(keyword) ||
+                !normalizedValue.Contains(keyword))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    static string CoalesceFirstStateName(
+        string existingStateName,
+        params string[] candidates)
+    {
+        if (!string.IsNullOrWhiteSpace(existingStateName))
+        {
+            return existingStateName;
+        }
+
+        if (candidates == null)
+        {
+            return string.Empty;
+        }
+
+        for (int i = 0; i < candidates.Length; i++)
+        {
+            string candidate = candidates[i];
+            if (!string.IsNullOrWhiteSpace(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        return string.Empty;
     }
 
     static string CoalesceStateName(

@@ -134,6 +134,9 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
     public bool ignoreNpcBodyCollisions = true;
     public float sharedTargetSpacingRadius = 0.55f;
     public float sharedTargetOccupancyRadius = 0.3f;
+    public float movementAcceleration = 8f;
+    public float movementDeceleration = 12f;
+    public float animationIdleSpeed = 0.03f;
 
     public Transform currentTarget;
     Transform treasureHuntTarget;
@@ -145,6 +148,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
 
     private Rigidbody2D rb;
     NPCVisualAnimation visualAnimation;
+    Vector2 desiredVelocity;
     Collider2D[] selfColliders;
     Vector3 lastUnstuckPosition;
     Vector3 escapeTarget;
@@ -178,6 +182,9 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
     float monsterProgressTime;
     float movementPausedUntil;
     float crowdYieldUntil;
+    float crowdDirectionCommitUntil;
+    Vector2 crowdCommittedDirection;
+    float crowdBlockedTimer;
     float postTeleportRecoveryUntil;
     float damageRecoveryUntil;
 
@@ -777,11 +784,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
 
         if (HeavenlyTribulationSystem.IsTargetLocked(gameObject))
         {
-            if (rb != null)
-            {
-                rb.linearVelocity = Vector2.zero;
-            }
-
+            StopMovingSmooth();
             SetCurrentActionState(NpcActionState.FromKey("waitTribulation"));
             return;
         }
@@ -829,11 +832,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             !MatchesSmartAction("attackMonsterNamed", true) &&
             !MatchesSmartAction("attackMonster", true))
         {
-            if (rb != null)
-            {
-                rb.linearVelocity = Vector2.zero;
-            }
-
+            StopMovingSmooth();
             if (runtimeTraceEveryUpdate)
             {
                 TraceRuntime("Update", "busy-by-provider");
@@ -1022,32 +1021,21 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
     {
         if (HasActiveVillagerBrain())
         {
-            if (rb != null)
-            {
-                rb.linearVelocity = Vector2.zero;
-            }
-
+            StopMovingSmooth(true);
             return;
         }
 
         if (HeavenlyTribulationSystem.IsTargetLocked(gameObject))
         {
-            if (rb != null)
-            {
-                rb.linearVelocity = Vector2.zero;
-            }
-
+            StopMovingSmooth();
+            ApplySmoothVelocity();
             UpdateVisualAnimation();
             return;
         }
 
         if (IsDead)
         {
-            if (rb != null)
-            {
-                rb.linearVelocity = Vector2.zero;
-            }
-
+            StopMovingSmooth(true);
             UpdateVisualAnimation();
             return;
         }
@@ -1062,19 +1050,17 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
 
         if (holdStationaryAction)
         {
-            if (rb != null)
-            {
-                rb.linearVelocity = Vector2.zero;
-            }
-
+            StopMovingSmooth();
             stuckMoveTimer = 0f;
             blockedMoveTimer = 0f;
             lastUnstuckPosition = transform.position;
+            ApplySmoothVelocity();
             UpdateVisualAnimation();
             return;
         }
 
         UpdateMovement();
+        ApplySmoothVelocity();
         UpdateVisualAnimation();
     }
 
@@ -1110,10 +1096,32 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
         Vector2 animationVelocity =
             rb != null
             ? rb.linearVelocity
-            : Vector2.zero;
+            : desiredVelocity;
 
-        bool isIdle = animationVelocity.sqrMagnitude <= 0.0025f;
-        Vector2 direction = isIdle ? Vector2.zero : animationVelocity.normalized;
+        bool isIdle =
+            animationVelocity.sqrMagnitude <=
+            animationIdleSpeed * animationIdleSpeed;
+        Vector2 velocityDirection =
+            isIdle ? Vector2.zero : animationVelocity.normalized;
+        Vector2 direction = velocityDirection;
+        string visualDirectionSource =
+            isIdle
+                ? "idle"
+                : "velocity";
+
+        if (isIdle &&
+            IsStationaryAction(currentAction) &&
+            direction.sqrMagnitude <= 0.0001f)
+        {
+            Vector2 idleLookDirection =
+                ResolveIdleVisualFacingDirection();
+            if (idleLookDirection.sqrMagnitude > 0.0001f)
+            {
+                direction = idleLookDirection;
+                visualDirectionSource = "idle-look";
+            }
+        }
+
         string forcedCombatAnimationAction =
             ResolveForcedCombatAnimationAction();
         if (isIdle &&
@@ -1126,6 +1134,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             if (targetDirection.sqrMagnitude > 0.0001f)
             {
                 direction = targetDirection.normalized;
+                visualDirectionSource = "combat-target-idle";
             }
         }
         else if (currentMonsterTarget != null &&
@@ -1137,6 +1146,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             if (targetDirection.sqrMagnitude > 0.0001f)
             {
                 direction = targetDirection.normalized;
+                visualDirectionSource = "combat-target-hold";
             }
         }
 
@@ -1161,13 +1171,62 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
                 "Anim",
                 "Update visual dir=" +
                 direction +
+                " source=" + visualDirectionSource +
                 " idle=" + isIdle +
                 " vel=" + animationVelocity +
+                " velDir=" + velocityDirection +
+                " desiredVel=" + desiredVelocity +
+                " pos=" + transform.position +
+                " rbPos=" + (rb != null ? rb.position.ToString() : "no-rb") +
+                " target=" +
+                (currentTarget != null ? currentTarget.name : "null") +
+                " wander=" + hasWanderTarget +
+                " avoid=" + hasObstacleAvoidTarget +
+                " escape=" + hasEscapeTarget +
+                " pauseUntil=" + movementPausedUntil.ToString("0.00") +
+                " crowdUntil=" + crowdYieldUntil.ToString("0.00") +
                 " visual=" + (visualAnimation != null) +
                 " animAction=" + animationAction);
         }
 
         visualAnimation.UpdateNPCAnimation(direction, isIdle, animationAction);
+    }
+
+    Vector2 ResolveIdleVisualFacingDirection()
+    {
+        if (currentTarget != null)
+        {
+            return NormalizeVisualDirection(
+                GetApproachPosition(currentTarget) - transform.position);
+        }
+
+        if (IsTaskProviderTargetUsable(cachedTaskProviderTarget))
+        {
+            Vector3 providerPosition =
+                cachedTaskProviderTarget.GetProviderPositionFor(gameObject);
+            float providerDistance =
+                Vector2.Distance(transform.position, providerPosition);
+            float maxLookDistance =
+                Mathf.Max(
+                    3f,
+                    cachedTaskProviderTarget.GetProviderInteractionDistance() +
+                    1f);
+            if (providerDistance <= maxLookDistance)
+            {
+                return NormalizeVisualDirection(
+                    providerPosition - transform.position);
+            }
+        }
+
+        return Vector2.zero;
+    }
+
+    Vector2 NormalizeVisualDirection(Vector3 delta)
+    {
+        Vector2 planarDelta = new Vector2(delta.x, delta.y);
+        return planarDelta.sqrMagnitude > 0.0001f
+            ? planarDelta.normalized
+            : Vector2.zero;
     }
 
     void SyncVisualAnimationDebugFlags()

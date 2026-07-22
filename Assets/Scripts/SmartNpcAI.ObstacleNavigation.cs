@@ -580,7 +580,7 @@ public partial class SmartNpcAI
     void HandleBlockedMovement(Vector3 blockedTarget, Vector3 finalTarget)
     {
         blockedMoveTimer += Time.fixedDeltaTime;
-        rb.linearVelocity = Vector2.zero;
+        StopMovingSmooth();
 
         NpcMapArea currentArea = NpcMapArea.FindArea(transform.position);
         NpcMapArea blockedArea = NpcMapArea.FindArea(blockedTarget);

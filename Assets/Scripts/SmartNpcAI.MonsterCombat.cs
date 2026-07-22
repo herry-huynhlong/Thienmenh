@@ -616,7 +616,7 @@ void TryAttackMonster()
     actionTimer = Mathf.Max(actionTimer, 0.6f);
     if (rb != null)
     {
-        rb.linearVelocity = Vector2.zero;
+        StopMovingSmooth();
     }
 
     if (visualAnimation != null)

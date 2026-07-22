@@ -188,10 +188,7 @@ public partial class SmartNpcAI
 
     void StopNpcMovement()
     {
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector2.zero;
-        }
+        StopMovingSmooth();
     }
 
     void ClearTravelTargetsAndStop(bool clearWanderTarget = true)

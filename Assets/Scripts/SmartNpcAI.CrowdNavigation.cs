@@ -19,6 +19,13 @@ public partial class SmartNpcAI
             return true;
         }
 
+        if (Time.time < crowdDirectionCommitUntil &&
+            crowdCommittedDirection.sqrMagnitude > 0.0001f)
+        {
+            resolvedDirection = crowdCommittedDirection.normalized;
+            return true;
+        }
+
         if (desiredDirection.sqrMagnitude <= 0.0001f ||
             crowdLookAheadDistance <= 0f ||
             rb == null)
@@ -29,8 +36,11 @@ public partial class SmartNpcAI
         Collider2D other;
         if (!TryFindNpcAhead(desiredDirection, out other))
         {
+            crowdBlockedTimer = 0f;
             return true;
         }
+
+        crowdBlockedTimer += Time.fixedDeltaTime;
 
         if (ShouldYieldToNpc(other))
         {
@@ -38,7 +48,10 @@ public partial class SmartNpcAI
                 Time.time +
                 Mathf.Max(0.05f, crowdYieldDuration) *
                 Random.Range(0.75f, 1.35f);
-            rb.linearVelocity = Vector2.zero;
+            crowdCommittedDirection = desiredDirection;
+            crowdDirectionCommitUntil =
+                Time.time + Mathf.Max(0.1f, crowdYieldDuration * 0.5f);
+            StopMovingSmooth();
             return false;
         }
 
@@ -47,6 +60,9 @@ public partial class SmartNpcAI
                 other,
                 out resolvedDirection))
         {
+            crowdBlockedTimer = 0f;
+            crowdCommittedDirection = resolvedDirection;
+            crowdDirectionCommitUntil = Time.time + 0.35f;
             return true;
         }
 
@@ -54,7 +70,10 @@ public partial class SmartNpcAI
             Time.time +
             Mathf.Max(0.05f, crowdYieldDuration) *
             Random.Range(0.75f, 1.35f);
-        rb.linearVelocity = Vector2.zero;
+        crowdCommittedDirection = desiredDirection;
+        crowdDirectionCommitUntil =
+            Time.time + Mathf.Max(0.1f, crowdYieldDuration * 0.5f);
+        StopMovingSmooth();
         return false;
     }
 
@@ -171,8 +190,8 @@ public partial class SmartNpcAI
         if (separation.sqrMagnitude > 0.0001f &&
             !IsMovementBlocked(separation))
         {
-            rb.linearVelocity =
-                separation.normalized * moveSpeed * 0.65f;
+            SetDesiredVelocity(
+                separation.normalized * moveSpeed * 0.65f);
             return true;
         }
 
@@ -189,7 +208,7 @@ public partial class SmartNpcAI
                 separation);
             if (rb != null)
             {
-                rb.linearVelocity = Vector2.zero;
+                StopMovingSmooth();
             }
             return true;
         }

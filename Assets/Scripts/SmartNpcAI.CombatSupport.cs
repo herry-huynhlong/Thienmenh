@@ -38,7 +38,7 @@ public partial class SmartNpcAI
                     currentAction = NpcText.Action("rest");
                     if (rb != null)
                     {
-                        rb.linearVelocity = Vector2.zero;
+                        StopMovingSmooth();
                     }
                 }
                 else

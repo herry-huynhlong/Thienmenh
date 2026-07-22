@@ -1192,12 +1192,28 @@
           "value": "Myriad Treasure Pavilion"
         },
         {
+          "key": "cuongdanquan",
+          "value": "Mad Elixir House"
+        },
+        {
           "key": "mathusonmach",
           "value": "Ma Thu Son Mach"
         },
         {
           "key": "lang",
           "value": "Village"
+        },
+        {
+          "key": "lorenlaohat",
+          "value": "Lao Hat Forge"
+        },
+        {
+          "key": "thanhvancu",
+          "value": "Azure Cloud Hotel"
+        },
+        {
+          "key": "tranyeutram",
+          "value": "Demon Ward Station"
         },
         {
           "key": "nhiemvubang",

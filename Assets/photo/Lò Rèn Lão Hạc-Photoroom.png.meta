@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: afac1b35689e3374fb7c5a942eab43cd
+guid: 4332629cf511b124ab108be44112c451
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1657418351768823249
-    second: tranyeutram_0
+      213: -7683520578394879288
+    second: "L\xF2 R\xE8n L\xE3o H\u1EA1c-Photoroom_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 230
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: tranyeutram_0
+      name: "L\xF2 R\xE8n L\xE3o H\u1EA1c-Photoroom_0"
       rect:
         serializedVersion: 2
-        x: 43
-        y: 16
-        width: 492
-        height: 411
+        x: 0
+        y: 0
+        width: 1254
+        height: 1254
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f2a1b9a5acaaff8e0800000000000000
-      internalID: -1657418351768823249
+      spriteID: 8ca8e543eb6ae5590800000000000000
+      internalID: -7683520578394879288
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      tranyeutram_0: -1657418351768823249
+      "L\xF2 R\xE8n L\xE3o H\u1EA1c-Photoroom_0": -7683520578394879288
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
