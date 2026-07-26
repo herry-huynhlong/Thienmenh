@@ -15,11 +15,15 @@ public class WeatherAccumulationPersistentState
 public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackReceiver
 {
     const int CurrentTimeDomainVersion = 1;
+    const string DefaultPuddleRootName = "nuocmua";
+    const string DefaultSnowRootName = "tuyet";
+
     class PuddleEntry
     {
         public GameObject gameObject;
         public SpriteRenderer renderer;
         public float targetAlpha;
+        public bool preserveObject;
     }
 
     class SnowEntry
@@ -30,6 +34,7 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
         public float targetAlpha;
         public float scale;
         public Vector3 offset;
+        public bool preserveObject;
     }
 
     public static WeatherAccumulationSystem Instance { get; private set; }
@@ -39,8 +44,11 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
     public Camera targetCamera;
     public float worldZ = 0.1f;
     public LayerMask snowAnchorLayers = 1 << 6;
+    public Transform puddleRootOverride;
+    public Transform snowRootOverride;
 
     [Header("Rain Accumulation")]
+    public bool enableRainPuddles = true;
     public int maxPuddles = 8;
     [FormerlySerializedAs("rainBuildSeconds")]
     public float rainBuildDurationWorldHours = 18f;
@@ -59,6 +67,7 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
     public string puddleEditorAssetPath = "Assets/UI/thoitiet/vungnuoc.png";
 
     [Header("Snow Accumulation")]
+    public bool enableSnowCaps = true;
     public int maxSnowCaps = 10;
     [FormerlySerializedAs("snowBuildSeconds")]
     public float snowBuildDurationWorldHours = 22f;
@@ -144,12 +153,18 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
 
         DontDestroyOnLoad(gameObject);
         EnsureDefaultSnowAnchorLayers();
-        puddleSprites = LoadRequiredSprites(
-            puddleResourcePath,
-            "WeatherAccumulationSystem puddles");
-        snowSprites = LoadRequiredSprites(
-            snowResourcePath,
-            "WeatherAccumulationSystem snow caps");
+        puddleSprites =
+            enableRainPuddles
+                ? LoadRequiredSprites(
+                    puddleResourcePath,
+                    "WeatherAccumulationSystem puddles")
+                : System.Array.Empty<Sprite>();
+        snowSprites =
+            enableSnowCaps
+                ? LoadRequiredSprites(
+                    snowResourcePath,
+                    "WeatherAccumulationSystem snow caps")
+                : System.Array.Empty<Sprite>();
         ResetWorldHourCursor();
     }
 
@@ -174,6 +189,7 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
             targetCamera = Camera.main;
         }
 
+        RegisterManualWeatherEntries();
         UpdateAccumulation(ConsumeElapsedWorldHours());
         UpdateEntries(GameTime.ScaledDeltaSeconds);
 
@@ -294,6 +310,11 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
     void RefreshObstacleRenderers()
     {
         obstacleRenderers.Clear();
+        if (!enableSnowCaps)
+        {
+            return;
+        }
+
         if (snowAnchorLayers.value == 0)
         {
             return;
@@ -320,9 +341,19 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
 
     void SyncPuddles()
     {
+        bool hasManualPuddles = HasManualPuddleEntries();
         int desiredCount =
-            puddleSprites != null && puddleSprites.Length > 0
-                ? Mathf.RoundToInt(rainAccumulation * maxPuddles)
+            enableRainPuddles &&
+            ((puddleSprites != null &&
+            puddleSprites.Length > 0) ||
+            hasManualPuddles)
+                ? Mathf.RoundToInt(
+                    rainAccumulation *
+                    Mathf.Max(
+                        0,
+                        hasManualPuddles
+                            ? Mathf.Min(maxPuddles, puddles.Count)
+                            : maxPuddles))
                 : 0;
 
         for (int i = 0; i < puddles.Count; i++)
@@ -331,6 +362,16 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
                 i < desiredCount
                     ? puddleMaxAlpha
                     : 0f;
+        }
+
+        if (hasManualPuddles)
+        {
+            ApplyManualPuddleTargets(desiredCount);
+            SetManualRootActive(
+                puddleRootOverride,
+                DefaultPuddleRootName,
+                ShouldKeepManualPuddleRootActive());
+            return;
         }
 
         int spawnAttempts = 0;
@@ -343,14 +384,34 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
 
     void SyncSnowCaps()
     {
+        bool hasManualSnowCaps = HasManualSnowEntries();
         int desiredCount =
-            snowSprites != null && snowSprites.Length > 0
-                ? Mathf.RoundToInt(snowAccumulation * maxSnowCaps)
+            enableSnowCaps &&
+            ((snowSprites != null &&
+            snowSprites.Length > 0) ||
+            hasManualSnowCaps)
+                ? Mathf.RoundToInt(
+                    snowAccumulation *
+                    Mathf.Max(
+                        0,
+                        hasManualSnowCaps
+                            ? Mathf.Min(maxSnowCaps, snowCaps.Count)
+                            : maxSnowCaps))
                 : 0;
 
         for (int i = 0; i < snowCaps.Count; i++)
         {
             snowCaps[i].targetAlpha = 0f;
+        }
+
+        if (hasManualSnowCaps)
+        {
+            ApplyManualSnowTargets(desiredCount);
+            SetManualRootActive(
+                snowRootOverride,
+                DefaultSnowRootName,
+                ShouldKeepManualSnowRootActive());
+            return;
         }
 
         if (desiredCount <= 0 || obstacleRenderers.Count == 0)
@@ -406,6 +467,11 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
 
             if (entry.targetAlpha <= 0f && color.a <= 0.01f)
             {
+                if (entry.preserveObject)
+                {
+                    continue;
+                }
+
                 Destroy(entry.gameObject);
                 puddles.RemoveAt(i);
             }
@@ -414,18 +480,24 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
         for (int i = snowCaps.Count - 1; i >= 0; i--)
         {
             SnowEntry entry = snowCaps[i];
-            if (entry == null || entry.renderer == null || entry.anchor == null)
+            if (entry == null || entry.renderer == null)
             {
                 if (entry != null && entry.gameObject != null)
                 {
-                    Destroy(entry.gameObject);
+                    if (!entry.preserveObject)
+                    {
+                        Destroy(entry.gameObject);
+                    }
                 }
 
                 snowCaps.RemoveAt(i);
                 continue;
             }
 
-            UpdateSnowPlacement(entry);
+            if (entry.anchor != null)
+            {
+                UpdateSnowPlacement(entry);
+            }
 
             Color color = entry.renderer.color;
             color.a = Mathf.MoveTowards(
@@ -436,6 +508,11 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
 
             if (entry.targetAlpha <= 0f && color.a <= 0.01f)
             {
+                if (entry.preserveObject)
+                {
+                    continue;
+                }
+
                 Destroy(entry.gameObject);
                 snowCaps.RemoveAt(i);
             }
@@ -473,7 +550,11 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
             }
 
             GameObject puddleObject = new GameObject("WeatherPuddle");
-            puddleObject.transform.SetParent(transform, false);
+            puddleObject.transform.SetParent(
+                GetAccumulationParent(
+                    puddleRootOverride,
+                    DefaultPuddleRootName),
+                false);
             puddleObject.layer = Mathf.Clamp(puddleObjectLayer, 0, 31);
             puddleObject.transform.position = position;
 
@@ -495,7 +576,8 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
             {
                 gameObject = puddleObject,
                 renderer = renderer,
-                targetAlpha = puddleMaxAlpha
+                targetAlpha = puddleMaxAlpha,
+                preserveObject = false
             });
             return true;
         }
@@ -517,7 +599,11 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
         }
 
         GameObject snowObject = new GameObject("WeatherSnowCap");
-        snowObject.transform.SetParent(transform, false);
+        snowObject.transform.SetParent(
+            GetAccumulationParent(
+                snowRootOverride,
+                DefaultSnowRootName),
+            false);
         snowObject.layer = Mathf.Clamp(snowObjectLayer, 0, 31);
         snowObject.transform.position = anchor.bounds.center;
 
@@ -532,13 +618,312 @@ public class WeatherAccumulationSystem : MonoBehaviour, ISerializationCallbackRe
             gameObject = snowObject,
             renderer = renderer,
             anchor = anchor,
-            targetAlpha = 0f
+            targetAlpha = 0f,
+            preserveObject = false
         };
 
         snowCaps.Add(entry);
         ConfigureSnowShape(entry);
         UpdateSnowPlacement(entry);
         return entry;
+    }
+
+    Transform GetAccumulationParent(
+        Transform overrideRoot,
+        string fallbackRootName)
+    {
+        if (overrideRoot != null)
+        {
+            return overrideRoot;
+        }
+
+        Transform namedRoot = FindSceneRootByName(fallbackRootName);
+        return namedRoot != null
+            ? namedRoot
+            : transform;
+    }
+
+    static Transform FindSceneRootByName(string rootName)
+    {
+        if (string.IsNullOrWhiteSpace(rootName))
+        {
+            return null;
+        }
+
+        Transform[] allTransforms =
+            FindObjectsByType<Transform>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+        for (int i = 0; i < allTransforms.Length; i++)
+        {
+            Transform candidate = allTransforms[i];
+            if (candidate == null ||
+                candidate.parent != null ||
+                !string.Equals(
+                    candidate.name,
+                    rootName,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            return candidate;
+        }
+
+        return null;
+    }
+
+    void SetManualRootActive(
+        Transform overrideRoot,
+        string fallbackRootName,
+        bool shouldBeActive)
+    {
+        Transform root =
+            GetAccumulationParent(
+                overrideRoot,
+                fallbackRootName);
+        if (root == null ||
+            root == transform)
+        {
+            return;
+        }
+
+        if (root.gameObject.activeSelf != shouldBeActive)
+        {
+            root.gameObject.SetActive(shouldBeActive);
+        }
+    }
+
+    void RegisterManualWeatherEntries()
+    {
+        RegisterManualPuddleEntries();
+        RegisterManualSnowEntries();
+    }
+
+    void ApplyManualPuddleTargets(int desiredCount)
+    {
+        int manualIndex = 0;
+        for (int i = 0; i < puddles.Count; i++)
+        {
+            PuddleEntry entry = puddles[i];
+            if (entry == null ||
+                !entry.preserveObject)
+            {
+                continue;
+            }
+
+            entry.targetAlpha =
+                manualIndex < desiredCount
+                    ? puddleMaxAlpha
+                    : 0f;
+            manualIndex++;
+        }
+    }
+
+    void ApplyManualSnowTargets(int desiredCount)
+    {
+        int manualIndex = 0;
+        for (int i = 0; i < snowCaps.Count; i++)
+        {
+            SnowEntry entry = snowCaps[i];
+            if (entry == null ||
+                !entry.preserveObject)
+            {
+                continue;
+            }
+
+            entry.targetAlpha =
+                manualIndex < desiredCount
+                    ? snowCapMaxAlpha
+                    : 0f;
+            manualIndex++;
+        }
+    }
+
+    void RegisterManualPuddleEntries()
+    {
+        if (!enableRainPuddles)
+        {
+            return;
+        }
+
+        Transform root =
+            GetAccumulationParent(
+                puddleRootOverride,
+                DefaultPuddleRootName);
+        if (root == null || root == transform)
+        {
+            return;
+        }
+
+        SpriteRenderer[] renderers =
+            root.GetComponentsInChildren<SpriteRenderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            SpriteRenderer renderer = renderers[i];
+            if (renderer == null ||
+                renderer.gameObject == root.gameObject ||
+                ContainsPuddleRenderer(renderer))
+            {
+                continue;
+            }
+
+            Color color = renderer.color;
+            color.a = 0f;
+            renderer.color = color;
+
+            puddles.Add(new PuddleEntry
+            {
+                gameObject = renderer.gameObject,
+                renderer = renderer,
+                targetAlpha = 0f,
+                preserveObject = true
+            });
+        }
+    }
+
+    void RegisterManualSnowEntries()
+    {
+        if (!enableSnowCaps)
+        {
+            return;
+        }
+
+        Transform root =
+            GetAccumulationParent(
+                snowRootOverride,
+                DefaultSnowRootName);
+        if (root == null || root == transform)
+        {
+            return;
+        }
+
+        SpriteRenderer[] renderers =
+            root.GetComponentsInChildren<SpriteRenderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            SpriteRenderer renderer = renderers[i];
+            if (renderer == null ||
+                renderer.gameObject == root.gameObject ||
+                ContainsSnowRenderer(renderer))
+            {
+                continue;
+            }
+
+            Color color = renderer.color;
+            color.a = 0f;
+            renderer.color = color;
+
+            snowCaps.Add(new SnowEntry
+            {
+                gameObject = renderer.gameObject,
+                renderer = renderer,
+                anchor = null,
+                targetAlpha = 0f,
+                preserveObject = true,
+                scale = renderer.transform.localScale.x
+            });
+        }
+    }
+
+    bool HasManualPuddleEntries()
+    {
+        for (int i = 0; i < puddles.Count; i++)
+        {
+            if (puddles[i] != null &&
+                puddles[i].preserveObject)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool ShouldKeepManualPuddleRootActive()
+    {
+        for (int i = 0; i < puddles.Count; i++)
+        {
+            PuddleEntry entry = puddles[i];
+            if (entry == null ||
+                !entry.preserveObject ||
+                entry.renderer == null)
+            {
+                continue;
+            }
+
+            if (entry.targetAlpha > 0.001f ||
+                entry.renderer.color.a > 0.01f)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool HasManualSnowEntries()
+    {
+        for (int i = 0; i < snowCaps.Count; i++)
+        {
+            if (snowCaps[i] != null &&
+                snowCaps[i].preserveObject)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool ShouldKeepManualSnowRootActive()
+    {
+        for (int i = 0; i < snowCaps.Count; i++)
+        {
+            SnowEntry entry = snowCaps[i];
+            if (entry == null ||
+                !entry.preserveObject ||
+                entry.renderer == null)
+            {
+                continue;
+            }
+
+            if (entry.targetAlpha > 0.001f ||
+                entry.renderer.color.a > 0.01f)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool ContainsPuddleRenderer(SpriteRenderer renderer)
+    {
+        for (int i = 0; i < puddles.Count; i++)
+        {
+            if (puddles[i] != null &&
+                puddles[i].renderer == renderer)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool ContainsSnowRenderer(SpriteRenderer renderer)
+    {
+        for (int i = 0; i < snowCaps.Count; i++)
+        {
+            if (snowCaps[i] != null &&
+                snowCaps[i].renderer == renderer)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     void ConfigureSnowShape(SnowEntry entry)

@@ -24,9 +24,34 @@ public static class NpcAgeUtility
         get
         {
             WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
-            return timeSystem != null
-                ? Mathf.Max(1, timeSystem.CurrentAbsoluteDay)
-                : 1;
+            if (timeSystem != null)
+            {
+                return Mathf.Max(1, timeSystem.CurrentAbsoluteDay);
+            }
+
+            WorldTimeSystem[] loadedSystems =
+                Object.FindObjectsByType<WorldTimeSystem>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None);
+            for (int i = 0; i < loadedSystems.Length; i++)
+            {
+                WorldTimeSystem loadedSystem = loadedSystems[i];
+                if (loadedSystem != null)
+                {
+                    return Mathf.Max(
+                        1,
+                        loadedSystem.CurrentAbsoluteDay);
+                }
+            }
+
+            if (GameSaveSystem.TryLoadWorldTimeAbsoluteDay(
+                    out int savedAbsoluteDay,
+                    out _))
+            {
+                return Mathf.Max(1, savedAbsoluteDay);
+            }
+
+            return 1;
         }
     }
 

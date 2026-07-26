@@ -1025,10 +1025,14 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             return;
         }
 
+        RefreshCurrentMapArea();
+        ClampInsideCurrentMapArea();
+
         if (HeavenlyTribulationSystem.IsTargetLocked(gameObject))
         {
             StopMovingSmooth();
             ApplySmoothVelocity();
+            ClampInsideCurrentMapArea();
             UpdateVisualAnimation();
             return;
         }
@@ -1036,6 +1040,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
         if (IsDead)
         {
             StopMovingSmooth(true);
+            ClampInsideCurrentMapArea();
             UpdateVisualAnimation();
             return;
         }
@@ -1056,12 +1061,14 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             blockedMoveTimer = 0f;
             lastUnstuckPosition = transform.position;
             ApplySmoothVelocity();
+            ClampInsideCurrentMapArea();
             UpdateVisualAnimation();
             return;
         }
 
         UpdateMovement();
         ApplySmoothVelocity();
+        ClampInsideCurrentMapArea();
         UpdateVisualAnimation();
     }
 
@@ -1129,8 +1136,13 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             }
         }
 
+        bool holdCombatPosition =
+            currentMonsterTarget != null &&
+            ShouldHoldCombatPosition();
         string forcedCombatAnimationAction =
-            ResolveForcedCombatAnimationAction();
+            (isIdle || holdCombatPosition)
+                ? ResolveForcedCombatAnimationAction()
+                : string.Empty;
         if (isIdle &&
             !string.IsNullOrWhiteSpace(forcedCombatAnimationAction) &&
             currentMonsterTarget != null)
@@ -1144,8 +1156,7 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
                 visualDirectionSource = "combat-target-idle";
             }
         }
-        else if (currentMonsterTarget != null &&
-            ShouldHoldCombatPosition())
+        else if (holdCombatPosition)
         {
             Vector2 targetDirection =
                 currentMonsterTarget.transform.position -
@@ -1274,13 +1285,22 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             return forcedCombatAnimationAction;
         }
 
+        bool holdCombatPosition =
+            currentMonsterTarget != null &&
+            ShouldHoldCombatPosition();
+
         if (IsMonsterCombatAnimationAction(currentAction))
         {
+            if (!isIdle &&
+                !holdCombatPosition)
+            {
+                return string.Empty;
+            }
+
             return currentAction;
         }
 
-        if (currentMonsterTarget != null &&
-            ShouldHoldCombatPosition())
+        if (holdCombatPosition)
         {
             string targetName =
                 currentMonsterTarget != null

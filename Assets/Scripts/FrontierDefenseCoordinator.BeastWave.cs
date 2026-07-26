@@ -32,10 +32,10 @@ public partial class FrontierDefenseCoordinator
             return;
         }
 
-        TryStartBeastWave();
+        TryStartBeastWave(false);
     }
 
-    void TryStartBeastWave()
+    void TryStartBeastWave(bool allowEmergencyDefenders)
     {
         FrontierBattleLine line = FindBestBattleLine();
         if (line == null)
@@ -50,6 +50,12 @@ public partial class FrontierDefenseCoordinator
         };
 
         DraftDefenders(wave);
+        if (wave.defenders.Count == 0 &&
+            allowEmergencyDefenders)
+        {
+            DraftEmergencyDefenders(wave);
+        }
+
         if (wave.defenders.Count == 0)
         {
             return;
@@ -339,6 +345,63 @@ public partial class FrontierDefenseCoordinator
                 npc.gameObject,
                 CultivationRealm.Foundation,
                 1);
+    }
+
+    void DraftEmergencyDefenders(ActiveBeastWave wave)
+    {
+        if (wave == null ||
+            wave.line == null)
+        {
+            return;
+        }
+
+        SmartNpcAI[] npcs =
+            FindObjectsByType<SmartNpcAI>(FindObjectsInactive.Exclude);
+        System.Array.Sort(
+            npcs,
+            (left, right) =>
+            {
+                float rightScore = GetDefenderScore(right, wave.line);
+                float leftScore = GetDefenderScore(left, wave.line);
+                return rightScore.CompareTo(leftScore);
+            });
+
+        int targetCount =
+            Mathf.Max(
+                1,
+                wave.line.defenderCount);
+        float defenseDuration =
+            GameTime.WorldHoursToScaledSeconds(
+                defenderDraftWorldHours);
+
+        for (int i = 0; i < npcs.Length && wave.defenders.Count < targetCount; i++)
+        {
+            SmartNpcAI npc = npcs[i];
+            if (!IsEmergencyWaveDefender(npc) ||
+                wave.defenders.Contains(npc))
+            {
+                continue;
+            }
+
+            wave.defenders.Add(npc);
+            Vector3 defensePoint =
+                wave.line.GetDefenderPoint(
+                    wave.defenders.Count - 1);
+            npc.EnterFrontierDefenseMode(
+                defensePoint,
+                defenseDuration,
+                "manual frontier beast wave");
+        }
+    }
+
+    bool IsEmergencyWaveDefender(SmartNpcAI npc)
+    {
+        return npc != null &&
+            npc.enabled &&
+            !npc.IsDead &&
+            !BicanhSessionManager.IsDungeonParticipant(npc.gameObject) &&
+            !NpcMapBehaviorPolicy.IsRestrictedSessionParticipant(npc.gameObject) &&
+            npc.canFight;
     }
 
     void SpawnWaveMonsters(ActiveBeastWave wave)

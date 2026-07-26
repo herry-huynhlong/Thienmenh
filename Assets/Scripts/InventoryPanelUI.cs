@@ -1899,6 +1899,11 @@ public class InventoryPanelUI : MonoBehaviour
             return true;
         }
 
+        if (TryGetSelectedTargetCurrencyAmount(out amount))
+        {
+            return true;
+        }
+
         ItemInventory ownerInventory =
             inventory != null
                 ? inventory
@@ -1917,6 +1922,28 @@ public class InventoryPanelUI : MonoBehaviour
         return TryGetCurrencyAmountForOwner(owner, out amount);
     }
 
+    bool TryGetSelectedTargetCurrencyAmount(out int amount)
+    {
+        amount = 0;
+
+        if (!readOnly ||
+            !HasAncestorNamed(transform, "targetinfopanel"))
+        {
+            return false;
+        }
+
+        Transform target =
+            TouchSelectTarget.CurrentTarget;
+        if (target == null)
+        {
+            return false;
+        }
+
+        return TryGetCurrencyAmountForOwner(
+            target.gameObject,
+            out amount);
+    }
+
     bool TryGetCurrencyAmountForOwner(
         GameObject owner,
         out int amount)
@@ -1928,17 +1955,55 @@ public class InventoryPanelUI : MonoBehaviour
             return false;
         }
 
-        if (owner.GetComponent<VillagerAI>() != null ||
-            owner.GetComponent<SmartNpcAI>() != null)
+        VillagerAI villager =
+            GetOwnerComponent<VillagerAI>(owner);
+        if (villager != null)
         {
             amount =
                 Mathf.Max(
                     0,
-                    NpcEconomy.GetNpcLinhThach(owner));
+                    NpcEconomy.GetNpcLinhThach(
+                        villager.gameObject));
+            return true;
+        }
+
+        SmartNpcAI smartNpc =
+            GetOwnerComponent<SmartNpcAI>(owner);
+        if (smartNpc != null)
+        {
+            amount =
+                Mathf.Max(
+                    0,
+                    NpcEconomy.GetNpcLinhThach(
+                        smartNpc.gameObject));
             return true;
         }
 
         return false;
+    }
+
+    static T GetOwnerComponent<T>(GameObject owner) where T : Component
+    {
+        if (owner == null)
+        {
+            return null;
+        }
+
+        T component =
+            owner.GetComponent<T>();
+        if (component != null)
+        {
+            return component;
+        }
+
+        component =
+            owner.GetComponentInParent<T>(true);
+        if (component != null)
+        {
+            return component;
+        }
+
+        return owner.GetComponentInChildren<T>(true);
     }
 
     string FormatFooterCurrencyAmount(int amount)

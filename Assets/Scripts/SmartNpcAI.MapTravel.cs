@@ -768,6 +768,7 @@ public partial class SmartNpcAI
                 ? area.zone
                 : NpcMapNavigator.ResolveActorZone(gameObject);
         Vector3 clearReference = transform.position;
+        NpcMapArea resolvedArea = area;
 
         if (gate != null)
         {
@@ -794,7 +795,7 @@ public partial class SmartNpcAI
             NpcMapNavigator.LockNpcZone(gameObject, landedZone, 3f);
             NpcMapNavigator.ReportNpcZone(gameObject, resolvedZone.Value);
 
-            NpcMapArea resolvedArea =
+            resolvedArea =
                 NpcMapNavigator.ResolveMapAreaAfterTeleport(
                     gameObject,
                     resolvedZone.Value,
@@ -836,8 +837,11 @@ public partial class SmartNpcAI
             if (fallbackArea != null)
             {
                 NpcMapNavigator.ReportNpcZone(gameObject, fallbackArea.zone);
+                resolvedArea = fallbackArea;
             }
         }
+
+        currentMapArea = resolvedArea;
 
         if (TryFindClearPointNear(clearReference, out Vector3 clearPoint, false))
         {
@@ -856,6 +860,7 @@ public partial class SmartNpcAI
             StopMovingSmooth(true);
         }
 
+        ClampInsideCurrentMapArea();
         UpdateCultivationEffect(false);
     }
 }

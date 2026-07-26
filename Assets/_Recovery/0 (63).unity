@@ -2598,7 +2598,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -2631,7 +2631,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 16.528046, y: 14.953857, z: 2.751587, w: -14.062988}
+  m_margin: {x: 16.528046, y: 14.953857, z: 31.481995, w: 4.72229}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -8079,8 +8079,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 37.9887, y: -20.8999}
-  m_SizeDelta: {x: 181.1775, y: 49.9999}
+  m_AnchoredPosition: {x: 47.4, y: -20.9}
+  m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &276498039
 MonoBehaviour:
@@ -14685,11 +14685,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldTimeSystem
   continentName: "Hoang C\u1ED5 \u0110\u1EA1i L\u1EE5c"
-  daysPerMonth: 1
-  monthsPerYear: 1
-  displayMonthsPerYear: 15
-  displayDaysPerMonth: 30
-  realSecondsPerGameDay: 720
+  realSecondsPerGameDay: 900
   currentYear: 1
   currentMonth: 1
   currentDay: 1
@@ -38073,7 +38069,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 17.127, y: -5.1787}
+  m_AnchoredPosition: {x: 17.127, y: 18.497}
   m_SizeDelta: {x: 95.367, y: 27.65}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1449969128
@@ -40663,7 +40659,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1558153278
 RectTransform:
   m_ObjectHideFlags: 0

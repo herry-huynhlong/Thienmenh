@@ -147,7 +147,7 @@ public class DailyConversation : MonoBehaviour
             {
                 if (villager.ageGroup == VillagerAgeGroup.Child)
                 {
-                    return false;
+                    return true;
                 }
 
                 if (villager.ageGroup == VillagerAgeGroup.Teen)

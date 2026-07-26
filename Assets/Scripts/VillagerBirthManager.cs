@@ -92,10 +92,14 @@ public class VillagerBirthManager : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        DailyBirthTick();
+    }
+
     public void DailyBirthTick()
     {
-        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
-        int day = timeSystem != null ? timeSystem.CurrentDay : 0;
+        int day = GetBirthTickDay();
         if (day == lastProcessedDay)
         {
             return;
@@ -208,6 +212,31 @@ public class VillagerBirthManager : MonoBehaviour
                 FormatName(partner) +
                 ".");
         }
+    }
+
+    int GetBirthTickDay()
+    {
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        if (timeSystem == null)
+        {
+            return 0;
+        }
+
+        if (!timeSystem.IsOneGameDayPerYearCalendar)
+        {
+            return timeSystem.CurrentDay;
+        }
+
+        timeSystem.GetDisplayCalendarDate(
+            out int displayMonth,
+            out int displayDay);
+        int displayDayOfYear =
+            ((Mathf.Max(1, displayMonth) - 1) *
+            timeSystem.DisplayDaysPerMonth) +
+            Mathf.Max(1, displayDay);
+        return ((Mathf.Max(1, timeSystem.currentYear) - 1) *
+            timeSystem.DisplayDaysPerYear) +
+            displayDayOfYear;
     }
 
     public bool TryForceBirthForPair(
@@ -566,6 +595,9 @@ public class VillagerBirthManager : MonoBehaviour
 
         if (childVillager != null)
         {
+            childVillager.keepInspectorJob = false;
+            childVillager.job = VillagerJob.None;
+            childVillager.RestoreProfessionProgress(1, 0);
             childVillager.hideAtHome = false;
             childVillager.RefreshAgeSensitiveBehaviours();
         }

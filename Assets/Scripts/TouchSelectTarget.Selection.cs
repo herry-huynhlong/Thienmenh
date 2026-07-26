@@ -148,6 +148,11 @@ public partial class TouchSelectTarget
 
     Transform GetSelectableTarget(Collider2D hit)
     {
+        if (ShouldIgnoreSelectionCollider(hit))
+        {
+            return null;
+        }
+
         WorldStatItemPickup pickup =
             hit.GetComponentInParent<WorldStatItemPickup>();
 
@@ -191,6 +196,54 @@ public partial class TouchSelectTarget
         }
 
         return null;
+    }
+
+    bool ShouldIgnoreSelectionCollider(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return true;
+        }
+
+        if (IsBrokerCustomerZoneCollider(hit))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    bool IsBrokerCustomerZoneCollider(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return false;
+        }
+
+        NpcCounterBroker broker =
+            hit.GetComponentInParent<NpcCounterBroker>();
+        if (broker == null)
+        {
+            return false;
+        }
+
+        BoxCollider2D customerZone =
+            broker.GetCustomerZoneCollider();
+        if (customerZone == null)
+        {
+            return false;
+        }
+
+        if (hit == customerZone &&
+            (customerZone.isTrigger || hit.isTrigger))
+        {
+            return true;
+        }
+
+        return hit.isTrigger &&
+            broker.customerPoint != null &&
+            (hit.transform == broker.customerPoint ||
+             hit.transform.IsChildOf(broker.customerPoint));
     }
 
     Transform GetTaggedNpcTarget(Collider2D hit)

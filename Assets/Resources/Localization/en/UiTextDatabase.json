@@ -691,16 +691,108 @@
       "name": "worldItemInfo",
       "entries": [
         {
-          "key": "growthDaysHoursFormat",
-          "value": "{0}d {1}h"
+          "key": "cardValue",
+          "value": "Value"
         },
         {
-          "key": "growthHoursFormat",
-          "value": "{0}h"
+          "key": "cardSource",
+          "value": "Source"
+        },
+        {
+          "key": "cardUsage",
+          "value": "Usage"
+        },
+        {
+          "key": "growthYearsMonthsFormat",
+          "value": "{0}y {1}m"
+        },
+        {
+          "key": "growthYearsFormat",
+          "value": "{0}y"
+        },
+        {
+          "key": "growthMonthsFormat",
+          "value": "{0}m"
         },
         {
           "key": "growthProgressFormat",
           "value": "{0}/{1}"
+        },
+        {
+          "key": "sourceUnknown",
+          "value": "Unknown"
+        },
+        {
+          "key": "usageSummaryHerbRefineOnly",
+          "value": "Alchemy"
+        },
+        {
+          "key": "usageSummaryHerbRawAndRefine",
+          "value": "Alchemy / raw use"
+        },
+        {
+          "key": "usageSummaryHerbRawOnly",
+          "value": "Raw use"
+        },
+        {
+          "key": "usageHerbRefineOnly",
+          "value": "Mainly used for alchemy as a core herb ingredient."
+        },
+        {
+          "key": "usageHerbRawAndRefine",
+          "value": "Can be refined into pills or consumed raw, but raw use only releases part of the medicinal effect."
+        },
+        {
+          "key": "usageHerbRawOnly",
+          "value": "Can be consumed raw for a basic medicinal effect."
+        },
+        {
+          "key": "usageTargetLine",
+          "value": "Target: {0}"
+        },
+        {
+          "key": "usageStyleLine",
+          "value": "Use type: {0}"
+        },
+        {
+          "key": "usageRawUseLine",
+          "value": "Raw use: {0}"
+        },
+        {
+          "key": "usageDurabilityLine",
+          "value": "Durability: {0}"
+        },
+        {
+          "key": "usageAmountLine",
+          "value": "Amount: {0}"
+        },
+        {
+          "key": "inlineSourceLine",
+          "value": "Source: {0}"
+        },
+        {
+          "key": "inlineUsageLine",
+          "value": "Usage: {0}"
+        },
+        {
+          "key": "currentStageValueLine",
+          "value": "Current value ({0}): {1}"
+        },
+        {
+          "key": "stageValueLine",
+          "value": "{0}: {1}"
+        },
+        {
+          "key": "stageSmall",
+          "value": "Seedling"
+        },
+        {
+          "key": "stageMid",
+          "value": "Young"
+        },
+        {
+          "key": "stageMature",
+          "value": "Mature"
         }
       ],
       "lists": []

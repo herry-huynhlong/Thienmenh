@@ -786,6 +786,7 @@ public class NPCVisualAnimation : MonoBehaviour
             SetFirstFloatParameter(moveXParameters, 0f);
             SetFirstFloatParameter(moveYParameters, 0f);
             SetFirstFloatParameter(speedParameters, 0f);
+            ApplyDirectionalFlipForParameterizedAnimator(lastDirection);
             return;
         }
 
@@ -800,6 +801,65 @@ public class NPCVisualAnimation : MonoBehaviour
         SetFirstFloatParameter(moveXParameters, parameterDirection.x);
         SetFirstFloatParameter(moveYParameters, parameterDirection.y);
         SetFirstFloatParameter(speedParameters, speed);
+
+        if (UsesDirectionalMovementParameters())
+        {
+            ApplyDirectionalFlipForParameterizedAnimator(
+                parameterDirection);
+        }
+    }
+
+    void ApplyDirectionalFlipForParameterizedAnimator(
+        Vector2 direction)
+    {
+        if (spriteRenderer == null ||
+            Mathf.Abs(direction.x) < directionDeadZone)
+        {
+            return;
+        }
+
+        bool hasRightVariant =
+            rightWalkClip != null ||
+            rightIdleClip != null ||
+            !string.IsNullOrWhiteSpace(walkRightState) ||
+            !string.IsNullOrWhiteSpace(idleRightState);
+        bool hasLeftVariant =
+            leftWalkClip != null ||
+            leftIdleClip != null ||
+            !string.IsNullOrWhiteSpace(walkLeftState) ||
+            !string.IsNullOrWhiteSpace(idleLeftState);
+
+        if (direction.x > directionDeadZone)
+        {
+            if (hasRightVariant)
+            {
+                spriteRenderer.flipX = false;
+                return;
+            }
+
+            if (hasLeftVariant)
+            {
+                spriteRenderer.flipX = true;
+                return;
+            }
+        }
+
+        if (direction.x < -directionDeadZone)
+        {
+            if (hasLeftVariant)
+            {
+                spriteRenderer.flipX = false;
+                return;
+            }
+
+            if (hasRightVariant)
+            {
+                spriteRenderer.flipX = true;
+                return;
+            }
+        }
+
+        ApplySideFlip(direction);
     }
 
     void LogResolvedVisualSelection(

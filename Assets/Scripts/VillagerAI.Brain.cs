@@ -101,7 +101,8 @@ public partial class VillagerAI
             return;
         }
 
-        if (ageGroup == VillagerAgeGroup.Teen)
+        if (ageGroup == VillagerAgeGroup.Teen &&
+            !HasReachedWorkingAge())
         {
             ThinkTeen();
             return;

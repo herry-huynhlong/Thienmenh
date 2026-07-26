@@ -16,7 +16,7 @@ public class VillagerRelationshipManager : MonoBehaviour
     [Range(0f, 1f)] public float dailyMatchChance = 0.02f;
     public int minAdultAge = NpcLifeStageDefaults.AdultMinAge;
     public int maxMarriageAge = NpcLifeStageDefaults.MiddleMaxAge;
-    public int maxAgeGapForMarriage = 5;
+    public int maxAgeGapForMarriage = 20;
     public int minDatingDaysToMarry = 7;
     [Range(0, 100)] public int minAffectionToMarry = 60;
     [Range(0, 3)] public int affectionGainPerDay = 1;
@@ -79,10 +79,14 @@ public class VillagerRelationshipManager : MonoBehaviour
         ApplyBaselinePacing();
     }
 
+    void Update()
+    {
+        DailyRelationshipTick();
+    }
+
     public void DailyRelationshipTick()
     {
-        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
-        int day = timeSystem != null ? timeSystem.CurrentDay : 0;
+        int day = GetRelationshipTickDay();
         if (day == lastProcessedDay)
         {
             return;
@@ -191,6 +195,31 @@ public class VillagerRelationshipManager : MonoBehaviour
 
         ShuffleSingles();
         TryFormNewPairs(lookup);
+    }
+
+    int GetRelationshipTickDay()
+    {
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        if (timeSystem == null)
+        {
+            return 0;
+        }
+
+        if (!timeSystem.IsOneGameDayPerYearCalendar)
+        {
+            return timeSystem.CurrentDay;
+        }
+
+        timeSystem.GetDisplayCalendarDate(
+            out int displayMonth,
+            out int displayDay);
+        int displayDayOfYear =
+            ((Mathf.Max(1, displayMonth) - 1) *
+            timeSystem.DisplayDaysPerMonth) +
+            Mathf.Max(1, displayDay);
+        return ((Mathf.Max(1, timeSystem.currentYear) - 1) *
+            timeSystem.DisplayDaysPerYear) +
+            displayDayOfYear;
     }
 
     public void HandleVillagerDeath(VillagerAI deceased)
@@ -455,8 +484,6 @@ public class VillagerRelationshipManager : MonoBehaviour
             return null;
         }
 
-        bool sourceIsMale = sourceIdentity.gender == Gender.Male;
-
         VillagerAI bestPartner = null;
         int bestAgeGap = int.MaxValue;
 
@@ -507,16 +534,13 @@ public class VillagerRelationshipManager : MonoBehaviour
                 continue;
             }
 
-            int maleAge = sourceIsMale ? sourceAge : candidateAge;
-            int femaleAge = sourceIsMale ? candidateAge : sourceAge;
-
-            if (maleAge < femaleAge ||
-                maleAge - femaleAge > maxAgeGapForMarriage)
+            int ageGap =
+                Mathf.Abs(sourceAge - candidateAge);
+            if (ageGap > maxAgeGapForMarriage)
             {
                 continue;
             }
 
-            int ageGap = Mathf.Abs(sourceAge - candidateAge);
             if (ageGap < bestAgeGap)
             {
                 bestAgeGap = ageGap;

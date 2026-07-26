@@ -907,6 +907,38 @@
       ]
     },
     {
+      "id": "child_babble_open_001",
+      "category": "ambient_opening",
+      "channel": "Village",
+      "duration": 1.5,
+      "cooldownSeconds": 22,
+      "priority": 60,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Idle"],
+      "requiredSpeakerTags": ["Child"],
+      "texts": [
+        "嘿嘿嘿... %^@&^! 那只云羊快飞啦！",
+        "呜啊啊... 灵气转圈圈 @#!",
+        "本少侠天下第一，噗噗 %^&*!"
+      ]
+    },
+    {
+      "id": "child_babble_reply_001",
+      "category": "ambient_reply",
+      "channel": "Village",
+      "duration": 1.5,
+      "cooldownSeconds": 22,
+      "priority": 60,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Idle"],
+      "requiredSpeakerTags": ["Child"],
+      "texts": [
+        "啊？%^@ 真的呀，给我看看！",
+        "嘻嘻，蹦蹦！@#&*",
+        "虽然听不懂，但是好玩！"
+      ]
+    },
+    {
       "id": "cultivate_self_001",
       "category": "cultivate_self",
       "channel": "Cultivation",

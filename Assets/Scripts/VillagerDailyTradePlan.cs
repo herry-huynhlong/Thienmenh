@@ -85,8 +85,25 @@ public class VillagerDailyTradePlan : MonoBehaviour
         WorldTimeSystem timeSystem =
             WorldTimeSystem.Instance;
 
-        return timeSystem != null
-            ? timeSystem.CurrentDay
-            : Mathf.Max(1, Mathf.FloorToInt(Time.time / 900f) + 1);
+        if (timeSystem == null)
+        {
+            return Mathf.Max(1, Mathf.FloorToInt(Time.time / 900f) + 1);
+        }
+
+        if (!timeSystem.IsOneGameDayPerYearCalendar)
+        {
+            return timeSystem.CurrentDay;
+        }
+
+        timeSystem.GetDisplayCalendarDate(
+            out int displayMonth,
+            out int displayDay);
+        int displayDayOfYear =
+            ((Mathf.Max(1, displayMonth) - 1) *
+            timeSystem.DisplayDaysPerMonth) +
+            Mathf.Max(1, displayDay);
+        return ((Mathf.Max(1, timeSystem.currentYear) - 1) *
+            timeSystem.DisplayDaysPerYear) +
+            displayDayOfYear;
     }
 }

@@ -553,16 +553,16 @@ MonoBehaviour:
   damage: 15
   defense: 8
   effectResistance: 0
-  beastInstinct: 18.619488
-  aggression: 6.706221
-  fear: 29.880285
-  hunger: 34.158512
+  beastInstinct: 17.667076
+  aggression: 10.367623
+  fear: 49.57551
+  hunger: 6.1573253
   retreatChanceWhenSuppressed: 0.2
   retreatDuration: 1.25
   retreatRetryDelay: 0.75
-  territorial: 29.165485
-  bloodlust: 1.9297564
-  survivalInstinct: 58.24085
+  territorial: 31.61817
+  bloodlust: 6.2692776
+  survivalInstinct: 72.91606
   aggressionResponsePerSecond: 18
   bloodlustResponsePerSecond: 16
   aggressionSurgeDecayPerSecond: 1
@@ -11435,60 +11435,6 @@ MonoBehaviour:
   m_Script: {fileID: 302693553}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EntityProfile
-  generatedIdentityVersion: 0
-  generateOnAwake: 1
-  lockGeneratedValues: 1
-  kind: 1
-  identity:
-    entityName: "L\xE2m Ki\u1EC7t"
-    kind: 1
-    gender: 2
-    age: 19
-    birthAbsoluteDay: 0
-    hasBirthAbsoluteDay: 0
-  stats:
-    realm: 0
-    realmStage: 7
-    maxHP: 160
-    currentHP: 160
-    attack: 16
-    defense: 8
-    effectResistance: 0
-    moveSpeed: 1.1814578
-    cultivationExp: 11
-    money: 129
-    spiritStone: 3
-  talent:
-    grade: 1
-    comprehension: 14
-    cultivationSpeed: 1.05
-    combatMultiplier: 0.92607474
-    luck: 1.0706387
-  personality:
-    greed: 79
-    bravery: 26
-    kindness: 45
-    sociability: 52
-    diligence: 84
-    hotTemper: 62
-    funSeeking: 48
-    loneliness: 71
-    cultivationDesire: 11
-  emotion:
-    mood: 0
-    happiness: 35.159836
-    anger: 17.208416
-    sadness: 12.178157
-    fear: 1.2420821
-    loneliness: 1.8981564
-  needs:
-    hunger: 30.253763
-    fatigue: 25.19711
-    socialNeed: 48.412277
-    cultivationNeed: 22.394552
-  currentGoal: 1
-  memories: []
-  relationships: []
 --- !u!114 &60150811
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11501,60 +11447,6 @@ MonoBehaviour:
   m_Script: {fileID: 302693553}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EntityProfile
-  generatedIdentityVersion: 0
-  generateOnAwake: 1
-  lockGeneratedValues: 1
-  kind: 1
-  identity:
-    entityName: "L\xE2m Ki\u1EC7t"
-    kind: 1
-    gender: 2
-    age: 70
-    birthAbsoluteDay: -27
-    hasBirthAbsoluteDay: 1
-  stats:
-    realm: 0
-    realmStage: 5
-    maxHP: 140
-    currentHP: 140
-    attack: 14
-    defense: 7
-    effectResistance: 0
-    moveSpeed: 1.129986
-    cultivationExp: 66
-    money: 80
-    spiritStone: 2
-  talent:
-    grade: 2
-    comprehension: 18
-    cultivationSpeed: 1.1
-    combatMultiplier: 1.0386238
-    luck: 1.0721213
-  personality:
-    greed: 80
-    bravery: 15
-    kindness: 70
-    sociability: 47
-    diligence: 51
-    hotTemper: 0
-    funSeeking: 81
-    loneliness: 40
-    cultivationDesire: 16
-  emotion:
-    mood: 0
-    happiness: 49.74704
-    anger: 19.560724
-    sadness: 8.515374
-    fear: 15.152266
-    loneliness: 41.076366
-  needs:
-    hunger: 3.7517672
-    fatigue: 3.8244576
-    socialNeed: 56.897285
-    cultivationNeed: 24.631641
-  currentGoal: 1
-  memories: []
-  relationships: []
 --- !u!114 &60150812
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11570,10 +11462,10 @@ MonoBehaviour:
   npcId: cf89316caa16421e9ff0bdddd8af9eb3
   npcName: "L\xE2m Ki\u1EC7t"
   gender: 0
-  age: 23
-  birthAbsoluteDay: 66
+  age: 77
+  birthAbsoluteDay: -2
   hasBirthAbsoluteDay: 1
-  lifeStage: 3
+  lifeStage: 4
   visualProfile: {fileID: 11400000, guid: ec276799d743d2643804e1c700159453, type: 2}
   homeId: 
   allowAutomaticGateTravel: 1
@@ -36900,10 +36792,10 @@ MonoBehaviour:
   npcId: 155a4e214ddc459a87a0c02cfe798a76
   npcName: "Thanh V\xE2n"
   gender: 1
-  age: 27
-  birthAbsoluteDay: 62
+  age: 89
+  birthAbsoluteDay: -14
   hasBirthAbsoluteDay: 1
-  lifeStage: 3
+  lifeStage: 4
   visualProfile: {fileID: 11400000, guid: ec276799d743d2643804e1c700159453, type: 2}
   homeId: 
   allowAutomaticGateTravel: 1
@@ -36970,7 +36862,7 @@ MonoBehaviour:
     entityName: "Thanh V\xE2n"
     kind: 1
     gender: 2
-    age: 103
+    age: 89
     birthAbsoluteDay: -14
     hasBirthAbsoluteDay: 1
   stats:
@@ -49545,7 +49437,7 @@ MonoBehaviour:
     entityName: "H\xE0n V\u0169"
     kind: 1
     gender: 1
-    age: 76
+    age: 62
     birthAbsoluteDay: 13
     hasBirthAbsoluteDay: 1
   stats:
@@ -49646,10 +49538,10 @@ MonoBehaviour:
   npcId: 9b570f32c6d849bdadb26e7179f20b25
   npcName: "\u0110\u1EA1i Tr\xE1ng"
   gender: 0
-  age: 24
-  birthAbsoluteDay: 65
+  age: 62
+  birthAbsoluteDay: 13
   hasBirthAbsoluteDay: 1
-  lifeStage: 3
+  lifeStage: 4
   visualProfile: {fileID: 11400000, guid: ec276799d743d2643804e1c700159453, type: 2}
   homeId: 
   allowAutomaticGateTravel: 1
@@ -59508,7 +59400,7 @@ MonoBehaviour:
     entityName: "Ng\u1ECDc Dao"
     kind: 1
     gender: 1
-    age: 113
+    age: 99
     birthAbsoluteDay: -24
     hasBirthAbsoluteDay: 1
   stats:
@@ -59609,10 +59501,10 @@ MonoBehaviour:
   npcId: 8fc7dab644984d2181556466b6708add
   npcName: "Th\u01B0\u1EDDng Tu\u1EA5n"
   gender: 0
-  age: 18
-  birthAbsoluteDay: 71
+  age: 99
+  birthAbsoluteDay: -24
   hasBirthAbsoluteDay: 1
-  lifeStage: 3
+  lifeStage: 4
   visualProfile: {fileID: 11400000, guid: ec276799d743d2643804e1c700159453, type: 2}
   homeId: 
   allowAutomaticGateTravel: 1
@@ -65512,8 +65404,8 @@ MonoBehaviour:
   npcId: 15363fba1ef748519f5ba1fd11d32e10
   npcName: "B\xE1c C\u1EA3"
   gender: 0
-  age: 18
-  birthAbsoluteDay: 71
+  age: 30
+  birthAbsoluteDay: 45
   hasBirthAbsoluteDay: 1
   lifeStage: 3
   visualProfile: {fileID: 0}
@@ -74482,8 +74374,8 @@ MonoBehaviour:
   npcId: 0d509dc585404e348cf707de1717a9f8
   npcName: "Kh\u1ED1 T\u1EED"
   gender: 0
-  age: 22
-  birthAbsoluteDay: 67
+  age: 45
+  birthAbsoluteDay: 30
   hasBirthAbsoluteDay: 1
   lifeStage: 3
   visualProfile: {fileID: 0}
@@ -75650,7 +75542,7 @@ MonoBehaviour:
   npcName: 
   gender: 0
   age: 0
-  birthAbsoluteDay: 89
+  birthAbsoluteDay: 75
   hasBirthAbsoluteDay: 1
   lifeStage: 0
   visualProfile: {fileID: 0}
@@ -78845,7 +78737,7 @@ MonoBehaviour:
     entityName: "Tr\u1EA7n An"
     kind: 1
     gender: 2
-    age: 64
+    age: 50
     birthAbsoluteDay: 25
     hasBirthAbsoluteDay: 1
   stats:
@@ -78932,10 +78824,10 @@ MonoBehaviour:
   npcId: 251a9ccc84e6477d84bdd9b7eb2f66c3
   npcName: "Tr\u1EA7n An"
   gender: 0
-  age: 20
-  birthAbsoluteDay: 69
+  age: 50
+  birthAbsoluteDay: 25
   hasBirthAbsoluteDay: 1
-  lifeStage: 3
+  lifeStage: 4
   visualProfile: {fileID: 11400000, guid: ec276799d743d2643804e1c700159453, type: 2}
   homeId: 
   allowAutomaticGateTravel: 1
@@ -105789,7 +105681,7 @@ MonoBehaviour:
     entityName: "Tr\u1EA7n An"
     kind: 1
     gender: 2
-    age: 72
+    age: 58
     birthAbsoluteDay: 17
     hasBirthAbsoluteDay: 1
   stats:
@@ -105876,10 +105768,10 @@ MonoBehaviour:
   npcId: 2c038da4be4e46b59bc3b05600c0329b
   npcName: "V\u01B0\u01A1ng H\u1EA1o"
   gender: 0
-  age: 25
-  birthAbsoluteDay: 64
+  age: 58
+  birthAbsoluteDay: 17
   hasBirthAbsoluteDay: 1
-  lifeStage: 3
+  lifeStage: 4
   visualProfile: {fileID: 11400000, guid: ec276799d743d2643804e1c700159453, type: 2}
   homeId: 
   allowAutomaticGateTravel: 1
@@ -109169,7 +109061,7 @@ MonoBehaviour:
     entityName: "Ng\u1ECDc Dao"
     kind: 1
     gender: 1
-    age: 101
+    age: 87
     birthAbsoluteDay: -12
     hasBirthAbsoluteDay: 1
   stats:
@@ -109270,10 +109162,10 @@ MonoBehaviour:
   npcId: 7d548a36683f498f8627c31ca3dc0f81
   npcName: "Th\u01B0\u1EDDng Tu\u1EA5n"
   gender: 0
-  age: 18
-  birthAbsoluteDay: 71
+  age: 87
+  birthAbsoluteDay: -12
   hasBirthAbsoluteDay: 1
-  lifeStage: 3
+  lifeStage: 4
   visualProfile: {fileID: 11400000, guid: ec276799d743d2643804e1c700159453, type: 2}
   homeId: 
   allowAutomaticGateTravel: 1
@@ -112511,7 +112403,7 @@ MonoBehaviour:
     entityName: "H\xE0n V\u0169"
     kind: 1
     gender: 1
-    age: 65
+    age: 51
     birthAbsoluteDay: 24
     hasBirthAbsoluteDay: 1
   stats:
@@ -112612,10 +112504,10 @@ MonoBehaviour:
   npcId: d0b8e316326f4e7aa1c60f6683671a28
   npcName: "L\xE2m Anh"
   gender: 1
-  age: 21
-  birthAbsoluteDay: 68
+  age: 51
+  birthAbsoluteDay: 24
   hasBirthAbsoluteDay: 1
-  lifeStage: 3
+  lifeStage: 4
   visualProfile: {fileID: 11400000, guid: ec276799d743d2643804e1c700159453, type: 2}
   homeId: 
   allowAutomaticGateTravel: 1
@@ -123217,7 +123109,7 @@ MonoBehaviour:
     entityName: "L\xFD Thanh"
     kind: 1
     gender: 1
-    age: 106
+    age: 92
     birthAbsoluteDay: -17
     hasBirthAbsoluteDay: 1
   stats:
@@ -123292,10 +123184,10 @@ MonoBehaviour:
   npcId: 28850b20643f41a19c514dd4e04c53df
   npcName: "L\xFD Thanh"
   gender: 0
-  age: 26
-  birthAbsoluteDay: 63
+  age: 92
+  birthAbsoluteDay: -17
   hasBirthAbsoluteDay: 1
-  lifeStage: 3
+  lifeStage: 4
   visualProfile: {fileID: 11400000, guid: ec276799d743d2643804e1c700159453, type: 2}
   homeId: 
   allowAutomaticGateTravel: 1
@@ -126020,7 +125912,7 @@ MonoBehaviour:
     entityName: "Ng\u1ECDc Dao"
     kind: 1
     gender: 1
-    age: 89
+    age: 75
     birthAbsoluteDay: 0
     hasBirthAbsoluteDay: 1
   stats:
@@ -126121,10 +126013,10 @@ MonoBehaviour:
   npcId: 4a8156a464d24daa9913bf5ba8fbf817
   npcName: "Ng\u1ECDc Dao"
   gender: 1
-  age: 19
-  birthAbsoluteDay: 70
+  age: 75
+  birthAbsoluteDay: 0
   hasBirthAbsoluteDay: 1
-  lifeStage: 3
+  lifeStage: 4
   visualProfile: {fileID: 11400000, guid: ec276799d743d2643804e1c700159453, type: 2}
   homeId: 
   allowAutomaticGateTravel: 1
@@ -129861,10 +129753,10 @@ MonoBehaviour:
   npcId: 2447c1cc796646acb49e393d3f356fcb
   npcName: "Ng\u1ECDc Dao"
   gender: 1
-  age: 20
-  birthAbsoluteDay: 69
+  age: 69
+  birthAbsoluteDay: 6
   hasBirthAbsoluteDay: 1
-  lifeStage: 3
+  lifeStage: 4
   visualProfile: {fileID: 11400000, guid: ec276799d743d2643804e1c700159453, type: 2}
   homeId: 
   allowAutomaticGateTravel: 1
@@ -129891,7 +129783,7 @@ MonoBehaviour:
     entityName: "Ng\u1ECDc Dao"
     kind: 1
     gender: 1
-    age: 83
+    age: 69
     birthAbsoluteDay: 6
     hasBirthAbsoluteDay: 1
   stats:
@@ -131600,10 +131492,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 72
-  m_fontSizeBase: 100
+  m_fontSize: 50
+  m_fontSizeBase: 50
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -133996,16 +133888,16 @@ MonoBehaviour:
   damage: 8
   defense: 3
   effectResistance: 0
-  beastInstinct: 27.650862
-  aggression: 5.6517105
-  fear: 44.946205
-  hunger: 41.37656
+  beastInstinct: 25.99088
+  aggression: 8.133841
+  fear: 22.07407
+  hunger: 24.447384
   retreatChanceWhenSuppressed: 0.2
   retreatDuration: 1.25
   retreatRetryDelay: 0.75
-  territorial: 30.288437
-  bloodlust: 6.6333284
-  survivalInstinct: 84.538155
+  territorial: 11.332294
+  bloodlust: 1.6621363
+  survivalInstinct: 61.77178
   aggressionResponsePerSecond: 18
   bloodlustResponsePerSecond: 16
   aggressionSurgeDecayPerSecond: 1
@@ -147041,7 +146933,7 @@ MonoBehaviour:
     entityName: "L\xE2m Ki\u1EC7t"
     kind: 1
     gender: 2
-    age: 72
+    age: 58
     birthAbsoluteDay: 17
     hasBirthAbsoluteDay: 1
   stats:
@@ -147102,10 +146994,10 @@ MonoBehaviour:
   npcId: 8404aa1033534adb9e673de4a56ad820
   npcName: "L\xE2m Khang"
   gender: 1
-  age: 14
-  birthAbsoluteDay: 75
+  age: 58
+  birthAbsoluteDay: 17
   hasBirthAbsoluteDay: 1
-  lifeStage: 2
+  lifeStage: 4
   visualProfile: {fileID: 11400000, guid: ec276799d743d2643804e1c700159453, type: 2}
   homeId: 
   allowAutomaticGateTravel: 1

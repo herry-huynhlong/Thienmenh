@@ -9,6 +9,13 @@ public partial class VillagerAI
             return NpcText.Action("dead");
         }
 
+        if (waitingForHeavenlyTribulation ||
+            (characterStats != null &&
+            characterStats.waitingForHeavenlyTribulation))
+        {
+            return NpcText.Action("waitTribulation");
+        }
+
         string action = NormalizeDisplayAction(currentAction);
         if (!string.IsNullOrWhiteSpace(action))
         {

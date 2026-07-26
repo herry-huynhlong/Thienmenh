@@ -869,16 +869,108 @@
       "name": "worldItemInfo",
       "entries": [
         {
-          "key": "growthDaysHoursFormat",
-          "value": "{0}N {1}G"
+          "key": "cardValue",
+          "value": "Giá trị"
         },
         {
-          "key": "growthHoursFormat",
-          "value": "{0}G"
+          "key": "cardSource",
+          "value": "Nguồn"
+        },
+        {
+          "key": "cardUsage",
+          "value": "Cách dùng"
+        },
+        {
+          "key": "growthYearsMonthsFormat",
+          "value": "{0} năm {1} tháng"
+        },
+        {
+          "key": "growthYearsFormat",
+          "value": "{0} năm"
+        },
+        {
+          "key": "growthMonthsFormat",
+          "value": "{0} tháng"
         },
         {
           "key": "growthProgressFormat",
           "value": "{0}/{1}"
+        },
+        {
+          "key": "sourceUnknown",
+          "value": "Không rõ"
+        },
+        {
+          "key": "usageSummaryHerbRefineOnly",
+          "value": "Luyện đan"
+        },
+        {
+          "key": "usageSummaryHerbRawAndRefine",
+          "value": "Luyện đan / dùng sống"
+        },
+        {
+          "key": "usageSummaryHerbRawOnly",
+          "value": "Dùng sống"
+        },
+        {
+          "key": "usageHerbRefineOnly",
+          "value": "Dùng để luyện đan, làm chủ dược cho đan phương."
+        },
+        {
+          "key": "usageHerbRawAndRefine",
+          "value": "Có thể luyện đan hoặc dùng sống, nhưng dùng sống chỉ phát huy một phần dược lực."
+        },
+        {
+          "key": "usageHerbRawOnly",
+          "value": "Có thể dùng sống để hấp thu dược lực cơ bản."
+        },
+        {
+          "key": "usageTargetLine",
+          "value": "Dùng cho: {0}"
+        },
+        {
+          "key": "usageStyleLine",
+          "value": "Kiểu dùng: {0}"
+        },
+        {
+          "key": "usageRawUseLine",
+          "value": "Dùng sống: {0}"
+        },
+        {
+          "key": "usageDurabilityLine",
+          "value": "Độ bền: {0}"
+        },
+        {
+          "key": "usageAmountLine",
+          "value": "Số lượng: {0}"
+        },
+        {
+          "key": "inlineSourceLine",
+          "value": "Nguồn: {0}"
+        },
+        {
+          "key": "inlineUsageLine",
+          "value": "Cách dùng: {0}"
+        },
+        {
+          "key": "currentStageValueLine",
+          "value": "Giá hiện tại ({0}): {1}"
+        },
+        {
+          "key": "stageValueLine",
+          "value": "{0}: {1}"
+        },
+        {
+          "key": "stageSmall",
+          "value": "Cây con"
+        },
+        {
+          "key": "stageMid",
+          "value": "Cây vừa"
+        },
+        {
+          "key": "stageMature",
+          "value": "Trưởng thành"
         }
       ],
       "lists": []

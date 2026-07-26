@@ -178,6 +178,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NpcSpecialProfession
   professionName: Lo Ren
+  jobLevel: 1
   lockVillagerJob: 1
   villagerJob: 9
 --- !u!114 &3201119476251412231
@@ -202,13 +203,29 @@ MonoBehaviour:
   forgedItem: {fileID: 11400000, guid: 00d6947b52de2a04d888fa221e40ffb8, type: 2}
   materialCost: 100000
   salePrice: 200000
-  craftDays: 3
-  workHoursPerDay: 8
+  buyMaterialsAtVanBaoLau: 1
+  sellAtVanBaoLau: 1
+  preferredTradeZone: 1
   materialRequirements:
   - item: {fileID: 11400000, guid: 5e5f67b712146264aadac43d081c153a, type: 2}
     amount: 1
   - item: {fileID: 11400000, guid: 2b8aa7f6ec042024cb8bfe718bb40982, type: 2}
     amount: 2
+  autoPlanLowGradeBatches: 1
+  randomMaterialKindsMin: 2
+  randomMaterialKindsMax: 3
+  craftingLaborFee: 500
+  buyDailyConsumables: 1
+  dailyRiceItem: {fileID: 0}
+  dailyFishItem: {fileID: 0}
+  dailyMeatItem: {fileID: 0}
+  dailyRiceAmount: 1
+  dailyProteinAmount: 1
+  craftDays: 3
+  haCraftDays: 1
+  trungCraftDays: 3
+  thuongCraftDays: 5
+  workHoursPerDay: 8
   buyDurationSeconds: 5
   sellDurationSeconds: 10
   sleepStart: 20
@@ -220,10 +237,10 @@ MonoBehaviour:
   afternoonWorkEnd: 20
   forgePointOverride: {fileID: 0}
   marketPointOverride: {fileID: 0}
-  buyAction: Di mua nguyen lieu ren
-  forgeAction: Dang ren phap bao
-  sellAction: Di ban phap bao
-  waitAction: Cho ca ren tiep theo
+  buyApproachPointOverride: {fileID: 0}
+  buyPointOverride: {fileID: 0}
+  sellApproachPointOverride: {fileID: 0}
+  sellPointOverride: {fileID: 0}
   state: 0
   forgedWorkHours: 0
   completedCycles: 0
@@ -231,6 +248,9 @@ MonoBehaviour:
   stateStartedAtRealtime: -1
   lastPurchaseDay: -1
   lastSaleDay: -1
+  lastDailyConsumableTradeDay: -1
+  lastBatchMaterialBudget: 0
+  lastBatchMinimumSaleValue: 0
   debugLogs: 0
 --- !u!114 &1836311742786125013
 MonoBehaviour:
@@ -259,6 +279,7 @@ MonoBehaviour:
   attackSideClip: {fileID: 0}
   rightAttackClip: {fileID: 0}
   leftAttackClip: {fileID: 0}
+  cultivateClip: {fileID: 0}
   cultivateDownClip: {fileID: 0}
   cultivateUpClip: {fileID: 0}
   cultivateSideClip: {fileID: 0}
@@ -273,7 +294,34 @@ MonoBehaviour:
   invertSideFlip: 0
   invertVerticalFacing: 0
   directionDeadZone: 0.08
+  diagonalAxisTieThreshold: 0.12
   debugVisualLogs: 0
+  walkDownState: 
+  walkUpState: 
+  walkSideState: 
+  walkRightState: 
+  walkLeftState: 
+  idleDownState: 
+  idleUpState: 
+  idleSideState: 
+  idleRightState: 
+  idleLeftState: 
+  attackDownState: 
+  attackUpState: 
+  attackSideState: 
+  attackRightState: 
+  attackLeftState: 
+  cultivateStateName: 
+  cultivateDownState: 
+  cultivateUpState: 
+  cultivateSideState: 
+  cultivateRightState: 
+  cultivateLeftState: 
+  dieDownState: 
+  dieUpState: 
+  dieSideState: 
+  dieRightState: 
+  dieLeftState: 
 --- !u!70 &5880837379325097654
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -342,6 +390,9 @@ MonoBehaviour:
   baseMaxHP: 100
   baseAttack: 5
   baseDefense: 2
+  bonusMaxHPPercent: 0
+  bonusAttackPercent: 0
+  bonusDefensePercent: 0
   attack: 5
   defense: 2
   lifespan: 80
@@ -392,6 +443,7 @@ MonoBehaviour:
   unstuckCheckDelay: 1.2
   unstuckMinMoveDistance: 0.03
   unstuckOffsetRadius: 0.7
+  maxWanderUnstuckRecoveriesBeforeReset: 3
   minWanderTargetDistance: 0.8
   movementAcceleration: 8
   movementDeceleration: 12
@@ -407,6 +459,8 @@ MonoBehaviour:
   obstacleScanStep: 0.35
   maxPickTargetAttempts: 16
   blockedTargetRetryDelay: 0.8
+  childHomeWanderRadius: 1.35
+  teenVillageWanderRadius: 4.5
   useCameraDistanceThrottle: 1
   fullUpdateDistanceFromCamera: 14
   reducedUpdateInterval: 0.25
@@ -470,6 +524,8 @@ MonoBehaviour:
   professionExpPerWork: 1
   productBonusEveryProfessionLevels: 3
   currentAction: idle
+  currentActionId: 1
+  currentActionKey: idle
   currentTarget: {fileID: 0}
   debugWorkTarget: 
   debugWorkLogs: 0

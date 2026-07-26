@@ -161,10 +161,14 @@ public class NpcItemCollector : MonoBehaviour
             return false;
         }
 
+        bool prioritizeImmediateUse =
+            ShouldPrioritizeImmediateUseForHeavenGift(
+                pickup);
+
         ReceiveItem(
             pickedItem,
             ItemLifecycleEventType.Picked,
-            false);
+            prioritizeImmediateUse);
 
         pickup.TrackReceiver(gameObject);
 
@@ -384,6 +388,22 @@ public class NpcItemCollector : MonoBehaviour
         return true;
     }
 
+    bool ShouldPrioritizeImmediateUseForHeavenGift(
+        WorldStatItemPickup pickup)
+    {
+        if (pickup == null ||
+            !pickup.trackReceiverInHeavenNurture)
+        {
+            return false;
+        }
+
+        SmartNpcAI smartNpc =
+            GetComponent<SmartNpcAI>();
+
+        return smartNpc != null &&
+            smartNpc.enabled;
+    }
+
     bool CanStudyManualNow(StatItemData item)
     {
         if (item == null)
@@ -572,8 +592,10 @@ public class NpcItemCollector : MonoBehaviour
             return 0f;
         }
 
-        const float daysPerGameYear = 360f;
-        return Time.deltaTime / time.realSecondsPerGameDay / daysPerGameYear;
+        return
+            Time.deltaTime /
+            time.realSecondsPerGameDay /
+            Mathf.Max(1f, time.DaysPerYear);
     }
 
     bool TryStudyOwnedManual()

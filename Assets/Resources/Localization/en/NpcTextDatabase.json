@@ -106,8 +106,32 @@
           "value": "Dao Companion"
         },
         {
+          "key": "daoCompanionWith",
+          "value": "Dao Companion with {0}"
+        },
+        {
+          "key": "dating",
+          "value": "Dating"
+        },
+        {
+          "key": "datingWith",
+          "value": "Dating {0}"
+        },
+        {
+          "key": "villagerMarried",
+          "value": "Married"
+        },
+        {
+          "key": "villagerMarriedWith",
+          "value": "Married to {0}"
+        },
+        {
           "key": "married",
           "value": "Married"
+        },
+        {
+          "key": "marriedWith",
+          "value": "Married with {0}"
         }
       ]
     },

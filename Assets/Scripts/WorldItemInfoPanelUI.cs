@@ -31,6 +31,9 @@ public class WorldItemInfoPanelUI : MonoBehaviour
     public TMP_Text namtuoiText;
 
     public Image panelIcon;
+    public Image panelIconFrame;
+    public Image panelIconGlow;
+    public Image panelIconRing;
 
     [Header("Cards")]
     public CardBinding valueCard = new CardBinding();
@@ -48,14 +51,41 @@ public class WorldItemInfoPanelUI : MonoBehaviour
         public Image icon;
     }
 
+    Outline panelIconFrameOutline;
+    Shadow panelIconFrameShadow;
+    Vector3 panelIconGlowBaseScale = Vector3.one;
+    Vector3 panelIconRingBaseScale = Vector3.one;
+    Vector3 panelIconGlowBaseEuler = Vector3.zero;
+    Vector3 panelIconRingBaseEuler = Vector3.zero;
+    ItemGrade currentIconGrade = ItemGrade.Ha;
+    float iconPulseSeed;
+    bool iconVisualBaseCaptured;
+    static Sprite sharedPanelAuraSprite;
+    static bool searchedSharedPanelAuraSprite;
+    static Sprite sharedPanelEnergySprite;
+    static bool searchedSharedPanelEnergySprite;
+
     void Awake()
     {
+        iconPulseSeed =
+            Mathf.Abs(
+                UnityObjectIdUtility.GetRuntimeId(this) * 0.173f);
         EnsureReferences();
     }
 
     void OnEnable()
     {
         EnsureReferences();
+    }
+
+    void Update()
+    {
+        ApplyPanelIconVisuals(
+            currentIconGrade,
+            0.68f +
+            0.32f * Mathf.Sin(
+                Time.unscaledTime * 3.2f +
+                iconPulseSeed));
     }
 
     public void EnsureReferences()
@@ -82,6 +112,41 @@ public class WorldItemInfoPanelUI : MonoBehaviour
                 "ItemIcon",
                 "InfoIcon",
                 "IconImage");
+        }
+
+        Transform iconSection =
+            FindChildByName(
+                panelRoot.transform,
+                "ItemIcon");
+        if (iconSection != null)
+        {
+            if (panelIconFrame == null)
+            {
+                panelIconFrame =
+                    iconSection.GetComponent<Image>();
+            }
+
+            if (panelIconGlow == null)
+            {
+                panelIconGlow =
+                    FindImage(
+                        iconSection,
+                        "Glow",
+                        "glow",
+                        "AuraGlow",
+                        "auraGlow");
+            }
+
+            if (panelIconRing == null)
+            {
+                panelIconRing =
+                    FindImage(
+                        iconSection,
+                        "Ring",
+                        "ring",
+                        "EnergyRing",
+                        "energyRing");
+            }
         }
 
         nameText = EnsureText(
@@ -146,6 +211,8 @@ public class WorldItemInfoPanelUI : MonoBehaviour
             panelIcon.raycastTarget = false;
             panelIcon.preserveAspect = true;
         }
+
+        EnsurePanelIconEffects();
     }
 
     public void Show(WorldStatItemPickup pickup)
@@ -178,13 +245,16 @@ public class WorldItemInfoPanelUI : MonoBehaviour
     void ApplyItemData(WorldStatItemPickup pickup)
     {
         StatItemData item = pickup.item;
+        int displayPrice = GetDisplayPrice(item, pickup);
 
         SetText(nameText, ItemText.Name(item));
         SetText(qualityText, GetQualityText(item));
-        SetText(quickInfoText, BuildQuickInfoText(item, pickup.amount));
-        SetText(motaText, ItemText.Description(item));
+        SetText(
+            quickInfoText,
+            BuildQuickInfoText(item, pickup.amount, displayPrice));
+        SetText(motaText, BuildDescriptionText(pickup));
         SetText(infoText, BuildInfoText(item, pickup.amount));
-        SetText(extraInfoText, BuildExtraInfoText(item, pickup.amount));
+        SetText(extraInfoText, BuildExtraInfoText(pickup, displayPrice));
         SetText(loreQuoteText, BuildLoreQuoteText(item));
         SetOptionalText(namtuoiRoot, namtuoiText, BuildGrowthDurationText(pickup));
 
@@ -193,9 +263,21 @@ public class WorldItemInfoPanelUI : MonoBehaviour
             qualityText.color = GetGradeColor(item.grade);
         }
 
-        SetCard(valueCard, "Giá trị", NpcEconomy.FormatCurrency(Mathf.Max(0, item.price)));
-        SetCard(sourceCard, "Nguồn", BuildSourceText(item));
-        SetCard(usageCard, "Cách dùng", BuildUsageText(item, pickup.amount));
+        SetCard(
+            valueCard,
+            UiText.Get("worldItemInfo", "cardValue", "Gia tri"),
+            NpcEconomy.FormatCurrency(displayPrice));
+        SetCard(
+            sourceCard,
+            UiText.Get("worldItemInfo", "cardSource", "Nguon"),
+            BuildSourceText(pickup));
+        SetCard(
+            usageCard,
+            UiText.Get("worldItemInfo", "cardUsage", "Cach dung"),
+            BuildUsageText(pickup));
+
+        currentIconGrade = item.grade;
+        ApplyPanelIconVisuals(currentIconGrade, 0.72f);
 
         if (panelIcon != null)
         {
@@ -240,7 +322,10 @@ public class WorldItemInfoPanelUI : MonoBehaviour
         }
     }
 
-    static string BuildQuickInfoText(StatItemData item, int amount)
+    static string BuildQuickInfoText(
+        StatItemData item,
+        int amount,
+        int displayPrice)
     {
         if (item == null)
         {
@@ -258,10 +343,10 @@ public class WorldItemInfoPanelUI : MonoBehaviour
             builder.Append(amount);
         }
 
-        if (item.price > 0)
+        if (displayPrice > 0)
         {
             builder.Append(" · ");
-            builder.Append(NpcEconomy.FormatCurrency(item.price));
+            builder.Append(NpcEconomy.FormatCurrency(displayPrice));
         }
 
         return builder.ToString();
@@ -281,16 +366,196 @@ public class WorldItemInfoPanelUI : MonoBehaviour
         return builder.ToString().TrimEnd();
     }
 
-    static string BuildExtraInfoText(StatItemData item, int amount)
+    static string BuildDescriptionText(WorldStatItemPickup pickup)
     {
+        StatItemData item = pickup != null ? pickup.item : null;
+        if (item == null)
+        {
+            return "";
+        }
+
+        string description = ItemText.Description(item);
+        if (!IsPlaceholderDescription(description, item))
+        {
+            return description.Trim();
+        }
+
+        switch (LocalizationSettings.CurrentLanguageCode)
+        {
+            case "zh":
+                return BuildChineseFallbackDescription(item);
+            case "en":
+                return BuildEnglishFallbackDescription(item);
+            default:
+                return BuildVietnameseFallbackDescription(item);
+        }
+    }
+
+    static bool IsPlaceholderDescription(
+        string description,
+        StatItemData item)
+    {
+        if (item == null)
+        {
+            return true;
+        }
+
+        string normalizedDescription =
+            NormalizeLookupToken(description);
+        if (string.IsNullOrWhiteSpace(normalizedDescription))
+        {
+            return true;
+        }
+
+        if (normalizedDescription ==
+            NormalizeLookupToken(ItemText.Name(item)))
+        {
+            return true;
+        }
+
+        if (normalizedDescription ==
+            NormalizeLookupToken(item.itemName))
+        {
+            return true;
+        }
+
+        return normalizedDescription ==
+            NormalizeLookupToken(item.name);
+    }
+
+    static string NormalizeLookupToken(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "";
+        }
+
+        return value.Trim()
+            .Replace("\r", " ")
+            .Replace("\n", " ")
+            .ToLowerInvariant();
+    }
+
+    static string BuildVietnameseFallbackDescription(
+        StatItemData item)
+    {
+        string itemName = ItemText.Name(item);
+
+        switch (item.itemType)
+        {
+            case ItemType.ThucPham:
+                switch (item.foodKind)
+                {
+                    case FoodKind.Grain:
+                        return itemName +
+                            " là linh cốc dùng làm lương thực thường nhật, có thể nấu thành món ăn để bồi bổ khí lực và hồi phục thân thể.";
+                    case FoodKind.Meat:
+                        return itemName +
+                            " là thịt mang linh khí, thường được chế biến thành món ăn để bồi bổ thể lực và duy trì sinh cơ.";
+                    case FoodKind.Fish:
+                        return itemName +
+                            " là linh ngư giàu tinh khí, thích hợp làm món ăn giúp phục hồi thể lực và dưỡng thân.";
+                    default:
+                        return itemName +
+                            " là thực phẩm mang linh khí, thường được dùng làm món ăn hoặc bồi bổ hằng ngày.";
+                }
+            case ItemType.VatLieu:
+                return itemName +
+                    " là vật liệu tích linh, có thể dùng làm nguyên liệu cho luyện đan, luyện khí hoặc các nhu cầu chế tác khác.";
+            case ItemType.DanDuoc:
+                return itemName +
+                    " là đan dược đã qua luyện chế, thường được dùng để hồi phục, bồi bổ tu vi hoặc hỗ trợ tu luyện tùy dược tính.";
+            case ItemType.PhapBao:
+                return itemName +
+                    " là pháp bảo đã được tế luyện, có thể dùng để tăng cường chiến lực hoặc hộ thân trong giao tranh.";
+            case ItemType.CongPhap:
+                return itemName +
+                    " là công pháp ghi lại phương pháp tu luyện hoặc vận dụng linh lực, thích hợp cho người muốn tham ngộ và tinh tiến.";
+            default:
+                return itemName;
+        }
+    }
+
+    static string BuildEnglishFallbackDescription(
+        StatItemData item)
+    {
+        string itemName = ItemText.Name(item);
+
+        switch (item.itemType)
+        {
+            case ItemType.ThucPham:
+                return itemName +
+                    " is a spirit-infused food item commonly used for daily meals and light nourishment.";
+            case ItemType.VatLieu:
+                return itemName +
+                    " is a spiritual material used in refining, forging, or other crafting work.";
+            case ItemType.DanDuoc:
+                return itemName +
+                    " is a refined pill used for recovery, cultivation support, or breakthroughs depending on its nature.";
+            case ItemType.PhapBao:
+                return itemName +
+                    " is a tempered artifact used to strengthen offense, defense, or personal protection.";
+            case ItemType.CongPhap:
+                return itemName +
+                    " is a cultivation manual that records a method of training or directing spiritual power.";
+            default:
+                return itemName;
+        }
+    }
+
+    static string BuildChineseFallbackDescription(
+        StatItemData item)
+    {
+        string itemName = ItemText.Name(item);
+
+        switch (item.itemType)
+        {
+            case ItemType.ThucPham:
+                return itemName +
+                    "是带有灵气的食材，可作日常膳食，也可用来温养气血。";
+            case ItemType.VatLieu:
+                return itemName +
+                    "是常见的灵性材料，可用于炼丹、炼器或其他制作用途。";
+            case ItemType.DanDuoc:
+                return itemName +
+                    "是经过炼制的丹药，可按药性用于恢复、增益或辅助修炼。";
+            case ItemType.PhapBao:
+                return itemName +
+                    "是经祭炼而成的法宝，可用于增强战力或护持自身。";
+            case ItemType.CongPhap:
+                return itemName +
+                    "是记载修炼法门的功法典籍，适合参悟与精进修为。";
+            default:
+                return itemName;
+        }
+    }
+
+    static string BuildExtraInfoText(
+        WorldStatItemPickup pickup,
+        int displayPrice)
+    {
+        StatItemData item = pickup != null ? pickup.item : null;
+        int amount = pickup != null ? pickup.amount : 0;
         if (item == null)
         {
             return "";
         }
 
         StringBuilder builder = new StringBuilder();
-        builder.AppendLine("Nguồn: " + BuildSourceText(item));
-        builder.AppendLine("Cách dùng: " + BuildUsageSummaryText(item));
+        builder.AppendLine(
+            UiText.Format(
+                "worldItemInfo",
+                "inlineSourceLine",
+                BuildSourceText(pickup)));
+        builder.AppendLine(
+            UiText.Format(
+                "worldItemInfo",
+                "inlineUsageLine",
+                BuildUsageSummaryText(pickup)));
+        AppendHerbPriceBreakdown(
+            builder,
+            pickup,
+            Mathf.Max(0, displayPrice));
 
         switch (item.itemType)
         {
@@ -936,6 +1201,32 @@ public class WorldItemInfoPanelUI : MonoBehaviour
         return char.ToLowerInvariant(value[0]) + value.Substring(1);
     }
 
+    static string BuildSourceText(WorldStatItemPickup pickup)
+    {
+        StatItemData item = pickup != null ? pickup.item : null;
+        if (item == null)
+        {
+            return "";
+        }
+
+        string areaName = ResolvePickupSourceAreaName(pickup);
+        if (!string.IsNullOrWhiteSpace(areaName))
+        {
+            return areaName;
+        }
+
+        if (IsGrowingHerbPickup(pickup) ||
+            FindFarmPlot(pickup) != null)
+        {
+            return UiText.Get(
+                "worldItemInfo",
+                "sourceUnknown",
+                "Unknown");
+        }
+
+        return BuildSourceText(item);
+    }
+
     static string BuildSourceText(StatItemData item)
     {
         if (item == null)
@@ -960,6 +1251,45 @@ public class WorldItemInfoPanelUI : MonoBehaviour
         }
     }
 
+    static string BuildUsageSummaryText(WorldStatItemPickup pickup)
+    {
+        StatItemData item = pickup != null ? pickup.item : null;
+        if (item == null)
+        {
+            return "";
+        }
+
+        if (IsGrowingHerbPickup(pickup))
+        {
+            if (item.canBeRefinedIntoPill &&
+                item.CanUseDirectly())
+            {
+                return UiText.Get(
+                    "worldItemInfo",
+                    "usageSummaryHerbRawAndRefine",
+                    "Refine / consume");
+            }
+
+            if (item.canBeRefinedIntoPill)
+            {
+                return UiText.Get(
+                    "worldItemInfo",
+                    "usageSummaryHerbRefineOnly",
+                    "Refine");
+            }
+
+            if (item.CanUseDirectly())
+            {
+                return UiText.Get(
+                    "worldItemInfo",
+                    "usageSummaryHerbRawOnly",
+                    "Consume");
+            }
+        }
+
+        return BuildUsageSummaryText(item);
+    }
+
     static string BuildUsageSummaryText(StatItemData item)
     {
         if (item == null)
@@ -972,6 +1302,46 @@ public class WorldItemInfoPanelUI : MonoBehaviour
             ItemText.Target(item.validTargets);
     }
 
+    static string BuildUsageText(WorldStatItemPickup pickup)
+    {
+        StatItemData item = pickup != null ? pickup.item : null;
+        int amount = pickup != null ? pickup.amount : 0;
+        if (item == null)
+        {
+            return "";
+        }
+
+        if (IsGrowingHerbPickup(pickup))
+        {
+            if (item.canBeRefinedIntoPill &&
+                item.CanUseDirectly())
+            {
+                return UiText.Get(
+                    "worldItemInfo",
+                    "usageHerbRawAndRefine",
+                    "Can refine or consume directly.");
+            }
+
+            if (item.canBeRefinedIntoPill)
+            {
+                return UiText.Get(
+                    "worldItemInfo",
+                    "usageHerbRefineOnly",
+                    "Used for alchemy.");
+            }
+
+            if (item.CanUseDirectly())
+            {
+                return UiText.Get(
+                    "worldItemInfo",
+                    "usageHerbRawOnly",
+                    "Can be consumed directly.");
+            }
+        }
+
+        return BuildUsageText(item, amount);
+    }
+
     static string BuildUsageText(StatItemData item, int amount)
     {
         if (item == null)
@@ -980,22 +1350,42 @@ public class WorldItemInfoPanelUI : MonoBehaviour
         }
 
         StringBuilder builder = new StringBuilder();
-        builder.AppendLine("Dùng cho: " + ItemText.Target(item.validTargets));
-        builder.AppendLine("Kiểu dùng: " + ItemText.UseStyle(item.GetResolvedUseStyle()));
+        builder.AppendLine(
+            UiText.Format(
+                "worldItemInfo",
+                "usageTargetLine",
+                ItemText.Target(item.validTargets)));
+        builder.AppendLine(
+            UiText.Format(
+                "worldItemInfo",
+                "usageStyleLine",
+                ItemText.UseStyle(item.GetResolvedUseStyle())));
 
         if (item.rawUsePolicy != RawUsePolicy.Allowed)
         {
-            builder.AppendLine("Dùng sống: " + ItemText.RawUsePolicy(item.rawUsePolicy));
+            builder.AppendLine(
+                UiText.Format(
+                    "worldItemInfo",
+                    "usageRawUseLine",
+                    ItemText.RawUsePolicy(item.rawUsePolicy)));
         }
 
         if (item.UsesDurability())
         {
-            builder.AppendLine("Độ bền: " + item.GetMaxDurability());
+            builder.AppendLine(
+                UiText.Format(
+                    "worldItemInfo",
+                    "usageDurabilityLine",
+                    item.GetMaxDurability()));
         }
 
         if (amount > 1)
         {
-            builder.AppendLine("Số lượng: " + amount);
+            builder.AppendLine(
+                UiText.Format(
+                    "worldItemInfo",
+                    "usageAmountLine",
+                    amount));
         }
 
         return builder.ToString().TrimEnd();
@@ -1248,7 +1638,29 @@ public class WorldItemInfoPanelUI : MonoBehaviour
         GrowingHerbNode herbNode = FindGrowingHerbNode(pickup);
         if (herbNode == null)
         {
-            return "";
+            FarmPlot farmPlot = FindFarmPlot(pickup);
+            if (farmPlot == null ||
+                farmPlot.plantedWorldHour < 0f ||
+                farmPlot.growDurationGameHours <= 0f)
+            {
+                return "";
+            }
+
+            float currentWorldHour = GetCurrentWorldHour();
+            int farmMatureHours =
+                Mathf.Max(
+                    1,
+                    Mathf.CeilToInt(farmPlot.growDurationGameHours));
+            int farmCurrentHours =
+                Mathf.Clamp(
+                    Mathf.FloorToInt(
+                        Mathf.Max(
+                            0f,
+                            currentWorldHour - farmPlot.plantedWorldHour)),
+                    0,
+                    farmMatureHours);
+
+            return FormatGrowthDuration(farmCurrentHours);
         }
 
         int matureHours = Mathf.Max(1, Mathf.CeilToInt(herbNode.MatureAfterGameHours));
@@ -1257,18 +1669,7 @@ public class WorldItemInfoPanelUI : MonoBehaviour
             0,
             matureHours);
 
-        string matureText = FormatGrowthHours(matureHours);
-        if (currentHours <= 0 ||
-            currentHours >= matureHours)
-        {
-            return matureText;
-        }
-
-        return UiText.Format(
-            "worldItemInfo",
-            "growthProgressFormat",
-            FormatGrowthHours(currentHours),
-            matureText);
+        return FormatGrowthDuration(currentHours);
     }
 
     static GrowingHerbNode FindGrowingHerbNode(WorldStatItemPickup pickup)
@@ -1293,25 +1694,640 @@ public class WorldItemInfoPanelUI : MonoBehaviour
         return pickup.GetComponentInChildren<GrowingHerbNode>(true);
     }
 
-    static string FormatGrowthHours(int totalHours)
+    static FarmPlot FindFarmPlot(WorldStatItemPickup pickup)
+    {
+        if (pickup == null)
+        {
+            return null;
+        }
+
+        FarmPlot farmPlot = pickup.GetComponent<FarmPlot>();
+        if (farmPlot != null)
+        {
+            return farmPlot;
+        }
+
+        farmPlot = pickup.GetComponentInParent<FarmPlot>();
+        if (farmPlot != null)
+        {
+            return farmPlot;
+        }
+
+        return pickup.GetComponentInChildren<FarmPlot>(true);
+    }
+
+    static float GetCurrentWorldHour()
+    {
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        if (timeSystem != null)
+        {
+            return timeSystem.CurrentWorldHour;
+        }
+
+        if (GameTime.TryGetCurrentWorldHour(out double currentWorldHour))
+        {
+            return (float)currentWorldHour;
+        }
+
+        return 0f;
+    }
+
+    static string FormatGrowthDuration(int totalHours)
     {
         totalHours = Mathf.Max(0, totalHours);
-        int days = totalHours / 24;
-        int hours = totalHours % 24;
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        if (timeSystem == null)
+        {
+            timeSystem = WorldTimeSystem.EnsureInstance();
+        }
 
-        if (days > 0)
+        int monthsPerYear =
+            timeSystem != null
+                ? Mathf.Max(1, timeSystem.DisplayMonthsPerYear)
+                : 15;
+        int totalMonths =
+            totalHours <= 0
+                ? 0
+                : Mathf.Max(
+                    1,
+                    Mathf.RoundToInt(
+                        (totalHours / 24f) * monthsPerYear));
+        int years = totalMonths / monthsPerYear;
+        int months = totalMonths % monthsPerYear;
+
+        if (years > 0 &&
+            months > 0)
         {
             return UiText.Format(
                 "worldItemInfo",
-                "growthDaysHoursFormat",
-                days,
-                hours);
+                "growthYearsMonthsFormat",
+                years,
+                months);
+        }
+
+        if (years > 0)
+        {
+            return UiText.Format(
+                "worldItemInfo",
+                "growthYearsFormat",
+                years);
         }
 
         return UiText.Format(
             "worldItemInfo",
-            "growthHoursFormat",
-            totalHours);
+            "growthMonthsFormat",
+            Mathf.Max(0, months));
+    }
+
+    static bool IsGrowingHerbPickup(WorldStatItemPickup pickup)
+    {
+        return FindGrowingHerbNode(pickup) != null;
+    }
+
+    static int GetDisplayPrice(
+        StatItemData item,
+        WorldStatItemPickup pickup)
+    {
+        if (item == null)
+        {
+            return 0;
+        }
+
+        GrowingHerbNode herbNode = FindGrowingHerbNode(pickup);
+        if (herbNode == null)
+        {
+            return Mathf.Max(0, item.price);
+        }
+
+        return GetHerbStagePrice(
+            Mathf.Max(0, item.price),
+            herbNode.CurrentVisualStage);
+    }
+
+    static int GetHerbStagePrice(
+        int maturePrice,
+        GrowingHerbVisualStage stage)
+    {
+        if (maturePrice <= 0)
+        {
+            return 0;
+        }
+
+        float multiplier = 1f;
+        switch (stage)
+        {
+            case GrowingHerbVisualStage.Small:
+                multiplier = 0.35f;
+                break;
+            case GrowingHerbVisualStage.Mid:
+                multiplier = 0.7f;
+                break;
+            default:
+                multiplier = 1f;
+                break;
+        }
+
+        return Mathf.Max(
+            1,
+            Mathf.RoundToInt(
+                Mathf.Max(0, maturePrice) * multiplier));
+    }
+
+    static void AppendHerbPriceBreakdown(
+        StringBuilder builder,
+        WorldStatItemPickup pickup,
+        int currentDisplayPrice)
+    {
+        GrowingHerbNode herbNode = FindGrowingHerbNode(pickup);
+        StatItemData item = pickup != null ? pickup.item : null;
+        if (builder == null ||
+            herbNode == null ||
+            item == null ||
+            item.price <= 0)
+        {
+            return;
+        }
+
+        builder.AppendLine(
+            UiText.Format(
+                "worldItemInfo",
+                "currentStageValueLine",
+                GetHerbStageLabel(herbNode.CurrentVisualStage),
+                NpcEconomy.FormatCurrency(currentDisplayPrice)));
+        builder.AppendLine(
+            UiText.Format(
+                "worldItemInfo",
+                "stageValueLine",
+                UiText.Get("worldItemInfo", "stageSmall", "Seedling"),
+                NpcEconomy.FormatCurrency(
+                    GetHerbStagePrice(
+                        item.price,
+                        GrowingHerbVisualStage.Small))));
+        builder.AppendLine(
+            UiText.Format(
+                "worldItemInfo",
+                "stageValueLine",
+                UiText.Get("worldItemInfo", "stageMid", "Young"),
+                NpcEconomy.FormatCurrency(
+                    GetHerbStagePrice(
+                        item.price,
+                        GrowingHerbVisualStage.Mid))));
+        builder.AppendLine(
+            UiText.Format(
+                "worldItemInfo",
+                "stageValueLine",
+                UiText.Get("worldItemInfo", "stageMature", "Mature"),
+                NpcEconomy.FormatCurrency(
+                    GetHerbStagePrice(
+                        item.price,
+                        GrowingHerbVisualStage.Mature))));
+    }
+
+    static string GetHerbStageLabel(GrowingHerbVisualStage stage)
+    {
+        switch (stage)
+        {
+            case GrowingHerbVisualStage.Small:
+                return UiText.Get(
+                    "worldItemInfo",
+                    "stageSmall",
+                    "Seedling");
+            case GrowingHerbVisualStage.Mid:
+                return UiText.Get(
+                    "worldItemInfo",
+                    "stageMid",
+                    "Young");
+            default:
+                return UiText.Get(
+                    "worldItemInfo",
+                    "stageMature",
+                    "Mature");
+        }
+    }
+
+    static string ResolvePickupSourceAreaName(WorldStatItemPickup pickup)
+    {
+        if (pickup == null)
+        {
+            return "";
+        }
+
+        Vector3 position = pickup.transform.position;
+        NpcMapArea area = NpcMapArea.FindArea(position);
+        if (area == null)
+        {
+            area = NpcMapArea.FindNearestArea(position);
+        }
+
+        if (area != null &&
+            !string.IsNullOrWhiteSpace(area.displayName))
+        {
+            return NpcText.CleanDisplayText(
+                area.displayName.Trim());
+        }
+
+        FrontierBattleLine line =
+            pickup.GetComponentInParent<FrontierBattleLine>();
+        if (line != null)
+        {
+            return line.GetDisplayName();
+        }
+
+        FrontierWatchPost watchPost =
+            pickup.GetComponentInParent<FrontierWatchPost>();
+        if (watchPost != null)
+        {
+            return watchPost.GetDisplayName();
+        }
+
+        return "";
+    }
+
+    void EnsurePanelIconEffects()
+    {
+        if (panelIconFrame != null)
+        {
+            panelIconFrame.raycastTarget = false;
+
+            panelIconFrameOutline =
+                panelIconFrame.GetComponent<Outline>();
+            if (panelIconFrameOutline == null)
+            {
+                panelIconFrameOutline =
+                    panelIconFrame.gameObject.AddComponent<Outline>();
+            }
+
+            panelIconFrameShadow =
+                panelIconFrame.GetComponent<Shadow>();
+            if (panelIconFrameShadow == null)
+            {
+                panelIconFrameShadow =
+                    panelIconFrame.gameObject.AddComponent<Shadow>();
+            }
+        }
+
+        if (!iconVisualBaseCaptured)
+        {
+            if (panelIconGlow != null)
+            {
+                panelIconGlowBaseScale =
+                    panelIconGlow.transform.localScale;
+                panelIconGlowBaseEuler =
+                    panelIconGlow.transform.localEulerAngles;
+                panelIconGlow.raycastTarget = false;
+                panelIconGlow.preserveAspect = true;
+            }
+
+            if (panelIconRing != null)
+            {
+                panelIconRingBaseScale =
+                    panelIconRing.transform.localScale;
+                panelIconRingBaseEuler =
+                    panelIconRing.transform.localEulerAngles;
+                panelIconRing.raycastTarget = false;
+                panelIconRing.preserveAspect = true;
+            }
+
+            iconVisualBaseCaptured = true;
+        }
+
+        EnsurePanelEffectSprites();
+    }
+
+    void ApplyPanelIconVisuals(
+        ItemGrade grade,
+        float pulse)
+    {
+        if ((panelIconFrame == null &&
+             panelIconGlow == null &&
+             panelIconRing == null) ||
+            !isActiveAndEnabled)
+        {
+            return;
+        }
+
+        EnsurePanelIconEffects();
+
+        float clampedPulse = Mathf.Clamp01(pulse);
+
+        if (panelIconFrame != null)
+        {
+            Sprite frame =
+                ItemGradeFrameLibrary.GetFrame(grade);
+            panelIconFrame.sprite = frame;
+            panelIconFrame.enabled = frame != null;
+            panelIconFrame.color = Color.white;
+            panelIconFrame.type = Image.Type.Simple;
+            panelIconFrame.preserveAspect = false;
+        }
+
+        if (panelIconFrameOutline != null)
+        {
+            panelIconFrameOutline.enabled = false;
+        }
+
+        if (panelIconFrameShadow != null)
+        {
+            panelIconFrameShadow.enabled = false;
+        }
+
+        float strength = GetPanelRarityStrength(grade);
+        float spinSpeed = GetPanelRaritySpinSpeed(grade);
+        float amplitude = GetPanelRarityRotationAmplitude(grade);
+        float time = Time.unscaledTime + iconPulseSeed;
+
+        if (panelIconGlow != null)
+        {
+            panelIconGlow.enabled =
+                panelIconGlow.sprite != null;
+            panelIconGlow.color =
+                GetPanelRarityAuraColor(
+                    grade,
+                    clampedPulse);
+
+            float rotation =
+                Mathf.Sin(time * spinSpeed) *
+                amplitude;
+            float auraScale =
+                1f + strength * (0.03f + clampedPulse * 0.04f);
+            panelIconGlow.transform.localRotation =
+                Quaternion.Euler(
+                    panelIconGlowBaseEuler.x,
+                    panelIconGlowBaseEuler.y,
+                    panelIconGlowBaseEuler.z + rotation);
+            panelIconGlow.transform.localScale =
+                new Vector3(
+                    panelIconGlowBaseScale.x * auraScale,
+                    panelIconGlowBaseScale.y * auraScale,
+                    panelIconGlowBaseScale.z);
+        }
+
+        if (panelIconRing != null)
+        {
+            panelIconRing.enabled =
+                panelIconRing.sprite != null;
+            panelIconRing.color =
+                GetPanelRarityEnergyColor(
+                    grade,
+                    clampedPulse);
+
+            float rotation =
+                Mathf.Sin(
+                    time * (spinSpeed * 1.18f) + 1.7f) *
+                amplitude *
+                1.08f;
+            float energyScale =
+                1f + strength * (0.02f + clampedPulse * 0.03f);
+            panelIconRing.transform.localRotation =
+                Quaternion.Euler(
+                    panelIconRingBaseEuler.x,
+                    panelIconRingBaseEuler.y,
+                    panelIconRingBaseEuler.z - rotation);
+            panelIconRing.transform.localScale =
+                new Vector3(
+                    panelIconRingBaseScale.x * energyScale,
+                    panelIconRingBaseScale.y * energyScale,
+                    panelIconRingBaseScale.z);
+        }
+    }
+
+    void EnsurePanelEffectSprites()
+    {
+        if (panelIconGlow != null &&
+            panelIconGlow.sprite == null)
+        {
+            panelIconGlow.sprite =
+                GetSharedPanelEffectSprite(
+                    ref sharedPanelAuraSprite,
+                    ref searchedSharedPanelAuraSprite,
+                    "AuraGlow",
+                    "RarityAura",
+                    "Aura",
+                    "Glow",
+                    "aura_");
+        }
+
+        if (panelIconRing != null &&
+            panelIconRing.sprite == null)
+        {
+            panelIconRing.sprite =
+                GetSharedPanelEffectSprite(
+                    ref sharedPanelEnergySprite,
+                    ref searchedSharedPanelEnergySprite,
+                    "EnergyRing",
+                    "RarityEnergy",
+                    "Energy",
+                    "Ring",
+                    "energy_");
+        }
+    }
+
+    static Sprite GetSharedPanelEffectSprite(
+        ref Sprite cachedSprite,
+        ref bool searched,
+        string primaryImageName,
+        string secondaryImageName,
+        string tertiaryImageName,
+        string fallbackImageName,
+        string spriteNamePrefix)
+    {
+        if (cachedSprite != null)
+        {
+            return cachedSprite;
+        }
+
+        if (searched)
+        {
+            return null;
+        }
+
+        searched = true;
+
+        cachedSprite =
+            FindSpriteFromImages(
+                primaryImageName,
+                secondaryImageName,
+                tertiaryImageName,
+                fallbackImageName);
+        if (cachedSprite != null)
+        {
+            return cachedSprite;
+        }
+
+        cachedSprite =
+            FindSpriteByNamePrefix(
+                spriteNamePrefix);
+        return cachedSprite;
+    }
+
+    static Sprite FindSpriteFromImages(
+        params string[] imageNames)
+    {
+        if (imageNames == null ||
+            imageNames.Length == 0)
+        {
+            return null;
+        }
+
+        Image[] images =
+            Resources.FindObjectsOfTypeAll<Image>();
+        foreach (Image image in images)
+        {
+            if (image == null ||
+                image.sprite == null)
+            {
+                continue;
+            }
+
+            for (int i = 0; i < imageNames.Length; i++)
+            {
+                if (string.Equals(
+                        image.name,
+                        imageNames[i],
+                        System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return image.sprite;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    static Sprite FindSpriteByNamePrefix(
+        string spriteNamePrefix)
+    {
+        if (string.IsNullOrWhiteSpace(spriteNamePrefix))
+        {
+            return null;
+        }
+
+        Sprite[] sprites =
+            Resources.FindObjectsOfTypeAll<Sprite>();
+        foreach (Sprite sprite in sprites)
+        {
+            if (sprite == null ||
+                string.IsNullOrWhiteSpace(sprite.name))
+            {
+                continue;
+            }
+
+            if (sprite.name.StartsWith(
+                    spriteNamePrefix,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                return sprite;
+            }
+        }
+
+        return null;
+    }
+
+    static Color GetPanelRarityAuraColor(
+        ItemGrade grade,
+        float pulse)
+    {
+        Color baseColor =
+            ShopPanelUI.GetGradeBaseColor(grade);
+        Color accentColor =
+            ShopPanelUI.GetGradeAccentColor(grade);
+        Color mixed =
+            Color.Lerp(
+                baseColor,
+                accentColor,
+                0.40f + Mathf.Clamp01(pulse) * 0.22f);
+
+        Color.RGBToHSV(
+            mixed,
+            out float hue,
+            out float saturation,
+            out float value);
+
+        saturation = Mathf.Clamp01(saturation + 0.18f);
+        value = Mathf.Clamp01(value + 0.16f);
+
+        Color aura = Color.HSVToRGB(hue, saturation, value);
+        aura.a = 0.22f + Mathf.Clamp01(pulse) * 0.18f;
+        return aura;
+    }
+
+    static Color GetPanelRarityEnergyColor(
+        ItemGrade grade,
+        float pulse)
+    {
+        Color baseColor =
+            ShopPanelUI.GetGradeBaseColor(grade);
+        Color accentColor =
+            ShopPanelUI.GetGradeAccentColor(grade);
+        Color mixed =
+            Color.Lerp(
+                baseColor,
+                accentColor,
+                0.68f + Mathf.Clamp01(pulse) * 0.14f);
+
+        Color.RGBToHSV(
+            mixed,
+            out float hue,
+            out float saturation,
+            out float value);
+
+        saturation = Mathf.Clamp01(saturation + 0.34f);
+        value = Mathf.Clamp01(value + 0.24f);
+
+        Color energy = Color.HSVToRGB(hue, saturation, value);
+        energy.a = 0.38f + Mathf.Clamp01(pulse) * 0.22f;
+        return energy;
+    }
+
+    static float GetPanelRarityStrength(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.Ha:
+                return 0.16f;
+            case ItemGrade.Trung:
+                return 0.30f;
+            case ItemGrade.Thuong:
+                return 0.52f;
+            case ItemGrade.Tien:
+                return 0.72f;
+            default:
+                return 0.2f;
+        }
+    }
+
+    static float GetPanelRarityRotationAmplitude(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.Ha:
+                return 4.0f;
+            case ItemGrade.Trung:
+                return 9.0f;
+            case ItemGrade.Thuong:
+                return 15.0f;
+            case ItemGrade.Tien:
+                return 22.0f;
+            default:
+                return 6.0f;
+        }
+    }
+
+    static float GetPanelRaritySpinSpeed(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.Ha:
+                return 0.90f;
+            case ItemGrade.Trung:
+                return 1.20f;
+            case ItemGrade.Thuong:
+                return 1.55f;
+            case ItemGrade.Tien:
+                return 1.95f;
+            default:
+                return 1.0f;
+        }
     }
 
     static TMP_Text EnsureText(
@@ -1576,10 +2592,21 @@ public class WorldItemInfoPanelUI : MonoBehaviour
         builder.AppendLine("Số lượng: " + Mathf.Max(0, pickup.amount));
 
         string description = ItemText.Description(pickup.item);
-        if (!string.IsNullOrWhiteSpace(description))
+        if (!string.IsNullOrWhiteSpace(description) &&
+            !IsPlaceholderDescription(description, pickup.item))
         {
             builder.AppendLine();
             builder.Append(description.Trim());
+        }
+        else
+        {
+            string fallbackDescription =
+                BuildDescriptionText(pickup);
+            if (!string.IsNullOrWhiteSpace(fallbackDescription))
+            {
+                builder.AppendLine();
+                builder.Append(fallbackDescription.Trim());
+            }
         }
 
         return builder.ToString().Trim();

@@ -513,13 +513,27 @@ public partial class FrontierDefenseCoordinator
 
     void AddUrgentLog(string content)
     {
-        if (string.IsNullOrWhiteSpace(content) ||
-            WorldEventManager.Instance == null)
+        if (string.IsNullOrWhiteSpace(content))
         {
             return;
         }
 
-        WorldEventManager.Instance.AddLog(content, 2, true);
+        if (WorldEventManager.Instance != null)
+        {
+            WorldEventManager.Instance.AddLog(content, 2, true);
+            return;
+        }
+
+        if (WorldScreenNotificationHub.Instance != null)
+        {
+            WorldScreenNotificationHub.Instance.EnqueueNormal(
+                content);
+        }
+
+        Debug.LogWarning(
+            "[FrontierDefenseCoordinator] " +
+            content,
+            this);
     }
 
     static bool IsFrontierWatchOffer(NpcTaskOffer offer)

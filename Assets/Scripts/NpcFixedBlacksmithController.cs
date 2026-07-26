@@ -44,6 +44,14 @@ public partial class NpcFixedBlacksmithController : MonoBehaviour
     [Min(2)] public int randomMaterialKindsMax = 3;
     [Min(0)] public int craftingLaborFee = 500;
 
+    [Header("Daily Supplies")]
+    public bool buyDailyConsumables = true;
+    public StatItemData dailyRiceItem;
+    public StatItemData dailyFishItem;
+    public StatItemData dailyMeatItem;
+    [Min(0)] public int dailyRiceAmount = 1;
+    [Min(0)] public int dailyProteinAmount = 1;
+
     [Header("Production")]
     [Min(1)] public int craftDays = 3;
     [Min(1)] public int haCraftDays = 1;
@@ -78,6 +86,7 @@ public partial class NpcFixedBlacksmithController : MonoBehaviour
     public float stateStartedAtRealtime = -1f;
     public int lastPurchaseDay = -1;
     public int lastSaleDay = -1;
+    public int lastDailyConsumableTradeDay = -1;
     public int lastBatchMaterialBudget;
     public int lastBatchMinimumSaleValue;
     public bool debugLogs;
@@ -209,6 +218,12 @@ public partial class NpcFixedBlacksmithController : MonoBehaviour
         }
 
         float currentHour = GetCurrentClockHour();
+        if (IsEmergencyShelterActive())
+        {
+            villager.GoHomeToRest();
+            return true;
+        }
+
         if (IsDedicatedRestWindow(currentHour))
         {
             villager.GoHomeToRest();

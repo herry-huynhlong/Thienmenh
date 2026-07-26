@@ -596,116 +596,16 @@ public partial class SmartNpcAI
             return;
         }
 
-        Vector2 direction =
-            (moveTarget -
-            transform.position).normalized;
+        NpcMapZone? stepTargetZone =
+            usingTeleportRoute
+                ? (currentZone.HasValue
+                    ? currentZone
+                    : desiredZone)
+                : desiredZone;
 
-        if (!useObstacleAvoidance)
-        {
-            if (!TryResolveCrowdAhead(direction, out direction))
-            {
-                if (ShouldBypassCrowdBlockForTravelAction())
-                {
-                    direction = ApplyCrowdAvoidance(direction);
-                    SetDesiredVelocity(direction * moveSpeed);
-                    UpdateUnstuck(direction);
-                    return;
-                }
-
-                DebugFlow("Move", "Crowd ahead blocked");
-
-                if (currentTarget != null ||
-                    hasWanderTarget ||
-                    HasLockedDirectedTarget())
-                {
-                    if (currentTarget != null &&
-                        currentTarget.GetComponentInParent<NpcTaskProvider>() != null)
-                    {
-                        DebugFlow(
-                            "Move",
-                            "Crowd blocked near provider target=" +
-                            currentTarget.name +
-                            " desired=" +
-                            desiredTarget +
-                            " moveTarget=" +
-                            moveTarget +
-                            " pos=" +
-                            transform.position);
-                    }
-
-                    HandleBlockedMovement(moveTarget, desiredTarget);
-                }
-                return;
-            }
-
-            direction = ApplyCrowdAvoidance(direction);
-            SetDesiredVelocity(direction * moveSpeed);
-            UpdateUnstuck(direction);
-            return;
-        }
-
-        if (IsMovementBlocked(direction))
-        {
-            if (TryChooseObstacleDetourDirection(direction, desiredTarget, out Vector2 detourDirection))
-            {
-                if (TryCommitObstacleAvoidTarget(detourDirection))
-                {
-                    blockedMoveTimer = 0f;
-                    return;
-                }
-
-                HandleBlockedMovement(moveTarget, desiredTarget);
-                return;
-            }
-            else
-            {
-                HandleBlockedMovement(moveTarget, desiredTarget);
-                return;
-            }
-        }
-
-        if (!TryResolveCrowdAhead(direction, out direction))
-        {
-            if (ShouldBypassCrowdBlockForTravelAction())
-            {
-                direction = ApplyCrowdAvoidance(direction);
-                SetDesiredVelocity(direction * moveSpeed);
-                UpdateUnstuck(direction);
-                return;
-            }
-
-            DebugFlow("Move", "Crowd ahead blocked with obstacle avoidance");
-
-            if (currentTarget != null ||
-                hasWanderTarget ||
-                HasLockedDirectedTarget())
-            {
-                if (currentTarget != null &&
-                    currentTarget.GetComponentInParent<NpcTaskProvider>() != null)
-                {
-                    DebugFlow(
-                        "Move",
-                        "Crowd blocked with avoidance near provider target=" +
-                        currentTarget.name +
-                        " desired=" +
-                        desiredTarget +
-                        " moveTarget=" +
-                        moveTarget +
-                        " pos=" +
-                        transform.position);
-                }
-
-                HandleBlockedMovement(moveTarget, desiredTarget);
-            }
-            return;
-        }
-
-        direction = ApplyCrowdAvoidance(direction);
-
-        SetDesiredVelocity(
-            direction * moveSpeed);
-
-        UpdateUnstuck(direction);
+        MoveToPosition(
+            moveTarget,
+            stepTargetZone);
     }
 
     bool ShouldHoldCombatPosition()

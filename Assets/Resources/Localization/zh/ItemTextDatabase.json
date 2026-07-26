@@ -128,11 +128,21 @@
     },
     {
       "name": "itemDescriptions",
-      "entries": []
+      "entries": [
+        {
+          "key": "Linh_Me",
+          "value": "灵米是种在灵田中的灵性谷物，谷粒饱满，常年吸纳天地灵气。若在适当时节收成，可煮成灵食，用于温养气力、调和身体，也能作为修士与凡人的日常口粮。"
+        }
+      ]
     },
     {
       "name": "itemLores",
-      "entries": []
+      "entries": [
+        {
+          "key": "Linh_Me",
+          "value": "相传以灵泉灌溉、地脉平稳的灵田所产灵米，米香更盛，粒实更足，久食之下还能缓缓积养元气。"
+        }
+      ]
     },
     {
       "name": "shopCard",

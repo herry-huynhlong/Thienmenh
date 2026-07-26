@@ -28,6 +28,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
 {
     static readonly HashSet<VillagerAI> activeVillagers =
         new HashSet<VillagerAI>();
+    const int WorkingAgeMin = 15;
 
     public static IReadOnlyCollection<VillagerAI> ActiveVillagers =>
         activeVillagers;
@@ -560,6 +561,7 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             ApplyEntityProfile();
         }
 
+        ApplyLockedSpecialProfessionJob();
         NormalizeVillagerJobSelection();
 
         if (characterStats == null)
@@ -878,19 +880,48 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
         return VillagerAgeGroup.Adult;
     }
 
+    bool HasReachedWorkingAge()
+    {
+        return GetCurrentVillagerAge() >= WorkingAgeMin;
+    }
+
+    bool IsWorkingEligibleByAgeGroup()
+    {
+        return ageGroup == VillagerAgeGroup.Adult ||
+            ageGroup == VillagerAgeGroup.Elder ||
+            (ageGroup == VillagerAgeGroup.Teen && HasReachedWorkingAge());
+    }
+
     public void RefreshAgeSensitiveBehaviours()
     {
         ageGroup = GetAgeGroup(GetCurrentVillagerAge());
-        hideAtHome =
-            ageGroup != VillagerAgeGroup.Child &&
-            ageGroup != VillagerAgeGroup.Teen;
+        hideAtHome = ageGroup != VillagerAgeGroup.Child &&
+            (ageGroup != VillagerAgeGroup.Teen || HasReachedWorkingAge());
+
+        if (IsWorkingEligibleByAgeGroup() &&
+            (!keepInspectorJob || HasTrackedParents()) &&
+            job == VillagerJob.None)
+        {
+            job = GetGeneratedJob(
+                entityProfile != null
+                    ? entityProfile.personality
+                    : null);
+            NormalizeVillagerJobSelection();
+        }
 
         DailyConversation conversation =
             GetComponent<DailyConversation>();
         if (conversation != null)
         {
-            conversation.enabled = ageGroup != VillagerAgeGroup.Child;
-            if (ageGroup == VillagerAgeGroup.Teen)
+            conversation.enabled = true;
+            if (ageGroup == VillagerAgeGroup.Child)
+            {
+                conversation.scanInterval =
+                    Mathf.Max(conversation.scanInterval, 4f);
+                conversation.conversationCooldown =
+                    Mathf.Max(conversation.conversationCooldown, 20f);
+            }
+            else if (ageGroup == VillagerAgeGroup.Teen)
             {
                 conversation.scanInterval =
                     Mathf.Min(conversation.scanInterval, 2.5f);
@@ -942,13 +973,82 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             case VillagerJob.Hunter:
                 return sourceJob;
 
+            case VillagerJob.Alchemist:
+                return HasDedicatedAlchemistProfession()
+                    ? sourceJob
+                    : VillagerJob.Farmer;
+
+            case VillagerJob.Blacksmith:
+                return HasDedicatedBlacksmithProfession()
+                    ? sourceJob
+                    : VillagerJob.Farmer;
+
             default:
                 return VillagerJob.Farmer;
         }
     }
 
+    bool HasTrackedParents()
+    {
+        return npcIdentity != null &&
+            (!string.IsNullOrWhiteSpace(npcIdentity.fatherId) ||
+             !string.IsNullOrWhiteSpace(npcIdentity.motherId));
+    }
+
+    void ApplyLockedSpecialProfessionJob()
+    {
+        NpcSpecialProfession specialProfession =
+            GetComponent<NpcSpecialProfession>();
+        if (specialProfession == null ||
+            !specialProfession.lockVillagerJob)
+        {
+            return;
+        }
+
+        job = specialProfession.villagerJob;
+    }
+
+    bool HasDedicatedAlchemistProfession()
+    {
+        NpcFixedAlchemistController fixedAlchemist =
+            GetComponent<NpcFixedAlchemistController>();
+        if (fixedAlchemist != null &&
+            fixedAlchemist.UseDedicatedRoutine)
+        {
+            return true;
+        }
+
+        NpcSpecialProfession specialProfession =
+            GetComponent<NpcSpecialProfession>();
+        return specialProfession != null &&
+            specialProfession.lockVillagerJob &&
+            specialProfession.villagerJob == VillagerJob.Alchemist;
+    }
+
+    bool HasDedicatedBlacksmithProfession()
+    {
+        NpcFixedBlacksmithController fixedBlacksmith =
+            GetComponent<NpcFixedBlacksmithController>();
+        if (fixedBlacksmith != null &&
+            fixedBlacksmith.UseDedicatedRoutine)
+        {
+            return true;
+        }
+
+        NpcSpecialProfession specialProfession =
+            GetComponent<NpcSpecialProfession>();
+        return specialProfession != null &&
+            specialProfession.lockVillagerJob &&
+            specialProfession.villagerJob == VillagerJob.Blacksmith;
+    }
+
     void DisableRemovedVillagerProfessionBehaviours()
     {
+        bool keepDedicatedAlchemist =
+            HasDedicatedAlchemistProfession();
+        bool keepDedicatedBlacksmith =
+            HasDedicatedBlacksmithProfession();
+
         GuardJob guardJob = GetComponent<GuardJob>();
         if (guardJob != null)
         {
@@ -962,27 +1062,31 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
         }
 
         NpcAlchemyAgent alchemyAgent = GetComponent<NpcAlchemyAgent>();
-        if (alchemyAgent != null)
+        if (alchemyAgent != null &&
+            !keepDedicatedAlchemist)
         {
             alchemyAgent.enabled = false;
         }
 
         NpcFixedAlchemistController fixedAlchemist =
             GetComponent<NpcFixedAlchemistController>();
-        if (fixedAlchemist != null)
+        if (fixedAlchemist != null &&
+            !keepDedicatedAlchemist)
         {
             fixedAlchemist.enabled = false;
         }
 
         NpcForgeAgent forgeAgent = GetComponent<NpcForgeAgent>();
-        if (forgeAgent != null)
+        if (forgeAgent != null &&
+            !keepDedicatedBlacksmith)
         {
             forgeAgent.enabled = false;
         }
 
         NpcFixedBlacksmithController fixedBlacksmith =
             GetComponent<NpcFixedBlacksmithController>();
-        if (fixedBlacksmith != null)
+        if (fixedBlacksmith != null &&
+            !keepDedicatedBlacksmith)
         {
             fixedBlacksmith.enabled = false;
         }

@@ -4,7 +4,7 @@ public static class NpcLifeStageDefaults
 {
     public const int BabyMaxAge = 3;
     public const int ChildMaxAge = 8;
-    public const int YouthMaxAge = 18;
+    public const int YouthMaxAge = 17;
     public const int MiddleMaxAge = 45;
     public const int AdultMinAge = YouthMaxAge + 1;
     public const int ElderMinAge = MiddleMaxAge + 1;
@@ -290,10 +290,71 @@ public class NPCLifecycle : MonoBehaviour
 
     void EnsureRapidGrowthAdultScale()
     {
-        if (rapidGrowthAdultScale == Vector3.zero)
+        if (rapidGrowthAdultScale == Vector3.zero ||
+            IsSuspiciouslySmallAdultScale(rapidGrowthAdultScale))
         {
+            if (TryResolveParentAdultScale(out Vector3 parentScale))
+            {
+                rapidGrowthAdultScale = parentScale;
+                return;
+            }
+
             rapidGrowthAdultScale = transform.localScale;
         }
+    }
+
+    bool IsSuspiciouslySmallAdultScale(Vector3 scale)
+    {
+        return Mathf.Abs(scale.x) < 0.2f ||
+            Mathf.Abs(scale.y) < 0.2f;
+    }
+
+    bool TryResolveParentAdultScale(out Vector3 resolvedScale)
+    {
+        resolvedScale = Vector3.zero;
+
+        if (identity == null)
+        {
+            return false;
+        }
+
+        NPCIdentity[] identities =
+            FindObjectsByType<NPCIdentity>(FindObjectsInactive.Include);
+        for (int i = 0; i < identities.Length; i++)
+        {
+            NPCIdentity candidate = identities[i];
+            if (candidate == null ||
+                candidate == identity ||
+                string.IsNullOrWhiteSpace(candidate.npcId))
+            {
+                continue;
+            }
+
+            bool matchesParent =
+                string.Equals(
+                    candidate.npcId,
+                    identity.motherId,
+                    System.StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(
+                    candidate.npcId,
+                    identity.fatherId,
+                    System.StringComparison.OrdinalIgnoreCase);
+            if (!matchesParent)
+            {
+                continue;
+            }
+
+            Vector3 candidateScale =
+                candidate.transform.localScale;
+            if (candidateScale != Vector3.zero &&
+                !IsSuspiciouslySmallAdultScale(candidateScale))
+            {
+                resolvedScale = candidateScale;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     void TryAutoEnableRapidGrowthForRuntimeChild()

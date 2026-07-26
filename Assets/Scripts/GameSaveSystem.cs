@@ -49,6 +49,8 @@ public static class GameSaveSystem
     const string WorldTimeMonthKey = SavePrefix + "WorldTime.Month";
     const string WorldTimeDayKey = SavePrefix + "WorldTime.Day";
     const string WorldTimeHourKey = SavePrefix + "WorldTime.Hour";
+    const string WorldTimeAbsoluteDayKey =
+        SavePrefix + "WorldTime.AbsoluteDay";
     const string ManualUsePrefix = SavePrefix + "ManualUse.";
     const string LastSceneKey = "LastScene";
     const string MapReturnSceneKey = "MapReturnScene";
@@ -309,6 +311,16 @@ public static class GameSaveSystem
         PlayerPrefs.SetInt(WorldTimeMonthKey, Mathf.Max(1, month));
         PlayerPrefs.SetInt(WorldTimeDayKey, Mathf.Max(1, day));
         PlayerPrefs.SetFloat(WorldTimeHourKey, Mathf.Clamp(hour, 0f, 23.999f));
+        int absoluteDay =
+            WorldTimeSystem.Instance != null
+                ? Mathf.Max(1, WorldTimeSystem.Instance.CurrentAbsoluteDay)
+                : WorldTimeSystem.GetLegacyAbsoluteDayFromDate(
+                    year,
+                    month,
+                    day);
+        PlayerPrefs.SetInt(
+            WorldTimeAbsoluteDayKey,
+            absoluteDay);
         MarkSaveExists();
         QueuePendingCommit();
     }
@@ -333,6 +345,46 @@ public static class GameSaveSystem
         month = Mathf.Max(1, PlayerPrefs.GetInt(WorldTimeMonthKey, month));
         day = Mathf.Max(1, PlayerPrefs.GetInt(WorldTimeDayKey, day));
         hour = Mathf.Clamp(PlayerPrefs.GetFloat(WorldTimeHourKey, hour), 0f, 23.999f);
+        return true;
+    }
+
+    public static bool TryLoadWorldTimeAbsoluteDay(
+        out int absoluteDay,
+        out float hour)
+    {
+        absoluteDay = 1;
+        hour = 6f;
+
+        if (!HasSave || !PlayerPrefs.HasKey(WorldTimeDayKey))
+        {
+            return false;
+        }
+
+        hour =
+            Mathf.Clamp(
+                PlayerPrefs.GetFloat(WorldTimeHourKey, hour),
+                0f,
+                23.999f);
+
+        if (PlayerPrefs.HasKey(WorldTimeAbsoluteDayKey))
+        {
+            absoluteDay =
+                Mathf.Max(
+                    1,
+                    PlayerPrefs.GetInt(
+                        WorldTimeAbsoluteDayKey,
+                        absoluteDay));
+            return true;
+        }
+
+        int year = Mathf.Max(1, PlayerPrefs.GetInt(WorldTimeYearKey, 1));
+        int month = Mathf.Max(1, PlayerPrefs.GetInt(WorldTimeMonthKey, 1));
+        int day = Mathf.Max(1, PlayerPrefs.GetInt(WorldTimeDayKey, 1));
+        absoluteDay =
+            WorldTimeSystem.GetLegacyAbsoluteDayFromDate(
+                year,
+                month,
+                day);
         return true;
     }
 

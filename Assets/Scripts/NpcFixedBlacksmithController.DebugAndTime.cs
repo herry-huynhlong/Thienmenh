@@ -102,15 +102,7 @@ public partial class NpcFixedBlacksmithController
 
     bool IsDedicatedRestWindow(float hour)
     {
-        if (IsHourInRange(hour, sleepStart, sleepEnd))
-        {
-            return true;
-        }
-
-        return IsHourInRange(
-            hour,
-            morningWorkEnd,
-            afternoonWorkStart);
+        return IsHourInRange(hour, sleepStart, sleepEnd);
     }
 
     static bool IsHourInRange(
@@ -270,8 +262,11 @@ public partial class NpcFixedBlacksmithController
             return;
         }
 
+        bool shelterAlertActive =
+            IsEmergencyShelterActive();
         bool shouldHide =
-            IsHideAtHomeScheduleActive() &&
+            (shelterAlertActive ||
+            IsHideAtHomeScheduleActive()) &&
             IsAtHomePoint();
 
         if (shouldHide)
@@ -279,21 +274,36 @@ public partial class NpcFixedBlacksmithController
             if (!villager.IsHiddenAtHome)
             {
                 villager.ForceHiddenAtHome(true);
-                LogDebug("Visibility", "hideAtHome scheduleSlot=1");
+                LogDebug(
+                    "Visibility",
+                    shelterAlertActive
+                        ? "hideAtHome shelterAlert=1"
+                        : "hideAtHome scheduleSlot=1");
             }
 
             return;
         }
 
-        if (villager.IsHiddenAtHome)
+        if (villager.IsHiddenAtHome &&
+            !shelterAlertActive)
         {
             villager.ForceHiddenAtHome(false);
             LogDebug("Visibility", "hideAtHome scheduleSlot=0");
         }
     }
 
+    bool IsEmergencyShelterActive()
+    {
+        return FrontierDefenseCoordinator.IsVillageShelterAlertActive;
+    }
+
     bool IsHideAtHomeScheduleActive()
     {
+        if (useDedicatedRoutine)
+        {
+            return IsDedicatedRestWindow(GetCurrentClockHour());
+        }
+
         if (schedule == null ||
             !schedule.enforceSchedule)
         {
@@ -315,6 +325,6 @@ public partial class NpcFixedBlacksmithController
         return Vector2.Distance(
             transform.position,
             villager.homePoint.position) <=
-            Mathf.Max(0.25f, villager.arriveDistance);
+            Mathf.Max(0.75f, villager.arriveDistance);
     }
 }

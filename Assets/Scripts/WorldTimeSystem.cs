@@ -16,14 +16,22 @@ public class WorldTimeSystem : MonoBehaviour
 {
     public static WorldTimeSystem Instance;
 
-    const int DaysInMonth = 30;
-    const int MonthsInYear = 12;
+    public const int LegacyDaysInMonth = 30;
+    public const int LegacyMonthsInYear = 12;
 
     [Header("World")]
     public string continentName = "";
 
+    [Header("Calendar")]
+    [Min(1)] public int daysPerMonth = 1;
+    [Min(1)] public int monthsPerYear = 1;
+
+    [Header("Display Calendar")]
+    [Min(1)] public int displayMonthsPerYear = 15;
+    [Min(1)] public int displayDaysPerMonth = 30;
+
     [Header("Clock")]
-    [Min(1f)] public float realSecondsPerGameDay = 900f;
+    [Min(1f)] public float realSecondsPerGameDay = 720f;
 
     [Header("Runtime")]
     public int currentYear = 1;
@@ -49,6 +57,17 @@ public class WorldTimeSystem : MonoBehaviour
     public int CurrentDay => CurrentAbsoluteDay;
     public float CurrentHour => currentHour;
     public int CurrentAbsoluteDay => ToPublicAbsoluteDay(GetAbsoluteDay());
+    public int DaysPerMonth => Mathf.Max(1, daysPerMonth);
+    public int MonthsPerYear => Mathf.Max(1, monthsPerYear);
+    public int DaysPerYear =>
+        Mathf.Max(1, DaysPerMonth * MonthsPerYear);
+    public int DisplayMonthsPerYear =>
+        Mathf.Max(1, displayMonthsPerYear);
+    public int DisplayDaysPerMonth =>
+        Mathf.Max(1, displayDaysPerMonth);
+    public int DisplayDaysPerYear =>
+        Mathf.Max(1, DisplayMonthsPerYear * DisplayDaysPerMonth);
+    public bool IsOneGameDayPerYearCalendar => DaysPerYear == 1;
     public double CurrentWorldHourExact =>
         (GetAbsoluteDay() - 1L) * 24d + currentHour;
     public float CurrentWorldHour => (float)CurrentWorldHourExact;
@@ -103,13 +122,11 @@ public class WorldTimeSystem : MonoBehaviour
         NormalizeDateTime();
 
         if (loadSavedTimeOnAwake &&
-            GameSaveSystem.TryLoadWorldTime(
-                out int year,
-                out int month,
-                out int day,
+            GameSaveSystem.TryLoadWorldTimeAbsoluteDay(
+                out int absoluteDay,
                 out float hour))
         {
-            SetTime(year, month, day, hour, false);
+            SetAbsoluteDayAndHour(absoluteDay, hour, false);
         }
 
         TriggerTimeEvents(true);
@@ -203,6 +220,32 @@ public class WorldTimeSystem : MonoBehaviour
         SetTime(currentYear, currentMonth, currentDay, hour, triggerEvents);
     }
 
+    public void SetAbsoluteDayAndHour(
+        int absoluteDay,
+        float hour,
+        bool triggerEvents = true)
+    {
+        SetDateFromAbsoluteDay(
+            Mathf.Max(1, absoluteDay),
+            out int year,
+            out int month,
+            out int day);
+        SetTime(year, month, day, hour, triggerEvents);
+    }
+
+    public void RestoreAbsoluteDayAndHour(
+        int absoluteDay,
+        float hour,
+        bool notifyEvents = true)
+    {
+        SetDateFromAbsoluteDay(
+            Mathf.Max(1, absoluteDay),
+            out int year,
+            out int month,
+            out int day);
+        RestoreTime(year, month, day, hour, notifyEvents);
+    }
+
     [ContextMenu("Debug/Set Time 00:30")]
     void DebugSetTime0030()
     {
@@ -252,23 +295,49 @@ public class WorldTimeSystem : MonoBehaviour
         int hour = Mathf.FloorToInt(currentHour);
         int minute = Mathf.FloorToInt((currentHour - hour) * 60f);
 
-        string dateText = UiText.Format("worldClock", "dayFormat", currentDay);
-        if (currentMonth > 1 || currentYear > 1)
+        string dateText;
+        if (IsOneGameDayPerYearCalendar)
         {
-            dateText = UiText.Format(
-                "worldClock",
-                "monthFormat",
-                currentMonth,
-                dateText);
+            GetDisplayCalendarDate(
+                out int displayMonth,
+                out int displayDay);
+            dateText =
+                UiText.Format(
+                    "worldClock",
+                    "monthDayFormat",
+                    displayMonth,
+                    displayDay);
+            dateText =
+                UiText.Format(
+                    "worldClock",
+                    "yearFormat",
+                    currentYear,
+                    dateText);
         }
-
-        if (currentYear > 1)
+        else
         {
-            dateText = UiText.Format(
-                "worldClock",
-                "yearFormat",
-                currentYear,
-                dateText);
+            dateText =
+                UiText.Format(
+                    "worldClock",
+                    "dayFormat",
+                    currentDay);
+            if (currentMonth > 1 || currentYear > 1)
+            {
+                dateText = UiText.Format(
+                    "worldClock",
+                    "monthFormat",
+                    currentMonth,
+                    dateText);
+            }
+
+            if (currentYear > 1)
+            {
+                dateText = UiText.Format(
+                    "worldClock",
+                    "yearFormat",
+                    currentYear,
+                    dateText);
+            }
         }
 
         string resolvedContinentName =
@@ -281,6 +350,32 @@ public class WorldTimeSystem : MonoBehaviour
             dateText,
             hour,
             minute);
+    }
+
+    public void GetDisplayCalendarDate(
+        out int displayMonth,
+        out int displayDay)
+    {
+        if (!IsOneGameDayPerYearCalendar)
+        {
+            displayMonth = currentMonth;
+            displayDay = currentDay;
+            return;
+        }
+
+        int resolvedDaysPerYear = DisplayDaysPerYear;
+        float normalizedDayProgress =
+            Mathf.Clamp01(currentHour / 24f);
+        int displayDayOfYear =
+            Mathf.Clamp(
+                Mathf.FloorToInt(
+                    normalizedDayProgress * resolvedDaysPerYear) + 1,
+                1,
+                resolvedDaysPerYear);
+        displayMonth =
+            ((displayDayOfYear - 1) / DisplayDaysPerMonth) + 1;
+        displayDay =
+            ((displayDayOfYear - 1) % DisplayDaysPerMonth) + 1;
     }
 
     public bool IsDangerousNight()
@@ -325,12 +420,14 @@ public class WorldTimeSystem : MonoBehaviour
         }
 
         currentYear = Mathf.Max(1, currentYear);
+        int resolvedMonthsPerYear = MonthsPerYear;
+        int resolvedDaysPerMonth = DaysPerMonth;
         long totalMonths =
-            ((long)currentYear - 1L) * MonthsInYear +
+            ((long)currentYear - 1L) * resolvedMonthsPerYear +
             currentMonth -
             1L;
         long totalDays =
-            totalMonths * DaysInMonth +
+            totalMonths * resolvedDaysPerMonth +
             currentDay -
             1L;
 
@@ -350,16 +447,18 @@ public class WorldTimeSystem : MonoBehaviour
         }
 
         long normalizedYear =
-            totalDays / (MonthsInYear * DaysInMonth) + 1L;
+            totalDays / DaysPerYear + 1L;
         long dayInYear =
-            totalDays % (MonthsInYear * DaysInMonth);
+            totalDays % DaysPerYear;
 
         currentYear =
             normalizedYear > int.MaxValue
                 ? int.MaxValue
                 : (int)normalizedYear;
-        currentMonth = (int)(dayInYear / DaysInMonth) + 1;
-        currentDay = (int)(dayInYear % DaysInMonth) + 1;
+        currentMonth =
+            (int)(dayInYear / resolvedDaysPerMonth) + 1;
+        currentDay =
+            (int)(dayInYear % resolvedDaysPerMonth) + 1;
         currentHour = Mathf.Clamp((float)hourOfDay, 0f, 23.999f);
     }
 
@@ -472,11 +571,12 @@ public class WorldTimeSystem : MonoBehaviour
 
     long GetAbsoluteDay()
     {
-        return
-            (((long)currentYear - 1L) * MonthsInYear +
-             (currentMonth - 1L)) *
-            DaysInMonth +
-            currentDay;
+        return GetAbsoluteDayFromDate(
+            currentYear,
+            currentMonth,
+            currentDay,
+            DaysPerMonth,
+            MonthsPerYear);
     }
 
     long GetAbsoluteHour()
@@ -489,17 +589,11 @@ public class WorldTimeSystem : MonoBehaviour
     {
         long zeroBasedDay = absoluteHour / 24L;
         int hour = (int)(absoluteHour % 24L);
-        long zeroBasedYear =
-            zeroBasedDay / (MonthsInYear * DaysInMonth);
-        long dayInYear =
-            zeroBasedDay % (MonthsInYear * DaysInMonth);
-
-        currentYear =
-            zeroBasedYear >= int.MaxValue
-                ? int.MaxValue
-                : (int)zeroBasedYear + 1;
-        currentMonth = (int)(dayInYear / DaysInMonth) + 1;
-        currentDay = (int)(dayInYear % DaysInMonth) + 1;
+        SetDateFromAbsoluteDay(
+            zeroBasedDay + 1L,
+            out currentYear,
+            out currentMonth,
+            out currentDay);
         currentHour = hour;
     }
 
@@ -531,11 +625,97 @@ public class WorldTimeSystem : MonoBehaviour
         }
 
         continentName = source.continentName;
+        daysPerMonth = Mathf.Max(1, source.daysPerMonth);
+        monthsPerYear = Mathf.Max(1, source.monthsPerYear);
         realSecondsPerGameDay = source.realSecondsPerGameDay;
         loadSavedTimeOnAwake = source.loadSavedTimeOnAwake;
         autoSaveWorldTime = source.autoSaveWorldTime;
         autoSaveIntervalUnscaledSeconds =
             source.autoSaveIntervalUnscaledSeconds;
+    }
+
+    public static int GetLegacyAbsoluteDayFromDate(
+        int year,
+        int month,
+        int day)
+    {
+        return ToPublicAbsoluteDay(
+            GetAbsoluteDayFromDate(
+                year,
+                month,
+                day,
+                LegacyDaysInMonth,
+                LegacyMonthsInYear));
+    }
+
+    public static long GetAbsoluteDayFromDate(
+        int year,
+        int month,
+        int day,
+        int daysPerMonth,
+        int monthsPerYear)
+    {
+        int resolvedDaysPerMonth =
+            Mathf.Max(1, daysPerMonth);
+        int resolvedMonthsPerYear =
+            Mathf.Max(1, monthsPerYear);
+        int resolvedYear = Mathf.Max(1, year);
+        int resolvedMonth = Mathf.Max(1, month);
+        int resolvedDay = Mathf.Max(1, day);
+
+        return
+            (((long)resolvedYear - 1L) * resolvedMonthsPerYear +
+             (resolvedMonth - 1L)) *
+            resolvedDaysPerMonth +
+            resolvedDay;
+    }
+
+    public void SetDateFromAbsoluteDay(
+        long absoluteDay,
+        out int year,
+        out int month,
+        out int day)
+    {
+        SetDateFromAbsoluteDay(
+            absoluteDay,
+            DaysPerMonth,
+            MonthsPerYear,
+            out year,
+            out month,
+            out day);
+    }
+
+    public static void SetDateFromAbsoluteDay(
+        long absoluteDay,
+        int daysPerMonth,
+        int monthsPerYear,
+        out int year,
+        out int month,
+        out int day)
+    {
+        long zeroBasedDay =
+            Math.Max(1L, absoluteDay) - 1L;
+        int resolvedDaysPerMonth =
+            Mathf.Max(1, daysPerMonth);
+        int resolvedMonthsPerYear =
+            Mathf.Max(1, monthsPerYear);
+        int resolvedDaysPerYear =
+            Mathf.Max(
+                1,
+                resolvedDaysPerMonth * resolvedMonthsPerYear);
+        long zeroBasedYear =
+            zeroBasedDay / resolvedDaysPerYear;
+        long dayInYear =
+            zeroBasedDay % resolvedDaysPerYear;
+
+        year =
+            zeroBasedYear >= int.MaxValue
+                ? int.MaxValue
+                : (int)zeroBasedYear + 1;
+        month =
+            (int)(dayInYear / resolvedDaysPerMonth) + 1;
+        day =
+            (int)(dayInYear % resolvedDaysPerMonth) + 1;
     }
 
     WorldTimePhase GetCurrentPhase()

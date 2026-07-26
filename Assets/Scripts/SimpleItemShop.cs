@@ -396,6 +396,64 @@ public class SimpleItemShop : MonoBehaviour
         return purchasedAmount > 0;
     }
 
+    public bool ProvisionNpcItemToInventory(
+        StatItemData item,
+        GameObject buyerObject,
+        ItemInventory buyerInventory,
+        int amount,
+        out int purchasedAmount,
+        out int totalPrice)
+    {
+        purchasedAmount = 0;
+        totalPrice = 0;
+
+        if (item == null ||
+            buyerObject == null ||
+            buyerInventory == null ||
+            amount <= 0 ||
+            !NpcEconomy.CanTradeNormally(item))
+        {
+            return false;
+        }
+
+        int unitPrice =
+            GetNpcBuyPrice(
+                item,
+                buyerObject);
+        if (unitPrice <= 0)
+        {
+            return false;
+        }
+
+        int affordableAmount =
+            Mathf.Min(
+                amount,
+                NpcEconomy.GetNpcMoney(buyerObject) / unitPrice);
+        if (affordableAmount <= 0)
+        {
+            return false;
+        }
+
+        purchasedAmount = affordableAmount;
+        totalPrice =
+            unitPrice * purchasedAmount;
+
+        NpcEconomy.AddNpcMoney(
+            buyerObject,
+            -totalPrice);
+        buyerInventory.AddItem(
+            item,
+            purchasedAmount);
+        AddMoneyToSeller(totalPrice);
+
+        int reserveAmount =
+            Mathf.Max(1, Mathf.Max(amount, 2) - purchasedAmount + 1);
+        AddProvisionedReserveStock(
+            item,
+            reserveAmount);
+        return true;
+    }
+
     public bool SellNpcItemFromInventory(
         StatItemData item,
         GameObject sellerObject,
@@ -610,6 +668,48 @@ public class SimpleItemShop : MonoBehaviour
         }
 
         NpcEconomy.AddNpcMoney(target, amount);
+    }
+
+    void AddProvisionedReserveStock(
+        StatItemData item,
+        int amount)
+    {
+        if (item == null ||
+            amount <= 0)
+        {
+            return;
+        }
+
+        if (sellFromNpcInventory &&
+            sellerInventory != null)
+        {
+            sellerInventory.AddItem(item, amount);
+            RefreshFromSellerInventory();
+            return;
+        }
+
+        int itemIndex =
+            FindItemIndex(item);
+        if (itemIndex >= 0)
+        {
+            ShopItemSlot slot =
+                items[itemIndex];
+            if (slot != null)
+            {
+                slot.amount += amount;
+            }
+        }
+        else
+        {
+            items.Add(
+                new ShopItemSlot
+                {
+                    item = item,
+                    amount = amount
+                });
+        }
+
+        SaveRuntimeStock();
     }
 
     bool TryPaySellerFromShopFunds(int amount)

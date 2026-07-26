@@ -55,24 +55,30 @@ public partial class NpcFixedBlacksmithController
         Transform marketPoint = GetMarketPoint();
         if (marketPoint != null)
         {
-            shop = marketPoint.GetComponent<SimpleItemShop>();
-            if (shop != null)
+            SimpleItemShop directShop =
+                marketPoint.GetComponent<SimpleItemShop>();
+            if (IsImmediatePreferredTradeShopCandidate(directShop))
             {
-                lastTradeShopName = shop.name;
+                shop = directShop;
+                FinalizePreferredTradeShop(shop);
                 return true;
             }
 
-            shop = marketPoint.GetComponentInParent<SimpleItemShop>();
-            if (shop != null)
+            SimpleItemShop parentShop =
+                marketPoint.GetComponentInParent<SimpleItemShop>();
+            if (IsImmediatePreferredTradeShopCandidate(parentShop))
             {
-                lastTradeShopName = shop.name;
+                shop = parentShop;
+                FinalizePreferredTradeShop(shop);
                 return true;
             }
         }
 
-        if (TryFindPreferredBrokerBackedShop(out shop))
+        if (TryFindPreferredBrokerBackedShop(out SimpleItemShop brokerShop) &&
+            IsImmediatePreferredTradeShopCandidate(brokerShop))
         {
-            lastTradeShopName = shop.name;
+            shop = brokerShop;
+            FinalizePreferredTradeShop(shop);
             return true;
         }
 
@@ -80,6 +86,8 @@ public partial class NpcFixedBlacksmithController
             FindObjectsByType<SimpleItemShop>(
                 FindObjectsInactive.Exclude);
 
+        int bestCoverage = -1;
+        int bestCoveredUnits = -1;
         float bestDistance = float.PositiveInfinity;
         Vector3 searchOrigin =
             marketPoint != null
@@ -103,13 +111,29 @@ public partial class NpcFixedBlacksmithController
                 continue;
             }
 
+            int coverage =
+                GetTradeShopCoverageScore(
+                    candidate,
+                    out int coveredUnits);
+            if (coverage < 0)
+            {
+                continue;
+            }
+
             float distance =
                 Vector2.Distance(
                     searchOrigin,
                     candidate.transform.position);
 
-            if (distance < bestDistance)
+            if (coverage > bestCoverage ||
+                (coverage == bestCoverage &&
+                coveredUnits > bestCoveredUnits) ||
+                (coverage == bestCoverage &&
+                coveredUnits == bestCoveredUnits &&
+                distance < bestDistance))
             {
+                bestCoverage = coverage;
+                bestCoveredUnits = coveredUnits;
                 bestDistance = distance;
                 shop = candidate;
             }
@@ -117,10 +141,141 @@ public partial class NpcFixedBlacksmithController
 
         if (shop != null)
         {
-            lastTradeShopName = shop.name;
+            FinalizePreferredTradeShop(shop);
         }
 
         return shop != null;
+    }
+
+    bool IsPreferredTradeShopCandidate(
+        SimpleItemShop shop)
+    {
+        return GetTradeShopCoverageScore(
+                shop,
+                out _) >= 0;
+    }
+
+    bool IsImmediatePreferredTradeShopCandidate(
+        SimpleItemShop shop)
+    {
+        int coverage =
+            GetTradeShopCoverageScore(
+                shop,
+                out _);
+        if (coverage < 0)
+        {
+            return false;
+        }
+
+        return !RequiresConfiguredMaterialCoverage() ||
+            coverage > 0;
+    }
+
+    bool RequiresConfiguredMaterialCoverage()
+    {
+        if (!HasConfiguredMaterialRequirements())
+        {
+            return false;
+        }
+
+        for (int i = 0; i < materialRequirements.Count; i++)
+        {
+            FixedBlacksmithMaterialRequirement requirement =
+                materialRequirements[i];
+            if (GetMissingMaterialAmount(requirement) > 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    int GetTradeShopCoverageScore(
+        SimpleItemShop shop,
+        out int coveredUnits)
+    {
+        coveredUnits = 0;
+
+        if (shop == null ||
+            !shop.isActiveAndEnabled)
+        {
+            return -1;
+        }
+
+        RefreshTradeShopStock(shop);
+
+        if (!HasConfiguredMaterialRequirements())
+        {
+            return 0;
+        }
+
+        int coveredKinds = 0;
+
+        for (int i = 0; i < materialRequirements.Count; i++)
+        {
+            FixedBlacksmithMaterialRequirement requirement =
+                materialRequirements[i];
+            if (requirement == null ||
+                requirement.item == null ||
+                requirement.amount <= 0)
+            {
+                continue;
+            }
+
+            int missing =
+                GetMissingMaterialAmount(requirement);
+            if (missing <= 0)
+            {
+                continue;
+            }
+
+            int itemIndex =
+                shop.FindItemIndex(requirement.item);
+            if (itemIndex < 0)
+            {
+                continue;
+            }
+
+            ShopItemSlot slot =
+                shop.GetSlot(itemIndex);
+            int available =
+                slot != null
+                    ? Mathf.Max(0, slot.amount)
+                    : 0;
+            if (available <= 0)
+            {
+                continue;
+            }
+
+            coveredKinds++;
+            coveredUnits += Mathf.Min(missing, available);
+        }
+
+        return coveredKinds;
+    }
+
+    void RefreshTradeShopStock(
+        SimpleItemShop shop)
+    {
+        if (shop == null)
+        {
+            return;
+        }
+
+        shop.RefreshFromSellerInventory();
+    }
+
+    void FinalizePreferredTradeShop(
+        SimpleItemShop shop)
+    {
+        if (shop == null)
+        {
+            return;
+        }
+
+        RefreshTradeShopStock(shop);
+        lastTradeShopName = shop.name;
     }
 
     bool TryFindPreferredBrokerBackedShop(out SimpleItemShop shop)
@@ -1239,7 +1394,8 @@ public partial class NpcFixedBlacksmithController
             if (broker != null &&
                 broker.receiveAllNpcRequests)
             {
-                return broker.IsCustomerAtCounter(gameObject);
+                return broker.IsCustomerAtCounter(gameObject) ||
+                    IsNear(targetPosition);
             }
         }
 

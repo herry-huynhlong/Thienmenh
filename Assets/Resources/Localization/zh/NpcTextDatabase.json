@@ -130,8 +130,32 @@
           "value": "已有道侣"
         },
         {
+          "key": "daoCompanionWith",
+          "value": "已与{0}结为道侣"
+        },
+        {
+          "key": "dating",
+          "value": "恋爱中"
+        },
+        {
+          "key": "datingWith",
+          "value": "正与{0}交往"
+        },
+        {
+          "key": "villagerMarried",
+          "value": "已成亲"
+        },
+        {
+          "key": "villagerMarriedWith",
+          "value": "已与{0}成亲"
+        },
+        {
           "key": "married",
           "value": "已婚"
+        },
+        {
+          "key": "marriedWith",
+          "value": "已与{0}成婚"
         }
       ]
     },

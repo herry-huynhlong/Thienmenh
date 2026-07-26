@@ -77,6 +77,7 @@ public class NpcAlchemyAgent : MonoBehaviour
     float checkTimer;
     bool refining;
     float refineTimer;
+    float currentRefineDurationGameHours;
     StatItemData pendingResult;
     int pendingResultAmount;
     bool privateInventoryInitialized;
@@ -86,6 +87,47 @@ public class NpcAlchemyAgent : MonoBehaviour
     bool movingToBroker;
 
     public bool IsRefining => refining;
+    public float CurrentRefineTotalGameHours =>
+        refining
+            ? Mathf.Max(0f, currentRefineDurationGameHours)
+            : 0f;
+    public float CurrentRefineRemainingGameHours =>
+        refining
+            ? Mathf.Max(0f, SecondsToGameHours(refineTimer))
+            : 0f;
+    public float CurrentRefineElapsedGameHours =>
+        refining
+            ? Mathf.Max(
+                0f,
+                CurrentRefineTotalGameHours -
+                CurrentRefineRemainingGameHours)
+            : 0f;
+    public int CurrentRefineDisplayedElapsedHours
+    {
+        get
+        {
+            if (!refining)
+            {
+                return 0;
+            }
+
+            int totalHours =
+                Mathf.Max(
+                    1,
+                    Mathf.CeilToInt(CurrentRefineTotalGameHours));
+
+            if (CurrentRefineRemainingGameHours <= 0.01f)
+            {
+                return totalHours;
+            }
+
+            return Mathf.Clamp(
+                Mathf.FloorToInt(
+                    CurrentRefineElapsedGameHours + 0.0001f),
+                0,
+                totalHours);
+        }
+    }
     public bool HasSellableFinishedGoodsAvailable =>
         HasSellableFinishedGoods();
 
@@ -421,10 +463,15 @@ public class NpcAlchemyAgent : MonoBehaviour
     void StartRefining(StatItemData pillItem, int amount)
     {
         refining = true;
-        refineTimer = GameHoursToSeconds(
+        currentRefineDurationGameHours =
             Random.Range(
                 Mathf.Max(0.25f, refineDurationMinGameHours),
-                Mathf.Max(Mathf.Max(0.25f, refineDurationMinGameHours), refineDurationMaxGameHours)));
+                Mathf.Max(
+                    Mathf.Max(0.25f, refineDurationMinGameHours),
+                    refineDurationMaxGameHours));
+        refineTimer =
+            GameHoursToSeconds(
+                currentRefineDurationGameHours);
         pendingResult = pillItem;
         pendingResultAmount = Mathf.Max(1, amount);
         SetRefiningAction();
@@ -435,6 +482,7 @@ public class NpcAlchemyAgent : MonoBehaviour
     {
         refining = false;
         refineTimer = 0f;
+        currentRefineDurationGameHours = 0f;
 
         if (inventory != null && pendingResult != null)
         {
@@ -1385,7 +1433,26 @@ public class NpcAlchemyAgent : MonoBehaviour
     void SetRefiningAction()
     {
         movingToBroker = false;
-        currentAction = NpcText.Action("fixedAlchemistRefining");
+        string refineAction =
+            NpcText.Action("fixedAlchemistRefining");
+        int totalHours =
+            Mathf.Max(
+                1,
+                Mathf.CeilToInt(CurrentRefineTotalGameHours));
+        int elapsedHours =
+            Mathf.Clamp(
+                CurrentRefineDisplayedElapsedHours,
+                0,
+                totalHours);
+        currentAction =
+            refining &&
+            CurrentRefineTotalGameHours > 0f
+                ? NpcText.ActionFormat(
+                    "fixedBlacksmithForgingProgress",
+                    refineAction,
+                    elapsedHours,
+                    totalHours)
+                : refineAction;
         NpcRoleUtility.SetAction(
             gameObject,
             currentAction);
@@ -1477,6 +1544,19 @@ public class NpcAlchemyAgent : MonoBehaviour
         return Mathf.Max(0.1f, gameHours) *
             realSecondsPerGameDay /
             24f;
+    }
+
+    float SecondsToGameHours(float seconds)
+    {
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        float realSecondsPerGameDay =
+            timeSystem != null
+                ? Mathf.Max(1f, timeSystem.realSecondsPerGameDay)
+                : 900f;
+
+        return Mathf.Max(0f, seconds) *
+            24f /
+            realSecondsPerGameDay;
     }
 
     void UpdateRefineAnimation()

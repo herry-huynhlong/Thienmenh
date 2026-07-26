@@ -153,9 +153,16 @@ public class WorldSignalEffect : MonoBehaviour
             return;
         }
 
+        TryGenerateFramesFromRuntimeSlices();
+
+        if (HasUsableFrames())
+        {
+            return;
+        }
+
         throw new InvalidOperationException(
             "WorldSignalEffect requires configured sprite frames. " +
-            "Runtime frame generation from sourceTexture/runtimeSlices is disabled.");
+            "Runtime frame generation from sourceTexture/runtimeSlices failed.");
     }
 
     bool HasUsableFrames()
@@ -175,6 +182,56 @@ public class WorldSignalEffect : MonoBehaviour
         }
 
         return false;
+    }
+
+    void TryGenerateFramesFromRuntimeSlices()
+    {
+        if (sourceTexture == null ||
+            runtimeSlices == null ||
+            runtimeSlices.Length == 0)
+        {
+            return;
+        }
+
+        if (frames == null ||
+            frames.Length != runtimeSlices.Length)
+        {
+            frames = new Sprite[runtimeSlices.Length];
+        }
+
+        for (int i = 0; i < runtimeSlices.Length; i++)
+        {
+            if (frames[i] != null)
+            {
+                continue;
+            }
+
+            RuntimeFrameSlice slice = runtimeSlices[i];
+            if (slice.rect.width <= 0f ||
+                slice.rect.height <= 0f)
+            {
+                continue;
+            }
+
+            float safePixelsPerUnit =
+                slice.pixelsPerUnit > 0f
+                    ? slice.pixelsPerUnit
+                    : 100f;
+            Sprite sprite =
+                Sprite.Create(
+                    sourceTexture,
+                    slice.rect,
+                    slice.pivot,
+                    safePixelsPerUnit,
+                    0,
+                    SpriteMeshType.FullRect);
+            sprite.name =
+                string.IsNullOrWhiteSpace(slice.name)
+                    ? "SignalFrame_" + i
+                    : slice.name.Trim();
+            generatedSprites.Add(sprite);
+            frames[i] = sprite;
+        }
     }
 
     void CleanupGeneratedSprites()

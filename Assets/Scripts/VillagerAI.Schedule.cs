@@ -63,7 +63,8 @@ public partial class VillagerAI
     bool TryRunScheduledActivity()
     {
         if (ageGroup == VillagerAgeGroup.Child ||
-            ageGroup == VillagerAgeGroup.Teen)
+            (ageGroup == VillagerAgeGroup.Teen &&
+            !HasReachedWorkingAge()))
         {
             return false;
         }

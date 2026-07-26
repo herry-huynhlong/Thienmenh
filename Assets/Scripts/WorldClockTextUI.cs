@@ -157,6 +157,7 @@ public class WorldClockTextUI : MonoBehaviour
         if (yearText != null)
         {
             yearText.text =
+                timeSystem.IsOneGameDayPerYearCalendar ||
                 timeSystem.currentYear > 1
                     ? UiText.Format(
                         TimeCategory,
@@ -167,12 +168,15 @@ public class WorldClockTextUI : MonoBehaviour
 
         if (dateText != null)
         {
+            timeSystem.GetDisplayCalendarDate(
+                out int displayMonth,
+                out int displayDay);
             dateText.text =
                 UiText.Format(
                     TimeCategory,
                     "monthDayFormat",
-                    timeSystem.currentMonth,
-                    timeSystem.currentDay);
+                    displayMonth,
+                    displayDay);
         }
 
         if (timeText != null)

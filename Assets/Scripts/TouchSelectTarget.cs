@@ -2654,6 +2654,12 @@ public partial class TouchSelectTarget : MonoBehaviour
 
         if (villager != null)
         {
+            if (villager.ageGroup == VillagerAgeGroup.Child ||
+                villager.ageGroup == VillagerAgeGroup.Teen)
+            {
+                return UiText.Get("touchSelect", "placeholder");
+            }
+
             NpcSpecialProfession villagerProfession =
                 villager.GetComponent<NpcSpecialProfession>();
 
@@ -2741,6 +2747,8 @@ public partial class TouchSelectTarget : MonoBehaviour
 
         SmartNpcAI smartNpc =
             GetTargetComponent<SmartNpcAI>(target);
+        VillagerAI villager =
+            GetTargetComponent<VillagerAI>(target);
 
         NPCIdentity identity =
             target.GetComponent<NPCIdentity>();
@@ -2755,14 +2763,74 @@ public partial class TouchSelectTarget : MonoBehaviour
         {
             if (smartNpc != null)
             {
+                string spouseName =
+                    ResolveRelationshipTargetName(
+                        identity.spouseId);
                 return string.IsNullOrWhiteSpace(identity.spouseId)
                     ? NpcText.Get("maritalStatus", "single")
-                    : NpcText.Get("maritalStatus", "daoCompanion");
+                    : FormatRelationshipStatus(
+                        "daoCompanionWith",
+                        "daoCompanion",
+                        spouseName);
             }
 
+            if (villager != null)
+            {
+                VillagerRelationship villagerRelationship =
+                    target.GetComponent<VillagerRelationship>();
+
+                if (villagerRelationship == null)
+                {
+                    villagerRelationship =
+                        target.GetComponentInParent<VillagerRelationship>();
+                }
+
+                if (villagerRelationship != null)
+                {
+                    string partnerName =
+                        ResolveRelationshipTargetName(
+                            villagerRelationship.partnerId);
+                    if (villagerRelationship.IsMarried())
+                    {
+                        return FormatRelationshipStatus(
+                            "villagerMarriedWith",
+                            "villagerMarried",
+                            partnerName);
+                    }
+
+                    if (villagerRelationship.IsDating())
+                    {
+                        return FormatRelationshipStatus(
+                            "datingWith",
+                            "dating",
+                            partnerName);
+                    }
+
+                    return NpcText.Get(
+                        "maritalStatus",
+                        "single");
+                }
+
+                string spouseName =
+                    ResolveRelationshipTargetName(
+                        identity.spouseId);
+                return string.IsNullOrWhiteSpace(identity.spouseId)
+                    ? NpcText.Get("maritalStatus", "single")
+                    : FormatRelationshipStatus(
+                        "villagerMarriedWith",
+                        "villagerMarried",
+                        spouseName);
+            }
+
+            string marriedName =
+                ResolveRelationshipTargetName(
+                    identity.spouseId);
             return string.IsNullOrWhiteSpace(identity.spouseId)
                 ? NpcText.Get("maritalStatus", "single")
-                : NpcText.Get("maritalStatus", "married");
+                : FormatRelationshipStatus(
+                    "marriedWith",
+                    "married",
+                    marriedName);
         }
 
         VillagerRelationship relationship =
@@ -2776,12 +2844,82 @@ public partial class TouchSelectTarget : MonoBehaviour
 
         if (relationship != null)
         {
-            return relationship.IsSingle()
-                ? NpcText.Get("maritalStatus", "single")
-                : NpcText.Get("maritalStatus", "married");
+            string partnerName =
+                ResolveRelationshipTargetName(
+                    relationship.partnerId);
+            if (relationship.IsMarried())
+            {
+                return FormatRelationshipStatus(
+                    "villagerMarriedWith",
+                    "villagerMarried",
+                    partnerName);
+            }
+
+            if (relationship.IsDating())
+            {
+                return FormatRelationshipStatus(
+                    "datingWith",
+                    "dating",
+                    partnerName);
+            }
+
+            return NpcText.Get("maritalStatus", "single");
         }
 
         return NpcText.Get("maritalStatus", "single");
+    }
+
+    string FormatRelationshipStatus(
+        string formatKey,
+        string fallbackKey,
+        string partnerName)
+    {
+        if (string.IsNullOrWhiteSpace(partnerName))
+        {
+            return NpcText.Get(
+                "maritalStatus",
+                fallbackKey);
+        }
+
+        return NpcText.Format(
+            NpcText.Get(
+                "maritalStatus",
+                formatKey),
+            partnerName);
+    }
+
+    string ResolveRelationshipTargetName(string partnerId)
+    {
+        if (string.IsNullOrWhiteSpace(partnerId))
+        {
+            return string.Empty;
+        }
+
+        NPCIdentity[] identities =
+            FindObjectsByType<NPCIdentity>(
+                FindObjectsInactive.Include);
+
+        for (int i = 0; i < identities.Length; i++)
+        {
+            NPCIdentity candidate = identities[i];
+            if (candidate == null ||
+                !string.Equals(
+                    candidate.npcId,
+                    partnerId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (!string.IsNullOrWhiteSpace(candidate.npcName))
+            {
+                return candidate.npcName;
+            }
+
+            return candidate.gameObject.name;
+        }
+
+        return string.Empty;
     }
 
     string BuildHealthText(Transform target)
@@ -2879,14 +3017,21 @@ public partial class TouchSelectTarget : MonoBehaviour
 
         if (villager != null)
         {
-            return villager.money;
+            return NpcEconomy.GetNpcMoney(
+                villager.gameObject);
         }
 
         SmartNpcAI smartNpc =
             GetTargetComponent<SmartNpcAI>(target);
 
-        return smartNpc != null
-            ? smartNpc.money
+        if (smartNpc != null)
+        {
+            return NpcEconomy.GetNpcMoney(
+                smartNpc.gameObject);
+        }
+
+        return target != null
+            ? NpcEconomy.GetNpcMoney(target.gameObject)
             : 0;
     }
 
@@ -3094,7 +3239,10 @@ public partial class TouchSelectTarget : MonoBehaviour
                 Mathf.Abs(rectSize.x * rect.localScale.x),
                 Mathf.Abs(rectSize.y * rect.localScale.y));
 
-        Rect parentRect = parent.rect;
+        Rect parentRect =
+            GetPanelClampRectInParent(
+                parent,
+                rect);
         Vector2 pivot = rect.pivot;
         float padding = Mathf.Max(0f, panelScreenPadding);
 
@@ -3145,6 +3293,58 @@ public partial class TouchSelectTarget : MonoBehaviour
         }
 
         return localPoint;
+    }
+
+    Rect GetPanelClampRectInParent(
+        RectTransform parent,
+        RectTransform rect)
+    {
+        Rect clampRect = parent.rect;
+
+        Camera worldCamera =
+            cam != null
+            ? cam
+            : Camera.main;
+
+        if (worldCamera == null)
+        {
+            return clampRect;
+        }
+
+        Rect pixelRect = worldCamera.pixelRect;
+        if (pixelRect.width <= 1f ||
+            pixelRect.height <= 1f)
+        {
+            return clampRect;
+        }
+
+        Camera panelCamera =
+            GetCanvasCamera(rect);
+
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                parent,
+                new Vector2(pixelRect.xMin, pixelRect.yMin),
+                panelCamera,
+                out Vector2 minLocal) ||
+            !RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                parent,
+                new Vector2(pixelRect.xMax, pixelRect.yMax),
+                panelCamera,
+                out Vector2 maxLocal))
+        {
+            return clampRect;
+        }
+
+        float minX = Mathf.Min(minLocal.x, maxLocal.x);
+        float maxX = Mathf.Max(minLocal.x, maxLocal.x);
+        float minY = Mathf.Min(minLocal.y, maxLocal.y);
+        float maxY = Mathf.Max(minLocal.y, maxLocal.y);
+
+        return Rect.MinMaxRect(
+            Mathf.Max(clampRect.xMin, minX),
+            Mathf.Max(clampRect.yMin, minY),
+            Mathf.Min(clampRect.xMax, maxX),
+            Mathf.Min(clampRect.yMax, maxY));
     }
 
     void PositionPanelInParent(

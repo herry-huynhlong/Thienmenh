@@ -101,6 +101,16 @@ public class WorldEventManager : MonoBehaviour
             return UiText.Get("worldStory", "timeUnknown");
         }
 
+        if (WorldTimeSystem.Instance.IsOneGameDayPerYearCalendar)
+        {
+            WorldTimeSystem.Instance.GetDisplayCalendarDate(
+                out int displayCalendarMonth,
+                out int displayCalendarDay);
+            return
+                $"[Nam {Mathf.Max(1, WorldTimeSystem.Instance.currentYear)}" +
+                $" - T{displayCalendarMonth}-N{displayCalendarDay}]";
+        }
+
         int month = WorldTimeSystem.Instance.currentMonth;
         int day = WorldTimeSystem.Instance.currentDay;
 

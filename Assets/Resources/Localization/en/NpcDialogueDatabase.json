@@ -907,6 +907,38 @@
       ]
     },
     {
+      "id": "child_babble_open_001",
+      "category": "ambient_opening",
+      "channel": "Village",
+      "duration": 1.5,
+      "cooldownSeconds": 22,
+      "priority": 60,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Idle"],
+      "requiredSpeakerTags": ["Child"],
+      "texts": [
+        "Hee hee... %^@&^! Catch that cloud goat!",
+        "Ooo aaah... swirly qi goes boing @#!",
+        "I am the tiny hero king, bop bop %^&*!"
+      ]
+    },
+    {
+      "id": "child_babble_reply_001",
+      "category": "ambient_reply",
+      "channel": "Village",
+      "duration": 1.5,
+      "cooldownSeconds": 22,
+      "priority": 60,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Idle"],
+      "requiredSpeakerTags": ["Child"],
+      "texts": [
+        "Huh? %^@ really? Let me see!",
+        "Hehe, boing boing! @#&*",
+        "I do not get it, but it is fun!"
+      ]
+    },
+    {
       "id": "cultivate_self_001",
       "category": "cultivate_self",
       "channel": "Cultivation",

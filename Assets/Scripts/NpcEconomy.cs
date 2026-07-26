@@ -149,7 +149,9 @@ public static class NpcEconomy
                 npc,
                 out VillagerAI dedicatedVillager))
         {
-            return Mathf.Max(0, dedicatedVillager.money);
+            return GetDedicatedVillagerWalletAmount(
+                npc,
+                dedicatedVillager);
         }
 
         SmartNpcAI smartNpc =
@@ -186,6 +188,28 @@ public static class NpcEconomy
         return GetNpcMoney(npc);
     }
 
+    public static bool UsesDedicatedProfessionWallet(GameObject npc)
+    {
+        return TryGetDedicatedVillagerWallet(npc, out _);
+    }
+
+    public static void SetDedicatedProfessionWalletAmount(
+        GameObject npc,
+        int amount)
+    {
+        if (!TryGetDedicatedVillagerWallet(
+                npc,
+                out VillagerAI dedicatedVillager))
+        {
+            return;
+        }
+
+        SetDedicatedVillagerWalletAmount(
+            npc,
+            dedicatedVillager,
+            amount);
+    }
+
     public static void AddNpcMoney(GameObject npc, int amount)
     {
         if (npc == null)
@@ -197,8 +221,12 @@ public static class NpcEconomy
                 npc,
                 out VillagerAI dedicatedVillager))
         {
-            dedicatedVillager.money =
-                Mathf.Max(0, dedicatedVillager.money + amount);
+            SetDedicatedVillagerWalletAmount(
+                npc,
+                dedicatedVillager,
+                GetDedicatedVillagerWalletAmount(
+                    npc,
+                    dedicatedVillager) + amount);
             return;
         }
 
@@ -291,6 +319,106 @@ public static class NpcEconomy
         return fixedAlchemist != null &&
             fixedAlchemist.enabled &&
             fixedAlchemist.UseDedicatedRoutine;
+    }
+
+    static int GetDedicatedVillagerWalletAmount(
+        GameObject npc,
+        VillagerAI villager)
+    {
+        if (villager == null)
+        {
+            return 0;
+        }
+
+        int villagerWallet =
+            Mathf.Max(0, villager.money);
+
+        if (villager.entityProfile != null &&
+            villager.entityProfile.stats != null)
+        {
+            villagerWallet =
+                Mathf.Max(
+                    villagerWallet,
+                    Mathf.Max(
+                        villager.entityProfile.stats.money,
+                        villager.entityProfile.stats.spiritStone));
+        }
+
+        int minimumWallet =
+            GetDedicatedVillagerMinimumWallet(npc);
+        if (minimumWallet > 0 &&
+            villagerWallet < minimumWallet)
+        {
+            SetDedicatedVillagerWalletAmount(
+                npc,
+                villager,
+                minimumWallet);
+            return minimumWallet;
+        }
+
+        return villagerWallet;
+    }
+
+    static void SetDedicatedVillagerWalletAmount(
+        GameObject npc,
+        VillagerAI villager,
+        int amount)
+    {
+        if (villager == null)
+        {
+            return;
+        }
+
+        int walletAmount = Mathf.Max(0, amount);
+        villager.money = walletAmount;
+        villager.spiritStone = walletAmount;
+
+        if (villager.entityProfile != null &&
+            villager.entityProfile.stats != null)
+        {
+            villager.entityProfile.stats.money = walletAmount;
+            villager.entityProfile.stats.spiritStone = walletAmount;
+        }
+
+        NpcTradeAgent tradeAgent =
+            npc != null
+                ? npc.GetComponent<NpcTradeAgent>()
+                : null;
+        if (tradeAgent != null)
+        {
+            tradeAgent.spiritStone = walletAmount;
+        }
+    }
+
+    static int GetDedicatedVillagerMinimumWallet(
+        GameObject npc)
+    {
+        if (npc == null)
+        {
+            return 0;
+        }
+
+        NpcFixedBlacksmithController fixedBlacksmith =
+            npc.GetComponent<NpcFixedBlacksmithController>();
+        if (fixedBlacksmith != null &&
+            fixedBlacksmith.enabled &&
+            fixedBlacksmith.UseDedicatedRoutine &&
+            fixedBlacksmith.grantStartingMoneyOnStart)
+        {
+            return Mathf.Max(0, fixedBlacksmith.startingMoney);
+        }
+
+        NpcFixedAlchemistController fixedAlchemist =
+            npc.GetComponent<NpcFixedAlchemistController>();
+        if (fixedAlchemist != null &&
+            fixedAlchemist.enabled &&
+            fixedAlchemist.UseDedicatedRoutine &&
+            fixedAlchemist.grantStartingMoneyOnStart)
+        {
+            return Mathf.Max(0, fixedAlchemist.startingMoney);
+        }
+
+        return 0;
     }
 
     public static bool IsNearBreakthrough(GameObject npc)

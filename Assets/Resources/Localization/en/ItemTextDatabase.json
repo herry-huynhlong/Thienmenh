@@ -128,11 +128,21 @@
     },
     {
       "name": "itemDescriptions",
-      "entries": []
+      "entries": [
+        {
+          "key": "Linh_Me",
+          "value": "Spirit Rice is a spiritual grain grown on qi-rich fields. When harvested at the right season, its kernels carry a steady trace of spiritual energy and can be cooked into meals that nourish both body and vitality."
+        }
+      ]
     },
     {
       "name": "itemLores",
-      "entries": []
+      "entries": [
+        {
+          "key": "Linh_Me",
+          "value": "It is said that spirit rice tended with clear spring water and stable earth veins yields fuller grains, richer aroma, and meals that slowly strengthen one's inner reserves."
+        }
+      ]
     },
     {
       "name": "shopCard",

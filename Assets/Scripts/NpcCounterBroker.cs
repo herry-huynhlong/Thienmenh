@@ -631,6 +631,7 @@ public class NpcCounterBroker : MonoBehaviour
             if (stack == null ||
                 stack.item == null ||
                 stack.amount <= 0 ||
+                !IsPreferredVillagerConsumable(stack.item) ||
                 !NpcEconomy.CanTradeNormally(stack.item) ||
                 !stack.item.CanUseOn(buyer.gameObject))
             {
@@ -758,6 +759,7 @@ public class NpcCounterBroker : MonoBehaviour
             if (stack == null ||
                 stack.item == null ||
                 stack.amount <= 0 ||
+                !IsPreferredVillagerConsumable(stack.item) ||
                 !NpcEconomy.CanTradeNormally(stack.item) ||
                 !stack.item.CanUseOn(buyer.gameObject))
             {
@@ -1433,6 +1435,19 @@ public class NpcCounterBroker : MonoBehaviour
             buyerMoney / Mathf.Max(1f, price);
 
         return score * Mathf.Clamp(wealthRatio, 0.1f, 5f);
+    }
+
+    bool IsPreferredVillagerConsumable(
+        StatItemData item)
+    {
+        if (item == null)
+        {
+            return false;
+        }
+
+        return item.itemType == ItemType.ThucPham &&
+            item.CanUseDirectly() &&
+            !item.IsRiskyRawUse();
     }
 
 

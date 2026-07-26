@@ -37,6 +37,11 @@ public class PlayerWalletTextUI : MonoBehaviour
         AutoFindReferences();
         RefreshIcon();
 
+        if (TryRefreshSelectedNpcWallet())
+        {
+            return;
+        }
+
         if (text == null ||
             wallet == null)
         {
@@ -57,11 +62,84 @@ public class PlayerWalletTextUI : MonoBehaviour
 
         RefreshIcon();
 
+        if (TryRefreshSelectedNpcWallet())
+        {
+            return;
+        }
+
         if (text != null)
         {
             text.text =
                 FormatLinhThach(amount);
         }
+    }
+
+    bool TryRefreshSelectedNpcWallet()
+    {
+        if (text == null ||
+            !IsInsideNpcTargetPanel())
+        {
+            return false;
+        }
+
+        Transform target =
+            TouchSelectTarget.CurrentTarget;
+        if (target == null ||
+            !HasNpcWallet(target.gameObject))
+        {
+            return false;
+        }
+
+        text.text =
+            FormatLinhThach(
+                NpcEconomy.GetNpcLinhThach(target.gameObject));
+        return true;
+    }
+
+    bool IsInsideNpcTargetPanel()
+    {
+        NpcInventoryPanelUI npcInventoryPanel =
+            GetComponentInParent<NpcInventoryPanelUI>(true);
+        if (npcInventoryPanel != null)
+        {
+            return true;
+        }
+
+        InventoryPanelUI inventoryPanel =
+            GetComponentInParent<InventoryPanelUI>(true);
+        if (inventoryPanel != null &&
+            inventoryPanel.readOnly)
+        {
+            return true;
+        }
+
+        Transform current = transform;
+
+        while (current != null)
+        {
+            string key =
+                current.name
+                    .Replace(" ", "")
+                    .Replace("_", "")
+                    .ToLowerInvariant();
+
+            if (key == "targetinfopanel" ||
+                key == "npcinventorygrid")
+            {
+                return true;
+            }
+
+            current = current.parent;
+        }
+
+        return false;
+    }
+
+    bool HasNpcWallet(GameObject owner)
+    {
+        return owner != null &&
+            (owner.GetComponent<VillagerAI>() != null ||
+            owner.GetComponent<SmartNpcAI>() != null);
     }
 
     string FormatLinhThach(long amount)

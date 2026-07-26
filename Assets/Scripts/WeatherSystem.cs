@@ -235,7 +235,13 @@ public class WeatherSystem : MonoBehaviour
 
     bool IsSnowTime(WorldTimeSystem timeSystem)
     {
-        int scheduledSnowDay = Mathf.Clamp(snowDayOfMonth, 1, 30);
+        int scheduledSnowDay =
+            Mathf.Clamp(
+                snowDayOfMonth,
+                1,
+                timeSystem != null
+                    ? timeSystem.DaysPerMonth
+                    : 30);
         float duration = Mathf.Clamp(snowDurationHours, 0f, 24f);
 
         return duration > 0f &&

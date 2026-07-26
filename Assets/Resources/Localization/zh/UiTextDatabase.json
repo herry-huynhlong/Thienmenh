@@ -869,16 +869,108 @@
       "name": "worldItemInfo",
       "entries": [
         {
-          "key": "growthDaysHoursFormat",
-          "value": "{0}天 {1}时"
+          "key": "cardValue",
+          "value": "价值"
         },
         {
-          "key": "growthHoursFormat",
-          "value": "{0}时"
+          "key": "cardSource",
+          "value": "来源"
+        },
+        {
+          "key": "cardUsage",
+          "value": "用途"
+        },
+        {
+          "key": "growthYearsMonthsFormat",
+          "value": "{0}年 {1}月"
+        },
+        {
+          "key": "growthYearsFormat",
+          "value": "{0}年"
+        },
+        {
+          "key": "growthMonthsFormat",
+          "value": "{0}月"
         },
         {
           "key": "growthProgressFormat",
           "value": "{0}/{1}"
+        },
+        {
+          "key": "sourceUnknown",
+          "value": "未知"
+        },
+        {
+          "key": "usageSummaryHerbRefineOnly",
+          "value": "炼丹"
+        },
+        {
+          "key": "usageSummaryHerbRawAndRefine",
+          "value": "炼丹 / 生服"
+        },
+        {
+          "key": "usageSummaryHerbRawOnly",
+          "value": "生服"
+        },
+        {
+          "key": "usageHerbRefineOnly",
+          "value": "主要用于炼丹，可作为丹方主药。"
+        },
+        {
+          "key": "usageHerbRawAndRefine",
+          "value": "可用于炼丹，也可直接服用，但生服只能发挥部分药力。"
+        },
+        {
+          "key": "usageHerbRawOnly",
+          "value": "可直接服用，吸收基础药力。"
+        },
+        {
+          "key": "usageTargetLine",
+          "value": "对象：{0}"
+        },
+        {
+          "key": "usageStyleLine",
+          "value": "使用方式：{0}"
+        },
+        {
+          "key": "usageRawUseLine",
+          "value": "生服：{0}"
+        },
+        {
+          "key": "usageDurabilityLine",
+          "value": "耐久：{0}"
+        },
+        {
+          "key": "usageAmountLine",
+          "value": "数量：{0}"
+        },
+        {
+          "key": "inlineSourceLine",
+          "value": "来源：{0}"
+        },
+        {
+          "key": "inlineUsageLine",
+          "value": "用途：{0}"
+        },
+        {
+          "key": "currentStageValueLine",
+          "value": "当前价值（{0}）：{1}"
+        },
+        {
+          "key": "stageValueLine",
+          "value": "{0}：{1}"
+        },
+        {
+          "key": "stageSmall",
+          "value": "幼苗"
+        },
+        {
+          "key": "stageMid",
+          "value": "成长期"
+        },
+        {
+          "key": "stageMature",
+          "value": "成熟"
         }
       ],
       "lists": []

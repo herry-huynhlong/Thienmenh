@@ -31,11 +31,17 @@ public partial class NpcFixedBlacksmithController
     void Start()
     {
         CacheReferences();
+        EnsureDedicatedForgeSupportComponents();
         EnsureRecommendedScheduleConfigured();
 
         if (grantStartingMoneyOnStart)
         {
             EnsureStartingMoney();
+        }
+
+        if (villager != null)
+        {
+            villager.EnsureHomePointResolved();
         }
 
         if (lastProgressWorldHour < 0f)
@@ -165,10 +171,16 @@ public partial class NpcFixedBlacksmithController
     public void ApplyRecommendedSetup()
     {
         CacheReferences();
+        EnsureDedicatedForgeSupportComponents();
         ClampConfig();
 
         if (villager != null)
         {
+            if (Application.isPlaying)
+            {
+                villager.EnsureHomePointResolved();
+            }
+
             villager.job = VillagerJob.Blacksmith;
             villager.keepInspectorJob = true;
             villager.hideAtHome = true;
@@ -250,6 +262,60 @@ public partial class NpcFixedBlacksmithController
             selfColliders.Length > 0
             ? selfColliders
             : GetComponentsInChildren<Collider2D>(true);
+    }
+
+    void EnsureDedicatedForgeSupportComponents()
+    {
+        if (inventory == null)
+        {
+            inventory = GetComponent<ItemInventory>();
+        }
+
+        if (inventory == null)
+        {
+            inventory = gameObject.AddComponent<ItemInventory>();
+        }
+
+        NpcTradeAgent tradeAgent =
+            GetComponent<NpcTradeAgent>();
+        if (tradeAgent == null)
+        {
+            tradeAgent = gameObject.AddComponent<NpcTradeAgent>();
+        }
+
+        tradeAgent.inventory = inventory;
+        tradeAgent.tradeChance = 0;
+        tradeAgent.buyUsefulItemsFromMarketTrader = false;
+        tradeAgent.buyProduceFromVillagers = false;
+
+        NpcForgeAgent forgeAgent =
+            GetComponent<NpcForgeAgent>();
+        if (forgeAgent == null)
+        {
+            forgeAgent = gameObject.AddComponent<NpcForgeAgent>();
+        }
+
+        forgeAgent.inventory = inventory;
+        forgeAgent.tradeAgent = tradeAgent;
+        forgeAgent.autoForge = false;
+        forgeAgent.autoSellFinishedGoods = false;
+        forgeAgent.autoBuyMaterialsFromMarketTraders = false;
+        forgeAgent.preferCultivateWhenIdle = false;
+        forgeAgent.snapToForgeStandPoint = false;
+        forgeAgent.keepAtForgeStandPoint = false;
+        if (forgePointOverride != null)
+        {
+            forgeAgent.forgeStandPoint = forgePointOverride;
+        }
+
+#if UNITY_EDITOR
+        if (forgeAgent.autoLoadForgeCatalogFromAssets &&
+            (forgeAgent.forgeCatalogItems == null ||
+            forgeAgent.forgeCatalogItems.Count == 0))
+        {
+            forgeAgent.RefreshCatalogFromAssets();
+        }
+#endif
     }
 
     bool IsSelfCollider(Collider2D hit)
@@ -436,30 +502,17 @@ public partial class NpcFixedBlacksmithController
             return;
         }
 
-        int currentMoney = NpcEconomy.GetNpcMoney(gameObject);
-        if (currentMoney >= startingMoney)
-        {
-            return;
-        }
-
-        NpcEconomy.AddNpcMoney(gameObject, startingMoney - currentMoney);
-        SyncProfileWallet(startingMoney);
-        LogDebug("SeedMoney", "money=" + NpcEconomy.GetNpcMoney(gameObject));
+        int currentMoney =
+            NpcEconomy.GetNpcMoney(gameObject);
+        int walletAmount = Mathf.Max(currentMoney, startingMoney);
+        SyncProfileWallet(walletAmount);
     }
 
     void SyncProfileWallet(int walletAmount)
     {
-        if (villager == null ||
-            villager.entityProfile == null ||
-            villager.entityProfile.stats == null)
-        {
-            return;
-        }
-
-        villager.entityProfile.stats.money =
-            Mathf.Max(villager.entityProfile.stats.money, walletAmount);
-        villager.entityProfile.stats.spiritStone =
-            Mathf.Max(villager.entityProfile.stats.spiritStone, walletAmount);
+        NpcEconomy.SetDedicatedProfessionWalletAmount(
+            gameObject,
+            walletAmount);
     }
 
 }

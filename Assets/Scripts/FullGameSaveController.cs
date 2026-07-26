@@ -774,12 +774,17 @@ public class FullGameSaveController : MonoBehaviour
             ResolveComponent<NPCLifecycle>(identity.gameObject);
         if (lifecycle != null)
         {
-            saved.useRapidRuntimeGrowth = false;
-            saved.rapidGrowthStartAbsoluteDay = int.MinValue;
-            saved.rapidGrowthDurationDays = 0;
-            saved.rapidGrowthBabyScale = 0f;
-            saved.rapidGrowthChildScale = 0f;
-            saved.rapidGrowthAdultScale = Vector3.zero;
+            saved.useRapidRuntimeGrowth = lifecycle.useRapidRuntimeGrowth;
+            saved.rapidGrowthStartAbsoluteDay =
+                lifecycle.rapidGrowthStartAbsoluteDay;
+            saved.rapidGrowthDurationDays =
+                lifecycle.rapidGrowthDurationDays;
+            saved.rapidGrowthBabyScale =
+                lifecycle.rapidGrowthBabyScale;
+            saved.rapidGrowthChildScale =
+                lifecycle.rapidGrowthChildScale;
+            saved.rapidGrowthAdultScale =
+                lifecycle.rapidGrowthAdultScale;
         }
     }
 
@@ -814,8 +819,18 @@ public class FullGameSaveController : MonoBehaviour
         saved.villagerJob = (int)villager.job;
         saved.villagerCurrentHP = villager.AuthoritativeCurrentHP;
         saved.villagerMaxHP = villager.AuthoritativeMaxHP;
-        saved.villagerMoney = villager.money;
-        saved.villagerSpiritStone = villager.spiritStone;
+        if (NpcEconomy.UsesDedicatedProfessionWallet(villager.gameObject))
+        {
+            int walletAmount =
+                NpcEconomy.GetNpcMoney(villager.gameObject);
+            saved.villagerMoney = walletAmount;
+            saved.villagerSpiritStone = walletAmount;
+        }
+        else
+        {
+            saved.villagerMoney = villager.money;
+            saved.villagerSpiritStone = villager.spiritStone;
+        }
         saved.villagerProfessionLevel = villager.professionLevel;
         saved.villagerProfessionExp = villager.professionExp;
         NpcActionState villagerActionState =
@@ -1348,10 +1363,26 @@ public class FullGameSaveController : MonoBehaviour
             ResolveComponent<NPCLifecycle>(identity.gameObject);
         if (lifecycle != null)
         {
-            lifecycle.useRapidRuntimeGrowth = false;
-            lifecycle.rapidGrowthStartAbsoluteDay = int.MinValue;
+            lifecycle.useRapidRuntimeGrowth =
+                saved.useRapidRuntimeGrowth;
+            lifecycle.rapidGrowthStartAbsoluteDay =
+                saved.rapidGrowthStartAbsoluteDay;
+            lifecycle.rapidGrowthDurationDays =
+                saved.rapidGrowthDurationDays > 0
+                    ? saved.rapidGrowthDurationDays
+                    : lifecycle.rapidGrowthDurationDays;
+            lifecycle.rapidGrowthBabyScale =
+                saved.rapidGrowthBabyScale > 0f
+                    ? saved.rapidGrowthBabyScale
+                    : lifecycle.rapidGrowthBabyScale;
+            lifecycle.rapidGrowthChildScale =
+                saved.rapidGrowthChildScale > 0f
+                    ? saved.rapidGrowthChildScale
+                    : lifecycle.rapidGrowthChildScale;
             lifecycle.rapidGrowthAdultScale =
-                identity.transform.localScale;
+                saved.rapidGrowthAdultScale != Vector3.zero
+                    ? saved.rapidGrowthAdultScale
+                    : identity.transform.localScale;
         }
 
         int savedAge = Mathf.Max(0, saved.age);
@@ -1471,6 +1502,14 @@ public class FullGameSaveController : MonoBehaviour
             villager.money = Mathf.Max(0, saved.villagerMoney);
             villager.spiritStone = Mathf.Max(0, saved.villagerSpiritStone);
         }
+        else
+        {
+            int walletAmount =
+                Mathf.Max(0, Mathf.Max(saved.villagerMoney, saved.villagerSpiritStone));
+            NpcEconomy.SetDedicatedProfessionWalletAmount(
+                villager.gameObject,
+                walletAmount);
+        }
         villager.RestoreProfessionProgress(
             Mathf.Max(1, saved.villagerProfessionLevel),
             Mathf.Max(0, saved.villagerProfessionExp));
@@ -1483,25 +1522,7 @@ public class FullGameSaveController : MonoBehaviour
 
     static bool UsesDedicatedProfessionWallet(GameObject npc)
     {
-        if (npc == null)
-        {
-            return false;
-        }
-
-        NpcFixedBlacksmithController fixedBlacksmith =
-            npc.GetComponent<NpcFixedBlacksmithController>();
-        if (fixedBlacksmith != null &&
-            fixedBlacksmith.enabled &&
-            fixedBlacksmith.UseDedicatedRoutine)
-        {
-            return true;
-        }
-
-        NpcFixedAlchemistController fixedAlchemist =
-            npc.GetComponent<NpcFixedAlchemistController>();
-        return fixedAlchemist != null &&
-            fixedAlchemist.enabled &&
-            fixedAlchemist.UseDedicatedRoutine;
+        return NpcEconomy.UsesDedicatedProfessionWallet(npc);
     }
 
     void ApplySmartNpcState(
@@ -2300,9 +2321,13 @@ public class FullGameSaveController : MonoBehaviour
             return;
         }
 
-        if (GameSaveSystem.TryLoadWorldTime(out int year, out int month, out int day, out float hour))
+        if (GameSaveSystem.TryLoadWorldTimeAbsoluteDay(
+                out int absoluteDay,
+                out float hour))
         {
-            time.RestoreTime(year, month, day, hour);
+            time.RestoreAbsoluteDayAndHour(
+                absoluteDay,
+                hour);
         }
     }
 

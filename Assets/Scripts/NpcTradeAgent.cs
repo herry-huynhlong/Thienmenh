@@ -358,6 +358,7 @@ public class NpcTradeAgent : MonoBehaviour
             if (stack == null ||
                 stack.item == null ||
                 stack.amount <= 0 ||
+                !IsPreferredVillagerConsumable(stack.item) ||
                 !NpcEconomy.CanTradeNormally(stack.item) ||
                 !stack.item.CanUseOn(buyer.gameObject))
             {
@@ -406,6 +407,7 @@ public class NpcTradeAgent : MonoBehaviour
             if (stack == null ||
                 stack.item == null ||
                 stack.amount <= 0 ||
+                !IsPreferredVillagerConsumable(stack.item) ||
                 !NpcEconomy.CanTradeNormally(stack.item) ||
                 !stack.item.CanUseOn(buyer.gameObject))
             {
@@ -659,7 +661,8 @@ public class NpcTradeAgent : MonoBehaviour
     {
         if (item == null ||
             buyer == null ||
-            price <= 0)
+            price <= 0 ||
+            !IsPreferredVillagerConsumable(item))
         {
             return 0f;
         }
@@ -720,6 +723,19 @@ public class NpcTradeAgent : MonoBehaviour
             money / Mathf.Max(1f, price);
 
         return score * Mathf.Clamp(wealthRatio, 0.1f, 5f);
+    }
+
+    bool IsPreferredVillagerConsumable(
+        StatItemData item)
+    {
+        if (item == null)
+        {
+            return false;
+        }
+
+        return item.itemType == ItemType.ThucPham &&
+            item.CanUseDirectly() &&
+            !item.IsRiskyRawUse();
     }
 
     public bool CanUseCounterTrade()

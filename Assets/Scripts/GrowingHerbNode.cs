@@ -61,6 +61,7 @@ public class GrowingHerbNode : MonoBehaviour, IWorldResourcePersistentState
 
     public float MatureAfterGameHours => Mathf.Max(0.5f, matureAfterGameHours);
     public float AccumulatedGrowthHours => Mathf.Clamp(accumulatedGrowthHours, 0f, MatureAfterGameHours);
+    public float GrowthProgress01 => GetGrowthProgress01();
     public bool IsHarvestAvailable => GetGrowthProgress01() >= 1f;
     public GrowingHerbVisualStage CurrentVisualStage => ResolveVisualStage();
 

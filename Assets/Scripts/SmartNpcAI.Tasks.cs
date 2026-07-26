@@ -729,6 +729,14 @@ public partial class SmartNpcAI
             return NpcText.Action("dead");
         }
 
+        if (waitingForHeavenlyTribulation ||
+            readyForHeavenlyTribulation ||
+            (characterStats != null &&
+            characterStats.waitingForHeavenlyTribulation))
+        {
+            return NpcText.Action("waitTribulation");
+        }
+
         string action =
             NormalizeDisplayAction(
                 currentAction,

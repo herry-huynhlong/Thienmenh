@@ -462,11 +462,10 @@ public partial class NpcTaskProvider
             return -1f;
         }
 
-        int year = Mathf.Max(1, timeSystem.currentYear);
-        int month = Mathf.Max(1, timeSystem.currentMonth);
-        int day = Mathf.Max(1, timeSystem.currentDay);
-        int absoluteDay = (year - 1) * 360 + (month - 1) * 30 + (day - 1);
-        return absoluteDay * 24f + Mathf.Max(0f, timeSystem.currentHour);
+        int absoluteDay =
+            Mathf.Max(0, timeSystem.CurrentAbsoluteDay - 1);
+        return absoluteDay * 24f +
+            Mathf.Max(0f, timeSystem.currentHour);
     }
 
     bool IsWorkThreatMonster(MonsterAI monster)

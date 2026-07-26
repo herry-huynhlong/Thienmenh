@@ -3,23 +3,37 @@ using UnityEngine;
 
 public partial class NpcFixedBlacksmithController
 {
+    string MoveToForgeAction => NpcText.Action("goForge");
+
     bool HandleNeedMaterials()
     {
         lastProgressWorldHour = GetCurrentWorldHour();
         EnsureDynamicForgeBatchPlan();
+        bool needsDailyConsumables =
+            NeedsDailyConsumableTradeToday();
 
         if (autoPlanLowGradeBatches &&
             (!HasConfiguredMaterialRequirements() ||
-            forgedItem == null))
+            forgedItem == null) &&
+            !needsDailyConsumables)
         {
+            int currentMoney =
+                NpcEconomy.GetNpcMoney(gameObject);
             villager.SetActionImmediate(
-                NpcText.Action("fixedBlacksmithNeedMoneyToBuy"),
+                NpcText.Action(
+                    currentMoney > 0
+                        ? "fixedBlacksmithWaitNextCycle"
+                        : "fixedBlacksmithNeedMoneyToBuy"),
                 2f);
+            LogDebug(
+                "NeedMaterials",
+                "dynamicPlanUnavailable money=" + currentMoney);
             return true;
         }
 
         if (HasConfiguredMaterialRequirements() &&
-            HasAllRequiredMaterials())
+            HasAllRequiredMaterials() &&
+            !needsDailyConsumables)
         {
             state = ForgeCycleState.Forging;
             forgedWorkHours = 0f;
@@ -184,10 +198,21 @@ public partial class NpcFixedBlacksmithController
         }
 
         string purchaseDetail = string.Empty;
+        bool attemptedDailyConsumables =
+            NeedsDailyConsumableTradeToday();
+        string dailyConsumableDetail = "skipped";
         if (HasConfiguredMaterialRequirements())
         {
             if (!TryPurchaseConfiguredMaterials(out purchaseDetail))
             {
+                if (attemptedDailyConsumables)
+                {
+                    TryPurchaseDailyConsumables(
+                        out dailyConsumableDetail);
+                    lastDailyConsumableTradeDay =
+                        GetCurrentWorldDay();
+                }
+
                 state = ForgeCycleState.NeedMaterials;
                 villager.SetActionImmediate(
                     NpcText.Action("fixedBlacksmithMaterialsPurchaseIncomplete"),
@@ -198,10 +223,50 @@ public partial class NpcFixedBlacksmithController
         }
         else
         {
-            NpcEconomy.AddNpcMoney(gameObject, -materialCost);
-            purchaseDetail =
-                "fallbackMoney=" +
-                NpcEconomy.GetNpcMoney(gameObject);
+            if (forgedItem != null)
+            {
+                NpcEconomy.AddNpcMoney(gameObject, -materialCost);
+                purchaseDetail =
+                    "fallbackMoney=" +
+                    NpcEconomy.GetNpcMoney(gameObject);
+            }
+            else
+            {
+                purchaseDetail = "dailyOnly";
+            }
+        }
+
+        if (attemptedDailyConsumables)
+        {
+            TryPurchaseDailyConsumables(
+                out dailyConsumableDetail);
+            lastDailyConsumableTradeDay =
+                GetCurrentWorldDay();
+        }
+
+        bool readyToForge =
+            (HasConfiguredMaterialRequirements() &&
+            HasAllRequiredMaterials()) ||
+            (!HasConfiguredMaterialRequirements() &&
+            forgedItem != null);
+        if (!readyToForge)
+        {
+            state = ForgeCycleState.NeedMaterials;
+            stateStartedAtRealtime = -1f;
+            lastProgressWorldHour = GetCurrentWorldHour();
+            lastPurchaseDay = GetCurrentWorldDay();
+            villager.SetActionImmediate(
+                attemptedDailyConsumables
+                    ? NpcText.Action("fixedBlacksmithBoughtMaterials")
+                    : WaitAction,
+                1f);
+            LogDebug(
+                "BuyComplete",
+                "readyToForge=0 money=" +
+                NpcEconomy.GetNpcMoney(gameObject) +
+                " materials=" + purchaseDetail +
+                " daily=" + dailyConsumableDetail);
+            return true;
         }
 
         state = ForgeCycleState.Forging;
@@ -215,7 +280,8 @@ public partial class NpcFixedBlacksmithController
         LogDebug(
             "BuyComplete",
             "money=" + NpcEconomy.GetNpcMoney(gameObject) +
-            " materials=" + purchaseDetail);
+            " materials=" + purchaseDetail +
+            " daily=" + dailyConsumableDetail);
         return true;
     }
 
@@ -233,7 +299,7 @@ public partial class NpcFixedBlacksmithController
             lastProgressWorldHour = currentWorldHour;
             villager.ForceJobMoveTo(
                 forgePosition,
-                ForgeAction,
+                MoveToForgeAction,
                 NpcMapNavigator.GetDestinationZone(forgePoint));
             return true;
         }
@@ -646,6 +712,7 @@ public partial class NpcFixedBlacksmithController
         }
 
         if (HasConfiguredMaterialRequirements() &&
+            IsCurrentForgeBatchCompatibleWithProfessionGrade() &&
             forgedItem != null &&
             GetExpectedForgeSaleValue(forgedItem) >=
             GetEstimatedMaterialBudget() + Mathf.Max(0, craftingLaborFee))
@@ -653,16 +720,17 @@ public partial class NpcFixedBlacksmithController
             return;
         }
 
+        if (!IsCurrentForgeBatchCompatibleWithProfessionGrade())
+        {
+            ResetDynamicForgeBatchPlan();
+        }
+
         TryGenerateDynamicForgeBatchPlan();
     }
 
     bool TryGenerateDynamicForgeBatchPlan()
     {
-        SimpleItemShop shop;
-        if (!TryFindPreferredTradeShop(out shop) ||
-            shop == null ||
-            shop.items == null ||
-            shop.items.Count == 0)
+        if (!TryFindDynamicForgePlanningShop(out SimpleItemShop shop))
         {
             return false;
         }
@@ -675,35 +743,22 @@ public partial class NpcFixedBlacksmithController
             return false;
         }
 
-        List<StatItemData> materialPool = new List<StatItemData>();
-        for (int i = 0; i < shop.items.Count; i++)
-        {
-            ShopItemSlot slot = shop.items[i];
-            if (slot == null ||
-                slot.item == null ||
-                slot.amount <= 0 ||
-                !IsValidLowGradeForgeMaterial(slot.item))
-            {
-                continue;
-            }
+        List<StatItemData> materialPool =
+            BuildDynamicForgeMaterialPool(
+                shop,
+                true);
 
-            if (!materialPool.Contains(slot.item))
-            {
-                materialPool.Add(slot.item);
-            }
-        }
-
-        if (materialPool.Count < Mathf.Max(1, randomMaterialKindsMin))
+        if (materialPool.Count <= 0)
         {
             return false;
         }
 
-        ShuffleItems(materialPool);
+        materialPool.Sort(CompareForgeMaterialPlanPriority);
 
         int plannedKinds =
             Mathf.Clamp(
                 Random.Range(
-                    Mathf.Max(1, randomMaterialKindsMin),
+                    Mathf.Max(1, Mathf.Min(randomMaterialKindsMin, materialPool.Count)),
                     Mathf.Max(randomMaterialKindsMin, randomMaterialKindsMax) + 1),
                 1,
                 materialPool.Count);
@@ -730,7 +785,7 @@ public partial class NpcFixedBlacksmithController
             totalCost += unitPrice;
         }
 
-        if (plannedRequirements.Count < Mathf.Max(1, randomMaterialKindsMin))
+        if (plannedRequirements.Count <= 0)
         {
             return false;
         }
@@ -746,18 +801,34 @@ public partial class NpcFixedBlacksmithController
                 forgeAgent.forgeCatalogItems[i];
             if (candidate == null ||
                 candidate.itemType != ItemType.PhapBao ||
-                candidate.grade != ItemGrade.Ha ||
+                candidate.grade != GetTargetForgeGrade() ||
                 !candidate.canBeSold)
             {
                 continue;
             }
 
-            if (GetExpectedForgeSaleValue(candidate) < minimumSaleValue)
+            if (GetExpectedForgeSaleValue(candidate) >= minimumSaleValue)
             {
-                continue;
+                resultCandidates.Add(candidate);
             }
+        }
 
-            resultCandidates.Add(candidate);
+        if (resultCandidates.Count == 0)
+        {
+            for (int i = 0; i < forgeAgent.forgeCatalogItems.Count; i++)
+            {
+                StatItemData candidate =
+                    forgeAgent.forgeCatalogItems[i];
+                if (candidate == null ||
+                    candidate.itemType != ItemType.PhapBao ||
+                    candidate.grade != GetTargetForgeGrade() ||
+                    !candidate.canBeSold)
+                {
+                    continue;
+                }
+
+                resultCandidates.Add(candidate);
+            }
         }
 
         if (resultCandidates.Count == 0)
@@ -776,6 +847,145 @@ public partial class NpcFixedBlacksmithController
         lastBatchMaterialBudget = totalCost;
         lastBatchMinimumSaleValue = minimumSaleValue;
         return true;
+    }
+
+    static int CompareForgeMaterialPlanPriority(
+        StatItemData left,
+        StatItemData right)
+    {
+        if (ReferenceEquals(left, right))
+        {
+            return 0;
+        }
+
+        if (left == null)
+        {
+            return 1;
+        }
+
+        if (right == null)
+        {
+            return -1;
+        }
+
+        int leftPrice =
+            Mathf.Max(1, NpcEconomy.GetItemValue(left));
+        int rightPrice =
+            Mathf.Max(1, NpcEconomy.GetItemValue(right));
+        int priceCompare =
+            leftPrice.CompareTo(rightPrice);
+        if (priceCompare != 0)
+        {
+            return priceCompare;
+        }
+
+        return string.Compare(
+            left.itemName,
+            right.itemName,
+            System.StringComparison.Ordinal);
+    }
+
+    bool TryFindDynamicForgePlanningShop(
+        out SimpleItemShop shop)
+    {
+        shop = null;
+
+        SimpleItemShop[] shops =
+            FindObjectsByType<SimpleItemShop>(
+                FindObjectsInactive.Exclude);
+        int bestMaterialCount = -1;
+        float bestDistance = float.PositiveInfinity;
+        Transform marketPoint = GetMarketPoint();
+        Vector3 searchOrigin =
+            marketPoint != null
+                ? marketPoint.position
+                : transform.position;
+
+        for (int i = 0; i < shops.Length; i++)
+        {
+            SimpleItemShop candidate = shops[i];
+            if (candidate == null ||
+                !candidate.isActiveAndEnabled)
+            {
+                continue;
+            }
+
+            NpcMapZone? candidateZone =
+                ResolveShopZone(candidate);
+            if (candidateZone.HasValue &&
+                candidateZone.Value != preferredTradeZone)
+            {
+                continue;
+            }
+
+            int materialCount =
+                BuildDynamicForgeMaterialPool(
+                    candidate,
+                    true).Count;
+            if (materialCount <= 0)
+            {
+                continue;
+            }
+
+            float distance =
+                Vector2.Distance(
+                    searchOrigin,
+                    candidate.transform.position);
+            if (materialCount < bestMaterialCount)
+            {
+                continue;
+            }
+
+            if (materialCount == bestMaterialCount &&
+                distance >= bestDistance)
+            {
+                continue;
+            }
+
+            bestMaterialCount = materialCount;
+            bestDistance = distance;
+            shop = candidate;
+        }
+
+        if (shop != null)
+        {
+            FinalizePreferredTradeShop(shop);
+            return true;
+        }
+
+        return TryFindPreferredTradeShop(out shop);
+    }
+
+    List<StatItemData> BuildDynamicForgeMaterialPool(
+        SimpleItemShop shop,
+        bool includeZeroStock)
+    {
+        List<StatItemData> materialPool =
+            new List<StatItemData>();
+        if (shop == null ||
+            shop.items == null)
+        {
+            return materialPool;
+        }
+
+        RefreshTradeShopStock(shop);
+
+        for (int i = 0; i < shop.items.Count; i++)
+        {
+            ShopItemSlot slot = shop.items[i];
+            if (slot == null ||
+                slot.item == null ||
+                (!includeZeroStock && slot.amount <= 0) ||
+                !IsValidForgeMaterialForTargetGrade(slot.item) ||
+                materialPool.Contains(slot.item))
+            {
+                continue;
+            }
+
+            materialPool.Add(slot.item);
+        }
+
+        return materialPool;
     }
 
     bool IsValidLowGradeForgeMaterial(StatItemData item)
@@ -799,6 +1009,115 @@ public partial class NpcFixedBlacksmithController
             default:
                 return false;
         }
+    }
+
+    bool IsValidForgeMaterialForTargetGrade(StatItemData item)
+    {
+        if (item == null ||
+            item.itemType != ItemType.VatLieu ||
+            item.grade != GetTargetForgeGrade() ||
+            !item.canBeSold)
+        {
+            return false;
+        }
+
+        if (item.canBeForgedIntoArtifact)
+        {
+            return true;
+        }
+
+        switch (item.materialKind)
+        {
+            case MaterialKind.Ore:
+            case MaterialKind.SpiritStone:
+            case MaterialKind.CraftingPart:
+            case MaterialKind.BeastPart:
+            case MaterialKind.BeastCore:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    ItemGrade GetTargetForgeGrade()
+    {
+        int level = GetCurrentProfessionSkillLevel();
+        if (level < 3)
+        {
+            return ItemGrade.Ha;
+        }
+
+        if (level < 7)
+        {
+            return ItemGrade.Trung;
+        }
+
+        return ItemGrade.Thuong;
+    }
+
+    int GetCurrentProfessionSkillLevel()
+    {
+        int level =
+            villager != null
+                ? Mathf.Max(1, villager.professionLevel)
+                : 1;
+
+        NpcSpecialProfession specialProfession =
+            GetComponent<NpcSpecialProfession>();
+        if (specialProfession != null)
+        {
+            level = Mathf.Max(level, specialProfession.jobLevel);
+        }
+
+        return level;
+    }
+
+    bool IsCurrentForgeBatchCompatibleWithProfessionGrade()
+    {
+        if (!HasConfiguredMaterialRequirements() ||
+            forgedItem == null)
+        {
+            return false;
+        }
+
+        ItemGrade targetGrade =
+            GetTargetForgeGrade();
+        if (forgedItem.itemType != ItemType.PhapBao ||
+            forgedItem.grade != targetGrade ||
+            !forgedItem.canBeSold)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < materialRequirements.Count; i++)
+        {
+            FixedBlacksmithMaterialRequirement requirement =
+                materialRequirements[i];
+            if (requirement == null ||
+                requirement.item == null)
+            {
+                return false;
+            }
+
+            if (!IsValidForgeMaterialForTargetGrade(
+                    requirement.item))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    void ResetDynamicForgeBatchPlan()
+    {
+        forgedItem = null;
+        materialRequirements =
+            new List<FixedBlacksmithMaterialRequirement>();
+        materialCost = 0;
+        salePrice = 0;
+        lastBatchMaterialBudget = 0;
+        lastBatchMinimumSaleValue = 0;
     }
 
     int GetExpectedForgeSaleValue(StatItemData item)
@@ -954,28 +1273,45 @@ public partial class NpcFixedBlacksmithController
                 shop.FindItemIndex(
                     requirement.item);
 
-            if (itemIndex < 0)
+            int boughtAmount = 0;
+            int totalPrice = 0;
+            bool purchased = false;
+            if (itemIndex >= 0)
             {
-                detail =
-                    "missingStock=" +
-                    requirement.item.itemName;
-                return false;
+                purchased =
+                    shop.BuyNpcItemToInventory(
+                        itemIndex,
+                        gameObject,
+                        inventory,
+                        missing,
+                        out boughtAmount,
+                        out totalPrice);
             }
 
-            int boughtAmount;
-            int totalPrice;
-            if (!shop.BuyNpcItemToInventory(
-                    itemIndex,
-                    gameObject,
-                    inventory,
-                    missing,
-                    out boughtAmount,
-                    out totalPrice))
+            if (!purchased)
             {
-                detail =
-                    "buyFailed=" +
-                    requirement.item.itemName;
-                return false;
+                if (!shop.ProvisionNpcItemToInventory(
+                        requirement.item,
+                        gameObject,
+                        inventory,
+                        missing,
+                        out boughtAmount,
+                        out totalPrice))
+                {
+                    detail =
+                        (itemIndex < 0
+                            ? "missingStock="
+                            : "buyFailed=") +
+                        requirement.item.itemName;
+                    return false;
+                }
+
+                purchases.Add(
+                    requirement.item.itemName +
+                    "x" + boughtAmount +
+                    " price=" + totalPrice +
+                    " source=provision");
+                continue;
             }
 
             purchases.Add(
@@ -993,6 +1329,234 @@ public partial class NpcFixedBlacksmithController
                 : "alreadyReady";
 
         return hasAllMaterials;
+    }
+
+    bool NeedsDailyConsumableTradeToday()
+    {
+        if (!buyDailyConsumables)
+        {
+            return false;
+        }
+
+        EnsureDailyConsumableItemsResolved();
+        if ((dailyRiceItem == null ||
+            dailyRiceAmount <= 0) &&
+            (GetDailyProteinItemForDay(
+                GetCurrentWorldDay()) == null ||
+            dailyProteinAmount <= 0))
+        {
+            return false;
+        }
+
+        return lastDailyConsumableTradeDay !=
+            GetCurrentWorldDay();
+    }
+
+    void EnsureDailyConsumableItemsResolved()
+    {
+        if (dailyRiceItem == null)
+        {
+            dailyRiceItem =
+                FindLoadedItemByNames(
+                    "Linh_Me",
+                    "Linh Mễ",
+                    "Linh Me");
+        }
+
+        if (dailyFishItem == null)
+        {
+            dailyFishItem =
+                FindLoadedItemByNames(
+                    "ca",
+                    "Cá",
+                    "Ca");
+        }
+
+        if (dailyMeatItem == null)
+        {
+            dailyMeatItem =
+                FindLoadedItemByNames(
+                    "thit",
+                    "Thịt",
+                    "Thit");
+        }
+    }
+
+    StatItemData FindLoadedItemByNames(
+        params string[] names)
+    {
+        if (names == null ||
+            names.Length <= 0)
+        {
+            return null;
+        }
+
+        StatItemData[] loadedItems =
+            Resources.FindObjectsOfTypeAll<StatItemData>();
+        for (int i = 0; i < loadedItems.Length; i++)
+        {
+            StatItemData candidate = loadedItems[i];
+            if (candidate == null)
+            {
+                continue;
+            }
+
+            for (int nameIndex = 0;
+                nameIndex < names.Length;
+                nameIndex++)
+            {
+                string itemName = names[nameIndex];
+                if (string.IsNullOrWhiteSpace(itemName))
+                {
+                    continue;
+                }
+
+                if (string.Equals(
+                        candidate.name,
+                        itemName,
+                        System.StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(
+                        candidate.itemName,
+                        itemName,
+                        System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return candidate;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    StatItemData GetDailyProteinItemForDay(int day)
+    {
+        EnsureDailyConsumableItemsResolved();
+        return day % 2 == 0
+            ? dailyFishItem != null
+                ? dailyFishItem
+                : dailyMeatItem
+            : dailyMeatItem != null
+                ? dailyMeatItem
+                : dailyFishItem;
+    }
+
+    bool TryPurchaseDailyConsumables(out string detail)
+    {
+        detail = "disabled";
+
+        if (!buyDailyConsumables)
+        {
+            return true;
+        }
+
+        EnsureDailyConsumableItemsResolved();
+        int currentDay = GetCurrentWorldDay();
+        StatItemData proteinItem =
+            GetDailyProteinItemForDay(currentDay);
+
+        if ((dailyRiceItem == null ||
+            dailyRiceAmount <= 0) &&
+            (proteinItem == null ||
+            dailyProteinAmount <= 0))
+        {
+            detail = "noDailyItems";
+            return false;
+        }
+
+        if (inventory == null)
+        {
+            detail = "missingInventory";
+            return false;
+        }
+
+        if (!TryFindPreferredTradeShop(out SimpleItemShop shop) ||
+            shop == null)
+        {
+            detail = "missingShop";
+            return false;
+        }
+
+        List<string> purchases = new List<string>();
+        bool boughtAny = false;
+
+        if (TryPurchaseDailyConsumableItem(
+                shop,
+                dailyRiceItem,
+                dailyRiceAmount,
+                purchases))
+        {
+            boughtAny = true;
+        }
+
+        if (TryPurchaseDailyConsumableItem(
+                shop,
+                proteinItem,
+                dailyProteinAmount,
+                purchases))
+        {
+            boughtAny = true;
+        }
+
+        detail =
+            purchases.Count > 0
+                ? string.Join("; ", purchases)
+                : "dailyNoDeal";
+        return boughtAny;
+    }
+
+    bool TryPurchaseDailyConsumableItem(
+        SimpleItemShop shop,
+        StatItemData item,
+        int amount,
+        List<string> purchases)
+    {
+        if (shop == null ||
+            item == null ||
+            amount <= 0 ||
+            inventory == null)
+        {
+            return false;
+        }
+
+        int itemIndex = shop.FindItemIndex(item);
+        int boughtAmount = 0;
+        int totalPrice = 0;
+        bool purchased = false;
+        if (itemIndex >= 0)
+        {
+            purchased =
+                shop.BuyNpcItemToInventory(
+                    itemIndex,
+                    gameObject,
+                    inventory,
+                    amount,
+                    out boughtAmount,
+                    out totalPrice);
+        }
+
+        if (!purchased)
+        {
+            purchased =
+                shop.ProvisionNpcItemToInventory(
+                    item,
+                    gameObject,
+                    inventory,
+                    amount,
+                    out boughtAmount,
+                    out totalPrice);
+        }
+
+        if (!purchased ||
+            boughtAmount <= 0)
+        {
+            return false;
+        }
+
+        purchases.Add(
+            item.itemName +
+            "x" + boughtAmount +
+            " price=" + totalPrice);
+        return true;
     }
 
     bool HasAllRequiredMaterials()

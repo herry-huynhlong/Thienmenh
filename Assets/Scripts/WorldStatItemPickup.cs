@@ -383,10 +383,14 @@ public class WorldStatItemPickup : MonoBehaviour
             return false;
         }
 
+        bool prioritizeImmediateUse =
+            trackReceiverInHeavenNurture &&
+            target.GetComponent<SmartNpcAI>() != null;
+
         collector.ReceiveItem(
             pickedItem,
             ItemLifecycleEventType.Picked,
-            false);
+            prioritizeImmediateUse);
         TrackReceiver(target.gameObject);
         ClearReservation(target.gameObject);
         return true;

@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class GrowingHerbField : MonoBehaviour
 {
+    const float WorldHoursPerCultivationYear = 24f;
+
     [Header("Target")]
     public StatItemData herbItem;
 
@@ -12,6 +14,10 @@ public class GrowingHerbField : MonoBehaviour
 
     [Header("Growth")]
     [Min(0.5f)] public float matureAfterGameHours = 48f;
+    public bool useGradeBasedGrowthYears = true;
+    [Min(1f)] public float haGradeMatureYears = 3f;
+    [Min(1f)] public float trungGradeMatureYears = 5f;
+    [Min(1f)] public float thuongGradeMatureYears = 10f;
     [Range(0.05f, 0.95f)] public float midStageThreshold = 0.5f;
     [Min(1f)] public float rainGrowthMultiplier = 1.5f;
     [Range(0.1f, 1f)] public float snowGrowthMultiplier = 0.5f;
@@ -79,7 +85,7 @@ public class GrowingHerbField : MonoBehaviour
             smallSprite,
             midSprite,
             largeSprite,
-            matureAfterGameHours,
+            ResolveMatureAfterGameHours(pickup.item),
             midStageThreshold,
             rainGrowthMultiplier,
             snowGrowthMultiplier,
@@ -108,6 +114,9 @@ public class GrowingHerbField : MonoBehaviour
     void OnValidate()
     {
         matureAfterGameHours = Mathf.Max(0.5f, matureAfterGameHours);
+        haGradeMatureYears = Mathf.Max(1f, haGradeMatureYears);
+        trungGradeMatureYears = Mathf.Max(1f, trungGradeMatureYears);
+        thuongGradeMatureYears = Mathf.Max(1f, thuongGradeMatureYears);
         midStageThreshold = Mathf.Clamp(midStageThreshold, 0.05f, 0.95f);
         rainGrowthMultiplier = Mathf.Max(1f, rainGrowthMultiplier);
         snowGrowthMultiplier = Mathf.Clamp(snowGrowthMultiplier, 0.1f, 1f);
@@ -118,5 +127,31 @@ public class GrowingHerbField : MonoBehaviour
         initialLargeWeight = Mathf.Max(0, initialLargeWeight);
         randomScaleMin = Mathf.Max(0.1f, randomScaleMin);
         randomScaleMax = Mathf.Max(randomScaleMin, randomScaleMax);
+    }
+
+    float ResolveMatureAfterGameHours(StatItemData item)
+    {
+        if (!useGradeBasedGrowthYears ||
+            item == null)
+        {
+            return Mathf.Max(0.5f, matureAfterGameHours);
+        }
+
+        float years = thuongGradeMatureYears;
+        switch (item.grade)
+        {
+            case ItemGrade.Ha:
+                years = haGradeMatureYears;
+                break;
+            case ItemGrade.Trung:
+                years = trungGradeMatureYears;
+                break;
+            case ItemGrade.Thuong:
+            case ItemGrade.Tien:
+                years = thuongGradeMatureYears;
+                break;
+        }
+
+        return Mathf.Max(0.5f, years * WorldHoursPerCultivationYear);
     }
 }

@@ -130,8 +130,32 @@
           "value": "Đã có đạo lữ"
         },
         {
+          "key": "daoCompanionWith",
+          "value": "Đã có đạo lữ với {0}"
+        },
+        {
+          "key": "dating",
+          "value": "Đang hẹn hò"
+        },
+        {
+          "key": "datingWith",
+          "value": "Đang hẹn hò với {0}"
+        },
+        {
+          "key": "villagerMarried",
+          "value": "Đã cưới"
+        },
+        {
+          "key": "villagerMarriedWith",
+          "value": "Đã cưới với {0}"
+        },
+        {
           "key": "married",
           "value": "Đã có vợ chồng"
+        },
+        {
+          "key": "marriedWith",
+          "value": "Đã có vợ chồng với {0}"
         }
       ]
     },

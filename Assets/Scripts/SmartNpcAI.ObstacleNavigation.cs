@@ -208,8 +208,9 @@ public partial class SmartNpcAI
 
                 escapeDirection.Normalize();
                 Vector3 candidate =
-                    transform.position +
-                    (Vector3)(escapeDirection * distance);
+                    ClampToCurrentMapArea(
+                        transform.position +
+                        (Vector3)(escapeDirection * distance));
 
                 candidate.z = transform.position.z;
 
@@ -240,7 +241,8 @@ public partial class SmartNpcAI
 
     bool IsMoveTargetFeasible(Vector3 position)
     {
-        return !IsPositionBlocked(position);
+        return IsInsideCurrentMapArea(position) &&
+            !IsPositionBlocked(position);
     }
 
     bool IsPositionBlocked(Vector3 position)
@@ -439,8 +441,9 @@ public partial class SmartNpcAI
             moveSpeed * 0.5f);
 
         Vector3 candidate =
-            transform.position +
-            (Vector3)(desired * distance);
+            ClampToCurrentMapArea(
+                transform.position +
+                (Vector3)(desired * distance));
 
         Vector3 clearPoint;
         if (!TryFindClearPointNear(candidate, out clearPoint))
@@ -459,6 +462,109 @@ public partial class SmartNpcAI
         hasObstacleAvoidTarget = true;
         blockedMoveTimer = 0f;
         return true;
+    }
+
+    bool TryCommitObstacleScanTarget(
+        Vector2 desiredDirection,
+        Vector3 finalTarget)
+    {
+        if (desiredDirection.sqrMagnitude <= 0.0001f)
+        {
+            return false;
+        }
+
+        Vector2 desired = desiredDirection.normalized;
+        Vector2 targetDirection =
+            (Vector2)finalTarget - (Vector2)transform.position;
+
+        if (targetDirection.sqrMagnitude <= 0.0001f)
+        {
+            targetDirection = desired;
+        }
+        else
+        {
+            targetDirection.Normalize();
+        }
+
+        float scanDistance = Mathf.Max(
+            obstacleCheckDistance * 2f,
+            GetObstacleLookAheadDistance() * 2f);
+        float scanStep = Mathf.Max(0.12f, targetClearRadius);
+        float startDistance = Mathf.Max(
+            targetClearRadius * 2f,
+            obstacleCheckDistance * 0.75f);
+        Vector2 side = new Vector2(-desired.y, desired.x);
+        Vector2 sideOffset =
+            side * Mathf.Max(targetClearRadius * 1.5f, 0.3f);
+
+        bool sawBlocked = false;
+
+        for (float distance = startDistance;
+             distance <= scanDistance;
+             distance += scanStep)
+        {
+            Vector2 forwardPoint =
+                (Vector2)transform.position + desired * distance;
+
+            bool forwardBlocked =
+                !IsInsideCurrentMapArea(forwardPoint) ||
+                IsPositionBlocked(forwardPoint) ||
+                !HasClearLineTo(forwardPoint);
+
+            if (forwardBlocked)
+            {
+                sawBlocked = true;
+            }
+
+            if (!sawBlocked)
+            {
+                continue;
+            }
+
+            Vector2[] candidates =
+            {
+                forwardPoint,
+                forwardPoint + sideOffset,
+                forwardPoint - sideOffset
+            };
+
+            for (int i = 0; i < candidates.Length; i++)
+            {
+                Vector2 candidate =
+                    ClampToCurrentMapArea(candidates[i]);
+
+                if (!IsInsideCurrentMapArea(candidate) ||
+                    IsPositionBlocked(candidate) ||
+                    !HasClearLineTo(candidate))
+                {
+                    continue;
+                }
+
+                Vector2 toCandidate =
+                    candidate - (Vector2)transform.position;
+
+                if (toCandidate.sqrMagnitude <= 0.0001f ||
+                    Vector2.Dot(
+                        toCandidate.normalized,
+                        targetDirection) < -0.05f)
+                {
+                    continue;
+                }
+
+                obstacleAvoidTarget =
+                    new Vector3(
+                        candidate.x,
+                        candidate.y,
+                        transform.position.z);
+                obstacleAvoidUntil = Time.time + 1.15f;
+                hasObstacleAvoidTarget = true;
+                hasEscapeTarget = false;
+                blockedMoveTimer = 0f;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     bool TryScoreObstacleDetourDirection(
@@ -514,6 +620,7 @@ public partial class SmartNpcAI
         out Vector3 result,
         bool requireClearLine = true)
     {
+        preferred = ClampToCurrentMapArea(preferred);
         preferred.z = transform.position.z;
 
         if (IsMoveTargetFeasible(preferred))
@@ -535,7 +642,8 @@ public partial class SmartNpcAI
                     new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) *
                     radius;
                 Vector3 candidate =
-                    preferred + new Vector3(offset.x, offset.y, 0f);
+                    ClampToCurrentMapArea(
+                        preferred + new Vector3(offset.x, offset.y, 0f));
 
                 if (IsMoveTargetFeasible(candidate) &&
                     (!requireClearLine || HasClearLineTo(candidate)))
@@ -573,8 +681,9 @@ public partial class SmartNpcAI
 
         away.Normalize();
 
-        return transform.position +
-            (Vector3)(away * Mathf.Max(unstuckOffsetRadius, targetClearRadius * 3f));
+        return ClampToCurrentMapArea(
+            transform.position +
+            (Vector3)(away * Mathf.Max(unstuckOffsetRadius, targetClearRadius * 3f)));
     }
 
     void HandleBlockedMovement(Vector3 blockedTarget, Vector3 finalTarget)

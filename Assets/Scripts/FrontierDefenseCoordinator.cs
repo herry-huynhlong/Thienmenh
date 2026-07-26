@@ -91,12 +91,13 @@ public partial class FrontierDefenseCoordinator : MonoBehaviour
     {
         if (activeBeastWave != null)
         {
+            TriggerWaveWarningSignals(activeBeastWave);
             AddUrgentLog(
                 UiText.Get(
                     "frontierDefense",
                     "manualTriggerAlreadyActive",
                     "Thu trieu dang dien ra."));
-            return false;
+            return true;
         }
 
         FrontierBattleLine line = FindBestBattleLine();
@@ -121,7 +122,17 @@ public partial class FrontierDefenseCoordinator : MonoBehaviour
         }
 
         nextBeastWaveAllowedTime = 0f;
-        TryStartBeastWave();
+        TryStartBeastWave(true);
+
+        if (activeBeastWave == null)
+        {
+            AddUrgentLog(
+                UiText.Get(
+                    "frontierDefense",
+                    "manualTriggerNoDefenders",
+                    "Khong trieu tap duoc tu si phong thu, nen thu trieu chua the khai hoa."));
+        }
+
         return activeBeastWave != null;
     }
 

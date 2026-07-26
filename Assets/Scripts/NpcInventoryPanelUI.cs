@@ -62,8 +62,11 @@ public class NpcInventoryPanelUI : MonoBehaviour
             return;
         }
 
+        Transform resolvedNpc =
+            ResolveNpcTargetRoot(npc);
+
         if (false &&
-            IsNpcTarget(npc) &&
+            IsNpcTarget(resolvedNpc) &&
             !HasHeavenDaoPower(HeavenDaoPower.ViewBasicNpcInfo))
         {
             HideContentOnly();
@@ -71,13 +74,13 @@ public class NpcInventoryPanelUI : MonoBehaviour
         }
 
         ItemInventory inventory =
-            ResolveInventorySource(npc);
+            ResolveInventorySource(resolvedNpc);
 
-        if (currentNpc != npc ||
+        if (currentNpc != resolvedNpc ||
             currentInventory != inventory)
         {
             Unsubscribe();
-            currentNpc = npc;
+            currentNpc = resolvedNpc;
             currentInventory = inventory;
             currentInventory.OnChanged += OnInventoryChanged;
             gridDirty = true;
@@ -92,14 +95,14 @@ public class NpcInventoryPanelUI : MonoBehaviour
 
             panelRoot.SendMessage(
                 "SetCurrentNpc",
-                npc.gameObject,
+                resolvedNpc.gameObject,
                 SendMessageOptions.DontRequireReceiver);
         }
         else
         {
             SendMessage(
                 "SetCurrentNpc",
-                npc.gameObject,
+                resolvedNpc.gameObject,
                 SendMessageOptions.DontRequireReceiver);
         }
 
@@ -119,7 +122,7 @@ public class NpcInventoryPanelUI : MonoBehaviour
         }
 
         ItemInventory inventory =
-            npc.GetComponent<ItemInventory>();
+            GetTargetComponent<ItemInventory>(npc);
 
         if (inventory == null)
         {
@@ -430,6 +433,7 @@ public class NpcInventoryPanelUI : MonoBehaviour
                 gridDirty = false;
             }
 
+            UpdateWalletText();
             ReserveGridTopSpace();
         }
 
@@ -472,9 +476,9 @@ public class NpcInventoryPanelUI : MonoBehaviour
     bool IsNpcTarget(Transform target)
     {
         return target != null &&
-            (target.GetComponent<VillagerAI>() != null ||
-            target.GetComponent<SmartNpcAI>() != null ||
-            target.GetComponent<NpcData>() != null);
+            (GetTargetComponent<VillagerAI>(target) != null ||
+            GetTargetComponent<SmartNpcAI>(target) != null ||
+            GetTargetComponent<NpcData>(target) != null);
     }
 
     bool HasHeavenDaoPower(HeavenDaoPower power)
@@ -520,6 +524,7 @@ public class NpcInventoryPanelUI : MonoBehaviour
                 itemGridPanel.Refresh(true);
                 gridDirty = false;
 
+                UpdateWalletText();
                 ReserveGridTopSpace();
             }
             else if (itemGridPanel.panelRoot != panelRoot)
@@ -536,28 +541,31 @@ public class NpcInventoryPanelUI : MonoBehaviour
 
     void UpdateWalletText()
     {
-        if (!showNpcLinhThach ||
-            npcLinhThachText == null ||
-            currentNpc == null)
+        if (currentNpc == null)
         {
             return;
         }
 
         NormalizeNpcWalletText();
 
-        npcLinhThachText.text =
-            NpcEconomy.FormatCurrency(
-                NpcEconomy.GetNpcLinhThach(currentNpc.gameObject));
+        int walletAmount =
+            NpcEconomy.GetNpcLinhThach(currentNpc.gameObject);
 
-        npcLinhThachText.gameObject.SetActive(true);
+        if (showNpcLinhThach &&
+            npcLinhThachText != null)
+        {
+            npcLinhThachText.text =
+                NpcEconomy.FormatCurrency(walletAmount);
+
+            npcLinhThachText.gameObject.SetActive(true);
+        }
 
         if (itemGridPanel != null &&
             itemGridPanel.footerLinhThachText != null)
         {
             itemGridPanel.footerLinhThachText.text =
                 NpcEconomy.FormatCompactAmount(
-                    NpcEconomy.GetNpcLinhThach(
-                        currentNpc.gameObject));
+                    walletAmount);
         }
     }
 
@@ -630,13 +638,7 @@ public class NpcInventoryPanelUI : MonoBehaviour
         PlayerWalletTextUI[] walletTexts =
             gridRoot.GetComponentsInChildren<PlayerWalletTextUI>(true);
 
-        foreach (PlayerWalletTextUI walletText in walletTexts)
-        {
-            if (walletText != null)
-            {
-                walletText.enabled = false;
-            }
-        }
+        DisablePlayerWalletTextComponents(walletTexts);
     }
 
     void SetCanvasGroupVisible(
@@ -677,18 +679,29 @@ public class NpcInventoryPanelUI : MonoBehaviour
     void NormalizeNpcWalletText()
     {
         AutoFindNpcWalletText();
+        DisablePlayerWalletTextsInRoot(panelRoot);
 
-        if (npcLinhThachText == null)
+        if (itemGridPanel != null)
         {
-            return;
+            DisablePlayerWalletTextsInRoot(
+                itemGridPanel.panelRoot);
+
+            if (itemGridPanel.panelRoot != itemGridPanel.gameObject)
+            {
+                DisablePlayerWalletTextsInRoot(
+                    itemGridPanel.gameObject);
+            }
         }
 
-        PlayerWalletTextUI conflictingWalletText =
-            npcLinhThachText.GetComponent<PlayerWalletTextUI>();
-        if (conflictingWalletText != null &&
-            conflictingWalletText.enabled)
+        if (npcLinhThachText != null)
         {
-            conflictingWalletText.enabled = false;
+            PlayerWalletTextUI conflictingWalletText =
+                npcLinhThachText.GetComponent<PlayerWalletTextUI>();
+            if (conflictingWalletText != null &&
+                conflictingWalletText.enabled)
+            {
+                conflictingWalletText.enabled = false;
+            }
         }
 
         if (itemGridPanel != null &&
@@ -700,6 +713,37 @@ public class NpcInventoryPanelUI : MonoBehaviour
                 footerWalletText.enabled)
             {
                 footerWalletText.enabled = false;
+            }
+        }
+    }
+
+    void DisablePlayerWalletTextsInRoot(
+        GameObject root)
+    {
+        if (root == null)
+        {
+            return;
+        }
+
+        // Disable any wallet text that may have been copied into the NPC panel.
+        DisablePlayerWalletTextComponents(
+            root.GetComponentsInChildren<PlayerWalletTextUI>(true));
+    }
+
+    void DisablePlayerWalletTextComponents(
+        PlayerWalletTextUI[] walletTexts)
+    {
+        if (walletTexts == null)
+        {
+            return;
+        }
+
+        foreach (PlayerWalletTextUI walletText in walletTexts)
+        {
+            if (walletText != null &&
+                walletText.enabled)
+            {
+                walletText.enabled = false;
             }
         }
     }
@@ -893,9 +937,57 @@ public class NpcInventoryPanelUI : MonoBehaviour
         {
             if (!itemGridPanel.panelRoot.activeSelf)
             {
-            itemGridPanel.panelRoot.SetActive(true);
+                itemGridPanel.panelRoot.SetActive(true);
             }
         }
+    }
+
+    static T GetTargetComponent<T>(Transform target) where T : Component
+    {
+        if (target == null)
+        {
+            return null;
+        }
+
+        T component = target.GetComponent<T>();
+        if (component != null)
+        {
+            return component;
+        }
+
+        component = target.GetComponentInParent<T>(true);
+        if (component != null)
+        {
+            return component;
+        }
+
+        return target.GetComponentInChildren<T>(true);
+    }
+
+    Transform ResolveNpcTargetRoot(Transform target)
+    {
+        VillagerAI villager =
+            GetTargetComponent<VillagerAI>(target);
+        if (villager != null)
+        {
+            return villager.transform;
+        }
+
+        SmartNpcAI smartNpc =
+            GetTargetComponent<SmartNpcAI>(target);
+        if (smartNpc != null)
+        {
+            return smartNpc.transform;
+        }
+
+        NpcData npcData =
+            GetTargetComponent<NpcData>(target);
+        if (npcData != null)
+        {
+            return npcData.transform;
+        }
+
+        return target;
     }
 
     Transform FindChildByName(
@@ -1018,8 +1110,17 @@ public class NpcInventoryPanelUI : MonoBehaviour
 
         if (villager != null)
         {
-            money = villager.money;
-            spiritStone = villager.spiritStone;
+            if (NpcEconomy.UsesDedicatedProfessionWallet(npc.gameObject))
+            {
+                money =
+                    NpcEconomy.GetNpcMoney(npc.gameObject);
+                spiritStone = money;
+            }
+            else
+            {
+                money = villager.money;
+                spiritStone = villager.spiritStone;
+            }
             hasWallet = true;
         }
         else
@@ -1254,8 +1355,17 @@ public class NpcInventoryPanelUI : MonoBehaviour
             npc.GetComponent<VillagerAI>();
         if (villager != null)
         {
-            money = villager.money;
-            spiritStone = villager.spiritStone;
+            if (NpcEconomy.UsesDedicatedProfessionWallet(npc.gameObject))
+            {
+                money =
+                    NpcEconomy.GetNpcMoney(npc.gameObject);
+                spiritStone = money;
+            }
+            else
+            {
+                money = villager.money;
+                spiritStone = villager.spiritStone;
+            }
             hasWallet = true;
         }
         else

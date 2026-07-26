@@ -22,6 +22,11 @@ public partial class VillagerAI
                 timeSystem.CurrentPhase != WorldTimePhase.Dawn;
         }
 
+        if (TryGetDedicatedProfessionHiddenState(out bool shouldRemainHidden))
+        {
+            return !shouldRemainHidden;
+        }
+
         NpcScheduleController schedule =
             NpcScheduleController.GetSchedule(gameObject);
         if (schedule == null ||
@@ -33,6 +38,75 @@ public partial class VillagerAI
         NpcScheduleActivity activity = schedule.CurrentActivity;
         return activity != NpcScheduleActivity.Sleep &&
             activity != NpcScheduleActivity.ReturnHome;
+    }
+
+    bool TryGetDedicatedProfessionHiddenState(out bool shouldRemainHidden)
+    {
+        shouldRemainHidden = false;
+
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        float currentHour =
+            timeSystem != null
+                ? timeSystem.CurrentHour
+                : 12f;
+
+        NpcFixedAlchemistController fixedAlchemist =
+            GetComponent<NpcFixedAlchemistController>();
+        if (fixedAlchemist != null &&
+            fixedAlchemist.enabled &&
+            fixedAlchemist.UseDedicatedRoutine)
+        {
+            shouldRemainHidden =
+                IsHourInRange(
+                    currentHour,
+                    fixedAlchemist.sleepStart,
+                    fixedAlchemist.sleepEnd);
+            return true;
+        }
+
+        NpcFixedBlacksmithController fixedBlacksmith =
+            GetComponent<NpcFixedBlacksmithController>();
+        if (fixedBlacksmith != null &&
+            fixedBlacksmith.enabled &&
+            fixedBlacksmith.UseDedicatedRoutine)
+        {
+            shouldRemainHidden =
+                IsHourInRange(
+                    currentHour,
+                    fixedBlacksmith.sleepStart,
+                    fixedBlacksmith.sleepEnd);
+            return true;
+        }
+
+        return false;
+    }
+
+    public void EnsureHomePointResolved()
+    {
+        if (homePoint == null)
+        {
+            ResolveMissingHomePoint();
+        }
+    }
+
+    static bool IsHourInRange(
+        float hour,
+        float startHour,
+        float endHour)
+    {
+        if (Mathf.Approximately(startHour, endHour))
+        {
+            return false;
+        }
+
+        if (startHour < endHour)
+        {
+            return hour >= startHour &&
+                hour < endHour;
+        }
+
+        return hour >= startHour ||
+            hour < endHour;
     }
 
     public void ForceHiddenAtHome(bool hidden)

@@ -128,11 +128,21 @@
     },
     {
       "name": "itemDescriptions",
-      "entries": []
+      "entries": [
+        {
+          "key": "Linh_Me",
+          "value": "Linh Mễ là linh cốc được gieo trồng trên linh điền, hạt no chắc và thấm linh khí trời đất. Khi thu hoạch đúng vụ, nó có thể dùng làm món ăn bồi bổ khí lực, dưỡng thân và nuôi sống cả phàm nhân lẫn tu sĩ."
+        }
+      ]
     },
     {
       "name": "itemLores",
-      "entries": []
+      "entries": [
+        {
+          "key": "Linh_Me",
+          "value": "Tương truyền những ruộng linh mễ được chăm bằng linh tuyền và mạch đất ổn định sẽ cho ra hạt gạo thơm hơn, chắc hơn, người dùng lâu ngày cũng dễ tích tụ nguyên khí hơn bữa ăn thường."
+        }
+      ]
     },
     {
       "name": "shopCard",
