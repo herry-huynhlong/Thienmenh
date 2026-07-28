@@ -55,6 +55,14 @@ public static class NpcCultivationAwakeningUtility
         int preservedBaseAttack = Mathf.Max(1, villager.baseAttack);
         int preservedBaseDefense = Mathf.Max(0, villager.baseDefense);
         int preservedLifespan = Mathf.Max(80, villager.lifespan);
+        NPCIdentity preservedIdentity =
+            target.GetComponent<NPCIdentity>() ??
+            target.GetComponentInParent<NPCIdentity>(true) ??
+            target.GetComponentInChildren<NPCIdentity>(true);
+        int preservedAge =
+            preservedIdentity != null
+                ? preservedIdentity.GetCurrentAge()
+                : 0;
 
         EntityProfile profile =
             target.GetComponent<EntityProfile>();
@@ -252,7 +260,11 @@ public static class NpcCultivationAwakeningUtility
         smartNpc.baseDefense = characterStats.baseDefense;
         smartNpc.attack = characterStats.attack;
         smartNpc.defense = characterStats.defense;
-        smartNpc.lifespan = Mathf.Max(preservedLifespan, 120);
+        smartNpc.lifespan =
+            ResolveAwakenedLifespan(
+                startRealm,
+                preservedLifespan,
+                preservedAge);
         smartNpc.waitingForHeavenlyTribulation = false;
         smartNpc.RequestEmergencyTask(
             SmartAITaskGoal.CriticalBreakthrough,
@@ -279,5 +291,46 @@ public static class NpcCultivationAwakeningUtility
         smartNpc.enabled = true;
 
         return true;
+    }
+
+    static int ResolveAwakenedLifespan(
+        CultivationRealm realm,
+        int preservedLifespan,
+        int currentAge)
+    {
+        int realmLifespan =
+            GetRealmLifespan(realm);
+        int lifespanBonus =
+            Mathf.Max(
+                0,
+                realmLifespan - GetRealmLifespan(CultivationRealm.Mortal));
+        int extendedLifespan =
+            Mathf.Max(
+                realmLifespan,
+                Mathf.Max(0, currentAge) + lifespanBonus);
+        return Mathf.Max(
+            Mathf.Max(80, preservedLifespan),
+            extendedLifespan);
+    }
+
+    static int GetRealmLifespan(CultivationRealm realm)
+    {
+        switch (realm)
+        {
+            case CultivationRealm.QiRefining:
+                return 120;
+            case CultivationRealm.Foundation:
+                return 220;
+            case CultivationRealm.GoldenCore:
+                return 500;
+            case CultivationRealm.NascentSoul:
+                return 1200;
+            case CultivationRealm.SoulFormation:
+                return 3000;
+            case CultivationRealm.Tribulation:
+                return 10000;
+            default:
+                return 80;
+        }
     }
 }

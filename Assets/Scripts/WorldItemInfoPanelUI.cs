@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -252,10 +253,10 @@ public class WorldItemInfoPanelUI : MonoBehaviour
         SetText(
             quickInfoText,
             BuildQuickInfoText(item, pickup.amount, displayPrice));
-        SetText(motaText, BuildDescriptionText(pickup));
-        SetText(infoText, BuildInfoText(item, pickup.amount));
-        SetText(extraInfoText, BuildExtraInfoText(pickup, displayPrice));
-        SetText(loreQuoteText, BuildLoreQuoteText(item));
+        SetText(motaText, BuildActualDescriptionText(pickup));
+        SetText(infoText, BuildLocalizedInfoText(item, pickup.amount));
+        SetText(extraInfoText, BuildLocalizedExtraInfoText(pickup, displayPrice));
+        SetText(loreQuoteText, BuildActualLoreText(item));
         SetOptionalText(namtuoiRoot, namtuoiText, BuildGrowthDurationText(pickup));
 
         if (qualityText != null)
@@ -352,6 +353,33 @@ public class WorldItemInfoPanelUI : MonoBehaviour
         return builder.ToString();
     }
 
+    static string BuildLocalizedInfoText(StatItemData item, int amount)
+    {
+        if (item == null)
+        {
+            return "";
+        }
+
+        StringBuilder builder = new StringBuilder();
+        builder.AppendLine(
+            ItemText.Format(
+                "detail",
+                "typeFormat",
+                ItemText.Type(item.itemType)));
+        builder.AppendLine(
+            ItemText.Format(
+                "detail",
+                "gradeFormat",
+                GetQualityText(item)));
+        builder.AppendLine(
+            ItemText.Format(
+                "detail",
+                "amountFormat",
+                Mathf.Max(0, amount)));
+        AppendLocalizedStatLines(builder, item);
+        return builder.ToString().TrimEnd();
+    }
+
     static string BuildInfoText(StatItemData item, int amount)
     {
         if (item == null)
@@ -364,6 +392,20 @@ public class WorldItemInfoPanelUI : MonoBehaviour
         builder.AppendLine("Phẩm chất: " + GetQualityText(item));
         builder.AppendLine("Số lượng: " + Mathf.Max(0, amount));
         return builder.ToString().TrimEnd();
+    }
+
+    static string BuildActualDescriptionText(WorldStatItemPickup pickup)
+    {
+        StatItemData item = pickup != null ? pickup.item : null;
+        if (item == null)
+        {
+            return "";
+        }
+
+        string description = ItemText.Description(item);
+        return IsPlaceholderDescription(description, item)
+            ? ""
+            : description.Trim();
     }
 
     static string BuildDescriptionText(WorldStatItemPickup pickup)
@@ -530,6 +572,46 @@ public class WorldItemInfoPanelUI : MonoBehaviour
         }
     }
 
+    static string BuildLocalizedExtraInfoText(
+        WorldStatItemPickup pickup,
+        int displayPrice)
+    {
+        StatItemData item = pickup != null ? pickup.item : null;
+        int amount = pickup != null ? pickup.amount : 0;
+        if (item == null)
+        {
+            return "";
+        }
+
+        StringBuilder builder = new StringBuilder();
+        builder.AppendLine(
+            UiText.Format(
+                "worldItemInfo",
+                "inlineSourceLine",
+                BuildSourceText(pickup)));
+        builder.AppendLine(
+            UiText.Format(
+                "worldItemInfo",
+                "inlineUsageLine",
+                BuildUsageSummaryText(pickup)));
+        AppendHerbPriceBreakdown(
+            builder,
+            pickup,
+            Mathf.Max(0, displayPrice));
+        AppendTechnicalItemLines(builder, item);
+
+        if (amount > 1)
+        {
+            builder.AppendLine(
+                UiText.Format(
+                    "worldItemInfo",
+                    "usageAmountLine",
+                    amount));
+        }
+
+        return builder.ToString().TrimEnd();
+    }
+
     static string BuildExtraInfoText(
         WorldStatItemPickup pickup,
         int displayPrice)
@@ -594,6 +676,19 @@ public class WorldItemInfoPanelUI : MonoBehaviour
         return builder.ToString().TrimEnd();
     }
 
+    static string BuildActualLoreText(StatItemData item)
+    {
+        if (item == null)
+        {
+            return "";
+        }
+
+        string lore = ItemText.Lore(item);
+        return string.IsNullOrWhiteSpace(lore)
+            ? ""
+            : lore.Trim();
+    }
+
     static string BuildLoreQuoteText(StatItemData item)
     {
         if (item == null)
@@ -614,6 +709,263 @@ public class WorldItemInfoPanelUI : MonoBehaviour
         }
 
         return BuildGeneratedLoreText(item, description);
+    }
+
+    static void AppendLocalizedStatLines(
+        StringBuilder builder,
+        StatItemData item)
+    {
+        if (builder == null ||
+            item == null)
+        {
+            return;
+        }
+
+        switch (item.itemType)
+        {
+            case ItemType.DanDuoc:
+                AppendStatLine(
+                    builder,
+                    ItemText.Format("stats", "hpBonus", item.hpBonus));
+                AppendStatLine(
+                    builder,
+                    ItemText.Format(
+                        "stats",
+                        "cultivationBonus",
+                        item.cultivationBonus));
+                if (item.breakthroughRealm)
+                {
+                    AppendStatLine(
+                        builder,
+                        ItemText.Get("stats", "breakthroughRealm"));
+                }
+
+                AppendLabeledPercentLine(
+                    builder,
+                    NpcText.Label("attack"),
+                    item.damageBonusPercent);
+                AppendLabeledPercentLine(
+                    builder,
+                    NpcText.Label("defense"),
+                    item.armorBonusPercent);
+                AppendLabeledPercentLine(
+                    builder,
+                    NpcText.Label("health"),
+                    item.maxHpBonusPercent);
+                break;
+
+            case ItemType.PhapBao:
+                AppendArtifactStatLines(builder, item);
+                break;
+
+            case ItemType.VatLieu:
+                if (item.rawUseEfficiency > 0f)
+                {
+                    AppendStatLine(
+                        builder,
+                        ItemText.Format(
+                            "stats",
+                            "rawEfficiency",
+                            Mathf.RoundToInt(
+                                Mathf.Clamp01(item.rawUseEfficiency) *
+                                100f)));
+                }
+
+                if (item.rawToxicityDamage > 0)
+                {
+                    AppendStatLine(
+                        builder,
+                        ItemText.Format(
+                            "stats",
+                            "toxicity",
+                            item.rawToxicityDamage));
+                }
+                break;
+
+            case ItemType.CongPhap:
+                if (item.studyProgressPerUse > 0)
+                {
+                    AppendLabeledSignedLine(
+                        builder,
+                        NpcText.Label("manual"),
+                        item.studyProgressPerUse);
+                }
+                break;
+
+            case ItemType.ThucPham:
+                AppendStatLine(
+                    builder,
+                    ItemText.Format("stats", "hpBonus", item.hpBonus));
+                AppendStatLine(
+                    builder,
+                    ItemText.Format(
+                        "stats",
+                        "cultivationBonus",
+                        item.cultivationBonus));
+                AppendTemporaryDurationLine(builder, item);
+                break;
+        }
+    }
+
+    static void AppendArtifactStatLines(
+        StringBuilder builder,
+        StatItemData item)
+    {
+        if (builder == null ||
+            item == null)
+        {
+            return;
+        }
+
+        EquipmentSlot slot = item.GetResolvedEquipmentSlot();
+        bool isWeapon = slot == EquipmentSlot.Weapon;
+        bool isArmor = slot == EquipmentSlot.Armor;
+        bool isAccessory = slot == EquipmentSlot.Accessory;
+        bool isGeneric = slot == EquipmentSlot.None;
+
+        if (isWeapon || isAccessory || isGeneric)
+        {
+            AppendStatLine(
+                builder,
+                ItemText.Format(
+                    "stats",
+                    "damageBonus",
+                    item.damageBonus));
+            AppendLabeledPercentLine(
+                builder,
+                NpcText.Label("attack"),
+                item.damageBonusPercent);
+        }
+
+        if (isArmor || isAccessory || isGeneric)
+        {
+            AppendStatLine(
+                builder,
+                ItemText.Format(
+                    "stats",
+                    "armorBonus",
+                    item.armorBonus));
+            AppendLabeledPercentLine(
+                builder,
+                NpcText.Label("defense"),
+                item.armorBonusPercent);
+            AppendLabeledPercentLine(
+                builder,
+                NpcText.Label("health"),
+                item.maxHpBonusPercent);
+        }
+
+        AppendStatLine(
+            builder,
+            ItemText.Format(
+                "stats",
+                "effectResistanceBonus",
+                item.effectResistanceBonus));
+        AppendTemporaryDurationLine(builder, item);
+    }
+
+    static void AppendTechnicalItemLines(
+        StringBuilder builder,
+        StatItemData item)
+    {
+        if (builder == null ||
+            item == null)
+        {
+            return;
+        }
+
+        if (item.itemType == ItemType.VatLieu &&
+            item.rawUseEfficiency > 0f)
+        {
+            AppendStatLine(
+                builder,
+                ItemText.Format(
+                    "stats",
+                    "rawEfficiency",
+                    Mathf.RoundToInt(
+                        Mathf.Clamp01(item.rawUseEfficiency) *
+                        100f)));
+        }
+
+        AppendTemporaryDurationLine(builder, item);
+    }
+
+    static void AppendTemporaryDurationLine(
+        StringBuilder builder,
+        StatItemData item)
+    {
+        if (builder == null ||
+            item == null ||
+            !item.isTemporary ||
+            item.durationScaledSeconds <= 0f)
+        {
+            return;
+        }
+
+        AppendStatLine(
+            builder,
+            ItemText.Format(
+                "stats",
+                "duration",
+                item.durationScaledSeconds.ToString("0.##")));
+    }
+
+    static void AppendLabeledPercentLine(
+        StringBuilder builder,
+        string label,
+        int value)
+    {
+        if (builder == null ||
+            value == 0)
+        {
+            return;
+        }
+
+        AppendStatLine(
+            builder,
+            (label ?? "").Trim() +
+            " +" +
+            Mathf.Abs(value) +
+            "%");
+    }
+
+    static void AppendLabeledSignedLine(
+        StringBuilder builder,
+        string label,
+        int value)
+    {
+        if (builder == null ||
+            value == 0)
+        {
+            return;
+        }
+
+        AppendStatLine(
+            builder,
+            (label ?? "").Trim() +
+            " " +
+            FormatSignedInt(value));
+    }
+
+    static void AppendStatLine(
+        StringBuilder builder,
+        string line)
+    {
+        if (builder == null ||
+            string.IsNullOrWhiteSpace(line))
+        {
+            return;
+        }
+
+        string trimmed = line.Trim();
+        if (trimmed == "0" ||
+            trimmed.EndsWith("+0", StringComparison.Ordinal) ||
+            trimmed.EndsWith("+0%", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        builder.AppendLine(trimmed);
     }
 
     static string BuildGeneratedLoreText(

@@ -960,6 +960,36 @@
       "lists": []
     },
     {
+      "name": "worldEvents",
+      "entries": [
+        {
+          "key": "beastWaveStory",
+          "value": "An omen spreads across the land. Beastly qi floods the sky as monsters surge toward the village."
+        },
+        {
+          "key": "festivalStory",
+          "value": "Heaven and earth feel harmonious today. The town has opened a grand festival, and lively spiritual energy fills the streets."
+        },
+        {
+          "key": "secretRealmStory",
+          "value": "Space has cracked open. An ancient secret realm has emerged, carrying both opportunity and danger."
+        },
+        {
+          "key": "plagueStory",
+          "value": "A shroud of deathly miasma is spreading. A strange plague is quietly moving across the continent."
+        },
+        {
+          "key": "sectConflictStory",
+          "value": "A dispute over spiritual veins has erupted. Sect forces have clashed, and the situation is growing chaotic."
+        },
+        {
+          "key": "heavenlyTribulationStory",
+          "value": "Tribulation clouds are gathering. A mighty cultivator is defying fate and drawing heavenly lightning down upon the world."
+        }
+      ],
+      "lists": []
+    },
+    {
       "name": "itemLifecycle",
       "entries": [
         {
@@ -1275,6 +1305,101 @@
         }
       ],
       "lists": []
+    },
+    {
+      "name": "inventoryItemAttributes",
+      "entries": [
+        {
+          "key": "attack",
+          "value": "Attack"
+        },
+        {
+          "key": "defense",
+          "value": "Defense"
+        },
+        {
+          "key": "hp",
+          "value": "HP"
+        },
+        {
+          "key": "speed",
+          "value": "Speed"
+        },
+        {
+          "key": "cultivation",
+          "value": "Cultivation"
+        },
+        {
+          "key": "resistance",
+          "value": "Resistance"
+        },
+        {
+          "key": "efficiency",
+          "value": "Efficiency"
+        },
+        {
+          "key": "toxicity",
+          "value": "Toxicity"
+        },
+        {
+          "key": "manualProgress",
+          "value": "Progress"
+        },
+        {
+          "key": "manualDuration",
+          "value": "Longevity"
+        },
+        {
+          "key": "breakthrough",
+          "value": "Breakthrough"
+        },
+        {
+          "key": "duration",
+          "value": "Duration"
+        },
+        {
+          "key": "yes",
+          "value": "Yes"
+        }
+      ],
+      "lists": [
+        {
+          "key": "defaultOrder",
+          "values": ["attack", "hp", "defense", "speed", "cultivation", "resistance", "efficiency", "toxicity", "manualProgress", "manualDuration", "breakthrough", "duration"]
+        },
+        {
+          "key": "danDuocOrder",
+          "values": ["cultivation", "hp", "defense", "attack", "resistance", "speed", "breakthrough", "duration"]
+        },
+        {
+          "key": "phapBaoWeaponOrder",
+          "values": ["attack", "speed", "defense", "hp", "resistance", "duration"]
+        },
+        {
+          "key": "phapBaoArmorOrder",
+          "values": ["defense", "hp", "resistance", "speed", "attack", "duration"]
+        },
+        {
+          "key": "phapBaoAccessoryOrder",
+          "values": ["resistance", "attack", "defense", "hp", "speed", "duration"]
+        },
+        {
+          "key": "phapBaoDefaultOrder",
+          "values": ["attack", "defense", "hp", "resistance", "speed", "duration"]
+        },
+        {
+          "key": "vatLieuOrder",
+          "values": ["efficiency", "toxicity", "hp", "cultivation", "defense", "attack", "speed"]
+        },
+        {
+          "key": "congPhapOrder",
+          "values": ["attack", "defense", "speed", "cultivation", "manualProgress", "manualDuration"]
+        },
+        {
+          "key": "thucPhamOrder",
+          "values": ["hp", "cultivation", "attack", "speed", "duration"]
+        }
+      ]
     },
     {
       "name": "worldSigns",

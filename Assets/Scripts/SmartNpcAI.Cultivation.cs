@@ -27,7 +27,8 @@ public partial class SmartNpcAI
 
         actionTimer = Mathf.Max(actionTimer, cultivateSeconds);
 
-        if (TryConsumeAvailablePill())
+        if (TryConsumeAvailablePill(
+                out StatItemData usedPill))
         {
             int gain =
                 Mathf.RoundToInt(
@@ -37,7 +38,15 @@ public partial class SmartNpcAI
             AddCultivationProgress(gain);
             ApplyCultivationHealing(0.1f, 8);
 
-            Debug.Log(NpcText.Format(NpcText.Get("logs", "absorbPill"), npcName, gain));
+            Debug.Log(
+                NpcText.Format(
+                    NpcText.Get("logs", "absorbPill"),
+                    npcName,
+                    gain) +
+                " item=" +
+                (usedPill != null
+                    ? usedPill.itemName
+                    : "unknown"));
         }
         else if (spiritStone > 0)
         {

@@ -1142,6 +1142,36 @@
       "lists": []
     },
     {
+      "name": "worldEvents",
+      "entries": [
+        {
+          "key": "beastWaveStory",
+          "value": "异象骤起，妖气漫天，兽潮正朝村落压来。"
+        },
+        {
+          "key": "festivalStory",
+          "value": "天地和顺，城镇正在举办盛大庆典，欢腾灵气充盈街巷。"
+        },
+        {
+          "key": "secretRealmStory",
+          "value": "虚空开裂，一座上古秘境现世，机缘与凶险一同降临。"
+        },
+        {
+          "key": "plagueStory",
+          "value": "死气正在蔓延，一场诡异瘟疫悄然席卷大陆。"
+        },
+        {
+          "key": "sectConflictStory",
+          "value": "灵脉之争爆发，各方宗门势力正陷入愈发混乱的冲突。"
+        },
+        {
+          "key": "heavenlyTribulationStory",
+          "value": "劫云汇聚，一位大能正在逆天改命，引动天劫降世。"
+        }
+      ],
+      "lists": []
+    },
+    {
       "name": "itemLifecycle",
       "entries": [
         {
@@ -1458,6 +1488,101 @@
         }
       ],
       "lists": []
+    },
+    {
+      "name": "inventoryItemAttributes",
+      "entries": [
+        {
+          "key": "attack",
+          "value": "\u653b\u51fb"
+        },
+        {
+          "key": "defense",
+          "value": "\u9632\u5fa1"
+        },
+        {
+          "key": "hp",
+          "value": "HP"
+        },
+        {
+          "key": "speed",
+          "value": "\u901f\u5ea6"
+        },
+        {
+          "key": "cultivation",
+          "value": "\u4fee\u4e3a"
+        },
+        {
+          "key": "resistance",
+          "value": "\u6297\u6027"
+        },
+        {
+          "key": "efficiency",
+          "value": "\u6548\u7387"
+        },
+        {
+          "key": "toxicity",
+          "value": "\u6bd2\u6027"
+        },
+        {
+          "key": "manualProgress",
+          "value": "\u8fdb\u5ea6"
+        },
+        {
+          "key": "manualDuration",
+          "value": "\u65f6\u9650"
+        },
+        {
+          "key": "breakthrough",
+          "value": "\u7a81\u7834"
+        },
+        {
+          "key": "duration",
+          "value": "\u6301\u7eed"
+        },
+        {
+          "key": "yes",
+          "value": "\u662f"
+        }
+      ],
+      "lists": [
+        {
+          "key": "defaultOrder",
+          "values": ["attack", "hp", "defense", "speed", "cultivation", "resistance", "efficiency", "toxicity", "manualProgress", "manualDuration", "breakthrough", "duration"]
+        },
+        {
+          "key": "danDuocOrder",
+          "values": ["cultivation", "hp", "defense", "attack", "resistance", "speed", "breakthrough", "duration"]
+        },
+        {
+          "key": "phapBaoWeaponOrder",
+          "values": ["attack", "speed", "defense", "hp", "resistance", "duration"]
+        },
+        {
+          "key": "phapBaoArmorOrder",
+          "values": ["defense", "hp", "resistance", "speed", "attack", "duration"]
+        },
+        {
+          "key": "phapBaoAccessoryOrder",
+          "values": ["resistance", "attack", "defense", "hp", "speed", "duration"]
+        },
+        {
+          "key": "phapBaoDefaultOrder",
+          "values": ["attack", "defense", "hp", "resistance", "speed", "duration"]
+        },
+        {
+          "key": "vatLieuOrder",
+          "values": ["efficiency", "toxicity", "hp", "cultivation", "defense", "attack", "speed"]
+        },
+        {
+          "key": "congPhapOrder",
+          "values": ["attack", "defense", "speed", "cultivation", "manualProgress", "manualDuration"]
+        },
+        {
+          "key": "thucPhamOrder",
+          "values": ["hp", "cultivation", "attack", "speed", "duration"]
+        }
+      ]
     },
     {
       "name": "worldSigns",

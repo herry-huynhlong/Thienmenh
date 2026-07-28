@@ -85,9 +85,17 @@ public class InventoryPanelUI : MonoBehaviour
     Color previewMagicCircleBaseColor = Color.white;
     bool previewMagicCircleBaseCaptured;
     float previewMagicCirclePulseSeed;
+    Transform attackRowTransform;
+    Transform hpRowTransform;
+    Transform defenseRowTransform;
+    Transform speedRowTransform;
+    TMP_Text attackLabelText;
     TMP_Text attackValueText;
+    TMP_Text hpLabelText;
+    TMP_Text defenseLabelText;
     TMP_Text defenseValueText;
     TMP_Text hpValueText;
+    TMP_Text speedLabelText;
     TMP_Text speedValueText;
     Button tabAllButton;
     Button tabTrangBiButton;
@@ -114,6 +122,37 @@ public class InventoryPanelUI : MonoBehaviour
     Quaternion templateLocalRotation;
     bool hasStarted;
     bool disabledBecauseAttachedToBottomMenu;
+
+    struct AttributeSlot
+    {
+        public Transform rowTransform;
+        public TMP_Text labelText;
+        public TMP_Text valueText;
+
+        public AttributeSlot(
+            Transform rowTransform,
+            TMP_Text labelText,
+            TMP_Text valueText)
+        {
+            this.rowTransform = rowTransform;
+            this.labelText = labelText;
+            this.valueText = valueText;
+        }
+    }
+
+    struct AttributeEntry
+    {
+        public string key;
+        public string value;
+
+        public AttributeEntry(
+            string key,
+            string value)
+        {
+            this.key = key;
+            this.value = value;
+        }
+    }
 
     bool IsAccidentalBottomMenuAttachment()
     {
@@ -1083,8 +1122,33 @@ public class InventoryPanelUI : MonoBehaviour
             return;
         }
 
-        ItemEffectSpawner.PlayPickupEffect(item, selectedTarget);
-        targetInventory.AddItem(item, 1);
+        NpcItemCollector collector =
+            selectedTarget.GetComponent<NpcItemCollector>();
+
+        if (collector != null)
+        {
+            collector.ReceiveItem(
+                item,
+                ItemLifecycleEventType.Picked,
+                false);
+        }
+        else
+        {
+            ItemEffectSpawner.PlayPickupEffect(item, selectedTarget);
+            targetInventory.AddItem(item, 1);
+
+            if (item.IsVillagerAwakeningPill() &&
+                item.CanUseOn(selectedTarget.gameObject) &&
+                item.ApplyTo(selectedTarget.gameObject))
+            {
+                targetInventory.RemoveItem(item, 1);
+                ItemLifecycleSystem.Notify(
+                    ItemLifecycleEventType.Used,
+                    item,
+                    selectedTarget.gameObject);
+            }
+        }
+
         NpcFavoriteManager.EnsureInstance()?.AddFavorite(selectedTarget.gameObject);
         selectedItem = null;
         Refresh();
@@ -2630,22 +2694,49 @@ public class InventoryPanelUI : MonoBehaviour
                     infoPanel);
         }
 
-        attackValueText =
-            FindAttributeValueText(
+        attackRowTransform =
+            FindAttributeRowTransform(
                 infoPanel,
                 "Attr_Attack");
-        defenseValueText =
+        attackLabelText =
+            FindAttributeLabelText(
+                attackRowTransform);
+        attackValueText =
             FindAttributeValueText(
-                infoPanel,
-                "Attr_Defense");
-        hpValueText =
-            FindAttributeValueText(
+                attackRowTransform);
+
+        hpRowTransform =
+            FindAttributeRowTransform(
                 infoPanel,
                 "Attr_HP");
-        speedValueText =
+        hpLabelText =
+            FindAttributeLabelText(
+                hpRowTransform);
+        hpValueText =
             FindAttributeValueText(
+                hpRowTransform);
+
+        defenseRowTransform =
+            FindAttributeRowTransform(
+                infoPanel,
+                "Attr_Defense");
+        defenseLabelText =
+            FindAttributeLabelText(
+                defenseRowTransform);
+        defenseValueText =
+            FindAttributeValueText(
+                defenseRowTransform);
+
+        speedRowTransform =
+            FindAttributeRowTransform(
                 infoPanel,
                 "Attr_Speed");
+        speedLabelText =
+            FindAttributeLabelText(
+                speedRowTransform);
+        speedValueText =
+            FindAttributeValueText(
+                speedRowTransform);
     }
 
     Transform FindRightPanelTransform(
@@ -2708,15 +2799,26 @@ public class InventoryPanelUI : MonoBehaviour
         return child.GetComponent<Image>();
     }
 
-    TMP_Text FindAttributeValueText(
+    Transform FindAttributeRowTransform(
         Transform parent,
         string rowName)
     {
-        Transform row =
-            FindDirectOrNestedChild(
-                parent,
-                rowName);
+        return FindDirectOrNestedChild(
+            parent,
+            rowName);
+    }
 
+    TMP_Text FindAttributeLabelText(
+        Transform row)
+    {
+        return FindTextByName(
+            row,
+            "LabelText");
+    }
+
+    TMP_Text FindAttributeValueText(
+        Transform row)
+    {
         return FindTextByName(
             row,
             "ValueText");
@@ -3208,51 +3310,34 @@ public class InventoryPanelUI : MonoBehaviour
     void ApplyAttributeValues(
         StatItemData item)
     {
-        SetAttributeText(
-            attackValueText,
-            item != null
-                ? ResolvePrimaryAttributeText(
-                    item.damageBonus,
-                    item.damageBonusPercent,
-                    "ATK")
-                : null);
-        SetAttributeText(
-            defenseValueText,
-            item != null
-                ? ResolvePrimaryAttributeText(
-                    item.armorBonus,
-                    item.armorBonusPercent,
-                    "DEF")
-                : null);
-        SetAttributeText(
-            hpValueText,
-            item != null
-                ? ResolvePrimaryAttributeText(
-                    item.hpBonus,
-                    item.maxHpBonusPercent,
-                    "HP")
-                : null);
-        SetAttributeValue(
-            speedValueText,
-            null);
-    }
-
-    string ResolvePrimaryAttributeText(
-        int flatValue,
-        int percentValue,
-        string percentLabel)
-    {
-        if (percentValue != 0)
+        AttributeSlot[] slots = GetAttributeSlots();
+        for (int i = 0; i < slots.Length; i++)
         {
-            return "+" + percentValue + "% " + percentLabel;
+            ApplyAttributeSlot(
+                slots[i],
+                "",
+                "",
+                false);
         }
 
-        if (flatValue != 0)
+        if (item == null)
         {
-            return FormatSignedValue(flatValue);
+            return;
         }
 
-        return null;
+        List<AttributeEntry> entries =
+            BuildAttributeEntries(item);
+        int count =
+            Mathf.Min(slots.Length, entries.Count);
+        for (int i = 0; i < count; i++)
+        {
+            AttributeEntry entry = entries[i];
+            ApplyAttributeSlot(
+                slots[i],
+                ResolveAttributeLabel(entry.key),
+                entry.value,
+                true);
+        }
     }
 
     void SetAttributeText(
@@ -3293,6 +3378,410 @@ public class InventoryPanelUI : MonoBehaviour
         }
 
         return value.ToString();
+    }
+
+    AttributeSlot[] GetAttributeSlots()
+    {
+        return new[]
+        {
+            new AttributeSlot(
+                attackRowTransform,
+                attackLabelText,
+                attackValueText),
+            new AttributeSlot(
+                hpRowTransform,
+                hpLabelText,
+                hpValueText),
+            new AttributeSlot(
+                defenseRowTransform,
+                defenseLabelText,
+                defenseValueText),
+            new AttributeSlot(
+                speedRowTransform,
+                speedLabelText,
+                speedValueText)
+        };
+    }
+
+    void ApplyAttributeSlot(
+        AttributeSlot slot,
+        string label,
+        string value,
+        bool visible)
+    {
+        if (slot.rowTransform != null)
+        {
+            slot.rowTransform.gameObject.SetActive(visible);
+        }
+
+        if (!visible)
+        {
+            SetText(slot.labelText, "");
+            SetText(slot.valueText, "");
+            return;
+        }
+
+        SetText(slot.labelText, label);
+        SetText(slot.valueText, value);
+    }
+
+    List<AttributeEntry> BuildAttributeEntries(StatItemData item)
+    {
+        Dictionary<string, string> values =
+            BuildAttributeValueMap(item);
+        List<AttributeEntry> entries =
+            new List<AttributeEntry>();
+        HashSet<string> addedKeys =
+            new HashSet<string>();
+        string[] priorityKeys =
+            GetAttributePriorityKeys(item);
+
+        for (int i = 0; i < priorityKeys.Length; i++)
+        {
+            string key = priorityKeys[i];
+            if (string.IsNullOrWhiteSpace(key) ||
+                addedKeys.Contains(key) ||
+                !values.TryGetValue(key, out string value) ||
+                string.IsNullOrWhiteSpace(value))
+            {
+                continue;
+            }
+
+            entries.Add(
+                new AttributeEntry(
+                    key,
+                    value));
+            addedKeys.Add(key);
+        }
+
+        foreach (KeyValuePair<string, string> pair in values)
+        {
+            if (string.IsNullOrWhiteSpace(pair.Value) ||
+                addedKeys.Contains(pair.Key))
+            {
+                continue;
+            }
+
+            entries.Add(
+                new AttributeEntry(
+                    pair.Key,
+                    pair.Value));
+        }
+
+        return entries;
+    }
+
+    Dictionary<string, string> BuildAttributeValueMap(
+        StatItemData item)
+    {
+        Dictionary<string, string> values =
+            new Dictionary<string, string>();
+        if (item == null)
+        {
+            return values;
+        }
+
+        int attackFlat =
+            item.damageBonus +
+            GetModifierInt(item, StatType.Attack);
+        int attackPercent =
+            item.damageBonusPercent +
+            GetModifierPercent(item, StatType.AttackPercent);
+        int defenseFlat =
+            item.armorBonus +
+            GetModifierInt(item, StatType.Defense);
+        int defensePercent =
+            item.armorBonusPercent +
+            GetModifierPercent(item, StatType.DefensePercent);
+        int hpFlat =
+            item.hpBonus +
+            GetModifierInt(item, StatType.CurrentHP) +
+            GetModifierInt(item, StatType.MaxHP);
+        int hpPercent =
+            item.maxHpBonusPercent +
+            GetModifierPercent(item, StatType.MaxHPPercent);
+        int cultivation =
+            item.cultivationBonus +
+            GetModifierInt(item, StatType.Cultivation);
+        int speed =
+            GetModifierInt(item, StatType.MoveSpeed);
+        int resistance =
+            item.effectResistanceBonus +
+            GetModifierInt(item, StatType.EffectResistance);
+
+        AddAttributeValue(
+            values,
+            "attack",
+            FormatCombinedStatValue(
+                attackFlat,
+                attackPercent));
+        AddAttributeValue(
+            values,
+            "defense",
+            FormatCombinedStatValue(
+                defenseFlat,
+                defensePercent));
+        AddAttributeValue(
+            values,
+            "hp",
+            FormatCombinedStatValue(
+                hpFlat,
+                hpPercent));
+        AddAttributeValue(
+            values,
+            "speed",
+            FormatSignedValueOrEmpty(speed));
+        AddAttributeValue(
+            values,
+            "cultivation",
+            FormatSignedValueOrEmpty(cultivation));
+        AddAttributeValue(
+            values,
+            "resistance",
+            FormatSignedValueOrEmpty(resistance));
+
+        if (item.itemType == ItemType.VatLieu)
+        {
+            if (item.rawUseEfficiency > 0f)
+            {
+                AddAttributeValue(
+                    values,
+                    "efficiency",
+                    Mathf.RoundToInt(
+                        Mathf.Clamp01(item.rawUseEfficiency) *
+                        100f) + "%");
+            }
+
+            if (item.rawToxicityDamage > 0)
+            {
+                AddAttributeValue(
+                    values,
+                    "toxicity",
+                    "-" + item.rawToxicityDamage);
+            }
+        }
+
+        if (item.itemType == ItemType.CongPhap)
+        {
+            if (item.studyProgressPerUse > 0)
+            {
+                AddAttributeValue(
+                    values,
+                    "manualProgress",
+                    FormatSignedValue(item.studyProgressPerUse));
+            }
+
+            if (item.manualBreakAfterYears > 0f)
+            {
+                AddAttributeValue(
+                    values,
+                    "manualDuration",
+                    item.manualBreakAfterYears.ToString("0.##") + " n");
+            }
+        }
+
+        if (item.breakthroughRealm)
+        {
+            AddAttributeValue(
+                values,
+                "breakthrough",
+                UiText.Get(
+                    "inventoryItemAttributes",
+                    "yes",
+                    "Co"));
+        }
+
+        if (item.isTemporary &&
+            item.durationScaledSeconds > 0f)
+        {
+            AddAttributeValue(
+                values,
+                "duration",
+                item.durationScaledSeconds.ToString("0.##") + "s");
+        }
+
+        return values;
+    }
+
+    void AddAttributeValue(
+        Dictionary<string, string> values,
+        string key,
+        string value)
+    {
+        if (values == null ||
+            string.IsNullOrWhiteSpace(key) ||
+            string.IsNullOrWhiteSpace(value))
+        {
+            return;
+        }
+
+        values[key] = value;
+    }
+
+    string[] GetAttributePriorityKeys(StatItemData item)
+    {
+        string listKey = "defaultOrder";
+        if (item != null)
+        {
+            switch (item.itemType)
+            {
+                case ItemType.DanDuoc:
+                    listKey = "danDuocOrder";
+                    break;
+
+                case ItemType.PhapBao:
+                    switch (item.GetResolvedEquipmentSlot())
+                    {
+                        case EquipmentSlot.Weapon:
+                            listKey = "phapBaoWeaponOrder";
+                            break;
+                        case EquipmentSlot.Armor:
+                            listKey = "phapBaoArmorOrder";
+                            break;
+                        case EquipmentSlot.Accessory:
+                            listKey = "phapBaoAccessoryOrder";
+                            break;
+                        default:
+                            listKey = "phapBaoDefaultOrder";
+                            break;
+                    }
+                    break;
+
+                case ItemType.VatLieu:
+                    listKey = "vatLieuOrder";
+                    break;
+
+                case ItemType.CongPhap:
+                    listKey = "congPhapOrder";
+                    break;
+
+                case ItemType.ThucPham:
+                    listKey = "thucPhamOrder";
+                    break;
+            }
+        }
+
+        string[] keys =
+            UiText.Lines(
+                "inventoryItemAttributes",
+                listKey);
+        return keys != null && keys.Length > 0
+            ? keys
+            : new[]
+            {
+                "attack",
+                "hp",
+                "defense",
+                "speed",
+                "cultivation",
+                "resistance",
+                "efficiency",
+                "toxicity",
+                "manualProgress",
+                "manualDuration",
+                "breakthrough",
+                "duration"
+            };
+    }
+
+    string ResolveAttributeLabel(string key)
+    {
+        return UiText.Get(
+            "inventoryItemAttributes",
+            key,
+            key);
+    }
+
+    string FormatCombinedStatValue(
+        int flatValue,
+        int percentValue)
+    {
+        string flatText =
+            FormatSignedValueOrEmpty(flatValue);
+        string percentText =
+            percentValue != 0
+                ? FormatSignedValue(percentValue) + "%"
+                : "";
+
+        if (!string.IsNullOrEmpty(flatText) &&
+            !string.IsNullOrEmpty(percentText))
+        {
+            return flatText + " / " + percentText;
+        }
+
+        return !string.IsNullOrEmpty(flatText)
+            ? flatText
+            : percentText;
+    }
+
+    string FormatSignedValueOrEmpty(int value)
+    {
+        return value != 0
+            ? FormatSignedValue(value)
+            : "";
+    }
+
+    static int GetModifierInt(
+        StatItemData item,
+        StatType statType)
+    {
+        if (item == null ||
+            item.modifiers == null)
+        {
+            return 0;
+        }
+
+        int total = 0;
+        for (int i = 0; i < item.modifiers.Count; i++)
+        {
+            StatModifier modifier =
+                item.modifiers[i];
+            if (modifier == null ||
+                modifier.statType != statType)
+            {
+                continue;
+            }
+
+            total += modifier.intValue;
+            if (!Mathf.Approximately(modifier.floatValue, 0f))
+            {
+                total += Mathf.RoundToInt(modifier.floatValue);
+            }
+        }
+
+        return total;
+    }
+
+    static int GetModifierPercent(
+        StatItemData item,
+        StatType statType)
+    {
+        if (item == null ||
+            item.modifiers == null)
+        {
+            return 0;
+        }
+
+        int total = 0;
+        for (int i = 0; i < item.modifiers.Count; i++)
+        {
+            StatModifier modifier =
+                item.modifiers[i];
+            if (modifier == null ||
+                modifier.statType != statType)
+            {
+                continue;
+            }
+
+            total += modifier.intValue;
+            if (!Mathf.Approximately(modifier.floatValue, 0f))
+            {
+                total += Mathf.RoundToInt(
+                    modifier.floatValue * 100f);
+            }
+        }
+
+        return total;
     }
 
     void BindInventoryEvents()

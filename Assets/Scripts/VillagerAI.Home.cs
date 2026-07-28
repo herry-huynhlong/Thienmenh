@@ -9,17 +9,14 @@ public partial class VillagerAI
             return false;
         }
 
-        if (ageGroup == VillagerAgeGroup.Child ||
-            ageGroup == VillagerAgeGroup.Teen)
+        if (ShouldRemainHiddenByMinorCurfew())
         {
-            WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
-            if (timeSystem == null)
-            {
-                return true;
-            }
+            return false;
+        }
 
-            return timeSystem.CurrentPhase != WorldTimePhase.Night &&
-                timeSystem.CurrentPhase != WorldTimePhase.Dawn;
+        if (IsMinorCurfewVillager())
+        {
+            return IsWithinMinorOutdoorHours();
         }
 
         if (TryGetDedicatedProfessionHiddenState(out bool shouldRemainHidden))
@@ -301,7 +298,8 @@ public partial class VillagerAI
         ResetDailyTargets();
         isReturningHome = false;
 
-        if (hideAtHome)
+        if (hideAtHome ||
+            ShouldRemainHiddenByMinorCurfew())
         {
             ForceHiddenAtHome(true);
         }

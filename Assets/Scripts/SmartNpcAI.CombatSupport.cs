@@ -18,6 +18,12 @@ public partial class SmartNpcAI
                         Time.time < retreatUntilTime;
             if (!shouldKeepRetreating)
             {
+                if (BeginLowHpRecoveryFromSafeState(
+                        "retreat timer expired"))
+                {
+                    return true;
+                }
+
                 StopMonsterRetreat();
             }
             else
@@ -31,9 +37,14 @@ public partial class SmartNpcAI
                 if (Vector2.Distance(transform.position, retreatTarget) <=
                     safeArrivalDistance)
                 {
+                    if (BeginLowHpRecoveryFromSafeState(
+                            "reached retreat safety"))
+                    {
+                        return true;
+                    }
+
                     // The NPC has reached safety. Keep the retreat lock until
-                    // its timer expires, but do not advertise a movement state
-                    // or repeatedly recreate an already completed target.
+                    // its timer expires when no urgent recovery is needed.
                     hasWanderTarget = false;
                     currentAction = NpcText.Action("rest");
                     if (rb != null)

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 // Travel-intent restoration, pill ownership checks, and cultivation-travel state.
@@ -241,18 +242,36 @@ public partial class SmartNpcAI
         return inventory;
     }
 
-    bool IsCountedPillItem(StatItemData item)
+    bool IsCultivationPillItem(StatItemData item)
     {
         return item != null &&
-            item.itemType == ItemType.DanDuoc &&
-            item.CanUseOn(gameObject);
+            item.CanUseOn(gameObject) &&
+            item.IsNpcCultivationReservePill();
     }
 
     int CountOwnedPillItems()
     {
+        return CountOwnedPillItems(IsCultivationPillItem);
+    }
+
+    bool HasAvailableRecoveryPills()
+    {
+        return CountOwnedPillItems(IsRecoveryPillItem) > 0;
+    }
+
+    bool IsRecoveryPillItem(StatItemData item)
+    {
+        return item != null &&
+            item.CanUseOn(gameObject) &&
+            item.IsNpcLowHpRecoveryPill();
+    }
+
+    int CountOwnedPillItems(Predicate<StatItemData> predicate)
+    {
         ItemInventory inventory = GetNpcItemInventory();
         if (inventory == null ||
-            inventory.items == null)
+            inventory.items == null ||
+            predicate == null)
         {
             return 0;
         }
@@ -264,7 +283,7 @@ public partial class SmartNpcAI
             if (stack == null ||
                 stack.item == null ||
                 stack.amount <= 0 ||
-                !IsCountedPillItem(stack.item))
+                !predicate(stack.item))
             {
                 continue;
             }
@@ -277,50 +296,102 @@ public partial class SmartNpcAI
 
     bool HasAvailablePills()
     {
-        if (pill > 0)
-        {
-            return true;
-        }
-
         int ownedPills = CountOwnedPillItems();
-        if (ownedPills > 0)
-        {
-            pill = Mathf.Max(pill, ownedPills);
-            return true;
-        }
-
-        return false;
+        pill = Mathf.Max(0, ownedPills);
+        return pill > 0;
     }
 
     bool TryConsumeAvailablePill()
     {
-        if (!HasAvailablePills())
+        return TryConsumeMatchingPill(
+            IsCultivationPillItem,
+            out _);
+    }
+
+    bool TryConsumeAvailablePill(
+        out StatItemData usedItem)
+    {
+        return TryConsumeMatchingPill(
+            IsCultivationPillItem,
+            out usedItem);
+    }
+
+    bool TryConsumeAvailableRecoveryPill(
+        out StatItemData usedItem)
+    {
+        return TryConsumeMatchingPill(
+            IsRecoveryPillItem,
+            out usedItem);
+    }
+
+    bool TryConsumeMatchingPill(
+        Predicate<StatItemData> predicate,
+        out StatItemData usedItem)
+    {
+        usedItem = null;
+
+        ItemInventory inventory = GetNpcItemInventory();
+        if (inventory == null ||
+            inventory.items == null ||
+            predicate == null)
+        {
+            pill = Mathf.Max(0, CountOwnedPillItems());
+            return false;
+        }
+
+        for (int i = 0; i < inventory.items.Count; i++)
+        {
+            ItemStack stack = inventory.items[i];
+            if (stack == null ||
+                stack.item == null ||
+                stack.amount <= 0 ||
+                !predicate(stack.item))
+            {
+                continue;
+            }
+
+            if (!TryUseOwnedConsumableItem(
+                    inventory,
+                    i,
+                    stack.item))
+            {
+                continue;
+            }
+
+            usedItem = stack.item;
+            pill = Mathf.Max(0, CountOwnedPillItems());
+            return true;
+        }
+
+        pill = Mathf.Max(0, CountOwnedPillItems());
+        return false;
+    }
+
+    bool TryUseOwnedConsumableItem(
+        ItemInventory inventory,
+        int itemIndex,
+        StatItemData item)
+    {
+        if (inventory == null ||
+            item == null ||
+            !item.ConsumesWhenUsed() ||
+            !item.CanUseOn(gameObject))
         {
             return false;
         }
 
-        ItemInventory inventory = GetNpcItemInventory();
-        if (inventory != null &&
-            inventory.items != null)
-        {
-            for (int i = 0; i < inventory.items.Count; i++)
-            {
-                ItemStack stack = inventory.items[i];
-                if (stack == null ||
-                    stack.item == null ||
-                    stack.amount <= 0 ||
-                    !IsCountedPillItem(stack.item))
-                {
-                    continue;
-                }
+        bool applied =
+            !item.RollUseSuccess()
+                ? false
+                : item.ApplyTo(gameObject);
 
-                inventory.RemoveItem(stack.item, 1);
-                break;
-            }
-        }
+        inventory.RemoveStackAt(itemIndex, 1);
+        ItemLifecycleSystem.Notify(
+            ItemLifecycleEventType.Used,
+            item,
+            gameObject);
 
-        pill = Mathf.Max(0, pill - 1);
-        return true;
+        return applied || item.ConsumesWhenUsed();
     }
 
     bool ShouldResumeCultivationTravel()

@@ -939,6 +939,36 @@
       ]
     },
     {
+      "id": "teen_opening_001",
+      "category": "teen_opening",
+      "channel": "Village",
+      "duration": 1.7,
+      "cooldownSeconds": 20,
+      "priority": 55,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Idle"],
+      "texts": [
+        "The village is lively today. Want to walk around for a bit?",
+        "I heard something interesting near the market just now.",
+        "If we finish early, let us go see what is happening outside."
+      ]
+    },
+    {
+      "id": "teen_reply_001",
+      "category": "teen_reply",
+      "channel": "Village",
+      "duration": 1.7,
+      "cooldownSeconds": 20,
+      "priority": 55,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Idle"],
+      "texts": [
+        "Alright, but do not wander too far or the adults will scold us.",
+        "I was about to head out for a bit too.",
+        "That sounds fun. Let me come along and see."
+      ]
+    },
+    {
       "id": "cultivate_self_001",
       "category": "cultivate_self",
       "channel": "Cultivation",

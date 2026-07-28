@@ -101,6 +101,30 @@
           "value": "Toxicity: -{0} HP"
         },
         {
+          "key": "attackPercent",
+          "value": "Attack +{0}%"
+        },
+        {
+          "key": "defensePercent",
+          "value": "Defense +{0}%"
+        },
+        {
+          "key": "maxHpPercent",
+          "value": "HP +{0}%"
+        },
+        {
+          "key": "studyProgress",
+          "value": "Insight Progress +{0}"
+        },
+        {
+          "key": "manualDurabilityYears",
+          "value": "Manual Longevity {0} years"
+        },
+        {
+          "key": "temporaryDurationSeconds",
+          "value": "Effect Duration {0} seconds"
+        },
+        {
           "key": "canRefinePill",
           "value": "Can be refined into pills"
         },
