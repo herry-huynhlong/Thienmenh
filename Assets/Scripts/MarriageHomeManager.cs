@@ -21,8 +21,7 @@ public class MarriageHomeManager : MonoBehaviour
 
     [Header("Build Rules")]
     [Min(0.1f)] public float checkIntervalSeconds = 1f;
-    [Min(0)] public int minimumBuildCostSpiritStone = 2000;
-    [Min(0)] public int maximumBuildCostSpiritStone = 5000;
+    [Min(0)] public int requiredBuildCostSpiritStone = 5000;
     [Min(0.05f)] public float buildDurationWorldDays = 8f / 24f;
     [Min(0.05f)] public float gatherAtBuildPointDistance = 0.25f;
     [Range(0f, 23.99f)] public float weddingNightWakeHour = 6f;
@@ -217,9 +216,10 @@ public class MarriageHomeManager : MonoBehaviour
                 return;
             }
 
-            int minCost = Mathf.Max(0, minimumBuildCostSpiritStone);
-            int maxCost = Mathf.Max(minCost, maximumBuildCostSpiritStone);
-            int cost = Random.Range(minCost, maxCost + 1);
+            int cost =
+                Mathf.Max(
+                    0,
+                    requiredBuildCostSpiritStone);
 
             pair.firstRelationship.BeginMarriageHomeSaving(
                 site.GetResolvedSiteId(),
@@ -765,49 +765,13 @@ public class MarriageHomeManager : MonoBehaviour
             return;
         }
 
-        if (guaranteeFirstChildAfterWeddingNight)
-        {
-            VillagerBirthManager birthManager =
-                VillagerBirthManager.EnsureInstance();
-            if (birthManager != null)
-            {
-                bool birthCreated =
-                    birthManager.TryForceBirthForPair(
-                    pair.first,
-                    pair.second);
-                if (!birthCreated)
-                {
-                    string firstName =
-                        pair.firstIdentity != null &&
-                        !string.IsNullOrWhiteSpace(pair.firstIdentity.npcName)
-                            ? pair.firstIdentity.npcName
-                            : pair.first != null
-                                ? pair.first.gameObject.name
-                                : "NPC";
-                    string secondName =
-                        pair.secondIdentity != null &&
-                        !string.IsNullOrWhiteSpace(pair.secondIdentity.npcName)
-                            ? pair.secondIdentity.npcName
-                            : pair.second != null
-                                ? pair.second.gameObject.name
-                                : "NPC";
-                    Debug.LogWarning(
-                        "[MarriageHome] Wedding night birth failed for pair " +
-                        firstName +
-                        " & " +
-                        secondName +
-                        ".");
-                }
-            }
-        }
-
         pair.firstRelationship.ClearMarriageHomeProject();
         pair.secondRelationship.ClearMarriageHomeProject();
         RevealPairAtHome(pair, site);
 
         LogMarriageHome(
             pair,
-            "da ket thuc dem tan hon, co em be dau tien va tro lai sinh hoat thuong ngay.");
+            "da ket thuc dem tan hon va bat dau song o nha moi.");
     }
 
     void AssignHomeToVillager(

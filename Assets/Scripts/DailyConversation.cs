@@ -91,11 +91,11 @@ public class DailyConversation : MonoBehaviour
         NpcSpeechController.TryShowSpeech(
             gameObject,
             other.gameObject,
-            "ambient_opening");
+            ResolveDialogueCategory(false));
         NpcSpeechController.TryShowSpeech(
             other.gameObject,
             gameObject,
-            "ambient_reply");
+            other.ResolveDialogueCategory(true));
     }
 
     bool CanTalkWith(DailyConversation other)
@@ -116,6 +116,12 @@ public class DailyConversation : MonoBehaviour
             return true;
         }
 
+        if (UsesMinorDialogue() ||
+            other.UsesMinorDialogue())
+        {
+            return true;
+        }
+
         NpcRelationshipGraph graph = GetComponent<NpcRelationshipGraph>();
         if (graph == null)
         {
@@ -130,6 +136,42 @@ public class DailyConversation : MonoBehaviour
 
         return Mathf.Max(relationship.affection, relationship.alliance) >=
             minRelationshipToTalk;
+    }
+
+    string ResolveDialogueCategory(bool reply)
+    {
+        int age = ResolveConversationAge();
+        if (age >= 0 && age < 10)
+        {
+            return reply ? "child_babble_reply" : "child_babble_open";
+        }
+
+        if (age >= 10 && age <= 15)
+        {
+            return reply ? "teen_reply" : "teen_opening";
+        }
+
+        return reply ? replyDialogueKey : greetingDialogueKey;
+    }
+
+    bool UsesMinorDialogue()
+    {
+        int age = ResolveConversationAge();
+        return age >= 0 && age <= 15;
+    }
+
+    int ResolveConversationAge()
+    {
+        VillagerAI villager = GetComponent<VillagerAI>();
+        if (villager != null)
+        {
+            return villager.GetAge();
+        }
+
+        NPCIdentity identity = GetComponent<NPCIdentity>();
+        return identity != null
+            ? identity.GetCurrentAge()
+            : -1;
     }
 
     bool IsDead()

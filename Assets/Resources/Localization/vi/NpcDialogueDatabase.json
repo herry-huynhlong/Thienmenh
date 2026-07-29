@@ -939,6 +939,36 @@
       ]
     },
     {
+      "id": "teen_opening_001",
+      "category": "teen_opening",
+      "channel": "Village",
+      "duration": 1.7,
+      "cooldownSeconds": 20,
+      "priority": 55,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Idle"],
+      "texts": [
+        "Hom nay trong lang vui ghe, di quanh mot chut khong?",
+        "Ta vua nghe duoc mot chuyen hay o ngoai cho.",
+        "Lam xong viec som thi ra ngoai xem co gi vui nhe?"
+      ]
+    },
+    {
+      "id": "teen_reply_001",
+      "category": "teen_reply",
+      "channel": "Village",
+      "duration": 1.7,
+      "cooldownSeconds": 20,
+      "priority": 55,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Idle"],
+      "texts": [
+        "Duoc do, nhung dung di xa qua keo bi nguoi lon la.",
+        "Ta cung dang tinh ra ngoai mot chut day.",
+        "Nghe vui do, de ta di cung xem sao."
+      ]
+    },
+    {
       "id": "cultivate_self_001",
       "category": "cultivate_self",
       "channel": "Cultivation",

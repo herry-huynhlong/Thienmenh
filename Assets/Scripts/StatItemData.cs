@@ -517,6 +517,103 @@ public class StatItemData : ScriptableObject
             useSuccessChance < 1f;
     }
 
+    public bool IsConsumablePill()
+    {
+        return itemType == ItemType.DanDuoc &&
+            GetResolvedUseStyle() == ItemUseStyle.Consumable &&
+            CanUseDirectly();
+    }
+
+    public bool IsVillagerAwakeningPill()
+    {
+        return itemType == ItemType.DanDuoc &&
+            awakenVillagerToSmartNpc;
+    }
+
+    public bool IsNpcLowHpRecoveryPill()
+    {
+        if (!IsConsumablePill() ||
+            awakenVillagerToSmartNpc)
+        {
+            return false;
+        }
+
+        if (pillKind == PillKind.Heal)
+        {
+            return true;
+        }
+
+        return hpBonus > 0 &&
+            !HasLongTermNpcPillBenefit();
+    }
+
+    public bool IsNpcCultivationReservePill()
+    {
+        if (!IsConsumablePill() ||
+            awakenVillagerToSmartNpc ||
+            isTemporary)
+        {
+            return false;
+        }
+
+        switch (pillKind)
+        {
+            case PillKind.Cultivation:
+            case PillKind.Breakthrough:
+            case PillKind.PermanentAttack:
+            case PillKind.PermanentDefense:
+            case PillKind.PermanentMaxHP:
+                return true;
+        }
+
+        return HasLongTermNpcPillBenefit();
+    }
+
+    bool HasLongTermNpcPillBenefit()
+    {
+        if (cultivationBonus > 0 ||
+            breakthroughRealm ||
+            damageBonus > 0 ||
+            damageBonusPercent > 0f ||
+            armorBonus > 0 ||
+            armorBonusPercent > 0f ||
+            maxHpBonusPercent > 0f ||
+            effectResistanceBonus > 0)
+        {
+            return true;
+        }
+
+        foreach (StatModifier modifier in modifiers)
+        {
+            if (modifier == null)
+            {
+                continue;
+            }
+
+            if (modifier.intValue <= 0 &&
+                modifier.floatValue <= 0f)
+            {
+                continue;
+            }
+
+            switch (modifier.statType)
+            {
+                case StatType.Cultivation:
+                case StatType.Breakthrough:
+                case StatType.Attack:
+                case StatType.AttackPercent:
+                case StatType.Defense:
+                case StatType.DefensePercent:
+                case StatType.MaxHP:
+                case StatType.MaxHPPercent:
+                case StatType.EffectResistance:
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
     public bool ShouldNpcUseDirectly()
     {
         if (!CanUseDirectly())

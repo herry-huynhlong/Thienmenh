@@ -939,6 +939,36 @@
       ]
     },
     {
+      "id": "teen_opening_001",
+      "category": "teen_opening",
+      "channel": "Village",
+      "duration": 1.7,
+      "cooldownSeconds": 20,
+      "priority": 55,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Idle"],
+      "texts": [
+        "今天村里挺热闹，要不要一起转一圈？",
+        "我刚在集市那边听到个有意思的消息。",
+        "要是这会儿忙完了，咱们出去看看吧。"
+      ]
+    },
+    {
+      "id": "teen_reply_001",
+      "category": "teen_reply",
+      "channel": "Village",
+      "duration": 1.7,
+      "cooldownSeconds": 20,
+      "priority": 55,
+      "mode": "DisplayOnly",
+      "allowedContexts": ["Moving", "Idle"],
+      "texts": [
+        "行啊，不过别跑太远，不然大人又要念了。",
+        "我本来也想出去走走。",
+        "听起来不错，我也一起去看看。"
+      ]
+    },
+    {
       "id": "cultivate_self_001",
       "category": "cultivate_self",
       "channel": "Cultivation",

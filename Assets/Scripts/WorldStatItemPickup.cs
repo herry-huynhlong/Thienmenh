@@ -39,7 +39,7 @@ public class WorldStatItemPickup : MonoBehaviour
     {
         treatAsDroppedWorldItem = true;
         requireNpcHarvestAction = false;
-        allowNpcPassivePickup = false;
+        allowNpcPassivePickup = true;
         allowPlayerPickup = true;
     }
 
@@ -110,6 +110,11 @@ public class WorldStatItemPickup : MonoBehaviour
             return false;
         }
 
+        if (IsDroppedItemStillLanding())
+        {
+            return false;
+        }
+
         if (allowNpcPassivePickup)
         {
             return true;
@@ -117,6 +122,16 @@ public class WorldStatItemPickup : MonoBehaviour
 
         return trackReceiverInHeavenNurture &&
             treatAsDroppedWorldItem;
+    }
+
+    bool IsDroppedItemStillLanding()
+    {
+        if (!treatAsDroppedWorldItem)
+        {
+            return false;
+        }
+
+        return GetComponent<SkyDropToPosition>() != null;
     }
 
     bool ShouldBlockNpcPassivePickup()

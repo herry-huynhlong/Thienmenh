@@ -55,11 +55,38 @@ public partial class SmartNpcAI
                     broker,
                     brokerApproach))
             {
+                pill = Mathf.Max(0, CountOwnedPillItems());
                 return true;
             }
 
             return true;
         }
+
+        return TryGoToTavernAndBuyKnownPill(false);
+    }
+
+    bool GoToTavernAndBuyHealingPill()
+    {
+        if (HasAvailableRecoveryPills())
+        {
+            return TryConsumePillForLowHpRecovery();
+        }
+
+        if (IsNeedPotionRetryCoolingDown())
+        {
+            return false;
+        }
+
+        return TryGoToTavernAndBuyKnownPill(true);
+    }
+
+    bool TryGoToTavernAndBuyKnownPill(
+        bool recoveryPurchase)
+    {
+        string traceLabel =
+            recoveryPurchase
+                ? "GoToTavernAndBuyHealingPill"
+                : "GoToTavernAndBuyPill";
 
         Transform buyTarget = tavernPoint;
         Vector3 buyPosition =
@@ -74,10 +101,14 @@ public partial class SmartNpcAI
                 out buyPosition))
         {
             ClearTravelTargetsAndStop();
-            ClearSmartTaskIfGoal(SmartAITaskGoal.NeedPotion);
+            if (!recoveryPurchase)
+            {
+                ClearSmartTaskIfGoal(SmartAITaskGoal.NeedPotion);
+            }
+
             currentAction = NpcText.Action("idle");
             TraceRuntime(
-                "GoToTavernAndBuyPill",
+                traceLabel,
                 "no-destination");
             return false;
         }
@@ -101,7 +132,9 @@ public partial class SmartNpcAI
         {
             DebugFlow(
                 "Trade",
-                "NeedPotion target=" +
+                (recoveryPurchase
+                    ? "NeedRecoveryPill target="
+                    : "NeedPotion target=") +
                 (buyTarget != null ? buyTarget.name : "wander") +
                 " buyPos=" +
                 buyPosition +
@@ -117,11 +150,29 @@ public partial class SmartNpcAI
         {
             currentAction = NpcText.Action("buyPill");
 
-            money -= 50;
+            StatItemData purchasedItem =
+                recoveryPurchase
+                    ? FindPreferredRecoveryPillForPurchase()
+                    : FindPreferredCultivationPillForPurchase();
+            if (purchasedItem == null ||
+                !TryReceivePurchasedPill(
+                    purchasedItem,
+                    recoveryPurchase))
+            {
+                DeferNeedPotionRetry(
+                    recoveryPurchase
+                        ? NpcText.Action("calm")
+                        : NpcText.Action("checkedVanBaoLau"));
+                return false;
+            }
 
-            pill += 1;
-            ClearSmartTaskIfGoal(SmartAITaskGoal.NeedPotion);
-            nextNeedPotionRetryTime = 0f;
+            money -= 50;
+            pill = Mathf.Max(0, CountOwnedPillItems());
+            if (!recoveryPurchase)
+            {
+                ClearSmartTaskIfGoal(SmartAITaskGoal.NeedPotion);
+                nextNeedPotionRetryTime = 0f;
+            }
 
             ClearTravelTargetsAndStop();
             stuckMoveTimer = 0f;
@@ -133,10 +184,163 @@ public partial class SmartNpcAI
                         tradeSessionMinGameHours,
                         tradeSessionMaxGameHours));
 
-            Debug.Log(NpcText.Format(NpcText.Get("logs", "buyPill"), npcName));
+            if (recoveryPurchase)
+            {
+                TryConsumePillForLowHpRecovery();
+            }
+
+            Debug.Log(
+                NpcText.Format(
+                    NpcText.Get("logs", "buyPill"),
+                    npcName) +
+                " item=" +
+                purchasedItem.itemName);
         }
 
         return true;
+    }
+
+    bool TryReceivePurchasedPill(
+        StatItemData item,
+        bool immediateUse)
+    {
+        if (item == null)
+        {
+            return false;
+        }
+
+        ItemInventory inventory = GetNpcItemInventory();
+        if (inventory == null)
+        {
+            return false;
+        }
+
+        NpcItemCollector collector =
+            GetComponent<NpcItemCollector>();
+        if (collector != null)
+        {
+            collector.ReceiveItem(
+                item,
+                ItemLifecycleEventType.Picked,
+                immediateUse);
+            return true;
+        }
+
+        inventory.AddItem(item, 1);
+        if (immediateUse &&
+            item.IsNpcLowHpRecoveryPill())
+        {
+            TryConsumeAvailableRecoveryPill(out _);
+        }
+
+        return true;
+    }
+
+    StatItemData FindPreferredRecoveryPillForPurchase()
+    {
+        StatItemData[] loadedItems =
+            Resources.FindObjectsOfTypeAll<StatItemData>();
+        StatItemData best = null;
+        float bestStrength = float.MaxValue;
+
+        foreach (StatItemData item in loadedItems)
+        {
+            if (item == null ||
+                !item.IsNpcLowHpRecoveryPill())
+            {
+                continue;
+            }
+
+            float strength =
+                Mathf.Max(
+                    1f,
+                    item.hpBonus);
+            if (best == null ||
+                strength < bestStrength)
+            {
+                best = item;
+                bestStrength = strength;
+            }
+        }
+
+        return best;
+    }
+
+    StatItemData FindPreferredCultivationPillForPurchase()
+    {
+        StatItemData[] loadedItems =
+            Resources.FindObjectsOfTypeAll<StatItemData>();
+        StatItemData best = null;
+        int bestPriority = int.MaxValue;
+        float bestStrength = float.MaxValue;
+
+        foreach (StatItemData item in loadedItems)
+        {
+            if (item == null ||
+                !item.IsNpcCultivationReservePill())
+            {
+                continue;
+            }
+
+            int priority =
+                GetCultivationPurchasePriority(item);
+            float strength =
+                GetCultivationPurchaseStrength(item);
+            if (best == null ||
+                priority < bestPriority ||
+                (priority == bestPriority &&
+                strength < bestStrength))
+            {
+                best = item;
+                bestPriority = priority;
+                bestStrength = strength;
+            }
+        }
+
+        return best;
+    }
+
+    int GetCultivationPurchasePriority(
+        StatItemData item)
+    {
+        if (item == null)
+        {
+            return int.MaxValue;
+        }
+
+        switch (item.pillKind)
+        {
+            case PillKind.Cultivation:
+                return 0;
+            case PillKind.Breakthrough:
+                return 1;
+            default:
+                return 2;
+        }
+    }
+
+    float GetCultivationPurchaseStrength(
+        StatItemData item)
+    {
+        if (item == null)
+        {
+            return float.MaxValue;
+        }
+
+        switch (item.pillKind)
+        {
+            case PillKind.Cultivation:
+                return Mathf.Max(1f, item.cultivationBonus);
+            case PillKind.Breakthrough:
+                return Mathf.Max(
+                    1f,
+                    item.cultivationBonus +
+                    (item.breakthroughRealm
+                        ? 100000f
+                        : 0f));
+            default:
+                return Mathf.Max(1f, item.GetNpcUseScore());
+        }
     }
 
     bool IsNeedPotionRetryCoolingDown()

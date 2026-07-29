@@ -31,9 +31,9 @@ public class WeatherSystem : MonoBehaviour
     [Header("Calendar Schedule")]
     public bool useCalendarSchedule = true;
     [Min(1)] public int rainEveryDays = 5;
-    [Range(0f, 24f)] public float rainDurationHours = 24f;
-    [Range(1, 30)] public int snowDayOfMonth = 15;
-    [Range(0f, 24f)] public float snowDurationHours = 24f;
+    [Min(0.1f)] public float rainDurationMonths = 3f;
+    [Min(1)] public int snowEveryDays = 20;
+    [Min(0.1f)] public float snowDurationMonths = 5f;
 
     [Header("Random Fallback")]
     public float weatherDurationHours = 4f;
@@ -235,28 +235,59 @@ public class WeatherSystem : MonoBehaviour
 
     bool IsSnowTime(WorldTimeSystem timeSystem)
     {
-        int scheduledSnowDay =
-            Mathf.Clamp(
-                snowDayOfMonth,
-                1,
-                timeSystem != null
-                    ? timeSystem.DaysPerMonth
-                    : 30);
-        float duration = Mathf.Clamp(snowDurationHours, 0f, 24f);
+        if (timeSystem == null)
+        {
+            return false;
+        }
+
+        int intervalYears = Mathf.Max(1, snowEveryDays);
+        float duration = GetDurationHoursFromDisplayMonths(
+            timeSystem,
+            snowDurationMonths);
 
         return duration > 0f &&
-            timeSystem.currentDay == scheduledSnowDay &&
+            timeSystem.CurrentAbsoluteDay % intervalYears == 0 &&
             timeSystem.CurrentHour < duration;
     }
 
     bool IsRainTime(WorldTimeSystem timeSystem)
     {
+        if (timeSystem == null)
+        {
+            return false;
+        }
+
         int interval = Mathf.Max(1, rainEveryDays);
-        float duration = Mathf.Clamp(rainDurationHours, 0f, 24f);
+        float duration = GetDurationHoursFromDisplayMonths(
+            timeSystem,
+            rainDurationMonths);
 
         return duration > 0f &&
             timeSystem.CurrentAbsoluteDay % interval == 0 &&
             timeSystem.CurrentHour < duration;
+    }
+
+    static float GetDurationHoursFromDisplayMonths(
+        WorldTimeSystem timeSystem,
+        float durationMonths)
+    {
+        if (timeSystem == null ||
+            durationMonths <= 0f)
+        {
+            return 0f;
+        }
+
+        float monthsPerYear =
+            Mathf.Max(
+                1f,
+                timeSystem.IsOneGameDayPerYearCalendar
+                    ? timeSystem.DisplayMonthsPerYear
+                    : timeSystem.MonthsPerYear);
+
+        return Mathf.Clamp(
+            24f * (durationMonths / monthsPerYear),
+            0f,
+            24f);
     }
 
     void RollWeather()

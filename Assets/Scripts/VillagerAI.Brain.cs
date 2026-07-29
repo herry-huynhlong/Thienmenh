@@ -113,10 +113,7 @@ public partial class VillagerAI
 
     void ThinkChild()
     {
-        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
-        if (timeSystem != null &&
-            (timeSystem.CurrentPhase == WorldTimePhase.Night ||
-            timeSystem.CurrentPhase == WorldTimePhase.Dawn))
+        if (!IsWithinMinorOutdoorHours())
         {
             GoHomeToRest();
             return;
@@ -147,10 +144,7 @@ public partial class VillagerAI
 
     void ThinkTeen()
     {
-        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
-        if (timeSystem != null &&
-            (timeSystem.CurrentPhase == WorldTimePhase.Night ||
-            timeSystem.CurrentPhase == WorldTimePhase.Dawn))
+        if (!IsWithinMinorOutdoorHours())
         {
             GoHomeToRest();
             return;

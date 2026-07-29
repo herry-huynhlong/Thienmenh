@@ -126,38 +126,14 @@ public class WorldEventSystem : MonoBehaviour
     {
         currentEvent = eventType.ToString();
 
-        // =========================================================================
-        // TỰ ĐỘNG GHI NHẬT KÝ THẾ GIỚI KHI SỰ KIỆN XẢY RA
-        // =========================================================================
         if (WorldEventManager.Instance != null)
         {
-            string logMessage = "";
-            switch (eventType)
+            string logMessage = GetStoryLogMessage(eventType);
+            if (!string.IsNullOrWhiteSpace(logMessage))
             {
-                case WorldEventType.BeastWave:
-                    logMessage = "Dị tượng xuất hiện! Yêu khí ngập trời, hung thú đại loạn đang điên cuồng tràn về phía thôn làng!";
-                    break;
-                case WorldEventType.Festival:
-                    logMessage = "Thiên địa tường hòa, toàn chân phấn khởi. Thị trấn đang tổ chức đại lễ hội, linh khí vui tươi tràn ngập.";
-                    break;
-                case WorldEventType.SecretRealmOpen:
-                    logMessage = "Hư không rạn nứt! Một tòa Thượng Cổ Bí Cảnh vừa xuất thế, cơ duyên và hung hiểm đang chờ đợi các tu sĩ.";
-                    break;
-                case WorldEventType.Plague:
-                    logMessage = "U minh tử khí bủa vây, một trận dịch bệnh kỳ quái đang âm thầm lan tràn khắp đại lục!";
-                    break;
-                case WorldEventType.SectConflict:
-                    logMessage = "Tranh chấp linh mạch! Xung đột giữa các Tông môn thế lực đã bùng nổ, thế cục vô cùng hỗn loạn.";
-                    break;
-                case WorldEventType.HeavenlyTribulation:
-                    logMessage = "Lôi vân tích tụ! Thiên địa dị động, một vị đại năng nghịch thiên cải mệnh đang dẫn động Thiên Kiếp giáng thế!";
-                    break;
+                WorldEventManager.Instance.AddLog(logMessage, eventType, true);
             }
-
-            // Gọi hàm lưu log, mốc thời gian sẽ tự động được hệ thống bốc vào đầu câu
-            WorldEventManager.Instance.AddLog(logMessage, eventType, true);
         }
-        // =========================================================================
 
         switch (eventType)
         {
@@ -172,7 +148,9 @@ public class WorldEventSystem : MonoBehaviour
 
     WorldEventType RollEvent(WorldTimeSystem timeSystem)
     {
-        if (timeSystem != null && timeSystem.IsDangerousNight() && Random.value < 0.55f)
+        if (timeSystem != null &&
+            timeSystem.IsDangerousNight() &&
+            Random.value < 0.55f)
         {
             return WorldEventType.BeastWave;
         }
@@ -242,5 +220,26 @@ public class WorldEventSystem : MonoBehaviour
             ? timeSystem.CurrentWorldHour
             : 0f;
         nextCheckWorldHour = worldHour + Mathf.Max(0.25f, eventCheckHours);
+    }
+
+    static string GetStoryLogMessage(WorldEventType eventType)
+    {
+        switch (eventType)
+        {
+            case WorldEventType.BeastWave:
+                return UiText.Get("worldEvents", "beastWaveStory", "");
+            case WorldEventType.Festival:
+                return UiText.Get("worldEvents", "festivalStory", "");
+            case WorldEventType.SecretRealmOpen:
+                return UiText.Get("worldEvents", "secretRealmStory", "");
+            case WorldEventType.Plague:
+                return UiText.Get("worldEvents", "plagueStory", "");
+            case WorldEventType.SectConflict:
+                return UiText.Get("worldEvents", "sectConflictStory", "");
+            case WorldEventType.HeavenlyTribulation:
+                return UiText.Get("worldEvents", "heavenlyTribulationStory", "");
+            default:
+                return "";
+        }
     }
 }

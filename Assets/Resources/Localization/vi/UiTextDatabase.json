@@ -1142,6 +1142,36 @@
       "lists": []
     },
     {
+      "name": "worldEvents",
+      "entries": [
+        {
+          "key": "beastWaveStory",
+          "value": "Dị tượng nổi lên. Yêu khí ngập trời, thú triều đang dồn về phía thôn làng."
+        },
+        {
+          "key": "festivalStory",
+          "value": "Thiên địa hôm nay tường hòa. Thị trấn mở đại lễ hội, linh khí vui tươi tràn khắp phố xá."
+        },
+        {
+          "key": "secretRealmStory",
+          "value": "Hư không rạn nứt. Một tòa Thượng Cổ Bí Cảnh vừa xuất thế, mang theo cả cơ duyên lẫn hung hiểm."
+        },
+        {
+          "key": "plagueStory",
+          "value": "Tử khí đang lan dần. Một trận dịch bệnh kỳ quái âm thầm quét qua đại lục."
+        },
+        {
+          "key": "sectConflictStory",
+          "value": "Tranh chấp linh mạch đã bùng nổ. Các tông môn thế lực lao vào hỗn chiến, khiến cục diện ngày càng rối loạn."
+        },
+        {
+          "key": "heavenlyTribulationStory",
+          "value": "Kiếp vân đang hội tụ. Một vị đại năng nghịch thiên cải mệnh, dẫn động Thiên Kiếp giáng xuống nhân gian."
+        }
+      ],
+      "lists": []
+    },
+    {
       "name": "itemLifecycle",
       "entries": [
         {
@@ -1458,6 +1488,101 @@
         }
       ],
       "lists": []
+    },
+    {
+      "name": "inventoryItemAttributes",
+      "entries": [
+        {
+          "key": "attack",
+          "value": "T\u1ea5n C\u00f4ng"
+        },
+        {
+          "key": "defense",
+          "value": "Ph\u00f2ng Th\u1ee7"
+        },
+        {
+          "key": "hp",
+          "value": "HP"
+        },
+        {
+          "key": "speed",
+          "value": "T\u1ed1c \u0110\u1ed9"
+        },
+        {
+          "key": "cultivation",
+          "value": "Tu Vi"
+        },
+        {
+          "key": "resistance",
+          "value": "Kh\u00e1ng"
+        },
+        {
+          "key": "efficiency",
+          "value": "Hi\u1ec7u Su\u1ea5t"
+        },
+        {
+          "key": "toxicity",
+          "value": "\u0110\u1ed9c T\u00ednh"
+        },
+        {
+          "key": "manualProgress",
+          "value": "Ti\u1ebfn \u0110\u1ed9"
+        },
+        {
+          "key": "manualDuration",
+          "value": "Th\u1eddi H\u1ea1n"
+        },
+        {
+          "key": "breakthrough",
+          "value": "\u0110\u1ed9t Ph\u00e1"
+        },
+        {
+          "key": "duration",
+          "value": "Duy Tr\u00ec"
+        },
+        {
+          "key": "yes",
+          "value": "C\u00f3"
+        }
+      ],
+      "lists": [
+        {
+          "key": "defaultOrder",
+          "values": ["attack", "hp", "defense", "speed", "cultivation", "resistance", "efficiency", "toxicity", "manualProgress", "manualDuration", "breakthrough", "duration"]
+        },
+        {
+          "key": "danDuocOrder",
+          "values": ["cultivation", "hp", "defense", "attack", "resistance", "speed", "breakthrough", "duration"]
+        },
+        {
+          "key": "phapBaoWeaponOrder",
+          "values": ["attack", "speed", "defense", "hp", "resistance", "duration"]
+        },
+        {
+          "key": "phapBaoArmorOrder",
+          "values": ["defense", "hp", "resistance", "speed", "attack", "duration"]
+        },
+        {
+          "key": "phapBaoAccessoryOrder",
+          "values": ["resistance", "attack", "defense", "hp", "speed", "duration"]
+        },
+        {
+          "key": "phapBaoDefaultOrder",
+          "values": ["attack", "defense", "hp", "resistance", "speed", "duration"]
+        },
+        {
+          "key": "vatLieuOrder",
+          "values": ["efficiency", "toxicity", "hp", "cultivation", "defense", "attack", "speed"]
+        },
+        {
+          "key": "congPhapOrder",
+          "values": ["attack", "defense", "speed", "cultivation", "manualProgress", "manualDuration"]
+        },
+        {
+          "key": "thucPhamOrder",
+          "values": ["hp", "cultivation", "attack", "speed", "duration"]
+        }
+      ]
     },
     {
       "name": "worldSigns",

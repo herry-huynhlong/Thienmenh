@@ -263,8 +263,9 @@ public class NpcItemCollector : MonoBehaviour
         TreasureHeatSystem.NotifyNpcReceivedItem(gameObject, item);
 
         bool shouldUse =
-            considerUse ||
-            ShouldNpcDecideItemUse(item);
+            ShouldUseReceivedItemImmediately(
+                item,
+                considerUse);
 
         if (debugItemUseReasons && !shouldUse)
         {
@@ -300,6 +301,70 @@ public class NpcItemCollector : MonoBehaviour
     {
         string reason;
         return TryGetNpcUseDecision(item, out reason);
+    }
+
+    bool ShouldUseReceivedItemImmediately(
+        StatItemData item,
+        bool considerUse)
+    {
+        if (item == null)
+        {
+            return false;
+        }
+
+        if (item.IsVillagerAwakeningPill() &&
+            item.CanUseOn(gameObject))
+        {
+            return true;
+        }
+
+        if (item.IsNpcLowHpRecoveryPill())
+        {
+            return IsOwnerLowHp();
+        }
+
+        if (item.IsNpcCultivationReservePill())
+        {
+            return false;
+        }
+
+        return considerUse ||
+            ShouldNpcDecideItemUse(item);
+    }
+
+    bool IsOwnerLowHp()
+    {
+        CharacterStats stats =
+            characterStats != null
+                ? characterStats
+                : GetComponent<CharacterStats>();
+
+        if (stats != null &&
+            stats.MaxHP > 0)
+        {
+            return stats.CurrentHP <=
+                Mathf.RoundToInt(stats.MaxHP * 0.45f);
+        }
+
+        SmartNpcAI smartNpc =
+            GetComponent<SmartNpcAI>();
+        if (smartNpc != null &&
+            smartNpc.maxHP > 0)
+        {
+            return smartNpc.currentHP <=
+                Mathf.RoundToInt(smartNpc.maxHP * 0.45f);
+        }
+
+        VillagerAI villager =
+            GetComponent<VillagerAI>();
+        if (villager != null &&
+            villager.maxHP > 0)
+        {
+            return villager.currentHP <=
+                Mathf.RoundToInt(villager.maxHP * 0.45f);
+        }
+
+        return false;
     }
 
     bool TryGetNpcUseDecision(

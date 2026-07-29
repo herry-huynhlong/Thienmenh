@@ -290,6 +290,56 @@ public partial class SmartNpcAI
             Mathf.RoundToInt(AuthoritativeMaxHP * 0.7f));
     }
 
+    bool ShouldStartLowHpRecovery()
+    {
+        return currentHP > 0 &&
+            currentHP <= GetLowHpRecoveryClearThreshold();
+    }
+
+    bool BeginLowHpRecoveryFromSafeState(string reason)
+    {
+        if (!ShouldStartLowHpRecovery())
+        {
+            return false;
+        }
+
+        StopMonsterRetreat();
+
+        bool accepted =
+            RequestEmergencyTask(
+                SmartAITaskGoal.LowHpRecovery,
+                SmartAITaskPriority.Emergency,
+                false,
+                reason);
+        if (!accepted)
+        {
+            return false;
+        }
+
+        if (currentAction != NpcText.Action("goTavern") &&
+            currentAction != NpcText.Action("buyPill") &&
+            currentAction != NpcText.Action("goCultivatePoint") &&
+            currentAction != NpcText.Action("cultivate") &&
+            currentAction != NpcText.Action("cultivateAbsorbQi"))
+        {
+            currentAction = NpcText.Action("injured");
+        }
+
+        actionTimer = Mathf.Max(
+            actionTimer,
+            Mathf.Min(0.35f, thinkDelay));
+
+        DebugFlow(
+            "Recovery",
+            "Promoted safe state to low hp recovery hp=" +
+            currentHP +
+            "/" +
+            AuthoritativeMaxHP +
+            " reason=" +
+            reason);
+        return true;
+    }
+
     void PrepareForLowHpRecovery()
     {
         bool hadCombatFlow =
@@ -328,24 +378,33 @@ public partial class SmartNpcAI
 
     bool TryConsumePillForLowHpRecovery()
     {
-        if (!TryConsumeAvailablePill())
+        int hpBefore = currentHP;
+        if (!TryConsumeAvailableRecoveryPill(
+                out StatItemData usedPill))
         {
             return false;
         }
 
-        int healAmount =
+        int healed =
             Mathf.Max(
-                18,
-                Mathf.RoundToInt(AuthoritativeMaxHP * 0.32f));
-        Heal(healAmount);
+                0,
+                currentHP - hpBefore);
         actionTimer = Mathf.Max(
             actionTimer,
             GameHoursToSeconds(0.25f));
         currentAction = NpcText.Action("rest");
         DebugFlow(
             "Recovery",
-            "Consumed pill for low hp heal=" + healAmount +
-            " hp=" + currentHP + "/" + maxHP);
+            "Consumed recovery pill item=" +
+            (usedPill != null
+                ? usedPill.itemName
+                : "unknown") +
+            " heal=" +
+            healed +
+            " hp=" +
+            currentHP +
+            "/" +
+            maxHP);
         return true;
     }
 
@@ -557,7 +616,7 @@ public partial class SmartNpcAI
 
                 PrepareForLowHpRecovery();
 
-                if (HasAvailablePills() &&
+                if (HasAvailableRecoveryPills() &&
                     TryConsumePillForLowHpRecovery())
                 {
                     return true;
@@ -565,7 +624,7 @@ public partial class SmartNpcAI
 
                 if (canTrade &&
                     money >= 50 &&
-                    GoToTavernAndBuyPill())
+                    GoToTavernAndBuyHealingPill())
                 {
                     return true;
                 }

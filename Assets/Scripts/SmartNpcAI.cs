@@ -637,7 +637,10 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
         npcName = entityProfile.identity.entityName;
         SyncNpcIdentityFromEntityProfile();
         realm = entityProfile.stats.realm;
-        lifespan = GetLifespanForRealm(realm);
+        lifespan =
+            Mathf.Max(
+                lifespan,
+                GetLifespanForRealm(realm));
         realmStage = entityProfile.stats.realmStage;
         comprehension = entityProfile.talent.comprehension;
         physique = ToPhysique(entityProfile.talent.grade);
@@ -1106,78 +1109,28 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
                 rb != null ? rb.linearVelocity : desiredVelocity,
                 desiredVelocity,
                 animationIdleSpeed,
-                allowDesiredVelocityFallback: false);
+                allowDesiredVelocityFallback: true);
         Vector2 animationVelocity =
             motionState.AnimationVelocity;
-        bool isIdle = motionState.IsIdle;
-        bool hasDesiredMotion =
-            motionState.HasDesiredMotion;
-        Vector2 velocityDirection =
-            motionState.LocomotionDirection;
-        Vector2 direction = velocityDirection;
-        string visualDirectionSource =
-            motionState.UsedDesiredVelocityFallback
-                ? "desired-velocity"
-                : isIdle
-                ? "idle"
-                : "velocity";
-
-        if (isIdle &&
-            !hasDesiredMotion &&
-            IsStationaryAction(currentAction) &&
-            direction.sqrMagnitude <= 0.0001f)
-        {
-            Vector2 idleLookDirection =
-                ResolveIdleVisualFacingDirection();
-            if (idleLookDirection.sqrMagnitude > 0.0001f)
-            {
-                direction = idleLookDirection;
-                visualDirectionSource = "idle-look";
-            }
-        }
-
-        bool holdCombatPosition =
-            currentMonsterTarget != null &&
-            ShouldHoldCombatPosition();
-        string forcedCombatAnimationAction =
-            (isIdle || holdCombatPosition)
-                ? ResolveForcedCombatAnimationAction()
-                : string.Empty;
-        if (isIdle &&
-            !string.IsNullOrWhiteSpace(forcedCombatAnimationAction) &&
-            currentMonsterTarget != null)
-        {
-            Vector2 targetDirection =
-                currentMonsterTarget.transform.position -
-                transform.position;
-            if (targetDirection.sqrMagnitude > 0.0001f)
-            {
-                direction = targetDirection.normalized;
-                visualDirectionSource = "combat-target-idle";
-            }
-        }
-        else if (holdCombatPosition)
-        {
-            Vector2 targetDirection =
-                currentMonsterTarget.transform.position -
-                transform.position;
-            if (targetDirection.sqrMagnitude > 0.0001f)
-            {
-                direction = targetDirection.normalized;
-                visualDirectionSource = "combat-target-hold";
-            }
-        }
-
+        Vector2 visualMotion =
+            ResolveVisualMotionInput(motionState);
+        bool isIdle =
+            visualMotion.sqrMagnitude <=
+            animationIdleSpeed * animationIdleSpeed &&
+            !motionState.HasDesiredMotion;
         string animationAction =
-            ResolveAnimationActionForCurrentState(
-                isIdle,
-                forcedCombatAnimationAction);
+            isIdle ||
+            IsDead ||
+            currentAction == NpcText.Action("dead") ||
+            currentAction == NpcText.Action("oldAgeDeath")
+                ? currentAction
+                : string.Empty;
 
         string animDebugSignature =
             currentAction + "|" +
             animationAction + "|" +
             isIdle + "|" +
-            QuantizeDebugVector(direction);
+            QuantizeDebugVector(visualMotion);
         if (ShouldTraceRuntime() &&
             ShouldLogStateTransition(
                 ref lastAnimDebugSignature,
@@ -1187,12 +1140,12 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
         {
             DebugFlow(
                 "Anim",
-                "Update visual dir=" +
-                direction +
-                " source=" + visualDirectionSource +
+                "Update visual motion=" +
+                visualMotion +
                 " idle=" + isIdle +
                 " vel=" + animationVelocity +
-                " velDir=" + velocityDirection +
+                " fallback=" +
+                motionState.UsedDesiredVelocityFallback +
                 " desiredVel=" + desiredVelocity +
                 " pos=" + transform.position +
                 " rbPos=" + (rb != null ? rb.position.ToString() : "no-rb") +
@@ -1207,44 +1160,54 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
                 " animAction=" + animationAction);
         }
 
-        visualAnimation.UpdateNPCAnimation(direction, isIdle, animationAction);
+        visualAnimation.UpdateNPCAnimation(
+            visualMotion,
+            isIdle,
+            animationAction);
     }
 
-    Vector2 ResolveIdleVisualFacingDirection()
+    Vector2 ResolveVisualMotionInput(
+        NpcVisualMotionState motionState)
     {
-        if (currentTarget != null)
+        if (motionState.IsIdle)
         {
-            return NormalizeVisualDirection(
-                GetApproachPosition(currentTarget) - transform.position);
+            return Vector2.zero;
         }
 
-        if (IsTaskProviderTargetUsable(cachedTaskProviderTarget))
+        Vector2 sourceDirection =
+            desiredVelocity.sqrMagnitude > 0.0001f
+                ? desiredVelocity
+                : motionState.AnimationVelocity;
+        if (sourceDirection.sqrMagnitude <= 0.0001f)
         {
-            Vector3 providerPosition =
-                cachedTaskProviderTarget.GetProviderPositionFor(gameObject);
-            float providerDistance =
-                Vector2.Distance(transform.position, providerPosition);
-            float maxLookDistance =
-                Mathf.Max(
-                    3f,
-                    cachedTaskProviderTarget.GetProviderInteractionDistance() +
-                    1f);
-            if (providerDistance <= maxLookDistance)
-            {
-                return NormalizeVisualDirection(
-                    providerPosition - transform.position);
-            }
+            return motionState.AnimationVelocity;
         }
 
-        return Vector2.zero;
-    }
+        float axisDeadZone =
+            Mathf.Max(0.08f, animationIdleSpeed * 0.5f);
+        float absX = Mathf.Abs(sourceDirection.x);
+        float absY = Mathf.Abs(sourceDirection.y);
+        float speed = sourceDirection.magnitude;
 
-    Vector2 NormalizeVisualDirection(Vector3 delta)
-    {
-        Vector2 planarDelta = new Vector2(delta.x, delta.y);
-        return planarDelta.sqrMagnitude > 0.0001f
-            ? planarDelta.normalized
-            : Vector2.zero;
+        // Smart pathing often drifts slightly on Y while traveling across X.
+        // Bias side-facing when horizontal intent is still clearly present,
+        // but keep movement magnitude so parameter-driven animators enter walk.
+        if (absX > axisDeadZone &&
+            absX >= absY * 0.6f)
+        {
+            return new Vector2(
+                sourceDirection.x < 0f ? -speed : speed,
+                0f);
+        }
+
+        if (absY > axisDeadZone)
+        {
+            return new Vector2(
+                0f,
+                sourceDirection.y < 0f ? -speed : speed);
+        }
+
+        return sourceDirection;
     }
 
     void SyncVisualAnimationDebugFlags()
@@ -1257,116 +1220,6 @@ public partial class SmartNpcAI : MonoBehaviour, IDamageable, INpcActionStateOwn
         visualAnimation.debugVisualLogs =
             debugFlowLogs ||
             runtimeTraceEnabled;
-    }
-
-    string ResolveAnimationActionForCurrentState(
-        bool isIdle,
-        string forcedCombatAnimationAction = null)
-    {
-        if (IsDead)
-        {
-            return string.IsNullOrWhiteSpace(currentAction)
-                ? NpcText.Action("dead")
-                : currentAction;
-        }
-
-        if (currentAction == NpcText.Action("dead") ||
-            currentAction == NpcText.Action("oldAgeDeath"))
-        {
-            return currentAction;
-        }
-
-        forcedCombatAnimationAction =
-            string.IsNullOrWhiteSpace(forcedCombatAnimationAction)
-                ? ResolveForcedCombatAnimationAction()
-                : forcedCombatAnimationAction;
-        if (!string.IsNullOrWhiteSpace(forcedCombatAnimationAction))
-        {
-            return forcedCombatAnimationAction;
-        }
-
-        bool holdCombatPosition =
-            currentMonsterTarget != null &&
-            ShouldHoldCombatPosition();
-
-        if (IsMonsterCombatAnimationAction(currentAction))
-        {
-            if (!isIdle &&
-                !holdCombatPosition)
-            {
-                return string.Empty;
-            }
-
-            return currentAction;
-        }
-
-        if (holdCombatPosition)
-        {
-            string targetName =
-                currentMonsterTarget != null
-                    ? currentMonsterTarget.monsterName
-                    : string.Empty;
-            return string.IsNullOrWhiteSpace(targetName)
-                ? NpcText.Action("attackMonsterNamed")
-                : NpcText.ActionFormat("attackMonsterNamed", targetName);
-        }
-
-        if (!isIdle)
-        {
-            return string.Empty;
-        }
-
-        return currentAction;
-    }
-
-    string ResolveForcedCombatAnimationAction()
-    {
-        if (!ShouldForceCombatAttackAnimation())
-        {
-            return string.Empty;
-        }
-
-        if (MatchesSmartAction("attackMonsterNamed", true) ||
-            MatchesSmartAction("attackMonster", true) ||
-            MatchesSmartAction("attack", true))
-        {
-            return currentAction;
-        }
-
-        string targetName =
-            currentMonsterTarget != null
-                ? currentMonsterTarget.monsterName
-                : string.Empty;
-
-        return string.IsNullOrWhiteSpace(targetName)
-            ? NpcText.Action("attackMonsterNamed")
-            : NpcText.ActionFormat("attackMonsterNamed", targetName);
-    }
-
-    bool ShouldForceCombatAttackAnimation()
-    {
-        if (currentMonsterTarget == null ||
-            isRetreatingFromMonster ||
-            currentMonsterTarget.currentHP <= 0)
-        {
-            return false;
-        }
-
-        if (!IsMonsterCombatAnimationAction(currentAction))
-        {
-            return false;
-        }
-
-        float distance =
-            GetCombatSurfaceDistance(
-                currentMonsterTarget.transform);
-
-        float forceRange =
-            Mathf.Max(
-                attackRange + 0.6f,
-                0.55f);
-
-        return distance <= forceRange;
     }
 
     bool IsMonsterCombatAnimationAction(string action)

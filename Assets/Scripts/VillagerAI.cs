@@ -29,6 +29,9 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
     static readonly HashSet<VillagerAI> activeVillagers =
         new HashSet<VillagerAI>();
     const int WorkingAgeMin = 15;
+    const int MinorCurfewMaxAge = 15;
+    const float MinorOutdoorStartHour = 9f;
+    const float MinorOutdoorEndHour = 17f;
 
     public static IReadOnlyCollection<VillagerAI> ActiveVillagers =>
         activeVillagers;
@@ -885,6 +888,30 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
         return GetCurrentVillagerAge() >= WorkingAgeMin;
     }
 
+    bool IsMinorCurfewVillager()
+    {
+        return GetCurrentVillagerAge() <= MinorCurfewMaxAge;
+    }
+
+    public bool IsWithinMinorOutdoorHours()
+    {
+        WorldTimeSystem timeSystem = WorldTimeSystem.Instance;
+        if (timeSystem == null)
+        {
+            return true;
+        }
+
+        float currentHour = timeSystem.CurrentHour;
+        return currentHour >= MinorOutdoorStartHour &&
+            currentHour < MinorOutdoorEndHour;
+    }
+
+    public bool ShouldRemainHiddenByMinorCurfew()
+    {
+        return IsMinorCurfewVillager() &&
+            !IsWithinMinorOutdoorHours();
+    }
+
     bool IsWorkingEligibleByAgeGroup()
     {
         return ageGroup == VillagerAgeGroup.Adult ||
@@ -1118,6 +1145,24 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
             {
                 return;
             }
+        }
+
+        if (ShouldRemainHiddenByMinorCurfew())
+        {
+            if (homePoint == null)
+            {
+                ResolveMissingHomePoint();
+            }
+
+            if (IsAtHomePosition(GetHomePosition()))
+            {
+                ForceHiddenAtHome(true);
+                currentAction = NpcText.Action("rest");
+                return;
+            }
+
+            GoHomeToRest();
+            return;
         }
 
         SyncFromCharacterStats();

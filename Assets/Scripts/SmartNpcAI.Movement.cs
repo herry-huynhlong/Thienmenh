@@ -251,6 +251,13 @@ public partial class SmartNpcAI
 
             if (IsPreservedTravelAction(currentAction))
             {
+                if (currentAction == NpcText.Action("fleeMonsterArea") &&
+                    BeginLowHpRecoveryFromSafeState(
+                        "retreat action lost travel target"))
+                {
+                    return;
+                }
+
                 if (ShouldLogStateTransition(
                         ref lastMoveHoldDebugSignature,
                         ref lastMoveHoldDebugTime,
@@ -586,6 +593,13 @@ public partial class SmartNpcAI
             hasObstacleAvoidTarget = false;
 
             StopMovingSmooth(true);
+
+            if (currentAction == NpcText.Action("fleeMonsterArea") &&
+                BeginLowHpRecoveryFromSafeState(
+                    "reached flee wander target"))
+            {
+                return;
+            }
 
             if (currentAction == NpcText.Action("goHunt") &&
                 !IsInFrontierDefenseMode)

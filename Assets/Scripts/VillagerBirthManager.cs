@@ -175,6 +175,16 @@ public class VillagerBirthManager : MonoBehaviour
                 continue;
             }
 
+            if (!TryResolveStableFamilyHome(
+                    villager,
+                    partner,
+                    relationship,
+                    out _,
+                    out _))
+            {
+                continue;
+            }
+
             if (relationship.birthCooldownDays > 0)
             {
                 continue;
@@ -279,7 +289,13 @@ public class VillagerBirthManager : MonoBehaviour
             GetOrAddRelationship(mother);
         if (motherRelationship == null ||
             !motherRelationship.IsMarried() ||
-            !motherRelationship.CanHaveMoreChildren())
+            !motherRelationship.CanHaveMoreChildren() ||
+            !TryResolveStableFamilyHome(
+                mother,
+                father,
+                motherRelationship,
+                out _,
+                out _))
         {
             return false;
         }
@@ -329,6 +345,16 @@ public class VillagerBirthManager : MonoBehaviour
             return;
         }
 
+        if (!TryResolveStableFamilyHome(
+                mother,
+                father,
+                motherRelationship,
+                out string sharedHomeId,
+                out Transform sharedHomePoint))
+        {
+            return;
+        }
+
         GameObject spawned =
             childPrefab != null
                 ? Instantiate(childPrefab)
@@ -348,8 +374,12 @@ public class VillagerBirthManager : MonoBehaviour
             string.IsNullOrWhiteSpace(mother.gameObject.name)
                 ? "VillagerChild"
                 : mother.gameObject.name + "_Child";
+        Vector3 spawnBasePosition =
+            sharedHomePoint != null
+                ? sharedHomePoint.position
+                : mother.transform.position;
         spawned.transform.position =
-            mother.transform.position +
+            spawnBasePosition +
             (Vector3)(Random.insideUnitCircle * spawnOffsetRadius);
 
         NPCIdentity childIdentity =
@@ -399,12 +429,7 @@ public class VillagerBirthManager : MonoBehaviour
         childIdentity.motherId =
             motherIdentity != null ? motherIdentity.npcId : string.Empty;
         childIdentity.spouseId = string.Empty;
-        childIdentity.homeId =
-            motherIdentity != null && !string.IsNullOrWhiteSpace(motherIdentity.homeId)
-                ? motherIdentity.homeId
-                : fatherIdentity != null
-                    ? fatherIdentity.homeId
-                    : string.Empty;
+        childIdentity.homeId = sharedHomeId;
 
         if (childProfile.identity != null)
         {
@@ -451,10 +476,7 @@ public class VillagerBirthManager : MonoBehaviour
 
         childVillager.generateFromEntityProfile = true;
         childVillager.SyncNpcIdentityData();
-        childVillager.homePoint =
-            mother.homePoint != null
-                ? mother.homePoint
-                : father.homePoint;
+        childVillager.homePoint = sharedHomePoint;
         ConfigureSpawnedChildBehaviours(spawned, childVillager);
 
         if (childStats != null)
@@ -527,7 +549,20 @@ public class VillagerBirthManager : MonoBehaviour
         if (childVillager != null)
         {
             childVillager.enabled = true;
-            childVillager.ForceHiddenAtHome(false);
+            if (childVillager.ShouldRemainHiddenByMinorCurfew())
+            {
+                childVillager.EnsureHomePointResolved();
+                if (childVillager.homePoint != null)
+                {
+                    spawned.transform.position = childVillager.homePoint.position;
+                }
+
+                childVillager.ForceHiddenAtHome(true);
+            }
+            else
+            {
+                childVillager.ForceHiddenAtHome(false);
+            }
             childVillager.StopMoving();
         }
 
@@ -601,6 +636,98 @@ public class VillagerBirthManager : MonoBehaviour
             childVillager.hideAtHome = false;
             childVillager.RefreshAgeSensitiveBehaviours();
         }
+    }
+
+    bool TryResolveStableFamilyHome(
+        VillagerAI mother,
+        VillagerAI father,
+        VillagerRelationship relationship,
+        out string sharedHomeId,
+        out Transform sharedHomePoint)
+    {
+        sharedHomeId = string.Empty;
+        sharedHomePoint = null;
+
+        if (mother == null ||
+            father == null ||
+            relationship == null ||
+            relationship.marriageHomeProjectState !=
+                MarriageHomeProjectState.None)
+        {
+            return false;
+        }
+
+        NPCIdentity motherIdentity = GetIdentity(mother);
+        NPCIdentity fatherIdentity = GetIdentity(father);
+        string motherHomeId =
+            motherIdentity != null
+                ? NormalizeHomeId(motherIdentity.homeId)
+                : string.Empty;
+        string fatherHomeId =
+            fatherIdentity != null
+                ? NormalizeHomeId(fatherIdentity.homeId)
+                : string.Empty;
+
+        if (!string.IsNullOrWhiteSpace(motherHomeId) &&
+            !string.IsNullOrWhiteSpace(fatherHomeId) &&
+            !string.Equals(
+                motherHomeId,
+                fatherHomeId,
+                System.StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        sharedHomeId =
+            !string.IsNullOrWhiteSpace(motherHomeId)
+                ? motherHomeId
+                : fatherHomeId;
+        if (string.IsNullOrWhiteSpace(sharedHomeId))
+        {
+            return false;
+        }
+
+        sharedHomePoint =
+            ResolveHomePoint(sharedHomeId) ??
+            mother.homePoint ??
+            father.homePoint;
+
+        return sharedHomePoint != null;
+    }
+
+    static string NormalizeHomeId(string homeId)
+    {
+        return string.IsNullOrWhiteSpace(homeId)
+            ? string.Empty
+            : homeId.Trim();
+    }
+
+    static Transform ResolveHomePoint(string homeId)
+    {
+        if (string.IsNullOrWhiteSpace(homeId))
+        {
+            return null;
+        }
+
+        MarriageHomeSite[] sites =
+            Object.FindObjectsByType<MarriageHomeSite>(
+                FindObjectsInactive.Include);
+        for (int i = 0; i < sites.Length; i++)
+        {
+            MarriageHomeSite site = sites[i];
+            if (site == null ||
+                !string.Equals(
+                    site.GetResolvedSiteId(),
+                    homeId,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            return site.GetResolvedHomePoint();
+        }
+
+        return null;
     }
 
     void RemoveAdultRoleComponent<T>(GameObject target)
