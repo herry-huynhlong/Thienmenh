@@ -138,6 +138,26 @@ public partial class NpcTaskProvider
         return string.Empty;
     }
 
+    string GetLinhRiceVillageStatusItemLabel(NpcTaskOffer offer)
+    {
+        return TaskDisplay("linhRice");
+    }
+
+    string GetLinhRiceVillageWorkActionKey(NpcTaskOffer offer)
+    {
+        if (IsLinhRicePlantTask(offer))
+        {
+            return "plantingItem";
+        }
+
+        if (IsLinhRiceCareTask(offer))
+        {
+            return "caringItem";
+        }
+
+        return "harvestingItem";
+    }
+
     Vector3 GetLinhRiceVillageWorkPosition()
     {
         if (linhRiceFieldPoint != null)
@@ -573,8 +593,8 @@ public partial class NpcTaskProvider
         NpcRoleUtility.SetAction(
             task.npc,
             TaskActionFormat(
-                "gatheringItem",
-                GetTaskRequiredItemName(task),
+                GetLinhRiceVillageWorkActionKey(task.offer),
+                GetLinhRiceVillageStatusItemLabel(task.offer),
                 BuildGatherProgressText(task)));
 
         task.remainingTime -= Time.deltaTime;

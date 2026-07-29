@@ -74,7 +74,11 @@ public class UIWorldStoryManager : MonoBehaviour
             return;
         }
 
-        List<LogEntry> logs = WorldEventManager.Instance.GetStoryLogs();
+        List<LogEntry> logs = WorldEventManager.Instance.GetLogs();
+        if (logs == null || logs.Count == 0)
+        {
+            CreateEmptyLogItem();
+        }
 
         foreach (LogEntry log in logs)
         {
@@ -112,10 +116,34 @@ public class UIWorldStoryManager : MonoBehaviour
 
         string timeText = GetLocalizedTimestamp(log.timestamp);
         string contentColor = GetContentColorHex(log.logColorType);
+        string displayContent =
+            RuntimeWorldLogText.Translate(log.content);
 
         textMesh.text =
             $"<size=85%><color=#9E6A2E>{timeText}</color></size>\n" +
-            $"<color={contentColor}>{log.content}</color>";
+            $"<color={contentColor}>{displayContent}</color>";
+    }
+
+    void CreateEmptyLogItem()
+    {
+        GameObject newTextObj =
+            Instantiate(logTextPrefab, contentContainer);
+
+        TextMeshProUGUI textMesh =
+            newTextObj.GetComponentInChildren<TextMeshProUGUI>();
+
+        if (textMesh == null)
+        {
+            return;
+        }
+
+        textMesh.text =
+            "<color=#7B6552>" +
+            UiText.Get(
+                "worldStory",
+                "emptyLog",
+                "No records yet.") +
+            "</color>";
     }
 
     private string GetContentColorHex(int type)

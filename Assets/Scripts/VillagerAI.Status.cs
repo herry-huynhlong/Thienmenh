@@ -19,7 +19,7 @@ public partial class VillagerAI
         string action = NormalizeDisplayAction(currentAction);
         if (!string.IsNullOrWhiteSpace(action))
         {
-            return action;
+            return RuntimeStatusText.Translate(action);
         }
 
         return NpcText.Action("idle");

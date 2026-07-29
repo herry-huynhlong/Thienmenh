@@ -1,0 +1,75 @@
+{
+  "categories": [
+    {
+      "name": "actions",
+      "entries": [
+        {
+          "key": "harvestItemAmount",
+          "value": "采获{0} x{1}"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "labels",
+      "entries": [
+        {
+          "key": "waitingVerbDefault",
+          "value": "正在等待采集 "
+        },
+        {
+          "key": "waitingVerbFarmer",
+          "value": "正在等待收获 "
+        },
+        {
+          "key": "waitingVerbFisher",
+          "value": "正在等待垂钓 "
+        },
+        {
+          "key": "waitingVerbHunter",
+          "value": "正在等待处理猎物 "
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "waitingActions",
+      "entries": [],
+      "lists": [
+        {
+          "key": "farmer",
+          "values": [
+            "照料{0}",
+            "清理{0}周围杂草",
+            "检查{0}田垄",
+            "翻松{0}周围土壤"
+          ]
+        },
+        {
+          "key": "fisher",
+          "values": [
+            "检查鱼塘",
+            "修补渔网",
+            "清理岸边",
+            "守着钓点"
+          ]
+        },
+        {
+          "key": "hunter",
+          "values": [
+            "检查狩猎路径",
+            "追踪野兽痕迹",
+            "守着猎场",
+            "观察妖兽踪迹"
+          ]
+        },
+        {
+          "key": "default",
+          "values": [
+            "准备收获{0}"
+          ]
+        }
+      ]
+    }
+  ]
+}

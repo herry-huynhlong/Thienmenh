@@ -19,7 +19,7 @@ public partial class MonsterAI
                 return NpcText.Action("idle");
             }
 
-            return currentAction;
+            return RuntimeStatusText.Translate(currentAction);
         }
 
         return NpcText.Action("idle");

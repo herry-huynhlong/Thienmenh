@@ -1,0 +1,75 @@
+{
+  "categories": [
+    {
+      "name": "actions",
+      "entries": [
+        {
+          "key": "harvestItemAmount",
+          "value": "Harvested {0} x{1}"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "labels",
+      "entries": [
+        {
+          "key": "waitingVerbDefault",
+          "value": "Waiting to gather "
+        },
+        {
+          "key": "waitingVerbFarmer",
+          "value": "Waiting to harvest "
+        },
+        {
+          "key": "waitingVerbFisher",
+          "value": "Waiting to fish "
+        },
+        {
+          "key": "waitingVerbHunter",
+          "value": "Waiting to butcher "
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "waitingActions",
+      "entries": [],
+      "lists": [
+        {
+          "key": "farmer",
+          "values": [
+            "Tending {0}",
+            "Clearing weeds around {0}",
+            "Checking the {0} rows",
+            "Loosening soil around {0}"
+          ]
+        },
+        {
+          "key": "fisher",
+          "values": [
+            "Checking the fish pond",
+            "Repairing fishing nets",
+            "Cleaning the waterside",
+            "Watching the fishing spot"
+          ]
+        },
+        {
+          "key": "hunter",
+          "values": [
+            "Checking the hunting trail",
+            "Tracking beast prints",
+            "Watching the hunting ground",
+            "Observing monster tracks"
+          ]
+        },
+        {
+          "key": "default",
+          "values": [
+            "Preparing to harvest {0}"
+          ]
+        }
+      ]
+    }
+  ]
+}

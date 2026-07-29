@@ -1,0 +1,46 @@
+﻿{
+  "exactEntries": [
+    { "raw": "Go build campfire", "value": "前往搭建营火" },
+    { "raw": "Build campfire", "value": "正在搭建营火" },
+    { "raw": "Di xay nha tan hon", "value": "前往建造新婚房屋" },
+    { "raw": "Hoi sinh trong lanh dia", "value": "在领地内复生" },
+    { "raw": "Cho thien kiep", "value": "等待天劫" },
+    { "raw": "Ran minh ngoai vung set", "value": "躲在雷区之外" },
+    { "raw": "Canh giu bao vat", "value": "守护宝物" },
+    { "raw": "Binh tinh tro lai", "value": "恢复冷静" },
+    { "raw": "Tap ket thu trieu", "value": "集结兽潮" },
+    { "raw": "Move Timeout", "value": "移动超时" },
+    { "raw": "Teleported", "value": "已传送" },
+    { "raw": "Talking", "value": "交谈中" },
+    { "raw": "Yielding", "value": "让路中" },
+    { "raw": "Waiting", "value": "等待中" },
+    { "raw": "Detour Complete", "value": "绕路完成" },
+    { "raw": "Scan", "value": "扫描路径" },
+    { "raw": "Blocked", "value": "受阻" },
+    { "raw": "Escape Block", "value": "尝试脱困" },
+    { "raw": "Moving", "value": "移动中" },
+    { "raw": "New Target", "value": "新目标" },
+    { "raw": "No Clear Target", "value": "没有明确目标" },
+    { "raw": "Detour", "value": "正在绕路" },
+    { "raw": "Escape Stuck", "value": "脱离卡住状态" },
+    { "raw": "Clamp Inside", "value": "拉回区域内" },
+    { "raw": "Return Inside", "value": "返回区域内" }
+  ],
+  "prefixEntries": [
+    { "rawPrefix": "Diem linh ", "value": "点灵{0}" },
+    {
+      "rawPrefix": "An thit hap thu ",
+      "rawSuffix": " tu vi",
+      "value": "吞食血肉吸收{0}修为"
+    },
+    { "rawPrefix": "Dot pha ", "value": "突破至{0}" },
+    { "rawPrefix": "Cho thien loi tan ", "value": "等待天雷洗练{0}" },
+    { "rawPrefix": "Phat cuong tranh doat ", "value": "疯狂争夺{0}" },
+    { "rawPrefix": "Hon chien vong ngoai ", "value": "为了{0}在外围混战" },
+    { "rawPrefix": "Doi thien loi tan ", "value": "等待天雷洗练{0}" },
+    { "rawPrefix": "Hoang so tranh xa ", "value": "惊慌远离{0}" },
+    { "rawPrefix": "Dang trong lua (", "rawSuffix": "s)", "value": "正在种植灵米（{0}秒）" },
+    { "rawPrefix": "Dang cham soc lua (", "rawSuffix": "s)", "value": "正在照料灵米（{0}秒）" },
+    { "rawPrefix": "Dang thu hoach lua (", "rawSuffix": "s)", "value": "正在收获灵米（{0}秒）" }
+  ]
+}

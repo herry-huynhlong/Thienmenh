@@ -1,4 +1,4 @@
-{
+﻿{
   "categories": [
     {
       "name": "labels",
@@ -1839,8 +1839,20 @@
         },
         {
           "key": "gatheringItem",
-          "value": "正在采集{0} {1}"
+          "value": "正在采集{0} {1}"        },
+        {
+          "key": "plantingItem",
+          "value": "正在种植{0} {1}"
         },
+        {
+          "key": "caringItem",
+          "value": "正在照料{0} {1}"
+        },
+        {
+          "key": "harvestingItem",
+          "value": "正在收获{0} {1}"
+        },
+
         {
           "key": "pickHuntEvidence",
           "value": "拾取猎杀凭证{0}"

@@ -440,6 +440,54 @@
         {
           "key": "originPrefixFormat",
           "value": "{0}\n{1}"
+        },
+        {
+          "key": "marriageHomePairFormat",
+          "value": "{0} and {1} {2}"
+        },
+        {
+          "key": "marriageHomeChooseSiteFormat",
+          "value": "chose a home site at {0} and are saving {1} spirit stones."
+        },
+        {
+          "key": "marriageHomeBuildStartFormat",
+          "value": "started building a new home at {0}."
+        },
+        {
+          "key": "marriageHomeBuildCompleteFormat",
+          "value": "finished building their home at {0} and are spending their wedding night together."
+        },
+        {
+          "key": "marriageHomeWeddingNightComplete",
+          "value": "completed their wedding night and began living in their new home."
+        },
+        {
+          "key": "relationshipWidowedFormat",
+          "value": "{0} lost their spouse and is single again."
+        },
+        {
+          "key": "relationshipDatingStartFormat",
+          "value": "{0} and {1} have begun to develop feelings for each other."
+        },
+        {
+          "key": "relationshipMarriedFormat",
+          "value": "{0} and {1} became a married couple."
+        },
+        {
+          "key": "relationshipPartnerFallback",
+          "value": "partner"
+        },
+        {
+          "key": "relationshipSeparatedFormat",
+          "value": "{0} separated from {1}."
+        },
+        {
+          "key": "birthPregnancyFormat",
+          "value": "{0} became pregnant with {1}'s first child."
+        },
+        {
+          "key": "birthChildBornFormat",
+          "value": "{0} and {1} welcomed a new child."
         }
       ],
       "lists": []
@@ -841,6 +889,26 @@
           "value": "Skills"
         },
         {
+          "key": "infoTab",
+          "value": "INFO"
+        },
+        {
+          "key": "thongtin",
+          "value": "INFO"
+        },
+        {
+          "key": "inventoryTab",
+          "value": "BAG"
+        },
+        {
+          "key": "equipmentSectionTitle",
+          "value": "Accessories"
+        },
+        {
+          "key": "skillSectionTitle",
+          "value": "Skills"
+        },
+        {
           "key": "equipmentWeapon",
           "value": "Weapon"
         },
@@ -955,6 +1023,14 @@
         {
           "key": "introLogBeastWave",
           "value": "Demonic energy fills the sky! A beast tide is stirring and preparing to strike the village!"
+        },
+        {
+          "key": "panelTitle",
+          "value": "WORLD CHRONICLE"
+        },
+        {
+          "key": "emptyLog",
+          "value": "No records yet."
         }
       ],
       "lists": []

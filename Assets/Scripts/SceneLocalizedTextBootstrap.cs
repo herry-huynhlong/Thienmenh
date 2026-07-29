@@ -81,31 +81,98 @@ public class SceneLocalizedTextBootstrap : MonoBehaviour
         CreateEntry(
             "PersistentScene",
             "Text (TMP)",
+            "StoryPanel",
+            "worldStory",
+            "panelTitle",
+            "GHI CH\u00C9P \u0110\u1EA0I L\u1EE4C"),
+        CreateEntry(
+            "PersistentScene",
+            "Text (TMP)",
             "ShopPanel",
             "sceneUi",
             "heavenDaoShopTitle",
-            "Thiên Đạo Lâu"),
+            "Thi\u00EAn \u0110\u1EA1o L\u00E2u"),
         CreateEntry(
             "PersistentScene",
-            "Gói Cơ Bản",
+            "G\u00F3i C\u01A1 B\u1EA3n",
             "Button_Pack1",
             "sceneUi",
             "heavenDaoPackBasic",
-            "Gói Cơ Bản"),
+            "G\u00F3i C\u01A1 B\u1EA3n"),
         CreateEntry(
             "PersistentScene",
-            "Gói Nâng Cao",
+            "G\u00F3i N\u00E2ng Cao",
             "Button_Pack2",
             "sceneUi",
             "heavenDaoPackAdvanced",
-            "Gói Nâng Cao"),
+            "G\u00F3i N\u00E2ng Cao"),
         CreateEntry(
             "PersistentScene",
-            "Gói Cao Cấp",
+            "G\u00F3i Cao C\u1EA5p",
             "Button_Pack3",
             "sceneUi",
             "heavenDaoPackPremium",
-            "Gói Cao Cấp")
+            "G\u00F3i Cao C\u1EA5p"),
+        CreateEntry(
+            "PersistentScene",
+            "Th\u00F4ng Tin",
+            "touchSelect",
+            "infoTab",
+            "TH\u00D4NG TIN"),
+        CreateEntry(
+            "PersistentScene",
+            "thongtin",
+            "touchSelect",
+            "thongtin",
+            "TH\u00D4NG TIN"),
+        CreateEntry(
+            "PersistentScene",
+            "Kho",
+            "touchSelect",
+            "inventoryTab",
+            "KHO"),
+        CreateEntry(
+            "PersistentScene",
+            "LabelText",
+            "DamageRow",
+            "touchSelect",
+            "damageRow",
+            "S\u00E1t Th\u01B0\u01A1ng"),
+        CreateEntry(
+            "PersistentScene",
+            "LabelText",
+            "Ph\u00F2ng Th\u1EE7",
+            "touchSelect",
+            "defenseRow",
+            "Ph\u00F2ng Th\u1EE7"),
+        CreateEntry(
+            "PersistentScene",
+            "LabelText",
+            "Th\u1ECD Nguy\u00EAn",
+            "touchSelect",
+            "lifespanRow",
+            "Th\u1ECD Nguy\u00EAn"),
+        CreateEntry(
+            "PersistentScene",
+            "LabelText",
+            "Ch\u1EE9c V\u1EE5",
+            "touchSelect",
+            "jobRow",
+            "Ch\u1EE9c V\u1EE5"),
+        CreateEntry(
+            "PersistentScene",
+            "TitleText",
+            "EquipmentHeader",
+            "touchSelect",
+            "equipmentSectionTitle",
+            "Ph\u1EE5 Ki\u1EC7n"),
+        CreateEntry(
+            "PersistentScene",
+            "TitleText",
+            "SkillHeader",
+            "touchSelect",
+            "skillSectionTitle",
+            "K\u1EF9 N\u0103ng")
     };
 
     static readonly SceneTextEntry[] LangSceneEntries =
@@ -294,11 +361,17 @@ public class SceneLocalizedTextBootstrap : MonoBehaviour
         switch (LocalizationSettings.CurrentLanguageCode)
         {
             case "zh":
-                return UiText.Get("mainMenu", "languageChinese", "中文");
+                return UiText.Get(
+                    "mainMenu",
+                    "languageChinese",
+                    "\u4E2D\u6587");
             case "en":
                 return UiText.Get("mainMenu", "languageEnglish", "English");
             default:
-                return UiText.Get("mainMenu", "languageVietnamese", "Tiếng Việt");
+                return UiText.Get(
+                    "mainMenu",
+                    "languageVietnamese",
+                    "Ti\u1EBFng Vi\u1EC7t");
         }
     }
 

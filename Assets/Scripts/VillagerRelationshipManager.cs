@@ -273,7 +273,10 @@ public class VillagerRelationshipManager : MonoBehaviour
         deadRelationship.SyncIdentityState();
 
         LogRelationship(
-            deadIdentity.npcName + " đã mất bạn đời và trở lại độc thân.");
+            UiText.Format(
+                "worldNotifications",
+                "relationshipWidowedFormat",
+                deadIdentity.npcName));
     }
 
     void TryFormNewPairs(Dictionary<string, VillagerAI> lookup)
@@ -332,10 +335,11 @@ public class VillagerRelationshipManager : MonoBehaviour
             pairedThisTick.Add(partnerIdentity.npcId);
 
             LogRelationship(
-                FormatName(villager) +
-                " và " +
-                FormatName(partner) +
-                " bắt đầu nảy sinh tình cảm.");
+                UiText.Format(
+                    "worldNotifications",
+                    "relationshipDatingStartFormat",
+                    FormatName(villager),
+                    FormatName(partner)));
         }
     }
 
@@ -380,10 +384,11 @@ public class VillagerRelationshipManager : MonoBehaviour
         MarriageHomeManager.NotifyPairMarried(first, second);
 
         LogRelationship(
-            FormatName(first) +
-            " và " +
-            FormatName(second) +
-            " đã thành phu thê.");
+            UiText.Format(
+                "worldNotifications",
+                "relationshipMarriedFormat",
+                FormatName(first),
+                FormatName(second)));
     }
 
     void BreakPair(
@@ -401,7 +406,10 @@ public class VillagerRelationshipManager : MonoBehaviour
         string partnerName =
             partnerIdentity != null && !string.IsNullOrWhiteSpace(partnerIdentity.npcName)
                 ? partnerIdentity.npcName
-                : "bạn đời";
+                : UiText.Get(
+                    "worldNotifications",
+                    "relationshipPartnerFallback",
+                    "partner");
 
         relationship.BecomeSingle();
         relationship.SyncIdentityState();
@@ -412,10 +420,11 @@ public class VillagerRelationshipManager : MonoBehaviour
         }
 
         LogRelationship(
-            FormatName(villager) +
-            " đã tách khỏi " +
-            partnerName +
-            ".");
+            UiText.Format(
+                "worldNotifications",
+                "relationshipSeparatedFormat",
+                FormatName(villager),
+                partnerName));
     }
 
     void SyncPairLink(

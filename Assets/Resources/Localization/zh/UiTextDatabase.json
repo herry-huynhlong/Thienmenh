@@ -618,6 +618,54 @@
         {
           "key": "originPrefixFormat",
           "value": "{0}\n{1}"
+        },
+        {
+          "key": "marriageHomePairFormat",
+          "value": "{0}与{1}{2}"
+        },
+        {
+          "key": "marriageHomeChooseSiteFormat",
+          "value": "已选定{0}作为新家住址，正在积攒{1}灵石。"
+        },
+        {
+          "key": "marriageHomeBuildStartFormat",
+          "value": "已开始在{0}修建新居。"
+        },
+        {
+          "key": "marriageHomeBuildCompleteFormat",
+          "value": "已在{0}建好新居，正在共度新婚之夜。"
+        },
+        {
+          "key": "marriageHomeWeddingNightComplete",
+          "value": "已结束新婚之夜，开始在新家生活。"
+        },
+        {
+          "key": "relationshipWidowedFormat",
+          "value": "{0}失去了道侣，重新恢复单身。"
+        },
+        {
+          "key": "relationshipDatingStartFormat",
+          "value": "{0}与{1}开始萌生情愫。"
+        },
+        {
+          "key": "relationshipMarriedFormat",
+          "value": "{0}与{1}结为夫妇。"
+        },
+        {
+          "key": "relationshipPartnerFallback",
+          "value": "道侣"
+        },
+        {
+          "key": "relationshipSeparatedFormat",
+          "value": "{0}已与{1}分开。"
+        },
+        {
+          "key": "birthPregnancyFormat",
+          "value": "{0}怀上了{1}的第一个孩子。"
+        },
+        {
+          "key": "birthChildBornFormat",
+          "value": "{0}与{1}刚迎来了一个孩子。"
         }
       ],
       "lists": []
@@ -1023,6 +1071,26 @@
           "value": "技能"
         },
         {
+          "key": "infoTab",
+          "value": "\u4fe1\u606f"
+        },
+        {
+          "key": "thongtin",
+          "value": "\u4fe1\u606f"
+        },
+        {
+          "key": "inventoryTab",
+          "value": "\u80cc\u5305"
+        },
+        {
+          "key": "equipmentSectionTitle",
+          "value": "\u914d\u4ef6"
+        },
+        {
+          "key": "skillSectionTitle",
+          "value": "\u6280\u80fd"
+        },
+        {
           "key": "equipmentWeapon",
           "value": "武器"
         },
@@ -1137,6 +1205,14 @@
         {
           "key": "introLogBeastWave",
           "value": "妖气冲天！兽潮正在躁动，准备袭击村庄！"
+        },
+        {
+          "key": "panelTitle",
+          "value": "大陆纪闻"
+        },
+        {
+          "key": "emptyLog",
+          "value": "暂无记录。"
         }
       ],
       "lists": []

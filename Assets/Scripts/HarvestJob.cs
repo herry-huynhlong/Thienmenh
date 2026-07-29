@@ -390,7 +390,7 @@ public class HarvestJob : MonoBehaviour
         waitingForRetry = true;
         retryTimer = ResolveWaitingRetryDuration();
         lastRetrySeconds = -1;
-        waitingAction = BuildWaitingAction();
+        waitingAction = BuildLocalizedWaitingAction();
         waitingStandbyRadius = ResolveWaitingStandbyRadius();
         RefreshWaitingAction();
     }
@@ -404,7 +404,7 @@ public class HarvestJob : MonoBehaviour
 
         if (string.IsNullOrWhiteSpace(waitingAction))
         {
-            waitingAction = BuildWaitingAction();
+            waitingAction = BuildLocalizedWaitingAction();
         }
 
         if (villager.TryRunWorkStandby(
@@ -526,6 +526,65 @@ public class HarvestJob : MonoBehaviour
 
             default:
                 return "Chuan bi thu hoach " + itemName;
+        }
+    }
+
+    string BuildLocalizedWaitingAction()
+    {
+        string itemName = GetTargetItemName();
+
+        switch (villager != null ? villager.job : VillagerJob.None)
+        {
+            case VillagerJob.Farmer:
+                return HarvestActionText.RandomFormat(
+                    "waitingActions",
+                    "farmer",
+                    "Cham soc {0}",
+                    new[]
+                    {
+                        "Cham soc {0}",
+                        "Don co quanh {0}",
+                        "Kiem tra luong {0}",
+                        "Xoi dat quanh {0}"
+                    },
+                    itemName);
+
+            case VillagerJob.Fisher:
+                return HarvestActionText.RandomFormat(
+                    "waitingActions",
+                    "fisher",
+                    "Kiem tra be ca",
+                    new[]
+                    {
+                        "Kiem tra be ca",
+                        "Sua luoi ca",
+                        "Don ben nuoc",
+                        "Canh diem cau"
+                    });
+
+            case VillagerJob.Hunter:
+                return HarvestActionText.RandomFormat(
+                    "waitingActions",
+                    "hunter",
+                    "Kiem tra duong san",
+                    new[]
+                    {
+                        "Kiem tra duong san",
+                        "Lan dau vet thu",
+                        "Canh bai san",
+                        "Quan sat dau vet quai"
+                    });
+
+            default:
+                return HarvestActionText.RandomFormat(
+                    "waitingActions",
+                    "default",
+                    "Chuan bi thu hoach {0}",
+                    new[]
+                    {
+                        "Chuan bi thu hoach {0}"
+                    },
+                    itemName);
         }
     }
 

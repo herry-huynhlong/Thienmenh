@@ -1,0 +1,46 @@
+﻿{
+  "exactEntries": [
+    { "raw": "Go build campfire", "value": "Going to build a campfire" },
+    { "raw": "Build campfire", "value": "Building a campfire" },
+    { "raw": "Di xay nha tan hon", "value": "Going to build the honeymoon house" },
+    { "raw": "Hoi sinh trong lanh dia", "value": "Reviving in territory" },
+    { "raw": "Cho thien kiep", "value": "Awaiting heavenly tribulation" },
+    { "raw": "Ran minh ngoai vung set", "value": "Hiding outside the lightning zone" },
+    { "raw": "Canh giu bao vat", "value": "Guarding the treasure" },
+    { "raw": "Binh tinh tro lai", "value": "Calming down again" },
+    { "raw": "Tap ket thu trieu", "value": "Assembling the beast wave" },
+    { "raw": "Move Timeout", "value": "Movement timed out" },
+    { "raw": "Teleported", "value": "Teleported" },
+    { "raw": "Talking", "value": "Talking" },
+    { "raw": "Yielding", "value": "Yielding the way" },
+    { "raw": "Waiting", "value": "Waiting" },
+    { "raw": "Detour Complete", "value": "Detour complete" },
+    { "raw": "Scan", "value": "Scanning route" },
+    { "raw": "Blocked", "value": "Blocked" },
+    { "raw": "Escape Block", "value": "Escaping blockage" },
+    { "raw": "Moving", "value": "Moving" },
+    { "raw": "New Target", "value": "New target" },
+    { "raw": "No Clear Target", "value": "No clear target" },
+    { "raw": "Detour", "value": "Taking a detour" },
+    { "raw": "Escape Stuck", "value": "Escaping a stuck position" },
+    { "raw": "Clamp Inside", "value": "Clamping back inside" },
+    { "raw": "Return Inside", "value": "Returning inside" }
+  ],
+  "prefixEntries": [
+    { "rawPrefix": "Diem linh ", "value": "Spirit-attuning {0}" },
+    {
+      "rawPrefix": "An thit hap thu ",
+      "rawSuffix": " tu vi",
+      "value": "Devouring flesh to absorb {0} cultivation"
+    },
+    { "rawPrefix": "Dot pha ", "value": "Breaking through to {0}" },
+    { "rawPrefix": "Cho thien loi tan ", "value": "Waiting for heavenly lightning to temper {0}" },
+    { "rawPrefix": "Phat cuong tranh doat ", "value": "Frenziedly scrambling for {0}" },
+    { "rawPrefix": "Hon chien vong ngoai ", "value": "Outer-ring skirmish over {0}" },
+    { "rawPrefix": "Doi thien loi tan ", "value": "Waiting for heavenly lightning to temper {0}" },
+    { "rawPrefix": "Hoang so tranh xa ", "value": "Panicking away from {0}" },
+    { "rawPrefix": "Dang trong lua (", "rawSuffix": "s)", "value": "Planting spirit rice ({0}s)" },
+    { "rawPrefix": "Dang cham soc lua (", "rawSuffix": "s)", "value": "Tending spirit rice ({0}s)" },
+    { "rawPrefix": "Dang thu hoach lua (", "rawSuffix": "s)", "value": "Harvesting spirit rice ({0}s)" }
+  ]
+}

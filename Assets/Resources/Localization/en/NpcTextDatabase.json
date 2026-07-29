@@ -1,4 +1,4 @@
-{
+﻿{
   "categories": [
     {
       "name": "labels",
@@ -1735,8 +1735,20 @@
         },
         {
           "key": "gatheringItem",
-          "value": "Gathering {0} {1}"
+          "value": "Gathering {0} {1}"        },
+        {
+          "key": "plantingItem",
+          "value": "Planting {0} {1}"
         },
+        {
+          "key": "caringItem",
+          "value": "Tending {0} {1}"
+        },
+        {
+          "key": "harvestingItem",
+          "value": "Harvesting {0} {1}"
+        },
+
         {
           "key": "pickHuntEvidence",
           "value": "Picking up monster hunt proof {0}"

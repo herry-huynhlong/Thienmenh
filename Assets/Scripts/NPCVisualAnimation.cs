@@ -86,6 +86,7 @@ public class NPCVisualAnimation : MonoBehaviour
     bool? lastLoggedIdleState;
     string lastLoggedAction;
     Vector2? lastLoggedInputDirection;
+    string lastResolvedSelectionSignature;
     readonly string[] movingBoolParameters =
     {
         "IsMoving",
@@ -172,6 +173,7 @@ public class NPCVisualAnimation : MonoBehaviour
 
         currentClip = null;
         currentStateName = null;
+        lastResolvedSelectionSignature = null;
 
         if (controller == null)
         {
@@ -873,7 +875,21 @@ public class NPCVisualAnimation : MonoBehaviour
             return;
         }
 
-        Debug.LogWarning(
+        string clipName = DescribeClip(clip);
+        string resolvedSignature =
+            channel + "|" +
+            lastDirection + "|" +
+            (string.IsNullOrWhiteSpace(stateName) ? "null" : stateName) + "|" +
+            clipName;
+        if (string.Equals(
+                lastResolvedSelectionSignature,
+                resolvedSignature,
+                System.StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        Debug.Log(
             "[NPCVisualAnimation] Resolved object=" +
             gameObject.name +
             " channel=" + channel +
@@ -882,10 +898,11 @@ public class NPCVisualAnimation : MonoBehaviour
             " facing=" + lastDirection +
             " state=" +
             (string.IsNullOrWhiteSpace(stateName) ? "null" : stateName) +
-            " clip=" + DescribeClip(clip) +
+            " clip=" + clipName +
             " pos=" + transform.position +
             " flipX=" +
             (spriteRenderer != null ? spriteRenderer.flipX.ToString() : "no-sprite"));
+        lastResolvedSelectionSignature = resolvedSignature;
     }
 
     void SetFirstBoolParameter(

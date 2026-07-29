@@ -1,0 +1,29 @@
+{
+  "exactEntries": [],
+  "regexEntries": [
+    {
+      "rawPattern": "^(.*) nhận được (.*) từ Thiên Đạo\\.$",
+      "value": "{0}获得了来自天道的{1}。"
+    },
+    {
+      "rawPattern": "^Dị tượng ở (.*), trời giáng (.*)\\.$",
+      "value": "{0}异象浮现，天降{1}。"
+    },
+    {
+      "rawPattern": "^Tiên phẩm hiện thế, máu tanh mưa máu nổi lên\\. (.*) đang mang (.*)\\.$",
+      "value": "仙品现世，腥风血雨将起。{0}正携带{1}。"
+    },
+    {
+      "rawPattern": "^(.*) mang (.*) đi giao dịch, bị kẻ có tâm để mắt\\.$",
+      "value": "{0}携带{1}前去交易，已被心怀不轨之人盯上。"
+    },
+    {
+      "rawPattern": "^Bảo vật làm người vô tội thành có tội\\. (.*) đang bị để mắt vì (.*)\\.$",
+      "value": "宝物足以让无罪之人惹祸上身。{0}正因{1}而被盯上。"
+    },
+    {
+      "rawPattern": "^(.*) đã cướp (.*) từ (.*)\\.$",
+      "value": "{0}从{2}手中夺走了{1}。"
+    }
+  ]
+}

@@ -2418,7 +2418,12 @@ public partial class VillagerAI : MonoBehaviour, IDamageable, INpcActionStateOwn
 
         inventory.AddItem(product, amount);
         GainProfessionExpForJob(job);
-        currentAction = NpcText.ActionFormat("harvestItemAmount", product.itemName, amount);
+        currentAction = HarvestActionText.Format(
+            "actions",
+            "harvestItemAmount",
+            "Harvested {0} x{1}",
+            ItemText.Name(product),
+            amount);
         return true;
     }
 

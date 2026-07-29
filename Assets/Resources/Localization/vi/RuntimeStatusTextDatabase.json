@@ -1,0 +1,46 @@
+﻿{
+  "exactEntries": [
+    { "raw": "Go build campfire", "value": "Đi dựng lửa trại" },
+    { "raw": "Build campfire", "value": "Dựng lửa trại" },
+    { "raw": "Di xay nha tan hon", "value": "Đi xây nhà tân hôn" },
+    { "raw": "Hoi sinh trong lanh dia", "value": "Hồi sinh trong lãnh địa" },
+    { "raw": "Cho thien kiep", "value": "Chờ thiên kiếp" },
+    { "raw": "Ran minh ngoai vung set", "value": "Ẩn mình ngoài vùng sét" },
+    { "raw": "Canh giu bao vat", "value": "Canh giữ bảo vật" },
+    { "raw": "Binh tinh tro lai", "value": "Bình tĩnh trở lại" },
+    { "raw": "Tap ket thu trieu", "value": "Tập kết thú triều" },
+    { "raw": "Move Timeout", "value": "Di chuyển quá thời gian" },
+    { "raw": "Teleported", "value": "Đã dịch chuyển" },
+    { "raw": "Talking", "value": "Đang nói chuyện" },
+    { "raw": "Yielding", "value": "Đang nhường đường" },
+    { "raw": "Waiting", "value": "Đang chờ" },
+    { "raw": "Detour Complete", "value": "Hoàn tất đường vòng" },
+    { "raw": "Scan", "value": "Quét đường đi" },
+    { "raw": "Blocked", "value": "Bị chặn" },
+    { "raw": "Escape Block", "value": "Thoát điểm kẹt" },
+    { "raw": "Moving", "value": "Đang di chuyển" },
+    { "raw": "New Target", "value": "Mục tiêu mới" },
+    { "raw": "No Clear Target", "value": "Không có mục tiêu rõ ràng" },
+    { "raw": "Detour", "value": "Đi đường vòng" },
+    { "raw": "Escape Stuck", "value": "Thoát kẹt" },
+    { "raw": "Clamp Inside", "value": "Kéo vào trong vùng" },
+    { "raw": "Return Inside", "value": "Quay lại trong vùng" }
+  ],
+  "prefixEntries": [
+    { "rawPrefix": "Diem linh ", "value": "Điểm linh {0}" },
+    {
+      "rawPrefix": "An thit hap thu ",
+      "rawSuffix": " tu vi",
+      "value": "Ăn thịt hấp thu {0} tu vi"
+    },
+    { "rawPrefix": "Dot pha ", "value": "Đột phá {0}" },
+    { "rawPrefix": "Cho thien loi tan ", "value": "Chờ thiên lôi tẩy {0}" },
+    { "rawPrefix": "Phat cuong tranh doat ", "value": "Phát cuồng tranh đoạt {0}" },
+    { "rawPrefix": "Hon chien vong ngoai ", "value": "Hỗn chiến vòng ngoài vì {0}" },
+    { "rawPrefix": "Doi thien loi tan ", "value": "Đợi thiên lôi tẩy {0}" },
+    { "rawPrefix": "Hoang so tranh xa ", "value": "Hoảng sợ tránh xa {0}" },
+    { "rawPrefix": "Dang trong lua (", "rawSuffix": "s)", "value": "Đang trồng lúa ({0}s)" },
+    { "rawPrefix": "Dang cham soc lua (", "rawSuffix": "s)", "value": "Đang chăm sóc lúa ({0}s)" },
+    { "rawPrefix": "Dang thu hoach lua (", "rawSuffix": "s)", "value": "Đang thu hoạch lúa ({0}s)" }
+  ]
+}

@@ -159,6 +159,10 @@ public partial class TouchSelectTarget : MonoBehaviour
 
     static bool realmIconsLoaded;
     static bool portraitIconsLoaded;
+    static readonly Dictionary<AnimationClip, Sprite> idleClipSpriteCache =
+        new Dictionary<AnimationClip, Sprite>();
+    static readonly HashSet<AnimationClip> idleClipSpriteMissCache =
+        new HashSet<AnimationClip>();
 
     readonly List<GameObject> spawnedEquipmentRows =
         new List<GameObject>();
@@ -225,7 +229,27 @@ public partial class TouchSelectTarget : MonoBehaviour
 
     void OnEnable()
     {
+        LocalizationSettings.LanguageChanged -=
+            HandleLanguageChanged;
+        LocalizationSettings.LanguageChanged +=
+            HandleLanguageChanged;
         BindTabButtons();
+    }
+
+    void OnDisable()
+    {
+        LocalizationSettings.LanguageChanged -=
+            HandleLanguageChanged;
+    }
+
+    void HandleLanguageChanged()
+    {
+        BindTabButtons();
+
+        if (currentTarget != null)
+        {
+            RefreshTargetInfo(currentTarget);
+        }
     }
 
 
@@ -887,9 +911,241 @@ public partial class TouchSelectTarget : MonoBehaviour
                 skillListRoot.GetChild(0).gameObject;
         }
 
+        ApplyLocalizedPanelTexts(
+            detailRoot,
+            equipmentPanelRoot,
+            skillPanelRoot);
+
         EnsureInfoIcon();
         UpdateRealmIcon(currentTarget);
         splitTargetHeaderLayout = HasSplitTargetHeaderLayout();
+    }
+
+    void ApplyLocalizedPanelTexts(
+        Transform detailRoot,
+        Transform equipmentPanelRoot,
+        Transform skillPanelRoot)
+    {
+        SetPanelCenterTitleText(
+            detailRoot,
+            UiText.Get(
+                "touchSelect",
+                "thongtin",
+                "INFO"));
+
+        SetButtonLabel(
+            infoButton,
+            UiText.Get(
+                "touchSelect",
+                "infoTab",
+                "INFO"));
+
+        SetButtonLabel(
+            inventoryButton,
+            UiText.Get(
+                "touchSelect",
+                "inventoryTab",
+                "BAG"));
+
+        SetRowLabelText(
+            detailRoot,
+            UiText.Get(
+                "touchSelect",
+                "damageRow",
+                "Damage"),
+            "DamageRow",
+            "Sát Thương");
+
+        SetRowLabelText(
+            detailRoot,
+            UiText.Get(
+                "touchSelect",
+                "defenseRow",
+                "Defense"),
+            "DefenseRow",
+            "Phòng Thủ");
+
+        SetRowLabelText(
+            detailRoot,
+            UiText.Get(
+                "touchSelect",
+                "lifespanRow",
+                "Lifespan"),
+            "LifespanRow",
+            "Thọ Nguyên");
+
+        SetRowLabelText(
+            detailRoot,
+            UiText.Get(
+                "touchSelect",
+                "jobRow",
+                "Position"),
+            "JobRow",
+            "Chức Vụ");
+
+        SetHeaderTitleText(
+            equipmentPanelRoot,
+            UiText.Get(
+                "touchSelect",
+                "equipmentSectionTitle",
+                "Accessories"),
+            "EquipmentHeader");
+
+        SetHeaderTitleText(
+            skillPanelRoot,
+            UiText.Get(
+                "touchSelect",
+                "skillSectionTitle",
+                "Skills"),
+            "SkillHeader");
+    }
+
+    void SetPanelCenterTitleText(
+        Transform detailRoot,
+        string value)
+    {
+        if (detailRoot == null)
+        {
+            return;
+        }
+
+        Transform targetInfoPanel = detailRoot.parent;
+        if (targetInfoPanel == null)
+        {
+            return;
+        }
+
+        Transform header =
+            FindChildByName(targetInfoPanel, "Header");
+        if (header == null)
+        {
+            return;
+        }
+
+        Transform titleTransform =
+            FindChildByName(header, "thongtin");
+        if (titleTransform == null)
+        {
+            return;
+        }
+
+        TMP_Text titleText =
+            titleTransform.GetComponent<TMP_Text>();
+        if (titleText == null)
+        {
+            return;
+        }
+
+        titleText.text = value ?? string.Empty;
+        titleText.raycastTarget = false;
+    }
+
+    void SetButtonLabel(
+        Button button,
+        string value)
+    {
+        if (button == null)
+        {
+            return;
+        }
+
+        TMP_Text[] texts =
+            button.GetComponentsInChildren<TMP_Text>(true);
+
+        for (int i = 0; i < texts.Length; i++)
+        {
+            TMP_Text text = texts[i];
+            if (text == null)
+            {
+                continue;
+            }
+
+            text.text = value ?? string.Empty;
+            text.raycastTarget = false;
+        }
+    }
+
+    void SetRowLabelText(
+        Transform root,
+        string value,
+        params string[] rowNames)
+    {
+        if (root == null ||
+            rowNames == null ||
+            rowNames.Length == 0)
+        {
+            return;
+        }
+
+        Transform row = null;
+        for (int i = 0; i < rowNames.Length && row == null; i++)
+        {
+            string rowName = rowNames[i];
+            if (string.IsNullOrWhiteSpace(rowName))
+            {
+                continue;
+            }
+
+            row = FindChildByName(root, rowName);
+        }
+
+        if (row == null)
+        {
+            return;
+        }
+
+        Transform labelTransform =
+            FindChildByName(row, "LabelText");
+        if (labelTransform == null)
+        {
+            return;
+        }
+
+        TMP_Text labelText =
+            labelTransform.GetComponent<TMP_Text>();
+        if (labelText == null)
+        {
+            return;
+        }
+
+        labelText.text = value ?? string.Empty;
+        labelText.raycastTarget = false;
+    }
+
+    void SetHeaderTitleText(
+        Transform root,
+        string value,
+        string headerName)
+    {
+        if (root == null ||
+            string.IsNullOrWhiteSpace(headerName))
+        {
+            return;
+        }
+
+        Transform header =
+            FindChildByName(root, headerName);
+        if (header == null)
+        {
+            return;
+        }
+
+        Transform target =
+            FindChildByName(header, "TitleText");
+        if (target == null)
+        {
+            return;
+        }
+
+        TMP_Text text =
+            target.GetComponent<TMP_Text>();
+        if (text == null)
+        {
+            return;
+        }
+
+        text.text = value ?? string.Empty;
+        text.raycastTarget = false;
     }
 
 
@@ -1052,7 +1308,10 @@ public partial class TouchSelectTarget : MonoBehaviour
         }
 
         infoIcon.sprite = icon;
-        infoIcon.color = GetFactionTint(target);
+        infoIcon.color =
+            isWorldItem
+            ? GetFactionTint(target)
+            : Color.white;
         ConfigureInfoIconLayout(isWorldItem);
         ApplyFactionIconMirror(isWorldItem, mirrored);
         SetInfoIconVisible(true);
@@ -1075,28 +1334,12 @@ public partial class TouchSelectTarget : MonoBehaviour
             return null;
         }
 
-        if (IsMonsterPortraitTarget(target))
+        if (TryGetIdlePortraitSprite(
+                target,
+                out Sprite idlePortrait,
+                out mirrored))
         {
-            SpriteRenderer monsterRenderer =
-                FindBestCharacterRenderer(target, out mirrored);
-
-            if (monsterRenderer != null &&
-                monsterRenderer.sprite != null)
-            {
-                return monsterRenderer.sprite;
-            }
-
-            LoadPortraitIcons();
-            return monsterPortraitDefaultIcon;
-        }
-
-        SpriteRenderer liveRenderer =
-            FindBestCharacterRenderer(target, out mirrored);
-
-        if (liveRenderer != null &&
-            liveRenderer.sprite != null)
-        {
-            return liveRenderer.sprite;
+            return idlePortrait;
         }
 
         NpcPortraitIcon portraitIcon =
@@ -1122,26 +1365,309 @@ public partial class TouchSelectTarget : MonoBehaviour
             return defaultPortraitIcon;
         }
 
-        bool forceSprite =
-            target.GetComponent<MonsterAI>() != null ||
-            target.GetComponent<BicanhBoneMonsterAI>() != null ||
-            target.GetComponent<VillagerAI>() != null ||
-            target.GetComponent<SmartNpcAI>() != null ||
-            target.GetComponent<CharacterStats>() != null ||
-            target.GetComponent<PlayerHealth>() != null;
+        return null;
+    }
 
-        if (!autoUseCharacterSprite &&
-            !forceSprite)
+    bool TryGetIdlePortraitSprite(
+        Transform target,
+        out Sprite idlePortrait,
+        out bool mirrored)
+    {
+        idlePortrait = null;
+        mirrored = false;
+
+        if (target == null)
+        {
+            return false;
+        }
+
+        FindBestCharacterRenderer(target, out bool currentMirrored);
+
+        AnimationClip idleClip =
+            GetIdlePortraitClip(
+                target,
+                currentMirrored,
+                out mirrored);
+
+        if (idleClip == null)
+        {
+            return false;
+        }
+
+        return TryGetFirstSpriteFromClip(
+            target,
+            idleClip,
+            out idlePortrait);
+    }
+
+    AnimationClip GetIdlePortraitClip(
+        Transform target,
+        bool currentMirrored,
+        out bool mirrored)
+    {
+        mirrored = false;
+
+        if (target == null)
         {
             return null;
         }
 
-        SpriteRenderer fallbackRenderer =
-            FindBestCharacterRenderer(target, out mirrored);
+        NPCVisualAnimation visual =
+            target.GetComponent<NPCVisualAnimation>() ??
+            target.GetComponentInChildren<NPCVisualAnimation>(true) ??
+            target.GetComponentInParent<NPCVisualAnimation>(true);
 
-        return fallbackRenderer != null
-            ? fallbackRenderer.sprite
-            : null;
+        if (visual != null)
+        {
+            if (visual.downIdleClip != null)
+            {
+                return visual.downIdleClip;
+            }
+
+            if (visual.upIdleClip != null)
+            {
+                return visual.upIdleClip;
+            }
+
+            if (currentMirrored &&
+                visual.leftIdleClip != null)
+            {
+                return visual.leftIdleClip;
+            }
+
+            if (!currentMirrored &&
+                visual.rightIdleClip != null)
+            {
+                return visual.rightIdleClip;
+            }
+
+            if (visual.sideIdleClip != null)
+            {
+                mirrored = currentMirrored;
+                return visual.sideIdleClip;
+            }
+
+            if (visual.rightIdleClip != null)
+            {
+                return visual.rightIdleClip;
+            }
+
+            if (visual.leftIdleClip != null)
+            {
+                return visual.leftIdleClip;
+            }
+        }
+
+        Animator animator =
+            target.GetComponent<Animator>() ??
+            target.GetComponentInChildren<Animator>(true) ??
+            target.GetComponentInParent<Animator>(true);
+
+        return FindIdleClipFromAnimator(
+            animator,
+            currentMirrored,
+            out mirrored);
+    }
+
+    AnimationClip FindIdleClipFromAnimator(
+        Animator animator,
+        bool currentMirrored,
+        out bool mirrored)
+    {
+        mirrored = false;
+
+        if (animator == null ||
+            animator.runtimeAnimatorController == null)
+        {
+            return null;
+        }
+
+        AnimationClip[] clips =
+            animator.runtimeAnimatorController.animationClips;
+
+        if (clips == null ||
+            clips.Length == 0)
+        {
+            return null;
+        }
+
+        AnimationClip downClip =
+            FindClipByKeywords(clips, "idle", "down") ??
+            FindClipByKeywords(clips, "lie", "down");
+
+        if (downClip != null)
+        {
+            return downClip;
+        }
+
+        AnimationClip upClip =
+            FindClipByKeywords(clips, "idle", "up") ??
+            FindClipByKeywords(clips, "lie", "up");
+
+        if (upClip != null)
+        {
+            return upClip;
+        }
+
+        if (currentMirrored)
+        {
+            AnimationClip leftClip =
+                FindClipByKeywords(clips, "idle", "left") ??
+                FindClipByKeywords(clips, "lie", "left");
+
+            if (leftClip != null)
+            {
+                return leftClip;
+            }
+        }
+        else
+        {
+            AnimationClip rightClip =
+                FindClipByKeywords(clips, "idle", "right") ??
+                FindClipByKeywords(clips, "lie", "right");
+
+            if (rightClip != null)
+            {
+                return rightClip;
+            }
+        }
+
+        AnimationClip sideClip =
+            FindClipByKeywords(clips, "idle", "side") ??
+            FindClipByKeywords(clips, "lie", "side");
+
+        if (sideClip != null)
+        {
+            mirrored = currentMirrored;
+            return sideClip;
+        }
+
+        return FindClipByKeywords(clips, "idle") ??
+            FindClipByKeywords(clips, "lie");
+    }
+
+    AnimationClip FindClipByKeywords(
+        AnimationClip[] clips,
+        params string[] keywords)
+    {
+        if (clips == null ||
+            keywords == null ||
+            keywords.Length == 0)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < clips.Length; i++)
+        {
+            AnimationClip clip = clips[i];
+            if (clip == null ||
+                !ClipNameMatchesKeywords(clip.name, keywords))
+            {
+                continue;
+            }
+
+            return clip;
+        }
+
+        return null;
+    }
+
+    bool ClipNameMatchesKeywords(
+        string clipName,
+        params string[] keywords)
+    {
+        if (string.IsNullOrWhiteSpace(clipName) ||
+            keywords == null ||
+            keywords.Length == 0)
+        {
+            return false;
+        }
+
+        string normalizedClipName =
+            clipName
+                .Replace("_", string.Empty)
+                .Replace(" ", string.Empty)
+                .ToLowerInvariant();
+
+        for (int i = 0; i < keywords.Length; i++)
+        {
+            string keyword = keywords[i];
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                continue;
+            }
+
+            string normalizedKeyword =
+                keyword
+                    .Replace("_", string.Empty)
+                    .Replace(" ", string.Empty)
+                    .ToLowerInvariant();
+
+            if (!normalizedClipName.Contains(normalizedKeyword))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool TryGetFirstSpriteFromClip(
+        Transform target,
+        AnimationClip clip,
+        out Sprite sprite)
+    {
+        sprite = null;
+
+        if (target == null ||
+            clip == null)
+        {
+            return false;
+        }
+
+        if (idleClipSpriteCache.TryGetValue(
+                clip,
+                out Sprite cachedSprite))
+        {
+            sprite = cachedSprite;
+            return sprite != null;
+        }
+
+        if (idleClipSpriteMissCache.Contains(clip))
+        {
+            return false;
+        }
+
+        GameObject sampler =
+            Instantiate(target.gameObject);
+        sampler.hideFlags = HideFlags.HideAndDontSave;
+        sampler.SetActive(true);
+
+        try
+        {
+            SpriteRenderer samplerRenderer =
+                FindBestCharacterRenderer(
+                    sampler.transform,
+                    out _);
+
+            clip.SampleAnimation(sampler, 0f);
+            sprite = samplerRenderer != null
+                ? samplerRenderer.sprite
+                : null;
+        }
+        finally
+        {
+            Destroy(sampler);
+        }
+
+        if (sprite != null)
+        {
+            idleClipSpriteCache[clip] = sprite;
+            return true;
+        }
+
+        idleClipSpriteMissCache.Add(clip);
+        return false;
     }
 
     SpriteRenderer FindBestCharacterRenderer(
@@ -1869,7 +2395,8 @@ public partial class TouchSelectTarget : MonoBehaviour
         if (npcData != null &&
             !string.IsNullOrWhiteSpace(npcData.currentAction))
         {
-            return npcData.currentAction;
+            return RuntimeStatusText.Translate(
+                npcData.currentAction);
         }
 
         NpcMapMover2D mapMover =
@@ -1878,7 +2405,8 @@ public partial class TouchSelectTarget : MonoBehaviour
         if (mapMover != null &&
             !string.IsNullOrWhiteSpace(mapMover.currentAction))
         {
-            return mapMover.currentAction;
+            return RuntimeStatusText.Translate(
+                mapMover.currentAction);
         }
 
         return "";

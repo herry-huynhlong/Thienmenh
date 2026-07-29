@@ -229,11 +229,11 @@ public class MarriageHomeManager : MonoBehaviour
                 cost);
             LogMarriageHome(
                 pair,
-                "da chon dat nha o " +
-                site.GetDisplayName() +
-                " va dang de danh " +
-                cost +
-                " linh thach.");
+                UiText.Format(
+                    "worldNotifications",
+                    "marriageHomeChooseSiteFormat",
+                    site.GetDisplayName(),
+                    cost));
             return;
         }
 
@@ -324,9 +324,10 @@ public class MarriageHomeManager : MonoBehaviour
         SyncPairConstructionVisibility(pair, site);
         LogMarriageHome(
             pair,
-            "da bat dau xay nha moi o " +
-            site.GetDisplayName() +
-            ".");
+            UiText.Format(
+                "worldNotifications",
+                "marriageHomeBuildStartFormat",
+                site.GetDisplayName()));
     }
 
     void TryFinishConstruction(
@@ -366,9 +367,10 @@ public class MarriageHomeManager : MonoBehaviour
 
         LogMarriageHome(
             pair,
-            "da xay xong nha tai " +
-            site.GetDisplayName() +
-            " va dang o cung nhau qua dem tan hon.");
+            UiText.Format(
+                "worldNotifications",
+                "marriageHomeBuildCompleteFormat",
+                site.GetDisplayName()));
     }
 
     void SyncAssignedHomes()
@@ -771,7 +773,10 @@ public class MarriageHomeManager : MonoBehaviour
 
         LogMarriageHome(
             pair,
-            "da ket thuc dem tan hon va bat dau song o nha moi.");
+            UiText.Get(
+                "worldNotifications",
+                "marriageHomeWeddingNightComplete",
+                "completed their wedding night and began living in their new home."));
     }
 
     void AssignHomeToVillager(
@@ -1176,7 +1181,12 @@ public class MarriageHomeManager : MonoBehaviour
                     ? pair.second.gameObject.name
                     : "NPC";
         string content =
-            firstName + " va " + secondName + " " + message;
+            UiText.Format(
+                "worldNotifications",
+                "marriageHomePairFormat",
+                firstName,
+                secondName,
+                message);
 
         if (WorldEventManager.Instance != null)
         {

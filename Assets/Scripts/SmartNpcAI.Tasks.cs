@@ -802,7 +802,7 @@ public partial class SmartNpcAI
                 !ShouldKeepCurrentActionWithoutTravelContext(currentAction));
         if (!string.IsNullOrWhiteSpace(action))
         {
-            return action;
+            return RuntimeStatusText.Translate(action);
         }
 
         string taskAction =
@@ -811,7 +811,7 @@ public partial class SmartNpcAI
                 false);
         if (!string.IsNullOrWhiteSpace(taskAction))
         {
-            return taskAction;
+            return RuntimeStatusText.Translate(taskAction);
         }
 
         taskAction =
@@ -820,7 +820,7 @@ public partial class SmartNpcAI
                 false);
         if (!string.IsNullOrWhiteSpace(taskAction))
         {
-            return taskAction;
+            return RuntimeStatusText.Translate(taskAction);
         }
 
         NpcScheduleController schedule =
@@ -835,7 +835,7 @@ public partial class SmartNpcAI
                     false);
             if (!string.IsNullOrWhiteSpace(scheduleAction))
             {
-                return scheduleAction;
+                return RuntimeStatusText.Translate(scheduleAction);
             }
         }
 

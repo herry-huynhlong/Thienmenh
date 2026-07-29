@@ -239,9 +239,9 @@
       "allowedContexts": ["Moving", "Working", "Idle"],
       "requiredSpeakerTags": ["Stranger"],
       "texts": [
-        "Lần đầu gặp mặt, mong bình an.",
-        "Đạo hữu đi đường thuận lợi.",
-        "Qua đây cẩn thận, đường không yên đâu."
+        "First time meeting you. Wishing you peace.",
+        "Safe travels, fellow Daoist.",
+        "Be careful passing through here. The road is not peaceful."
       ]
     },
     {
@@ -256,7 +256,7 @@
       "requiredSpeakerTags": ["Stranger"],
       "texts": [
         "Đa tạ đã nhắc.",
-        "Ừ, ngươi cũng vậy.",
+        "Mm, same to you.",
         "Gặp nhau là duyên."
       ]
     },
@@ -300,7 +300,7 @@
       "mode": "DisplayOnly",
       "allowedContexts": ["Working"],
       "texts": [
-        "Việc hôm nay có thuận không?",
+        "Has today gone smoothly for you?",
         "Làm tay cho chắc.",
         "Xong việc rồi hãy nghỉ."
       ]
@@ -405,7 +405,7 @@
       "mode": "DisplayOnly",
       "requiredSpeakerTags": ["InCombat"],
       "texts": [
-        "Dám động vào ta?",
+        "You dare lay a hand on me?",
         "Muốn chết sao!",
         "Đừng ép ta phản kích!"
       ]
@@ -524,18 +524,18 @@
       "requiredTargetTags": ["InTribulation"],
       "texts": [
         "Kiếp vân hội tụ... Có người sắp đột phá!",
-        "Thiên địa dị tượng, chẳng lẽ có tiền bối đang độ kiếp?",
+        "A sign between heaven and earth... could a senior be undergoing tribulation?",
         "Uy áp thật mạnh... tu vi người này tuyệt đối không thấp.",
         "Mau lui lại! Thiên kiếp không phân biệt người ngoài cuộc.",
         "Lôi kiếp đã khóa chặt khí tức của hắn.",
         "Kiếp vân kéo dài trăm dặm... lần đột phá này không đơn giản.",
         "Thiên đạo đã giáng mắt nhìn xuống nơi này.",
         "Không biết người độ kiếp là bằng hữu hay kẻ địch.",
-        "Khí tức này... chẳng lẽ sắp bước vào đại cảnh giới?",
+        "This aura... could someone be about to step into a major realm?",
         "Dám dẫn động thiên kiếp tại đây, người này thật quá liều lĩnh.",
         "Đạo lôi thứ nhất đã giáng xuống!",
         "Lôi uy thật đáng sợ, mau vận công hộ thể!",
-        "Hắn lại dùng thân thể chống đỡ thiên lôi?",
+        "He is using his body to withstand heavenly lightning again?",
         "Một kích như vậy mà vẫn chưa ngã xuống...",
         "Thiên kiếp lần này mạnh hơn bình thường rất nhiều.",
         "Không ổn, kiếp vân vẫn đang tiếp tục tụ lại!",
@@ -545,7 +545,7 @@
         "Lôi đình mang theo thiên uy, pháp bảo bình thường căn bản không chống nổi.",
         "Hắn đang mượn thiên lôi để luyện thể!",
         "Kẻ này thật điên cuồng, lại dám hấp thu sức mạnh của lôi kiếp.",
-        "Kiếp lôi càng lúc càng mạnh... thiên đạo muốn diệt hắn sao?",
+        "The tribulation lightning grows stronger... is the Heavenly Dao trying to destroy him?",
         "Còn có tâm ma kiếp! Đây mới là cửa ải nguy hiểm nhất.",
         "Đạo tâm đã loạn, tình thế không ổn.",
         "Hộ thể linh quang sắp vỡ rồi!",
@@ -590,21 +590,21 @@
       "requiredSpeakerTags": ["Commoner"],
       "requiredTargetTags": ["InTribulation"],
       "texts": [
-        "Trời đang yên lành, sao tự nhiên tối sầm lại vậy?",
+        "The sky was clear. Why did it suddenly go dark?",
         "Mây đen kia đang xoáy thành một vòng tròn!",
         "Mau về nhà đi, có khi trời sắp nổi giông lớn!",
-        "Đó có phải thần tiên đang thi triển phép thuật không?",
+        "Is that an immortal casting a spell?",
         "Chắc chắn có tiên nhân xuất hiện!",
         "Ông trời nổi giận rồi, mau đóng cửa lại!",
         "Ta sống từng này tuổi chưa từng thấy cảnh tượng như vậy.",
         "Mau gọi mọi người tránh xa ngọn núi đó!",
         "Gia súc đều đang hoảng loạn, chuyện này không bình thường.",
-        "Chẳng lẽ có yêu quái đang làm loạn?",
+        "Could a demon be causing chaos?",
         "Trời ơi! Sét đánh thẳng xuống một chỗ!",
         "Mau chạy đi, đừng đứng ngoài đường!",
         "Tiếng sấm lớn quá, nhà cửa cũng đang rung chuyển!",
         "Có người đứng giữa sấm sét kìa!",
-        "Người đó vẫn còn sống sao?",
+        "Is that person still alive?",
         "Đúng là tiên nhân, người thường sao có thể chịu được sét đánh!",
         "Mau quỳ xuống, đừng chọc giận ông trời!",
         "Sét đánh liên tục như vậy, cả ngọn núi sẽ bị phá hủy mất!",
@@ -615,17 +615,17 @@
         "Mây đen tan rồi! Cuối cùng cũng kết thúc.",
         "Nhìn kìa, trên trời xuất hiện ánh sáng!",
         "Vị tiên nhân đó đã chiến thắng thiên lôi!",
-        "Chúng ta vừa tận mắt nhìn thấy thần tiên sao?",
+        "Did we really just witness an immortal with our own eyes?",
         "Mau tới bái kiến tiên nhân!",
         "Có tiên nhân xuất hiện gần làng, đây chắc chắn là điềm lành.",
         "Sau trận sét, cây cỏ quanh đó đều xanh tốt hơn.",
         "Từ nay nơi này chắc sẽ trở thành vùng đất linh thiêng.",
         "May quá, ông trời đã nguôi giận rồi.",
         "Chuyện hôm nay nhất định phải kể lại cho con cháu.",
-        "Người kia... biến mất rồi sao?",
+        "That person... vanished?",
         "Chỉ còn lại một vùng đất cháy đen.",
-        "Mây đã tan nhưng sao chẳng thấy vị tiên nhân đâu?",
-        "Chẳng lẽ người đó đã bị ông trời trừng phạt?",
+        "The clouds have dispersed, so why is there no sign of the immortal?",
+        "Could that person have been punished by the heavens?",
         "Đừng đến gần, nơi đó vẫn còn sét!",
         "Thật đáng sợ... ngay cả tiên nhân cũng không chống lại được trời.",
         "Mau lập bàn hương, cầu mong người đã khuất được yên nghỉ.",
@@ -859,7 +859,7 @@
       "texts": [
         "Kêu cứu!",
         "Không ổn rồi, lui mau!",
-        "Đạo hữu cứu ta!"
+        "Fellow Daoist, save me!"
       ]
     },
     {
@@ -878,10 +878,10 @@
         "Pháp bảo này khá hợp với công pháp của ta.",
         "Đi nhiều cửa hàng rồi, nơi này vẫn có hàng đầy đủ nhất.",
         "Ta phải tính toán kỹ, linh thạch không còn nhiều.",
-        "Chủ shop, món này bán thế nào?",
-        "Có thể giảm giá một chút không?",
-        "Món này có bảo đảm chất lượng không?",
-        "Cửa hàng có thu mua vật phẩm không?"
+        "Shopkeeper, how much is this item?",
+        "Could you lower the price a little?",
+        "Is this item guaranteed to be of good quality?",
+        "Does the shop buy items as well?"
       ]
     },
     {

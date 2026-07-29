@@ -110,7 +110,9 @@ public class WorldScreenNotificationHub : MonoBehaviour
 
         normalQueue.Enqueue(new NoticeRequest
         {
-            message = message.Trim(),
+            message =
+                RuntimeWorldLogText.Translate(
+                    message.Trim()),
             kind = NoticeKind.Normal
         });
 
@@ -129,7 +131,9 @@ public class WorldScreenNotificationHub : MonoBehaviour
 
         originQueue.Enqueue(new NoticeRequest
         {
-            message = message.Trim(),
+            message =
+                RuntimeWorldLogText.Translate(
+                    message.Trim()),
             kind = NoticeKind.Origin,
             originAmount = originAmount
         });
@@ -181,20 +185,24 @@ public class WorldScreenNotificationHub : MonoBehaviour
         }
 
         string resolvedPrefix = GetResolvedNormalPrefix();
+        string displayContent =
+            RuntimeWorldLogText.Translate(entry.content);
         if (string.IsNullOrWhiteSpace(resolvedPrefix))
         {
-            return entry.content;
+            return displayContent;
         }
 
         return UiText.Format(
             "worldNotifications",
             "normalPrefixFormat",
             resolvedPrefix,
-            entry.content);
+            displayContent);
     }
 
     string BuildOriginMessage(string content, HeavenDaoStoryReward reward)
     {
+        string displayContent =
+            RuntimeWorldLogText.Translate(content);
         string label =
             reward != null &&
             !string.IsNullOrWhiteSpace(reward.displayLabel)
@@ -212,14 +220,14 @@ public class WorldScreenNotificationHub : MonoBehaviour
                 GetResolvedOriginPrefix(),
                 reward.originReward,
                 label,
-                content);
+                displayContent);
         }
 
         return UiText.Format(
             "worldNotifications",
             "originPrefixFormat",
             GetResolvedOriginPrefix(),
-            content);
+            displayContent);
     }
 
     string GetResolvedOriginPrefix()

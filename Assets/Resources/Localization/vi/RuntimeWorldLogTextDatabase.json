@@ -1,0 +1,29 @@
+{
+  "exactEntries": [],
+  "regexEntries": [
+    {
+      "rawPattern": "^(.*) nhận được (.*) từ Thiên Đạo\\.$",
+      "value": "{0} nhận được {1} từ Thiên Đạo."
+    },
+    {
+      "rawPattern": "^Dị tượng ở (.*), trời giáng (.*)\\.$",
+      "value": "Dị tượng ở {0}, trời giáng {1}."
+    },
+    {
+      "rawPattern": "^Tiên phẩm hiện thế, máu tanh mưa máu nổi lên\\. (.*) đang mang (.*)\\.$",
+      "value": "Tiên phẩm hiện thế, máu tanh mưa máu nổi lên. {0} đang mang {1}."
+    },
+    {
+      "rawPattern": "^(.*) mang (.*) đi giao dịch, bị kẻ có tâm để mắt\\.$",
+      "value": "{0} mang {1} đi giao dịch, bị kẻ có tâm để mắt."
+    },
+    {
+      "rawPattern": "^Bảo vật làm người vô tội thành có tội\\. (.*) đang bị để mắt vì (.*)\\.$",
+      "value": "Bảo vật làm người vô tội thành có tội. {0} đang bị để mắt vì {1}."
+    },
+    {
+      "rawPattern": "^(.*) đã cướp (.*) từ (.*)\\.$",
+      "value": "{0} đã cướp {1} từ {2}."
+    }
+  ]
+}

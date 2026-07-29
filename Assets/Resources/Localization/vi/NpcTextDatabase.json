@@ -1,4 +1,4 @@
-{
+﻿{
   "categories": [
     {
       "name": "labels",
@@ -1839,8 +1839,20 @@
         },
         {
           "key": "gatheringItem",
-          "value": "Đang hái {0} {1}"
+          "value": "Đang hái {0} {1}"        },
+        {
+          "key": "plantingItem",
+          "value": "Đang trồng {0} {1}"
         },
+        {
+          "key": "caringItem",
+          "value": "Đang chăm sóc {0} {1}"
+        },
+        {
+          "key": "harvestingItem",
+          "value": "Đang thu hoạch {0} {1}"
+        },
+
         {
           "key": "pickHuntEvidence",
           "value": "Nhặt vật chứng săn yêu {0}"

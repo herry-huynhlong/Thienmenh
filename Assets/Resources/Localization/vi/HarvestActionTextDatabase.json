@@ -1,0 +1,75 @@
+{
+  "categories": [
+    {
+      "name": "actions",
+      "entries": [
+        {
+          "key": "harvestItemAmount",
+          "value": "Thu hoạch {0} x{1}"
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "labels",
+      "entries": [
+        {
+          "key": "waitingVerbDefault",
+          "value": "Đang chờ hái "
+        },
+        {
+          "key": "waitingVerbFarmer",
+          "value": "Đang chờ thu hoạch "
+        },
+        {
+          "key": "waitingVerbFisher",
+          "value": "Đang chờ câu "
+        },
+        {
+          "key": "waitingVerbHunter",
+          "value": "Đang chờ thu thịt "
+        }
+      ],
+      "lists": []
+    },
+    {
+      "name": "waitingActions",
+      "entries": [],
+      "lists": [
+        {
+          "key": "farmer",
+          "values": [
+            "Chăm sóc {0}",
+            "Dọn cỏ quanh {0}",
+            "Kiểm tra luống {0}",
+            "Xới đất quanh {0}"
+          ]
+        },
+        {
+          "key": "fisher",
+          "values": [
+            "Kiểm tra bể cá",
+            "Sửa lưới cá",
+            "Dọn bến nước",
+            "Canh điểm câu"
+          ]
+        },
+        {
+          "key": "hunter",
+          "values": [
+            "Kiểm tra đường săn",
+            "Lần dấu vết thú",
+            "Canh bãi săn",
+            "Quan sát dấu vết quái"
+          ]
+        },
+        {
+          "key": "default",
+          "values": [
+            "Chuẩn bị thu hoạch {0}"
+          ]
+        }
+      ]
+    }
+  ]
+}

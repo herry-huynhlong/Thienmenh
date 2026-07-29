@@ -217,10 +217,11 @@ public class VillagerBirthManager : MonoBehaviour
 
             relationship.BeginPregnancy(pregnancyDurationDays);
             LogBirth(
-                FormatName(villager) +
-                " đã mang thai con đầu lòng của " +
-                FormatName(partner) +
-                ".");
+                UiText.Format(
+                    "worldNotifications",
+                    "birthPregnancyFormat",
+                    FormatName(villager),
+                    FormatName(partner)));
         }
     }
 
@@ -526,10 +527,11 @@ public class VillagerBirthManager : MonoBehaviour
         }
 
         LogBirth(
-            FormatName(mother) +
-            " và " +
-            FormatName(father) +
-            " vừa có thêm một đứa trẻ.");
+            UiText.Format(
+                "worldNotifications",
+                "birthChildBornFormat",
+                FormatName(mother),
+                FormatName(father)));
     }
 
     void RevealSpawnedChild(

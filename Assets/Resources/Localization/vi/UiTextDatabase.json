@@ -618,6 +618,54 @@
         {
           "key": "originPrefixFormat",
           "value": "{0}\n{1}"
+        },
+        {
+          "key": "marriageHomePairFormat",
+          "value": "{0} và {1} {2}"
+        },
+        {
+          "key": "marriageHomeChooseSiteFormat",
+          "value": "đã chọn đất nhà ở {0} và đang để dành {1} linh thạch."
+        },
+        {
+          "key": "marriageHomeBuildStartFormat",
+          "value": "đã bắt đầu xây nhà mới ở {0}."
+        },
+        {
+          "key": "marriageHomeBuildCompleteFormat",
+          "value": "đã xây xong nhà tại {0} và đang ở cùng nhau qua đêm tân hôn."
+        },
+        {
+          "key": "marriageHomeWeddingNightComplete",
+          "value": "đã kết thúc đêm tân hôn và bắt đầu sống ở nhà mới."
+        },
+        {
+          "key": "relationshipWidowedFormat",
+          "value": "{0} đã mất bạn đời và trở lại độc thân."
+        },
+        {
+          "key": "relationshipDatingStartFormat",
+          "value": "{0} và {1} bắt đầu nảy sinh tình cảm."
+        },
+        {
+          "key": "relationshipMarriedFormat",
+          "value": "{0} và {1} đã thành phu thê."
+        },
+        {
+          "key": "relationshipPartnerFallback",
+          "value": "bạn đời"
+        },
+        {
+          "key": "relationshipSeparatedFormat",
+          "value": "{0} đã tách khỏi {1}."
+        },
+        {
+          "key": "birthPregnancyFormat",
+          "value": "{0} đã mang thai con đầu lòng của {1}."
+        },
+        {
+          "key": "birthChildBornFormat",
+          "value": "{0} và {1} vừa có thêm một đứa trẻ."
         }
       ],
       "lists": []
@@ -1023,6 +1071,26 @@
           "value": "Kỹ năng"
         },
         {
+          "key": "infoTab",
+          "value": "TH\u00d4NG TIN"
+        },
+        {
+          "key": "thongtin",
+          "value": "TH\u00d4NG TIN"
+        },
+        {
+          "key": "inventoryTab",
+          "value": "KHO"
+        },
+        {
+          "key": "equipmentSectionTitle",
+          "value": "Ph\u1ee5 Ki\u1ec7n"
+        },
+        {
+          "key": "skillSectionTitle",
+          "value": "K\u1ef9 N\u0103ng"
+        },
+        {
           "key": "equipmentWeapon",
           "value": "Vũ Khí"
         },
@@ -1137,6 +1205,14 @@
         {
           "key": "introLogBeastWave",
           "value": "Yêu khí ngập trời! Thú Triều đang rục rịch chuẩn bị tấn công thôn làng!"
+        },
+        {
+          "key": "panelTitle",
+          "value": "GHI CHÉP ĐẠI LỤC"
+        },
+        {
+          "key": "emptyLog",
+          "value": "Chưa có ghi chép nào."
         }
       ],
       "lists": []

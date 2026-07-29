@@ -1,0 +1,29 @@
+{
+  "exactEntries": [],
+  "regexEntries": [
+    {
+      "rawPattern": "^(.*) nhận được (.*) từ Thiên Đạo\\.$",
+      "value": "{0} received {1} from the Heavenly Dao."
+    },
+    {
+      "rawPattern": "^Dị tượng ở (.*), trời giáng (.*)\\.$",
+      "value": "An omen rises in {0} as {1} descends from the heavens."
+    },
+    {
+      "rawPattern": "^Tiên phẩm hiện thế, máu tanh mưa máu nổi lên\\. (.*) đang mang (.*)\\.$",
+      "value": "An immortal-grade treasure has appeared amid bloodshed. {0} is carrying {1}."
+    },
+    {
+      "rawPattern": "^(.*) mang (.*) đi giao dịch, bị kẻ có tâm để mắt\\.$",
+      "value": "{0} brought {1} to trade and drew dangerous attention."
+    },
+    {
+      "rawPattern": "^Bảo vật làm người vô tội thành có tội\\. (.*) đang bị để mắt vì (.*)\\.$",
+      "value": "Treasure turns the innocent into the accused. {0} is being watched because of {1}."
+    },
+    {
+      "rawPattern": "^(.*) đã cướp (.*) từ (.*)\\.$",
+      "value": "{0} stole {1} from {2}."
+    }
+  ]
+}
