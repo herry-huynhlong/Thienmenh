@@ -377,14 +377,30 @@ public class WorldScreenNotificationHub : MonoBehaviour
             textWidth = Mathf.Max(textWidth, view.text.preferredWidth);
         }
         float speed = Mathf.Max(1f, isOrigin ? originScrollSpeed : normalScrollSpeed);
-        float offscreenX = maskWidth * 0.5f + horizontalPadding;
-        if (!forceRunningTextLeftAligned)
+        float startX;
+        float endX;
+
+        if (forceRunningTextLeftAligned)
         {
-            offscreenX += textWidth * 0.5f;
+            // With a left-anchored text rect, use the full text width so the tail
+            // clears the mask before we finish the marquee.
+            startX = marqueeRightToLeft
+                ? maskWidth + horizontalPadding
+                : -textWidth - horizontalPadding;
+            endX = marqueeRightToLeft
+                ? -textWidth - horizontalPadding
+                : maskWidth + horizontalPadding;
+        }
+        else
+        {
+            float offscreenX =
+                (maskWidth * 0.5f) +
+                (textWidth * 0.5f) +
+                horizontalPadding;
+            startX = marqueeRightToLeft ? offscreenX : -offscreenX;
+            endX = marqueeRightToLeft ? -offscreenX : offscreenX;
         }
 
-        float startX = marqueeRightToLeft ? offscreenX : -offscreenX;
-        float endX = marqueeRightToLeft ? -offscreenX : offscreenX;
         float distance = Mathf.Abs(startX - endX);
         float duration = Mathf.Max(0.5f, distance / speed);
 
@@ -597,12 +613,76 @@ public class WorldScreenNotificationHub : MonoBehaviour
                 continue;
             }
 
-            string[] words = line.Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
-            System.Array.Reverse(words);
-            lines[i] = string.Join(" ", words);
+            lines[i] = ReverseLineWordOrder(line);
         }
 
         return string.Join("\n", lines);
+    }
+
+    string ReverseLineWordOrder(string line)
+    {
+        string trimmed = line.Trim();
+        if (trimmed.Length == 0)
+        {
+            return line;
+        }
+
+        string[] words = trimmed.Split(
+            new[] { ' ' },
+            System.StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length == 0)
+        {
+            return line;
+        }
+
+        System.Array.Reverse(words);
+
+        for (int i = 0; i < words.Length; i++)
+        {
+            words[i] = NormalizeReversedWord(words[i]);
+        }
+
+        return string.Join(" ", words);
+    }
+
+    string NormalizeReversedWord(string word)
+    {
+        if (string.IsNullOrEmpty(word))
+        {
+            return word;
+        }
+
+        string trailingPunctuation = "";
+        while (word.Length > 0 && IsTrailingPunctuation(word[word.Length - 1]))
+        {
+            trailingPunctuation = word[word.Length - 1] + trailingPunctuation;
+            word = word.Substring(0, word.Length - 1);
+        }
+
+        if (trailingPunctuation.IndexOf('.') >= 0 ||
+            trailingPunctuation.IndexOf('!') >= 0 ||
+            trailingPunctuation.IndexOf('?') >= 0 ||
+            trailingPunctuation.IndexOf('…') >= 0)
+        {
+            trailingPunctuation = trailingPunctuation
+                .Replace(".", "")
+                .Replace("!", "")
+                .Replace("?", "")
+                .Replace("…", "");
+        }
+
+        return word + trailingPunctuation;
+    }
+
+    bool IsTrailingPunctuation(char value)
+    {
+        return value == '.' ||
+            value == ',' ||
+            value == ';' ||
+            value == ':' ||
+            value == '!' ||
+            value == '?' ||
+            value == '…';
     }
 
     Transform FindChild(GameObject rootObject, string objectName)
